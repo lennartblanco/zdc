@@ -78,8 +78,8 @@ statments_list<n> :
 ;
 
 type<x> :
-    INT    { (*x).type = integer_type; }
-|   VOID   { (*x).type = void_type; }
+    INT    { (*x).type = ast_integer_type; }
+|   VOID   { (*x).type = ast_void_type; }
 ;
 
 statment<x> :
@@ -117,7 +117,7 @@ func_call_args<n> :
 ;
 
 var_dec<n> :
-   INT IDENT<x> { (*n).node = new_var_declaration(integer_type, x.text); }
+   INT IDENT<x> { (*n).node = new_var_declaration(ast_integer_type, x.text); }
 ;
 
 var_assigment<n> :
@@ -125,14 +125,14 @@ var_assigment<n> :
 ;
 
 term<n> :
-  term<x> '+' factor<y> { (*n).node = new_binary_operation(plus, x.node, y.node); }
-| term<x> '-' factor<y> { (*n).node = new_binary_operation(minus, x.node, y.node); }
+  term<x> '+' factor<y> { (*n).node = new_binary_operation(ast_plus_op, x.node, y.node); }
+| term<x> '-' factor<y> { (*n).node = new_binary_operation(ast_minus_op, x.node, y.node); }
 | factor<n>
 ;
 
 factor<n> :
-  factor<x> '*' primary<y> { (*n).node = new_binary_operation(mult, x.node, y.node); }
-| factor<x> '/' primary<y> { (*n).node = new_binary_operation(division, x.node, y.node); }
+  factor<x> '*' primary<y> { (*n).node = new_binary_operation(ast_mult_op, x.node, y.node); }
+| factor<x> '/' primary<y> { (*n).node = new_binary_operation(ast_division_op, x.node, y.node); }
 | primary<n>
 ;
 

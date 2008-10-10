@@ -3,14 +3,14 @@
 static FILE * outs;
 
 static void
-dump_type(data_type_t type)
+dump_type(ast_data_type_t type)
 {
     switch(type)
     {
-        case void_type:
+        case ast_void_type:
             fprintf(outs, "void");
             break;
-        case integer_type:
+        case ast_integer_type:
             fprintf(outs, "int");
             break;
         default:
@@ -87,34 +87,34 @@ dump_ast(ast_node_t *root)
 {
     switch(root->type)
     {
-        case function_definition:
+        case ast_function_definition_node:
             dump_function_definition(root);
             break;
-        case statment_list:
+        case ast_statment_list_node:
             dump_statment_list(root);
             break;
-        case return_statment:
+        case ast_return_statment_node:
             dump_return_statment(root);
             break;
-        case function_call:
+        case ast_function_call_node:
             printf("function_call\n");
             break;
-        case var_declaration:
+        case ast_var_declaration_node:
             printf("var_declaration\n");
             break;
-        case var_value:
+        case ast_var_value_node:
             printf("var_value\n");
             break;
-        case assigment:
+        case ast_assigment_node:
             printf("assigment\n");
             break;
-        case binary_oper:
+        case ast_binary_oper_node:
             printf("binary_oper\n");
             break;
-        case constant:
+        case ast_constant_node:
             printf("constant\n");
             break;
-        case negation:
+        case ast_negation_node:
             printf("negation\n");
             break;
         default:

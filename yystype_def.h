@@ -8,7 +8,7 @@ union yystype_u
     char *text;
     int integer;
     ast_node_t* node;
-    data_type_t type;
+    ast_data_type_t type;
     func_args_list_t *args_list;
     func_parameters_t *func_params;
 };

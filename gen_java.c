@@ -51,16 +51,16 @@ gen_java_binary_op(ast_node_t *node)
 
     switch (node->data.binary_op.oper_type)
     {
-        case plus:
+        case ast_plus_op:
             printf("    iadd\n");
             break;
-        case minus:
+        case ast_minus_op:
             printf("    isub\n");
             break;
-        case mult:
+        case ast_mult_op:
             printf("    imul\n");
             break;
-        case division:
+        case ast_division_op:
             printf("    idiv\n");
             break;
     }    
@@ -166,25 +166,25 @@ gen_java_handle_node(ast_node_t *node)
 {
     switch (node->type)
     {
-        case function_call:
+        case ast_function_call_node:
             gen_func_call(node);
             break;
-        case var_value:
+        case ast_var_value_node:
             handle_var_value(node);
             break;	
-        case var_declaration:
+        case ast_var_declaration_node:
             handle_var_declaration(node);
             break;
-        case assigment:
+        case ast_assigment_node:
             handle_assigment(node);
             break;
-        case binary_oper:
+        case ast_binary_oper_node:
             gen_java_binary_op(node);
             break;
-        case constant:
+        case ast_constant_node:
             printf("    ldc %d\n", node->data.constant.value);
 	    break;
-        case negation:
+        case ast_negation_node:
             gen_java_code(node->data.negation.value);
             printf("    ineg\n");
             break;

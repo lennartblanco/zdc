@@ -10,35 +10,35 @@ typedef struct ast_node_s ast_node_t;
  */
 typedef enum ast_node_type_e 
 {
-    return_statment,
-    function_definition,
-    statment_list,
-    function_call,
-    var_declaration,
-    var_value,
-    assigment,
-    binary_oper,
-    constant,
-    negation    /** arithmetic negation, e.g. -(10+2) */
+    ast_return_statment_node,  /** rename to ast_return_node */
+    ast_function_definition_node,
+    ast_statment_list_node,
+    ast_function_call_node,
+    ast_var_declaration_node,
+    ast_var_value_node,
+    ast_assigment_node,
+    ast_binary_oper_node,
+    ast_constant_node,
+    ast_negation_node    /** arithmetic negation, e.g. -(10+2) */
 } ast_node_type_t;
 
 /*
  * Aithmetic binary operations types
  */
-typedef enum oper_type_e
+typedef enum ast_oper_type_e
 {
-    plus,
-    minus,
-    mult,
-    division
-} oper_type_t;
+    ast_plus_op,
+    ast_minus_op,
+    ast_mult_op,
+    ast_division_op
+} ast_oper_type_t;
 
-typedef enum data_type_e
+typedef enum ast_data_type_e
 {
-    void_type,
-    integer_type,          /* int 32-bit signed */
-    uinteger_type          /* uint 32-bit unsigned */
-} data_type_t;
+    ast_void_type,
+    ast_integer_type,          /* int 32-bit signed */
+    ast_uinteger_type          /* uint 32-bit unsigned */
+} ast_data_type_t;
 
 /*
  * Function call argument list
@@ -68,7 +68,7 @@ typedef struct func_parameters_s
 
 typedef struct function_definition_s
 {
-    data_type_t ret_type;
+    ast_data_type_t ret_type;
     char *name;
     func_parameters_t *formal_args;
     ast_node_t *body;
@@ -95,7 +95,7 @@ typedef struct assigment_s
 /** arithmetic binary operation */
 typedef struct binary_op_s
 {
-    oper_type_t oper_type;
+    ast_oper_type_t oper_type;
     ast_node_t *left;
     ast_node_t *right;
 } binary_op_t;
@@ -115,7 +115,7 @@ typedef struct negation_s
 /** variable declaration */
 typedef struct var_decl_s
 {
-    data_type_t type;
+    ast_data_type_t type;
     char *name;
 } var_decl_t;
 
@@ -155,14 +155,17 @@ struct ast_node_s
  ****/
 ast_node_t *new_const(int value);
 ast_node_t *new_negation(ast_node_t *value);
-ast_node_t *new_binary_operation(oper_type_t oper_type, ast_node_t *left, ast_node_t *right);
-ast_node_t *new_var_declaration(data_type_t var_type, char *var_name);
+ast_node_t *new_binary_operation(ast_oper_type_t oper_type, 
+                                 ast_node_t *left, 
+                                 ast_node_t *right);
+ast_node_t *new_var_declaration(ast_data_type_t var_type, 
+                                char *var_name);
 ast_node_t *new_assigment(char *lvalue, ast_node_t *value);
 ast_node_t *new_var_value(char *name);
 ast_node_t *new_function_call(char *name, func_args_list_t *args);
 ast_node_t *new_statment_list(ast_node_t *cur, ast_node_t *next);
 func_args_list_t *new_func_args_list(ast_node_t *value, func_args_list_t *next);
-ast_node_t *new_function_definition(char *name, data_type_t ret_type, void *arg_lst, ast_node_t *body);
+ast_node_t *new_function_definition(char *name, ast_data_type_t ret_type, void *arg_lst, ast_node_t *body);
 
 ast_node_t *new_return_statment(ast_node_t *ret_val);
 
