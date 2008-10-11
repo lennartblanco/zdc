@@ -92,7 +92,7 @@ new_var_value(char *name)
 
 ast_node_t *
 new_function_call(char *name, 
-                  func_args_list_t *args)
+                  ast_func_args_list_t *args)
 {
     ast_node_t *node;
 
@@ -138,10 +138,11 @@ new_function_definition(char *name,
     return node;
 }
 
-func_args_list_t *
-new_func_args_list(ast_node_t *value, func_args_list_t *next)
+ast_func_args_list_t *
+new_func_args_list(ast_node_t *value,
+                   ast_func_args_list_t *next)
 {
-    func_args_list_t *args;
+    ast_func_args_list_t *args;
 
     args = malloc(sizeof(*args));
 
@@ -151,10 +152,10 @@ new_func_args_list(ast_node_t *value, func_args_list_t *next)
     return args;
 }
 
-func_parameters_t *
+ast_func_parameters_t *
 new_func_parameters()
 {
-    func_parameters_t *param;
+    ast_func_parameters_t *param;
 
     param = malloc(sizeof(*param));
     param->params = NULL;
@@ -163,13 +164,15 @@ new_func_parameters()
 }
 
 void 
-func_parameters_add_param(func_parameters_t *func_param, var_decl_t *new_param)
+func_parameters_add_param(ast_func_parameters_t *func_param,
+                          ast_var_decl_t *new_param)
 {
     func_param->params = g_slist_prepend(func_param->params, new_param);
 }
 
-void func_parameters_for_each(func_parameters_t *func_params, 
-                              void (*iter) (var_decl_t *param))
+void
+func_parameters_for_each(ast_func_parameters_t *func_params, 
+                         void (*iter) (ast_var_decl_t *param))
 {
     assert(func_params && iter);
 

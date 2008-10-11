@@ -20,14 +20,14 @@ dump_type(ast_data_type_t type)
 }
 
 static void
-dump_var_decl(var_decl_t *param)
+dump_var_decl(ast_var_decl_t *param)
 {
     dump_type(param->type);
     fprintf(outs, " %s ", param->name);
 }
 
 static void
-dump_function_params(func_parameters_t *params)
+dump_function_params(ast_func_parameters_t *params)
 {
     func_parameters_for_each(params, dump_var_decl);
 }

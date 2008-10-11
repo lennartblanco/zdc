@@ -9,8 +9,8 @@ union yystype_u
     int integer;
     ast_node_t* node;
     ast_data_type_t type;
-    func_args_list_t *args_list;
-    func_parameters_t *func_params;
+    ast_func_args_list_t *args_list;
+    ast_func_parameters_t *func_params;
 };
 
 #define YYSTYPE union yystype_u

@@ -148,7 +148,7 @@ handle_var_value(ast_node_t *node)
 void
 gen_func_call(ast_node_t *node)
 {
-    func_args_list_t *arg;
+    ast_func_args_list_t *arg;
 
     printf("; call %s\n", node->data.function_call.name);
     arg = node->data.function_call.args;

@@ -43,11 +43,11 @@ typedef enum ast_data_type_e
 /*
  * Function call argument list
  */
-typedef struct func_args_list_s func_args_list_t;
-struct func_args_list_s
+typedef struct ast_func_args_list_s ast_func_args_list_t;
+struct ast_func_args_list_s
 {
     ast_node_t *value;
-    func_args_list_t *next;
+    ast_func_args_list_t *next;
 };
 
 
@@ -55,74 +55,74 @@ struct func_args_list_s
  * AST node payloads
  ****/
 
-typedef struct return_stmt_s
+typedef struct ast_return_stmt_s
 {
     ast_node_t *ret_val;
-} return_stmt_t;
+} ast_return_stmt_t;
 
-typedef struct func_parameters_s
+typedef struct ast_func_parameters_s
 {
     GSList *params;
-} func_parameters_t;
+} ast_func_parameters_t;
 
 
-typedef struct function_definition_s
+typedef struct ast_function_definition_s
 {
     ast_data_type_t ret_type;
     char *name;
-    func_parameters_t *formal_args;
+    ast_func_parameters_t *formal_args;
     ast_node_t *body;
-} function_definition_t;
+} ast_function_definition_t;
 
-typedef struct statment_list_s
+typedef struct ast_statment_list_s
 {
     ast_node_t *car;
     ast_node_t *next;
-} statment_list_t;
+} ast_statment_list_t;
 
-typedef struct function_call_s
+typedef struct ast_function_call_s
 {
     char *name;
-    func_args_list_t *args;
-} function_call_t;
+    ast_func_args_list_t *args;
+} ast_function_call_t;
 
-typedef struct assigment_s
+typedef struct ast_assigment_s
 {
     char *lvalue;
     ast_node_t *value;
-} assigment_t;
+} ast_assigment_t;
 
 /** arithmetic binary operation */
-typedef struct binary_op_s
+typedef struct ast_binary_op_s
 {
     ast_oper_type_t oper_type;
     ast_node_t *left;
     ast_node_t *right;
-} binary_op_t;
+} ast_binary_op_t;
 
 /** constant expression */
-typedef struct constant_s
+typedef struct ast_constant_s
 {
     int value;
-} constant_t;
+} ast_constant_t;
 
 /** arithmetic negation */
-typedef struct negation_s
+typedef struct ast_negation_s
 {
     ast_node_t *value;
-} negation_t;
+} ast_negation_t;
 
 /** variable declaration */
-typedef struct var_decl_s
+typedef struct ast_var_decl_s
 {
     ast_data_type_t type;
     char *name;
-} var_decl_t;
+} ast_var_decl_t;
 
-typedef struct var_val_s
+typedef struct ast_var_val_s
 {
     char *name;
-} var_val_t;
+} ast_var_val_t;
 
 /*****
  * AST-node data type definition
@@ -131,16 +131,16 @@ typedef struct var_val_s
 /** union of all the payloads */
 typedef union ast_data_u
 {
-    return_stmt_t ret_stmt;
-    function_definition_t function_def;
-    statment_list_t stmt;
-    function_call_t function_call;
-    binary_op_t binary_op;
-    constant_t constant;
-    negation_t negation;
-    var_decl_t var_decl;
-    var_val_t var_val;
-    assigment_t assigment;
+    ast_return_stmt_t ret_stmt;
+    ast_function_definition_t function_def;
+    ast_statment_list_t stmt;
+    ast_function_call_t function_call;
+    ast_binary_op_t binary_op;
+    ast_constant_t constant;
+    ast_negation_t negation;
+    ast_var_decl_t var_decl;
+    ast_var_val_t var_val;
+    ast_assigment_t assigment;
 } ast_data_t;
 
 /** THE ast-node definition */
@@ -153,28 +153,64 @@ struct ast_node_s
 /*****
  * Different AST-nodes constructors
  ****/
-ast_node_t *new_const(int value);
-ast_node_t *new_negation(ast_node_t *value);
-ast_node_t *new_binary_operation(ast_oper_type_t oper_type, 
-                                 ast_node_t *left, 
-                                 ast_node_t *right);
-ast_node_t *new_var_declaration(ast_data_type_t var_type, 
-                                char *var_name);
-ast_node_t *new_assigment(char *lvalue, ast_node_t *value);
-ast_node_t *new_var_value(char *name);
-ast_node_t *new_function_call(char *name, func_args_list_t *args);
-ast_node_t *new_statment_list(ast_node_t *cur, ast_node_t *next);
-func_args_list_t *new_func_args_list(ast_node_t *value, func_args_list_t *next);
-ast_node_t *new_function_definition(char *name, ast_data_type_t ret_type, void *arg_lst, ast_node_t *body);
+
+ast_node_t *
+new_const(int value);
+
+ast_node_t *
+new_negation(ast_node_t *value);
+
+ast_node_t *
+new_binary_operation(ast_oper_type_t oper_type, 
+                     ast_node_t *left, 
+                     ast_node_t *right);
+
+ast_node_t *
+new_var_declaration(ast_data_type_t var_type, 
+                    char *var_name);
+
+ast_node_t *
+new_assigment(char *lvalue, 
+              ast_node_t *value);
+
+ast_node_t *
+new_var_value(char *name);
+
+ast_node_t *
+new_function_call(char *name, 
+                  ast_func_args_list_t *args);
+
+ast_node_t *
+new_statment_list(ast_node_t *cur, 
+                  ast_node_t *next);
+
+ast_func_args_list_t *
+new_func_args_list(ast_node_t *value, 
+                   ast_func_args_list_t *next);
+
+ast_node_t *new_function_definition(char *name, 
+                                    ast_data_type_t ret_type, 
+                                    void *arg_lst, 
+                                    ast_node_t *body);
 
 ast_node_t *new_return_statment(ast_node_t *ret_val);
 
-func_parameters_t *new_func_parameters();
-void func_parameters_add_param(func_parameters_t *func_param, var_decl_t *new_param);
-void func_parameters_for_each(func_parameters_t *func_params, void (*iter) (var_decl_t *param));
+ast_func_parameters_t *
+new_func_parameters();
 
-void add_statment(ast_node_t *stmt);
-void for_each_statment(void (*foobar)(ast_node_t *stmt));
+void 
+func_parameters_add_param(ast_func_parameters_t *func_param,
+                          ast_var_decl_t *new_param);
+
+void
+func_parameters_for_each(ast_func_parameters_t *func_params, 
+                         void (*iter) (ast_var_decl_t *param));
+
+void
+add_statment(ast_node_t *stmt);
+
+void
+for_each_statment(void (*foobar)(ast_node_t *stmt));
 
 
 #endif /* AST_INC_X */
