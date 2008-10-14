@@ -7,37 +7,23 @@
 #include "ast.h"
 #include "sym_table.h"
 #include "ast_dbg_dump.h"
-
-extern sym_table_t *global_sym_table;
-
 }
 
 %token NUMBER, IDENT, INT, VOID, RETURN;
 
-root :
-   func_def_list
+root : 
+   { compile_unit.node = new_compile_unit(); }
+   func_def_list<compile_unit>
 |  null
 ;
 
 null :
 ;
 
-func_def_list :
-  func_def_list  func_def<n>
+func_def_list<compile_unit> :
+  func_def_list<compile_unit>  func_def<n>
   {
-      switch (sym_table_add_symbol(global_sym_table, 
-                               n.node->data.function_def.name, 
-                               n.node))
-      {
-          case 0:
-              /* inserted successfully */
-              break;
-          case -1:
-              printf("re-declaration of function %s\n",
-                     n.node->data.function_def.name);
-              exit(-1);
-              break;
-      } 
+      compile_unit_add_function(compile_unit->node, n.node);
   }
 | null
 ;

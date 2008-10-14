@@ -194,7 +194,7 @@ gen_java_handle_node(ast_node_t *node)
 void
 handle_glob_symbol(ast_node_t *node)
 {
-    printf("wee %p\n", node);
+
 }
 
 void

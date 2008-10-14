@@ -5,7 +5,6 @@
 void
 analyze_function(ast_node_t *node)
 {
-    printf("w(e)[e] %p\n", node);
 }
 
 void

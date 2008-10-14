@@ -10,6 +10,7 @@ typedef struct ast_node_s ast_node_t;
  */
 typedef enum ast_node_type_e 
 {
+    ast_compile_unit_node,     /** a D-compile unit, e.g. one source file */
     ast_return_statment_node,  /** rename to ast_return_node */
     ast_function_definition_node,
     ast_statment_list_node,
@@ -54,6 +55,11 @@ struct ast_func_args_list_s
 /*****
  * AST node payloads
  ****/
+
+typedef struct ast_compile_unit_s
+{
+    GSList *functions;
+} ast_compile_unit_t;
 
 typedef struct ast_return_stmt_s
 {
@@ -131,6 +137,7 @@ typedef struct ast_var_val_s
 /** union of all the payloads */
 typedef union ast_data_u
 {
+    ast_compile_unit_t compile_unit;
     ast_return_stmt_t ret_stmt;
     ast_function_definition_t function_def;
     ast_statment_list_t stmt;
@@ -212,5 +219,21 @@ add_statment(ast_node_t *stmt);
 void
 for_each_statment(void (*foobar)(ast_node_t *stmt));
 
+/**
+ * AST Compile Unit operations
+ */
+
+/**
+ * Create a new compile unit
+ */
+ast_node_t *
+new_compile_unit();
+
+/**
+ * Add a function to a compile unit
+ */
+void
+compile_unit_add_function(ast_node_t *compile_unit,
+                          ast_node_t *function);
 
 #endif /* AST_INC_X */

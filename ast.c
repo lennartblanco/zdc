@@ -199,4 +199,24 @@ new_return_statment(ast_node_t *ret_val)
 }
 
 
+ast_node_t *
+new_compile_unit()
+{
+    ast_node_t *node;
 
+    node = malloc(sizeof(*node));
+
+    node->type = ast_compile_unit_node;
+    node->data.compile_unit.functions = NULL;
+    
+    return node;
+}
+
+void
+compile_unit_add_function(ast_node_t *compile_unit,
+                          ast_node_t *function)
+{
+    compile_unit->data.compile_unit.functions = 
+                       g_slist_append(
+                           compile_unit->data.compile_unit.functions, function);
+}
