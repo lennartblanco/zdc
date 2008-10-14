@@ -224,16 +224,24 @@ for_each_statment(void (*foobar)(ast_node_t *stmt));
  */
 
 /**
- * Create a new compile unit
+ * create a new compile unit
  */
 ast_node_t *
 new_compile_unit();
 
 /**
- * Add a function to a compile unit
+ * add a function to a compile unit
  */
 void
 compile_unit_add_function(ast_node_t *compile_unit,
                           ast_node_t *function);
+
+/**
+ * iterate over function in this compile unit
+ */
+void
+compile_unit_for_each_function(ast_node_t *compile_unit,
+                               void (*iter) (ast_node_t *function, void *),
+                               void *user_data);
 
 #endif /* AST_INC_X */

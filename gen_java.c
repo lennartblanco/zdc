@@ -4,8 +4,6 @@
 #include "sym_table.h"
 #include "gen_java.h"
 
-extern sym_table_t *global_sym_table;
-
 void
 gen_java_prelude()
 {
@@ -200,5 +198,5 @@ handle_glob_symbol(ast_node_t *node)
 void
 gen_java_code()
 {
-    sym_table_foreach_sym(global_sym_table, handle_glob_symbol);
+ //   sym_table_foreach_sym(global_sym_table, handle_glob_symbol);
 }

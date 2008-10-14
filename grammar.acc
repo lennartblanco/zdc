@@ -7,12 +7,17 @@
 #include "ast.h"
 #include "sym_table.h"
 #include "ast_dbg_dump.h"
+
+ast_node_t *root_node;
 }
 
 %token NUMBER, IDENT, INT, VOID, RETURN;
 
 root : 
-   { compile_unit.node = new_compile_unit(); }
+   { 
+       compile_unit.node = new_compile_unit();
+       root_node = compile_unit.node;
+   }
    func_def_list<compile_unit>
 |  null
 ;

@@ -6,16 +6,15 @@
 #include "sym_table.h"
 #include "sem_analyze.h"
 
-sym_table_t *global_sym_table;
+extern ast_node_t *root_node;
 
 int main()
 {
-   global_sym_table = sym_table_new(NULL);
    yyparse();
 
-   semantic_analyze(global_sym_table);
+   semantic_analyze(root_node);
    //gen_java_prelude();
-   gen_java_code();
+   //gen_java_code();
    //gen_java_epilog();
 
    return 0;

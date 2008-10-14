@@ -220,3 +220,20 @@ compile_unit_add_function(ast_node_t *compile_unit,
                        g_slist_append(
                            compile_unit->data.compile_unit.functions, function);
 }
+
+void
+compile_unit_for_each_function(ast_node_t *compile_unit,
+                               void (*iter) (ast_node_t *function, void *),
+                               void *user_data)
+{
+    assert(compile_unit && iter);
+    assert(compile_unit->type == ast_compile_unit_node);
+
+    GSList *listp = compile_unit->data.compile_unit.functions;
+
+    while(listp != NULL)
+    {
+        iter(listp->data, user_data);
+        listp = listp->next;
+    }    
+}
