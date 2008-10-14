@@ -12,7 +12,7 @@ new_binary_operation(ast_oper_type_t oper_type,
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_binary_oper_node;
     node->data.binary_op.oper_type = oper_type;
@@ -27,7 +27,7 @@ new_const(int value)
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
     
     node->type = ast_constant_node;
     node->data.constant.value = value;
@@ -40,7 +40,7 @@ new_negation(ast_node_t *value)
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_negation_node;
     node->data.negation.value = value;
@@ -54,7 +54,7 @@ new_var_declaration(ast_data_type_t var_type,
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_var_declaration_node;
     node->data.var_decl.type = var_type;
@@ -68,7 +68,7 @@ new_assigment(char *lvalue, ast_node_t *value)
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_assigment_node;
     node->data.assigment.lvalue = lvalue;
@@ -82,7 +82,7 @@ new_var_value(char *name)
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_var_value_node;
     node->data.var_val.name = name;
@@ -96,7 +96,7 @@ new_function_call(char *name,
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_function_call_node;
     node->data.function_call.name = name;
@@ -110,7 +110,7 @@ new_statment_list(ast_node_t *cur, ast_node_t *next)
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_statment_list_node;
     node->data.stmt.car = cur;
@@ -127,7 +127,7 @@ new_function_definition(char *name,
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_function_definition_node;
     node->data.function_def.name = name;
@@ -144,7 +144,7 @@ new_func_args_list(ast_node_t *value,
 {
     ast_func_args_list_t *args;
 
-    args = malloc(sizeof(*args));
+    args = g_malloc(sizeof(*args));
 
     args->value = value;
     args->next = next;
@@ -157,7 +157,7 @@ new_func_parameters()
 {
     ast_func_parameters_t *param;
 
-    param = malloc(sizeof(*param));
+    param = g_malloc(sizeof(*param));
     param->params = NULL;
 
     return param;
@@ -190,7 +190,7 @@ ast_node_t *
 new_return_statment(ast_node_t *ret_val)
 {
     ast_node_t *node;
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_return_statment_node;
     node->data.ret_stmt.ret_val = ret_val;
@@ -204,7 +204,7 @@ new_compile_unit()
 {
     ast_node_t *node;
 
-    node = malloc(sizeof(*node));
+    node = g_malloc(sizeof(*node));
 
     node->type = ast_compile_unit_node;
     node->data.compile_unit.functions = NULL;
