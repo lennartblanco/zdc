@@ -1,11 +1,27 @@
 #include <stdio.h>
 
+#include <assert.h>
+
 #include "sem_analyze.h"
 
 void
 sem_analyze_function(ast_node_t *node, void *comp_unit)
 {
     printf("func %s %p\n", node->data.function_def.name, comp_unit);
+
+    ast_node_t *body =  node->data.function_def.body;
+    assert(body->type == ast_code_block_node);
+
+    GSList *listp = body->data.code_block.statments;
+
+    while(listp != NULL)
+    {
+        ast_node_t *stat;
+        stat = listp->data;
+        printf("%s\n", ast_node_to_str(stat->type));
+        listp = listp->next;
+    }
+    printf("\n");
 }
 
 ir_compile_unit_t*

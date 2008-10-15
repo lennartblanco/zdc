@@ -55,17 +55,17 @@ func_arg_decl_list<x> :
 
 
 code_block<x> :
+   { (*x).node = new_code_block(); }
   '{' statments_list<x> '}';
 
 statments_list<n> :
-  statment<x> ';' statments_list<y> 
+  statment<x> 
   { 
-      (*n).node = new_statment_list(x.node, y.node);
+      code_block_add_statment((*n).node, x.node);
+      y.node = (*n).node;
   }
+  ';' statments_list<y> 
 | null 
-  { 
-      (*n).node = NULL;
-  }
 ;
 
 type<x> :

@@ -8,12 +8,12 @@ typedef struct ast_node_s ast_node_t;
 /**
  * AST node types
  */
-typedef enum ast_node_type_e 
+typedef enum ast_node_type_e
 {
     ast_compile_unit_node,     /** a D-compile unit, e.g. one source file */
     ast_return_statment_node,  /** rename to ast_return_node */
     ast_function_definition_node,
-    ast_statment_list_node,
+    ast_code_block_node,
     ast_function_call_node,
     ast_var_declaration_node,
     ast_var_value_node,
@@ -52,14 +52,19 @@ struct ast_func_args_list_s
 };
 
 
-/*****
- * AST node payloads
- ****/
+/*********************
+ * AST node payloads *
+ *********************/
 
 typedef struct ast_compile_unit_s
 {
     GSList *functions;
 } ast_compile_unit_t;
+
+typedef struct ast_code_block_s
+{
+    GSList *statments;
+} ast_code_block_t;
 
 typedef struct ast_return_stmt_s
 {
@@ -138,6 +143,7 @@ typedef struct ast_var_val_s
 typedef union ast_data_u
 {
     ast_compile_unit_t compile_unit;
+    ast_code_block_t code_block;
     ast_return_stmt_t ret_stmt;
     ast_function_definition_t function_def;
     ast_statment_list_t stmt;
@@ -187,10 +193,6 @@ ast_node_t *
 new_function_call(char *name, 
                   ast_func_args_list_t *args);
 
-ast_node_t *
-new_statment_list(ast_node_t *cur, 
-                  ast_node_t *next);
-
 ast_func_args_list_t *
 new_func_args_list(ast_node_t *value, 
                    ast_func_args_list_t *next);
@@ -213,15 +215,9 @@ void
 func_parameters_for_each(ast_func_parameters_t *func_params, 
                          void (*iter) (ast_var_decl_t *param));
 
-void
-add_statment(ast_node_t *stmt);
-
-void
-for_each_statment(void (*foobar)(ast_node_t *stmt));
-
-/**
- * AST Compile Unit operations
- */
+/************************************
+ * AST compile unit node operations *
+ ***********************************/
 
 /**
  * create a new compile unit
@@ -244,4 +240,14 @@ compile_unit_for_each_function(ast_node_t *compile_unit,
                                void (*iter) (ast_node_t *function, void *),
                                void *user_data);
 
+/*********************************
+ * AST code block node operation *
+ *********************************/
+
+ast_node_t *
+new_code_block();
+
+void
+code_block_add_statment(ast_node_t *code_block, 
+                        ast_node_t *statment);
 #endif /* AST_INC_X */

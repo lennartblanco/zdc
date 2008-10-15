@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "ast.h"
 
@@ -103,20 +104,6 @@ new_function_call(char *name,
     node->data.function_call.args = args;
 
     return node;    
-}
-
-ast_node_t *
-new_statment_list(ast_node_t *cur, ast_node_t *next)
-{
-    ast_node_t *node;
-
-    node = g_malloc(sizeof(*node));
-
-    node->type = ast_statment_list_node;
-    node->data.stmt.car = cur;
-    node->data.stmt.next = next;
-
-    return node;
 }
 
 ast_node_t *
@@ -236,4 +223,28 @@ compile_unit_for_each_function(ast_node_t *compile_unit,
         iter(listp->data, user_data);
         listp = listp->next;
     }    
+}
+
+ast_node_t *
+new_code_block()
+{
+    ast_node_t *node;
+
+    node = g_malloc(sizeof(*node));
+
+    node->type = ast_code_block_node;
+    node->data.code_block.statments = NULL;
+
+    return node;
+}
+
+void
+code_block_add_statment(ast_node_t *code_block, 
+                        ast_node_t *statment)
+{
+    assert(code_block && statment);
+    assert(code_block->type == ast_code_block_node);
+
+    code_block->data.code_block.statments = 
+        g_slist_append(code_block->data.code_block.statments, statment);
 }
