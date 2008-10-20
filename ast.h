@@ -179,10 +179,6 @@ new_binary_operation(ast_oper_type_t oper_type,
                      ast_node_t *right);
 
 ast_node_t *
-new_var_declaration(ast_data_type_t var_type, 
-                    char *var_name);
-
-ast_node_t *
 new_assigment(char *lvalue, 
               ast_node_t *value);
 
@@ -199,10 +195,29 @@ new_func_args_list(ast_node_t *value,
 
 ast_node_t *new_function_definition(char *name, 
                                     ast_data_type_t ret_type, 
-                                    void *arg_lst, 
+                                    ast_func_parameters_t *arg_lst, 
                                     ast_node_t *body);
 
 ast_node_t *new_return_statment(ast_node_t *ret_val);
+
+ast_node_t *
+new_var_declaration(ast_data_type_t var_type, 
+                    char *var_name);
+
+/********************************************
+ * AST variable declaration node operations *
+ ********************************************/
+
+ast_node_t *
+new_var_declaration(ast_data_type_t var_type, 
+                    char *var_name);
+
+void
+var_declaration_del(ast_node_t* var_dec);
+
+/*******************************************
+ * AST function parameters node operations *
+ *******************************************/
 
 ast_func_parameters_t *
 new_func_parameters();

@@ -24,7 +24,9 @@ sym_table_new(sym_table_t* parent)
 }
 
 int 
-sym_table_add_symbol(sym_table_t* table, char *name, ast_node_t *symbol)
+sym_table_add_symbol(sym_table_t* table, 
+                     char *name, 
+                     ir_symbol_t *symbol)
 {
     gpointer p;
 

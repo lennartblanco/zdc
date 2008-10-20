@@ -4,7 +4,7 @@ CFLAGS += -g $(shell  pkg-config --cflags glib-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0)
 
 OBJS := auxil.o entire.o lex.o yygrammar.o ast.o sym_table.o \
-	ast_dbg_dump.o gen_java.o sem_analyze.o
+	ast_dbg_dump.o gen_java.o sem_analyze.o ir.o
 
 
 all: $(PROG)

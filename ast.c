@@ -64,6 +64,15 @@ new_var_declaration(ast_data_type_t var_type,
     return node;  
 }
 
+void
+var_declaration_del(ast_node_t* var_dec)
+{
+    assert(var_dec);
+    assert(var_dec->type == ast_var_declaration_node);
+
+    printf("warning var_declaraion_del() not implemented\n");
+}
+
 ast_node_t *
 new_assigment(char *lvalue, ast_node_t *value)
 {
@@ -109,7 +118,7 @@ new_function_call(char *name,
 ast_node_t *
 new_function_definition(char *name, 
                         ast_data_type_t ret_type,
-                        void *arg_lst, 
+                        ast_func_parameters_t *arg_lst, 
                         ast_node_t *body)
 {
     ast_node_t *node;
@@ -247,4 +256,13 @@ code_block_add_statment(ast_node_t *code_block,
 
     code_block->data.code_block.statments = 
         g_slist_append(code_block->data.code_block.statments, statment);
+}
+
+void
+code_block_del(ast_node_t *code_block)
+{
+    assert(code_block);
+    assert(code_block->type == ast_code_block_node);
+
+    printf("warning code_block_del() not implemented\n");
 }
