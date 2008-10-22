@@ -14,7 +14,7 @@ sem_analyze_function(ast_node_t *node, void *p)
 
     func = new_ir_function_def();
 
-    printf("func %s\n", node->data.function_def.name);
+    printf("func <%s>\n", node->data.function_def.name);
     
     /*
      * Store arguments in the IR function object
@@ -26,7 +26,9 @@ sem_analyze_function(ast_node_t *node, void *p)
         while (listp != NULL)
         {
             ast_var_decl_t *param = listp->data;
-            ir_function_def_add_parameter(func, param);
+            ir_variable_def_t *var = 
+                             new_ir_variable_def(param->name, param->type);
+            ir_function_def_add_parameter(func, var);
             listp = listp->next;
         }
     }
@@ -45,24 +47,25 @@ sem_analyze_function(ast_node_t *node, void *p)
     while(listp != NULL)
     {
         ast_node_t *stat;
+        ir_variable_def_t *var;
+
         stat = listp->data;
         switch (stat->type)
         {
             case ast_var_declaration_node:
-                printf("var decl %s", stat->data.var_decl.name);
-                ir_function_def_add_local_var(func,
-                                              new_var_declaration(0, "foo")); 
-                var_declaration_del(stat);
+                var = new_ir_variable_def(stat->data.var_decl.name, 
+                                          stat->data.var_decl.type);
+                ir_function_def_add_local_var(func, var);
+                ast_node_del(stat);
                 break;
             default:
                 code_block_add_statment(new_body, stat);
                 break;
         }
-        printf("%s\n", ast_node_to_str(stat->type));
         listp = listp->next;
     }
 
-    code_block_del(body);
+    ast_node_del(body);
 
     ir_function_def_set_name(func, node->data.function_def.name);
     ir_function_def_set_body(func, new_body);

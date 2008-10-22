@@ -64,15 +64,6 @@ new_var_declaration(ast_data_type_t var_type,
     return node;  
 }
 
-void
-var_declaration_del(ast_node_t* var_dec)
-{
-    assert(var_dec);
-    assert(var_dec->type == ast_var_declaration_node);
-
-    printf("warning var_declaraion_del() not implemented\n");
-}
-
 ast_node_t *
 new_assigment(char *lvalue, ast_node_t *value)
 {
@@ -259,10 +250,21 @@ code_block_add_statment(ast_node_t *code_block,
 }
 
 void
-code_block_del(ast_node_t *code_block)
+ast_node_del(ast_node_t *node)
 {
-    assert(code_block);
-    assert(code_block->type == ast_code_block_node);
-
-    printf("warning code_block_del() not implemented\n");
+    switch (node->type)
+    {
+        case ast_var_declaration_node:
+            free(node->data.var_decl.name);
+            node->data.var_decl.name = NULL;
+            break;
+        case ast_code_block_node:
+            /* nop */
+            break;
+        default:
+            printf("don't know how to delete %s\n",
+                   ast_node_to_str(node->type));
+            assert(false);
+    }
+    free(node);
 }

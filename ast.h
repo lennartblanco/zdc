@@ -204,6 +204,14 @@ ast_node_t *
 new_var_declaration(ast_data_type_t var_type, 
                     char *var_name);
 
+/**
+ * Delete this ast node.
+ *
+ * @param node the node to delete.
+ */
+void
+ast_node_del(ast_node_t *node);
+
 /********************************************
  * AST variable declaration node operations *
  ********************************************/
@@ -211,9 +219,6 @@ new_var_declaration(ast_data_type_t var_type,
 ast_node_t *
 new_var_declaration(ast_data_type_t var_type, 
                     char *var_name);
-
-void
-var_declaration_del(ast_node_t* var_dec);
 
 /*******************************************
  * AST function parameters node operations *

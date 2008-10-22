@@ -3,6 +3,7 @@
 
 #include "ast.h"
 
+typedef struct ir_variable_def_s ir_variable_def_t;
 typedef struct ir_function_def_s ir_function_def_t;
 typedef struct ir_compile_unit_s ir_compile_unit_t;
 typedef struct ir_symbol_s ir_symbol_t;
@@ -10,7 +11,7 @@ typedef struct ir_symbol_s ir_symbol_t;
 typedef union ir_symbol_data_u
 {
     ir_function_def_t *function;
-    ast_var_decl_t    *variable;
+    ir_variable_def_t *variable;
 } ir_symbol_data_t;
 
 typedef enum ir_symbol_type_e
@@ -30,16 +31,16 @@ ir_symbol_t*
 new_ir_symbol_function(ir_function_def_t *function);
 
 /**
+ * create an IR symbol representing a variable declaration
+ */
+ir_symbol_t*
+new_ir_symbol_variable(ir_variable_def_t *variable);
+
+/**
  * free all resources allocated by this symbol
  */
 void
 ir_symbol_del(ir_symbol_t *sym);
-
-/**
- * create an IR symbol representing a variable declaration
- */
-ir_symbol_t*
-new_ir_symbol_variable(ast_var_decl_t *variable);
 
 /******************************
  * IR Compile Unit operations *
@@ -64,6 +65,14 @@ ir_compile_unit_add_function(ir_compile_unit_t *compile_unit,
 
 
 /*************************************
+ * IR variable definition operations *
+ *************************************/
+
+ir_variable_def_t*
+new_ir_variable_def(const char* name, 
+                    ast_data_type_t type);
+
+/*************************************
  * IR function definition operations *
  *************************************/
 
@@ -80,20 +89,20 @@ new_ir_function_def();
  * @return -1 if there were errors
  */
 int
-ir_function_def_add_parameter(ir_function_def_t* func,
-                              ast_var_decl_t *var);
+ir_function_def_add_parameter(ir_function_def_t *func,
+                              ir_variable_def_t *var);
 
 int
-ir_function_def_add_local_var(ir_function_def_t* func,
-                              ast_var_decl_t *var);
+ir_function_def_add_local_var(ir_function_def_t *func,
+                              ir_variable_def_t *var);
                               
 
 void
-ir_function_def_set_name(ir_function_def_t* func,
+ir_function_def_set_name(ir_function_def_t *func,
                          const char *name);
 
 void
-ir_function_def_set_body(ir_function_def_t* func,
+ir_function_def_set_body(ir_function_def_t *func,
                          ast_node_t *body);
 
 #endif /* IR_INC_X */

@@ -11,6 +11,12 @@
  * type definitions *
  *------------------*/
 
+struct ir_variable_def_s
+{
+    char *name;
+    ast_data_type_t type;
+};
+
 struct ir_function_def_s
 {
     char *name;
@@ -35,6 +41,20 @@ struct ir_symbol_s
  * exported functions *
  *--------------------*/
 
+ir_variable_def_t*
+new_ir_variable_def(const char* name, 
+                    ast_data_type_t type)
+{
+    ir_variable_def_t *var_def;
+
+    var_def = g_malloc(sizeof(*var_def));
+
+    var_def->name = strdup(name);
+    var_def->type = type;
+
+    return var_def;
+}
+
 ir_function_def_t*
 new_ir_function_def()
 {
@@ -50,8 +70,8 @@ new_ir_function_def()
 }
 
 int
-ir_function_def_add_parameter(ir_function_def_t* func,
-                              ast_var_decl_t *var)
+ir_function_def_add_parameter(ir_function_def_t *func,
+                              ir_variable_def_t *var)
 {
     assert(func);
     assert(var);
@@ -73,7 +93,7 @@ ir_function_def_add_parameter(ir_function_def_t* func,
 
 int
 ir_function_def_add_local_var(ir_function_def_t* func,
-                              ast_var_decl_t *var)
+                              ir_variable_def_t *var)
 {
     assert(func);
     assert(var);
@@ -95,7 +115,7 @@ ir_function_def_add_local_var(ir_function_def_t* func,
 
 void
 ir_function_def_set_name(ir_function_def_t* func,
-                     const char *name)
+                         const char *name)
 {
     assert(func);
     assert(name);
@@ -158,7 +178,7 @@ new_ir_symbol_function(ir_function_def_t *function)
 }
 
 ir_symbol_t*
-new_ir_symbol_variable(ast_var_decl_t *variable)
+new_ir_symbol_variable(ir_variable_def_t *variable)
 {
     ir_symbol_t *symb;
 
