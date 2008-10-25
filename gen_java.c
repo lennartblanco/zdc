@@ -7,6 +7,17 @@
 
 #include <assert.h>
 
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+char *
+gen_java_data_type_to_str(ast_data_type_t t);
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/ 
+
 void
 gen_java_prelude()
 {
@@ -206,20 +217,16 @@ gen_java_handle_function_def(ir_function_def_t *func)
     printf(".method public static %s(", ir_function_def_get_name(func));
 
     params = ir_function_def_get_parameters(func);
-    for (p = sym_table_get_all_symbols(params); p != NULL; p = g_list_next(p))
+    p = sym_table_get_all_symbols(params);
+    for (; p != NULL; p = g_list_next(p))
     {
         var = ir_symbol_get_variable(p->data);
-        switch (ir_variable_def_get_type(var))
-        {
-            case ast_integer_type:
-                printf("I");
-                break;
-            default:
-                printf("illegal parameter type");
-                assert(false);
-        }
+        printf("%s", gen_java_data_type_to_str(ir_variable_def_get_type(var)));
     }
-    printf(")V\n");
+    g_list_free(p);
+
+    printf(")%s\n", 
+           gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
 
     printf("    return\n.end method\n");
 }
@@ -231,7 +238,8 @@ gen_java_code(ir_compile_unit_t *comp_unit)
 
     gen_java_prelude();
 
-    for (p = ir_compile_unit_get_functions(comp_unit); p != NULL; p = g_list_next(p))
+    p = ir_compile_unit_get_functions(comp_unit);
+    for (; p != NULL; p = g_list_next(p))
     {
         gen_java_handle_function_def(ir_symbol_get_function(p->data));
     }
@@ -240,3 +248,22 @@ gen_java_code(ir_compile_unit_t *comp_unit)
     gen_java_epilog();
 
 }
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+char *
+gen_java_data_type_to_str(ast_data_type_t t)
+{
+    switch(t)
+    {
+        case ast_void_type:
+            return "V";
+        case ast_integer_type:
+            return "I";
+        default:
+            assert(false);
+    }
+    return NULL;
+}
+

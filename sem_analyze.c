@@ -65,6 +65,7 @@ sem_analyze_function(ast_node_t *node, void *p)
 
     ir_function_def_set_name(func, node->data.function_def.name);
     ir_function_def_set_body(func, new_body);
+    ir_function_def_set_return_type(func, node->data.function_def.ret_type);
     ir_compile_unit_add_function(comp_unit, func);
 }
 

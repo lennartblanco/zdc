@@ -23,6 +23,7 @@ struct ir_function_def_s
     sym_table_t *parameters;
     sym_table_t *local;
     ast_node_t *body;
+    ast_data_type_t return_type;
 };
 
 struct ir_compile_unit_s
@@ -157,6 +158,23 @@ ir_function_def_set_body(ir_function_def_t* func,
     assert(body);
 
     func->body = body;
+}
+
+void
+ir_function_def_set_return_type(ir_function_def_t *func,
+                                ast_data_type_t return_type)
+{
+    assert(func);
+
+    func->return_type = return_type;
+}
+
+ast_data_type_t
+ir_function_def_get_return_type(ir_function_def_t *func)
+{
+    assert(func);
+
+    return func->return_type;
 }
 
 int

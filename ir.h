@@ -150,4 +150,11 @@ void
 ir_function_def_set_body(ir_function_def_t *func,
                          ast_node_t *body);
 
+void
+ir_function_def_set_return_type(ir_function_def_t *func,
+                                ast_data_type_t return_type);
+
+ast_data_type_t
+ir_function_def_get_return_type(ir_function_def_t *func);
+
 #endif /* IR_INC_X */
