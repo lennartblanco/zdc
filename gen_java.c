@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "ast.h"
 #include "sym_table.h"
 #include "gen_java.h"
+
+#include <assert.h>
 
 void
 gen_java_prelude()
@@ -26,9 +29,6 @@ gen_java_prelude()
 "    invokevirtual java/io/PrintStream/println(I)V\n"
 "    return\n"
 ".end method\n"
-".method public static main([Ljava/lang/String;)V\n"
-"   .limit stack 16\n"
-"   .limit locals 16\n"
     );
 }
 
@@ -36,6 +36,9 @@ void
 gen_java_epilog()
 {
     printf(
+".method public static main([Ljava/lang/String;)V\n"
+"   .limit stack 16\n"
+"   .limit locals 16\n"
 "   return\n"
 ".end method\n"
      );
@@ -44,6 +47,7 @@ gen_java_epilog()
 void
 gen_java_binary_op(ast_node_t *node)
 {
+#ifdef UNCOMMENT
     gen_java_code(node->data.binary_op.left);
     gen_java_code(node->data.binary_op.right);
 
@@ -61,7 +65,8 @@ gen_java_binary_op(ast_node_t *node)
         case ast_division_op:
             printf("    idiv\n");
             break;
-    }    
+    }
+#endif
 }
 
 void handle_var_declaration(ast_node_t *node)
@@ -146,6 +151,7 @@ handle_var_value(ast_node_t *node)
 void
 gen_func_call(ast_node_t *node)
 {
+#ifdef UNCOMMENT
     ast_func_args_list_t *arg;
 
     printf("; call %s\n", node->data.function_call.name);
@@ -157,6 +163,7 @@ gen_func_call(ast_node_t *node)
         arg = arg->next;
     }
     printf("    invokestatic foo/%s(I)V\n", node->data.function_call.name);
+#endif
 }
 
 void
@@ -183,20 +190,53 @@ gen_java_handle_node(ast_node_t *node)
             printf("    ldc %d\n", node->data.constant.value);
 	    break;
         case ast_negation_node:
-            gen_java_code(node->data.negation.value);
+//            gen_java_code(node->data.negation.value);
             printf("    ineg\n");
             break;
     }
 }
 
 void
-handle_glob_symbol(ast_node_t *node)
+gen_java_handle_function_def(ir_function_def_t *func)
 {
+    sym_table_t *params;
+    GList *p;
+    ir_variable_def_t *var;
 
+    printf(".method public static %s(", ir_function_def_get_name(func));
+
+    params = ir_function_def_get_parameters(func);
+    for (p = sym_table_get_all_symbols(params); p != NULL; p = g_list_next(p))
+    {
+        var = ir_symbol_get_variable(p->data);
+        switch (ir_variable_def_get_type(var))
+        {
+            case ast_integer_type:
+                printf("I");
+                break;
+            default:
+                printf("illegal parameter type");
+                assert(false);
+        }
+    }
+    printf(")V\n");
+
+    printf("    return\n.end method\n");
 }
 
 void
-gen_java_code()
+gen_java_code(ir_compile_unit_t *comp_unit)
 {
- //   sym_table_foreach_sym(global_sym_table, handle_glob_symbol);
+    GList *p;
+
+    gen_java_prelude();
+
+    for (p = ir_compile_unit_get_functions(comp_unit); p != NULL; p = g_list_next(p))
+    {
+        gen_java_handle_function_def(ir_symbol_get_function(p->data));
+    }
+    g_list_free(p);
+
+    gen_java_epilog();
+
 }

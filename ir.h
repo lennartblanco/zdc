@@ -2,6 +2,7 @@
 #define IR_INC_X
 
 #include "ast.h"
+#include "sym_table_types.h"
 
 typedef struct ir_variable_def_s ir_variable_def_t;
 typedef struct ir_function_def_s ir_function_def_t;
@@ -37,6 +38,29 @@ ir_symbol_t*
 new_ir_symbol_variable(ir_variable_def_t *variable);
 
 /**
+ * get function represented by this symbol. 
+ *
+ * calling this function on symbol not representing functions
+ * leads to undefined behavior.
+ * 
+ * @return the function represented
+ */
+ir_function_def_t *
+ir_symbol_get_function(ir_symbol_t *sym);
+
+/**
+ * get variable represented by this symbol. 
+ *
+ * calling this function on symbol not representing variable
+ * leads to undefined behavior.
+ * 
+ * @return the variable represented
+ */
+ir_variable_def_t *
+ir_symbol_get_variable(ir_symbol_t *sym);
+
+
+/**
  * free all resources allocated by this symbol
  */
 void
@@ -63,6 +87,15 @@ int
 ir_compile_unit_add_function(ir_compile_unit_t *compile_unit,
                              ir_function_def_t *function_def);
 
+/**
+ * get all the functions defined in this compile unit
+ *
+ * @param compile_unit  the compile unit to fetch functions from
+ *
+ * @return functions as a list of function as ir_symbol_t pointers
+ */
+GList *
+ir_compile_unit_get_functions(ir_compile_unit_t *compile_unit);
 
 /*************************************
  * IR variable definition operations *
@@ -71,6 +104,12 @@ ir_compile_unit_add_function(ir_compile_unit_t *compile_unit,
 ir_variable_def_t*
 new_ir_variable_def(const char* name, 
                     ast_data_type_t type);
+
+/**
+ * @return this variables data type
+ */
+ast_data_type_t
+ir_variable_def_get_type(ir_variable_def_t *var);
 
 /*************************************
  * IR function definition operations *
@@ -92,6 +131,9 @@ int
 ir_function_def_add_parameter(ir_function_def_t *func,
                               ir_variable_def_t *var);
 
+sym_table_t *
+ir_function_def_get_parameters(ir_function_def_t *func);
+
 int
 ir_function_def_add_local_var(ir_function_def_t *func,
                               ir_variable_def_t *var);
@@ -100,6 +142,9 @@ ir_function_def_add_local_var(ir_function_def_t *func,
 void
 ir_function_def_set_name(ir_function_def_t *func,
                          const char *name);
+
+char *
+ir_function_def_get_name(ir_function_def_t *func);
 
 void
 ir_function_def_set_body(ir_function_def_t *func,

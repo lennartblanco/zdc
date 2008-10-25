@@ -13,8 +13,6 @@ sem_analyze_function(ast_node_t *node, void *p)
     ir_compile_unit_t *comp_unit = (ir_compile_unit_t*) p;
 
     func = new_ir_function_def();
-
-    printf("func <%s>\n", node->data.function_def.name);
     
     /*
      * Store arguments in the IR function object
@@ -37,8 +35,6 @@ sem_analyze_function(ast_node_t *node, void *p)
     /*
      * Analyze the statments in the function body
      */
-    printf("body statments\n");
-
     ast_node_t *body =  node->data.function_def.body;
     assert(body->type == ast_code_block_node);
     ast_node_t *new_body = new_code_block();
@@ -70,8 +66,6 @@ sem_analyze_function(ast_node_t *node, void *p)
     ir_function_def_set_name(func, node->data.function_def.name);
     ir_function_def_set_body(func, new_body);
     ir_compile_unit_add_function(comp_unit, func);
-
-    printf("\n");
 }
 
 

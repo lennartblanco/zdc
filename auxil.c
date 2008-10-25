@@ -10,12 +10,12 @@ extern ast_node_t *root_node;
 
 int main()
 {
+   ir_compile_unit_t *comp_unit;
+
    yyparse();
 
-   semantic_analyze(root_node);
-   //gen_java_prelude();
-   //gen_java_code();
-   //gen_java_epilog();
+   comp_unit = semantic_analyze(root_node);
+   gen_java_code(comp_unit);
 
    return 0;
 }

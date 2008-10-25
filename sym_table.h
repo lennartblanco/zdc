@@ -3,9 +3,7 @@
 
 #include "ast.h"
 #include "ir.h"
-
-typedef struct sym_table_s sym_table_t;
-
+#include "sym_table_types.h"
 
 /**
  * Create a new symbol table.
@@ -34,6 +32,12 @@ int
 sym_table_add_symbol(sym_table_t* table,
                      char *name,
                      ir_symbol_t *symbol);
+
+/**
+ * @return all symbols in this table
+ */
+GList *
+sym_table_get_all_symbols(sym_table_t* table);
 
 /**
  * debug function

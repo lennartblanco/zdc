@@ -45,6 +45,8 @@ ir_variable_def_t*
 new_ir_variable_def(const char* name, 
                     ast_data_type_t type)
 {
+    assert(name);
+
     ir_variable_def_t *var_def;
 
     var_def = g_malloc(sizeof(*var_def));
@@ -53,6 +55,14 @@ new_ir_variable_def(const char* name,
     var_def->type = type;
 
     return var_def;
+}
+
+ast_data_type_t
+ir_variable_def_get_type(ir_variable_def_t *var)
+{
+    assert(var);
+
+    return var->type;
 }
 
 ir_function_def_t*
@@ -91,6 +101,14 @@ ir_function_def_add_parameter(ir_function_def_t *func,
     return 0;
 }
 
+sym_table_t *
+ir_function_def_get_parameters(ir_function_def_t *func)
+{
+    assert(func);
+
+    return func->parameters;
+}
+
 int
 ir_function_def_add_local_var(ir_function_def_t* func,
                               ir_variable_def_t *var)
@@ -123,6 +141,14 @@ ir_function_def_set_name(ir_function_def_t* func,
     func->name = strdup(name);
 }
 
+char *
+ir_function_def_get_name(ir_function_def_t *func)
+{
+    assert(func);
+
+    return (func->name);
+}
+
 void
 ir_function_def_set_body(ir_function_def_t* func,
                          ast_node_t *body)
@@ -151,6 +177,12 @@ ir_compile_unit_add_function(ir_compile_unit_t *compile_unit,
     }
     
     return 0;
+}
+
+GList *
+ir_compile_unit_get_functions(ir_compile_unit_t *compile_unit)
+{
+    return sym_table_get_all_symbols(compile_unit->global_sym_table);
 }
 
 ir_compile_unit_t*
@@ -189,6 +221,23 @@ new_ir_symbol_variable(ir_variable_def_t *variable)
     return symb;
 }
 
+ir_function_def_t *
+ir_symbol_get_function(ir_symbol_t *sym)
+{
+    assert(sym);
+    assert(sym->type == ir_function_symb);
+
+    return sym->data.function;
+}
+
+ir_variable_def_t *
+ir_symbol_get_variable(ir_symbol_t *sym)
+{
+    assert(sym);
+    assert(sym->type == ir_variable_symb);
+
+    return sym->data.variable;
+}
 
 void
 ir_symbol_del(ir_symbol_t *sym)

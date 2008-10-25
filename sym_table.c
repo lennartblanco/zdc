@@ -57,3 +57,9 @@ sym_table_foreach_sym(sym_table_t *table, void (*func) (ast_node_t *))
     g_list_free(p);
 }
 
+GList *
+sym_table_get_all_symbols(sym_table_t* table)
+{
+    return g_hash_table_get_values(table->table);
+}
+
