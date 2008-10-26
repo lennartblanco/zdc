@@ -249,6 +249,15 @@ code_block_add_statment(ast_node_t *code_block,
         g_slist_append(code_block->data.code_block.statments, statment);
 }
 
+GSList *
+code_block_get_statments(ast_node_t *code_block)
+{
+    assert(code_block);
+    assert(code_block->type == ast_code_block_node);
+
+    return code_block->data.code_block.statments;    
+}
+
 void
 ast_node_del(ast_node_t *node)
 {

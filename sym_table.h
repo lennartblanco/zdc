@@ -19,6 +19,12 @@ sym_table_foreach_sym(sym_table_t *table,
                       void (*func) (ast_node_t *symp));
 
 /**
+ * @return the number of symbols in this table
+ */
+//guint 
+//sym_table_get_size(sym_table_t *table);
+
+/**
  * Deallocate all resources used by this symbol table
  */
 void
@@ -34,7 +40,7 @@ sym_table_add_symbol(sym_table_t* table,
                      ir_symbol_t *symbol);
 
 /**
- * @return all symbols in this table
+ * @return all symbols in this table as a list of ir_symbol_t pointers
  */
 GList *
 sym_table_get_all_symbols(sym_table_t* table);

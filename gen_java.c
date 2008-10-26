@@ -11,8 +11,14 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-char *
+static char *
 gen_java_data_type_to_str(ast_data_type_t t);
+
+static void
+gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table);
+
+static void
+gen_java_handle_function_def(ir_function_def_t *func);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -178,10 +184,50 @@ gen_func_call(ast_node_t *node)
 }
 
 void
-gen_java_handle_node(ast_node_t *node)
+gen_java_code(ir_compile_unit_t *comp_unit)
 {
+    GList *p;
+
+    gen_java_prelude();
+
+    p = ir_compile_unit_get_functions(comp_unit);
+    for (; p != NULL; p = g_list_next(p))
+    {
+        gen_java_handle_function_def(ir_symbol_get_function(p->data));
+    }
+    g_list_free(p);
+
+    gen_java_epilog();
+
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+gen_java_handle_code_block(ast_node_t *node, sym_table_t *sym_table)
+{
+    GSList *stmts;
+
+    stmts = code_block_get_statments(node);
+
+    for (;stmts != NULL; stmts = g_slist_next(stmts))
+    {
+        gen_java_handle_node(stmts->data, sym_table);
+    }
+}
+
+static void
+gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table)
+{
+printf("; node->type %s\n", ast_node_to_str(node->type));
+
     switch (node->type)
     {
+        case ast_code_block_node:
+            gen_java_handle_code_block(node, sym_table);
+            break;
         case ast_function_call_node:
             gen_func_call(node);
             break;
@@ -207,52 +253,7 @@ gen_java_handle_node(ast_node_t *node)
     }
 }
 
-void
-gen_java_handle_function_def(ir_function_def_t *func)
-{
-    sym_table_t *params;
-    GList *p;
-    ir_variable_def_t *var;
-
-    printf(".method public static %s(", ir_function_def_get_name(func));
-
-    params = ir_function_def_get_parameters(func);
-    p = sym_table_get_all_symbols(params);
-    for (; p != NULL; p = g_list_next(p))
-    {
-        var = ir_symbol_get_variable(p->data);
-        printf("%s", gen_java_data_type_to_str(ir_variable_def_get_type(var)));
-    }
-    g_list_free(p);
-
-    printf(")%s\n", 
-           gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
-
-    printf("    return\n.end method\n");
-}
-
-void
-gen_java_code(ir_compile_unit_t *comp_unit)
-{
-    GList *p;
-
-    gen_java_prelude();
-
-    p = ir_compile_unit_get_functions(comp_unit);
-    for (; p != NULL; p = g_list_next(p))
-    {
-        gen_java_handle_function_def(ir_symbol_get_function(p->data));
-    }
-    g_list_free(p);
-
-    gen_java_epilog();
-
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-char *
+static char *
 gen_java_data_type_to_str(ast_data_type_t t)
 {
     switch(t)
@@ -265,5 +266,67 @@ gen_java_data_type_to_str(ast_data_type_t t)
             assert(false);
     }
     return NULL;
+}
+
+
+static void
+gen_java_handle_function_def(ir_function_def_t *func)
+{
+    GSList *p;
+    GList *l;
+    ir_variable_def_t *var;
+    guint param_num = 0;
+    guint local_var_num = 0;
+    guint i;
+    sym_table_t *local_vars;
+    ir_symbol_t *symb;
+    ir_symbol_address_t addr;
+
+    /*
+     * generate function header
+     */
+    printf(".method public static %s(", ir_function_def_get_name(func));
+
+    /* generate function parameters types and count parameters */
+    p = ir_function_def_get_parameters(func);
+    for (; p != NULL; p = g_slist_next(p))
+    {
+        var = p->data;
+        param_num += 1;
+        printf("%s", gen_java_data_type_to_str(ir_variable_def_get_type(var)));
+    }
+
+    printf(")%s\n", 
+           gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
+
+    /* count local variables and assign numbers */
+    local_vars = ir_function_def_get_local_vars(func);
+    l = sym_table_get_all_symbols(local_vars);
+    for (; l != NULL; l = g_list_next(l))
+    {
+        var = ir_symbol_get_variable(l->data);
+        addr.java_variable_addr = param_num + local_var_num;
+        ir_variable_def_assign_address(var, addr);
+        local_var_num += 1;
+    }
+
+    /* 
+     * assign numbers to parameter variables and
+     * put them into the local symb table
+     */
+    p = ir_function_def_get_parameters(func);
+    for (i = 0; i < param_num; i++)
+    {
+        var = p->data;
+        addr.java_variable_addr = i;
+        ir_variable_def_assign_address(var, addr);
+        ir_function_def_add_local_var(func, var);
+        p = g_slist_next(p);
+    }
+
+    printf("    .limit locals %d\n", param_num + local_var_num);
+    printf("    .limit stack 32\n");    
+    gen_java_handle_node(ir_function_def_get_body(func), local_vars);
+    printf("    return\n.end method\n");
 }
 

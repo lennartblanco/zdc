@@ -7,20 +7,20 @@
 
 #include <assert.h>
 
-/*------------------*
- * type definitions *
- *------------------*/
-
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/ 
 struct ir_variable_def_s
 {
-    char *name;
     ast_data_type_t type;
+    char *name;
+    ir_symbol_address_t address;
 };
 
 struct ir_function_def_s
 {
     char *name;
-    sym_table_t *parameters;
+    GSList *parameters;
     sym_table_t *local;
     ast_node_t *body;
     ast_data_type_t return_type;
@@ -38,9 +38,9 @@ struct ir_symbol_s
 };
 
 
-/*--------------------*
- * exported functions *
- *--------------------*/
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/ 
 
 ir_variable_def_t*
 new_ir_variable_def(const char* name, 
@@ -58,6 +58,15 @@ new_ir_variable_def(const char* name,
     return var_def;
 }
 
+void
+ir_variable_def_assign_address(ir_variable_def_t *var,
+                               ir_symbol_address_t address)
+{
+    assert(var);
+
+    var->address = address;
+}
+
 ast_data_type_t
 ir_variable_def_get_type(ir_variable_def_t *var)
 {
@@ -73,7 +82,7 @@ new_ir_function_def()
 
     func_def = g_malloc(sizeof(*func_def));
 
-    func_def->parameters = sym_table_new(NULL);
+    func_def->parameters = NULL;
     func_def->local = sym_table_new(NULL);
     func_def->body = NULL;
 
@@ -89,20 +98,25 @@ ir_function_def_add_parameter(ir_function_def_t *func,
 
     ir_symbol_t *symb;
 
-    symb = new_ir_symbol_variable(var);
+    GSList *p;
 
-    int res = sym_table_add_symbol(func->parameters,
-                                   var->name, symb);
-    if (res == -1) {
-        printf("reclaration of function parameter '%s'\n", var->name);
-        ir_symbol_del(symb);
-        return -1;
+    for (p = func->parameters; p != NULL; p = g_slist_next(p))
+    {
+        ir_variable_def_t *v = p->data;
+        if (strcmp(v->name, var->name) == 0)
+        {
+            printf("reclaration of function parameter '%s'\n", var->name);
+            return -1;
+        } 
     }
+
+    func->parameters = 
+        g_slist_append(func->parameters, var);
     
     return 0;
 }
 
-sym_table_t *
+GSList *
 ir_function_def_get_parameters(ir_function_def_t *func)
 {
     assert(func);
@@ -111,7 +125,7 @@ ir_function_def_get_parameters(ir_function_def_t *func)
 }
 
 int
-ir_function_def_add_local_var(ir_function_def_t* func,
+ir_function_def_add_local_var(ir_function_def_t *func,
                               ir_variable_def_t *var)
 {
     assert(func);
@@ -128,8 +142,16 @@ ir_function_def_add_local_var(ir_function_def_t* func,
         ir_symbol_del(symb);
         return -1;
     }
-    
+
     return 0;
+}
+
+sym_table_t *
+ir_function_def_get_local_vars(ir_function_def_t *func)
+{
+    assert(func);
+
+    return func->local;
 }
 
 void
@@ -158,6 +180,14 @@ ir_function_def_set_body(ir_function_def_t* func,
     assert(body);
 
     func->body = body;
+}
+
+ast_node_t *
+ir_function_def_get_body(ir_function_def_t *func)
+{
+    assert(func);
+
+    return func->body;
 }
 
 void

@@ -270,4 +270,6 @@ new_code_block();
 void
 code_block_add_statment(ast_node_t *code_block, 
                         ast_node_t *statment);
+GSList *
+code_block_get_statments(ast_node_t *code_block);
 #endif /* AST_INC_X */

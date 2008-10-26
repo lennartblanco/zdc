@@ -13,7 +13,7 @@ sem_analyze_function(ast_node_t *node, void *p)
     ir_compile_unit_t *comp_unit = (ir_compile_unit_t*) p;
 
     func = new_ir_function_def();
-    
+
     /*
      * Store arguments in the IR function object
      */

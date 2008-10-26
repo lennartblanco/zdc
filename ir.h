@@ -9,6 +9,11 @@ typedef struct ir_function_def_s ir_function_def_t;
 typedef struct ir_compile_unit_s ir_compile_unit_t;
 typedef struct ir_symbol_s ir_symbol_t;
 
+typedef union ir_symbol_address_u
+{
+    guint java_variable_addr;
+} ir_symbol_address_t;
+
 typedef union ir_symbol_data_u
 {
     ir_function_def_t *function;
@@ -105,6 +110,15 @@ ir_variable_def_t*
 new_ir_variable_def(const char* name, 
                     ast_data_type_t type);
 
+
+void
+ir_variable_def_assign_address(ir_variable_def_t *var,
+                               ir_symbol_address_t address);
+
+ir_symbol_address_t
+ir_variable_def_get_address(ir_variable_def_t *var);
+
+
 /**
  * @return this variables data type
  */
@@ -131,13 +145,15 @@ int
 ir_function_def_add_parameter(ir_function_def_t *func,
                               ir_variable_def_t *var);
 
-sym_table_t *
+GSList *
 ir_function_def_get_parameters(ir_function_def_t *func);
 
 int
 ir_function_def_add_local_var(ir_function_def_t *func,
                               ir_variable_def_t *var);
                               
+sym_table_t *
+ir_function_def_get_local_vars(ir_function_def_t *func);
 
 void
 ir_function_def_set_name(ir_function_def_t *func,
@@ -149,6 +165,9 @@ ir_function_def_get_name(ir_function_def_t *func);
 void
 ir_function_def_set_body(ir_function_def_t *func,
                          ast_node_t *body);
+
+ast_node_t *
+ir_function_def_get_body(ir_function_def_t *func);
 
 void
 ir_function_def_set_return_type(ir_function_def_t *func,
