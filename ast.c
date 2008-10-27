@@ -185,6 +185,14 @@ new_return_statment(ast_node_t *ret_val)
     return node;
 }
 
+ast_node_t *
+return_statment_get_value(ast_node_t *return_statment)
+{
+    assert(return_statment);
+    assert(return_statment->type == ast_return_statment_node);
+
+    return return_statment->data.ret_stmt.ret_val;
+}
 
 ast_node_t *
 new_compile_unit()

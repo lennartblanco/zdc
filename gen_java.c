@@ -20,6 +20,9 @@ gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table);
 static void
 gen_java_handle_function_def(ir_function_def_t *func);
 
+static void
+gen_java_handle_return_statment(ast_node_t *node, sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
@@ -228,6 +231,8 @@ printf("; node->type %s\n", ast_node_to_str(node->type));
         case ast_code_block_node:
             gen_java_handle_code_block(node, sym_table);
             break;
+        case ast_return_statment_node:
+            gen_java_handle_return_statment(node, sym_table);
         case ast_function_call_node:
             gen_func_call(node);
             break;
@@ -268,6 +273,29 @@ gen_java_data_type_to_str(ast_data_type_t t)
     return NULL;
 }
 
+static void
+gen_java_handle_return_statment(ast_node_t *node, sym_table_t *sym_table)
+{
+    assert(node);
+    assert(node->type == ast_return_statment_node);
+    assert(sym_table);
+
+    ast_node_t *ret_val;
+
+    ret_val = return_statment_get_value(node);
+
+    if (ret_val == NULL)
+    {
+        /* assume void return for now */
+        printf("    return\n");
+    }
+    else
+    {
+        /* assume int return for now */
+        gen_java_handle_node(ret_val, sym_table);
+        printf("    ireturn\n");
+    }
+}
 
 static void
 gen_java_handle_function_def(ir_function_def_t *func)
@@ -326,7 +354,7 @@ gen_java_handle_function_def(ir_function_def_t *func)
 
     printf("    .limit locals %d\n", param_num + local_var_num);
     printf("    .limit stack 32\n");    
-    gen_java_handle_node(ir_function_def_get_body(func), local_vars);
-    printf("    return\n.end method\n");
+    gen_java_handle_code_block(ir_function_def_get_body(func), local_vars);
+    printf(".end method\n");
 }
 

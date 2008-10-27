@@ -198,8 +198,6 @@ ast_node_t *new_function_definition(char *name,
                                     ast_func_parameters_t *arg_lst, 
                                     ast_node_t *body);
 
-ast_node_t *new_return_statment(ast_node_t *ret_val);
-
 ast_node_t *
 new_var_declaration(ast_data_type_t var_type, 
                     char *var_name);
@@ -219,6 +217,21 @@ ast_node_del(ast_node_t *node);
 ast_node_t *
 new_var_declaration(ast_data_type_t var_type, 
                     char *var_name);
+
+/***************************************
+ * AST return statment node operations *
+ ***************************************/
+
+ast_node_t *
+new_return_statment(ast_node_t *ret_val);
+
+/**
+ * @return the return value for this statment or NULL
+ *         if no return value is specified
+ */
+ast_node_t *
+return_statment_get_value(ast_node_t *return_statment);
+
 
 /*******************************************
  * AST function parameters node operations *
