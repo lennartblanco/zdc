@@ -29,6 +29,9 @@ gen_java_handle_var_value(ast_node_t *node, sym_table_t *sym_table);
 static void
 gen_java_handle_assigment(ast_node_t *node, sym_table_t *sym_table);
 
+static void
+gen_java_handle_binary_op(ast_node_t *node, sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
@@ -68,31 +71,6 @@ gen_java_epilog()
 "   return\n"
 ".end method\n"
      );
-}
-
-void
-gen_java_binary_op(ast_node_t *node)
-{
-#ifdef UNCOMMENT
-    gen_java_code(node->data.binary_op.left);
-    gen_java_code(node->data.binary_op.right);
-
-    switch (node->data.binary_op.oper_type)
-    {
-        case ast_plus_op:
-            printf("    iadd\n");
-            break;
-        case ast_minus_op:
-            printf("    isub\n");
-            break;
-        case ast_mult_op:
-            printf("    imul\n");
-            break;
-        case ast_division_op:
-            printf("    idiv\n");
-            break;
-    }
-#endif
 }
 
 void
@@ -158,8 +136,6 @@ gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table)
             break;
         case ast_return_statment_node:
             gen_java_handle_return_statment(node, sym_table);
-        case ast_function_call_node:
-            gen_func_call(node);
             break;
         case ast_var_value_node:
             gen_java_handle_var_value(node, sym_table);
@@ -167,15 +143,18 @@ gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table)
         case ast_assigment_node:
             gen_java_handle_assigment(node, sym_table);
             break;
-/*        case ast_binary_oper_node:*/
-/*            gen_java_binary_op(node);*/
-/*            break;*/
-/*        case ast_constant_node:*/
-/*            printf("    ldc %d\n", node->data.constant.value);*/
-/*	    break;*/
+        case ast_constant_node:
+            printf("    ldc %d\n", node->data.constant.value);
+	    break;
+        case ast_binary_oper_node:
+            gen_java_handle_binary_op(node, sym_table);
+            break;
 /*        case ast_negation_node:*/
 /*            gen_java_code(node->data.negation.value);*/
 /*            printf("    ineg\n");*/
+/*            break;*/
+/*        case ast_function_call_node:*/
+/*            gen_func_call(node);*/
 /*            break;*/
         default:
             printf("; node->type %s\n", ast_node_to_str(node->type));
@@ -199,6 +178,29 @@ gen_java_data_type_to_str(ast_data_type_t t)
 }
 
 static void
+gen_java_handle_binary_op(ast_node_t *node, sym_table_t *sym_table)
+{
+    gen_java_handle_node(node->data.binary_op.left, sym_table);
+    gen_java_handle_node(node->data.binary_op.right, sym_table);
+
+    switch (node->data.binary_op.oper_type)
+    {
+        case ast_plus_op:
+            printf("    iadd\n");
+            break;
+        case ast_minus_op:
+            printf("    isub\n");
+            break;
+        case ast_mult_op:
+            printf("    imul\n");
+            break;
+        case ast_division_op:
+            printf("    idiv\n");
+            break;
+    }
+}
+
+static void
 gen_java_handle_assigment(ast_node_t *node, sym_table_t *sym_table)
 {
 
@@ -219,7 +221,7 @@ gen_java_handle_assigment(ast_node_t *node, sym_table_t *sym_table)
     gen_java_handle_node(node->data.assigment.value, sym_table);
     addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
-    if (0 >= addr.java_variable_addr && addr.java_variable_addr <= 3)
+    if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
     {
         printf("    istore_%d\n", addr.java_variable_addr);
     }
@@ -248,7 +250,7 @@ gen_java_handle_var_value(ast_node_t *node, sym_table_t *sym_table)
 
             addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
-            if (0 >= addr.java_variable_addr && addr.java_variable_addr <= 3)
+            if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
             {
                 printf("    iload_%d\n", addr.java_variable_addr);
             }
