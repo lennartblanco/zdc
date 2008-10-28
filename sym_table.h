@@ -63,6 +63,6 @@ sym_table_dump(sym_table_t *table);
  * @return -1 if no such element is present in the table
  */
 int
-sym_table_find_symbol(sym_table_t *table, char *name, ir_symbol_t **symbol);
+sym_table_get_symbol(sym_table_t *table, char *name, ir_symbol_t **symbol);
 
 #endif /* SEM_TABLE_INC_X */
