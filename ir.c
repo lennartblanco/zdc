@@ -67,6 +67,14 @@ ir_variable_def_assign_address(ir_variable_def_t *var,
     var->address = address;
 }
 
+ir_symbol_address_t
+ir_variable_def_get_address(ir_variable_def_t *var)
+{
+    assert(var);
+
+    return var->address;
+}
+
 ast_data_type_t
 ir_variable_def_get_type(ir_variable_def_t *var)
 {

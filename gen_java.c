@@ -23,6 +23,9 @@ gen_java_handle_function_def(ir_function_def_t *func);
 static void
 gen_java_handle_return_statment(ast_node_t *node, sym_table_t *sym_table);
 
+static void
+gen_java_handle_var_value(ast_node_t *node, sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
@@ -145,30 +148,6 @@ handle_assigment(ast_node_t *node)
 }
 
 void
-handle_var_value(ast_node_t *node)
-{
-    int var_num;
-#ifdef UNCOMMENT    
-    switch (find_element(node->data.var_val.name, &var_num))
-    {
-        case 0:
-            if (0 >= var_num && var_num <= 3)
-            {
-                printf("    iload_%d\n", var_num);
-            }
-            else
-            {
-                printf("    iload %d\n", var_num);
-            }
-            break;
-        case -1:
-            printf("variable %s not defined\n", node->data.assigment.lvalue);
-            break;
-    }
-#endif
-}
-
-void
 gen_func_call(ast_node_t *node)
 {
 #ifdef UNCOMMENT
@@ -237,7 +216,7 @@ printf("; node->type %s\n", ast_node_to_str(node->type));
             gen_func_call(node);
             break;
         case ast_var_value_node:
-            handle_var_value(node);
+            gen_java_handle_var_value(node, sym_table);
             break;	
         case ast_var_declaration_node:
             handle_var_declaration(node);
@@ -271,6 +250,42 @@ gen_java_data_type_to_str(ast_data_type_t t)
             assert(false);
     }
     return NULL;
+}
+
+static void
+gen_java_handle_var_value(ast_node_t *node, sym_table_t *sym_table)
+{
+    ir_symbol_t *symb;
+    int res;
+
+    res = sym_table_get_symbol(sym_table,
+                               node->data.var_val.name,
+                               &symb);
+
+    switch (res)
+    {
+        case 0:
+        {
+            ir_symbol_address_t addr;
+
+            addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
+
+            if (0 >= addr.java_variable_addr && addr.java_variable_addr <= 3)
+            {
+                printf("    iload_%d\n", addr.java_variable_addr);
+            }
+            else
+            {
+                printf("    iload %d\n", addr.java_variable_addr);
+            }
+            break;
+        }
+        case -1:
+            printf("variable '%s' not defined\n", node->data.assigment.lvalue);
+            break;
+        default: /* unexpected return value */
+            assert(false);
+    }
 }
 
 static void
