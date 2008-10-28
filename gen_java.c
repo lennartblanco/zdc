@@ -26,6 +26,9 @@ gen_java_handle_return_statment(ast_node_t *node, sym_table_t *sym_table);
 static void
 gen_java_handle_var_value(ast_node_t *node, sym_table_t *sym_table);
 
+static void
+gen_java_handle_assigment(ast_node_t *node, sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
@@ -92,61 +95,6 @@ gen_java_binary_op(ast_node_t *node)
 #endif
 }
 
-void handle_var_declaration(ast_node_t *node)
-{
-#ifdef UNCOMMENT
-    int res;
-    int var_num;
-
-    res = sym_table_add_symbol(node->data.var_decl.type, node->data.var_decl.name, &var_num);
-    switch (res)
-    {
-        case 0:
-            /* successfully added */
-            /* generate code for default value assigment */
-            printf("    iconst_0\n");
-            if (0 >= var_num && var_num <= 3)
-            {
-                printf("    istore_%d\n", var_num);
-            }
-            else
-            {
-                printf("    istore %d\n", var_num);
-            }
-            break;
-        case -1:
-            printf("redclaration of variable '%s'\n", node->data.var_decl.name);
-            break;
-    }
-#endif
-}
-
-void
-handle_assigment(ast_node_t *node)
-{
-#ifdef UNCOMMENT
-    int var_num;
-    
-    gen_java_code(node->data.assigment.value);
-    switch (find_element(node->data.assigment.lvalue, &var_num))
-    {
-        case 0:
-            if (0 >= var_num && var_num <= 3)
-            {
-                printf("    istore_%d\n", var_num);
-            }
-            else
-            {
-                printf("    istore %d\n", var_num);
-            }
-            break;
-        case -1:
-            printf("variable %s not defined\n", node->data.assigment.lvalue);
-            break;
-    }
-#endif
-}
-
 void
 gen_func_call(ast_node_t *node)
 {
@@ -203,8 +151,6 @@ gen_java_handle_code_block(ast_node_t *node, sym_table_t *sym_table)
 static void
 gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table)
 {
-printf("; node->type %s\n", ast_node_to_str(node->type));
-
     switch (node->type)
     {
         case ast_code_block_node:
@@ -218,21 +164,21 @@ printf("; node->type %s\n", ast_node_to_str(node->type));
         case ast_var_value_node:
             gen_java_handle_var_value(node, sym_table);
             break;	
-        case ast_var_declaration_node:
-            handle_var_declaration(node);
-            break;
         case ast_assigment_node:
-            handle_assigment(node);
+            gen_java_handle_assigment(node, sym_table);
             break;
-        case ast_binary_oper_node:
-            gen_java_binary_op(node);
-            break;
-        case ast_constant_node:
-            printf("    ldc %d\n", node->data.constant.value);
-	    break;
-        case ast_negation_node:
-//            gen_java_code(node->data.negation.value);
-            printf("    ineg\n");
+/*        case ast_binary_oper_node:*/
+/*            gen_java_binary_op(node);*/
+/*            break;*/
+/*        case ast_constant_node:*/
+/*            printf("    ldc %d\n", node->data.constant.value);*/
+/*	    break;*/
+/*        case ast_negation_node:*/
+/*            gen_java_code(node->data.negation.value);*/
+/*            printf("    ineg\n");*/
+/*            break;*/
+        default:
+            printf("; node->type %s\n", ast_node_to_str(node->type));
             break;
     }
 }
@@ -251,6 +197,38 @@ gen_java_data_type_to_str(ast_data_type_t t)
     }
     return NULL;
 }
+
+static void
+gen_java_handle_assigment(ast_node_t *node, sym_table_t *sym_table)
+{
+
+    ir_symbol_t *symb;
+    int res;
+    ir_symbol_address_t addr;
+
+    res = sym_table_get_symbol(sym_table,
+                               node->data.var_val.name,
+                               &symb);
+
+    if (res == -1)
+    {
+        printf("variable '%s' not defined\n", node->data.assigment.lvalue);
+        return;
+    }
+
+    gen_java_handle_node(node->data.assigment.value, sym_table);
+    addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
+
+    if (0 >= addr.java_variable_addr && addr.java_variable_addr <= 3)
+    {
+        printf("    istore_%d\n", addr.java_variable_addr);
+    }
+    else
+    {
+        printf("    istore %d\n", addr.java_variable_addr);
+    }
+}
+
 
 static void
 gen_java_handle_var_value(ast_node_t *node, sym_table_t *sym_table)
