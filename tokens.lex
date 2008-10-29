@@ -22,5 +22,6 @@
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return IDENT; } 
 [0-9]+ { yylval.integer = atoi(yytext); return NUMBER; }
 " "    { /* skip blank */ }
+"//".* { /* consume comment */ }
 \n     { yypos++; /* adjust linenumber and skip newline */ }
 .      { yyerror("illegal token"); }
