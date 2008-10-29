@@ -12,7 +12,7 @@ sem_analyze_function(ast_node_t *node, void *p)
     ir_function_def_t *func;
     ir_compile_unit_t *comp_unit = (ir_compile_unit_t*) p;
 
-    func = new_ir_function_def();
+    func = new_ir_function_def(ir_compile_unit_get_global_sym_table(comp_unit));
 
     /*
      * Store arguments in the IR function object

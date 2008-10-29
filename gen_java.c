@@ -32,6 +32,9 @@ gen_java_handle_assigment(ast_node_t *node, sym_table_t *sym_table);
 static void
 gen_java_handle_binary_op(ast_node_t *node, sym_table_t *sym_table);
 
+static void
+gen_java_handle_func_call(ast_node_t *node, sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
@@ -73,23 +76,6 @@ gen_java_epilog()
      );
 }
 
-void
-gen_func_call(ast_node_t *node)
-{
-#ifdef UNCOMMENT
-    ast_func_args_list_t *arg;
-
-    printf("; call %s\n", node->data.function_call.name);
-    arg = node->data.function_call.args;
-    printf("; --- eval arguments\n");
-    while (arg != NULL)
-    {
-        gen_java_code(arg->value);
-        arg = arg->next;
-    }
-    printf("    invokestatic foo/%s(I)V\n", node->data.function_call.name);
-#endif
-}
 
 void
 gen_java_code(ir_compile_unit_t *comp_unit)
@@ -149,12 +135,12 @@ gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table)
         case ast_binary_oper_node:
             gen_java_handle_binary_op(node, sym_table);
             break;
+        case ast_function_call_node:
+            gen_java_handle_func_call(node, sym_table);
+            break;
 /*        case ast_negation_node:*/
 /*            gen_java_code(node->data.negation.value);*/
 /*            printf("    ineg\n");*/
-/*            break;*/
-/*        case ast_function_call_node:*/
-/*            gen_func_call(node);*/
 /*            break;*/
         default:
             printf("; node->type %s\n", ast_node_to_str(node->type));
@@ -176,6 +162,51 @@ gen_java_data_type_to_str(ast_data_type_t t)
     }
     return NULL;
 }
+
+static void
+gen_java_handle_func_call(ast_node_t *node, sym_table_t *sym_table)
+{
+    assert(node);
+    assert(node->type == ast_function_call_node);
+    assert(sym_table);
+
+    ast_func_args_list_t *arg;
+    ir_symbol_t *symb;
+    ir_function_def_t *func;
+    int res;
+    GSList *p;
+
+
+    res = sym_table_get_symbol(sym_table, node->data.function_call.name,
+                               &symb);
+    if (res == -1)
+    {
+        printf("undefined reference to function '%s'\n",
+               node->data.function_call.name);
+        return;
+    }
+    func = ir_symbol_get_function(symb);
+
+    arg = node->data.function_call.args;
+    while (arg != NULL)
+    {
+        gen_java_handle_node(arg->value, sym_table);
+        arg = arg->next;
+    }
+
+    printf("    invokestatic foo/%s(", node->data.function_call.name);
+
+    p = ir_function_def_get_parameters(func);
+    for (; p != NULL; p = g_slist_next(p))
+    {
+        ir_variable_def_t *v = p->data;
+        printf("%s", gen_java_data_type_to_str(ir_variable_def_get_type(v)));
+    }
+
+    printf(")%s\n", 
+           gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
+}
+
 
 static void
 gen_java_handle_binary_op(ast_node_t *node, sym_table_t *sym_table)

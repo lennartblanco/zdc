@@ -84,14 +84,14 @@ ir_variable_def_get_type(ir_variable_def_t *var)
 }
 
 ir_function_def_t*
-new_ir_function_def()
+new_ir_function_def(sym_table_t *sym_table)
 {
     ir_function_def_t *func_def;
 
     func_def = g_malloc(sizeof(*func_def));
 
     func_def->parameters = NULL;
-    func_def->local = sym_table_new(NULL);
+    func_def->local = sym_table_new(sym_table);
     func_def->body = NULL;
 
     return func_def;
@@ -103,8 +103,6 @@ ir_function_def_add_parameter(ir_function_def_t *func,
 {
     assert(func);
     assert(var);
-
-    ir_symbol_t *symb;
 
     GSList *p;
 
@@ -252,6 +250,13 @@ new_ir_compile_unit()
     return comp_unit;
 }
 
+sym_table_t *
+ir_compile_unit_get_global_sym_table(ir_compile_unit_t *compile_unit)
+{
+    assert(compile_unit);
+
+    return compile_unit->global_sym_table;
+}
 
 ir_symbol_t*
 new_ir_symbol_function(ir_function_def_t *function)

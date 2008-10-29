@@ -64,7 +64,10 @@ sym_table_get_symbol(sym_table_t *table, char *name, ir_symbol_t **symbol)
     p = g_hash_table_lookup(table->table, name);
     if (p == NULL)
     {
-        return -1;
+        if (table->parent == NULL) {
+            return -1;
+        }
+        return sym_table_get_symbol(table->parent, name, symbol);
     }
 
     *symbol = p;

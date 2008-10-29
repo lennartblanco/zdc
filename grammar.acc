@@ -99,7 +99,7 @@ func_call<n> :
 ;
 /* FIXME: this rule will accept function calls 'foo(a,)' */
 func_call_args<n> :
-   null
+   null    { (*n).args_list = NULL; }
 |  term<x> { (*n).args_list = new_func_args_list(x.node, NULL); }
 |  term<x> ',' func_call_args<y> 
    { 
@@ -119,6 +119,7 @@ term<n> :
   term<x> '+' factor<y> { (*n).node = new_binary_operation(ast_plus_op, x.node, y.node); }
 | term<x> '-' factor<y> { (*n).node = new_binary_operation(ast_minus_op, x.node, y.node); }
 | factor<n>
+| func_call<n>
 ;
 
 factor<n> :

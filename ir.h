@@ -102,6 +102,12 @@ ir_compile_unit_add_function(ir_compile_unit_t *compile_unit,
 GList *
 ir_compile_unit_get_functions(ir_compile_unit_t *compile_unit);
 
+/**
+ * @return this compile units global symbol table
+ */
+sym_table_t *
+ir_compile_unit_get_global_sym_table(ir_compile_unit_t *compile_unit);
+
 /*************************************
  * IR variable definition operations *
  *************************************/
@@ -131,9 +137,11 @@ ir_variable_def_get_type(ir_variable_def_t *var);
 
 /**
  * constructor
+ *
+ * @sym_table the symbol table where this function will be defined
  */
 ir_function_def_t*
-new_ir_function_def();
+new_ir_function_def(sym_table_t *sym_table);
 
 /**
  * add a formal call parameter
@@ -145,6 +153,9 @@ int
 ir_function_def_add_parameter(ir_function_def_t *func,
                               ir_variable_def_t *var);
 
+/**
+ * @return function parameters as a list of ir_variable_def_t pointers
+ */
 GSList *
 ir_function_def_get_parameters(ir_function_def_t *func);
 
