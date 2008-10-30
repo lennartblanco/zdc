@@ -130,10 +130,10 @@ gen_java_handle_node(ast_node_t *node, sym_table_t *sym_table)
         case ast_function_call_node:
             gen_java_handle_func_call(node, sym_table);
             break;
-/*        case ast_negation_node:*/
-/*            gen_java_code(node->data.negation.value);*/
-/*            printf("    ineg\n");*/
-/*            break;*/
+        case ast_negation_node:
+            gen_java_handle_node(node->data.negation.value, sym_table);
+            printf("    ineg\n");
+            break;
         default:
             printf("; node->type %s\n", ast_node_to_str(node->type));
             break;

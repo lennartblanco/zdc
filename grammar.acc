@@ -119,7 +119,6 @@ term<n> :
   term<x> '+' factor<y> { (*n).node = new_binary_operation(ast_plus_op, x.node, y.node); }
 | term<x> '-' factor<y> { (*n).node = new_binary_operation(ast_minus_op, x.node, y.node); }
 | factor<n>
-| func_call<n>
 ;
 
 factor<n> :
@@ -131,6 +130,7 @@ factor<n> :
 primary<n> :
   NUMBER<x> { (*n).node = new_const(x.integer); }
 | IDENT<x> { (*n).node = new_var_value(x.text); }
+| func_call<n>
 | '(' term<n> ')'
 | '-' primary<x> { (*n).node = new_negation(x.node);}
 ;
