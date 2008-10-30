@@ -22,7 +22,3 @@ int hej()
     return add(10, foo());
 }
 
-//int bar()
-//{
-//    return -foo();
-//}
