@@ -53,14 +53,6 @@ gen_java_prelude()
 "   return\n"
 ".end method\n"
 "\n"
-".method public static printNum(I)V\n"
-"    .limit stack 16\n"
-"    .limit locals 16\n"
-"    getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-"    iload_0\n"
-"    invokevirtual java/io/PrintStream/println(I)V\n"
-"    return\n"
-".end method\n"
     );
 }
 
