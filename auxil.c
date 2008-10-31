@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "lex.h"
 #include "ast.h"
 #include "gen_java.h"
 #include "sym_table.h"
@@ -8,14 +9,65 @@
 
 extern ast_node_t *root_node;
 
-int main()
+/**
+ * Compile the D source file and write generated java assembly 
+ * to provided output file.
+ *
+ * @param input_file the file name of the D source file to compile
+ * @param output_file the file name where to write generated java assmebly
+ *
+ * @return 0 if the file was succcessfully compile, -1 on errors
+ */
+int
+compile_file(const char* input_file, 
+             const char* output_file)
 {
+   YY_BUFFER_STATE yy_buffer;
+   FILE *input_stream;
+   FILE *output_stream;
    ir_compile_unit_t *comp_unit;
+   char klass_name[strlen(output_file)];
 
+   /* open the input source file */
+   input_stream = fopen(input_file, "r");
+   if (input_stream == NULL)
+   {
+       fprintf(stderr, 
+               "error opening file '%s' for reading: %m\n",
+               input_file);
+       return -1;        
+   }
+
+   /* setup token parser to read the opened file */
+   yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
+   yy_switch_to_buffer(yy_buffer);
+
+   /* open the output file */
+   output_stream = fopen(output_file, "w");
+   if (output_stream == NULL)
+   {
+       fprintf(stderr, 
+               "error opening file '%s' for writing: %m\n",
+               output_file);
+       fclose(input_stream);
+       return -1;        
+   }
+   
+
+   fprintf(output_stream, "; compiling %s\n", input_file);
    yyparse();
-
    comp_unit = semantic_analyze(root_node);
-   gen_java_code(comp_unit);
+
+   /* use the output file name as the basis for class name */
+   strcpy(klass_name, output_file);
+   klass_name[strlen(output_file)-2] = '\0';
+   gen_java_code(comp_unit, output_stream, klass_name);
+
+   /* clean up */
+   fclose(output_stream);
+   yy_delete_buffer(yy_buffer);
+   fclose(input_stream);
+   
 
    return 0;
 }
@@ -31,5 +83,6 @@ yyerror(msg)
 
 yywrap()
 {
+   /* stop token parser when EOF is reached */
    return 1;
 }
