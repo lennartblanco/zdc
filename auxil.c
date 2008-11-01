@@ -7,7 +7,33 @@
 #include "sym_table.h"
 #include "sem_analyze.h"
 
+#include <assert.h>
+
 extern ast_node_t *root_node;
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+/**
+ * Convert a path to a class name. The filename without the extension becomes
+ * the filename, e.g.
+ *     foo.d > foo
+ *     roo/ma.d > ma
+ *
+ * This function assumes that the provided filename ends with '.d' string.
+ *
+ * @param file_name the file name to use as template for the class name
+ * @param class_name the resulting class name will be written here, this
+ *                   argument must point to an array that has place for
+                     the file name plus extension
+ */
+void
+get_class_name(const char *file_name, char *class_name);
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/ 
 
 /**
  * Compile the D source file and write generated java assembly 
@@ -59,8 +85,7 @@ compile_file(const char* input_file,
    comp_unit = semantic_analyze(root_node);
 
    /* use the output file name as the basis for class name */
-   strcpy(klass_name, output_file);
-   klass_name[strlen(output_file)-2] = '\0';
+   get_class_name(output_file, klass_name);
    gen_java_code(comp_unit, output_stream, klass_name);
 
    /* clean up */
@@ -86,3 +111,31 @@ yywrap()
    /* stop token parser when EOF is reached */
    return 1;
 }
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+void
+get_class_name(const char *file_name, char *class_name)
+{
+    const char *last_slash;
+    char *last_dot;
+
+    last_slash = strrchr(file_name, '/');
+    if (last_slash == NULL)
+    {
+        last_slash = file_name;
+    }
+    else
+    {
+        last_slash += 1;
+    }
+
+    strcpy(class_name, last_slash);
+
+    last_dot = strrchr(class_name, '.');
+    assert(last_dot != NULL);
+
+    last_dot[0] = '\0';
+}
+
