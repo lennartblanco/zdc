@@ -12,6 +12,8 @@ all: $(PROG)
 lex.h lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
 
+auxil.o: lex.h auxil.c
+
 ui.o: ui.d
 	gdc -c ui.d
 
