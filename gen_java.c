@@ -8,6 +8,16 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+typedef struct gen_java_comp_params_s
+{
+    FILE *out;
+    const char *class_name;
+} gen_java_comp_params_t;
+
+/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -15,41 +25,43 @@ static char *
 gen_java_data_type_to_str(ast_data_type_t t);
 
 static void
-gen_java_handle_node(FILE *out, ast_node_t *node, sym_table_t *sym_table);
+gen_java_handle_node(gen_java_comp_params_t *params,
+                     ast_node_t *node, sym_table_t *sym_table);
 
 static void
-gen_java_handle_function_def(FILE *out, ir_function_def_t *func);
+gen_java_handle_function_def(gen_java_comp_params_t *params,
+                             ir_function_def_t *func);
 
 static void
-gen_java_handle_return_statment(FILE *out, 
+gen_java_handle_return_statment(gen_java_comp_params_t *params, 
                                 ast_node_t *node, 
                                 sym_table_t *sym_table);
 
 static void
-gen_java_handle_var_value(FILE *out, 
+gen_java_handle_var_value(gen_java_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table);
 
 static void
-gen_java_handle_assigment(FILE *out,
+gen_java_handle_assigment(gen_java_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table);
 
 static void
-gen_java_handle_binary_op(FILE *out,
+gen_java_handle_binary_op(gen_java_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table);
 
 static void
-gen_java_handle_func_call(FILE *out,
+gen_java_handle_func_call(gen_java_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table);
 
 static void
-gen_java_prelude(FILE *out, const char *klass_name);
+gen_java_prelude(gen_java_comp_params_t *params);
 
 static void
-gen_java_epilog(FILE *out);
+gen_java_epilog(gen_java_comp_params_t *params);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -61,18 +73,21 @@ gen_java_code(ir_compile_unit_t *comp_unit,
               const char *klass_name)
 {
     GList *p;
+    gen_java_comp_params_t params; 
 
-    gen_java_prelude(out_stream, klass_name);
+    params.out = out_stream;
+    params.class_name = klass_name;
+    gen_java_prelude(&params);
 
     p = ir_compile_unit_get_functions(comp_unit);
     for (; p != NULL; p = g_list_next(p))
     {
-        gen_java_handle_function_def(out_stream, 
+        gen_java_handle_function_def(&params, 
                                      ir_symbol_get_function(p->data));
     }
     g_list_free(p);
 
-    gen_java_epilog(out_stream);
+    gen_java_epilog(&params);
 
 }
 
@@ -81,9 +96,9 @@ gen_java_code(ir_compile_unit_t *comp_unit,
  *---------------------------------------------------------------------------*/
 
 static void
-gen_java_prelude(FILE *out, const char *klass_name)
+gen_java_prelude(gen_java_comp_params_t *params)
 {
-    fprintf(out,
+    fprintf(params->out,
 ".class public %s\n"
 ".super java/lang/Object\n"
 "\n"
@@ -94,14 +109,14 @@ gen_java_prelude(FILE *out, const char *klass_name)
 "   return\n"
 ".end method\n"
 "\n",
-klass_name
+params->class_name
     );
 }
 
 static void
-gen_java_epilog(FILE *out)
+gen_java_epilog(gen_java_comp_params_t *params)
 {
-    fprintf(out,
+    fprintf(params->out,
 ".method public static main([Ljava/lang/String;)V\n"
 "   .limit stack 16\n"
 "   .limit locals 16\n"
@@ -111,7 +126,9 @@ gen_java_epilog(FILE *out)
 }
 
 static void
-gen_java_handle_code_block(FILE *out, ast_node_t *node, sym_table_t *sym_table)
+gen_java_handle_code_block(gen_java_comp_params_t *params,
+                           ast_node_t *node,
+                           sym_table_t *sym_table)
 {
     GSList *stmts;
 
@@ -119,42 +136,45 @@ gen_java_handle_code_block(FILE *out, ast_node_t *node, sym_table_t *sym_table)
 
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
-        gen_java_handle_node(out, stmts->data, sym_table);
+        gen_java_handle_node(params, stmts->data, sym_table);
     }
 }
 
 static void
-gen_java_handle_node(FILE *out, ast_node_t *node, sym_table_t *sym_table)
+gen_java_handle_node(gen_java_comp_params_t *params,
+                     ast_node_t *node, sym_table_t *sym_table)
 {
     switch (node->type)
     {
         case ast_code_block_node:
-            gen_java_handle_code_block(out, node, sym_table);
+            gen_java_handle_code_block(params, node, sym_table);
             break;
         case ast_return_statment_node:
-            gen_java_handle_return_statment(out, node, sym_table);
+            gen_java_handle_return_statment(params, node, sym_table);
             break;
         case ast_var_value_node:
-            gen_java_handle_var_value(out, node, sym_table);
+            gen_java_handle_var_value(params, node, sym_table);
             break;	
         case ast_assigment_node:
-            gen_java_handle_assigment(out, node, sym_table);
+            gen_java_handle_assigment(params, node, sym_table);
             break;
         case ast_constant_node:
-            fprintf(out, "    ldc %d\n", node->data.constant.value);
+            fprintf(params->out,
+                    "    ldc %d\n", node->data.constant.value);
 	    break;
         case ast_binary_oper_node:
-            gen_java_handle_binary_op(out, node, sym_table);
+            gen_java_handle_binary_op(params, node, sym_table);
             break;
         case ast_function_call_node:
-            gen_java_handle_func_call(out, node, sym_table);
+            gen_java_handle_func_call(params, node, sym_table);
             break;
         case ast_negation_node:
-            gen_java_handle_node(out, node->data.negation.value, sym_table);
-            fprintf(out, "    ineg\n");
+            gen_java_handle_node(params, node->data.negation.value, sym_table);
+            fprintf(params->out, "    ineg\n");
             break;
         default:
-            fprintf(out, "; node->type %s\n", ast_node_to_str(node->type));
+            fprintf(params->out,
+                    "; node->type %s\n", ast_node_to_str(node->type));
             break;
     }
 }
@@ -175,7 +195,8 @@ gen_java_data_type_to_str(ast_data_type_t t)
 }
 
 static void
-gen_java_handle_func_call(FILE *out, ast_node_t *node, sym_table_t *sym_table)
+gen_java_handle_func_call(gen_java_comp_params_t *params,
+                          ast_node_t *node, sym_table_t *sym_table)
 {
     assert(node);
     assert(node->type == ast_function_call_node);
@@ -201,50 +222,57 @@ gen_java_handle_func_call(FILE *out, ast_node_t *node, sym_table_t *sym_table)
     arg = node->data.function_call.args;
     while (arg != NULL)
     {
-        gen_java_handle_node(out, arg->value, sym_table);
+        gen_java_handle_node(params, arg->value, sym_table);
         arg = arg->next;
     }
 
-    fprintf(out, "    invokestatic foo/%s(", node->data.function_call.name);
+    fprintf(params->out,
+            "    invokestatic %s/%s(",
+            params->class_name,
+            node->data.function_call.name);
 
     p = ir_function_def_get_parameters(func);
     for (; p != NULL; p = g_slist_next(p))
     {
         ir_variable_def_t *v = p->data;
-        fprintf(out, 
+        fprintf(params->out, 
                 "%s", gen_java_data_type_to_str(ir_variable_def_get_type(v)));
     }
 
-    fprintf(out, ")%s\n", 
+    fprintf(params->out, ")%s\n", 
            gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
 }
 
 
 static void
-gen_java_handle_binary_op(FILE *out, ast_node_t *node, sym_table_t *sym_table)
+gen_java_handle_binary_op(gen_java_comp_params_t *params,
+                          ast_node_t *node,
+                          sym_table_t *sym_table)
 {
-    gen_java_handle_node(out, node->data.binary_op.left, sym_table);
-    gen_java_handle_node(out, node->data.binary_op.right, sym_table);
+    gen_java_handle_node(params, node->data.binary_op.left, sym_table);
+    gen_java_handle_node(params, node->data.binary_op.right, sym_table);
 
     switch (node->data.binary_op.oper_type)
     {
         case ast_plus_op:
-            fprintf(out, "    iadd\n");
+            fprintf(params->out, "    iadd\n");
             break;
         case ast_minus_op:
-            fprintf(out, "    isub\n");
+            fprintf(params->out, "    isub\n");
             break;
         case ast_mult_op:
-            fprintf(out, "    imul\n");
+            fprintf(params->out, "    imul\n");
             break;
         case ast_division_op:
-            fprintf(out, "    idiv\n");
+            fprintf(params->out, "    idiv\n");
             break;
     }
 }
 
 static void
-gen_java_handle_assigment(FILE *out, ast_node_t *node, sym_table_t *sym_table)
+gen_java_handle_assigment(gen_java_comp_params_t *params,
+                          ast_node_t *node,
+                          sym_table_t *sym_table)
 {
 
     ir_symbol_t *symb;
@@ -261,22 +289,24 @@ gen_java_handle_assigment(FILE *out, ast_node_t *node, sym_table_t *sym_table)
         return;
     }
 
-    gen_java_handle_node(out, node->data.assigment.value, sym_table);
+    gen_java_handle_node(params, node->data.assigment.value, sym_table);
     addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
     if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
     {
-        fprintf(out, "    istore_%d\n", addr.java_variable_addr);
+        fprintf(params->out, "    istore_%d\n", addr.java_variable_addr);
     }
     else
     {
-        fprintf(out, "    istore %d\n", addr.java_variable_addr);
+        fprintf(params->out, "    istore %d\n", addr.java_variable_addr);
     }
 }
 
 
 static void
-gen_java_handle_var_value(FILE *out, ast_node_t *node, sym_table_t *sym_table)
+gen_java_handle_var_value(gen_java_comp_params_t *params,
+                          ast_node_t *node,
+                          sym_table_t *sym_table)
 {
     ir_symbol_t *symb;
     int res;
@@ -295,11 +325,11 @@ gen_java_handle_var_value(FILE *out, ast_node_t *node, sym_table_t *sym_table)
 
             if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
             {
-                fprintf(out, "    iload_%d\n", addr.java_variable_addr);
+                fprintf(params->out, "    iload_%d\n", addr.java_variable_addr);
             }
             else
             {
-                fprintf(out, "    iload %d\n", addr.java_variable_addr);
+                fprintf(params->out, "    iload %d\n", addr.java_variable_addr);
             }
             break;
         }
@@ -312,7 +342,7 @@ gen_java_handle_var_value(FILE *out, ast_node_t *node, sym_table_t *sym_table)
 }
 
 static void
-gen_java_handle_return_statment(FILE *out,
+gen_java_handle_return_statment(gen_java_comp_params_t *params,
                                 ast_node_t *node,
                                 sym_table_t *sym_table)
 {
@@ -327,18 +357,19 @@ gen_java_handle_return_statment(FILE *out,
     if (ret_val == NULL)
     {
         /* assume void return for now */
-        fprintf(out, "    return\n");
+        fprintf(params->out, "    return\n");
     }
     else
     {
         /* assume int return for now */
-        gen_java_handle_node(out, ret_val, sym_table);
-        fprintf(out, "    ireturn\n");
+        gen_java_handle_node(params, ret_val, sym_table);
+        fprintf(params->out, "    ireturn\n");
     }
 }
 
 static void
-gen_java_handle_function_def(FILE *out, ir_function_def_t *func)
+gen_java_handle_function_def(gen_java_comp_params_t *params,
+                             ir_function_def_t *func)
 {
     GSList *p;
     GList *l;
@@ -353,7 +384,8 @@ gen_java_handle_function_def(FILE *out, ir_function_def_t *func)
     /*
      * generate function header
      */
-    fprintf(out, ".method public static %s(", ir_function_def_get_name(func));
+    fprintf(params->out,
+            ".method public static %s(", ir_function_def_get_name(func));
 
     /* generate function parameters types and count parameters */
     p = ir_function_def_get_parameters(func);
@@ -361,11 +393,11 @@ gen_java_handle_function_def(FILE *out, ir_function_def_t *func)
     {
         var = p->data;
         param_num += 1;
-        fprintf(out, "%s", 
+        fprintf(params->out, "%s", 
                 gen_java_data_type_to_str(ir_variable_def_get_type(var)));
     }
 
-    fprintf(out, ")%s\n", 
+    fprintf(params->out, ")%s\n", 
            gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
 
     /* count local variables and assign numbers */
@@ -393,9 +425,11 @@ gen_java_handle_function_def(FILE *out, ir_function_def_t *func)
         p = g_slist_next(p);
     }
 
-    fprintf(out, "    .limit locals %d\n", param_num + local_var_num);
-    fprintf(out, "    .limit stack 32\n");    
-    gen_java_handle_code_block(out, ir_function_def_get_body(func), local_vars);
-    fprintf(out, ".end method\n");
+    fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
+    fprintf(params->out, "    .limit stack 32\n");    
+    gen_java_handle_code_block(params, 
+                               ir_function_def_get_body(func),
+                               local_vars);
+    fprintf(params->out, ".end method\n");
 }
 
