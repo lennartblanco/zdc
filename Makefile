@@ -15,7 +15,7 @@ lex.h lex.c: tokens.lex yygrammar.h
 auxil.o: lex.h auxil.c
 
 ui.o: ui.d
-	gdc -c ui.d
+	gdc -g -c ui.d
 
 yygrammar.c yygrammar.h: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc

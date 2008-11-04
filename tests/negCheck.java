@@ -1,43 +1,34 @@
 //
-// This code can be used, after some message, to
-// check the java accembly generated for neg.d
+// Invoke function in func_call.d and check that they
+// return expected values
 //
-public class negCheck
+public class negCheck extends check
 {
-    public static void check(int res, int expectedRes)
-    {
-        if (res == expectedRes) 
-        {
-            System.out.println(" [ok]");
-        }
-        else
-        {
-            System.out.println(" unexpected result!");
-        }
-    }
     public static void main(String[] args)
     {
         int res;
 
-        res = foo.neg1(256);
-        System.out.print("foo.neg1(256) = " + res);
+        res = neg.neg1(256);
+        System.out.print("neg.neg1(256) = " + res);
         check(res, -256);
 
-        res = foo.neg2(-128);
-        System.out.print("foo.neg2(-128) = " + res);
+        res = neg.neg2(-128);
+        System.out.print("neg.neg2(-128) = " + res);
         check(res, 128);
 
-        res = foo.neg3();
-        System.out.print("foo.neg3() = " + res);
+        res = neg.neg3();
+        System.out.print("neg.neg3() = " + res);
         check(res, 3);
 
-        res = foo.neg5(6);
-        System.out.print("foo.neg5() = " + res);
+        res = neg.neg5(6);
+        System.out.print("neg.neg5() = " + res);
         check(res, 46);
 
-        res = foo.neg6(4);
-        System.out.print("foo.neg6() = " + res);
+        res = neg.neg6(4);
+        System.out.print("neg.neg6() = " + res);
         check(res, 0);
+
+        exit();
     }
 }
 
