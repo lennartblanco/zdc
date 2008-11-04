@@ -20,7 +20,7 @@ int main(char[][] args)
         string target_file;
 
         /* check if the file name ends with '.d' */
-        if(arg.length, arg[arg.length-2..$] != ".d")
+        if(arg[arg.length-2..$] != ".d")
         {
             writefln("%s: error: '%s' not a d source file.", args[0], arg);
             return -1;
