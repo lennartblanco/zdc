@@ -27,4 +27,5 @@ run_test()
 
 run_test neg
 run_test func_call
+run_test bool_op
 echo "_all_tests_passed_"

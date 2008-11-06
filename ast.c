@@ -24,14 +24,29 @@ new_binary_operation(ast_oper_type_t oper_type,
 }
 
 ast_node_t *
-new_const(int value)
+new_int_const(int value)
 {
     ast_node_t *node;
 
     node = g_malloc(sizeof(*node));
     
     node->type = ast_constant_node;
-    node->data.constant.value = value;
+    node->data.constant.value_type = ast_integer_type;
+    node->data.constant.value.int_value = value;
+
+    return node;
+}
+
+ast_node_t *
+new_bool_const(bool value)
+{
+    ast_node_t *node;
+
+    node = g_malloc(sizeof(*node));
+    
+    node->type = ast_constant_node;
+    node->data.constant.value_type = ast_bool_type;
+    node->data.constant.value.bool_value = value;
 
     return node;
 }

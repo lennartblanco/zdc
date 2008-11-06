@@ -188,6 +188,8 @@ gen_java_data_type_to_str(ast_data_type_t t)
             return "V";
         case ast_integer_type:
             return "I";
+        case ast_bool_type:
+            return "Z";
         default:
             assert(false);
     }

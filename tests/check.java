@@ -17,6 +17,20 @@ public class check
         }
     }
 
+    protected static void check(boolean res, boolean expected)
+    {
+        if (res == expected) 
+        {
+            System.out.println(" [ok]");
+            passed += 1;
+        }
+        else
+        {
+            System.out.println(" unexpected result!");
+            failed += 1;
+        }
+    }
+
     protected static void exit()
     {
         System.out.println("passed: " + passed +

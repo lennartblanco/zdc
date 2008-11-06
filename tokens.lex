@@ -5,23 +5,26 @@
 #include "yygrammar.h"
 %}
 %%
-"+"    { return '+'; }
-"-"    { return '-'; }
-"*"    { return '*'; }
-"/"    { return '/'; }
-"("    { return '('; }
-")"    { return ')'; }
-";"    { return ';'; }
-","    { return ','; }
-"="    { return '='; }
-"{"    { return '{'; }
-"}"    { return '}'; }
-"int"  { return INT; }
-"void" { return VOID; }
-"return" { return RETURN; }
-[[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return IDENT; } 
-[0-9]+ { yylval.integer = atoi(yytext); return NUMBER; }
-" "    { /* skip blank */ }
-"//".* { /* consume comment */ }
-\n     { yypos++; /* adjust linenumber and skip newline */ }
-.      { yyerror("illegal token"); }
+"+"      { return '+'; }
+"-"      { return '-'; }
+"*"      { return '*'; }
+"/"      { return '/'; }
+"("      { return '('; }
+")"      { return ')'; }
+";"      { return ';'; }
+","      { return ','; }
+"="      { return '='; }
+"{"      { return '{'; }
+"}"      { return '}'; }
+"int"    { return TOK_INT; }
+"void"   { return TOK_VOID; }
+"bool"   { return TOK_BOOL; }
+"true"   { return TOK_TRUE; }
+"false"  { return TOK_FALSE; }
+"return" { return TOK_RETURN; }
+[[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; } 
+[0-9]+   { yylval.integer = atoi(yytext); return TOK_NUMBER; }
+" "      { /* skip blank */ }
+"//".*   { /* consume comment */ }
+\n       { yypos++; /* adjust linenumber and skip newline */ }
+.        { yyerror("illegal token"); }

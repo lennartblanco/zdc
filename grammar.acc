@@ -11,7 +11,9 @@
 ast_node_t *root_node;
 }
 
-%token NUMBER, IDENT, INT, VOID, RETURN;
+%token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
+       TOK_INT, TOK_VOID, TOK_BOOL;
+       
 
 root : 
    { 
@@ -34,7 +36,7 @@ func_def_list<compile_unit> :
 ;
 
 func_def<x> :
-  type<t> IDENT<name> '(' (func_arg_decl_list<args> | null { args.func_params = NULL; }) ')' code_block<code>
+  type<t> TOK_IDENT<name> '(' (func_arg_decl_list<args> | null { args.func_params = NULL; }) ')' code_block<code>
   {
       (*x).node = new_function_definition(name.text, t.type, args.func_params, code.node);
   }
@@ -69,8 +71,10 @@ statments_list<n> :
 ;
 
 type<x> :
-    INT    { (*x).type = ast_integer_type; }
-|   VOID   { (*x).type = ast_void_type; }
+    TOK_VOID   { (*x).type = ast_void_type; }
+|   TOK_INT    { (*x).type = ast_integer_type; }
+|   TOK_BOOL   { (*x).type = ast_bool_type; }
+
 ;
 
 statment<x> :
@@ -81,18 +85,18 @@ statment<x> :
 ;
 
 return_stmt<x> :
-    RETURN term<n> 
+    TOK_RETURN term<n> 
     { 
        (*x).node = new_return_statment(n.node);
     }
-|   RETURN       
+|   TOK_RETURN       
     {
         (*x).node = new_return_statment(NULL);
     }
 ;
 
 func_call<n> :
-    IDENT<x> '(' func_call_args<y> ')' 
+    TOK_IDENT<x> '(' func_call_args<y> ')' 
     { 
         (*n).node = new_function_call(x.text, y.args_list); 
     }
@@ -108,11 +112,11 @@ func_call_args<n> :
 ;
 
 var_dec<n> :
-   INT IDENT<x> { (*n).node = new_var_declaration(ast_integer_type, x.text); }
+   type<t> TOK_IDENT<x> { (*n).node = new_var_declaration(t.type, x.text); }
 ;
 
 var_assigment<n> :
-   IDENT<x> '=' term<y> { (*n).node = new_assigment(x.text, y.node); }
+   TOK_IDENT<x> '=' term<y> { (*n).node = new_assigment(x.text, y.node); }
 ;
 
 term<n> :
@@ -128,8 +132,10 @@ factor<n> :
 ;
 
 primary<n> :
-  NUMBER<x> { (*n).node = new_const(x.integer); }
-| IDENT<x> { (*n).node = new_var_value(x.text); }
+  TOK_NUMBER<x> { (*n).node = new_int_const(x.integer); }
+| TOK_TRUE      { (*n).node = new_bool_const(true); }
+| TOK_FALSE     { (*n).node = new_bool_const(false); }
+| TOK_IDENT<x> { (*n).node = new_var_value(x.text); }
 | func_call<n>
 | '(' term<n> ')'
 | '-' primary<x> { (*n).node = new_negation(x.node);}

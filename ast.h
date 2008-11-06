@@ -2,6 +2,7 @@
 #define AST_INC_X
 
 #include <glib.h>
+#include <stdbool.h>
 
 typedef struct ast_node_s ast_node_t;
 
@@ -37,6 +38,7 @@ typedef enum ast_oper_type_e
 typedef enum ast_data_type_e
 {
     ast_void_type,
+    ast_bool_type,             /* boolean */
     ast_integer_type,          /* int 32-bit signed */
     ast_uinteger_type          /* uint 32-bit unsigned */
 } ast_data_type_t;
@@ -114,7 +116,12 @@ typedef struct ast_binary_op_s
 /** constant expression */
 typedef struct ast_constant_s
 {
-    int value;
+    ast_data_type_t value_type;
+    union value_u
+    {
+        int int_value;
+        bool bool_value;
+    } value;
 } ast_constant_t;
 
 /** arithmetic negation */
@@ -167,16 +174,36 @@ struct ast_node_s
  * Different AST-nodes constructors
  ****/
 
+/********************************
+ * AST constant node operations *
+ ********************************/
+
 ast_node_t *
-new_const(int value);
+new_int_const(int value);
+
+ast_node_t *
+new_bool_const(bool value);
+
+
+/********************************
+ * AST negation node operations *
+ ********************************/
 
 ast_node_t *
 new_negation(ast_node_t *value);
+
+/****************************************
+ * AST binary operation node operations *
+ ****************************************/
 
 ast_node_t *
 new_binary_operation(ast_oper_type_t oper_type, 
                      ast_node_t *left, 
                      ast_node_t *right);
+
+/*********************************
+ * AST assigment node operations *
+ *********************************/
 
 ast_node_t *
 new_assigment(char *lvalue, 
