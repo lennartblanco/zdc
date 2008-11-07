@@ -29,6 +29,7 @@ typedef enum ast_node_type_e
  */
 typedef enum ast_oper_type_e
 {
+    ast_less_op,
     ast_plus_op,
     ast_minus_op,
     ast_mult_op,

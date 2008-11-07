@@ -12,6 +12,10 @@ public class bool_opCheck extends check
         System.out.print("bool_op.return_false = " + res);
         check(res, false);
 
+        res = bool_op.is_less(1, 2);
+        System.out.println("is_less(1, 2) = " + res);
+        check(res, true);
+
         exit();
     }
 }

@@ -116,8 +116,20 @@ var_dec<n> :
 ;
 
 var_assigment<n> :
-   TOK_IDENT<x> '=' term<y> { (*n).node = new_assigment(x.text, y.node); }
+   TOK_IDENT<x> '=' expression<y> { (*n).node = new_assigment(x.text, y.node); }
 ;
+
+expression<n> :
+  boolean_expression<n>
+| term<n>
+;
+
+boolean_expression<n> :
+  term<l> '<' term<r> 
+  { 
+      (*n).node = new_binary_operation(ast_less_op, l.node, r.node);
+  }
+; 
 
 term<n> :
   term<x> '+' factor<y> { (*n).node = new_binary_operation(ast_plus_op, x.node, y.node); }

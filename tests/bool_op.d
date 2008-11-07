@@ -15,10 +15,29 @@ is_less(int a, int b)
 {
     bool res;
 
-//    res = a < b;
+    res = a < b;
 
-    return false;
+    return res;
 }
+
+//bool
+//less_tst1()
+//{
+//    bool f;
+
+//    f = 10 + 2 < 20;
+
+//    return f;
+//}
+
+//bool
+//less_tst2(int x)
+//{
+//    bool f;
+
+//    f = 10 + 2 < 20 * x;
+//    return f;
+//}
 
 bool
 and_oper(bool left, bool right)

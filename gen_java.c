@@ -256,6 +256,15 @@ gen_java_handle_binary_op(gen_java_comp_params_t *params,
 
     switch (node->data.binary_op.oper_type)
     {
+        case ast_less_op:
+            fprintf(params->out,
+                "    if_icmplt TrueLabel\n"
+                "    iconst_0\n"
+                "    goto EndLable\n"
+                "TrueLabel:\n"
+                "    iconst_1\n"
+                "EndLable:\n");
+            break;
         case ast_plus_op:
             fprintf(params->out, "    iadd\n");
             break;
@@ -268,6 +277,9 @@ gen_java_handle_binary_op(gen_java_comp_params_t *params,
         case ast_division_op:
             fprintf(params->out, "    idiv\n");
             break;
+        default:
+            /* unexpected operation type */
+            assert(false);
     }
 }
 
