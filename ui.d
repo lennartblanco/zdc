@@ -30,8 +30,13 @@ int main(char[][] args)
         target_file = arg[0..arg.length-2] ~ ".j";
 
         /* invoke compilation */
-        compile_file(std.string.toStringz(arg), 
-                     std.string.toStringz(target_file));
+        int r = compile_file(std.string.toStringz(arg), 
+                             std.string.toStringz(target_file));
+        if (r != 0)
+        {
+            /* there were error compiling the file, bail out */
+            return r;
+        }
     }
 
     return 0;
