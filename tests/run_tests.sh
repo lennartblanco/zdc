@@ -6,8 +6,8 @@ run_checked()
 {
     ($1 $2) || 
     {
-        echo "ERROR: '$1 $2' failed";
-        exit 1;
+        echo "ERROR: '$1 $2' failed"
+        exit 1
     }
 }
 
@@ -24,6 +24,12 @@ run_test()
     run_checked javac "$test_name"Check.java
     run_checked java "$test_name"Check
 }
+
+if [ "$1" ]; then
+    run_test $1
+    echo "'$1' test passed"
+    exit 0
+fi
 
 run_test neg
 run_test func_call

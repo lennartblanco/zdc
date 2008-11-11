@@ -1,67 +1,13 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "ast.h"
 #include "sym_table.h"
 #include "gen_java.h"
+#include "gen_java_int.h"
 
 #include <assert.h>
-
-/*---------------------------------------------------------------------------*
- *                             type definitions                              *
- *---------------------------------------------------------------------------*/
-
-typedef struct gen_java_comp_params_s
-{
-    FILE *out;
-    const char *class_name;
-} gen_java_comp_params_t;
-
-/*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static char *
-gen_java_data_type_to_str(ast_data_type_t t);
-
-static void
-gen_java_handle_node(gen_java_comp_params_t *params,
-                     ast_node_t *node, sym_table_t *sym_table);
-
-static void
-gen_java_handle_function_def(gen_java_comp_params_t *params,
-                             ir_function_def_t *func);
-
-static void
-gen_java_handle_return_statment(gen_java_comp_params_t *params, 
-                                ast_node_t *node, 
-                                sym_table_t *sym_table);
-
-static void
-gen_java_handle_var_value(gen_java_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
-
-static void
-gen_java_handle_assigment(gen_java_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
-
-static void
-gen_java_handle_binary_op(gen_java_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
-
-static void
-gen_java_handle_func_call(gen_java_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
-
-static void
-gen_java_prelude(gen_java_comp_params_t *params);
-
-static void
-gen_java_epilog(gen_java_comp_params_t *params);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -77,6 +23,7 @@ gen_java_code(ir_compile_unit_t *comp_unit,
 
     params.out = out_stream;
     params.class_name = klass_name;
+    strcpy(params.next_label, "A");
     gen_java_prelude(&params);
 
     p = ir_compile_unit_get_functions(comp_unit);
@@ -196,6 +143,45 @@ gen_java_data_type_to_str(ast_data_type_t t)
     return NULL;
 }
 
+STATIC void
+gen_java_get_next_label(gen_java_comp_params_t *params,
+                        char *label)
+{
+    int i;
+    char *p;
+
+    strcpy(label, params->next_label);
+
+    p = &(params->next_label[0]);
+
+    i = 0;
+    while (true)
+    {
+        assert(i < MAX_JAVA_LABEL);
+        p[i] += 1;
+        if (p[i] > 'Z' && p[i] < 'a')
+        {
+            p[i] = 'a';
+            break;
+        }
+        else if (p[i] > 'z')
+        {
+            p[i] = 'A';
+            i += 1;
+            if (p[i] == '\0')
+            {
+                p[i] = 'A';
+                p[i+1] = '\0';
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
 static void
 gen_java_handle_func_call(gen_java_comp_params_t *params,
                           ast_node_t *node, sym_table_t *sym_table)
@@ -247,6 +233,40 @@ gen_java_handle_func_call(gen_java_comp_params_t *params,
 
 
 static void
+gen_java_comp_ops_body(gen_java_comp_params_t *params,
+                       ast_oper_type_t type)
+{
+    char trueLabel[MAX_JAVA_LABEL];
+    char endLabel[MAX_JAVA_LABEL];
+    const char* operationCond;
+
+    gen_java_get_next_label(params, trueLabel);
+    gen_java_get_next_label(params, endLabel);
+
+    switch (type)
+    {
+        case ast_less_op:
+            operationCond = "lt";
+            break;
+        default:
+            /* unexpected comparison operation */
+            assert(false);
+    }
+    
+    fprintf(params->out,
+            "    if_icmp%s %s\n"
+            "    iconst_0\n"
+            "    goto %s\n"
+            "%s:\n"
+            "    iconst_1\n"
+            "%s:\n", 
+            operationCond, trueLabel, endLabel, trueLabel, endLabel);
+
+    
+    
+}
+
+static void
 gen_java_handle_binary_op(gen_java_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table)
@@ -254,16 +274,12 @@ gen_java_handle_binary_op(gen_java_comp_params_t *params,
     gen_java_handle_node(params, node->data.binary_op.left, sym_table);
     gen_java_handle_node(params, node->data.binary_op.right, sym_table);
 
-    switch (node->data.binary_op.oper_type)
+    ast_oper_type_t operationType = node->data.binary_op.oper_type;
+
+    switch (operationType)
     {
         case ast_less_op:
-            fprintf(params->out,
-                "    if_icmplt TrueLabel\n"
-                "    iconst_0\n"
-                "    goto EndLable\n"
-                "TrueLabel:\n"
-                "    iconst_1\n"
-                "EndLable:\n");
+            gen_java_comp_ops_body(params, operationType);
             break;
         case ast_plus_op:
             fprintf(params->out, "    iadd\n");

@@ -13,7 +13,11 @@ public class bool_opCheck extends check
         check(res, false);
 
         res = bool_op.is_less(1, 2);
-        System.out.println("is_less(1, 2) = " + res);
+        System.out.print("is_less(1, 2) = " + res);
+        check(res, true);
+
+        res = bool_op.less_tst1();
+        System.out.print("less_tst1() = " + res);
         check(res, true);
 
         exit();
