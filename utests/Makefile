@@ -5,7 +5,7 @@ LDFLAGS += $(shell  pkg-config --libs glib-2.0)
 
 TEST_SRC := $(wildcard ../*.c)
 TEST_OBJS :=  $(TEST_SRC:../%.c=%.o)
-OBJS := check_gen_java.o  main.o
+OBJS := check_java_trgt.o  main.o
 
 all: $(PROG)
 

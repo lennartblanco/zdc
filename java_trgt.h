@@ -1,8 +1,8 @@
 #include "ir.h"
 
 
-#ifndef GEN_JAVA_INC_X
-#define GEN_JAVA_INC_X
+#ifndef JAVA_TRGT_INC_X
+#define JAVA_TRGT_INC_X
 
 /**
  * Generate the java assembly and write it to the provided stream.
@@ -12,8 +12,8 @@
  * @param klass_name the class name where to place the generate code
  */
 void 
-gen_java_code(ir_compile_unit_t *comp_unit,
-              FILE *out_stream, 
-              const char *klass_name);
+java_trgt_code(ir_compile_unit_t *comp_unit,
+               FILE *out_stream, 
+               const char *klass_name);
 
-#endif
+#endif /* JAVA_TRGT */

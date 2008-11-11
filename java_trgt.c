@@ -4,8 +4,8 @@
 
 #include "ast.h"
 #include "sym_table.h"
-#include "gen_java.h"
-#include "gen_java_int.h"
+#include "java_trgt.h"
+#include "java_trgt_int.h"
 
 #include <assert.h>
 
@@ -14,27 +14,27 @@
  *---------------------------------------------------------------------------*/ 
 
 void
-gen_java_code(ir_compile_unit_t *comp_unit,
+java_trgt_code(ir_compile_unit_t *comp_unit,
               FILE *out_stream, 
               const char *klass_name)
 {
     GList *p;
-    gen_java_comp_params_t params; 
+    java_trgt_comp_params_t params; 
 
     params.out = out_stream;
     params.class_name = klass_name;
     strcpy(params.next_label, "A");
-    gen_java_prelude(&params);
+    java_trgt_prelude(&params);
 
     p = ir_compile_unit_get_functions(comp_unit);
     for (; p != NULL; p = g_list_next(p))
     {
-        gen_java_handle_function_def(&params, 
+        java_trgt_handle_function_def(&params, 
                                      ir_symbol_get_function(p->data));
     }
     g_list_free(p);
 
-    gen_java_epilog(&params);
+    java_trgt_epilog(&params);
 
 }
 
@@ -43,7 +43,7 @@ gen_java_code(ir_compile_unit_t *comp_unit,
  *---------------------------------------------------------------------------*/
 
 static void
-gen_java_prelude(gen_java_comp_params_t *params)
+java_trgt_prelude(java_trgt_comp_params_t *params)
 {
     fprintf(params->out,
 ".class public %s\n"
@@ -61,7 +61,7 @@ params->class_name
 }
 
 static void
-gen_java_epilog(gen_java_comp_params_t *params)
+java_trgt_epilog(java_trgt_comp_params_t *params)
 {
     fprintf(params->out,
 ".method public static main([Ljava/lang/String;)V\n"
@@ -73,7 +73,7 @@ gen_java_epilog(gen_java_comp_params_t *params)
 }
 
 static void
-gen_java_handle_code_block(gen_java_comp_params_t *params,
+java_trgt_handle_code_block(java_trgt_comp_params_t *params,
                            ast_node_t *node,
                            sym_table_t *sym_table)
 {
@@ -83,40 +83,40 @@ gen_java_handle_code_block(gen_java_comp_params_t *params,
 
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
-        gen_java_handle_node(params, stmts->data, sym_table);
+        java_trgt_handle_node(params, stmts->data, sym_table);
     }
 }
 
 static void
-gen_java_handle_node(gen_java_comp_params_t *params,
+java_trgt_handle_node(java_trgt_comp_params_t *params,
                      ast_node_t *node, sym_table_t *sym_table)
 {
     switch (node->type)
     {
         case ast_code_block_node:
-            gen_java_handle_code_block(params, node, sym_table);
+            java_trgt_handle_code_block(params, node, sym_table);
             break;
         case ast_return_statment_node:
-            gen_java_handle_return_statment(params, node, sym_table);
+            java_trgt_handle_return_statment(params, node, sym_table);
             break;
         case ast_var_value_node:
-            gen_java_handle_var_value(params, node, sym_table);
+            java_trgt_handle_var_value(params, node, sym_table);
             break;	
         case ast_assigment_node:
-            gen_java_handle_assigment(params, node, sym_table);
+            java_trgt_handle_assigment(params, node, sym_table);
             break;
         case ast_constant_node:
             fprintf(params->out,
                     "    ldc %d\n", node->data.constant.value);
 	    break;
         case ast_binary_oper_node:
-            gen_java_handle_binary_op(params, node, sym_table);
+            java_trgt_handle_binary_op(params, node, sym_table);
             break;
         case ast_function_call_node:
-            gen_java_handle_func_call(params, node, sym_table);
+            java_trgt_handle_func_call(params, node, sym_table);
             break;
         case ast_negation_node:
-            gen_java_handle_node(params, node->data.negation.value, sym_table);
+            java_trgt_handle_node(params, node->data.negation.value, sym_table);
             fprintf(params->out, "    ineg\n");
             break;
         default:
@@ -127,7 +127,7 @@ gen_java_handle_node(gen_java_comp_params_t *params,
 }
 
 static char *
-gen_java_data_type_to_str(ast_data_type_t t)
+java_trgt_data_type_to_str(ast_data_type_t t)
 {
     switch(t)
     {
@@ -144,7 +144,7 @@ gen_java_data_type_to_str(ast_data_type_t t)
 }
 
 STATIC void
-gen_java_get_next_label(gen_java_comp_params_t *params,
+java_trgt_get_next_label(java_trgt_comp_params_t *params,
                         char *label)
 {
     int i;
@@ -183,7 +183,7 @@ gen_java_get_next_label(gen_java_comp_params_t *params,
 }
 
 static void
-gen_java_handle_func_call(gen_java_comp_params_t *params,
+java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                           ast_node_t *node, sym_table_t *sym_table)
 {
     assert(node);
@@ -210,7 +210,7 @@ gen_java_handle_func_call(gen_java_comp_params_t *params,
     arg = node->data.function_call.args;
     while (arg != NULL)
     {
-        gen_java_handle_node(params, arg->value, sym_table);
+        java_trgt_handle_node(params, arg->value, sym_table);
         arg = arg->next;
     }
 
@@ -224,24 +224,24 @@ gen_java_handle_func_call(gen_java_comp_params_t *params,
     {
         ir_variable_def_t *v = p->data;
         fprintf(params->out, 
-                "%s", gen_java_data_type_to_str(ir_variable_def_get_type(v)));
+                "%s", java_trgt_data_type_to_str(ir_variable_def_get_type(v)));
     }
 
     fprintf(params->out, ")%s\n", 
-           gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
+           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 }
 
 
 static void
-gen_java_comp_ops_body(gen_java_comp_params_t *params,
+java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
                        ast_oper_type_t type)
 {
     char trueLabel[MAX_JAVA_LABEL];
     char endLabel[MAX_JAVA_LABEL];
     const char* operationCond;
 
-    gen_java_get_next_label(params, trueLabel);
-    gen_java_get_next_label(params, endLabel);
+    java_trgt_get_next_label(params, trueLabel);
+    java_trgt_get_next_label(params, endLabel);
 
     switch (type)
     {
@@ -267,19 +267,19 @@ gen_java_comp_ops_body(gen_java_comp_params_t *params,
 }
 
 static void
-gen_java_handle_binary_op(gen_java_comp_params_t *params,
+java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table)
 {
-    gen_java_handle_node(params, node->data.binary_op.left, sym_table);
-    gen_java_handle_node(params, node->data.binary_op.right, sym_table);
+    java_trgt_handle_node(params, node->data.binary_op.left, sym_table);
+    java_trgt_handle_node(params, node->data.binary_op.right, sym_table);
 
     ast_oper_type_t operationType = node->data.binary_op.oper_type;
 
     switch (operationType)
     {
         case ast_less_op:
-            gen_java_comp_ops_body(params, operationType);
+            java_trgt_comp_ops_body(params, operationType);
             break;
         case ast_plus_op:
             fprintf(params->out, "    iadd\n");
@@ -300,7 +300,7 @@ gen_java_handle_binary_op(gen_java_comp_params_t *params,
 }
 
 static void
-gen_java_handle_assigment(gen_java_comp_params_t *params,
+java_trgt_handle_assigment(java_trgt_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table)
 {
@@ -319,7 +319,7 @@ gen_java_handle_assigment(gen_java_comp_params_t *params,
         return;
     }
 
-    gen_java_handle_node(params, node->data.assigment.value, sym_table);
+    java_trgt_handle_node(params, node->data.assigment.value, sym_table);
     addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
     if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
@@ -334,7 +334,7 @@ gen_java_handle_assigment(gen_java_comp_params_t *params,
 
 
 static void
-gen_java_handle_var_value(gen_java_comp_params_t *params,
+java_trgt_handle_var_value(java_trgt_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table)
 {
@@ -372,7 +372,7 @@ gen_java_handle_var_value(gen_java_comp_params_t *params,
 }
 
 static void
-gen_java_handle_return_statment(gen_java_comp_params_t *params,
+java_trgt_handle_return_statment(java_trgt_comp_params_t *params,
                                 ast_node_t *node,
                                 sym_table_t *sym_table)
 {
@@ -392,13 +392,13 @@ gen_java_handle_return_statment(gen_java_comp_params_t *params,
     else
     {
         /* assume int return for now */
-        gen_java_handle_node(params, ret_val, sym_table);
+        java_trgt_handle_node(params, ret_val, sym_table);
         fprintf(params->out, "    ireturn\n");
     }
 }
 
 static void
-gen_java_handle_function_def(gen_java_comp_params_t *params,
+java_trgt_handle_function_def(java_trgt_comp_params_t *params,
                              ir_function_def_t *func)
 {
     GSList *p;
@@ -424,11 +424,11 @@ gen_java_handle_function_def(gen_java_comp_params_t *params,
         var = p->data;
         param_num += 1;
         fprintf(params->out, "%s", 
-                gen_java_data_type_to_str(ir_variable_def_get_type(var)));
+                java_trgt_data_type_to_str(ir_variable_def_get_type(var)));
     }
 
     fprintf(params->out, ")%s\n", 
-           gen_java_data_type_to_str(ir_function_def_get_return_type(func)));
+           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 
     /* count local variables and assign numbers */
     local_vars = ir_function_def_get_local_vars(func);
@@ -457,7 +457,7 @@ gen_java_handle_function_def(gen_java_comp_params_t *params,
 
     fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
     fprintf(params->out, "    .limit stack 32\n");    
-    gen_java_handle_code_block(params, 
+    java_trgt_handle_code_block(params, 
                                ir_function_def_get_body(func),
                                local_vars);
     fprintf(params->out, ".end method\n");

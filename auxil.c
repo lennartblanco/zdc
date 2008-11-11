@@ -3,7 +3,7 @@
 
 #include "lex.h"
 #include "ast.h"
-#include "gen_java.h"
+#include "java_trgt.h"
 #include "sym_table.h"
 #include "sem_analyze.h"
 
@@ -86,7 +86,7 @@ compile_file(const char* input_file,
 
    /* use the output file name as the basis for class name */
    get_class_name(output_file, klass_name);
-   gen_java_code(comp_unit, output_stream, klass_name);
+   java_trgt_code(comp_unit, output_stream, klass_name);
 
    /* clean up */
    fclose(output_stream);
