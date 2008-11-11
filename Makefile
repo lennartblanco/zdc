@@ -9,6 +9,10 @@ OBJS := auxil.o entire.o lex.o yygrammar.o ast.o sym_table.o \
 
 all: $(PROG)
 
+all_tests:
+	cd tests; ./run_tests.sh
+	make -C utests check
+
 lex.h lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
 
