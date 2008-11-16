@@ -17,6 +17,11 @@ is_less_or_equal(int left,
     return left <= right;
 }
 
+bool is_greater_or_equal(int l, int r)
+{
+    return l >= r;
+}
+
 bool
 is_greater(int a, int b)
 {
