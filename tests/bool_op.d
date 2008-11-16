@@ -10,6 +10,13 @@ return_false()
     return false;
 }
 
+bool is_equal(int p0, int p1) { return p0 == p1; }
+
+bool not_equal(int alice, int bob) 
+{ 
+    return alice != bob; 
+}
+
 bool
 is_less_or_equal(int left, 
                  int right)

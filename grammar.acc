@@ -133,13 +133,21 @@ boolean_expression<n> :
   { 
       (*n).node = new_binary_operation(ast_greater_op, l.node, r.node);
   }
-| term<l> '<' '=' term<r> 
+| term<l> '<''=' term<r> 
   { 
       (*n).node = new_binary_operation(ast_less_or_eq_op, l.node, r.node);
   }
-| term<l> '>' '=' term<r> 
+| term<l> '>''=' term<r> 
   { 
       (*n).node = new_binary_operation(ast_greater_or_eq_op, l.node, r.node);
+  }
+| term<l> '=''=' term<r> 
+  { 
+      (*n).node = new_binary_operation(ast_equal_op, l.node, r.node);
+  }
+| term<l> '!''=' term<r> 
+  { 
+      (*n).node = new_binary_operation(ast_not_equal_op, l.node, r.node);
   }
 ; 
 

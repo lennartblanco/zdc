@@ -9,7 +9,7 @@ OBJS := auxil.o entire.o lex.o yygrammar.o ast.o sym_table.o \
 
 all: $(PROG)
 
-all_tests:
+all_tests: $(PROG)
 	cd tests; ./run_tests.sh
 	make -C utests check
 

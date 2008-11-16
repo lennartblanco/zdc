@@ -5,6 +5,7 @@
 #include "yygrammar.h"
 %}
 %%
+"!"      { return '!'; }
 "+"      { return '+'; }
 "-"      { return '-'; }
 "*"      { return '*'; }

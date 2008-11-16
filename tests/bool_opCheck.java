@@ -92,6 +92,22 @@ public class bool_opCheck extends check
         System.out.print("bool_op.is_greater_or_equal(1, -2) = " + res);
         check(res, true);
 
+        res = bool_op.is_equal(20, 45);
+        System.out.print("bool_op.is_equal(20, 45) = " + res);
+        check(res, false);
+
+        res = bool_op.is_equal(983, 983);
+        System.out.print("bool_op.is_equal(983, 983) = " + res);
+        check(res, true);
+
+        res = bool_op.not_equal(57, -35);
+        System.out.print("bool_op.not_equal(57, -35) = " + res);
+        check(res, true);
+
+        res = bool_op.not_equal(0, 0);
+        System.out.print("bool_op.not_equal(0, 0) = " + res);
+        check(res, false);
+
         exit();
     }
 }

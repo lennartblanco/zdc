@@ -33,10 +33,12 @@ typedef enum ast_oper_type_e
     ast_greater_op,        /*  >  */
     ast_less_or_eq_op,     /* <=  */
     ast_greater_or_eq_op,  /* >=  */
-    ast_plus_op,
-    ast_minus_op,
-    ast_mult_op,
-    ast_division_op
+    ast_equal_op,          /* ==  */
+    ast_not_equal_op,      /* !=  */
+    ast_plus_op,           /*  +  */
+    ast_minus_op,          /*  -  */
+    ast_mult_op,           /*  *  */
+    ast_division_op        /*  /  */
 } ast_oper_type_t;
 
 typedef enum ast_data_type_e
