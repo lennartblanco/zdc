@@ -10,6 +10,16 @@ return_false()
     return false;
 }
 
+//bool
+//is_more(int a, int b)
+//{
+//    bool res;
+
+//    res = a > b;
+
+//    return res;
+//}
+
 bool
 is_less(int a, int b)
 {
@@ -39,11 +49,11 @@ less_tst2(int x)
     return f;
 }
 
-//bool
-//less_tst3(int x)
-//{
-//    return = 10 + 2 < 20 * x;
-//}
+bool
+less_tst3(int x)
+{
+    return 10 + 2 < 20 * x;
+}
 
 bool
 and_oper(bool left, bool right)

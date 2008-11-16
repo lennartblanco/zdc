@@ -85,7 +85,7 @@ statment<x> :
 ;
 
 return_stmt<x> :
-    TOK_RETURN term<n> 
+    TOK_RETURN expression<n> 
     { 
        (*x).node = new_return_statment(n.node);
     }
