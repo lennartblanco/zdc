@@ -129,6 +129,10 @@ boolean_expression<n> :
   { 
       (*n).node = new_binary_operation(ast_less_op, l.node, r.node);
   }
+| term<l> '>' term<r> 
+  { 
+      (*n).node = new_binary_operation(ast_greater_op, l.node, r.node);
+  }
 ; 
 
 term<n> :

@@ -10,15 +10,40 @@ return_false()
     return false;
 }
 
-//bool
-//is_more(int a, int b)
-//{
-//    bool res;
+bool
+is_greater(int a, int b)
+{
+    bool res;
 
-//    res = a > b;
+    res = a > b;
 
-//    return res;
-//}
+    return res;
+}
+
+bool
+greater_tst1()
+{
+    bool f;
+
+    f = 10 + 2 > 20;
+
+    return f;
+}
+
+bool
+greater_tst2(int x)
+{
+    bool f;
+
+    f = 10 + 2 > 10 * x;
+    return f;
+}
+
+bool
+greater_tst3(int x)
+{
+    return 10 + 2 > 20 * x;
+}
 
 bool
 is_less(int a, int b)

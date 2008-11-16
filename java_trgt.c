@@ -248,6 +248,9 @@ java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
         case ast_less_op:
             operationCond = "lt";
             break;
+        case ast_greater_op:
+            operationCond = "gt";
+            break;
         default:
             /* unexpected comparison operation */
             assert(false);
@@ -279,6 +282,7 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
     switch (operationType)
     {
         case ast_less_op:
+        case ast_greater_op:
             java_trgt_comp_ops_body(params, operationType);
             break;
         case ast_plus_op:

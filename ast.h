@@ -25,11 +25,12 @@ typedef enum ast_node_type_e
 } ast_node_type_t;
 
 /*
- * Aithmetic binary operations types
+ * binary operations types
  */
 typedef enum ast_oper_type_e
 {
     ast_less_op,
+    ast_greater_op,
     ast_plus_op,
     ast_minus_op,
     ast_mult_op,
