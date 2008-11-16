@@ -11,6 +11,13 @@ return_false()
 }
 
 bool
+is_less_or_equal(int left, 
+                 int right)
+{
+    return left <= right;
+}
+
+bool
 is_greater(int a, int b)
 {
     bool res;

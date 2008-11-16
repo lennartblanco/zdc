@@ -68,6 +68,18 @@ public class bool_opCheck extends check
         System.out.print("bool_op.greater_tst3(-1) = " + res);
         check(res, true);
 
+        res = bool_op.is_less_or_equal(1, 2);
+        System.out.print("bool_op.is_less_or_equal(1, 2) = " + res);
+        check(res, true);
+
+        res = bool_op.is_less_or_equal(2, 2);
+        System.out.print("bool_op.is_less_or_equal(2, 2) = " + res);
+        check(res, true);
+
+        res = bool_op.is_less_or_equal(1, -2);
+        System.out.print("bool_op.is_less_or_equal(1, -2) = " + res);
+        check(res, false);
+
         exit();
     }
 }
