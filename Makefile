@@ -12,6 +12,7 @@ all: $(PROG)
 all_tests: $(PROG)
 	cd tests; ./run_tests.sh
 	make -C utests check
+	@echo "ALL TESTS PASSED"
 
 lex.h lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
@@ -29,7 +30,7 @@ tools/bin/accent:
 	cd tools/accent/accent && ./build
 
 $(PROG): $(OBJS)
-	gdc -o $(PROG) $(LDFLAGS) $(OBJS)
+	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS)
 
 clean:
 	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h

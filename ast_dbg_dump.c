@@ -1,5 +1,7 @@
 #include "ast_dbg_dump.h"
 
+#include <assert.h>
+
 static FILE * outs;
 
 static void
@@ -128,39 +130,31 @@ ast_node_to_str(ast_node_type_t type)
     {
         case ast_compile_unit_node:
             return "ast_compile_unit_node";
-            break;
         case ast_return_statment_node:
             return "ast_return_statment_node";
-            break;
         case ast_function_definition_node:
             return "ast_function_definition_node";
-            break;
         case ast_code_block_node:
             return "ast_code_block_node";
-            break;
         case ast_function_call_node:
             return "ast_function_call_node";
-            break;
         case ast_var_declaration_node:
             return "ast_var_declaration_node";
-            break;
         case ast_var_value_node:
             return "ast_var_value_node";
-            break;
         case ast_assigment_node:
             return "ast_assigment_node";
-            break;
         case ast_binary_oper_node:
             return "ast_binary_oper_node";
-            break;
         case ast_constant_node:
             return "ast_constant_node";
-            break;
         case ast_negation_node:
             return "ast_negation_node";
-            break;
+        case ast_if_else_block_node:
+            return "ast_if_else_block_node";
         default:
-            return "(unknow node type, extend me)" __FILE__ "__LINE__";
+            /* unknown node type */
+            assert(false);
     }
 }
 

@@ -120,8 +120,8 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
             fprintf(params->out, "    ineg\n");
             break;
         default:
-            fprintf(params->out,
-                    "; node->type %s\n", ast_node_to_str(node->type));
+            printf("Unexpected node->type %s\n", ast_node_to_str(node->type));
+            assert(false);
             break;
     }
 }

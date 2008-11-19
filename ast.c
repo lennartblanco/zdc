@@ -187,6 +187,21 @@ func_parameters_for_each(ast_func_parameters_t *func_params,
     }
 }
 
+ast_node_t *
+new_if_else_block(ast_node_t *condition,
+                  ast_node_t *if_block,
+                  ast_node_t *else_block)
+{
+    ast_node_t *node;
+    node = g_malloc(sizeof(*node));
+
+    node->type = ast_if_else_block_node;
+    node->data.if_else_block.condition = condition;
+    node->data.if_else_block.if_block = if_block;
+    node->data.if_else_block.else_block = else_block;
+
+    return node;
+}
 
 ast_node_t *
 new_return_statment(ast_node_t *ret_val)

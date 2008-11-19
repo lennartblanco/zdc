@@ -12,6 +12,7 @@ ast_node_t *root_node;
 }
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
+       TOK_IF,
        TOK_INT, TOK_VOID, TOK_BOOL;
        
 
@@ -66,7 +67,13 @@ statments_list<n> :
       code_block_add_statment((*n).node, x.node);
       y.node = (*n).node;
   }
-  ';' statments_list<y> 
+  ';' statments_list<y>
+| if_else_block<x> 
+  {
+      code_block_add_statment((*n).node, x.node);
+      y.node = (*n).node;
+  }
+  statments_list<y>
 | null 
 ;
 
@@ -82,6 +89,13 @@ statment<x> :
 | func_call<x> 
 | var_assigment<x>
 | return_stmt<x>
+;
+
+if_else_block<x>:
+    TOK_IF '(' boolean_expression<cond> ')' code_block<code>
+    {
+        (*x).node = new_if_else_block(cond.node, code.node, NULL);
+    }
 ;
 
 return_stmt<x> :

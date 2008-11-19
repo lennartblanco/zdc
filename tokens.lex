@@ -19,6 +19,7 @@
 "="      { return '='; }
 "{"      { return '{'; }
 "}"      { return '}'; }
+"if"     { return TOK_IF; }
 "int"    { return TOK_INT; }
 "void"   { return TOK_VOID; }
 "bool"   { return TOK_BOOL; }

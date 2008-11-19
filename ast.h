@@ -12,6 +12,7 @@ typedef struct ast_node_s ast_node_t;
 typedef enum ast_node_type_e
 {
     ast_compile_unit_node,     /** a D-compile unit, e.g. one source file */
+    ast_if_else_block_node,      /** if-else statment */
     ast_return_statment_node,  /** rename to ast_return_node */
     ast_function_definition_node,
     ast_code_block_node,
@@ -63,6 +64,12 @@ struct ast_func_args_list_s
 /*********************
  * AST node payloads *
  *********************/
+typedef struct ast_if_else_block_s
+{
+    ast_node_t *condition;
+    ast_node_t *if_block;
+    ast_node_t *else_block;
+} ast_if_else_block_t;
 
 typedef struct ast_compile_unit_s
 {
@@ -157,6 +164,7 @@ typedef union ast_data_u
 {
     ast_compile_unit_t compile_unit;
     ast_code_block_t code_block;
+    ast_if_else_block_t if_else_block;
     ast_return_stmt_t ret_stmt;
     ast_function_definition_t function_def;
     ast_statment_list_t stmt;
@@ -250,6 +258,17 @@ ast_node_del(ast_node_t *node);
 ast_node_t *
 new_var_declaration(ast_data_type_t var_type, 
                     char *var_name);
+
+
+/*************************************
+ * AST if-else block node operations *
+ *************************************/
+
+ast_node_t *
+new_if_else_block(ast_node_t *condition,
+                  ast_node_t *if_block,
+                  ast_node_t *else_block);
+                 
 
 /***************************************
  * AST return statment node operations *
