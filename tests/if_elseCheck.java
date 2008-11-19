@@ -1,5 +1,5 @@
 //
-// Invoke function in func_call.d and check that they
+// Invoke function in if_else.d and check that they
 // return expected values
 //
 public class if_elseCheck extends check
