@@ -45,6 +45,10 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
                              ir_function_def_t *func);
 
 static void
+java_trgt_handle_if_else_block(java_trgt_comp_params_t *params, 
+                               ast_node_t *node, 
+                               sym_table_t *sym_table);
+static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
                                  ast_node_t *node, 
                                  sym_table_t *sym_table);

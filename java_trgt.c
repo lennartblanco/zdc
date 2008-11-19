@@ -96,6 +96,9 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
         case ast_code_block_node:
             java_trgt_handle_code_block(params, node, sym_table);
             break;
+        case ast_if_else_block_node:
+            java_trgt_handle_if_else_block(params, node, sym_table);
+            break;
         case ast_return_statment_node:
             java_trgt_handle_return_statment(params, node, sym_table);
             break;
@@ -230,6 +233,74 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
     fprintf(params->out, ")%s\n", 
            java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 }
+
+
+static void
+java_trgt_handle_if_else_block(java_trgt_comp_params_t *params, 
+                               ast_node_t *node, 
+                               sym_table_t *sym_table)
+{
+    assert(params);
+    assert(node);
+    assert(sym_table);
+    assert(node->type == ast_if_else_block_node);
+
+    char endLabel[MAX_JAVA_LABEL];
+    ast_node_t *cond;
+    const char* operationCond;
+
+    if (node->data.if_else_block.else_block != NULL)
+    {
+        printf("else-clouses not impelemented\n");
+        assert(false);
+    }
+
+    cond = node->data.if_else_block.condition;
+    assert(cond->type == ast_binary_oper_node);
+
+    java_trgt_handle_node(params, cond->data.binary_op.left, sym_table);
+    java_trgt_handle_node(params, cond->data.binary_op.right, sym_table);
+
+    /* figure out the negation of the if condition */
+    switch (cond->data.binary_op.oper_type)
+    {
+        case ast_less_op:
+            /*  !(a<b) == (a >= b) */
+            operationCond = "ge";
+            break;
+        case ast_greater_op:
+            /* !(a>b) == (a <= b) */
+            operationCond = "le";
+            break;
+        case ast_less_or_eq_op:
+            /* !(a<=b) == (a > b) */
+            operationCond = "gt";
+            break;
+        case ast_greater_or_eq_op:
+            /* !(a>=b) == (a < b) */
+            operationCond = "lt";
+            break;
+        case ast_equal_op:
+            /* !(a == b) == (a != b) */
+            operationCond = "ne";
+            break;
+        case ast_not_equal_op:
+            /* !(a != b) == (a == b) */
+            operationCond = "eq";
+            break;
+        default:
+            /* unexpected comparison operation */
+            assert(false);
+    }
+    java_trgt_get_next_label(params, endLabel);
+
+    fprintf(params->out,
+            "    if_icmp%s %s\n", operationCond, endLabel);
+
+    java_trgt_handle_node(params, node->data.if_else_block.if_block, sym_table);
+    fprintf(params->out, "%s:\n", endLabel);
+}
+
 
 
 static void

@@ -34,4 +34,5 @@ fi
 run_test neg
 run_test func_call
 run_test bool_op
+run_test if_else
 echo "_all_tests_passed_"
