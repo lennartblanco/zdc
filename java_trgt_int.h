@@ -46,28 +46,28 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
-                                ast_node_t *node, 
-                                sym_table_t *sym_table);
+                                 ast_node_t *node, 
+                                 sym_table_t *sym_table);
 
 static void
 java_trgt_handle_var_value(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
+                           ast_node_t *node,
+                           sym_table_t *sym_table);
 
 static void
 java_trgt_handle_assigment(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
+                           ast_node_t *node,
+                           sym_table_t *sym_table);
 
 static void
 java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
+                           ast_node_t *node,
+                           sym_table_t *sym_table);
 
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table);
+                           ast_node_t *node,
+                           sym_table_t *sym_table);
 
 static void
 java_trgt_prelude(java_trgt_comp_params_t *params);
@@ -81,7 +81,7 @@ java_trgt_epilog(java_trgt_comp_params_t *params);
   */
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
-                       ast_oper_type_t type);
+                        ast_oper_type_t type);
 
 /**
  * Get next unique label
@@ -91,7 +91,7 @@ java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
  */
 STATIC void
 java_trgt_get_next_label(java_trgt_comp_params_t *params,
-                        char *label);
+                         char *label);
 
 #endif /* JAVA_TRGT_INT_INC_X */
 
