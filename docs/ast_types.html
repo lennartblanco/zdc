@@ -1,0 +1,96 @@
+<html>
+<body>
+
+<h3>XDC parser AST types</h3> 
+
+<h5>compile_unit_t</h5>
+<ul>
+    <li><a href="#import_t">import_t</a>[] imports</li>
+    <li><a href="#function_t">function_t</a>[] functions</li>
+</ul>
+
+<h5><a name="import_t">import_t</a></h5>
+<ul>
+    <li>string module_name</li>
+</ul>
+
+<h5><a name="function_t">function_t</a></h5>
+<ul>
+    <li>string name</li>
+    <li>data_type_t return_type</li>
+    <li><a href="#variable_definition_t">variable_defintion_t</a>[] arguments</li>
+    <li><a href="#code_block_t">code_block_t</a> body</li>
+</ul>
+
+<h5><a name="variable_definition_t">variable_definition_t</a></h5>
+<ul>
+    <li>data_type_t type</li>
+    <li>string name</li>
+    <li><a href="#expression_t">expression_t</a> initializer</li>
+</ul>
+
+<h5><a name="code_block_t">code_block_t</a></h5>
+<ul>
+    <li><a href="#statment_t">statment_t</a>[] statment</li>
+</ul>
+
+<h5><a name="statment_t">statment_t</a></h5>
+<ul>
+    <li>statment_type_t type</li>
+    <li>
+    ( 
+      <a href="#variable_definition_t">variable_definition_t</a> |
+      <a href="#assigment_t">assigment_t</a> |
+      <a href="#code_block_t">code_block_t</a> |
+      <a href="#for_loop_t">for_loop_t</a> |
+      <a href="#if_else">if_else_t</a> |
+      <a href="#function_call_t">function_call_t</a> |
+      <a href="return_t">return_t</a> 
+    )
+    </li>
+</ul>
+
+<h5><a name="assigment_t">assigment_t</a></h5>
+<ul>
+    <li><a href="#lvalue_t">lvalue_t</a> target</li>
+    <li><a href="#expression_t">expression_t</a> value</li>
+</ul>
+
+<h5><a name="expression_t">expression_t</a></h5>
+<ul>
+    <li>expression_type_t type</li>
+    <li>
+    (
+      unary_operation_t |
+      binary_operation_t |
+      constant_t |
+      variable_t |
+      function_call_t
+    )
+    </li>
+   
+</ul>
+
+<h5><a name="function_call_t">function_call_t</a></h5>
+<ul>
+    <li>string name</li>
+    <li><a href="#expression_t">expression_t</a>[] arguments</li>
+</ul>
+</body>
+
+<h5><a name="lvalue_t">lvalue_t</a></h5>
+<ul>
+    <li>lvalue_type_t type</li>
+    <li>( variable_lvalue_t | array_cell_lvalue_t )</li> 
+</ul>
+
+<h5><a name="variable_lvalue_t">variable_lvalue_t</a></h5>
+<ul>
+    <li>string name</li>
+</ul>
+
+<h5><a name="array_cell_lvalue_t">array_cell_lvalue_t</a></h5>
+<ul>
+    <li>string name</li>
+    <li>integer index</li>
+</ul>
