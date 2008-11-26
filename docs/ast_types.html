@@ -17,16 +17,40 @@
 <h5><a name="function_t">function_t</a></h5>
 <ul>
     <li>string name</li>
-    <li>data_type_t return_type</li>
-    <li><a href="#variable_definition_t">variable_defintion_t</a>[] arguments</li>
+    <li><a href="#data_type_t">data_type_t</a> return_type</li>
+    <li><a href="#variable_declaration_t">variable_declaration_t</a>[] arguments</li>
     <li><a href="#code_block_t">code_block_t</a> body</li>
 </ul>
 
+<h5><a name="variable_declaration_t">variable_declaration_t</a></h5>
+<ul>
+    <li><a href="#data_type_t">data_type_t</a> type</li>
+    <li>string name</li>
+</ul>
 <h5><a name="variable_definition_t">variable_definition_t</a></h5>
 <ul>
-    <li>data_type_t type</li>
+    <li><a href="#data_type_t">data_type_t</a> type</li>
     <li>string name</li>
     <li><a href="#expression_t">expression_t</a> initializer</li>
+</ul>
+
+<h5><a name="data_type_t">data_type_t</a></h5>
+<ul>
+    <li>data_type_type_t type</li>
+    <li>( <a href="#basic_type_t">basic_type_t</a> |
+          <a href="#static_array_type_t">static_array_type_t</a> |
+          dynamic_array_type_t )</li>
+</ul>
+
+<h5><a name="basic_type_t">basic_type_t</a></h5>
+<ul>
+    <li>( boolean_t | int_t )</li>
+</ul>
+
+<h5><a name="static_array_type_t">static_array_type_t</a></h5>
+<ul>
+    <li><a href="#basic_type_t">basic_type_t</a> data_type</li>
+    <li>integer length</li>
 </ul>
 
 <h5><a name="code_block_t">code_block_t</a></h5>
@@ -61,14 +85,35 @@
     <li>expression_type_t type</li>
     <li>
     (
-      unary_operation_t |
-      binary_operation_t |
+      <a href="#unary_operation_t">unary_operation_t</a> |
+      <a href="#binary_operation_t">binary_operation_t</a> |
       constant_t |
       variable_t |
       function_call_t
     )
     </li>
    
+</ul>
+
+<h5><a name="unary_operation_t">unary_operation_t</a></h5>
+<ul>
+    <li>unary_operation_type_t operation</li>
+    <li><a href="#expression_t">expression_t</a> operand</li>
+</ul>
+
+<h5><a name="binary_operation_t">binary_operation_t</a></h5>
+<ul>
+    <li>binary_operation_type_t operation</li>
+    <li><a href="#expression_t">expression_t</a> left</li>
+    <li><a href="#expression_t">expression_t</a> right</li>
+</ul>
+
+<h5><a name="for_loop_t">for_loop_t</a></h5>
+<ul>
+    <li>? init</li>
+    <li><a href="#expression_t">expression_t</a> test</li>
+    <li>? step</li>
+    <li><a href="#code_block_t">code_block_t</a> body</li>
 </ul>
 
 <h5><a name="function_call_t">function_call_t</a></h5>
@@ -81,7 +126,8 @@
 <h5><a name="lvalue_t">lvalue_t</a></h5>
 <ul>
     <li>lvalue_type_t type</li>
-    <li>( variable_lvalue_t | array_cell_lvalue_t )</li> 
+    <li>( <a href="#variable_lvalue_t">variable_lvalue_t</a> |
+          <a href="#array_cell_lvalue_t">array_cell_lvalue_t</a> )</li> 
 </ul>
 
 <h5><a name="variable_lvalue_t">variable_lvalue_t</a></h5>
