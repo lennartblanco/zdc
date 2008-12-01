@@ -67,16 +67,28 @@
       <a href="#assigment_t">assigment_t</a> |
       <a href="#code_block_t">code_block_t</a> |
       <a href="#for_loop_t">for_loop_t</a> |
-      <a href="#if_else">if_else_t</a> |
+      <a href="#if_else_t">if_else_t</a> |
       <a href="#function_call_t">function_call_t</a> |
-      <a href="return_t">return_t</a> 
+      <a href="#return_t">return_t</a> 
     )
     </li>
 </ul>
 
+<h5><a name="if_else_t">if_else_t</a></h5>
+<ul>
+    <li><a href="#if_statment_t">if_statment_t</a>[] if_else_blocks</li>
+    <li><a href="#code_block_t">code_block_t</a> else_block</li>
+</ul>
+
+<h5><a name="if_statment_t">if_statment_t</a></h5>
+<ul>
+    <li><a href="#expression_t">expression_t</a> condition</li>
+    <li><a href="#code_block_t">code_block_t</a> body</li>
+</ul>
+
 <h5><a name="assigment_t">assigment_t</a></h5>
 <ul>
-    <li><a href="#lvalue_t">lvalue_t</a> target</li>
+    <li><a href="#variable_ref_t">variable_ref_t</a> target</li>
     <li><a href="#expression_t">expression_t</a> value</li>
 </ul>
 
@@ -87,9 +99,9 @@
     (
       <a href="#unary_operation_t">unary_operation_t</a> |
       <a href="#binary_operation_t">binary_operation_t</a> |
-      constant_t |
-      variable_t |
-      function_call_t
+      <a href="#constant_t">constant_t</a> |
+      <a href="#variable_ref_t">variable_ref_t</a> |
+      <a href="#function_call_t">function_call_t</a>
     )
     </li>
    
@@ -108,6 +120,23 @@
     <li><a href="#expression_t">expression_t</a> right</li>
 </ul>
 
+<h5><a name="constant_t">constant_t</a></h5>
+<ul>
+    <li>basic_type_t type</li>
+    <li>( integer | bool | float )</li>
+</ul>
+
+<h5><a name="return_t">return_t</a></h5>
+<ul>
+    <li><a href="#expression_t">expression_t</a> return_value</li>
+</ul>
+
+<h5><a name="variable_ref_t">variable_ref_t</a></h5>
+<ul>
+    <li>variable_ref_type_t type</li>
+    <li>( string | <a href="#array_cell_ref_t">array_cell_ref_t</a>) </li>
+</ul>
+
 <h5><a name="for_loop_t">for_loop_t</a></h5>
 <ul>
     <li>? init</li>
@@ -123,19 +152,7 @@
 </ul>
 </body>
 
-<h5><a name="lvalue_t">lvalue_t</a></h5>
-<ul>
-    <li>lvalue_type_t type</li>
-    <li>( <a href="#variable_lvalue_t">variable_lvalue_t</a> |
-          <a href="#array_cell_lvalue_t">array_cell_lvalue_t</a> )</li> 
-</ul>
-
-<h5><a name="variable_lvalue_t">variable_lvalue_t</a></h5>
-<ul>
-    <li>string name</li>
-</ul>
-
-<h5><a name="array_cell_lvalue_t">array_cell_lvalue_t</a></h5>
+<h5><a name="array_cell_ref_t">array_cell_ref_t</a></h5>
 <ul>
     <li>string name</li>
     <li>integer index</li>
