@@ -4,6 +4,10 @@
 #ifndef JAVA_TRGT_INC_X
 #define JAVA_TRGT_INC_X
 
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
 /**
  * Generate the java assembly and write it to the provided stream.
  *

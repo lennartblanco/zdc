@@ -5,10 +5,11 @@
 
 #include "yystype_def.h"
 #include "ast.h"
+#include "nast.h"
 #include "sym_table.h"
 #include "ast_dbg_dump.h"
 
-ast_node_t *root_node;
+ast_compile_unit_t *compile_unit;
 }
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
@@ -18,10 +19,10 @@ ast_node_t *root_node;
 
 root : 
    { 
-       compile_unit.node = new_compile_unit();
-       root_node = compile_unit.node;
+       compile_unit = ast_compile_unit_new();
+       n.compile_unit = compile_unit;
    }
-   func_def_list<compile_unit>
+   func_def_list<n>
 |  null
 ;
 
@@ -31,7 +32,7 @@ null :
 func_def_list<compile_unit> :
   func_def_list<compile_unit>  func_def<n>
   {
-      compile_unit_add_function(compile_unit->node, n.node);
+//      compile_unit_add_function(compile_unit->node, n.node);
   }
 | null
 ;
@@ -58,19 +59,19 @@ func_arg_decl_list<x> :
 
 
 code_block<x> :
-   { (*x).node = new_code_block(); }
+   { /* (*x).node = new_code_block(); */ }
   '{' statments_list<x> '}';
 
 statments_list<n> :
   statment<x> 
   { 
-      code_block_add_statment((*n).node, x.node);
+//      code_block_add_statment((*n).node, x.node);
       y.node = (*n).node;
   }
   ';' statments_list<y>
 | if_else_block<x> 
   {
-      code_block_add_statment((*n).node, x.node);
+//      code_block_add_statment((*n).node, x.node);
       y.node = (*n).node;
   }
   statments_list<y>
@@ -78,9 +79,9 @@ statments_list<n> :
 ;
 
 type<x> :
-    TOK_VOID   { (*x).type = ast_void_type; }
-|   TOK_INT    { (*x).type = ast_integer_type; }
-|   TOK_BOOL   { (*x).type = ast_bool_type; }
+    TOK_VOID   { (*x).type = old_ast_void_type; }
+|   TOK_INT    { (*x).type = old_ast_integer_type; }
+|   TOK_BOOL   { (*x).type = old_ast_bool_type; }
 
 ;
 

@@ -31,7 +31,7 @@ new_int_const(int value)
     node = g_malloc(sizeof(*node));
     
     node->type = ast_constant_node;
-    node->data.constant.value_type = ast_integer_type;
+    node->data.constant.value_type = old_ast_integer_type;
     node->data.constant.value.int_value = value;
 
     return node;
@@ -45,7 +45,7 @@ new_bool_const(bool value)
     node = g_malloc(sizeof(*node));
     
     node->type = ast_constant_node;
-    node->data.constant.value_type = ast_bool_type;
+    node->data.constant.value_type = old_ast_bool_type;
     node->data.constant.value.bool_value = value;
 
     return node;
@@ -65,7 +65,7 @@ new_negation(ast_node_t *value)
 }
 
 ast_node_t *
-new_var_declaration(ast_data_type_t var_type, 
+new_var_declaration(old_ast_data_type_t var_type, 
                     char *var_name)
 {
     ast_node_t *node;
@@ -123,7 +123,7 @@ new_function_call(char *name,
 
 ast_node_t *
 new_function_definition(char *name, 
-                        ast_data_type_t ret_type,
+                        old_ast_data_type_t ret_type,
                         ast_func_parameters_t *arg_lst, 
                         ast_node_t *body)
 {
@@ -224,77 +224,77 @@ return_statment_get_value(ast_node_t *return_statment)
     return return_statment->data.ret_stmt.ret_val;
 }
 
-ast_node_t *
-new_compile_unit()
-{
-    ast_node_t *node;
+//ast_node_t *
+//new_compile_unit()
+//{
+//    ast_node_t *node;
 
-    node = g_malloc(sizeof(*node));
+//    node = g_malloc(sizeof(*node));
 
-    node->type = ast_compile_unit_node;
-    node->data.compile_unit.functions = NULL;
-    
-    return node;
-}
+//    node->type = ast_compile_unit_node;
+//    node->data.compile_unit.functions = NULL;
+//    
+//    return node;
+//}
 
-void
-compile_unit_add_function(ast_node_t *compile_unit,
-                          ast_node_t *function)
-{
-    compile_unit->data.compile_unit.functions = 
-                       g_slist_append(
-                           compile_unit->data.compile_unit.functions, function);
-}
+//void
+//compile_unit_add_function(ast_node_t *compile_unit,
+//                          ast_node_t *function)
+//{
+//    compile_unit->data.compile_unit.functions = 
+//                       g_slist_append(
+//                           compile_unit->data.compile_unit.functions, function);
+//}
 
-void
-compile_unit_for_each_function(ast_node_t *compile_unit,
-                               void (*iter) (ast_node_t *function, void *),
-                               void *user_data)
-{
-    assert(compile_unit && iter);
-    assert(compile_unit->type == ast_compile_unit_node);
+//void
+//compile_unit_for_each_function(ast_node_t *compile_unit,
+//                               void (*iter) (ast_node_t *function, void *),
+//                               void *user_data)
+//{
+//    assert(compile_unit && iter);
+//    assert(compile_unit->type == ast_compile_unit_node);
 
-    GSList *listp = compile_unit->data.compile_unit.functions;
+//    GSList *listp = compile_unit->data.compile_unit.functions;
 
-    while(listp != NULL)
-    {
-        iter(listp->data, user_data);
-        listp = listp->next;
-    }    
-}
+//    while(listp != NULL)
+//    {
+//        iter(listp->data, user_data);
+//        listp = listp->next;
+//    }    
+//}
 
-ast_node_t *
-new_code_block()
-{
-    ast_node_t *node;
+//ast_node_t *
+//new_code_block()
+//{
+//    ast_node_t *node;
 
-    node = g_malloc(sizeof(*node));
+//    node = g_malloc(sizeof(*node));
 
-    node->type = ast_code_block_node;
-    node->data.code_block.statments = NULL;
+//    node->type = ast_code_block_node;
+//    node->data.code_block.statments = NULL;
 
-    return node;
-}
+//    return node;
+//}
 
-void
-code_block_add_statment(ast_node_t *code_block, 
-                        ast_node_t *statment)
-{
-    assert(code_block && statment);
-    assert(code_block->type == ast_code_block_node);
+//void
+//code_block_add_statment(ast_node_t *code_block, 
+//                        ast_node_t *statment)
+//{
+//    assert(code_block && statment);
+//    assert(code_block->type == ast_code_block_node);
 
-    code_block->data.code_block.statments = 
-        g_slist_append(code_block->data.code_block.statments, statment);
-}
+//    code_block->data.code_block.statments = 
+//        g_slist_append(code_block->data.code_block.statments, statment);
+//}
 
-GSList *
-code_block_get_statments(ast_node_t *code_block)
-{
-    assert(code_block);
-    assert(code_block->type == ast_code_block_node);
+//GSList *
+//code_block_get_statments(ast_node_t *code_block)
+//{
+//    assert(code_block);
+//    assert(code_block->type == ast_code_block_node);
 
-    return code_block->data.code_block.statments;    
-}
+//    return code_block->data.code_block.statments;    
+//}
 
 void
 ast_node_del(ast_node_t *node)

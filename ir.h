@@ -114,7 +114,7 @@ ir_compile_unit_get_global_sym_table(ir_compile_unit_t *compile_unit);
 
 ir_variable_def_t*
 new_ir_variable_def(const char* name, 
-                    ast_data_type_t type);
+                    old_ast_data_type_t type);
 
 
 void
@@ -128,7 +128,7 @@ ir_variable_def_get_address(ir_variable_def_t *var);
 /**
  * @return this variables data type
  */
-ast_data_type_t
+old_ast_data_type_t
 ir_variable_def_get_type(ir_variable_def_t *var);
 
 /*************************************
@@ -182,9 +182,9 @@ ir_function_def_get_body(ir_function_def_t *func);
 
 void
 ir_function_def_set_return_type(ir_function_def_t *func,
-                                ast_data_type_t return_type);
+                                old_ast_data_type_t return_type);
 
-ast_data_type_t
+old_ast_data_type_t
 ir_function_def_get_return_type(ir_function_def_t *func);
 
 #endif /* IR_INC_X */

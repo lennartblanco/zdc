@@ -79,7 +79,7 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
 {
     GSList *stmts;
 
-    stmts = code_block_get_statments(node);
+//    stmts = code_block_get_statments(node);
 
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
@@ -130,15 +130,15 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
 }
 
 static char *
-java_trgt_data_type_to_str(ast_data_type_t t)
+java_trgt_data_type_to_str(old_ast_data_type_t t)
 {
     switch(t)
     {
-        case ast_void_type:
+        case old_ast_void_type:
             return "V";
-        case ast_integer_type:
+        case old_ast_integer_type:
             return "I";
-        case ast_bool_type:
+        case old_ast_bool_type:
             return "Z";
         default:
             assert(false);

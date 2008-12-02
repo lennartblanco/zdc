@@ -5,14 +5,14 @@
 static FILE * outs;
 
 static void
-dump_type(ast_data_type_t type)
+dump_type(old_ast_data_type_t type)
 {
     switch(type)
     {
-        case ast_void_type:
+        case old_ast_void_type:
             fprintf(outs, "void");
             break;
-        case ast_integer_type:
+        case old_ast_integer_type:
             fprintf(outs, "int");
             break;
         default:

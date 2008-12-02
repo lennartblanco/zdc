@@ -42,13 +42,13 @@ typedef enum ast_oper_type_e
     ast_division_op        /*  /  */
 } ast_oper_type_t;
 
-typedef enum ast_data_type_e
+typedef enum old_ast_data_type_e
 {
-    ast_void_type,
-    ast_bool_type,             /* boolean */
-    ast_integer_type,          /* int 32-bit signed */
-    ast_uinteger_type          /* uint 32-bit unsigned */
-} ast_data_type_t;
+    old_ast_void_type,
+    old_ast_bool_type,             /* boolean */
+    old_ast_integer_type,          /* int 32-bit signed */
+    old_ast_uinteger_type          /* uint 32-bit unsigned */
+} old_ast_data_type_t;
 
 /*
  * Function call argument list
@@ -71,15 +71,15 @@ typedef struct ast_if_else_block_s
     ast_node_t *else_block;
 } ast_if_else_block_t;
 
-typedef struct ast_compile_unit_s
-{
-    GSList *functions;
-} ast_compile_unit_t;
+//typedef struct ast_compile_unit_s
+//{
+//    GSList *functions;
+//} ast_compile_unit_t;
 
-typedef struct ast_code_block_s
-{
-    GSList *statments;
-} ast_code_block_t;
+//typedef struct ast_code_block_s
+//{
+//    GSList *statments;
+//} ast_code_block_t;
 
 typedef struct ast_return_stmt_s
 {
@@ -94,7 +94,7 @@ typedef struct ast_func_parameters_s
 
 typedef struct ast_function_definition_s
 {
-    ast_data_type_t ret_type;
+    old_ast_data_type_t ret_type;
     char *name;
     ast_func_parameters_t *formal_args;
     ast_node_t *body;
@@ -129,7 +129,7 @@ typedef struct ast_binary_op_s
 /** constant expression */
 typedef struct ast_constant_s
 {
-    ast_data_type_t value_type;
+    old_ast_data_type_t value_type;
     union value_u
     {
         int int_value;
@@ -146,7 +146,7 @@ typedef struct ast_negation_s
 /** variable declaration */
 typedef struct ast_var_decl_s
 {
-    ast_data_type_t type;
+    old_ast_data_type_t type;
     char *name;
 } ast_var_decl_t;
 
@@ -162,8 +162,8 @@ typedef struct ast_var_val_s
 /** union of all the payloads */
 typedef union ast_data_u
 {
-    ast_compile_unit_t compile_unit;
-    ast_code_block_t code_block;
+//    ast_compile_unit_t compile_unit;
+//    ast_code_block_t code_block;
     ast_if_else_block_t if_else_block;
     ast_return_stmt_t ret_stmt;
     ast_function_definition_t function_def;
@@ -235,12 +235,12 @@ new_func_args_list(ast_node_t *value,
                    ast_func_args_list_t *next);
 
 ast_node_t *new_function_definition(char *name, 
-                                    ast_data_type_t ret_type, 
+                                    old_ast_data_type_t ret_type, 
                                     ast_func_parameters_t *arg_lst, 
                                     ast_node_t *body);
 
 ast_node_t *
-new_var_declaration(ast_data_type_t var_type, 
+new_var_declaration(old_ast_data_type_t var_type, 
                     char *var_name);
 
 /**
@@ -256,7 +256,7 @@ ast_node_del(ast_node_t *node);
  ********************************************/
 
 ast_node_t *
-new_var_declaration(ast_data_type_t var_type, 
+new_var_declaration(old_ast_data_type_t var_type, 
                     char *var_name);
 
 

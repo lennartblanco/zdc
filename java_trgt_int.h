@@ -34,7 +34,7 @@ typedef struct java_trgt_comp_params_s
  *---------------------------------------------------------------------------*/
 
 static char *
-java_trgt_data_type_to_str(ast_data_type_t t);
+java_trgt_data_type_to_str(old_ast_data_type_t t);
 
 static void
 java_trgt_handle_node(java_trgt_comp_params_t *params,

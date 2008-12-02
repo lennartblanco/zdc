@@ -9,7 +9,7 @@
 
 #include <assert.h>
 
-extern ast_node_t *root_node;
+extern ast_compile_unit_t *compile_unit;
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -51,7 +51,7 @@ compile_file(const char* input_file,
    YY_BUFFER_STATE yy_buffer;
    FILE *input_stream;
    FILE *output_stream;
-   ir_compile_unit_t *comp_unit;
+   ir_compile_unit_t *ir_compile_unit;
    char klass_name[strlen(output_file)];
 
    /* open the input source file */
@@ -82,11 +82,11 @@ compile_file(const char* input_file,
 
    fprintf(output_stream, "; compiling %s\n", input_file);
    yyparse();
-   comp_unit = semantic_analyze(root_node);
+   ir_compile_unit = semantic_analyze(compile_unit);
 
    /* use the output file name as the basis for class name */
    get_class_name(output_file, klass_name);
-   java_trgt_code(comp_unit, output_stream, klass_name);
+   java_trgt_code(ir_compile_unit, output_stream, klass_name);
 
    /* clean up */
    fclose(output_stream);
