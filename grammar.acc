@@ -29,19 +29,38 @@ root :
 null :
 ;
 
-func_def_list<compile_unit> :
-  func_def_list<compile_unit>  func_def<n>
+func_def_list<unit> :
+  func_def_list<unit>  func_def<func>
   {
-//      compile_unit_add_function(compile_unit->node, n.node);
+        ast_compile_unit_add_function((*unit).compile_unit,
+                                      func.function);
   }
 | null
 ;
 
 func_def<x> :
-  type<t> TOK_IDENT<name> '(' (func_arg_decl_list<args> | null { args.func_params = NULL; }) ')' code_block<code>
   {
-      (*x).node = new_function_definition(name.text, t.type, args.func_params, code.node);
+      args.list = NULL;
   }
+  type<t> TOK_IDENT<name> '(' func_params<args> ')' code_block<code>
+  {
+      (*x).function = ast_function_new(name.text, args.list, t.data_type, code.code_block);
+  }
+;
+
+func_params<params> :
+    var_dec<n> ',' func_params<l>
+    {
+        printf("[var_dec func_params] ");
+    }
+|   var_dec<n>
+    {
+        printf("[var_dec] ");
+    }
+|   null
+    {
+        printf("null\n");
+    }
 ;
 
 func_arg_decl_list<x> :
@@ -79,9 +98,9 @@ statments_list<n> :
 ;
 
 type<x> :
-    TOK_VOID   { (*x).type = old_ast_void_type; }
-|   TOK_INT    { (*x).type = old_ast_integer_type; }
-|   TOK_BOOL   { (*x).type = old_ast_bool_type; }
+    TOK_VOID   { (*x).data_type = ast_data_type_new_scalar(void_type); }
+|   TOK_INT    { (*x).data_type = ast_data_type_new_scalar(int_type); }
+|   TOK_BOOL   { (*x).data_type = ast_data_type_new_scalar(bool_type); }
 
 ;
 

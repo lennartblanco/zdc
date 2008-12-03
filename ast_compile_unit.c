@@ -45,4 +45,19 @@ ast_compile_unit_add_function(ast_compile_unit_t *compile_unit,
         g_slist_append(compile_unit->functions, function);
 }
 
+void
+ast_compile_unit_print(ast_compile_unit_t *compile_unit,
+                       FILE *stream)
+{
+    assert(compile_unit);
+    assert(stream);
+    GSList *p;
 
+    fprintf(stream, "compile unit (%p)\n", compile_unit);
+
+    for (p = compile_unit->functions; p != NULL; p = p->next)
+    {
+        ast_function_t *func = p->data;
+        ast_function_print(func, stream);
+    }
+}

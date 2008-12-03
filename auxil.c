@@ -82,6 +82,7 @@ compile_file(const char* input_file,
 
    fprintf(output_stream, "; compiling %s\n", input_file);
    yyparse();
+   ast_compile_unit_print(compile_unit, stdout);
    ir_compile_unit = semantic_analyze(compile_unit);
 
    /* use the output file name as the basis for class name */

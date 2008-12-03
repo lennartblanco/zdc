@@ -4,6 +4,7 @@
 #define NAST_INC_X
 
 #include <glib.h>
+#include <stdio.h>
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -37,15 +38,22 @@ void
 ast_compile_unit_add_function(ast_compile_unit_t *compile_unit,
                               ast_function_t *function);
 
+void
+ast_compile_unit_print(ast_compile_unit_t *compile_unit,
+                       FILE *stream);
+
 /*------------------------------*
  * ast function node operations *
  *------------------------------*/
 
 ast_function_t *
 ast_function_new(char *name, 
-                 GSList *arguments, 
+                 GSList *parameters, 
                  ast_data_type_t *return_type,
                  ast_code_block_t *body);
+
+void
+ast_function_print(ast_function_t *function, FILE *stream);
 
 /*-------------------------------*
  * ast data type node operations *
@@ -53,6 +61,9 @@ ast_function_new(char *name,
 
 ast_data_type_t *
 ast_data_type_new_scalar(basic_data_type_t type);
+
+void
+ast_data_type_print(ast_data_type_t *data_type, FILE *stream);
 
 /*--------------------------------*
  * ast code block node operations *
