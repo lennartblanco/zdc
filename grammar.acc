@@ -63,20 +63,6 @@ func_params<params> :
 |   null
 ;
 
-func_arg_decl_list<x> :
-    var_dec<n> ',' func_arg_decl_list<l>
-    {
-        func_parameters_add_param(l.func_params, &(n.node->data.var_decl));
-        (*x).func_params = l.func_params;
-    }
-|   var_dec<n> null 
-    {
-        (*x).func_params = new_func_parameters();
-        func_parameters_add_param((*x).func_params, &(n.node->data.var_decl));
-    }
-;
-
-
 code_block<x> :
    { /* (*x).node = new_code_block(); */ }
   '{' statments_list<x> '}';
