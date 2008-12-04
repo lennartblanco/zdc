@@ -10,10 +10,11 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-typedef struct ast_compile_unit_s ast_compile_unit_t;
-typedef struct ast_function_s ast_function_t;
-typedef struct ast_data_type_s ast_data_type_t;
-typedef struct ast_code_block_s ast_code_block_t;
+typedef struct ast_compile_unit_s         ast_compile_unit_t;
+typedef struct ast_function_s             ast_function_t;
+typedef struct ast_variable_declaration_s ast_variable_declaration_t;
+typedef struct ast_data_type_s            ast_data_type_t;
+typedef struct ast_code_block_s           ast_code_block_t;
 
 typedef enum basic_data_type_e
 {
@@ -54,6 +55,17 @@ ast_function_new(char *name,
 
 void
 ast_function_print(ast_function_t *function, FILE *stream);
+
+/*------------------------------------------*
+ * ast variable declaration node operations *
+ *------------------------------------------*/
+
+ast_variable_declaration_t *
+ast_variable_declaration_new(char *name, ast_data_type_t *type);
+
+void
+ast_variable_declaration_print(ast_variable_declaration_t *variable_decl,
+                               FILE *stream);
 
 /*-------------------------------*
  * ast data type node operations *

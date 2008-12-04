@@ -59,5 +59,6 @@ ast_compile_unit_print(ast_compile_unit_t *compile_unit,
     {
         ast_function_t *func = p->data;
         ast_function_print(func, stream);
+        fprintf(stream, "\n");
     }
 }

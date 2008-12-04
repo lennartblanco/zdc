@@ -5,7 +5,8 @@ LDFLAGS += $(shell  pkg-config --libs glib-2.0)
 
 OBJS := auxil.o entire.o lex.o yygrammar.o ast.o sym_table.o \
 	ast_dbg_dump.o java_trgt.o sem_analyze.o ir.o ui.o \
-        ast_compile_unit.o ast_function.o ast_data_type.o
+        ast_compile_unit.o ast_function.o ast_data_type.o \
+        ast_variable_declaration.o
 
 
 all: $(PROG)

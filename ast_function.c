@@ -53,10 +53,20 @@ ast_function_print(ast_function_t *function, FILE *stream)
 
     fprintf(stream, 
             " function (%p)\n" \
-            " name '%s' return type ",
+            "  name '%s' return type '",
            function, function->name);
-
     ast_data_type_print(function->return_type, stream);
+    fprintf(stream, "'\n  parameters: ");
+
+    /* print function parameters */
+    GSList *p;
+    ast_variable_declaration_t *param;
+    for (p = function->parameters; p != NULL; p = p->next)
+    {
+        param = p->data;
+        ast_variable_declaration_print(param, stream);
+        printf("%s", p->next == NULL ? "" : ", ");
+    }
 
     fprintf(stream, "\n");
 }
