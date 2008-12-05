@@ -1,2 +1,2 @@
 clean:
-	rm -f *.class *.o *.j
+	rm -f *.class *.o *.j *~
