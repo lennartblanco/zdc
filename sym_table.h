@@ -1,7 +1,6 @@
 #ifndef SEM_TABLE_INC_X
 #define SEM_TABLE_INC_X
 
-#include "ast.h"
 #include "ir.h"
 #include "sym_table_types.h"
 
@@ -14,9 +13,9 @@
 sym_table_t*
 sym_table_new(sym_table_t* parent);
 
-void
-sym_table_foreach_sym(sym_table_t *table,
-                      void (*func) (ast_node_t *symp));
+//void
+//sym_table_foreach_sym(sym_table_t *table,
+//                      void (*func) (ast_node_t *symp));
 
 /**
  * @return the number of symbols in this table

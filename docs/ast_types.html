@@ -1,4 +1,7 @@
 <html>
+<head>
+<title>XDC parser AST types</title>
+</head>
 <body>
 
 <h3>XDC parser AST types</h3> 
@@ -27,11 +30,11 @@
     <li><a href="#DataType">DataType</a> type</li>
     <li>string name</li>
 </ul>
-<h5><a name="variable_definition_t">variable_definition_t</a></h5>
+<h5><a name="VariableDefinition">VariableDefinition</a></h5>
 <ul>
-    <li><a href="#data_type_t">data_type_t</a> type</li>
+    <li><a href="#DataType">DataType</a> type</li>
     <li>string name</li>
-    <li><a href="#expression_t">expression_t</a> initializer</li>
+    <li><a href="#Expression">Expression</a> initializer</li>
 </ul>
 
 <h5><a name="DataType">DataType</a> <i>abstract</i></h5>
@@ -61,9 +64,9 @@
 <ul>
     <li>
     ( 
-      <a href="#variable_definition_t">variable_definition_t</a> |
-      <a href="#assigment_t">assigment_t</a> |
-      <a href="#code_block_t">code_block_t</a> |
+      <a href="#VariableDefinition">VariableDefinition</a> |
+      <a href="#Assigment">Assigment</a> |
+      <a href="#CodeBlock">CodeBlock</a> |
       <a href="#for_loop_t">for_loop_t</a> |
       <a href="#if_else_t">if_else_t</a> |
       <a href="#function_call_t">function_call_t</a> |
@@ -84,37 +87,37 @@
     <li><a href="#code_block_t">code_block_t</a> body</li>
 </ul>
 
-<h5><a name="assigment_t">assigment_t</a></h5>
+<h5><a name="Assigment">Assigment</a></h5>
 <ul>
-    <li><a href="#variable_ref_t">variable_ref_t</a> target</li>
-    <li><a href="#expression_t">expression_t</a> value</li>
+    <li><a href="#VariableRef">VariableRef</a> target</li>
+    <li><a href="#Expression">Expression</a> value</li>
 </ul>
 
 <h5><a name="Expression">Expression</a> <i>abstract</i></h5>
 <ul>
     <li>
     (
-      <a href="#unary_operation_t">unary_operation_t</a> |
-      <a href="#binary_operation_t">binary_operation_t</a> |
+      <a href="#UnaryOperation">UnaryOperation</a> |
+      <a href="#BinaryOperation">BinaryOperation</a> |
       <a href="#Constant">Constant</a> |
-      <a href="#variable_ref_t">variable_ref_t</a> |
+      <a href="#VariableRef">VariableRef</a> |
       <a href="#function_call_t">function_call_t</a>
     )
     </li>
    
 </ul>
 
-<h5><a name="unary_operation_t">unary_operation_t</a></h5>
+<h5><a name="UnaryOperation">UnaryOperation</a></h5>
 <ul>
     <li>unary_operation_type_t operation</li>
-    <li><a href="#expression_t">expression_t</a> operand</li>
+    <li><a href="#Expression">Expression</a> operand</li>
 </ul>
 
-<h5><a name="binary_operation_t">binary_operation_t</a></h5>
+<h5><a name="BinaryOperation">BinaryOperation</a></h5>
 <ul>
     <li>binary_operation_type_t operation</li>
-    <li><a href="#expression_t">expression_t</a> left</li>
-    <li><a href="#expression_t">expression_t</a> right</li>
+    <li><a href="#Expression">Expression</a> left</li>
+    <li><a href="#Expression">Expression</a> right</li>
 </ul>
 
 <h5><a name="Constant">Constant</a>  <i>abstract</i></h5>
@@ -138,10 +141,12 @@
     <li><a href="#Expression">Expression</a> return_value</li>
 </ul>
 
-<h5><a name="variable_ref_t">variable_ref_t</a></h5>
+<h5><a name="VariableRef">VariableRef</a> <i>abstract</i></h5>
 <ul>
-    <li>variable_ref_type_t type</li>
-    <li>( string | <a href="#array_cell_ref_t">array_cell_ref_t</a>) </li>
+    <li>( <a href="#ScalarVariableRef">ScalarVariableRef</a> | 
+          <a href="#ArrayCellRef">ArrayCellRef</a> |
+          PropertyRef) 
+    </li>
 </ul>
 
 <h5><a name="for_loop_t">for_loop_t</a></h5>
@@ -159,7 +164,12 @@
 </ul>
 </body>
 
-<h5><a name="array_cell_ref_t">array_cell_ref_t</a></h5>
+<h5><a name="ScalarVariableRef">ScalarVariableRef</a></h5>
+<ul>
+    <li>string name</li>
+</ul>
+
+<h5><a name="ArrayCellRef">ArrayCellRef</a></h5>
 <ul>
     <li>string name</li>
     <li>integer index</li>

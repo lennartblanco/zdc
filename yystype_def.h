@@ -1,22 +1,21 @@
 #ifndef YYSTYPE_DEF_H
 #define YYSTYPE_DEF_H
 
-#include "ast.h"
-#include "nast.h"
+#include "ast_compile_unit.h"
+#include "ast_variable_declaration.h"
+#include "ast_expression.h"
 
 union yystype_u
 {
     char                       *text;
     int                        integer;
-    ast_node_t                 *node;
-    old_ast_data_type_t        type;
-    ast_func_args_list_t       *args_list;
-    ast_func_parameters_t      *func_params;
-    ast_compile_unit_t         *compile_unit;
-    ast_function_t             *function;
-    ast_variable_declaration_t *variable_declaration;
-    ast_code_block_t           *code_block;
-    ast_data_type_t            *data_type;
+    AstCompileUnit             *compile_unit;
+    AstCodeBlock               *code_block;
+    AstFunction                *function;
+    AstStatment                *statment;
+    AstDataType                *data_type;
+    AstExpression              *expression;
+    AstVariableDeclaration     *variable_declaration;
     GSList                     *list;
 };
 

@@ -2,14 +2,15 @@
 #include <stdio.h>
 
 #include "lex.h"
-#include "ast.h"
+#include "ast.h"       //remove me
+#include "ast_compile_unit.h"
 #include "java_trgt.h"
 #include "sym_table.h"
 #include "sem_analyze.h"
 
 #include <assert.h>
 
-extern ast_compile_unit_t *compile_unit;
+extern AstCompileUnit *compile_unit;
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -82,7 +83,7 @@ compile_file(const char* input_file,
 
    fprintf(output_stream, "; compiling %s\n", input_file);
    yyparse();
-   ast_compile_unit_print(compile_unit, stdout);
+   ast_node_print(XDP_AST_NODE(compile_unit), stdout);
    ir_compile_unit = semantic_analyze(compile_unit);
 
    /* use the output file name as the basis for class name */

@@ -1,64 +1,88 @@
-/**
- * @file ast_compile_unit.c
- * @brief ast compile unit node operations implementation
- *
- */
-
-#include <stdbool.h>
-
-#include "nast.h"
+#include "ast_compile_unit.h"
 
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                             type definitions                              *
+ *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-struct ast_compile_unit_s
-{
-    GSList *functions;
-};
+static void
+ast_compile_unit_do_print(AstNode *self, FILE *out);
+
+static void
+ast_compile_unit_class_init(gpointer klass, gpointer unused);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-ast_compile_unit_t *
-ast_compile_unit_new()
+GType 
+ast_compile_unit_get_type(void)
 {
-    ast_compile_unit_t *comp_unit;
+    static GType type = 0;
+    if (type == 0) 
+    {
+      static const GTypeInfo info = 
+      {
+        sizeof (AstCompileUnitClass),
+        NULL,   /* base_init */
+        NULL,   /* base_finalize */
+        ast_compile_unit_class_init, /* class_init */
+        NULL,   /* class_finalize */
+        NULL,   /* class_data */
+        sizeof (AstCompileUnit),
+        0,      /* n_preallocs */
+        NULL    /* instance_init */
+      };
+      type = g_type_register_static(XDP_TYPE_AST_NODE,
+                                    "AstCompileUnitType",
+                                    &info, 0);
+    }
+    return type;
+}
 
-    comp_unit = g_malloc(sizeof(*comp_unit));
-    comp_unit->functions = NULL;
+AstCompileUnit*
+ast_compile_unit_new (void)
+{
+    AstCompileUnit *node;
 
-    return comp_unit;
+    node = g_object_new(XDP_TYPE_AST_COMPILE_UNIT, NULL);
+    node->functions = NULL;
+
+    return node;
 }
 
 void
-ast_compile_unit_add_function(ast_compile_unit_t *compile_unit,
-                              ast_function_t *function)
+ast_compile_unit_add_function(AstCompileUnit *self,
+                              AstFunction *function)
 {
-    assert(compile_unit);
+    assert(self);
     assert(function);
 
-    compile_unit->functions = 
-        g_slist_append(compile_unit->functions, function);
+    self->functions = g_slist_append(self->functions, function);
 }
 
-void
-ast_compile_unit_print(ast_compile_unit_t *compile_unit,
-                       FILE *stream)
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+ast_compile_unit_do_print(AstNode *self, FILE *out)
 {
-    assert(compile_unit);
-    assert(stream);
-    GSList *p;
+    assert(XDP_IS_AST_COMPILE_UNIT(self));
+    AstCompileUnit *comp_unit = (AstCompileUnit *)self;
+    fprintf(out, "compile unit [%p]\n", comp_unit);
+    GSList *p = comp_unit->functions;
 
-    fprintf(stream, "compile unit (%p)\n", compile_unit);
-
-    for (p = compile_unit->functions; p != NULL; p = p->next)
+    while(p != NULL)
     {
-        ast_function_t *func = p->data;
-        ast_function_print(func, stream);
-        fprintf(stream, "\n");
+        ast_node_print(XDP_AST_NODE(p->data), out);
+        p = p->next;
     }
+}
+
+static void
+ast_compile_unit_class_init(gpointer klass, gpointer unused)
+{
+    ((AstNodeClass *)klass)->do_print = ast_compile_unit_do_print;
 }

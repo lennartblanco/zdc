@@ -1,6 +1,4 @@
-#include <string.h>
-
-#include "ast_variable_declaration.h"
+#include "ast_return.h"
 
 #include <assert.h>
 
@@ -9,71 +7,74 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out);
+ast_return_do_print(AstNode *self, FILE *out);
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy);
+ast_return_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType
-ast_variable_declaration_get_type(void)
+GType 
+ast_return_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstVariableDeclarationClass),
+        sizeof (AstReturnClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_variable_declaration_class_init, /* class_init */
+        ast_return_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstVariableDeclaration),
+        sizeof (AstReturn),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
-                                    "AstVariableDeclarationType",
+      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+                                    "AstReturnType",
                                     &info, 0);
     }
     return type;
 }
 
-AstVariableDeclaration *
-ast_variable_declaration_new(AstDataType *type, char *name)
-{
-    AstVariableDeclaration *node;
+AstReturn * 
+ast_return_new(AstExpression *return_value)
+{ 
+    AstReturn *ret;
 
-    node = g_object_new(XDP_TYPE_AST_VARIABLE_DECLARATION, NULL);
-    node->type = type;
-    node->name = strdup(name);
+    ret = g_object_new(XDP_TYPE_AST_RETURN, NULL);
+    ret->return_value = return_value;
 
-    return node;
+    return ret;
 }
+
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out)
+ast_return_do_print(AstNode *self, FILE *out)
 {
     assert(self);
     assert(out);
-
-    AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;
-
-    ast_node_print(XDP_AST_NODE(var_dec->type), out);
-    fprintf(out, " %s", var_dec->name);
+    assert(XDP_IS_AST_RETURN(self));
+    fprintf(out, "  return ");
+    AstReturn *ret = (AstReturn *)self;
+    if (ret->return_value != NULL)
+    {
+        ast_node_print(XDP_AST_NODE(ret->return_value), out);
+    }
+    fprintf(out, "\n");
 }
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy)
+ast_return_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_variable_declaration_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_return_do_print;
 }
 

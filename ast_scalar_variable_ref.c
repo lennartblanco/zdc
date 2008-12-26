@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "ast_variable_declaration.h"
+#include "ast_scalar_variable_ref.h"
 
 #include <assert.h>
 
@@ -9,50 +9,49 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out);
+ast_scalar_variable_ref_do_print(AstNode *self, FILE *out);
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy);
+ast_scalar_variable_ref_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-ast_variable_declaration_get_type(void)
+ast_scalar_variable_ref_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstVariableDeclarationClass),
+        sizeof (AstScalarVariableRefClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_variable_declaration_class_init, /* class_init */
+        ast_scalar_variable_ref_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstVariableDeclaration),
+        sizeof (AstScalarVariableRef),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
-                                    "AstVariableDeclarationType",
+      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+                                    "AstScalarVariableRefType",
                                     &info, 0);
     }
     return type;
 }
 
-AstVariableDeclaration *
-ast_variable_declaration_new(AstDataType *type, char *name)
+AstScalarVariableRef* 
+ast_scalar_variable_ref_new(char *name)
 {
-    AstVariableDeclaration *node;
+    AstScalarVariableRef *ref;
 
-    node = g_object_new(XDP_TYPE_AST_VARIABLE_DECLARATION, NULL);
-    node->type = type;
-    node->name = strdup(name);
+    ref = g_object_new(XDP_TYPE_AST_SCALAR_VARIABLE_REF, NULL);
+    ref->name = strdup(name);
 
-    return node;
+    return ref;
 }
 
 /*---------------------------------------------------------------------------*
@@ -60,20 +59,19 @@ ast_variable_declaration_new(AstDataType *type, char *name)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out)
+ast_scalar_variable_ref_do_print(AstNode *self, FILE *out)
 {
     assert(self);
+    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(self));
     assert(out);
 
-    AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;
-
-    ast_node_print(XDP_AST_NODE(var_dec->type), out);
-    fprintf(out, " %s", var_dec->name);
+    AstScalarVariableRef *ref = (AstScalarVariableRef *)self;
+    fprintf(out, "%s", ref->name);
 }
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy)
+ast_scalar_variable_ref_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_variable_declaration_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_scalar_variable_ref_do_print;
 }
 

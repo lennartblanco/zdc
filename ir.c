@@ -12,18 +12,18 @@
  *---------------------------------------------------------------------------*/ 
 struct ir_variable_def_s
 {
-    old_ast_data_type_t type;
+    AstDataType *type;
     char *name;
     ir_symbol_address_t address;
 };
 
 struct ir_function_def_s
 {
-    char *name;
-    GSList *parameters;
-    sym_table_t *local;
-    ast_node_t *body;
-    old_ast_data_type_t return_type;
+    char         *name;
+    GSList       *parameters;
+    sym_table_t  *local;
+    AstCodeBlock *body;
+    AstDataType  *return_type;
 };
 
 struct ir_compile_unit_s
@@ -44,7 +44,7 @@ struct ir_symbol_s
 
 ir_variable_def_t*
 new_ir_variable_def(const char* name, 
-                    old_ast_data_type_t type)
+                    AstDataType *type)
 {
     assert(name);
 
@@ -75,7 +75,7 @@ ir_variable_def_get_address(ir_variable_def_t *var)
     return var->address;
 }
 
-old_ast_data_type_t
+AstDataType *
 ir_variable_def_get_type(ir_variable_def_t *var)
 {
     assert(var);
@@ -180,7 +180,7 @@ ir_function_def_get_name(ir_function_def_t *func)
 
 void
 ir_function_def_set_body(ir_function_def_t* func,
-                         ast_node_t *body)
+                         AstCodeBlock *body)
 {
     assert(func);
     assert(body);
@@ -188,7 +188,7 @@ ir_function_def_set_body(ir_function_def_t* func,
     func->body = body;
 }
 
-ast_node_t *
+AstCodeBlock *
 ir_function_def_get_body(ir_function_def_t *func)
 {
     assert(func);
@@ -198,14 +198,14 @@ ir_function_def_get_body(ir_function_def_t *func)
 
 void
 ir_function_def_set_return_type(ir_function_def_t *func,
-                                old_ast_data_type_t return_type)
+                                AstDataType *return_type)
 {
     assert(func);
 
     func->return_type = return_type;
 }
 
-old_ast_data_type_t
+AstDataType *
 ir_function_def_get_return_type(ir_function_def_t *func)
 {
     assert(func);

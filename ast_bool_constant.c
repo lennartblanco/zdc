@@ -1,6 +1,4 @@
-#include <string.h>
-
-#include "ast_variable_declaration.h"
+#include "ast_bool_constant.h"
 
 #include <assert.h>
 
@@ -9,50 +7,49 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out);
+ast_bool_constant_do_print(AstNode *self, FILE *out);
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy);
+ast_bool_constant_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType
-ast_variable_declaration_get_type(void)
+GType 
+ast_bool_constant_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstVariableDeclarationClass),
+        sizeof (AstBoolConstantClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_variable_declaration_class_init, /* class_init */
+        ast_bool_constant_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstVariableDeclaration),
+        sizeof (AstBoolConstant),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
-                                    "AstVariableDeclarationType",
+      type = g_type_register_static(XDP_TYPE_AST_CONSTANT,
+                                    "AstBoolConstantType",
                                     &info, 0);
     }
     return type;
 }
 
-AstVariableDeclaration *
-ast_variable_declaration_new(AstDataType *type, char *name)
+AstBoolConstant *
+ast_bool_constant_new(bool value)
 {
-    AstVariableDeclaration *node;
+    AstBoolConstant *obj;
 
-    node = g_object_new(XDP_TYPE_AST_VARIABLE_DECLARATION, NULL);
-    node->type = type;
-    node->name = strdup(name);
+    obj = g_object_new(XDP_TYPE_AST_BOOL_CONSTANT, NULL);
+    obj->value = value;
 
-    return node;
+    return obj;
 }
 
 /*---------------------------------------------------------------------------*
@@ -60,20 +57,19 @@ ast_variable_declaration_new(AstDataType *type, char *name)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out)
+ast_bool_constant_do_print(AstNode *self, FILE *out)
 {
     assert(self);
     assert(out);
+    assert(XDP_IS_AST_BOOL_CONSTANT(self));
+    bool val = ((AstBoolConstant*)self)->value;
 
-    AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;
-
-    ast_node_print(XDP_AST_NODE(var_dec->type), out);
-    fprintf(out, " %s", var_dec->name);
+    fprintf(out, "%s", (val ? "true" : "false"));
 }
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy)
+ast_bool_constant_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_variable_declaration_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_bool_constant_do_print;
 }
 

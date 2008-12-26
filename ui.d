@@ -4,6 +4,7 @@
 import std.stdio;
 import std.string;
 
+extern (C) void g_type_init();
 extern (C) int compile_file(char* input_file, char* output_file);
 
 int main(char[][] args)
@@ -15,6 +16,7 @@ int main(char[][] args)
         return -1;
     }
 
+    g_type_init();
     foreach (arg; args[1..$])
     {
         string target_file;

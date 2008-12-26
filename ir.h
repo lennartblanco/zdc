@@ -1,7 +1,10 @@
 #ifndef IR_INC_X
 #define IR_INC_X
 
-#include "ast.h"
+#include <glib.h>
+
+#include "ast_data_type.h"
+#include "ast_code_block.h"
 #include "sym_table_types.h"
 
 typedef struct ir_variable_def_s ir_variable_def_t;
@@ -114,8 +117,7 @@ ir_compile_unit_get_global_sym_table(ir_compile_unit_t *compile_unit);
 
 ir_variable_def_t*
 new_ir_variable_def(const char* name, 
-                    old_ast_data_type_t type);
-
+                    AstDataType *type);
 
 void
 ir_variable_def_assign_address(ir_variable_def_t *var,
@@ -128,7 +130,7 @@ ir_variable_def_get_address(ir_variable_def_t *var);
 /**
  * @return this variables data type
  */
-old_ast_data_type_t
+AstDataType *
 ir_variable_def_get_type(ir_variable_def_t *var);
 
 /*************************************
@@ -175,16 +177,16 @@ ir_function_def_get_name(ir_function_def_t *func);
 
 void
 ir_function_def_set_body(ir_function_def_t *func,
-                         ast_node_t *body);
+                         AstCodeBlock *body);
 
-ast_node_t *
+AstCodeBlock *
 ir_function_def_get_body(ir_function_def_t *func);
 
 void
 ir_function_def_set_return_type(ir_function_def_t *func,
-                                old_ast_data_type_t return_type);
+                                AstDataType *return_type);
 
-old_ast_data_type_t
+AstDataType *
 ir_function_def_get_return_type(ir_function_def_t *func);
 
 #endif /* IR_INC_X */

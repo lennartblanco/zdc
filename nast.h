@@ -15,6 +15,8 @@ typedef struct ast_function_s             ast_function_t;
 typedef struct ast_variable_declaration_s ast_variable_declaration_t;
 typedef struct ast_data_type_s            ast_data_type_t;
 typedef struct ast_code_block_s           ast_code_block_t;
+typedef struct ast_statment_s             ast_statment_t;
+typedef struct ast_expression_s           ast_expression_t;
 
 typedef enum basic_data_type_e
 {
@@ -80,5 +82,25 @@ ast_data_type_print(ast_data_type_t *data_type, FILE *stream);
 /*--------------------------------*
  * ast code block node operations *
  *--------------------------------*/
+
+ast_code_block_t *
+ast_code_block_new();
+
+void
+ast_code_block_add_statment(ast_code_block_t *code_block,
+                            ast_statment_t   *statment);
+
+void
+ast_code_block_print(ast_code_block_t *code_block, FILE *stream);
+
+/*------------------------------*
+ * ast statment node operations *
+ *------------------------------*/
+
+ast_statment_t *
+ast_statment_new_return(ast_expression_t *return_value);
+
+void
+ast_statment_print(ast_statment_t *statment, FILE *stream);
 
 #endif /* NAST_INC_X */

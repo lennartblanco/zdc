@@ -1,42 +1,57 @@
-/**
- * @file ast_function.c
- * @brief ast function node operations implementation
- */
-
-#include <stdbool.h>
 #include <string.h>
 
-#include "nast.h"
+#include "ast_function.h"
 
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                             type definitions                              *
+ *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-struct ast_function_s
-{
-    char             *name;
-    GSList           *parameters;
-    ast_data_type_t  *return_type;
-    ast_code_block_t *body;
-};
+static void
+ast_function_do_print(AstNode *self, FILE *out);
+
+static void
+ast_function_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-ast_function_t *
+GType
+ast_function_get_type(void)
+{
+    static GType type = 0;
+    if (type == 0) 
+    {
+      static const GTypeInfo info = 
+      {
+        sizeof (AstFunctionClass),
+        NULL,   /* base_init */
+        NULL,   /* base_finalize */
+        ast_function_class_init,   /* class_init */
+        NULL,   /* class_finalize */
+        NULL,   /* class_data */
+        sizeof (AstFunction),
+        0,      /* n_preallocs */
+        NULL    /* instance_init */
+      };
+      type = g_type_register_static(XDP_TYPE_AST_NODE,
+                                    "AstFunctionType",
+                                    &info, 0);
+    }
+    return type;
+}
+
+AstFunction* 
 ast_function_new(char *name, 
                  GSList *parameters,
-                 ast_data_type_t *return_type,
-                 ast_code_block_t *body)
+                 AstDataType *return_type,
+                 AstCodeBlock *body)
 {
-    assert(name);
-    ast_function_t *func;
+    AstFunction *func;
 
-    func = g_malloc(sizeof(*func));
-
+    func = g_object_new(XDP_TYPE_AST_FUNCTION, NULL);
     func->name = strdup(name);
     func->parameters = parameters;
     func->return_type = return_type;
@@ -45,28 +60,41 @@ ast_function_new(char *name,
     return func;
 }
 
-void
-ast_function_print(ast_function_t *function, FILE *stream)
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+ast_function_do_print(AstNode *self, FILE *out)
 {
-    assert(function);
-    assert(stream);
+    assert(self);
+    assert(out);
 
-    fprintf(stream, 
-            " function (%p)\n" \
-            "  name '%s' return type '",
-           function, function->name);
-    ast_data_type_print(function->return_type, stream);
-    fprintf(stream, "'\n  parameters: ");
+    AstFunction *func = (AstFunction *)self;
+    fprintf(out, "function [%p]\n"         \
+                 "  name: %s return type:",
+                 self, func->name);
 
-    /* print function parameters */
-    GSList *p;
-    ast_variable_declaration_t *param;
-    for (p = function->parameters; p != NULL; p = p->next)
+    ast_node_print(XDP_AST_NODE(func->return_type), out);
+    fprintf(out, "\n  params: ");
+
+    GSList *p = func->parameters;
+    while(p != NULL)
     {
-        param = p->data;
-        ast_variable_declaration_print(param, stream);
-        printf("%s", p->next == NULL ? "" : ", ");
+        ast_node_print(XDP_AST_NODE(p->data), out);
+        if (p->next != NULL)
+        {
+            fprintf(out, ", ");
+        }
+        p = p->next;
     }
-
-    fprintf(stream, "\n");
+    fprintf(out, "\n");
+    ast_node_print(XDP_AST_NODE(func->body), out);
 }
+
+static void
+ast_function_class_init(gpointer klass, gpointer dummy)
+{
+    ((AstNodeClass *)klass)->do_print = ast_function_do_print;
+}
+

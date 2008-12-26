@@ -1,79 +1,72 @@
-#include <string.h>
-
-#include "ast_variable_declaration.h"
-
-#include <assert.h>
+#include "ast_node.h"
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out);
+ast_node_do_print(AstNode *self, FILE *out);
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy);
+ast_node_class_init(gpointer klass, gpointer foo);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType
-ast_variable_declaration_get_type(void)
+GType ast_node_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstVariableDeclarationClass),
+        sizeof (AstNodeClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_variable_declaration_class_init, /* class_init */
+        ast_node_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstVariableDeclaration),
+        sizeof (AstNode),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
-                                    "AstVariableDeclarationType",
+      type = g_type_register_static(G_TYPE_OBJECT,
+                                    "AstNodeType",
                                     &info, 0);
     }
     return type;
 }
 
-AstVariableDeclaration *
-ast_variable_declaration_new(AstDataType *type, char *name)
+AstNode* ast_node_new(void)
 {
-    AstVariableDeclaration *node;
+    AstNode *node;
 
-    node = g_object_new(XDP_TYPE_AST_VARIABLE_DECLARATION, NULL);
-    node->type = type;
-    node->name = strdup(name);
+    node = g_object_new(XDP_TYPE_AST_NODE, NULL);
 
     return node;
+}
+
+void
+ast_node_print(AstNode *self, FILE *out)
+{
+    XDP_AST_NODE_GET_CLASS(self)->do_print(self, out);
 }
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out)
+ast_node_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(out);
-
-    AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;
-
-    ast_node_print(XDP_AST_NODE(var_dec->type), out);
-    fprintf(out, " %s", var_dec->name);
+    fprintf(out, "Some AST node [%p]\n", self);
 }
 
 static void
-ast_variable_declaration_class_init(gpointer klass, gpointer dummy)
+ast_node_class_init(gpointer klass, gpointer foo)
 {
-    ((AstNodeClass *)klass)->do_print = ast_variable_declaration_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_node_do_print;
 }
 

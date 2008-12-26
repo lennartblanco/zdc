@@ -10,7 +10,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-sem_analyze_function(ast_node_t *node, void *p)
+sem_analyze_function(AstFunction *func, void *p)
 {
     /* needs to be updated to new ast */
     assert(false);
@@ -81,7 +81,7 @@ sem_analyze_function(ast_node_t *node, void *p)
  *---------------------------------------------------------------------------*/
 
 ir_compile_unit_t *
-semantic_analyze(ast_compile_unit_t *ast_compile_unit)
+semantic_analyze(AstCompileUnit *ast_compile_unit)
 {
     /* needs to be updated to new ast */
     assert(false);

@@ -187,51 +187,53 @@ java_trgt_get_next_label(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
-                          ast_node_t *node, sym_table_t *sym_table)
+                           ast_node_t *node, sym_table_t *sym_table)
 {
-    assert(node);
-    assert(node->type == ast_function_call_node);
-    assert(sym_table);
+    //needs to be update to the new ast
+    assert(false);
+//    assert(node);
+//    assert(node->type == ast_function_call_node);
+//    assert(sym_table);
 
-    ast_func_args_list_t *arg;
-    ir_symbol_t *symb;
-    ir_function_def_t *func;
-    int res;
-    GSList *p;
+//    ast_func_args_list_t *arg;
+//    ir_symbol_t *symb;
+//    ir_function_def_t *func;
+//    int res;
+//    GSList *p;
 
 
-    res = sym_table_get_symbol(sym_table, node->data.function_call.name,
-                               &symb);
-    if (res == -1)
-    {
-        printf("undefined reference to function '%s'\n",
-               node->data.function_call.name);
-        return;
-    }
-    func = ir_symbol_get_function(symb);
+//    res = sym_table_get_symbol(sym_table, node->data.function_call.name,
+//                               &symb);
+//    if (res == -1)
+//    {
+//        printf("undefined reference to function '%s'\n",
+//               node->data.function_call.name);
+//        return;
+//    }
+//    func = ir_symbol_get_function(symb);
 
-    arg = node->data.function_call.args;
-    while (arg != NULL)
-    {
-        java_trgt_handle_node(params, arg->value, sym_table);
-        arg = arg->next;
-    }
+//    arg = node->data.function_call.args;
+//    while (arg != NULL)
+//    {
+//        java_trgt_handle_node(params, arg->value, sym_table);
+//        arg = arg->next;
+//    }
 
-    fprintf(params->out,
-            "    invokestatic %s/%s(",
-            params->class_name,
-            node->data.function_call.name);
+//    fprintf(params->out,
+//            "    invokestatic %s/%s(",
+//            params->class_name,
+//            node->data.function_call.name);
 
-    p = ir_function_def_get_parameters(func);
-    for (; p != NULL; p = g_slist_next(p))
-    {
-        ir_variable_def_t *v = p->data;
-        fprintf(params->out, 
-                "%s", java_trgt_data_type_to_str(ir_variable_def_get_type(v)));
-    }
+//    p = ir_function_def_get_parameters(func);
+//    for (; p != NULL; p = g_slist_next(p))
+//    {
+//        ir_variable_def_t *v = p->data;
+//        fprintf(params->out, 
+//                "%s", java_trgt_data_type_to_str(ir_variable_def_get_type(v)));
+//    }
 
-    fprintf(params->out, ")%s\n", 
-           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
+//    fprintf(params->out, ")%s\n", 
+//           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 }
 
 
@@ -492,65 +494,67 @@ static void
 java_trgt_handle_function_def(java_trgt_comp_params_t *params,
                              ir_function_def_t *func)
 {
-    GSList *p;
-    GList *l;
-    ir_variable_def_t *var;
-    guint param_num = 0;
-    guint local_var_num = 0;
-    guint i;
-    sym_table_t *local_vars;
-    ir_symbol_t *symb;
-    ir_symbol_address_t addr;
+    //needs to be converted to new ast
+    assert(false);
+//    GSList *p;
+//    GList *l;
+//    ir_variable_def_t *var;
+//    guint param_num = 0;
+//    guint local_var_num = 0;
+//    guint i;
+//    sym_table_t *local_vars;
+//    ir_symbol_t *symb;
+//    ir_symbol_address_t addr;
 
-    /*
-     * generate function header
-     */
-    fprintf(params->out,
-            ".method public static %s(", ir_function_def_get_name(func));
+//    /*
+//     * generate function header
+//     */
+//    fprintf(params->out,
+//            ".method public static %s(", ir_function_def_get_name(func));
 
-    /* generate function parameters types and count parameters */
-    p = ir_function_def_get_parameters(func);
-    for (; p != NULL; p = g_slist_next(p))
-    {
-        var = p->data;
-        param_num += 1;
-        fprintf(params->out, "%s", 
-                java_trgt_data_type_to_str(ir_variable_def_get_type(var)));
-    }
+//    /* generate function parameters types and count parameters */
+//    p = ir_function_def_get_parameters(func);
+//    for (; p != NULL; p = g_slist_next(p))
+//    {
+//        var = p->data;
+//        param_num += 1;
+//        fprintf(params->out, "%s", 
+//                java_trgt_data_type_to_str(ir_variable_def_get_type(var)));
+//    }
 
-    fprintf(params->out, ")%s\n", 
-           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
+//    fprintf(params->out, ")%s\n", 
+//           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 
-    /* count local variables and assign numbers */
-    local_vars = ir_function_def_get_local_vars(func);
-    l = sym_table_get_all_symbols(local_vars);
-    for (; l != NULL; l = g_list_next(l))
-    {
-        var = ir_symbol_get_variable(l->data);
-        addr.java_variable_addr = param_num + local_var_num;
-        ir_variable_def_assign_address(var, addr);
-        local_var_num += 1;
-    }
+//    /* count local variables and assign numbers */
+//    local_vars = ir_function_def_get_local_vars(func);
+//    l = sym_table_get_all_symbols(local_vars);
+//    for (; l != NULL; l = g_list_next(l))
+//    {
+//        var = ir_symbol_get_variable(l->data);
+//        addr.java_variable_addr = param_num + local_var_num;
+//        ir_variable_def_assign_address(var, addr);
+//        local_var_num += 1;
+//    }
 
-    /* 
-     * assign numbers to parameter variables and
-     * put them into the local symb table
-     */
-    p = ir_function_def_get_parameters(func);
-    for (i = 0; i < param_num; i++)
-    {
-        var = p->data;
-        addr.java_variable_addr = i;
-        ir_variable_def_assign_address(var, addr);
-        ir_function_def_add_local_var(func, var);
-        p = g_slist_next(p);
-    }
+//    /* 
+//     * assign numbers to parameter variables and
+//     * put them into the local symb table
+//     */
+//    p = ir_function_def_get_parameters(func);
+//    for (i = 0; i < param_num; i++)
+//    {
+//        var = p->data;
+//        addr.java_variable_addr = i;
+//        ir_variable_def_assign_address(var, addr);
+//        ir_function_def_add_local_var(func, var);
+//        p = g_slist_next(p);
+//    }
 
-    fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
-    fprintf(params->out, "    .limit stack 32\n");    
-    java_trgt_handle_code_block(params, 
-                               ir_function_def_get_body(func),
-                               local_vars);
-    fprintf(params->out, ".end method\n");
+//    fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
+//    fprintf(params->out, "    .limit stack 32\n");    
+//    java_trgt_handle_code_block(params, 
+//                               ir_function_def_get_body(func),
+//                               local_vars);
+//    fprintf(params->out, ".end method\n");
 }
 

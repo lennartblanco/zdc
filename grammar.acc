@@ -4,12 +4,16 @@
 #include <stdio.h>
 
 #include "yystype_def.h"
-#include "ast.h"
-#include "nast.h"
-#include "sym_table.h"
-#include "ast_dbg_dump.h"
+#include "ast_basic_type.h"
+#include "ast_return.h"
+#include "ast_binary_operation.h"
+#include "ast_unary_operation.h"
+#include "ast_int_constant.h"
+#include "ast_bool_constant.h"
+#include "ast_scalar_variable_ref.h"
+#include "ast_assigment.h"
 
-ast_compile_unit_t *compile_unit;
+AstCompileUnit *compile_unit;
 }
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
@@ -64,29 +68,36 @@ func_params<params> :
 ;
 
 code_block<x> :
-   { /* (*x).node = new_code_block(); */ }
+   {  (*x).code_block = ast_code_block_new(); }
   '{' statments_list<x> '}';
 
 statments_list<n> :
   statment<x> 
-  { 
-//      code_block_add_statment((*n).node, x.node);
-      y.node = (*n).node;
+  {
+      ast_code_block_add_statment((*n).code_block, x.statment);
   }
-  ';' statments_list<y>
+  ';' statments_list<n>
 | if_else_block<x> 
   {
-//      code_block_add_statment((*n).node, x.node);
-      y.node = (*n).node;
+      ast_code_block_add_statment((*n).code_block, x.statment);
   }
-  statments_list<y>
+  statments_list<n>
 | null 
 ;
 
 type<x> :
-    TOK_VOID   { (*x).data_type = ast_data_type_new_scalar(void_type); }
-|   TOK_INT    { (*x).data_type = ast_data_type_new_scalar(int_type); }
-|   TOK_BOOL   { (*x).data_type = ast_data_type_new_scalar(bool_type); }
+    TOK_VOID   
+    { 
+        (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(void_type)); 
+    }
+|   TOK_INT    
+    {
+        (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(int_type));
+    }
+|   TOK_BOOL   
+    { 
+        (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)); 
+    }
 
 ;
 
@@ -100,34 +111,40 @@ statment<x> :
 if_else_block<x>:
     TOK_IF '(' boolean_expression<cond> ')' code_block<code>
     {
-        (*x).node = new_if_else_block(cond.node, code.node, NULL);
+        //(*x).node = new_if_else_block(cond.node, code.node, NULL);
     }
 ;
 
 return_stmt<x> :
     TOK_RETURN expression<n> 
     { 
-       (*x).node = new_return_statment(n.node);
+       (*x).statment = XDP_AST_STATMENT(ast_return_new(n.expression));
     }
 |   TOK_RETURN       
     {
-        (*x).node = new_return_statment(NULL);
+       (*x).statment = XDP_AST_STATMENT(ast_return_new(NULL));
     }
 ;
 
 func_call<n> :
     TOK_IDENT<x> '(' func_call_args<y> ')' 
     { 
-        (*n).node = new_function_call(x.text, y.args_list); 
+        //(*n).node = new_function_call(x.text, y.args_list); 
     }
 ;
 /* FIXME: this rule will accept function calls 'foo(a,)' */
 func_call_args<n> :
-   null    { (*n).args_list = NULL; }
-|  term<x> { (*n).args_list = new_func_args_list(x.node, NULL); }
+   null    
+   { 
+       //(*n).args_list = NULL; 
+   }
+|  term<x> 
+   { 
+       //(*n).args_list = new_func_args_list(x.node, NULL);
+   }
 |  term<x> ',' func_call_args<y> 
    { 
-       (*n).args_list = new_func_args_list(x.node, y.args_list); 
+       //(*n).args_list = new_func_args_list(x.node, y.args_list); 
    }
 ;
 
@@ -135,12 +152,20 @@ var_dec<n> :
    type<t> TOK_IDENT<x> 
    { 
        (*n).variable_declaration = 
-           ast_variable_declaration_new(x.text, t.data_type);
+           ast_variable_declaration_new(t.data_type, x.text);
    }
 ;
 
 var_assigment<n> :
-   TOK_IDENT<x> '=' expression<y> { (*n).node = new_assigment(x.text, y.node); }
+   TOK_IDENT<x> '=' expression<y> 
+   {
+       AstScalarVariableRef *var_ref;
+
+       var_ref = ast_scalar_variable_ref_new(x.text);
+       (*n).statment =
+           XDP_AST_STATMENT(ast_assigment_new(XDP_AST_VARIABLE_REF(var_ref), 
+                                              y.expression));
+   }
 ;
 
 expression<n> :
@@ -151,48 +176,111 @@ expression<n> :
 boolean_expression<n> :
   term<l> '<' term<r> 
   { 
-      (*n).node = new_binary_operation(ast_less_op, l.node, r.node);
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
+                                                      l.expression,
+                                                      r.expression));
   }
 | term<l> '>' term<r> 
-  { 
-      (*n).node = new_binary_operation(ast_greater_op, l.node, r.node);
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
+                                                      l.expression,
+                                                      r.expression)); 
   }
 | term<l> '<''=' term<r> 
-  { 
-      (*n).node = new_binary_operation(ast_less_or_eq_op, l.node, r.node);
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
+                                                      l.expression,
+                                                      r.expression)); 
   }
 | term<l> '>''=' term<r> 
-  { 
-      (*n).node = new_binary_operation(ast_greater_or_eq_op, l.node, r.node);
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
+                                                      l.expression,
+                                                      r.expression)); 
   }
 | term<l> '=''=' term<r> 
-  { 
-      (*n).node = new_binary_operation(ast_equal_op, l.node, r.node);
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_equal_op,
+                                                      l.expression,
+                                                      r.expression)); 
   }
 | term<l> '!''=' term<r> 
-  { 
-      (*n).node = new_binary_operation(ast_not_equal_op, l.node, r.node);
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_not_equal_op,
+                                                      l.expression,
+                                                      r.expression)); 
   }
 ; 
 
 term<n> :
-  term<x> '+' factor<y> { (*n).node = new_binary_operation(ast_plus_op, x.node, y.node); }
-| term<x> '-' factor<y> { (*n).node = new_binary_operation(ast_minus_op, x.node, y.node); }
+  term<l> '+' factor<r> 
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
+                                                      l.expression,
+                                                      r.expression));
+  }
+| term<l> '-' factor<r>
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
+                                                      l.expression,
+                                                      r.expression));
+  }
 | factor<n>
 ;
 
 factor<n> :
-  factor<x> '*' primary<y> { (*n).node = new_binary_operation(ast_mult_op, x.node, y.node); }
-| factor<x> '/' primary<y> { (*n).node = new_binary_operation(ast_division_op, x.node, y.node); }
+  factor<l> '*' primary<r> 
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
+                                                      l.expression,
+                                                      r.expression));
+  }
+| factor<l> '/' primary<r> 
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
+                                                      l.expression,
+                                                      r.expression)); 
+  }
 | primary<n>
 ;
 
 primary<n> :
-  TOK_NUMBER<x> { (*n).node = new_int_const(x.integer); }
-| TOK_TRUE      { (*n).node = new_bool_const(true); }
-| TOK_FALSE     { (*n).node = new_bool_const(false); }
-| TOK_IDENT<x> { (*n).node = new_var_value(x.text); }
+  TOK_NUMBER<x>
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_int_constant_new(x.integer));
+  }
+| TOK_TRUE
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_bool_constant_new(true));
+  }
+| TOK_FALSE
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_bool_constant_new(false));
+  }
+| TOK_IDENT<x>
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_scalar_variable_ref_new(x.text));
+  }
 | func_call<n>
 | '(' term<n> ')'
-| '-' primary<x> { (*n).node = new_negation(x.node);}
+| '-' primary<x> 
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
+                                                     x.expression)); 
+  }
 ;
