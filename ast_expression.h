@@ -1,7 +1,7 @@
 #ifndef AST_EXPRESSION_INC_X
 #define AST_EXPRESSION_INC_X
 
-#include "ast_node.h"
+#include "ast_statment.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,12 +26,12 @@
 
 typedef struct
 {
-    AstNode parent;
+    AstStatment parent;
 } AstExpression;
 
 typedef struct
 {
-    AstNodeClass parent_class;
+    AstStatmentClass parent_class;
 } AstExpressionClass;
 
 /*---------------------------------------------------------------------------*

@@ -1,5 +1,10 @@
 // A comment!
 
+int sum(int first, int second, int third)
+{
+    return first + second + third;
+}
+
 int add(int a, int b)
 {
     return a+b;
@@ -22,3 +27,7 @@ int hej()
     return add(10, foo());
 }
 
+int call_sum(int l)
+{
+    return sum(l, get_13(), 10);
+}

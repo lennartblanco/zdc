@@ -12,6 +12,7 @@
 #include "ast_bool_constant.h"
 #include "ast_scalar_variable_ref.h"
 #include "ast_assigment.h"
+#include "ast_function_call.h"
 
 AstCompileUnit *compile_unit;
 }
@@ -21,8 +22,8 @@ AstCompileUnit *compile_unit;
        TOK_INT, TOK_VOID, TOK_BOOL;
        
 
-root : 
-   { 
+root :
+   {
        compile_unit = ast_compile_unit_new();
        n.compile_unit = compile_unit;
    }
@@ -127,23 +128,29 @@ return_stmt<x> :
 ;
 
 func_call<n> :
-    TOK_IDENT<x> '(' func_call_args<y> ')' 
+    {
+        y.list = NULL;
+    }
+    TOK_IDENT<x> '(' ( func_call_args<y> ) ')' 
     { 
-        //(*n).node = new_function_call(x.text, y.args_list); 
+        (*n).statment =
+             XDP_AST_STATMENT(ast_function_call_new(x.text, y.list)); 
     }
 ;
-/* FIXME: this rule will accept function calls 'foo(a,)' */
+
 func_call_args<n> :
-   null    
-   { 
-       //(*n).args_list = NULL; 
-   }
 |  term<x> 
    { 
-       //(*n).args_list = new_func_args_list(x.node, NULL);
+       (*n).list = g_slist_append((*n).list, x.expression);
    }
-|  term<x> ',' func_call_args<y> 
-   { 
+|  term<x> 
+   {
+       (*n).list = g_slist_append((*n).list, x.expression);
+       y = *n;
+   }
+   ',' func_call_args<y> 
+   {
+       printf("bang!\n"); fflush(stdout);
        //(*n).args_list = new_func_args_list(x.node, y.args_list); 
    }
 ;

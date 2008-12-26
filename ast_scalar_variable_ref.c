@@ -36,7 +36,7 @@ ast_scalar_variable_ref_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+      type = g_type_register_static(XDP_TYPE_AST_VARIABLE_REF,
                                     "AstScalarVariableRefType",
                                     &info, 0);
     }
