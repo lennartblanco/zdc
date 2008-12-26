@@ -37,13 +37,13 @@ typedef enum ir_symbol_type_e
  * create an IR symbol representing a function
  */
 ir_symbol_t*
-new_ir_symbol_function(ir_function_def_t *function);
+ir_symbol_function_new(ir_function_def_t *function);
 
 /**
  * create an IR symbol representing a variable declaration
  */
 ir_symbol_t*
-new_ir_symbol_variable(ir_variable_def_t *variable);
+ir_symbol_variable_new(ir_variable_def_t *variable);
 
 /**
  * get function represented by this symbol. 
@@ -82,7 +82,7 @@ ir_symbol_del(ir_symbol_t *sym);
  * constructor
  */
 ir_compile_unit_t*
-new_ir_compile_unit();
+ir_compile_unit_new();
 
 /**
  * add a function definition to this compile unit
@@ -116,7 +116,7 @@ ir_compile_unit_get_global_sym_table(ir_compile_unit_t *compile_unit);
  *************************************/
 
 ir_variable_def_t*
-new_ir_variable_def(const char* name, 
+ir_variable_def_new(const char* name, 
                     AstDataType *type);
 
 void
@@ -143,7 +143,7 @@ ir_variable_def_get_type(ir_variable_def_t *var);
  * @sym_table the symbol table where this function will be defined
  */
 ir_function_def_t*
-new_ir_function_def(sym_table_t *sym_table);
+ir_function_def_new(sym_table_t *sym_table);
 
 /**
  * add a formal call parameter

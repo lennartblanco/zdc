@@ -84,7 +84,7 @@ ir_variable_def_get_type(ir_variable_def_t *var)
 }
 
 ir_function_def_t*
-new_ir_function_def(sym_table_t *sym_table)
+ir_function_def_new(sym_table_t *sym_table)
 {
     ir_function_def_t *func_def;
 
@@ -139,7 +139,7 @@ ir_function_def_add_local_var(ir_function_def_t *func,
 
     ir_symbol_t *symb;
 
-    symb = new_ir_symbol_variable(var);
+    symb = ir_symbol_variable_new(var);
 
     int res = sym_table_add_symbol(func->local,
                                    var->name, symb);
@@ -220,7 +220,7 @@ ir_compile_unit_add_function(ir_compile_unit_t *compile_unit,
     ir_symbol_t *symb;
     int res;
 
-    symb = new_ir_symbol_function(function_def);
+    symb = ir_symbol_function_new(function_def);
 
     res = sym_table_add_symbol(compile_unit->global_sym_table,
                                function_def->name, symb);
@@ -259,7 +259,7 @@ ir_compile_unit_get_global_sym_table(ir_compile_unit_t *compile_unit)
 }
 
 ir_symbol_t*
-new_ir_symbol_function(ir_function_def_t *function)
+ir_symbol_function_new(ir_function_def_t *function)
 {
     ir_symbol_t *symb;
 
@@ -271,7 +271,7 @@ new_ir_symbol_function(ir_function_def_t *function)
 }
 
 ir_symbol_t*
-new_ir_symbol_variable(ir_variable_def_t *variable)
+ir_symbol_variable_new(ir_variable_def_t *variable)
 {
     ir_symbol_t *symb;
 

@@ -87,7 +87,7 @@ semantic_analyze(AstCompileUnit *ast_compile_unit)
     assert(false);
     ir_compile_unit_t *comp_unit;
 
-    comp_unit = new_ir_compile_unit();
+    comp_unit = ir_compile_unit_new();
 
 //    compile_unit_for_each_function(node, sem_analyze_function, ast_compile_unit);
 
