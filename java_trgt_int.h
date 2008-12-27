@@ -92,7 +92,8 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                            AstFunctionCall *fun_call,
-                           sym_table_t *sym_table);
+                           sym_table_t *sym_table,
+                           bool pop_return_value);
 
 static void
 java_trgt_prelude(java_trgt_comp_params_t *params);

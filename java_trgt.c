@@ -86,7 +86,18 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
 
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
-        java_trgt_handle_node(params, XDP_AST_NODE(stmts->data), sym_table);
+        AstNode *statment = XDP_AST_NODE(stmts->data);
+
+        if (XDP_IS_AST_FUNCTION_CALL(statment))
+        {
+            java_trgt_handle_func_call(params,
+                                       XDP_AST_FUNCTION_CALL(statment),
+                                       sym_table, true);            
+        }
+        else
+        {
+            java_trgt_handle_node(params, statment, sym_table);
+        }
     }
 }
 
@@ -121,7 +132,8 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
     {
         java_trgt_handle_func_call(params,
                                    XDP_AST_FUNCTION_CALL(exp),
-                                   sym_table);
+                                   sym_table,
+                                   false);
     }
     else if (XDP_IS_AST_INT_CONSTANT(exp))
     {
@@ -241,7 +253,8 @@ java_trgt_get_next_label(java_trgt_comp_params_t *params,
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                            AstFunctionCall *fun_call,
-                           sym_table_t *sym_table)
+                           sym_table_t *sym_table,
+                           bool pop_return_value)
 {
     assert(params);
     assert(fun_call);
@@ -288,14 +301,25 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                 "%s", java_trgt_data_type_to_str(ir_variable_def_get_type(v)));
     }
 
+    AstDataType *ret_type = ir_function_def_get_return_type(func);
     fprintf(params->out, ")%s\n", 
-           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
+           java_trgt_data_type_to_str(ret_type));
+
+    if (pop_return_value && XDP_IS_AST_BASIC_TYPE(ret_type))
+    {
+        basic_data_type_t t =
+            ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(ret_type));
+        if (t != void_type)
+        {
+            fprintf(params->out, "    pop\n");
+        }
+    }
 }
 
 
 static void
-java_trgt_handle_if_else_block(java_trgt_comp_params_t *params, 
-                               ast_node_t *node, 
+java_trgt_handle_if_else_block(java_trgt_comp_params_t *params,
+                               ast_node_t *node,
                                sym_table_t *sym_table)
 {
       /* needs to be update to the new AST implementation */
@@ -360,8 +384,6 @@ java_trgt_handle_if_else_block(java_trgt_comp_params_t *params,
 //    java_trgt_handle_node(params, node->data.if_else_block.if_block, sym_table);
 //    fprintf(params->out, "%s:\n", endLabel);
 }
-
-
 
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
@@ -532,9 +554,6 @@ static void
 java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
                                   AstScalarVariableRef *var_ref,
                                   sym_table_t *sym_table)
-//java_trgt_handle_var_value(java_trgt_comp_params_t *params,
-//                          ast_node_t *node,
-//                          sym_table_t *sym_table)
 {
     ir_symbol_t *symb;
     int res;

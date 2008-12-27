@@ -24,12 +24,10 @@ public class func_callCheck extends check
         System.out.print("func_call.hej() = " + res);
         check(res, 24);
 
-        //this have not been run agains xdc generated java assembly
         res = func_call.sum(-1, 0, 1);
         System.out.print("func_call.sum() = " + res);
         check(res, 0);
 
-        //this have not been run agains xdc generated java assembly
         res = func_call.call_sum(5);
         System.out.print("func_call.call_sum() = " + res);
         check(res, 5 + 13 + 10);
