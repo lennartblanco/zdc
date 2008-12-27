@@ -117,6 +117,12 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
                                           XDP_AST_SCALAR_VARIABLE_REF(exp),
                                           sym_table);
     }
+    else if (XDP_IS_AST_FUNCTION_CALL(exp))
+    {
+        java_trgt_handle_func_call(params,
+                                   XDP_AST_FUNCTION_CALL(exp),
+                                   sym_table);
+    }
     else if (XDP_IS_AST_INT_CONSTANT(exp))
     {
         AstIntConstant *icons = XDP_AST_INT_CONSTANT(exp);
@@ -157,17 +163,6 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
 
 //        case ast_if_else_block_node:
 //            java_trgt_handle_if_else_block(params, node, sym_table);
-//            break;
-
-//        case ast_constant_node:
-//            fprintf(params->out,
-//                    "    ldc %d\n", node->data.constant.value);
-//	    break;
-//        case ast_binary_oper_node:
-//            java_trgt_handle_binary_op(params, node, sym_table);
-//            break;
-//        case ast_function_call_node:
-//            java_trgt_handle_func_call(params, node, sym_table);
 //            break;
 //        default:
 //            printf("Unexpected node->type %s\n", ast_node_to_str(node->type));
@@ -245,51 +240,56 @@ java_trgt_get_next_label(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
-                           ast_node_t *node, sym_table_t *sym_table)
+                           AstFunctionCall *fun_call,
+                           sym_table_t *sym_table)
 {
-//    assert(node);
-//    assert(node->type == ast_function_call_node);
-//    assert(sym_table);
+    assert(params);
+    assert(fun_call);
+    assert(XDP_IS_AST_FUNCTION_CALL(fun_call));
+    assert(sym_table);
 
-//    ast_func_args_list_t *arg;
-//    ir_symbol_t *symb;
-//    ir_function_def_t *func;
-//    int res;
-//    GSList *p;
+    GSList *arg;
+    ir_symbol_t *symb;
+    ir_function_def_t *func;
+    int res;
+    GSList *p;
 
 
-//    res = sym_table_get_symbol(sym_table, node->data.function_call.name,
-//                               &symb);
-//    if (res == -1)
-//    {
-//        printf("undefined reference to function '%s'\n",
-//               node->data.function_call.name);
-//        return;
-//    }
-//    func = ir_symbol_get_function(symb);
+    res = sym_table_get_symbol(sym_table,
+                               ast_function_call_get_name(fun_call),
+                               &symb);
+    if (res == -1)
+    {
+        printf("undefined reference to function '%s'\n",
+               ast_function_call_get_name(fun_call));
+        return;
+    }
+    func = ir_symbol_get_function(symb);
 
-//    arg = node->data.function_call.args;
-//    while (arg != NULL)
-//    {
-//        java_trgt_handle_node(params, arg->value, sym_table);
-//        arg = arg->next;
-//    }
+    arg = ast_function_call_get_arguments(fun_call);
+    while (arg != NULL)
+    {
+        java_trgt_handle_expression(params, 
+                                    XDP_AST_EXPRESSION(arg->data),
+                                    sym_table);
+        arg = arg->next;
+    }
 
-//    fprintf(params->out,
-//            "    invokestatic %s/%s(",
-//            params->class_name,
-//            node->data.function_call.name);
+    fprintf(params->out,
+            "    invokestatic %s/%s(",
+            params->class_name,
+            ast_function_call_get_name(fun_call));
 
-//    p = ir_function_def_get_parameters(func);
-//    for (; p != NULL; p = g_slist_next(p))
-//    {
-//        ir_variable_def_t *v = p->data;
-//        fprintf(params->out, 
-//                "%s", java_trgt_data_type_to_str(ir_variable_def_get_type(v)));
-//    }
+    p = ir_function_def_get_parameters(func);
+    for (; p != NULL; p = g_slist_next(p))
+    {
+        ir_variable_def_t *v = p->data;
+        fprintf(params->out, 
+                "%s", java_trgt_data_type_to_str(ir_variable_def_get_type(v)));
+    }
 
-//    fprintf(params->out, ")%s\n", 
-//           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
+    fprintf(params->out, ")%s\n", 
+           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 }
 
 

@@ -13,6 +13,7 @@
 #include "ast_unary_operation.h"
 #include "ast_binary_operation.h"
 #include "ast_scalar_variable_ref.h"
+#include "ast_function_call.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -90,7 +91,7 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
-                           ast_node_t *node,
+                           AstFunctionCall *fun_call,
                            sym_table_t *sym_table);
 
 static void

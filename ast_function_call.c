@@ -55,6 +55,24 @@ ast_function_call_new(char *name, GSList *arguments)
     return obj;
 }
 
+char *
+ast_function_call_get_name(AstFunctionCall *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FUNCTION_CALL(self));
+
+    return self->name;
+}
+
+GSList *
+ast_function_call_get_arguments(AstFunctionCall *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FUNCTION_CALL(self));
+
+    return self->arguments;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

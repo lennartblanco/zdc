@@ -48,4 +48,10 @@ ast_function_call_get_type(void);
 AstFunctionCall *
 ast_function_call_new(char *name, GSList *arguments);
 
+char *
+ast_function_call_get_name(AstFunctionCall *self);
+
+GSList *
+ast_function_call_get_arguments(AstFunctionCall *self);
+
 #endif /* AST_FUNCTION_CALL_INC_X */
