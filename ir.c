@@ -43,7 +43,7 @@ struct ir_symbol_s
  *---------------------------------------------------------------------------*/ 
 
 ir_variable_def_t*
-new_ir_variable_def(const char* name, 
+ir_variable_def_new(const char* name, 
                     AstDataType *type)
 {
     assert(name);
@@ -240,7 +240,7 @@ ir_compile_unit_get_functions(ir_compile_unit_t *compile_unit)
 }
 
 ir_compile_unit_t*
-new_ir_compile_unit()
+ir_compile_unit_new()
 {
     ir_compile_unit_t *comp_unit;
 

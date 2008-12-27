@@ -31,6 +31,13 @@ int neg5(int l)
    return v;
 }
 
+int neg51(int l)
+{
+   int v = 10 * 4 + l;
+
+   return v;
+}
+
 int neg6(int l)
 {
    int v;
@@ -39,3 +46,5 @@ int neg6(int l)
 
    return v;
 }
+
+

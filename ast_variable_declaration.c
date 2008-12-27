@@ -55,6 +55,25 @@ ast_variable_declaration_new(AstDataType *type, char *name)
     return node;
 }
 
+
+AstDataType *
+ast_variable_declaration_get_data_type(AstVariableDeclaration *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_VARIABLE_DECLARATION(self));
+
+    return self->type;
+}
+
+char *
+ast_variable_declaration_get_name(AstVariableDeclaration *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_VARIABLE_DECLARATION(self));
+
+    return self->name;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

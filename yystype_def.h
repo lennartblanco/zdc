@@ -3,6 +3,7 @@
 
 #include "ast_compile_unit.h"
 #include "ast_variable_declaration.h"
+#include "ast_variable_definition.h"
 #include "ast_expression.h"
 
 union yystype_u
@@ -16,6 +17,7 @@ union yystype_u
     AstDataType                *data_type;
     AstExpression              *expression;
     AstVariableDeclaration     *variable_declaration;
+    AstVariableDefinition      *variable_definition;
     GSList                     *list;
 };
 

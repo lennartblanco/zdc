@@ -57,11 +57,11 @@ func_params<params> :
     {
         l.list = NULL;
     }
-    var_dec<n> ',' func_params<l>
+    var_declaration<n> ',' func_params<l>
     {
         (*params).list = g_slist_prepend(l.list, n.variable_declaration);
     }
-|   var_dec<n>
+|   var_declaration<n>
     {
         (*params).list = g_slist_prepend((*params).list, n.variable_declaration);
     }
@@ -103,7 +103,7 @@ type<x> :
 ;
 
 statment<x> :
-  var_dec<x>
+  var_definition<x>
 | func_call<x> 
 | var_assigment<x>
 | return_stmt<x>
@@ -149,19 +149,30 @@ func_call_args<n> :
        y = *n;
    }
    ',' func_call_args<y> 
-   {
-       printf("bang!\n"); fflush(stdout);
-       //(*n).args_list = new_func_args_list(x.node, y.args_list); 
-   }
 ;
 
-var_dec<n> :
+var_declaration<n> :
    type<t> TOK_IDENT<x> 
    { 
        (*n).variable_declaration = 
            ast_variable_declaration_new(t.data_type, x.text);
    }
 ;
+
+var_definition<n> :
+   type<t> TOK_IDENT<x> 
+   { 
+       (*n).variable_definition = 
+           ast_variable_definition_new(t.data_type, x.text, NULL);
+   }
+|  type<t> TOK_IDENT<x> '=' expression<e> 
+   { 
+       (*n).variable_definition = 
+           ast_variable_definition_new(t.data_type, x.text, e.expression);
+   }
+
+;
+
 
 var_assigment<n> :
    TOK_IDENT<x> '=' expression<y> 

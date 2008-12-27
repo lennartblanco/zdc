@@ -55,4 +55,16 @@ ast_function_new(char *name,
                  AstDataType *return_type,
                  AstCodeBlock *body);
 
+char *
+ast_function_get_name(AstFunction *self);
+
+GSList *
+ast_function_get_parameters(AstFunction *self);
+
+AstDataType *
+ast_function_get_return_type(AstFunction *self);
+
+AstCodeBlock *
+ast_function_get_body(AstFunction *self);
+
 #endif /* AST_FUNCTION_INC_X */

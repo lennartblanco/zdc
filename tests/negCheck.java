@@ -24,6 +24,10 @@ public class negCheck extends check
         System.out.print("neg.neg5() = " + res);
         check(res, 46);
 
+        res = neg.neg51(6);
+        System.out.print("neg.neg51() = " + res);
+        check(res, 46);
+
         res = neg.neg6(4);
         System.out.print("neg.neg6() = " + res);
         check(res, 0);

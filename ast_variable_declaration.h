@@ -48,4 +48,10 @@ ast_variable_declaration_get_type(void);
 AstVariableDeclaration *
 ast_variable_declaration_new(AstDataType *type, char *name);
 
+AstDataType *
+ast_variable_declaration_get_data_type(AstVariableDeclaration *self);
+
+char *
+ast_variable_declaration_get_name(AstVariableDeclaration *self);
+
 #endif /* AST_VARIABLE_DECLARATION_INC_X */

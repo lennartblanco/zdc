@@ -53,4 +53,13 @@ ast_variable_definition_new(AstDataType *type,
                             char *name, 
                             AstExpression *initializer);
 
+AstDataType *
+ast_variable_definition_get_data_type(AstVariableDefinition *self);
+
+char *
+ast_variable_definition_get_name(AstVariableDefinition *self);
+
+AstExpression *
+ast_variable_definition_get_initializer(AstVariableDefinition *self);
+
 #endif /* AST_VARIABLE_DEFINITION_INC_X */

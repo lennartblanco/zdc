@@ -17,7 +17,7 @@
     <li>string module_name</li>
 </ul>
 
-<h5><a name="function_t">Function</a></h5>
+<h5><a name="Function">Function</a></h5>
 <ul>
     <li>string name</li>
     <li><a href="#DataType">DataType</a> return_type</li>
@@ -29,12 +29,6 @@
 <ul>
     <li><a href="#DataType">DataType</a> type</li>
     <li>string name</li>
-</ul>
-<h5><a name="VariableDefinition">VariableDefinition</a></h5>
-<ul>
-    <li><a href="#DataType">DataType</a> type</li>
-    <li>string name</li>
-    <li><a href="#Expression">Expression</a> initializer</li>
 </ul>
 
 <h5><a name="DataType">DataType</a> <i>abstract</i></h5>
@@ -57,10 +51,10 @@
 
 <h5><a name="CodeBlock">CodeBlock</a></h5>
 <ul>
-    <li><a href="#statment_t">Statment</a>[] statments</li>
+    <li><a href="#Statment">Statment</a>[] statments</li>
 </ul>
 
-<h5><a name="statment_t">Statment</a> <i>abstract</i></h5>
+<h5><a name="Statment">Statment</a> <i>abstract</i></h5>
 <ul>
     <li>
     ( 
@@ -73,6 +67,12 @@
       <a href="#Return">Return</a> 
     )
     </li>
+</ul>
+<h5><a name="VariableDefinition">VariableDefinition</a></h5>
+<ul>
+    <li><a href="#DataType">DataType</a> type</li>
+    <li>string name</li>
+    <li><a href="#Expression">Expression</a> initializer</li>
 </ul>
 
 <h5><a name="if_else_t">if_else_t</a></h5>

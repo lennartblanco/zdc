@@ -58,6 +58,31 @@ ast_variable_definition_new(AstDataType *type,
     return obj;
 }
 
+AstDataType *
+ast_variable_definition_get_data_type(AstVariableDefinition *self)
+{
+    assert(self);
+
+    return self->type;
+}
+
+char *
+ast_variable_definition_get_name(AstVariableDefinition *self)
+{
+    assert(self);
+
+    return self->name;
+}
+
+AstExpression *
+ast_variable_definition_get_initializer(AstVariableDefinition *self)
+{
+    assert(self);
+
+    return self->initializer;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

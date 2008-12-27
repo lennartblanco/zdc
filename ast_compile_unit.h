@@ -48,4 +48,7 @@ void
 ast_compile_unit_add_function(AstCompileUnit *self,
                               AstFunction *function);
 
+GSList *
+ast_compile_unit_get_functions(AstCompileUnit *self);
+
 #endif /* AST_COMPILE_UNIT_INC_X */

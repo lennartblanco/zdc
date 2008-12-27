@@ -50,4 +50,7 @@ ast_code_block_new();
 void
 ast_code_block_add_statment(AstCodeBlock *self, AstStatment *statment);
 
+GSList *
+ast_code_block_get_statments(AstCodeBlock *self);
+
 #endif /* AST_CODE_BLOCK_INC_X */

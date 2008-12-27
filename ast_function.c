@@ -60,6 +60,43 @@ ast_function_new(char *name,
     return func;
 }
 
+char *
+ast_function_get_name(AstFunction *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FUNCTION(self));
+
+    return self->name;
+}
+
+GSList *
+ast_function_get_parameters(AstFunction *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FUNCTION(self));
+
+    return self->parameters;
+}
+
+AstDataType *
+ast_function_get_return_type(AstFunction *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FUNCTION(self));
+
+    return self->return_type;
+}
+
+AstCodeBlock *
+ast_function_get_body(AstFunction *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FUNCTION(self));
+
+    return self->body;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
