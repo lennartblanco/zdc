@@ -144,7 +144,7 @@ ir_function_def_add_local_var(ir_function_def_t *func,
     int res = sym_table_add_symbol(func->local,
                                    var->name, symb);
     if (res == -1) {
-        printf("reclaration of local variable '%s'\n", var->name);
+        printf("redeclaration of local variable '%s'\n", var->name);
         ir_symbol_del(symb);
         return -1;
     }

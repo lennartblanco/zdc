@@ -52,6 +52,15 @@ ast_basic_type_new(basic_data_type_t data_type)
     return basic_type;
 }
 
+basic_data_type_t
+ast_basic_type_get_data_type(AstBasicType *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_BASIC_TYPE(self));
+
+    return self->data_type;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

@@ -38,7 +38,7 @@ typedef struct
     AstExpression         parent;
 
     /* private */
-    ast_unary_op_type_t  type;
+    ast_unary_op_type_t  operation;
     AstExpression        *operand;
 } AstUnaryOperation;
 
@@ -55,7 +55,13 @@ GType
 ast_unary_operation_get_type(void);
 
 AstUnaryOperation *
-ast_unary_operation_new(ast_unary_op_type_t type,
+ast_unary_operation_new(ast_unary_op_type_t operation,
                         AstExpression *operand);
+
+ast_unary_op_type_t
+ast_unary_operation_get_operation(AstUnaryOperation *self);
+
+AstExpression *
+ast_unary_operation_get_operand(AstUnaryOperation *self);
 
 #endif /* AST_UNARY_OPERATION_INC_X */

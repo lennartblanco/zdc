@@ -6,6 +6,9 @@
 #include "sym_table.h"
 #include "java_trgt.h"
 #include "java_trgt_int.h"
+#include "ast_basic_type.h"
+#include "ast_return.h"
+#include "ast_scalar_variable_ref.h"
 
 #include <assert.h>
 
@@ -30,12 +33,11 @@ java_trgt_code(ir_compile_unit_t *comp_unit,
     for (; p != NULL; p = g_list_next(p))
     {
         java_trgt_handle_function_def(&params, 
-                                     ir_symbol_get_function(p->data));
+                                      ir_symbol_get_function(p->data));
     }
     g_list_free(p);
 
     java_trgt_epilog(&params);
-
 }
 
 /*---------------------------------------------------------------------------*
@@ -74,73 +76,113 @@ java_trgt_epilog(java_trgt_comp_params_t *params)
 
 static void
 java_trgt_handle_code_block(java_trgt_comp_params_t *params,
-                           ast_node_t *node,
-                           sym_table_t *sym_table)
+                            AstCodeBlock *code_block,
+                            sym_table_t *sym_table)
 {
     GSList *stmts;
 
-//    stmts = code_block_get_statments(node);
+    stmts = ast_code_block_get_statments(code_block);
 
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
-        java_trgt_handle_node(params, stmts->data, sym_table);
+        java_trgt_handle_node(params, XDP_AST_NODE(stmts->data), sym_table);
+    }
+}
+
+static void
+java_trgt_handle_expression(java_trgt_comp_params_t *params,
+                            AstExpression *exp, 
+                            sym_table_t *sym_table)
+{
+    assert(params);
+    assert(exp);
+    assert(XDP_IS_AST_EXPRESSION(exp));
+
+    if (XDP_IS_AST_UNARY_OPERATION(exp))
+    {
+        java_trgt_handle_unary_op(params,
+                                  XDP_AST_UNARY_OPERATION(exp),
+                                  sym_table);
+    }
+    else if (XDP_IS_AST_SCALAR_VARIABLE_REF(exp))
+    {
+        java_trgt_handle_scalar_var_value(params, 
+                                          XDP_AST_SCALAR_VARIABLE_REF(exp),
+                                          sym_table);
+    }
+    else
+    {
+        g_error("%s:%d unexpected AstExpression type '%s'\n", 
+                __FILE__, __LINE__,
+                g_type_name(G_TYPE_FROM_INSTANCE(exp)));
+        assert(false);
     }
 }
 
 static void
 java_trgt_handle_node(java_trgt_comp_params_t *params,
-                     ast_node_t *node, sym_table_t *sym_table)
+                      AstNode *node, sym_table_t *sym_table)
 {
-    switch (node->type)
+
+    if (XDP_IS_AST_CODE_BLOCK(node))
     {
-        case ast_code_block_node:
-            java_trgt_handle_code_block(params, node, sym_table);
-            break;
-        case ast_if_else_block_node:
-            java_trgt_handle_if_else_block(params, node, sym_table);
-            break;
-        case ast_return_statment_node:
-            java_trgt_handle_return_statment(params, node, sym_table);
-            break;
-        case ast_var_value_node:
-            java_trgt_handle_var_value(params, node, sym_table);
-            break;	
-        case ast_assigment_node:
-            java_trgt_handle_assigment(params, node, sym_table);
-            break;
-        case ast_constant_node:
-            fprintf(params->out,
-                    "    ldc %d\n", node->data.constant.value);
-	    break;
-        case ast_binary_oper_node:
-            java_trgt_handle_binary_op(params, node, sym_table);
-            break;
-        case ast_function_call_node:
-            java_trgt_handle_func_call(params, node, sym_table);
-            break;
-        case ast_negation_node:
-            java_trgt_handle_node(params, node->data.negation.value, sym_table);
-            fprintf(params->out, "    ineg\n");
-            break;
-        default:
-            printf("Unexpected node->type %s\n", ast_node_to_str(node->type));
-            assert(false);
-            break;
+        java_trgt_handle_code_block(params,
+                                    XDP_AST_CODE_BLOCK(node),
+                                    sym_table);
+    }
+    else if (XDP_IS_AST_RETURN(node))
+    {
+        java_trgt_handle_return_statment(params, node, sym_table);
+    }
+    else if (XDP_IS_AST_ASSIGMENT(node))
+    {
+        java_trgt_handle_assigment(params, XDP_AST_ASSIGMENT(node), sym_table);
+    }
+
+//        case ast_if_else_block_node:
+//            java_trgt_handle_if_else_block(params, node, sym_table);
+//            break;
+
+//        case ast_constant_node:
+//            fprintf(params->out,
+//                    "    ldc %d\n", node->data.constant.value);
+//	    break;
+//        case ast_binary_oper_node:
+//            java_trgt_handle_binary_op(params, node, sym_table);
+//            break;
+//        case ast_function_call_node:
+//            java_trgt_handle_func_call(params, node, sym_table);
+//            break;
+//        default:
+//            printf("Unexpected node->type %s\n", ast_node_to_str(node->type));
+//            assert(false);
+//            break;
+    else
+    {
+        g_error("%s:%d unexpected AstNode type '%s'\n", 
+                __FILE__, __LINE__,
+                g_type_name(G_TYPE_FROM_INSTANCE(node)));
+        assert(false);
     }
 }
 
 static char *
-java_trgt_data_type_to_str(old_ast_data_type_t t)
+java_trgt_data_type_to_str(AstDataType *data_type)
 {
-    switch(t)
+    /* only basic data types supperted at the moment */
+    assert(XDP_IS_AST_BASIC_TYPE(data_type));
+    AstBasicType *basic_type = XDP_AST_BASIC_TYPE(data_type);
+
+    switch(ast_basic_type_get_data_type(basic_type))
     {
-        case old_ast_void_type:
+        case void_type:
             return "V";
-        case old_ast_integer_type:
+        case int_type:
             return "I";
-        case old_ast_bool_type:
+        case bool_type:
             return "Z";
         default:
+            /* unexpected basic data type */
             assert(false);
     }
     return NULL;
@@ -189,8 +231,6 @@ static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                            ast_node_t *node, sym_table_t *sym_table)
 {
-    //needs to be update to the new ast
-    assert(false);
 //    assert(node);
 //    assert(node->type == ast_function_call_node);
 //    assert(sym_table);
@@ -355,6 +395,34 @@ java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
 }
 
 static void
+java_trgt_handle_unary_op(java_trgt_comp_params_t *params,
+                          AstUnaryOperation *operation,
+                          sym_table_t *sym_table)
+{
+    assert(params);
+    assert(operation);
+    assert(XDP_IS_AST_UNARY_OPERATION(operation));
+
+    java_trgt_handle_expression(params,
+                                ast_unary_operation_get_operand(operation),
+                                sym_table);
+
+    switch (ast_unary_operation_get_operation(operation))
+    {
+        case ast_arithm_neg_op:
+            fprintf(params->out, "    ineg\n");
+            break;
+        case ast_bool_neg_op:
+            g_error("Boolean negation operation not implemented in java target");
+            break;
+        default:
+            g_error("%s:%d unexpected Unary operation %d\n", 
+                    __FILE__, __LINE__, 
+                    ast_unary_operation_get_operation(operation));
+    }
+}
+
+static void
 java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
                           ast_node_t *node,
                           sym_table_t *sym_table)
@@ -394,25 +462,32 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_assigment(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table)
+                           AstAssigment *node,
+                           sym_table_t *sym_table)
 {
 
     ir_symbol_t *symb;
     int res;
     ir_symbol_address_t addr;
+    AstScalarVariableRef *assign_target =
+        XDP_AST_SCALAR_VARIABLE_REF(ast_assigment_get_target(node));
+    /* only assigments to scalar variable supported at this time */
+    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(assign_target));
 
     res = sym_table_get_symbol(sym_table,
-                               node->data.var_val.name,
+                               ast_scalar_variable_get_name(assign_target),
                                &symb);
-
     if (res == -1)
     {
-        printf("variable '%s' not defined\n", node->data.assigment.lvalue);
+        printf("variable '%s' not defined\n", 
+               ast_scalar_variable_get_name(assign_target));
         return;
     }
 
-    java_trgt_handle_node(params, node->data.assigment.value, sym_table);
+    java_trgt_handle_expression(params, 
+                                ast_assigment_get_value(node), 
+                                sym_table);
+
     addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
     if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
@@ -426,16 +501,20 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
 }
 
 
+
 static void
-java_trgt_handle_var_value(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table)
+java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
+                                  AstScalarVariableRef *var_ref,
+                                  sym_table_t *sym_table)
+//java_trgt_handle_var_value(java_trgt_comp_params_t *params,
+//                          ast_node_t *node,
+//                          sym_table_t *sym_table)
 {
     ir_symbol_t *symb;
     int res;
 
     res = sym_table_get_symbol(sym_table,
-                               node->data.var_val.name,
+                               ast_scalar_variable_get_name(var_ref),
                                &symb);
 
     switch (res)
@@ -457,7 +536,8 @@ java_trgt_handle_var_value(java_trgt_comp_params_t *params,
             break;
         }
         case -1:
-            printf("variable '%s' not defined\n", node->data.assigment.lvalue);
+            printf("variable '%s' not defined\n",
+                   ast_scalar_variable_get_name(var_ref));
             break;
         default: /* unexpected return value */
             assert(false);
@@ -465,17 +545,17 @@ java_trgt_handle_var_value(java_trgt_comp_params_t *params,
 }
 
 static void
-java_trgt_handle_return_statment(java_trgt_comp_params_t *params,
-                                ast_node_t *node,
-                                sym_table_t *sym_table)
+java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
+                                 AstReturn *ret, 
+                                 sym_table_t *sym_table)
 {
-    assert(node);
-    assert(node->type == ast_return_statment_node);
+    assert(ret);
+    assert(XDP_IS_AST_RETURN(ret));
     assert(sym_table);
 
-    ast_node_t *ret_val;
+    AstExpression *ret_val;
 
-    ret_val = return_statment_get_value(node);
+    ret_val = ast_return_get_return_value(ret);
 
     if (ret_val == NULL)
     {
@@ -485,7 +565,7 @@ java_trgt_handle_return_statment(java_trgt_comp_params_t *params,
     else
     {
         /* assume int return for now */
-        java_trgt_handle_node(params, ret_val, sym_table);
+        java_trgt_handle_expression(params, ret_val, sym_table);
         fprintf(params->out, "    ireturn\n");
     }
 }
@@ -494,67 +574,65 @@ static void
 java_trgt_handle_function_def(java_trgt_comp_params_t *params,
                              ir_function_def_t *func)
 {
-    //needs to be converted to new ast
-    assert(false);
-//    GSList *p;
-//    GList *l;
-//    ir_variable_def_t *var;
-//    guint param_num = 0;
-//    guint local_var_num = 0;
-//    guint i;
-//    sym_table_t *local_vars;
-//    ir_symbol_t *symb;
-//    ir_symbol_address_t addr;
+    GSList *p;
+    GList *l;
+    ir_variable_def_t *var;
+    guint param_num = 0;
+    guint local_var_num = 0;
+    guint i;
+    sym_table_t *local_vars;
+    ir_symbol_t *symb;
+    ir_symbol_address_t addr;
 
-//    /*
-//     * generate function header
-//     */
-//    fprintf(params->out,
-//            ".method public static %s(", ir_function_def_get_name(func));
+    /*
+     * generate function header
+     */
+    fprintf(params->out,
+            ".method public static %s(", ir_function_def_get_name(func));
 
-//    /* generate function parameters types and count parameters */
-//    p = ir_function_def_get_parameters(func);
-//    for (; p != NULL; p = g_slist_next(p))
-//    {
-//        var = p->data;
-//        param_num += 1;
-//        fprintf(params->out, "%s", 
-//                java_trgt_data_type_to_str(ir_variable_def_get_type(var)));
-//    }
+    /* generate function parameters types and count parameters */
+    p = ir_function_def_get_parameters(func);
+    for (; p != NULL; p = g_slist_next(p))
+    {
+        var = p->data;
+        param_num += 1;
+        fprintf(params->out, "%s", 
+                java_trgt_data_type_to_str(ir_variable_def_get_type(var)));
+    }
 
-//    fprintf(params->out, ")%s\n", 
-//           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
+    fprintf(params->out, ")%s\n", 
+           java_trgt_data_type_to_str(ir_function_def_get_return_type(func)));
 
-//    /* count local variables and assign numbers */
-//    local_vars = ir_function_def_get_local_vars(func);
-//    l = sym_table_get_all_symbols(local_vars);
-//    for (; l != NULL; l = g_list_next(l))
-//    {
-//        var = ir_symbol_get_variable(l->data);
-//        addr.java_variable_addr = param_num + local_var_num;
-//        ir_variable_def_assign_address(var, addr);
-//        local_var_num += 1;
-//    }
+    /* count local variables and assign numbers */
+    local_vars = ir_function_def_get_local_vars(func);
+    l = sym_table_get_all_symbols(local_vars);
+    for (; l != NULL; l = g_list_next(l))
+    {
+        var = ir_symbol_get_variable(l->data);
+        addr.java_variable_addr = param_num + local_var_num;
+        ir_variable_def_assign_address(var, addr);
+        local_var_num += 1;
+    }
 
-//    /* 
-//     * assign numbers to parameter variables and
-//     * put them into the local symb table
-//     */
-//    p = ir_function_def_get_parameters(func);
-//    for (i = 0; i < param_num; i++)
-//    {
-//        var = p->data;
-//        addr.java_variable_addr = i;
-//        ir_variable_def_assign_address(var, addr);
-//        ir_function_def_add_local_var(func, var);
-//        p = g_slist_next(p);
-//    }
+    /* 
+     * assign numbers to parameter variables and
+     * put them into the local symb table
+     */
+    p = ir_function_def_get_parameters(func);
+    for (i = 0; i < param_num; i++)
+    {
+        var = p->data;
+        addr.java_variable_addr = i;
+        ir_variable_def_assign_address(var, addr);
+        ir_function_def_add_local_var(func, var);
+        p = g_slist_next(p);
+    }
 
-//    fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
-//    fprintf(params->out, "    .limit stack 32\n");    
-//    java_trgt_handle_code_block(params, 
-//                               ir_function_def_get_body(func),
-//                               local_vars);
-//    fprintf(params->out, ".end method\n");
+    fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
+    fprintf(params->out, "    .limit stack 32\n");    
+    java_trgt_handle_code_block(params, 
+                               ir_function_def_get_body(func),
+                               local_vars);
+    fprintf(params->out, ".end method\n");
 }
 

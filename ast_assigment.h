@@ -50,4 +50,10 @@ AstAssigment *
 ast_assigment_new(AstVariableRef *target,
                   AstExpression *value);
 
+AstVariableRef *
+ast_assigment_get_target(AstAssigment *self);
+
+AstExpression *
+ast_assigment_get_value(AstAssigment *self);
+
 #endif /* AST_ASSIGMENT_INC_X */

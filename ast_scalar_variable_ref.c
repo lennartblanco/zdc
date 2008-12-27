@@ -54,6 +54,15 @@ ast_scalar_variable_ref_new(char *name)
     return ref;
 }
 
+char *
+ast_scalar_variable_get_name(AstScalarVariableRef *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(self));
+
+    return self->name;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

@@ -52,6 +52,14 @@ ast_return_new(AstExpression *return_value)
     return ret;
 }
 
+AstExpression *
+ast_return_get_return_value(AstReturn *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_RETURN(self));
+
+    return self->return_value;
+}
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *

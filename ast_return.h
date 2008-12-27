@@ -48,4 +48,7 @@ ast_return_get_type(void);
 AstReturn * 
 ast_return_new(AstExpression *return_value);
 
+AstExpression *
+ast_return_get_return_value(AstReturn *self);
+
 #endif /* AST_RETURN_INC_X */

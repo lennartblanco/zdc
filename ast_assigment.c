@@ -54,6 +54,26 @@ ast_assigment_new(AstVariableRef *target,
     return obj;
 }
 
+AstVariableRef *
+ast_assigment_get_target(AstAssigment *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_ASSIGMENT(self));
+
+    return self->target;
+}
+
+AstExpression *
+ast_assigment_get_value(AstAssigment *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_ASSIGMENT(self));
+
+    return self->value;
+}
+
+
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

@@ -42,16 +42,34 @@ ast_unary_operation_get_type(void)
 }
 
 AstUnaryOperation *
-ast_unary_operation_new(ast_unary_op_type_t type,
+ast_unary_operation_new(ast_unary_op_type_t operation,
                         AstExpression *operand)
 {
     AstUnaryOperation *obj;
 
     obj = g_object_new(XDP_TYPE_AST_UNARY_OPERATION, NULL);
-    obj->type = type;
+    obj->operation = operation;
     obj->operand = operand;
 
     return obj;
+}
+
+ast_unary_op_type_t
+ast_unary_operation_get_operation(AstUnaryOperation *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_UNARY_OPERATION(self));
+
+    return self->operation;
+}
+
+AstExpression *
+ast_unary_operation_get_operand(AstUnaryOperation *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_UNARY_OPERATION(self));
+
+    return self->operand;
 }
 
 /*---------------------------------------------------------------------------*
@@ -68,7 +86,7 @@ ast_unary_operation_do_print(AstNode *self, FILE *out)
     AstUnaryOperation *op = (AstUnaryOperation *)self;
 
     char *str;
-    switch (op->type)
+    switch (op->operation)
     {
         case ast_arithm_neg_op:           /*  -  */
             str = "-";

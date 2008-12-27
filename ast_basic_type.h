@@ -46,4 +46,7 @@ GType ast_basic_type_get_type(void);
 AstBasicType * 
 ast_basic_type_new(basic_data_type_t data_type);
 
+basic_data_type_t
+ast_basic_type_get_data_type(AstBasicType *self);
+
 #endif /* AST_BASIC_TYPE_INC_X */

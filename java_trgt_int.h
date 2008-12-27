@@ -8,6 +8,10 @@
 
 #include "ast.h"
 #include "sym_table.h"
+#include "ast_return.h"
+#include "ast_assigment.h"
+#include "ast_unary_operation.h"
+#include "ast_scalar_variable_ref.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -34,15 +38,25 @@ typedef struct java_trgt_comp_params_s
  *---------------------------------------------------------------------------*/
 
 static char *
-java_trgt_data_type_to_str(old_ast_data_type_t t);
+java_trgt_data_type_to_str(AstDataType *data_type);
 
 static void
 java_trgt_handle_node(java_trgt_comp_params_t *params,
-                     ast_node_t *node, sym_table_t *sym_table);
+                      AstNode *node, sym_table_t *sym_table);
+
+static void
+java_trgt_handle_expression(java_trgt_comp_params_t *params,
+                            AstExpression *exp, 
+                            sym_table_t *sym_table);
+
+static void
+java_trgt_handle_code_block(java_trgt_comp_params_t *params,
+                            AstCodeBlock *code_block,
+                            sym_table_t *sym_table);
 
 static void
 java_trgt_handle_function_def(java_trgt_comp_params_t *params,
-                             ir_function_def_t *func);
+                              ir_function_def_t *func);
 
 static void
 java_trgt_handle_if_else_block(java_trgt_comp_params_t *params, 
@@ -50,18 +64,23 @@ java_trgt_handle_if_else_block(java_trgt_comp_params_t *params,
                                sym_table_t *sym_table);
 static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
-                                 ast_node_t *node, 
+                                 AstReturn *ret, 
                                  sym_table_t *sym_table);
 
 static void
-java_trgt_handle_var_value(java_trgt_comp_params_t *params,
-                           ast_node_t *node,
-                           sym_table_t *sym_table);
+java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
+                                  AstScalarVariableRef *var_ref,
+                                  sym_table_t *sym_table);
 
 static void
 java_trgt_handle_assigment(java_trgt_comp_params_t *params,
-                           ast_node_t *node,
+                           AstAssigment *node,
                            sym_table_t *sym_table);
+
+static void
+java_trgt_handle_unary_op(java_trgt_comp_params_t *params,
+                          AstUnaryOperation *operation,
+                          sym_table_t *sym_table);
 
 static void
 java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
