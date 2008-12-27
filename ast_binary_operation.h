@@ -47,7 +47,7 @@ typedef struct
     AstExpression         parent;
 
     /* private */
-    ast_binary_op_type_t  type;
+    ast_binary_op_type_t  operation;
     AstExpression         *left;
     AstExpression         *right;
 } AstBinaryOperation;
@@ -65,8 +65,23 @@ GType
 ast_binary_operation_get_type(void);
 
 AstBinaryOperation *
-ast_binary_operation_new(ast_binary_op_type_t type,
+ast_binary_operation_new(ast_binary_op_type_t operation,
                          AstExpression *left,
                          AstExpression *right);
+
+ast_binary_op_type_t
+ast_binary_operation_get_operation(AstBinaryOperation *self);
+
+/**
+ * Retrive left operand expression.
+ */
+AstExpression *
+ast_binary_operation_get_left(AstBinaryOperation *self);
+
+/**
+ * Retrive right operand expression.
+ */
+AstExpression *
+ast_binary_operation_get_right(AstBinaryOperation *self);
 
 #endif /* AST_BINARY_OPERATION_INC_X */

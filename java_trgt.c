@@ -9,6 +9,7 @@
 #include "ast_basic_type.h"
 #include "ast_return.h"
 #include "ast_scalar_variable_ref.h"
+#include "ast_int_constant.h"
 
 #include <assert.h>
 
@@ -98,7 +99,13 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
     assert(exp);
     assert(XDP_IS_AST_EXPRESSION(exp));
 
-    if (XDP_IS_AST_UNARY_OPERATION(exp))
+    if (XDP_IS_AST_BINARY_OPERATION(exp))
+    {
+        java_trgt_handle_binary_op(params,
+                                   XDP_AST_BINARY_OPERATION(exp),
+                                   sym_table);
+    }
+    else if (XDP_IS_AST_UNARY_OPERATION(exp))
     {
         java_trgt_handle_unary_op(params,
                                   XDP_AST_UNARY_OPERATION(exp),
@@ -109,6 +116,13 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
         java_trgt_handle_scalar_var_value(params, 
                                           XDP_AST_SCALAR_VARIABLE_REF(exp),
                                           sym_table);
+    }
+    else if (XDP_IS_AST_INT_CONSTANT(exp))
+    {
+        AstIntConstant *icons = XDP_AST_INT_CONSTANT(exp);
+
+        fprintf(params->out,
+                "    ldc %d\n", ast_int_constant_get_value(icons));
     }
     else
     {
@@ -132,7 +146,9 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
     }
     else if (XDP_IS_AST_RETURN(node))
     {
-        java_trgt_handle_return_statment(params, node, sym_table);
+        java_trgt_handle_return_statment(params,
+                                         XDP_AST_RETURN(node),
+                                         sym_table);
     }
     else if (XDP_IS_AST_ASSIGMENT(node))
     {
@@ -282,72 +298,74 @@ java_trgt_handle_if_else_block(java_trgt_comp_params_t *params,
                                ast_node_t *node, 
                                sym_table_t *sym_table)
 {
-    assert(params);
-    assert(node);
-    assert(sym_table);
-    assert(node->type == ast_if_else_block_node);
+      /* needs to be update to the new AST implementation */
+      assert(false);
+//    assert(params);
+//    assert(node);
+//    assert(sym_table);
+//    assert(node->type == ast_if_else_block_node);
 
-    char endLabel[MAX_JAVA_LABEL];
-    ast_node_t *cond;
-    const char* operationCond;
+//    char endLabel[MAX_JAVA_LABEL];
+//    ast_node_t *cond;
+//    const char* operationCond;
 
-    if (node->data.if_else_block.else_block != NULL)
-    {
-        printf("else-clouses not impelemented\n");
-        assert(false);
-    }
+//    if (node->data.if_else_block.else_block != NULL)
+//    {
+//        printf("else-clouses not impelemented\n");
+//        assert(false);
+//    }
 
-    cond = node->data.if_else_block.condition;
-    assert(cond->type == ast_binary_oper_node);
+//    cond = node->data.if_else_block.condition;
+//    assert(cond->type == ast_binary_oper_node);
 
-    java_trgt_handle_node(params, cond->data.binary_op.left, sym_table);
-    java_trgt_handle_node(params, cond->data.binary_op.right, sym_table);
+//    java_trgt_handle_node(params, cond->data.binary_op.left, sym_table);
+//    java_trgt_handle_node(params, cond->data.binary_op.right, sym_table);
 
-    /* figure out the negation of the if condition */
-    switch (cond->data.binary_op.oper_type)
-    {
-        case ast_less_op:
-            /*  !(a<b) == (a >= b) */
-            operationCond = "ge";
-            break;
-        case ast_greater_op:
-            /* !(a>b) == (a <= b) */
-            operationCond = "le";
-            break;
-        case ast_less_or_eq_op:
-            /* !(a<=b) == (a > b) */
-            operationCond = "gt";
-            break;
-        case ast_greater_or_eq_op:
-            /* !(a>=b) == (a < b) */
-            operationCond = "lt";
-            break;
-        case ast_equal_op:
-            /* !(a == b) == (a != b) */
-            operationCond = "ne";
-            break;
-        case ast_not_equal_op:
-            /* !(a != b) == (a == b) */
-            operationCond = "eq";
-            break;
-        default:
-            /* unexpected comparison operation */
-            assert(false);
-    }
-    java_trgt_get_next_label(params, endLabel);
+//    /* figure out the negation of the if condition */
+//    switch (cond->data.binary_op.oper_type)
+//    {
+//        case ast_less_op:
+//            /*  !(a<b) == (a >= b) */
+//            operationCond = "ge";
+//            break;
+//        case ast_greater_op:
+//            /* !(a>b) == (a <= b) */
+//            operationCond = "le";
+//            break;
+//        case ast_less_or_eq_op:
+//            /* !(a<=b) == (a > b) */
+//            operationCond = "gt";
+//            break;
+//        case ast_greater_or_eq_op:
+//            /* !(a>=b) == (a < b) */
+//            operationCond = "lt";
+//            break;
+//        case ast_equal_op:
+//            /* !(a == b) == (a != b) */
+//            operationCond = "ne";
+//            break;
+//        case ast_not_equal_op:
+//            /* !(a != b) == (a == b) */
+//            operationCond = "eq";
+//            break;
+//        default:
+//            /* unexpected comparison operation */
+//            assert(false);
+//    }
+//    java_trgt_get_next_label(params, endLabel);
 
-    fprintf(params->out,
-            "    if_icmp%s %s\n", operationCond, endLabel);
+//    fprintf(params->out,
+//            "    if_icmp%s %s\n", operationCond, endLabel);
 
-    java_trgt_handle_node(params, node->data.if_else_block.if_block, sym_table);
-    fprintf(params->out, "%s:\n", endLabel);
+//    java_trgt_handle_node(params, node->data.if_else_block.if_block, sym_table);
+//    fprintf(params->out, "%s:\n", endLabel);
 }
 
 
 
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
-                       ast_oper_type_t type)
+                        ast_binary_op_type_t type)
 {
     char trueLabel[MAX_JAVA_LABEL];
     char endLabel[MAX_JAVA_LABEL];
@@ -421,16 +439,24 @@ java_trgt_handle_unary_op(java_trgt_comp_params_t *params,
                     ast_unary_operation_get_operation(operation));
     }
 }
-
 static void
 java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
-                          ast_node_t *node,
-                          sym_table_t *sym_table)
+                           AstBinaryOperation *operation,
+                           sym_table_t *sym_table)
 {
-    java_trgt_handle_node(params, node->data.binary_op.left, sym_table);
-    java_trgt_handle_node(params, node->data.binary_op.right, sym_table);
+    assert(params);
+    assert(operation);
+    assert(XDP_IS_AST_BINARY_OPERATION(operation));
 
-    ast_oper_type_t operationType = node->data.binary_op.oper_type;
+    java_trgt_handle_expression(params,
+                                ast_binary_operation_get_left(operation),
+                                sym_table);
+    java_trgt_handle_expression(params,
+                                ast_binary_operation_get_right(operation),
+                                sym_table);
+
+    ast_binary_op_type_t operationType =
+        ast_binary_operation_get_operation(operation);
 
     switch (operationType)
     {

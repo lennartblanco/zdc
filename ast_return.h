@@ -11,10 +11,10 @@
 #define XDP_TYPE_AST_RETURN ast_return_get_type()
 
 #define XDP_AST_RETURN(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_RETURN, AstFunction))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_RETURN, AstReturn))
 
 #define XDP_AST_RETURN_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_RETURN, AstFunctionClass))
+  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_RETURN, AstReturnClass))
 
 #define XDP_IS_AST_RETURN(obj) \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_RETURN))
@@ -23,7 +23,7 @@
   (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_RETURN))
 
 #define XDP_AST_RETURN_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_RETURN, AstFunctionClass))
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_RETURN, AstReturnClass))
 
 typedef struct
 {

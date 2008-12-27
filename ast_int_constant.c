@@ -52,6 +52,15 @@ ast_int_constant_new(gint32 value)
     return obj;
 }
 
+gint32
+ast_int_constant_get_value(AstIntConstant *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_INT_CONSTANT(self));
+
+    return self->value;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

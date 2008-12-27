@@ -46,4 +46,7 @@ ast_int_constant_get_type(void);
 AstIntConstant *
 ast_int_constant_new(gint32 value);
 
+gint32
+ast_int_constant_get_value(AstIntConstant *self);
+
 #endif /* AST_INT_CONSTANT_INC_X */

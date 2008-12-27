@@ -6,22 +6,22 @@
 
 #include <assert.h>
 
-ast_node_t *
-new_binary_operation(ast_oper_type_t oper_type, 
-                     ast_node_t *left, 
-                     ast_node_t *right)
-{
-    ast_node_t *node;
+//ast_node_t *
+//new_binary_operation(ast_oper_type_t oper_type, 
+//                     ast_node_t *left, 
+//                     ast_node_t *right)
+//{
+//    ast_node_t *node;
 
-    node = g_malloc(sizeof(*node));
+//    node = g_malloc(sizeof(*node));
 
-    node->type = ast_binary_oper_node;
-    node->data.binary_op.oper_type = oper_type;
-    node->data.binary_op.left = left;
-    node->data.binary_op.right = right;
+//    node->type = ast_binary_oper_node;
+//    node->data.binary_op.oper_type = oper_type;
+//    node->data.binary_op.left = left;
+//    node->data.binary_op.right = right;
 
-    return node;
-}
+//    return node;
+//}
 
 ast_node_t *
 new_int_const(int value)

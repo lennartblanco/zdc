@@ -42,18 +42,45 @@ ast_binary_operation_get_type(void)
 }
 
 AstBinaryOperation *
-ast_binary_operation_new(ast_binary_op_type_t type,
+ast_binary_operation_new(ast_binary_op_type_t operation,
                          AstExpression *left,
                          AstExpression *right)
 {
     AstBinaryOperation *obj;
 
     obj = g_object_new(XDP_TYPE_AST_BINARY_OPERATION, NULL);
-    obj->type = type;
+    obj->operation = operation;
     obj->left = left;
     obj->right = right;
 
     return obj;
+}
+
+ast_binary_op_type_t
+ast_binary_operation_get_operation(AstBinaryOperation *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_BINARY_OPERATION(self));
+
+    return self->operation;
+}
+
+AstExpression *
+ast_binary_operation_get_left(AstBinaryOperation *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_BINARY_OPERATION(self));
+
+    return self->left;
+}
+
+AstExpression *
+ast_binary_operation_get_right(AstBinaryOperation *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_BINARY_OPERATION(self));
+
+    return self->right;
 }
 
 /*---------------------------------------------------------------------------*
@@ -70,7 +97,7 @@ ast_binary_operation_do_print(AstNode *self, FILE *out)
 
     char *str;
     ast_node_print(XDP_AST_NODE(bin_op->left), out);
-    switch (bin_op->type)
+    switch (bin_op->operation)
     {
         case ast_less_op:           /*  <  */
             str = "<";

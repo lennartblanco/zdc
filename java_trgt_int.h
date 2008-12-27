@@ -11,6 +11,7 @@
 #include "ast_return.h"
 #include "ast_assigment.h"
 #include "ast_unary_operation.h"
+#include "ast_binary_operation.h"
 #include "ast_scalar_variable_ref.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
@@ -84,7 +85,7 @@ java_trgt_handle_unary_op(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
-                           ast_node_t *node,
+                           AstBinaryOperation *operation,
                            sym_table_t *sym_table);
 
 static void
@@ -104,7 +105,7 @@ java_trgt_epilog(java_trgt_comp_params_t *params);
   */
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
-                        ast_oper_type_t type);
+                        ast_binary_op_type_t type);
 
 /**
  * Get next unique label

@@ -28,19 +28,19 @@ typedef enum ast_node_type_e
 /*
  * binary operations types
  */
-typedef enum ast_oper_type_e
-{
-    ast_less_op,           /*  <  */
-    ast_greater_op,        /*  >  */
-    ast_less_or_eq_op,     /* <=  */
-    ast_greater_or_eq_op,  /* >=  */
-    ast_equal_op,          /* ==  */
-    ast_not_equal_op,      /* !=  */
-    ast_plus_op,           /*  +  */
-    ast_minus_op,          /*  -  */
-    ast_mult_op,           /*  *  */
-    ast_division_op        /*  /  */
-} ast_oper_type_t;
+//typedef enum ast_oper_type_e
+//{
+//    ast_less_op,           /*  <  */
+//    ast_greater_op,        /*  >  */
+//    ast_less_or_eq_op,     /* <=  */
+//    ast_greater_or_eq_op,  /* >=  */
+//    ast_equal_op,          /* ==  */
+//    ast_not_equal_op,      /* !=  */
+//    ast_plus_op,           /*  +  */
+//    ast_minus_op,          /*  -  */
+//    ast_mult_op,           /*  *  */
+//    ast_division_op        /*  /  */
+//} ast_oper_type_t;
 
 typedef enum old_ast_data_type_e
 {
@@ -119,12 +119,12 @@ typedef struct ast_assigment_s
 } ast_assigment_t;
 
 /** arithmetic binary operation */
-typedef struct ast_binary_op_s
-{
-    ast_oper_type_t oper_type;
-    ast_node_t *left;
-    ast_node_t *right;
-} ast_binary_op_t;
+//typedef struct ast_binary_op_s
+//{
+//    ast_oper_type_t oper_type;
+//    ast_node_t *left;
+//    ast_node_t *right;
+//} ast_binary_op_t;
 
 /** constant expression */
 typedef struct ast_constant_s
@@ -169,7 +169,7 @@ typedef union ast_data_u
     ast_function_definition_t function_def;
     ast_statment_list_t stmt;
     ast_function_call_t function_call;
-    ast_binary_op_t binary_op;
+//    ast_binary_op_t binary_op;
     ast_constant_t constant;
     ast_negation_t negation;
     ast_var_decl_t var_decl;
@@ -210,10 +210,10 @@ new_negation(ast_node_t *value);
  * AST binary operation node operations *
  ****************************************/
 
-ast_node_t *
-new_binary_operation(ast_oper_type_t oper_type, 
-                     ast_node_t *left, 
-                     ast_node_t *right);
+//ast_node_t *
+//new_binary_operation(ast_oper_type_t oper_type, 
+//                     ast_node_t *left, 
+//                     ast_node_t *right);
 
 /*********************************
  * AST assigment node operations *
