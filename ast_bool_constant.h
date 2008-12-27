@@ -47,4 +47,7 @@ ast_bool_constant_get_type(void);
 AstBoolConstant *
 ast_bool_constant_new(bool value);
 
+bool
+ast_bool_constant_get_value(AstBoolConstant *self);
+
 #endif /* AST_BOOL_CONSTANT_INC_X */

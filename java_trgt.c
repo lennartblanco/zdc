@@ -10,6 +10,7 @@
 #include "ast_return.h"
 #include "ast_scalar_variable_ref.h"
 #include "ast_int_constant.h"
+#include "ast_bool_constant.h"
 
 #include <assert.h>
 
@@ -141,6 +142,14 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
 
         fprintf(params->out,
                 "    ldc %d\n", ast_int_constant_get_value(icons));
+    }
+    else if (XDP_IS_AST_BOOL_CONSTANT(exp))
+    {
+        bool val =
+            ast_bool_constant_get_value(XDP_AST_BOOL_CONSTANT(exp));
+
+        fprintf(params->out, "    ldc %d\n",
+                val ? 1 : 0);
     }
     else
     {

@@ -52,6 +52,15 @@ ast_bool_constant_new(bool value)
     return obj;
 }
 
+bool
+ast_bool_constant_get_value(AstBoolConstant *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_BOOL_CONSTANT(self));
+
+    return self->value;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
