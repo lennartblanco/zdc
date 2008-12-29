@@ -4,7 +4,7 @@
 #include "ast_compile_unit.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
-#include "ast_expression.h"
+#include "ast_if_else.h"
 
 union yystype_u
 {
@@ -18,6 +18,8 @@ union yystype_u
     AstExpression              *expression;
     AstVariableDeclaration     *variable_declaration;
     AstVariableDefinition      *variable_definition;
+    AstIfElse                  *if_else;
+    AstIfBlock                 *if_block;
     GSList                     *list;
 };
 

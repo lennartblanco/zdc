@@ -181,6 +181,10 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
     {
         java_trgt_handle_assigment(params, XDP_AST_ASSIGMENT(node), sym_table);
     }
+    else if (XDP_IS_AST_IF_ELSE(node))
+    {
+        java_trgt_handle_if_else(params, XDP_AST_IF_ELSE(node), sym_table);
+    }
 
 //        case ast_if_else_block_node:
 //            java_trgt_handle_if_else_block(params, node, sym_table);
@@ -327,16 +331,14 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
 
 
 static void
-java_trgt_handle_if_else_block(java_trgt_comp_params_t *params,
-                               ast_node_t *node,
-                               sym_table_t *sym_table)
+java_trgt_handle_if_else(java_trgt_comp_params_t *params, 
+                         AstIfElse *node, 
+                         sym_table_t *sym_table)
 {
-      /* needs to be update to the new AST implementation */
-      assert(false);
-//    assert(params);
-//    assert(node);
-//    assert(sym_table);
-//    assert(node->type == ast_if_else_block_node);
+    assert(params);
+    assert(node);
+    assert(XDP_IS_AST_IF_ELSE(node));
+    assert(sym_table);
 
 //    char endLabel[MAX_JAVA_LABEL];
 //    ast_node_t *cond;

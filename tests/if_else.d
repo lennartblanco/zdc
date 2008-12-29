@@ -7,8 +7,22 @@ int abs(int a)
     return a;
 }
 
+int
+if_else_less_10(int x)
+{
+    if (x < 10)
+    {
+        return -1;
+    }
+    else if (x > 10)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 bool
-if_else_isless(int a)
+if_isless(int a)
 {
     if (a < 0)
     {
@@ -19,7 +33,7 @@ if_else_isless(int a)
 }
 
 bool
-if_else_isgreater(int x)
+if_isgreater(int x)
 {
     if (x > 0)
     {
@@ -30,7 +44,7 @@ if_else_isgreater(int x)
 }
 
 bool
-if_else_isless_eq(int x)
+if_isless_eq(int x)
 {
     if (x <= 0)
     {
@@ -41,7 +55,7 @@ if_else_isless_eq(int x)
 }
 
 bool
-if_else_isgreater_eq(int x)
+if_isgreater_eq(int x)
 {
     if (x >= 0)
     {
@@ -52,7 +66,7 @@ if_else_isgreater_eq(int x)
 }
 
 bool
-if_else_iseq(int x, int y)
+if_iseq(int x, int y)
 {
     if (x == y)
     {
@@ -63,7 +77,7 @@ if_else_iseq(int x, int y)
 }
 
 bool
-if_else_isnoteq(int x, int y)
+if_isnoteq(int x, int y)
 {
     if (x != y)
     {

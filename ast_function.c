@@ -105,6 +105,7 @@ static void
 ast_function_do_print(AstNode *self, FILE *out)
 {
     assert(self);
+    assert(XDP_IS_AST_FUNCTION(self));
     assert(out);
 
     AstFunction *func = (AstFunction *)self;

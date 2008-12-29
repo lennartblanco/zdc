@@ -13,12 +13,14 @@
 #include "ast_scalar_variable_ref.h"
 #include "ast_assigment.h"
 #include "ast_function_call.h"
+#include "ast_if_else.h"
+
 
 AstCompileUnit *compile_unit;
 }
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
-       TOK_IF,
+       TOK_IF, TOK_ELSE,
        TOK_INT, TOK_VOID, TOK_BOOL;
        
 
@@ -110,10 +112,41 @@ statment<x> :
 ;
 
 if_else_block<x>:
-    TOK_IF '(' boolean_expression<cond> ')' code_block<code>
     {
-        //(*x).node = new_if_else_block(cond.node, code.node, NULL);
+        (*x).if_else = ast_if_else_new();
     }
+    if_statment<n>
+    {
+        ast_if_else_add_if_else_block((*x).if_else, n.if_block);
+    } 
+    ( if_else_statment<m>
+        {
+            ast_if_else_add_if_else_block((*x).if_else, m.if_block);
+        } 
+    )* 
+    ( else_statment<l>
+        {
+            ast_if_else_set_else_block((*x).if_else, l.code_block);
+        }
+    )?
+;
+
+if_statment<x>:
+    TOK_IF '(' expression<cond> ')' code_block<code>
+    {
+        (*x).if_block = ast_if_block_new(cond.expression, code.code_block);
+    }
+;
+
+if_else_statment<x>:
+    TOK_ELSE TOK_IF '(' expression<cond> ')' code_block<code>
+    {
+        (*x).if_block = ast_if_block_new(cond.expression, code.code_block);
+    }
+;
+
+else_statment<code>:
+    TOK_ELSE code_block<code>
 ;
 
 return_stmt<x> :
@@ -234,7 +267,7 @@ boolean_expression<n> :
                                                       l.expression,
                                                       r.expression)); 
   }
-; 
+;
 
 term<n> :
   term<l> '+' factor<r> 

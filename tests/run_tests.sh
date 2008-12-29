@@ -17,6 +17,8 @@ run_test()
 
     test_name=$1
 
+    rm -f $test_name.j
+    rm -f $test_name.class
     echo -n "Compiling $test_name.d "
     run_checked $XDC $test_name.d
     echo "[ok]"

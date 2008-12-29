@@ -14,6 +14,7 @@
 #include "ast_binary_operation.h"
 #include "ast_scalar_variable_ref.h"
 #include "ast_function_call.h"
+#include "ast_if_else.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -61,9 +62,9 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
                               ir_function_def_t *func);
 
 static void
-java_trgt_handle_if_else_block(java_trgt_comp_params_t *params, 
-                               ast_node_t *node, 
-                               sym_table_t *sym_table);
+java_trgt_handle_if_else(java_trgt_comp_params_t *params, 
+                         AstIfElse *node, 
+                         sym_table_t *sym_table);
 static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
                                  AstReturn *ret, 
