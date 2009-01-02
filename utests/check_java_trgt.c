@@ -9,7 +9,6 @@
  *                                test cases                                 *
  *---------------------------------------------------------------------------*/
 
-#include <stdio.h>
 START_TEST(test_java_trgt_get_next_label)
 {
 

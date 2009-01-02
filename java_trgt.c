@@ -217,7 +217,7 @@ java_trgt_data_type_to_str(AstDataType *data_type)
 
 STATIC void
 java_trgt_get_next_label(java_trgt_comp_params_t *params,
-                        char *label)
+                         char *label)
 {
     int i;
     char *p;

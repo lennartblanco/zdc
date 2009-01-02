@@ -1,6 +1,6 @@
 PROG := check_xdc
 
-CFLAGS += -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
+CFLAGS += -DSTATIC= -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
 TEST_SRC := $(wildcard ../*.c)
