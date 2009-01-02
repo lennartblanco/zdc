@@ -108,9 +108,7 @@ public class bool_opCheck extends check
         System.out.print("bool_op.not_equal(0, 0) = " + res);
         check(res, false);
 
-        /* 
-         * tests on and_oper()
-         */
+        /* tests on and_oper() */
 
         res = bool_op.and_oper(false, false);
         System.out.print("bool_op.and_oper(false, false) = " + res);
@@ -128,9 +126,7 @@ public class bool_opCheck extends check
         System.out.print("bool_op.and_oper(true, true) = " + res);
         check(res, true);
 
-        /* 
-         * tests on or_oper()
-         */
+        /* or_oper() tests */
 
         res = bool_op.or_oper(false, false);
         System.out.print("bool_op.or_oper(false, false) = " + res);
@@ -147,6 +143,42 @@ public class bool_opCheck extends check
         res = bool_op.or_oper(true, true);
         System.out.print("bool_op.or_oper(true, true) = " + res);
         check(res, true);
+
+        /* tripple_and_op() tests */
+        res = bool_op.tripple_and_op(false, false, false);
+        System.out.print("bool_op.tripple_and_op(false, false, false) = " + res);
+        check(res, false);
+
+        /* tripple_and_op() tests */
+        res = bool_op.tripple_and_op(false, true, false);
+        System.out.print("bool_op.tripple_and_op(false, true, false) = " + res);
+        check(res, false);
+
+        /* tripple_and_op() tests */
+        res = bool_op.tripple_and_op(true, true, true);
+        System.out.print("bool_op.tripple_and_op(true, true, true) = " + res);
+        check(res, true);
+
+        /* andor_ops() tests */
+        res = bool_op.andor_ops(true, true, true);
+        System.out.print("bool_op.andor_ops(true, true, true) = " + res);
+        check(res, true);
+
+        res = bool_op.andor_ops(false, true, true);
+        System.out.print("bool_op.andor_ops(false, true, true) = " + res);
+        check(res, true);
+
+        res = bool_op.andor_ops(false, false, true);
+        System.out.print("bool_op.andor_ops(false, false, true) = " + res);
+        check(res, true);
+
+        res = bool_op.andor_ops(true, true, false);
+        System.out.print("bool_op.andor_ops(true, true, false) = " + res);
+        check(res, true);
+
+        res = bool_op.andor_ops(false, false, false);
+        System.out.print("bool_op.andor_ops(false, false, false) = " + res);
+        check(res, false);
 
         exit();
     }

@@ -100,6 +100,18 @@ less_tst3(int x)
 }
 
 bool
+tripple_and_op(bool left, bool right, bool last)
+{
+   return left && right && last;
+}
+
+bool
+andor_ops(bool a, bool b, bool c)
+{
+    return a && b || c; 
+}
+
+bool
 and_oper(bool left, bool right)
 {
     return left && right;
