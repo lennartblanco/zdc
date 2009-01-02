@@ -29,6 +29,8 @@
  */
 typedef enum ast_binary_op_type_e
 {
+    ast_or_op,             /* || */
+    ast_and_op,            /* && */
     ast_less_op,           /*  <  */
     ast_greater_op,        /*  >  */
     ast_less_or_eq_op,     /* <=  */

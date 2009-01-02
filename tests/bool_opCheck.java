@@ -108,6 +108,46 @@ public class bool_opCheck extends check
         System.out.print("bool_op.not_equal(0, 0) = " + res);
         check(res, false);
 
+        /* 
+         * tests on and_oper()
+         */
+
+        res = bool_op.and_oper(false, false);
+        System.out.print("bool_op.and_oper(false, false) = " + res);
+        check(res, false);
+
+        res = bool_op.and_oper(true, false);
+        System.out.print("bool_op.and_oper(true, false) = " + res);
+        check(res, false);
+
+        res = bool_op.and_oper(false, true);
+        System.out.print("bool_op.and_oper(false, true) = " + res);
+        check(res, false);
+
+        res = bool_op.and_oper(true, true);
+        System.out.print("bool_op.and_oper(true, true) = " + res);
+        check(res, true);
+
+        /* 
+         * tests on or_oper()
+         */
+
+        res = bool_op.or_oper(false, false);
+        System.out.print("bool_op.or_oper(false, false) = " + res);
+        check(res, false);
+
+        res = bool_op.or_oper(true, false);
+        System.out.print("bool_op.or_oper(true, false) = " + res);
+        check(res, true);
+
+        res = bool_op.or_oper(false, true);
+        System.out.print("bool_op.or_oper(false, true) = " + res);
+        check(res, true);
+
+        res = bool_op.or_oper(true, true);
+        System.out.print("bool_op.or_oper(true, true) = " + res);
+        check(res, true);
+
         exit();
     }
 }

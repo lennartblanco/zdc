@@ -185,14 +185,6 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
     {
         java_trgt_handle_if_else(params, XDP_AST_IF_ELSE(node), sym_table);
     }
-
-//        case ast_if_else_block_node:
-//            java_trgt_handle_if_else_block(params, node, sym_table);
-//            break;
-//        default:
-//            printf("Unexpected node->type %s\n", ast_node_to_str(node->type));
-//            assert(false);
-//            break;
     else
     {
         g_error("%s:%d unexpected AstNode type '%s'\n", 
@@ -472,6 +464,64 @@ java_trgt_handle_unary_op(java_trgt_comp_params_t *params,
                     ast_unary_operation_get_operation(operation));
     }
 }
+
+static void
+java_trgt_handle_andor_op(java_trgt_comp_params_t *params,
+                           AstBinaryOperation *operation,
+                           sym_table_t *sym_table)
+{
+    char abort_label[MAX_JAVA_LABEL];
+    char end_label[MAX_JAVA_LABEL];
+    char *eval_op;
+    int abort_val;
+    int fall_throught_val;
+
+    /* generate the abort and end of operation labels */
+    java_trgt_get_next_label(params, abort_label);
+    java_trgt_get_next_label(params, end_label);
+
+    ast_binary_op_type_t op_type =
+        ast_binary_operation_get_operation(operation);
+
+    /* pick evaluation operation and this operations results */
+    switch (op_type)
+    {
+        case ast_and_op:
+            eval_op = "eq";
+            abort_val = 1;
+            fall_throught_val = 0;
+            break;
+        case ast_or_op:
+            eval_op = "ne";
+            abort_val = 0;
+            fall_throught_val = 1;
+            break;
+    }
+
+    /* generate code for left operand evaluation */
+    java_trgt_handle_expression(params,
+                                ast_binary_operation_get_left(operation),
+                                sym_table);
+
+    /* add code for aborting and/or expression evaluation */
+    fprintf(params->out,
+            "    if%s %s\n", eval_op, abort_label);
+
+    /* generate code for right operand evaluation */
+    java_trgt_handle_expression(params,
+                                ast_binary_operation_get_right(operation),
+                                sym_table);
+    fprintf(params->out,
+            "    if%s %s\n"
+            "    iconst_%d\n"
+            "    goto %s\n"
+            "%s:\n"
+            "    iconst_%d\n"
+            "%s:\n",
+            eval_op, abort_label, abort_val, end_label, abort_label,
+            fall_throught_val, end_label);
+}
+
 static void
 java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
                            AstBinaryOperation *operation,
@@ -481,15 +531,23 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
     assert(operation);
     assert(XDP_IS_AST_BINARY_OPERATION(operation));
 
+    ast_binary_op_type_t operationType =
+        ast_binary_operation_get_operation(operation);
+
+
+    if (operationType == ast_or_op ||
+        operationType == ast_and_op)
+    {
+        java_trgt_handle_andor_op(params, operation, sym_table);
+        return;
+    }
+
     java_trgt_handle_expression(params,
                                 ast_binary_operation_get_left(operation),
                                 sym_table);
     java_trgt_handle_expression(params,
                                 ast_binary_operation_get_right(operation),
                                 sym_table);
-
-    ast_binary_op_type_t operationType =
-        ast_binary_operation_get_operation(operation);
 
     switch (operationType)
     {
@@ -514,8 +572,8 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
             fprintf(params->out, "    idiv\n");
             break;
         default:
-            /* unexpected operation type */
-            assert(false);
+            g_error("%s:%d unexpected binary operation %d\n", 
+                    __FILE__, __LINE__, operationType);
     }
 }
 

@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "ast_binary_operation.h"
 
 #include <assert.h>
@@ -128,7 +130,17 @@ ast_binary_operation_do_print(AstNode *self, FILE *out)
             break;
         case ast_division_op:        /*  /  */
             str = "/";
-            break;    
+            break;
+        case ast_or_op:
+            str = "||";
+            break;
+        case ast_and_op:
+            str = "&&";
+            break;
+        default:
+            /* unexpected binary op */
+            assert(false);
+            break;
     }
     fprintf(out, " %s ", str);
     ast_node_print(XDP_AST_NODE(bin_op->right), out);

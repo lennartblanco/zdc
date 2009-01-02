@@ -102,6 +102,11 @@ less_tst3(int x)
 bool
 and_oper(bool left, bool right)
 {
-//    return left && right;
-    return false;
+    return left && right;
+}
+
+bool
+or_oper(bool l, bool r)
+{
+    return l || r;
 }
