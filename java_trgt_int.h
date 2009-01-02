@@ -5,8 +5,8 @@
  */
 
 #include <stdio.h>
+#include <stdbool.h>
 
-#include "ast.h"
 #include "sym_table.h"
 #include "ast_return.h"
 #include "ast_assigment.h"

@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "lex.h"
-#include "ast.h"       //remove me
 #include "ast_compile_unit.h"
 #include "java_trgt.h"
 #include "sym_table.h"

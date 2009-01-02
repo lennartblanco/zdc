@@ -3,8 +3,8 @@ PROG := xdc
 CFLAGS += -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
-OBJS := auxil.o entire.o lex.o yygrammar.o ast.o sym_table.o                  \
-	ast_dbg_dump.o java_trgt.o sem_analyze.o ir.o ui.o                    \
+OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o                        \
+	java_trgt.o sem_analyze.o ir.o ui.o                                   \
         ast_node.o ast_compile_unit.o ast_function.o ast_data_type.o          \
         ast_basic_type.o ast_code_block.o ast_statment.o ast_expression.o     \
         ast_return.o ast_constant.o ast_int_constant.o ast_bool_constant.o    \

@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "ast.h"
 #include "sym_table.h"
 #include "java_trgt.h"
 #include "java_trgt_int.h"

@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include "sym_table.h"
-#include "ast.h"
 
 #include <assert.h>
 
