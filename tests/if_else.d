@@ -8,6 +8,31 @@ int abs(int a)
 }
 
 int
+if_else_test(int x)
+{
+    int res = -1;
+
+    if (x < 10)
+    {
+        res = 1;
+    }
+    else if (x == 10)
+    {
+        res = 2;
+    }
+    else if (15 == x)
+    {
+        res = 3;
+    }
+    else // x > 10
+    {
+        res = 4;
+    }
+
+    return res;
+}
+
+int
 if_else_less_10(int x)
 {
     if (x < 10)

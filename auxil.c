@@ -83,14 +83,14 @@ compile_file(const char* input_file,
 
    fprintf(output_stream, "; compiling %s\n", input_file);
    yyparse();
-   ast_node_print(XDP_AST_NODE(compile_unit), stdout);
+//   ast_node_print(XDP_AST_NODE(compile_unit), stdout);
 
    ir_compile_unit = semantic_analyze(compile_unit);
 
    /* use the output file name as the basis for class name */
    get_class_name(output_file, klass_name);
-//   java_trgt_code(ir_compile_unit, output_stream, klass_name);
-   java_trgt_code(ir_compile_unit, stdout, klass_name);
+   java_trgt_code(ir_compile_unit, output_stream, klass_name);
+//   java_trgt_code(ir_compile_unit, stdout, klass_name);
 
    /* clean up */
    fclose(output_stream);

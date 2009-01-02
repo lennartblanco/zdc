@@ -10,26 +10,26 @@ int abs(int a)
 int
 if_else_test(int x)
 {
-    int x;
+    int res = -1;
 
     if (x < 10)
     {
-        return -1;
+        res = 1;
     }
     else if (x == 10)
     {
-        return 1;
+        res = 2;
     }
-    else if (false)
+    else if (5 == x)
     {
-        x = 2;
+        res = 3;
     }
     else // x > 10
     {
-        x = 1;
+        res = 4;
     }
 
-    return x;
+    return res;
 }
 
 //void foo()

@@ -332,60 +332,43 @@ java_trgt_handle_if_else(java_trgt_comp_params_t *params,
     assert(XDP_IS_AST_IF_ELSE(node));
     assert(sym_table);
 
-//    char endLabel[MAX_JAVA_LABEL];
-//    ast_node_t *cond;
-//    const char* operationCond;
+    char end_label[MAX_JAVA_LABEL];
+    char label[MAX_JAVA_LABEL];
+    GSList *p = ast_if_else_get_if_else_blocks(node);
 
-//    if (node->data.if_else_block.else_block != NULL)
-//    {
-//        printf("else-clouses not impelemented\n");
-//        assert(false);
-//    }
+    java_trgt_get_next_label(params, end_label);
 
-//    cond = node->data.if_else_block.condition;
-//    assert(cond->type == ast_binary_oper_node);
+    for (;p != NULL; p = g_slist_next(p))
+    {
+        AstIfBlock *if_block = XDP_AST_IF_BLOCK(p->data);
 
-//    java_trgt_handle_node(params, cond->data.binary_op.left, sym_table);
-//    java_trgt_handle_node(params, cond->data.binary_op.right, sym_table);
+        /* generate code for if condition expression evaluation */
+        java_trgt_handle_expression(params,
+                                    ast_if_block_get_condition(if_block),
+                                    sym_table);
+        java_trgt_get_next_label(params, label);
 
-//    /* figure out the negation of the if condition */
-//    switch (cond->data.binary_op.oper_type)
-//    {
-//        case ast_less_op:
-//            /*  !(a<b) == (a >= b) */
-//            operationCond = "ge";
-//            break;
-//        case ast_greater_op:
-//            /* !(a>b) == (a <= b) */
-//            operationCond = "le";
-//            break;
-//        case ast_less_or_eq_op:
-//            /* !(a<=b) == (a > b) */
-//            operationCond = "gt";
-//            break;
-//        case ast_greater_or_eq_op:
-//            /* !(a>=b) == (a < b) */
-//            operationCond = "lt";
-//            break;
-//        case ast_equal_op:
-//            /* !(a == b) == (a != b) */
-//            operationCond = "ne";
-//            break;
-//        case ast_not_equal_op:
-//            /* !(a != b) == (a == b) */
-//            operationCond = "eq";
-//            break;
-//        default:
-//            /* unexpected comparison operation */
-//            assert(false);
-//    }
-//    java_trgt_get_next_label(params, endLabel);
+        /* if condition was not evaluated to true, jump over the if body */
+        fprintf(params->out,
+                "    ifeq %s\n", label);
 
-//    fprintf(params->out,
-//            "    if_icmp%s %s\n", operationCond, endLabel);
+        /* generate if blocks's body */
+        java_trgt_handle_code_block(params,
+                              ast_if_block_get_body(if_block),
+                              sym_table);
 
-//    java_trgt_handle_node(params, node->data.if_else_block.if_block, sym_table);
-//    fprintf(params->out, "%s:\n", endLabel);
+        /* an if branch taken, jump over the rest of the if-else clauses */
+        fprintf(params->out, "    goto %s\n%s:\n", end_label, label);
+    }
+    AstCodeBlock *else_body = ast_if_else_get_else_block(node);
+    if (else_body != NULL)
+    {
+        /* generate the else-clause if any */
+        java_trgt_handle_code_block(params, else_body, sym_table);
+    }
+
+    /* insert the end of if-else label */
+    fprintf(params->out, "%s:\n", end_label);
 }
 
 static void
