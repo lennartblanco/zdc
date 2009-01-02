@@ -12,6 +12,11 @@
 
 extern AstCompileUnit *compile_unit;
 
+typedef struct compile_options_s
+{
+    bool print_ast;
+} compile_options_t;
+
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -47,7 +52,8 @@ get_class_name(const char *file_name, char *class_name);
  */
 int
 compile_file(const char* input_file, 
-             const char* output_file)
+             const char* output_file,
+             compile_options_t options)
 {
    YY_BUFFER_STATE yy_buffer;
    FILE *input_stream;
@@ -83,7 +89,11 @@ compile_file(const char* input_file,
 
    fprintf(output_stream, "; compiling %s\n", input_file);
    yyparse();
-//   ast_node_print(XDP_AST_NODE(compile_unit), stdout);
+
+   if (options.print_ast)
+   {
+       ast_node_print(XDP_AST_NODE(compile_unit), stdout);
+   }
 
    ir_compile_unit = semantic_analyze(compile_unit);
 
