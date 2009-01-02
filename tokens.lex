@@ -19,6 +19,8 @@
 "="      { return '='; }
 "{"      { return '{'; }
 "}"      { return '}'; }
+"["      { return '['; }
+"]"      { return ']'; }
 "|"      { return '|'; }
 "&"      { return '&'; }
 "if"     { return TOK_IF; }

@@ -5,12 +5,14 @@
 
 #include "yystype_def.h"
 #include "ast_basic_type.h"
+#include "ast_static_array_type.h"
 #include "ast_return.h"
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_scalar_variable_ref.h"
+#include "ast_array_cell_ref.h"
 #include "ast_assigment.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
@@ -101,7 +103,11 @@ type<x> :
     { 
         (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)); 
     }
-
+|   TOK_INT '[' TOK_NUMBER<num> ']'
+    {
+        (*x).data_type =
+            XDP_AST_DATA_TYPE(ast_static_array_type_new(int_type, num.integer));
+    }
 ;
 
 statment<x> :
@@ -164,7 +170,7 @@ func_call<n> :
     {
         y.list = NULL;
     }
-    TOK_IDENT<x> '(' ( func_call_args<y> ) ')' 
+    TOK_IDENT<x> '(' ( func_call_args<y> )? ')' 
     { 
         (*n).statment =
              XDP_AST_STATMENT(ast_function_call_new(x.text, y.list)); 
@@ -172,11 +178,11 @@ func_call<n> :
 ;
 
 func_call_args<n> :
-|  term<x> 
+|  expression<x> 
    { 
        (*n).list = g_slist_append((*n).list, x.expression);
    }
-|  term<x> 
+|  expression<x> 
    {
        (*n).list = g_slist_append((*n).list, x.expression);
        y = *n;
@@ -208,15 +214,25 @@ var_definition<n> :
 
 
 var_assigment<n> :
-   TOK_IDENT<x> '=' expression<y> 
+   lvalue<l> '=' expression<y> 
    {
-       AstScalarVariableRef *var_ref;
-
-       var_ref = ast_scalar_variable_ref_new(x.text);
        (*n).statment =
-           XDP_AST_STATMENT(ast_assigment_new(XDP_AST_VARIABLE_REF(var_ref), 
+           XDP_AST_STATMENT(ast_assigment_new(l.variable_ref, 
                                               y.expression));
    }
+;
+
+lvalue<n> :
+    TOK_IDENT<x>
+    {
+        (*n).variable_ref =
+            XDP_AST_VARIABLE_REF(ast_scalar_variable_ref_new(x.text));
+    }
+|   TOK_IDENT<name> '[' TOK_NUMBER<i> ']'
+    {
+        (*n).variable_ref =
+            XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text, i.integer));
+    }
 ;
 
 expression<n> :
@@ -264,64 +280,64 @@ eq_expression<n> :
 ;
 
 rel_expression<n> :
-  term<l> '<' term<r> 
+  add_expression<l> '<' add_expression<r> 
   { 
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
                                                       l.expression,
                                                       r.expression));
   }
-| term<l> '>' term<r> 
+| add_expression<l> '>' add_expression<r> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
                                                       l.expression,
                                                       r.expression)); 
   }
-| term<l> '<''=' term<r> 
+| add_expression<l> '<''=' add_expression<r> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
                                                       l.expression,
                                                       r.expression)); 
   }
-| term<l> '>''=' term<r> 
+| add_expression<l> '>''=' add_expression<r> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
                                                       l.expression,
                                                       r.expression)); 
   }
-| term<n>
+| add_expression<n>
 ;
 
-term<n> :
-  term<l> '+' factor<r> 
+add_expression<n> :
+  add_expression<l> '+' mult_expression<r> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
                                                       l.expression,
                                                       r.expression));
   }
-| term<l> '-' factor<r>
+| add_expression<l> '-' mult_expression<r>
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
                                                       l.expression,
                                                       r.expression));
   }
-| factor<n>
+| mult_expression<n>
 ;
 
-factor<n> :
-  factor<l> '*' primary<r> 
+mult_expression<n> :
+  mult_expression<l> '*' primary<r> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
                                                       l.expression,
                                                       r.expression));
   }
-| factor<l> '/' primary<r> 
+| mult_expression<l> '/' primary<r> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
@@ -353,11 +369,16 @@ primary<n> :
           XDP_AST_EXPRESSION(ast_scalar_variable_ref_new(x.text));
   }
 | func_call<n>
-| '(' term<n> ')'
+| '(' add_expression<n> ')'
 | '-' primary<x> 
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
                                                      x.expression)); 
+  }
+| TOK_IDENT<name> '[' TOK_NUMBER<i> ']'
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text, i.integer));
   }
 ;

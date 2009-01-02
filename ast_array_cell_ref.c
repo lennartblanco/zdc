@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "ast_scalar_variable_ref.h"
+#include "ast_array_cell_ref.h"
 
 #include <assert.h>
 
@@ -9,78 +9,90 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_scalar_variable_ref_do_print(AstNode *self, FILE *out);
+ast_array_cell_ref_do_print(AstNode *self, FILE *out);
 
 static void
-ast_scalar_variable_ref_class_init(gpointer klass, gpointer dummy);
+ast_array_cell_ref_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-ast_scalar_variable_ref_get_type(void)
+ast_array_cell_ref_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstScalarVariableRefClass),
+        sizeof (AstArrayCellRefClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_scalar_variable_ref_class_init,   /* class_init */
+        ast_array_cell_ref_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstScalarVariableRef),
+        sizeof (AstArrayCellRef),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(XDP_TYPE_AST_VARIABLE_REF,
-                                    "AstScalarVariableRefType",
+                                    "AstArrayCellRefType",
                                     &info, 0);
     }
     return type;
 }
 
-AstScalarVariableRef* 
-ast_scalar_variable_ref_new(char *name)
+AstArrayCellRef *
+ast_array_cell_ref_new(char *name, int index)
 {
-    AstScalarVariableRef *ref;
+    AstArrayCellRef *obj;
 
-    ref = g_object_new(XDP_TYPE_AST_SCALAR_VARIABLE_REF, NULL);
-    ref->name = strdup(name);
+    obj = g_object_new(XDP_TYPE_AST_ARRAY_CELL_REF, NULL);
+    obj->name = strdup(name);
+    obj->index = index;
 
-    return ref;
+    return obj;
 }
 
 char *
-ast_scalar_variable_get_name(AstScalarVariableRef *self)
+ast_array_cell_get_name(AstArrayCellRef *self)
 {
     assert(self);
-    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(self));
+    assert(XDP_IS_AST_ARRAY_CELL_REF(self));
 
     return self->name;
 }
+
+
+int
+ast_array_cell_get_index(AstArrayCellRef *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_ARRAY_CELL_REF(self));
+
+    return self->index;
+}
+
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
 static void
-ast_scalar_variable_ref_do_print(AstNode *self, FILE *out)
+ast_array_cell_ref_do_print(AstNode *self, FILE *out)
 {
     assert(self);
-    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(self));
+    assert(XDP_IS_AST_ARRAY_CELL_REF(self));
     assert(out);
 
-    AstScalarVariableRef *ref = XDP_AST_SCALAR_VARIABLE_REF(self);
-    fprintf(out, "%s", ref->name);
+    AstArrayCellRef *ref = XDP_AST_ARRAY_CELL_REF(self);
+    fprintf(out, "%s[%d]", ref->name, ref->index);
 }
 
 static void
-ast_scalar_variable_ref_class_init(gpointer klass, gpointer dummy)
+ast_array_cell_ref_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_scalar_variable_ref_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_array_cell_ref_do_print;
 }
 

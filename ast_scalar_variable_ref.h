@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    AstExpression      parent;
+    AstVariableRef      parent;
 
     /* private */
     char         *name;
@@ -34,7 +34,7 @@ typedef struct
 
 typedef struct
 {
-  AstNodeClass parent_class;
+  AstVariableRefClass parent_class;
 } AstScalarVariableRefClass;
 
 /*---------------------------------------------------------------------------*
