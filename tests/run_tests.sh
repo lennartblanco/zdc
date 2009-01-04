@@ -33,6 +33,7 @@ if [ "$1" ]; then
     exit 0
 fi
 
+run_test comments
 run_test neg
 run_test func_call
 run_test bool_op

@@ -35,5 +35,17 @@
 [0-9]+   { yylval.integer = atoi(yytext); return TOK_NUMBER; }
 " "      { /* skip blank */ }
 "//".*   { /* consume comment */ }
+"/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {
+
+           int cntr;
+           for (cntr = 0; yytext[cntr] != '\0'; cntr++)
+           {
+               if (yytext[cntr] == '\n')
+               {
+                   yypos++;
+               }
+           }
+           
+         }
 \n       { yypos++; /* adjust linenumber and skip newline */ }
 .        { yyerror("illegal token"); }
