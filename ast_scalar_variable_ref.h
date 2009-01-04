@@ -27,9 +27,6 @@
 typedef struct
 {
     AstVariableRef      parent;
-
-    /* private */
-    char         *name;
 } AstScalarVariableRef;
 
 typedef struct
@@ -46,8 +43,5 @@ ast_scalar_variable_ref_get_type(void);
 
 AstScalarVariableRef *
 ast_scalar_variable_ref_new(char *name);
-
-char *
-ast_scalar_variable_get_name(AstScalarVariableRef *self);
 
 #endif /* AST_SCALAR_VARIABLE_REF_INC_X */

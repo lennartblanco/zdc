@@ -27,6 +27,8 @@
 typedef struct
 {
     AstExpression parent;
+    /* private */
+    char *name;
 } AstVariableRef;
 
 typedef struct
@@ -40,5 +42,8 @@ typedef struct
 
 GType
 ast_variable_ref_get_type(void);
+
+char *
+ast_variable_ref_get_name(AstVariableRef *self);
 
 #endif /* AST_VARIABLE_REF_INC_X */

@@ -15,6 +15,7 @@
 #include "ast_scalar_variable_ref.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
+#include "ast_array_cell_ref.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -97,15 +98,28 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                            bool pop_return_value);
 
 static void
+java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
+                                AstArrayCellRef *acell,
+                                sym_table_t *sym_table);
+
+static void
 java_trgt_prelude(java_trgt_comp_params_t *params);
 
 static void
 java_trgt_epilog(java_trgt_comp_params_t *params);
 
 /**
-  * Generate the body for integer comparison operations,
-  * e.g. <, >, !=, ==, etc
-  */
+ * Generate code to load constant value on the stack.
+ *
+ * @param value the value that need to be loaded on the stack
+ */
+static void
+java_trgt_const_int(java_trgt_comp_params_t *params, int value);
+
+/**
+ * Generate the body for integer comparison operations,
+ * e.g. <, >, !=, ==, etc
+ */
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
                         ast_binary_op_type_t type);

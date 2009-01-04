@@ -91,22 +91,31 @@ statments_list<n> :
 ;
 
 type<x> :
-    TOK_VOID   
-    { 
-        (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(void_type)); 
+|   basic_type<t> '[' TOK_NUMBER<num> ']'
+    {
+        (*x).data_type =
+            XDP_AST_DATA_TYPE(ast_static_array_type_new(t.basic_data_type,
+                                                        num.integer));
+    }
+|   basic_type<t>
+    {
+        (*x).data_type =
+            XDP_AST_DATA_TYPE(ast_basic_type_new(t.basic_data_type));
+    }
+;
+
+basic_type<x> :
+    TOK_VOID
+    {
+        (*x).basic_data_type = void_type;
     }
 |   TOK_INT    
     {
-        (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(int_type));
+        (*x).basic_data_type = int_type;
     }
 |   TOK_BOOL   
     { 
-        (*x).data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)); 
-    }
-|   TOK_INT '[' TOK_NUMBER<num> ']'
-    {
-        (*x).data_type =
-            XDP_AST_DATA_TYPE(ast_static_array_type_new(int_type, num.integer));
+        (*x).basic_data_type = bool_type; 
     }
 ;
 
@@ -228,10 +237,11 @@ lvalue<n> :
         (*n).variable_ref =
             XDP_AST_VARIABLE_REF(ast_scalar_variable_ref_new(x.text));
     }
-|   TOK_IDENT<name> '[' TOK_NUMBER<i> ']'
+|   TOK_IDENT<name> '[' expression<exp> ']'
     {
         (*n).variable_ref =
-            XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text, i.integer));
+            XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
+                                                        exp.expression));
     }
 ;
 
@@ -376,9 +386,10 @@ primary<n> :
           XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
                                                      x.expression)); 
   }
-| TOK_IDENT<name> '[' TOK_NUMBER<i> ']'
+| TOK_IDENT<name> '[' expression<i> ']'
   {
       (*n).expression =
-          XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text, i.integer));
+          XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
+                                                    i.expression));
   }
 ;

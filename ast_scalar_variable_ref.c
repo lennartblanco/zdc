@@ -48,19 +48,10 @@ ast_scalar_variable_ref_new(char *name)
 {
     AstScalarVariableRef *ref;
 
-    ref = g_object_new(XDP_TYPE_AST_SCALAR_VARIABLE_REF, NULL);
-    ref->name = strdup(name);
-
+    ref = g_object_new(XDP_TYPE_AST_SCALAR_VARIABLE_REF,
+                       "ast-variable-ref-name", name,
+                       NULL);
     return ref;
-}
-
-char *
-ast_scalar_variable_get_name(AstScalarVariableRef *self)
-{
-    assert(self);
-    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(self));
-
-    return self->name;
 }
 
 /*---------------------------------------------------------------------------*
@@ -74,8 +65,8 @@ ast_scalar_variable_ref_do_print(AstNode *self, FILE *out)
     assert(XDP_IS_AST_SCALAR_VARIABLE_REF(self));
     assert(out);
 
-    AstScalarVariableRef *ref = XDP_AST_SCALAR_VARIABLE_REF(self);
-    fprintf(out, "%s", ref->name);
+    fprintf(out, "%s",
+            ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self)));
 }
 
 static void

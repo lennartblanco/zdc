@@ -11,6 +11,7 @@ union yystype_u
 {
     char                       *text;
     int                        integer;
+    basic_data_type_t          basic_data_type;
     AstCompileUnit             *compile_unit;
     AstCodeBlock               *code_block;
     AstFunction                *function;

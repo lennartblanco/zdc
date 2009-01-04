@@ -47,4 +47,7 @@ GType ast_static_array_type_get_type(void);
 AstStaticArrayType * 
 ast_static_array_type_new(basic_data_type_t data_type, int length);
 
+int
+ast_static_array_type_get_length(AstStaticArrayType *self);
+
 #endif /* AST_STATIC_ARRAY_TYPE_INC_X */

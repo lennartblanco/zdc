@@ -20,4 +20,4 @@ $(PROG): $(OBJS) $(TEST_OBJS)
 	gcc -o $(PROG) $(LDFLAGS) $(OBJS) $(TEST_OBJS) -lcheck
 
 clean:
-	rm -rf $(PROG) *.o
+	rm -rf $(PROG) *.o *~

@@ -29,8 +29,7 @@ typedef struct
     AstVariableRef parent;
 
     /* private */
-    char          *name;
-    int           index;
+    AstExpression *index;
 } AstArrayCellRef;
 
 typedef struct
@@ -46,12 +45,9 @@ GType
 ast_array_cell_ref_get_type(void);
 
 AstArrayCellRef *
-ast_array_cell_ref_new(char *name, int index);
+ast_array_cell_ref_new(char *name, AstExpression *index);
 
-char *
-ast_array_cell_get_name(AstArrayCellRef *self);
-
-int
-ast_array_cell_get_index(AstArrayCellRef *self);
+AstExpression *
+ast_array_cell_ref_get_index(AstArrayCellRef *self);
 
 #endif /* AST_ARRAY_CELL_REF_INC_X */

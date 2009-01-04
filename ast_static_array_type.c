@@ -53,6 +53,15 @@ ast_static_array_type_new(basic_data_type_t data_type, int length)
     return obj;
 }
 
+int
+ast_static_array_type_get_length(AstStaticArrayType *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(self));
+
+    return self->length;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

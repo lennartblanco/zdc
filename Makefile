@@ -40,4 +40,4 @@ $(PROG): $(OBJS)
 	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS)
 
 clean:
-	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h *~
+	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h *.class *.j *~

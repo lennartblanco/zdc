@@ -10,6 +10,7 @@
 #include "ast_scalar_variable_ref.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
+#include "ast_static_array_type.h"
 
 #include <assert.h>
 
@@ -76,6 +77,31 @@ java_trgt_epilog(java_trgt_comp_params_t *params)
 }
 
 static void
+java_trgt_const_int(java_trgt_comp_params_t *params, int value)
+{
+    /*
+     * pick the most compact bytecode to push the request value
+     * on the stack
+     */
+    if (-1 <= value && value <= 5)
+    {
+        fprintf(params->out, "    iconst_%d\n", value);
+    }
+    else if (-128 <= value && value <= 127)
+    {
+        fprintf(params->out, "    bipush %d\n", value);
+    }
+    else if (-32768 <= value && value <= 32767)
+    {
+        fprintf(params->out, "    sipush %d\n", value);
+    }
+    else
+    {
+        fprintf(params->out, "    ldc %d\n", value);
+    }
+}
+
+static void
 java_trgt_handle_code_block(java_trgt_comp_params_t *params,
                             AstCodeBlock *code_block,
                             sym_table_t *sym_table)
@@ -139,16 +165,21 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
     {
         AstIntConstant *icons = XDP_AST_INT_CONSTANT(exp);
 
-        fprintf(params->out,
-                "    ldc %d\n", ast_int_constant_get_value(icons));
+        java_trgt_const_int(params, ast_int_constant_get_value(icons));
     }
     else if (XDP_IS_AST_BOOL_CONSTANT(exp))
     {
         bool val =
             ast_bool_constant_get_value(XDP_AST_BOOL_CONSTANT(exp));
 
-        fprintf(params->out, "    ldc %d\n",
+        fprintf(params->out, "    iconst_%d\n",
                 val ? 1 : 0);
+    }
+    else if (XDP_IS_AST_ARRAY_CELL_REF(exp))
+    {
+        java_trgt_handle_array_cell_ref(params,
+                                        XDP_AST_ARRAY_CELL_REF(exp),
+                                        sym_table);
     }
     else
     {
@@ -560,6 +591,46 @@ java_trgt_handle_binary_op(java_trgt_comp_params_t *params,
 }
 
 static void
+java_trgt_handle_var_assigment(java_trgt_comp_params_t *params,
+                               guint var_num,
+                               AstExpression *exp,
+                               sym_table_t *sym_table)
+{
+    ir_symbol_address_t sym_addr;
+
+    java_trgt_handle_expression(params, exp, sym_table);
+
+    fprintf(params->out, "    istore%s%d\n", 
+            (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
+}
+
+static void
+java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
+                                 guint var_num,
+                                 AstExpression *index,
+                                 AstExpression *exp,
+                                 sym_table_t *sym_table)
+{
+    /* push array reference on stack */ 
+    fprintf(params->out,
+            "; array assigment\n"
+            "    aload%s%d\n",
+            (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
+
+    /* push index expression on stack */
+    java_trgt_handle_expression(params, index, sym_table);
+
+    /* push the value to assign on stack */
+    java_trgt_handle_expression(params, exp, sym_table); 
+
+    /* store the value in the array */
+    fprintf(params->out, "    iastore\n");    
+    //iastore
+    //..., arrayref, index value => ...
+    
+}
+
+static void
 java_trgt_handle_assigment(java_trgt_comp_params_t *params,
                            AstAssigment *node,
                            sym_table_t *sym_table)
@@ -567,39 +638,86 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
 
     ir_symbol_t *symb;
     int res;
-    ir_symbol_address_t addr;
-    AstScalarVariableRef *assign_target =
-        XDP_AST_SCALAR_VARIABLE_REF(ast_assigment_get_target(node));
-    /* only assigments to scalar variable supported at this time */
-    assert(XDP_IS_AST_SCALAR_VARIABLE_REF(assign_target));
+    AstVariableRef *lvalue = ast_assigment_get_target(node);
 
     res = sym_table_get_symbol(sym_table,
-                               ast_scalar_variable_get_name(assign_target),
+                               ast_variable_ref_get_name(lvalue),
                                &symb);
     if (res == -1)
     {
         printf("variable '%s' not defined\n", 
-               ast_scalar_variable_get_name(assign_target));
+               ast_variable_ref_get_name(lvalue));
         return;
     }
 
-    java_trgt_handle_expression(params, 
-                                ast_assigment_get_value(node), 
-                                sym_table);
+    ir_symbol_address_t sym_addr =
+        ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
-    addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
-
-    if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
+    if (XDP_IS_AST_SCALAR_VARIABLE_REF(lvalue))
     {
-        fprintf(params->out, "    istore_%d\n", addr.java_variable_addr);
+        java_trgt_handle_var_assigment(params,
+                                       sym_addr.java_variable_addr,
+                                       ast_assigment_get_value(node),
+                                       sym_table);
+    }
+    else if (XDP_IS_AST_ARRAY_CELL_REF(lvalue))
+    {
+        AstArrayCellRef *acell = XDP_AST_ARRAY_CELL_REF(lvalue);
+
+        java_trgt_handle_array_assigment(params,
+                                         sym_addr.java_variable_addr,
+                                         ast_array_cell_ref_get_index(acell),
+                                         ast_assigment_get_value(node),
+                                         sym_table);
     }
     else
     {
-        fprintf(params->out, "    istore %d\n", addr.java_variable_addr);
+        /* unexpected lvalue type */
+        assert(false);
     }
 }
 
+static void
+java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
+                                AstArrayCellRef *acell,
+                                sym_table_t *sym_table)
+{
+    assert(params);
+    assert(acell);
+    assert(XDP_IS_AST_ARRAY_CELL_REF(acell));
+    assert(sym_table);
 
+    ir_symbol_t *symb;
+    int res;
+    guint addr;
+    char *name = ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(acell));
+
+    /* fetch the array reference from symbol table */
+    res = sym_table_get_symbol(sym_table, name, &symb);
+    if (res == -1)
+    {
+        printf("variable '%s' not defined\n", name);
+        return;
+    }
+
+    /* get the local variable number for this array reference */
+    addr = 
+        ir_variable_def_get_address(ir_symbol_get_variable(symb)).java_variable_addr;
+
+    /* generate code to put array reference on the stack */
+    fprintf(params->out, 
+            "    aload%s%d\n",
+            (0 <= addr && addr <= 3) ? "_" : " ", 
+            addr);
+
+    /* generate code to put array index in the stack */
+    java_trgt_handle_expression(params,
+                                ast_array_cell_ref_get_index(acell),
+                                sym_table);
+
+    /* generate code to fetch the value from the array to the stack */
+    fprintf(params->out, "    iaload\n");
+}
 
 static void
 java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
@@ -608,10 +726,9 @@ java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
 {
     ir_symbol_t *symb;
     int res;
+    char *name = ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(var_ref));
 
-    res = sym_table_get_symbol(sym_table,
-                               ast_scalar_variable_get_name(var_ref),
-                               &symb);
+    res = sym_table_get_symbol(sym_table, name, &symb);
 
     switch (res)
     {
@@ -632,8 +749,7 @@ java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
             break;
         }
         case -1:
-            printf("variable '%s' not defined\n",
-                   ast_scalar_variable_get_name(var_ref));
+            printf("variable '%s' not defined\n", name);
             break;
         default: /* unexpected return value */
             assert(false);
@@ -715,17 +831,37 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
      * put them into the local symb table
      */
     p = ir_function_def_get_parameters(func);
-    for (i = 0; i < param_num; i++)
+    for (i = 0; i < param_num; i++, p = g_slist_next(p))
     {
         var = p->data;
         addr.java_variable_addr = i;
         ir_variable_def_assign_address(var, addr);
         ir_function_def_add_local_var(func, var);
-        p = g_slist_next(p);
     }
 
     fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
-    fprintf(params->out, "    .limit stack 32\n");    
+    fprintf(params->out, "    .limit stack 32\n");
+
+    l = sym_table_get_all_symbols(local_vars);
+    for (; l != NULL; l = g_list_next(l))
+    {
+        var = ir_symbol_get_variable(l->data);
+        AstDataType *var_type = ir_variable_def_get_type(var);
+        if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
+        {
+            AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
+            
+            ir_variable_def_get_address(var);
+            java_trgt_const_int(params,
+                                ast_static_array_type_get_length(sarray));
+            guint addr = ir_variable_def_get_address(var).java_variable_addr;
+            fprintf(params->out,
+                    "    newarray int\n"
+                    "    astore%s%d\n",
+                    (0 <= addr && addr <= 3) ? "_" : " ", addr);
+        }
+    }
+
     java_trgt_handle_code_block(params, 
                                ir_function_def_get_body(func),
                                local_vars);
