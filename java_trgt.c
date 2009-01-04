@@ -613,7 +613,6 @@ java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
 {
     /* push array reference on stack */ 
     fprintf(params->out,
-            "; array assigment\n"
             "    aload%s%d\n",
             (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
 
