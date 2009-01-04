@@ -75,6 +75,37 @@ static void
 java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
                                   AstScalarVariableRef *var_ref,
                                   sym_table_t *sym_table);
+/**
+ * generate the code to assign the result of un expression
+ * to a local variable
+ *
+ * @param params compilation parameters
+ * @param var_num the local variables number
+ * @param exp the exprassion to evaluate and assign
+ * @param sym_table the symbol table
+ */
+static void
+java_trgt_handle_var_assigment(java_trgt_comp_params_t *params,
+                               guint var_num,
+                               AstExpression *exp,
+                               sym_table_t *sym_table);
+/**
+ * generate code to assign the result of an expression
+ * to an array cell
+ *
+ * @param params compilation parameters
+ * @param var_num the number of the local variable that hold
+ *                a reference to the array
+ * @param index the expession to evalute to get the index of the array cell
+ * @param exp the exprassion to evaluate and assign
+ * @param sym_table the symbol table
+ */ 
+static void
+java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
+                                 guint var_num,
+                                 AstExpression *index,
+                                 AstExpression *exp,
+                                 sym_table_t *sym_table);
 
 static void
 java_trgt_handle_assigment(java_trgt_comp_params_t *params,

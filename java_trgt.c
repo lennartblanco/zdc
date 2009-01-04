@@ -227,21 +227,46 @@ java_trgt_handle_node(java_trgt_comp_params_t *params,
 static char *
 java_trgt_data_type_to_str(AstDataType *data_type)
 {
-    /* only basic data types supperted at the moment */
-    assert(XDP_IS_AST_BASIC_TYPE(data_type));
-    AstBasicType *basic_type = XDP_AST_BASIC_TYPE(data_type);
-
-    switch(ast_basic_type_get_data_type(basic_type))
+    if (XDP_IS_AST_BASIC_TYPE(data_type))
     {
-        case void_type:
-            return "V";
-        case int_type:
-            return "I";
-        case bool_type:
-            return "Z";
-        default:
-            /* unexpected basic data type */
-            assert(false);
+        /* convert basic data type to string */
+        AstBasicType *basic_type = XDP_AST_BASIC_TYPE(data_type);
+
+        switch(ast_basic_type_get_data_type(basic_type))
+        {
+            case void_type:
+                return "V";
+            case int_type:
+                return "I";
+            case bool_type:
+                return "Z";
+            default:
+                /* unexpected basic data type */
+                assert(false);
+        }
+    }
+    else if (XDP_IS_AST_STATIC_ARRAY_TYPE(data_type))
+    {
+         /* convert static array type to string */
+         AstStaticArrayType *sarray_type = XDP_AST_STATIC_ARRAY_TYPE(data_type);
+
+         /** @todo this can be implemented more compact by adding '[' to
+             converted basic type by reusing the code above */
+         switch(ast_static_array_type_get_data_type(sarray_type))
+         {
+             case int_type:
+                 return "[I";
+             case bool_type:
+                 return "[Z";
+             default:
+                 /* unexpected basic data type */
+                 assert(false);
+         }
+    }
+    else
+    {
+        /* unexpected data type */
+        assert(false);
     }
     return NULL;
 }
@@ -611,7 +636,7 @@ java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
                                  AstExpression *exp,
                                  sym_table_t *sym_table)
 {
-    /* push array reference on stack */ 
+    /* push array reference on stack */
     fprintf(params->out,
             "    aload%s%d\n",
             (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
@@ -620,13 +645,10 @@ java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
     java_trgt_handle_expression(params, index, sym_table);
 
     /* push the value to assign on stack */
-    java_trgt_handle_expression(params, exp, sym_table); 
+    java_trgt_handle_expression(params, exp, sym_table);
 
     /* store the value in the array */
-    fprintf(params->out, "    iastore\n");    
-    //iastore
-    //..., arrayref, index value => ...
-    
+    fprintf(params->out, "    iastore\n");  
 }
 
 static void
