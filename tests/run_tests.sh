@@ -38,4 +38,5 @@ run_test func_call
 run_test bool_op
 run_test if_else
 run_test fact
+run_test stat_array
 echo "_all_tests_passed_"
