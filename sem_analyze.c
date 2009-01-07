@@ -4,7 +4,6 @@
 #include "sem_analyze.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
-#include "ast_scalar_variable_ref.h"
 #include "ast_assigment.h"
 
 #include <assert.h>
@@ -66,8 +65,7 @@ sem_analyze_function(AstFunction *ast_func, ir_compile_unit_t *comp_unit)
             if (init_exp != NULL)
             {
                 /* add the initialization assigment node to new body */
-                AstScalarVariableRef *var_ref =
-                    ast_scalar_variable_ref_new(
+                AstVariableRef *var_ref = ast_variable_ref_new(
                         ast_variable_definition_get_name(var_def));
 
                 AstAssigment *assign =

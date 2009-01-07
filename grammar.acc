@@ -11,7 +11,6 @@
 #include "ast_unary_operation.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
-#include "ast_scalar_variable_ref.h"
 #include "ast_array_cell_ref.h"
 #include "ast_assigment.h"
 #include "ast_function_call.h"
@@ -234,8 +233,7 @@ var_assigment<n> :
 lvalue<n> :
     TOK_IDENT<x>
     {
-        (*n).variable_ref =
-            XDP_AST_VARIABLE_REF(ast_scalar_variable_ref_new(x.text));
+        (*n).variable_ref = ast_variable_ref_new(x.text);
     }
 |   TOK_IDENT<name> '[' expression<exp> ']'
     {
@@ -376,7 +374,7 @@ primary<n> :
 | TOK_IDENT<x>
   {
       (*n).expression =
-          XDP_AST_EXPRESSION(ast_scalar_variable_ref_new(x.text));
+          XDP_AST_EXPRESSION(ast_variable_ref_new(x.text));
   }
 | func_call<n>
 | '(' add_expression<n> ')'

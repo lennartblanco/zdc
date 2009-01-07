@@ -43,6 +43,9 @@ typedef struct
 GType
 ast_variable_ref_get_type(void);
 
+AstVariableRef *
+ast_variable_ref_new(char *name);
+
 char *
 ast_variable_ref_get_name(AstVariableRef *self);
 

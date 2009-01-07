@@ -7,7 +7,6 @@
 #include "java_trgt_int.h"
 #include "ast_basic_type.h"
 #include "ast_return.h"
-#include "ast_scalar_variable_ref.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_static_array_type.h"
@@ -148,11 +147,21 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
                                   XDP_AST_UNARY_OPERATION(exp),
                                   sym_table);
     }
-    else if (XDP_IS_AST_SCALAR_VARIABLE_REF(exp))
+    /* 
+     * array_cell_ref check must pressed variable_ref, becouse
+     * array_cell_ref is a subtype of variable_ref
+     */ 
+    else if (XDP_IS_AST_ARRAY_CELL_REF(exp))
     {
-        java_trgt_handle_scalar_var_value(params, 
-                                          XDP_AST_SCALAR_VARIABLE_REF(exp),
-                                          sym_table);
+        java_trgt_handle_array_cell_ref(params,
+                                        XDP_AST_ARRAY_CELL_REF(exp),
+                                        sym_table);
+    }
+    else if (XDP_IS_AST_VARIABLE_REF(exp))
+    {
+        java_trgt_handle_var_value(params, 
+                                   XDP_AST_VARIABLE_REF(exp),
+                                   sym_table);
     }
     else if (XDP_IS_AST_FUNCTION_CALL(exp))
     {
@@ -174,12 +183,6 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
 
         fprintf(params->out, "    iconst_%d\n",
                 val ? 1 : 0);
-    }
-    else if (XDP_IS_AST_ARRAY_CELL_REF(exp))
-    {
-        java_trgt_handle_array_cell_ref(params,
-                                        XDP_AST_ARRAY_CELL_REF(exp),
-                                        sym_table);
     }
     else
     {
@@ -673,14 +676,7 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
     ir_symbol_address_t sym_addr =
         ir_variable_def_get_address(ir_symbol_get_variable(symb));
 
-    if (XDP_IS_AST_SCALAR_VARIABLE_REF(lvalue))
-    {
-        java_trgt_handle_var_assigment(params,
-                                       sym_addr.java_variable_addr,
-                                       ast_assigment_get_value(node),
-                                       sym_table);
-    }
-    else if (XDP_IS_AST_ARRAY_CELL_REF(lvalue))
+    if (XDP_IS_AST_ARRAY_CELL_REF(lvalue))
     {
         AstArrayCellRef *acell = XDP_AST_ARRAY_CELL_REF(lvalue);
 
@@ -690,6 +686,14 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
                                          ast_assigment_get_value(node),
                                          sym_table);
     }
+    else if (XDP_IS_AST_VARIABLE_REF(lvalue))
+    {
+        java_trgt_handle_var_assigment(params,
+                                       sym_addr.java_variable_addr,
+                                       ast_assigment_get_value(node),
+                                       sym_table);
+    }
+
     else
     {
         /* unexpected lvalue type */
@@ -740,9 +744,9 @@ java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
 }
 
 static void
-java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
-                                  AstScalarVariableRef *var_ref,
-                                  sym_table_t *sym_table)
+java_trgt_handle_var_value(java_trgt_comp_params_t *params,
+                           AstVariableRef *var_ref,
+                           sym_table_t *sym_table)
 {
     ir_symbol_t *symb;
     int res;

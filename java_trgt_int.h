@@ -12,7 +12,6 @@
 #include "ast_assigment.h"
 #include "ast_unary_operation.h"
 #include "ast_binary_operation.h"
-#include "ast_scalar_variable_ref.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_cell_ref.h"
@@ -72,9 +71,9 @@ java_trgt_handle_return_statment(java_trgt_comp_params_t *params,
                                  sym_table_t *sym_table);
 
 static void
-java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
-                                  AstScalarVariableRef *var_ref,
-                                  sym_table_t *sym_table);
+java_trgt_handle_var_value(java_trgt_comp_params_t *params,
+                           AstVariableRef *var_ref,
+                           sym_table_t *sym_table);
 /**
  * generate the code to assign the result of un expression
  * to a local variable

@@ -61,6 +61,17 @@ ast_variable_ref_get_type(void)
     return type;
 }
 
+AstVariableRef* 
+ast_variable_ref_new(char *name)
+{
+    AstVariableRef *ref;
+
+    ref = g_object_new(XDP_TYPE_AST_VARIABLE_REF,
+                       "ast-variable-ref-name", name,
+                       NULL);
+    return ref;
+}
+
 char *
 ast_variable_ref_get_name(AstVariableRef *self)
 {
