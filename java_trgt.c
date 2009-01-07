@@ -340,12 +340,11 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
     func = ir_symbol_get_function(symb);
 
     arg = ast_function_call_get_arguments(fun_call);
-    while (arg != NULL)
+    for (;arg != NULL; arg = g_slist_next(arg))
     {
         java_trgt_handle_expression(params, 
                                     XDP_AST_EXPRESSION(arg->data),
                                     sym_table);
-        arg = arg->next;
     }
 
     fprintf(params->out,
@@ -751,29 +750,48 @@ java_trgt_handle_scalar_var_value(java_trgt_comp_params_t *params,
 
     res = sym_table_get_symbol(sym_table, name, &symb);
 
-    switch (res)
+    if (res == -1)
     {
-        case 0:
-        {
-            ir_symbol_address_t addr;
+        printf("variable '%s' not defined\n", name);
+        return;
+    }
 
-            addr = ir_variable_def_get_address(ir_symbol_get_variable(symb));
+    guint addr;
+    ir_variable_def_t *var_def;
+    AstDataType *type;
 
-            if (0 <= addr.java_variable_addr && addr.java_variable_addr <= 3)
-            {
-                fprintf(params->out, "    iload_%d\n", addr.java_variable_addr);
-            }
-            else
-            {
-                fprintf(params->out, "    iload %d\n", addr.java_variable_addr);
-            }
-            break;
-        }
-        case -1:
-            printf("variable '%s' not defined\n", name);
-            break;
-        default: /* unexpected return value */
-            assert(false);
+    var_def = ir_symbol_get_variable(symb);
+    addr = ir_variable_def_get_address(var_def).java_variable_addr;
+    type = ir_variable_def_get_type(var_def);
+
+    if (XDP_IS_AST_BASIC_TYPE(type))
+    {
+        AstBasicType *btype = XDP_AST_BASIC_TYPE(type);
+        /* only integer and boolean basic type supported at the moment */
+        assert(ast_basic_type_get_data_type(btype) == int_type ||
+               ast_basic_type_get_data_type(btype) == bool_type);
+
+        /* load int/bool value to the stack from the variable */
+        fprintf(params->out, "    iload%s%d\n", 
+                (0 <= addr && addr <= 3) ? "_" : " ",
+                addr);
+    }
+    else if (XDP_IS_AST_STATIC_ARRAY_TYPE(type))
+    {
+        /* only integer and boolean static arrays supported at the moment */
+        AstStaticArrayType *sarray_type = XDP_AST_STATIC_ARRAY_TYPE(type);
+        assert(ast_static_array_type_get_data_type(sarray_type) == int_type ||
+               ast_static_array_type_get_data_type(sarray_type) == bool_type);
+
+        /* load array refernce to the stack from the variable */
+        fprintf(params->out, "    aload%s%d\n", 
+                (0 <= addr && addr <= 3) ? "_" : " ",
+                addr);
+    }
+    else
+    {
+        /* unexpected data type */
+        assert(false);
     }
 }
 
@@ -863,24 +881,38 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
     fprintf(params->out, "    .limit locals %d\n", param_num + local_var_num);
     fprintf(params->out, "    .limit stack 32\n");
 
+    /*
+     * Initialize all local static arrays 
+     */
     l = sym_table_get_all_symbols(local_vars);
     for (; l != NULL; l = g_list_next(l))
     {
         var = ir_symbol_get_variable(l->data);
         AstDataType *var_type = ir_variable_def_get_type(var);
-        if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
+
+        /* get the variables number */
+        guint addr = ir_variable_def_get_address(var).java_variable_addr;
+        /*
+         * skip function parameters and
+         * local variables that are not static arrays
+         */
+        if (addr < param_num || !XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
         {
-            AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
-            
-            ir_variable_def_get_address(var);
-            java_trgt_const_int(params,
-                                ast_static_array_type_get_length(sarray));
-            guint addr = ir_variable_def_get_address(var).java_variable_addr;
-            fprintf(params->out,
-                    "    newarray int\n"
-                    "    astore%s%d\n",
-                    (0 <= addr && addr <= 3) ? "_" : " ", addr);
+            continue;
         }
+
+        AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
+
+        /* put the array length on the stack */            
+        java_trgt_const_int(params,
+                            ast_static_array_type_get_length(sarray));
+
+
+        /* create array and a reference to it in the local array */
+        fprintf(params->out,
+                "    newarray int\n"
+                "    astore%s%d\n",
+               (0 <= addr && addr <= 3) ? "_" : " ", addr);
     }
 
     java_trgt_handle_code_block(params, 

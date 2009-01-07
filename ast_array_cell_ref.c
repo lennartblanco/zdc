@@ -77,9 +77,10 @@ ast_array_cell_ref_do_print(AstNode *self, FILE *out)
     assert(out);
 
     AstArrayCellRef *ref = XDP_AST_ARRAY_CELL_REF(self);
-    fprintf(out, "%s[%d]",
-            ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self)),
-            ref->index);
+    fprintf(out, "%s[",
+            ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self)));
+    ast_node_print(XDP_AST_NODE(ref->index), out);
+    fprintf(out, "]");
 }
 
 static void

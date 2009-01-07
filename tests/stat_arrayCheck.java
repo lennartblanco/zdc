@@ -27,6 +27,11 @@ public class stat_arrayCheck extends check
         System.out.print("stat_array.boolops(false, true, false, 1) = " + bres);
         check(bres, false);
 
+        /* call_sum_stat() and sum_stat() tests */
+        ires = stat_array.call_sum_stat();
+        System.out.print("stat_array.call_sum_stat() = " + ires);
+        check(ires, 7);
+
         exit();
     }
 }

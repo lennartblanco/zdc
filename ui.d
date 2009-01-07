@@ -56,8 +56,8 @@ int main(char[][] args)
         return -1;
     }
 
+    /* compile all specified source files */
     g_type_init();
-
     foreach (file; source_files)
     {
         string target_file;

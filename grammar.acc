@@ -209,12 +209,12 @@ var_declaration<n> :
 
 var_definition<n> :
    type<t> TOK_IDENT<x> 
-   { 
+   {
        (*n).variable_definition = 
            ast_variable_definition_new(t.data_type, x.text, NULL);
    }
 |  type<t> TOK_IDENT<x> '=' expression<e> 
-   { 
+   {
        (*n).variable_definition = 
            ast_variable_definition_new(t.data_type, x.text, e.expression);
    }

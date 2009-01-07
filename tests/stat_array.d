@@ -27,3 +27,29 @@ bool boolops(bool a, bool b, bool c, int index)
 
     return l[0] && l[index];
 }
+
+//
+// test static array as a
+// function parameter
+//
+int sum_stat(int[3] s)
+{
+    return s[0] + s[1] + s[2];
+}
+
+int
+call_sum_stat()
+{
+//    int[3] l = [1, 2, 3];
+    int[3] m;
+
+    m[0] = -6;
+    m[1] = 6;
+    m[2] = 7;
+
+//    int x = sum_stat(m);
+   return sum_stat(m);
+}
+
+
+
