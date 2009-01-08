@@ -21,6 +21,9 @@ static void
 ast_variable_ref_class_init(gpointer klass, gpointer foo);
 
 static void
+ast_variable_ref_do_print(AstNode *self, FILE *out);
+
+static void
 ast_variable_ref_set_property(GObject *object,
                               guint property_id,
                               const GValue *value,
@@ -110,6 +113,9 @@ ast_variable_ref_class_init(gpointer klass, gpointer foo)
                                     XDP_AST_VARIABLE_REF_NAME,
                                     pspec);
 
+    /* override 'print()' method */
+    ((AstNodeClass *)klass)->do_print = ast_variable_ref_do_print;
+
 }
 
 static void
@@ -133,6 +139,17 @@ ast_variable_ref_get_property(GObject *object,
 {
     /* not implemented */
     assert(false);
+}
+
+static void
+ast_variable_ref_do_print(AstNode *self, FILE *out)
+{
+    assert(self);
+    assert(XDP_IS_AST_VARIABLE_REF(self));
+    assert(out);
+
+    fprintf(out, "%s",
+            XDP_AST_VARIABLE_REF(self)->name);
 }
 
 
