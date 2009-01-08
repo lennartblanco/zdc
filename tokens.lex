@@ -36,10 +36,12 @@
 " "      { /* skip blank */ }
 "//".*   { /* consume comment */ }
 "/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {
+           /* consume C-style comments */
 
            int cntr;
            for (cntr = 0; yytext[cntr] != '\0'; cntr++)
            {
+               /* count newline characters and update line counter */
                if (yytext[cntr] == '\n')
                {
                    yypos++;
