@@ -71,7 +71,7 @@ ast_int_constant_do_print(AstNode *self, FILE *out)
     assert(self);
     assert(out);
     assert(XDP_IS_AST_INT_CONSTANT(self));
-    fprintf(out, "%d", ((AstIntConstant*)self)->value);
+    fprintf(out, "%d", XDP_AST_INT_CONSTANT(self)->value);
 }
 
 static void
