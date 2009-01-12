@@ -10,6 +10,7 @@
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_static_array_type.h"
+#include "ast_array_slice_ref.h"
 
 #include <assert.h>
 
@@ -632,6 +633,25 @@ java_trgt_handle_var_assigment(java_trgt_comp_params_t *params,
 }
 
 static void
+java_trgt_handle_array_slice_assigment(java_trgt_comp_params_t *params,
+                                       guint var_num,
+                                       AstArraySliceRef *ref,
+                                       AstExpression *val,
+                                       sym_table_t *sym_table)
+{
+    /* only constant expression supported at this time */
+    assert(XDP_IS_AST_CONSTANT(val));
+    /* not implemented */
+    assert(false);
+
+    fprintf(params->out, "    aload%s%d\n",
+           (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
+    
+//    iastore
+//..., arrayref, index, value  ...
+}
+
+static void
 java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
                                  guint var_num,
                                  AstExpression *index,
@@ -686,6 +706,17 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
                                          ast_assigment_get_value(node),
                                          sym_table);
     }
+    else if (XDP_IS_AST_ARRAY_SLICE_REF(lvalue))
+    {
+        AstArraySliceRef *sref =
+            XDP_AST_ARRAY_SLICE_REF(lvalue);
+
+        java_trgt_handle_array_slice_assigment(params,
+                                               sym_addr.java_variable_addr,
+                                               sref,
+                                               ast_assigment_get_value(node),
+                                               sym_table);
+    }
     else if (XDP_IS_AST_VARIABLE_REF(lvalue))
     {
         java_trgt_handle_var_assigment(params,
@@ -693,7 +724,6 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
                                        ast_assigment_get_value(node),
                                        sym_table);
     }
-
     else
     {
         /* unexpected lvalue type */

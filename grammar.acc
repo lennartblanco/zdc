@@ -12,6 +12,7 @@
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_array_cell_ref.h"
+#include "ast_array_slice_ref.h"
 #include "ast_assigment.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
@@ -242,6 +243,7 @@ lvalue<n> :
             XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
                                                         exp.expression));
     }
+|   array_slice<n>
 ;
 
 expression<n> :
@@ -392,26 +394,39 @@ primary<n> :
                                                     i.expression));
   }
 | array_constant<n>
+| array_slice<n>
+;
+
+array_slice<n> :
+|   TOK_IDENT<name>
+    {
+        start.expression = NULL;
+        end.expression = NULL;
+    }
+    '[' (expression<start> '.' '.' expression<end>)? ']'
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_array_slice_ref_new(name.text,
+                                                       start.expression,
+                                                       end.expression));
+    }
 ;
 
 array_constant<n> :
   {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_array_constant_new());
-      printf("create array constant %p\n", (*n).expression);
   }
   '['
   expression<first>
   {
       ast_array_constant_add_value(XDP_AST_ARRAY_CONSTANT((*n).expression),
                                    first.expression);
-      printf("add first exp\n");
   } 
   (',' expression<nth>
   {
       ast_array_constant_add_value(XDP_AST_ARRAY_CONSTANT((*n).expression),
                                    nth.expression);
-      printf("add n'th exp\n");
   }   
   )* 
   ']'
