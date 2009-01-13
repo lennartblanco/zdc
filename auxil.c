@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "lex.h"
+#include "entire.h"
 #include "ast_compile_unit.h"
 #include "java_trgt.h"
 #include "sym_table.h"
@@ -111,15 +112,16 @@ compile_file(const char* input_file,
    return 0;
 }
 
-yyerror(msg)
-   char *msg;
+void
+yyerror(char *msg)
 {
    extern long yypos;
 
-   printf("line %d: %s\n", yypos, msg);
+   printf("line %ld: %s\n", yypos, msg);
    exit(1);
 }
 
+int
 yywrap()
 {
    /* stop token parser when EOF is reached */

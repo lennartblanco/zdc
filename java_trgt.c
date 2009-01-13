@@ -537,6 +537,9 @@ java_trgt_handle_andor_op(java_trgt_comp_params_t *params,
             abort_val = 0;
             fall_throught_val = 1;
             break;
+        default:
+            /* unexpedted operation type */
+            assert(false);
     }
 
     /* generate code for left operand evaluation */
@@ -624,8 +627,6 @@ java_trgt_handle_var_assigment(java_trgt_comp_params_t *params,
                                AstExpression *exp,
                                sym_table_t *sym_table)
 {
-    ir_symbol_address_t sym_addr;
-
     java_trgt_handle_expression(params, exp, sym_table);
 
     fprintf(params->out, "    istore%s%d\n", 
@@ -866,7 +867,6 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
     guint local_var_num = 0;
     guint i;
     sym_table_t *local_vars;
-    ir_symbol_t *symb;
     ir_symbol_address_t addr;
 
     /*

@@ -32,6 +32,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "entire.h"
+#include "auxil.h"
+#include "lex.h"
+
 #define PRIVATE static
 #define PUBLIC
 
@@ -53,6 +57,13 @@
 /*============================================================================*/
 
 extern char *yyprintname();
+
+/*============================================================================*/
+/* LOCAL FUNCTION FORWARD DECLARATIONS                                        */
+/*============================================================================*/
+
+PRIVATE int confilter(int n, int p1, int p2);
+
 /*============================================================================*/
 /* ITEMS                                                                      */
 /*============================================================================*/
@@ -220,65 +231,7 @@ PRIVATE char * lookaheadtokenname;
 /* PRINT ROUTINES                                                             */
 /*============================================================================*/
 
-PRIVATE print_item(p)
-   int p;
-/*
- * print the item with index p
- */
-{
-   int i, b, e, l, k;
-   i = dot[p];
-
-   printf(" %d: ", p);
-   if (dot[p] == 0 && sub[p] == 0) {
-      printf("[ separator-item ]\n");
-      return;
-   }
-   if (i <= 5) {
-      b = 1;
-   }
-   else {
-      b = i-1;
-      while(yygrammar[b] >= 0) b--;
-      b += 2;
-   }
-   /* b points to the start of the rule */
-
-   e = i;
-   while(yygrammar[e] >= 0) e++;
-   /* e points to the end of the rule, i.e. the lhscode */
-
-   l = - yygrammar[e];
-   /* l is the lhs */
-
-   printf("%s :", yyprintname(l));
-   k = b+1;
-   /* k points to the first member */
-   while(yygrammar[k] > 0) {
-      if (k == i) printf(" *");
-      /* print member yygrammar[k] */
-      if (yygrammar[k] == eofsym) {
-	 printf(" <EOF>");
-      }
-      else if (yygrammar[k] > term_base) {
-	 if (yygrammar[k] < term_base+max_char+1) {
-	    printf(" '%c'", yygrammar[k]-term_base);
-         }
-	 else
-	    printf(" %s", yyprintname(yygrammar[k]));
-      }
-      else {
-	 printf(" %s", yyprintname(yygrammar[k]));
-      }
-      k++;
-   }
-   if (yygrammar[i] <= 0) printf(" *");
-   printf(" (back:%d sub:%d left:%d)\n", back[p], sub[p], left[p]);
-}
-
-/*----------------------------------------------------------------------------*/
-
-PRIVATE print_coordinate(i)
+PRIVATE void print_coordinate(i)
    int i;
 /*
  * print source coordinate (of grammar file) with code i
@@ -294,7 +247,7 @@ PRIVATE print_coordinate(i)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE print_tree(i)
+PRIVATE void print_tree(i)
    int i;
 /*
  * print tree for item with index i
@@ -433,7 +386,7 @@ PRIVATE int is_viable (d)
 /*============================================================================*/
 
 int posforerrormsg = 0;
-PRIVATE syntaxerror()
+PRIVATE void syntaxerror()
 /*
  * Report syntax error and terminate
  */
@@ -445,7 +398,7 @@ PRIVATE syntaxerror()
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE Abort(msg)
+PRIVATE void Abort(msg)
    char *msg;
 /*
  * emit msg and terminate
@@ -457,7 +410,7 @@ PRIVATE Abort(msg)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE table_full()
+PRIVATE void table_full()
 /*
  * item table full
  */
@@ -480,7 +433,7 @@ PRIVATE table_full()
 
 /*----------------------------------------------------------------------------*/
 
-PUBLIC yymallocerror()
+PUBLIC void yymallocerror()
 {
    printf("running out of memory\n");
    exit(1);
@@ -506,7 +459,7 @@ int hash[HSIZE];
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE int clearhash ()
+PRIVATE void clearhash()
 /*
  * clear hash table
  */
@@ -529,7 +482,7 @@ PRIVATE int hashed(d, b)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE sethash(d, b)
+PRIVATE void sethash(d, b)
    int d, b;
 /*
  * set entry for item with dot d and backpointer b
@@ -543,7 +496,7 @@ PRIVATE sethash(d, b)
 /* TOKENS                                                                     */
 /*============================================================================*/
 
-PRIVATE readsym ()
+PRIVATE void readsym()
 /*
  * read next token
  * current token: 'sym'
@@ -640,7 +593,7 @@ PRIVATE int test_for_cycle(subtree, container)
 /*----------------------------------------------------------------------------*/
 
 
-PRIVATE conjunctive_ambiguity(i, d, l, s)
+PRIVATE void conjunctive_ambiguity(i, d, l, s)
    int i, d, l, s;
 /*
  * The item with index i
@@ -689,8 +642,6 @@ PRIVATE conjunctive_ambiguity(i, d, l, s)
       }
       else if (annotation == 0) {
 	 /* annotation == undef */
-
-	 int old_sub, old_left;
 
 	 printf("\n");
 	 printf("GRAMMAR DEBUG INFORMATION\n");
@@ -812,7 +763,7 @@ int disfilter(n1, n2, p1, p2)
    return 3;
 }
 
-int confilter(n, p1, p2)
+PRIVATE int confilter(n, p1, p2)
    int n, p1, p2;
 /*
  * Called when a conjunctive ambiguity is detected and there is a
@@ -833,7 +784,7 @@ int confilter(n, p1, p2)
 }
 /*----------------------------------------------------------------------------*/
 
-PRIVATE disjunctive_ambiguity(i, d, l, s)
+PRIVATE void disjunctive_ambiguity(i, d, l, s)
    int i, d, l, s;
 /*
  * The item with index i
@@ -843,7 +794,7 @@ PRIVATE disjunctive_ambiguity(i, d, l, s)
 {
    /* Disjunctive Ambiguity */
 
-   int sub1, sub2, rule1, rule2, prio1, prio2;
+   int sub1, sub2, prio1, prio2;
 
    sub1 = sub[i];
    sub2 = s;
@@ -955,7 +906,7 @@ PRIVATE disjunctive_ambiguity(i, d, l, s)
 /* EARLEY                                                                     */
 /*============================================================================*/
 
-PRIVATE SEARCH(d, b, l, s)
+PRIVATE void SEARCH(d, b, l, s)
    long d, b, l, s;
 /*
  * An item with dot d, backpointer b, leftpointer l, subpointer s
@@ -999,7 +950,7 @@ PRIVATE SEARCH(d, b, l, s)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE additem ( d, b, l, s)
+PRIVATE void additem ( d, b, l, s)
    long d, b, l, s;
 /*
  * add an item with dot d, backpointer b, leftpointer l, and subpointer s
@@ -1036,7 +987,7 @@ PRIVATE additem ( d, b, l, s)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE kernel (prevlist)
+PRIVATE void kernel (prevlist)
    long prevlist;
 /*
  * compute the kernel of the next item list
@@ -1077,7 +1028,7 @@ PRIVATE kernel (prevlist)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE predictor (item)
+PRIVATE void predictor (item)
    long item;
 /*
  * predictor step for item 'item'
@@ -1127,7 +1078,7 @@ PRIVATE predictor (item)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE completer (item)
+PRIVATE void completer(item)
    long item;
 /*
  * completer step for item 'item'
@@ -1158,7 +1109,7 @@ PRIVATE completer (item)
 
    /* loop over all items in earlier item list */
    dot[last_item+1] = 0; /* sentinel */
-   while (dot_i = dot[i]) {
+   while ((dot_i = dot[i])) {
 
       if (yygrammar[/*dot[i]*/dot_i]==lhs) {
 
@@ -1186,7 +1137,7 @@ PRIVATE completer (item)
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE closure ()
+PRIVATE void closure ()
 /*
  * compute closure for the kernel of the current item list
  *
@@ -1215,7 +1166,7 @@ PRIVATE closure ()
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE initial_itemlist()
+PRIVATE void initial_itemlist()
 /*
  * compute initial item list
  * its kernel is given by the item
@@ -1252,7 +1203,7 @@ PRIVATE initial_itemlist()
 
 int itemlist_empty;
 
-PRIVATE next_itemlist()
+PRIVATE void next_itemlist()
 /*
  * compute next item list:
  * kernel and closure
@@ -1279,7 +1230,7 @@ PRIVATE next_itemlist()
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE itemlist_sequence()
+PRIVATE void itemlist_sequence()
 /*
  * compute the sequence of item lists:
  * initial_itemlist
@@ -1338,8 +1289,6 @@ PRIVATE itemlist_sequence()
 
       int p_saved_saved_yypos = saved_saved_yypos;
       int p_saved_yypos = saved_yypos;
-      int p_yypos = yypos;
-      int p_lookaheadpos = lookaheadpos;
 
       lookaheadswitchedoff = 1;
 
@@ -1379,7 +1328,7 @@ PRIVATE itemlist_sequence()
          syntaxerror();
       }
 
-      printf("PROGRAM ERROR\n"); exit(1);
+      Abort("PROGRAM ERROR");
 #else
       syntaxerror();
 #endif
@@ -1407,7 +1356,7 @@ int stptr = 0;
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE push(n)
+PRIVATE void push(n)
    int n;
 /*
  * push item index n onto the stack
@@ -1434,7 +1383,7 @@ PRIVATE int pop()
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE init_stack()
+PRIVATE void init_stack()
 /*
  * Init stack
  * push index of 'item'
