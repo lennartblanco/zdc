@@ -10,17 +10,14 @@ public class commentsCheck extends check
 
         /* check that dummy1() seems sane */
         bres = comments.dummy1(true);
-        System.out.print("comments.dummy1(true) = " + bres);
-        check(bres, true);
+        check("comments.dummy1(true)", bres, true);
 
         bres = comments.dummy1(false);
-        System.out.print("comments.dummy1(false) = " + bres);
-        check(bres, false);
+        check("comments.dummy1(false)", bres, false);
 
         /* check that dummy2() seems sane */
         ires = comments.dummy2();
-        System.out.print("comments.dummy2() = " + ires);
-        check(ires, 3);
+        check("comments.dummy2()", ires, 3);
 
         exit();
     }

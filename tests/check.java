@@ -3,8 +3,9 @@ public class check
     static int passed = 0;
     static int failed = 0;
  
-    protected static void check(int res, int expectedRes)
+    protected static void check(String funcCalled, int res, int expectedRes)
     {
+        System.out.print(funcCalled + " = " + res);
         if (res == expectedRes) 
         {
             System.out.println(" [ok]");
@@ -16,9 +17,10 @@ public class check
             failed += 1;
         }
     }
-
-    protected static void check(boolean res, boolean expected)
+    protected static void check(String funcCalled,
+                                boolean res, boolean expected)
     {
+        System.out.print(funcCalled + " = " + res);
         if (res == expected) 
         {
             System.out.println(" [ok]");

@@ -9,28 +9,22 @@ public class negCheck extends check
         int res;
 
         res = neg.neg1(256);
-        System.out.print("neg.neg1(256) = " + res);
-        check(res, -256);
+        check("neg.neg1(256)", res, -256);
 
         res = neg.neg2(-128);
-        System.out.print("neg.neg2(-128) = " + res);
-        check(res, 128);
+        check("neg.neg2(-128)", res, 128);
 
         res = neg.neg3();
-        System.out.print("neg.neg3() = " + res);
-        check(res, 3);
+        check("neg.neg3()", res, 3);
 
         res = neg.neg5(6);
-        System.out.print("neg.neg5() = " + res);
-        check(res, 46);
+        check("neg.neg5(6)", res, 46);
 
         res = neg.neg51(6);
-        System.out.print("neg.neg51() = " + res);
-        check(res, 46);
+        check("neg.neg51(6)", res, 46);
 
         res = neg.neg6(4);
-        System.out.print("neg.neg6() = " + res);
-        check(res, 0);
+        check("neg.neg6(4)", res, 0);
 
         exit();
     }
