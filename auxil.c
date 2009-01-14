@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 
+#include "auxil.h"
 #include "lex.h"
 #include "entire.h"
 #include "ast_compile_unit.h"
@@ -12,11 +12,6 @@
 #include <assert.h>
 
 extern AstCompileUnit *compile_unit;
-
-typedef struct compile_options_s
-{
-    bool print_ast;
-} compile_options_t;
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -35,22 +30,13 @@ typedef struct compile_options_s
  *                   argument must point to an array that has place for
                      the file name plus extension
  */
-void
+static void
 get_class_name(const char *file_name, char *class_name);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
 
-/**
- * Compile the D source file and write generated java assembly 
- * to provided output file.
- *
- * @param input_file the file name of the D source file to compile
- * @param output_file the file name where to write generated java assmebly
- *
- * @return 0 if the file was succcessfully compile, -1 on errors
- */
 int
 compile_file(const char* input_file, 
              const char* output_file,
@@ -122,7 +108,7 @@ yyerror(char *msg)
 }
 
 int
-yywrap()
+yywrap(void)
 {
    /* stop token parser when EOF is reached */
    return 1;
