@@ -49,6 +49,10 @@ AstArraySliceRef *
 ast_array_slice_ref_new(char *name,
                         AstExpression *start,
                         AstExpression *end);
+AstExpression *
+ast_array_slice_ref_get_start(AstArraySliceRef *self);
 
+AstExpression *
+ast_array_slice_ref_get_end(AstArraySliceRef *self);
 
 #endif /* AST_ARRAY_SLICE_REF_INC_X */

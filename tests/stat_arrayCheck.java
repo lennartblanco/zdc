@@ -32,6 +32,11 @@ public class stat_arrayCheck extends check
         System.out.print("stat_array.call_sum_stat() = " + ires);
         check(ires, 7);
 
+        /* slice_assig_sum() and slices_ops() tests */
+        ires = stat_array.slices_ops(85);
+        System.out.print("stat_array.slices_ops(85) = " + ires);
+        check(ires, -85);
+
         exit();
     }
 }

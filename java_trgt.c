@@ -11,6 +11,7 @@
 #include "ast_bool_constant.h"
 #include "ast_static_array_type.h"
 #include "ast_array_slice_ref.h"
+#include "ast_array_constant.h"
 
 #include <assert.h>
 
@@ -641,15 +642,47 @@ java_trgt_handle_array_slice_assigment(java_trgt_comp_params_t *params,
                                        sym_table_t *sym_table)
 {
     /* only constant expression supported at this time */
-    assert(XDP_IS_AST_CONSTANT(val));
-    /* not implemented */
-    assert(false);
+    assert(XDP_IS_AST_ARRAY_CONSTANT(val));
 
-    fprintf(params->out, "    aload%s%d\n",
-           (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
-    
-//    iastore
-//..., arrayref, index, value  ...
+    AstExpression *start_exp = ast_array_slice_ref_get_start(ref);
+    gint32 array_idx;
+
+    /* 
+     * only assigment to array slices with static dimensions supported
+     * at this time
+     */
+    assert(start_exp == NULL || XDP_IS_AST_INT_CONSTANT(start_exp));
+
+    if (start_exp == NULL)
+    {
+        /* handle 'slice[]' case, where start is implicitly 0 */
+        array_idx = 0;
+    }
+    else
+    {
+        array_idx = 
+            ast_int_constant_get_value(XDP_AST_INT_CONSTANT(start_exp));
+    }
+
+    /* 
+     * here we assume that the length of the provided array constant
+     * matches the dimensions of the specified array slice
+     * this should be checked for static cases during semantic checks
+     * BEWARE: the semantic checks for array assigments are not implemented yet
+     */    
+    GSList *p = 
+        ast_array_constant_get_values(XDP_AST_ARRAY_CONSTANT(val));
+
+    for (;p != NULL; p = g_slist_next(p), ++array_idx)
+    {
+        AstExpression *val = XDP_AST_EXPRESSION(p->data);
+
+        fprintf(params->out, "    aload%s%d\n",
+                (0 <= var_num && var_num <= 3) ? "_" : " ", var_num);
+        java_trgt_const_int(params, array_idx);
+        java_trgt_handle_expression(params, val, sym_table);
+        fprintf(params->out, "    iastore\n");
+    }
 }
 
 static void

@@ -139,7 +139,7 @@ static void
 java_trgt_epilog(java_trgt_comp_params_t *params);
 
 /**
- * Generate code to load constant value on the stack.
+ * Generate code to load constant integer value on the stack.
  *
  * @param value the value that need to be loaded on the stack
  */

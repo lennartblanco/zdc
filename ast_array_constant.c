@@ -63,6 +63,15 @@ ast_array_constant_add_value(AstArrayConstant *self, AstExpression *value)
     self->values = g_slist_append(self->values, value);
 }
 
+GSList *
+ast_array_constant_get_values(AstArrayConstant *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_ARRAY_CONSTANT(self));
+
+    return self->values;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

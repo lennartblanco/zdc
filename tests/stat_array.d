@@ -28,6 +28,27 @@ bool boolops(bool a, bool b, bool c, int index)
     return l[0] && l[index];
 }
 
+// test array constant assigment to the shorthand array slice (foo[])
+int slice_assig_sum()
+{
+    int[3] b;
+
+    b[] = [1,2,3];
+
+    return b[0] + b[1] + b[2];
+}
+
+// test assigning to array slices with static indexes
+int slices_ops(int last_val)
+{
+    int[4] m;
+
+    m[0..4] = [1 + 4, 1, -100, -1000];
+    m[2..4] = [slice_assig_sum(), last_val];
+
+    return m[0] + m[1] - m[2] - m[3];
+}
+
 //
 // test static array as a
 // function parameter

@@ -50,4 +50,7 @@ ast_array_constant_new();
 void
 ast_array_constant_add_value(AstArrayConstant *self, AstExpression *value);
 
+GSList *
+ast_array_constant_get_values(AstArrayConstant *self);
+
 #endif /* AST_ARRAY_CONSTANT_INC_X */

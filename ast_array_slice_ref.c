@@ -57,6 +57,23 @@ ast_array_slice_ref_new(char *name,
     return obj;
 }
 
+AstExpression *
+ast_array_slice_ref_get_start(AstArraySliceRef *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_ARRAY_SLICE_REF(self));
+
+    return self->start;
+}
+
+AstExpression *
+ast_array_slice_ref_get_end(AstArraySliceRef *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_ARRAY_SLICE_REF(self));
+
+    return self->end;
+}
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
