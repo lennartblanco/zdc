@@ -5,6 +5,8 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
 #include "ast_assigment.h"
+#include "ast_basic_type.h"
+#include "ast_static_array_type.h"
 
 #include <assert.h>
 
@@ -54,20 +56,41 @@ sem_analyze_function(AstFunction *ast_func, ir_compile_unit_t *comp_unit)
             AstVariableDefinition *var_def =
                 XDP_AST_VARIABLE_DEFINITION(stmt);
 
+            AstDataType *var_data_type =
+                ast_variable_definition_get_data_type(var_def);
+
             var = 
                 ir_variable_def_new(ast_variable_definition_get_name(var_def), 
-                                    ast_variable_definition_get_data_type(var_def));
+                                    var_data_type);
             ir_function_def_add_local_var(ir_func, var);
+
 
             /* check if there is any initialization expression */
             AstExpression *init_exp =
                 ast_variable_definition_get_initializer(var_def);
             if (init_exp != NULL)
             {
-                /* add the initialization assigment node to new body */
-                AstVariableRef *var_ref = ast_variable_ref_new(
+                AstVariableRef *var_ref;
+
+                if (XDP_IS_AST_BASIC_TYPE(var_data_type))
+                {
+                    var_ref = ast_variable_ref_new(
                         ast_variable_definition_get_name(var_def));
 
+                }
+                else if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_data_type))
+                {
+                    var_ref = ast_array_slice_ref_new(
+                        ast_variable_definition_get_name(var_def),
+                        NULL, NULL);
+                }
+                else
+                {
+                    /* unexpected variable data type */
+                    assert(false);
+                }
+
+                /* add the initialization assigment node to new body */
                 AstAssigment *assign =
                     ast_assigment_new(XDP_AST_VARIABLE_REF(var_ref), init_exp);
 

@@ -1,6 +1,18 @@
 //
 // Test static array operations
 //
+
+int init_exp_tst(int l)
+{
+    // check various init expressions
+    int m = 15;
+    int r = l;
+    int[4] a = [l,2,3,4];
+
+    return (a[0] + a[1] - m) * l;
+}
+
+
 int intops(int val, int index)
 {
     // operations on integer array
@@ -27,6 +39,15 @@ bool boolops(bool a, bool b, bool c, int index)
 
     return l[0] && l[index];
 }
+
+// equivalent to boolops() but in different code style
+bool boolops2(bool a, bool b, bool c, int index)
+{
+    bool[4] l = [true, a, b, c];
+
+    return l[0] && l[index];
+}
+
 
 // test array constant assigment to the shorthand array slice (foo[])
 int slice_assig_sum()
@@ -61,15 +82,15 @@ int sum_stat(int[3] s)
 int
 call_sum_stat()
 {
-//    int[3] l = [1, 2, 3];
+    int[3] l = [1, 2, 3];
     int[3] m;
 
     m[0] = -6;
     m[1] = 6;
     m[2] = 7;
 
-//    int x = sum_stat(m);
-   return sum_stat(m);
+
+   return sum_stat(m) + sum_stat(l);
 }
 
 
