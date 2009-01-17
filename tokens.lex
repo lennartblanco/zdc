@@ -32,6 +32,7 @@
 "true"   { return TOK_TRUE; }
 "false"  { return TOK_FALSE; }
 "return" { return TOK_RETURN; }
+"foreach" { return TOK_FOREACH; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; } 
 [0-9]+   { yylval.integer = atoi(yytext); return TOK_NUMBER; }
 " "      { /* skip blank */ }

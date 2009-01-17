@@ -1,6 +1,6 @@
 ACCENT := tools/bin/accent
 PROG := xdc
-CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
+CFLAGS += -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
 OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o                        \

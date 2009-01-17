@@ -23,7 +23,7 @@ AstCompileUnit *compile_unit;
 }
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
-       TOK_IF, TOK_ELSE,
+       TOK_IF, TOK_ELSE, TOK_FOREACH,
        TOK_INT, TOK_VOID, TOK_BOOL;
        
 
@@ -84,6 +84,11 @@ statments_list<n> :
   }
   ';' statments_list<n>
 | if_else_block<x> 
+  {
+      ast_code_block_add_statment((*n).code_block, x.statment);
+  }
+  statments_list<n>
+| foreach_block<x> 
   {
       ast_code_block_add_statment((*n).code_block, x.statment);
   }
@@ -163,6 +168,41 @@ if_else_statment<x>:
 
 else_statment<code>:
     TOK_ELSE code_block<code>
+;
+
+foreach_block<x> :
+    TOK_FOREACH '('
+      {
+          idx_type.data_type = NULL;
+          idx_name.text = NULL;
+          val_type.data_type = NULL;
+          val_name.text = NULL;
+      }
+      (
+        ( type<idx_type> )? 
+        TOK_IDENT<idx_name> ','
+      )? 
+      ( type<val_type> )? TOK_IDENT<val_name> ';' 
+      (
+        array_slice<aggregate>
+        | TOK_IDENT<aggregate> 
+        { 
+            aggregate.expression =
+                XDP_AST_EXPRESSION(ast_array_slice_ref_new(aggregate.text,
+                                                       NULL, NULL));
+        }
+      ) ')' code_block<code>
+    {
+        printf("foreach\n"
+               "  idx_type %p idx_name '%s'\n"
+               "  val_type %p val_name '%s'\n"
+               "  aggregate %p code_block %p\n",
+               idx_type.data_type, idx_name.text,
+               val_type.data_type, val_name.text,
+               aggregate.expression, code.code_block);
+        ast_node_print(XDP_AST_NODE(aggregate.expression), stdout);
+        printf("\n");
+    }
 ;
 
 return_stmt<x> :
