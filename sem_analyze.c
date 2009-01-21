@@ -80,9 +80,10 @@ sem_analyze_function(AstFunction *ast_func, ir_compile_unit_t *comp_unit)
                 }
                 else if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_data_type))
                 {
-                    var_ref = ast_array_slice_ref_new(
-                        ast_variable_definition_get_name(var_def),
-                        NULL, NULL);
+                    var_ref = 
+                        XDP_AST_VARIABLE_REF(ast_array_slice_ref_new(
+                            ast_variable_definition_get_name(var_def),
+                            NULL, NULL));
                 }
                 else
                 {
