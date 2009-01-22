@@ -17,6 +17,7 @@
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_constant.h"
+#include "ast_foreach.h"
 
 
 AstCompileUnit *compile_unit;
@@ -24,7 +25,7 @@ AstCompileUnit *compile_unit;
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
        TOK_IF, TOK_ELSE, TOK_FOREACH,
-       TOK_INT, TOK_VOID, TOK_BOOL;
+       TOK_AUTO, TOK_INT, TOK_VOID, TOK_BOOL;
        
 
 root :
@@ -107,6 +108,10 @@ type<x> :
     {
         (*x).data_type =
             XDP_AST_DATA_TYPE(ast_basic_type_new(t.basic_data_type));
+    }
+|   TOK_AUTO
+    {
+        (*x).data_type = XDP_AST_DATA_TYPE(ast_auto_type_new());
     }
 ;
 
@@ -193,15 +198,40 @@ foreach_block<x> :
         }
       ) ')' code_block<code>
     {
-        printf("foreach\n"
-               "  idx_type %p idx_name '%s'\n"
-               "  val_type %p val_name '%s'\n"
-               "  aggregate %p code_block %p\n",
-               idx_type.data_type, idx_name.text,
-               val_type.data_type, val_name.text,
-               aggregate.expression, code.code_block);
-        ast_node_print(XDP_AST_NODE(aggregate.expression), stdout);
-        printf("\n");
+        AstVariableDeclaration *index = NULL;
+        AstVariableDeclaration *value = NULL;
+
+        /* 
+         * build index variable declaration node if specified 
+         */
+        if (idx_name.text != NULL)
+        {
+            if (idx_type.data_type == NULL)
+            {
+                /* if not type is specified handle as auto type */
+                idx_type.data_type = XDP_AST_DATA_TYPE(ast_auto_type_new());
+            }
+            index = ast_variable_declaration_new(idx_type.data_type,
+                                                 idx_name.text);
+        }
+
+        /* 
+         * build value variable declaration node if specified 
+         */
+        if (val_type.data_type == NULL)
+        {
+            /* if not type is specified handle as auto type */
+            val_type.data_type = XDP_AST_DATA_TYPE(ast_auto_type_new());
+        }
+        value = ast_variable_declaration_new(val_type.data_type,
+                                             val_name.text);
+ 
+        /* build foreach ast node */
+        (*x).statment =
+            XDP_AST_STATMENT(
+                ast_foreach_new(index, value,
+                                XDP_AST_ARRAY_SLICE_REF(aggregate.expression),
+                                code.code_block));
     }
 ;
 

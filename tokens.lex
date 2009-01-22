@@ -26,6 +26,7 @@
 "&"      { return '&'; }
 "if"     { return TOK_IF; }
 "int"    { return TOK_INT; }
+"auto"   { return TOK_AUTO; }
 "else"   { return TOK_ELSE; }
 "void"   { return TOK_VOID; }
 "bool"   { return TOK_BOOL; }
