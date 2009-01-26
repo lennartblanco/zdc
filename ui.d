@@ -15,7 +15,26 @@ extern (C) int compile_file(char* input_file,
                             compile_options_s options);
 extern (C) int printf(char *str, ...);
 
-int main(char[][] args)
+/**
+ * Print the usage help message for xdc to stdout.
+ *
+ * @param progname the command issued to invoke xdc binary
+ */
+void
+print_usage_message(char[] progname)
+{
+    writefln("usage: %s [OPTION]... [SOURCE_FILES]...\n", progname);
+    writefln("Compile specified D source file(s).\n"
+             "\n"
+             "Options:\n"
+             "  --print-ast        Output Abstaract Syntax Tree for \n"
+             "                     each compile unit.\n"
+             "  --help, -?, -h     Print this help message."
+             );
+}
+
+int 
+main(char[][] args)
 {
     char[][] source_files;
 
@@ -26,9 +45,16 @@ int main(char[][] args)
     foreach (arg; args[1..$])
     {
         /* should be an option */ 
-        if (arg[0..2] == "--")
+        if (arg[0..2] == "--" || arg[0..1] == "-")
         {
-            if (arg == "--print-ast")
+            if (arg == "--help" ||
+                arg == "-?"     ||
+                arg == "-h")
+            {
+                print_usage_message(args[0]);
+                return 0;
+            }
+            else if (arg == "--print-ast")
             {
                 options.print_ast = true;
             }
