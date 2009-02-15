@@ -72,24 +72,6 @@ sym_table_get_symbol(sym_table_t *table, char *name)
     return p;
 }
 
-
-//void
-//sym_table_foreach_sym(sym_table_t *table, void (*func) (ast_node_t *))
-//{
-//    GList *keys = g_hash_table_get_keys(table->table);
-//    GList *p = keys;
-//    ast_node_t *symb;
-//    
-//    while (p != NULL)
-//    {
-//        symb = g_hash_table_lookup(table->table, p->data);
-//        func(symb);
-//        p =  p->next;
-//    }
-
-//    g_list_free(p);
-//}
-
 GList *
 sym_table_get_all_symbols(sym_table_t* table)
 {

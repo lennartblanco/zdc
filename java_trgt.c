@@ -50,8 +50,6 @@ java_trgt_code(IrCompileUnit *comp_unit,
         }
     }
     g_list_free(p);
-
-//    java_trgt_epilog(&params);
 }
 
 /*---------------------------------------------------------------------------*
@@ -75,18 +73,6 @@ java_trgt_prelude(java_trgt_comp_params_t *params)
 params->class_name
     );
 }
-
-//static void
-//java_trgt_epilog(java_trgt_comp_params_t *params)
-//{
-//    fprintf(params->out,
-//".method public static main([Ljava/lang/String;)V\n"
-//"   .limit stack 16\n"
-//"   .limit locals 16\n"
-//"   return\n"
-//".end method\n"
-//     );
-//}
 
 static void
 java_trgt_const_int(java_trgt_comp_params_t *params, int value)
@@ -765,7 +751,6 @@ java_trgt_handle_array_slice_assigment(java_trgt_comp_params_t *params,
     /* only constant expression supported at this time */
     assert(XDP_IS_AST_ARRAY_CONSTANT(val));
 
-//    AstExpression *start_exp = ast_array_slice_ref_get_start(ref);
     gint32 array_idx;
 
     /* 
@@ -1055,41 +1040,6 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
 
     fprintf(params->out, "    .limit locals %d\n", local_var_num + 1);
     fprintf(params->out, "    .limit stack 32\n");
-
-    /*
-     * Initialize all local static arrays 
-     */
-//    GList *l = sym_table_get_all_symbols(local_vars);
-//    for (; l != NULL; l = g_list_next(l))
-//    {
-//        AstVariableDeclaration *var;
-//        var = ir_symbol_get_variable(l->data);
-//        AstDataType *var_type = ir_variable_def_get_type(var);
-
-//        /* get the variables number */
-//        guint addr = ir_variable_def_get_address(var).java_variable_addr;
-//        /*
-//         * skip function parameters and
-//         * local variables that are not static arrays
-//         */
-//        if (addr < param_num || !XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
-//        {
-//            continue;
-//        }
-
-//        AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
-
-//        /* put the array length on the stack */            
-//        java_trgt_const_int(params,
-//                            ast_static_array_type_get_length(sarray));
-
-
-//        /* create array and a reference to it in the local array */
-//        fprintf(params->out,
-//                "    newarray int\n"
-//                "    astore%s%d\n",
-//               (0 <= addr && addr <= 3) ? "_" : " ", addr);
-//    }
 
     java_trgt_handle_code_block(params, 
                                 ir_function_get_body(func));
