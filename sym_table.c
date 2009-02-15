@@ -33,30 +33,30 @@ sym_table_new(sym_table_t* parent)
 }
 
 int 
-sym_table_add_symbol(sym_table_t* table, 
-                     char *name, 
-                     ir_symbol_t *symbol)
+sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol)
 {
     assert(table);
+    assert(symbol);
 
     gpointer p;
 
-    p = g_hash_table_lookup(table->table, name);
+    p = g_hash_table_lookup(table->table, ir_symbol_get_name(symbol));
     if (p != NULL)
     {
         return -1;
     }
 
-    g_hash_table_insert(table->table, name, symbol);
+    g_hash_table_insert(table->table,
+                        ir_symbol_get_name(symbol),
+                        symbol);
     return 0;
 }
 
-int
-sym_table_get_symbol(sym_table_t *table, char *name, ir_symbol_t **symbol)
+IrSymbol *
+sym_table_get_symbol(sym_table_t *table, char *name)
 {
     assert(table);
     assert(name);
-    assert(symbol);
 
     gpointer p;
 
@@ -64,13 +64,12 @@ sym_table_get_symbol(sym_table_t *table, char *name, ir_symbol_t **symbol)
     if (p == NULL)
     {
         if (table->parent == NULL) {
-            return -1;
+            return NULL;
         }
-        return sym_table_get_symbol(table->parent, name, symbol);
+        return sym_table_get_symbol(table->parent, name);
     }
 
-    *symbol = p;
-    return 0;
+    return p;
 }
 
 

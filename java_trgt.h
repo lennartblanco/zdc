@@ -1,5 +1,4 @@
-#include "ir.h"
-
+#include "ir_compile_unit.h"
 
 #ifndef JAVA_TRGT_INC_X
 #define JAVA_TRGT_INC_X
@@ -16,7 +15,7 @@
  * @param klass_name the class name where to place the generate code
  */
 void 
-java_trgt_code(ir_compile_unit_t *comp_unit,
+java_trgt_code(IrCompileUnit *comp_unit,
                FILE *out_stream, 
                const char *klass_name);
 

@@ -1,7 +1,6 @@
 #ifndef AST_CODE_BLOCK_INC_X
 #define AST_CODE_BLOCK_INC_X
 
-#include "ast_node.h"
 #include "ast_statment.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,14 +26,14 @@
 
 typedef struct
 {
-    AstNode parent;
+    AstStatment parent;
     /* private */
     GSList *statments;
 } AstCodeBlock;
 
 typedef struct
 {
-    AstNodeClass parent_class;
+    AstStatmentClass parent_class;
 } AstCodeBlockClass;
 
 /*---------------------------------------------------------------------------*

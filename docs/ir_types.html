@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>XDC Intermidiate Representation types</title>
+</head>
+<body>
+
+<h3>XDC Intermidiate Representation types</h3> 
+
+<h5><a name="sym_table">sym_table</a>:</h5>
+<ul>
+  <li>new(<a href="#sym_table">sym_table</a> parent)</li>
+  <li>add_symbol(<a href="#IrSymbol">IrSymbol</a> symbol)</li>
+  <li><a href="#IrSymbol">IrSymbol</a> get_symbol(string name)</li>
+</ul>
+
+<h5><a name="IrCompileUnit">IrCompileUnit</a>:</h5>
+<ul>
+  <li>??? imports</li>
+  <li><a href="#sym_table">sym_table</a> symbols</li>
+</ul>
+
+<h5><a name="IrSymbol">IrSymbol</a>:</h5>
+<ul>
+  <li>string name</li>
+  <li><a href="#Address">Address</a> address</li>
+</ul>
+
+<h5><a name="IrFunction">IrFunction</a>: extends <a href="#IrSymbol">IrSymbol</a></h5>
+<ul>
+  <li>list??? params</li>
+  <li><a href="ast_types.html#DataType">AstDataType</a> return_type</li>
+  <li>IrCodeBlock body</li>
+</ul>
+
+<h5><a name="IrVariable">IrVariable</a>: extends <a href="#IrSymbol">IrSymbol</a></h5>
+<ul>
+  <li><a href="ast_types.html#DataType">AstDataType</a> type</li>
+  <li>GValue</a> address</li>
+  <li><a href="ast_types.html#Expression">AstExpression</a> initializer</li>
+</ul>
+
+<h5><a name="IrStaticArray">IrStaticArray</a>: extends <a href="#IrVariable">IrVariable</a></h5>
+<ul>
+  <li>integer size</li>
+</ul>
+
+<h5><a name="IrCodeBlock">IrCodeBlock</a>:</h5>
+<ul>
+  <li><a href="#sym_table">sym_table</a> symbols</li>
+  <li>void*[] statments (<a href="ast_types.html#Statment">AstStatment</a> and <a href="#IrStatment">IrStatment</a>)</li>
+</ul>
+
+<h5><a name="IrStatment">IrStatment</a>:</h5>
+<ul>
+  (abstract)
+</ul>
+
+<h5><a name="IrForeach">IrForeach</a>: extends <a href="#IrStatment">IrStatment</a></h5>
+<ul>
+  <li><a href="#IrVariable">IrVariable</a> index</li>
+  <li><a href="#IrVariable">IrVariable</a> value</li>
+  <li><a href="#IrVariable">IrVariable</a> aggregate</li>
+  <li><a href="#IrCodeBlock">IrCodeBlock</a> body</li>
+</ul>
+
+<h5><a name="IrIfElse">IrIfElse</a>: extends <a href="#IrStatment">IrStatment</a></h5>
+<ul>
+  <li><a href="#IrIfBlock">IrIfBlock</a>[] if_else_blocks</li>
+  <li><a href="#IrCodeBlock">IrCodeBlock</a> else_body</li>
+</ul>
+
+<h5>IrIfBlock</h5>
+<ul>
+  <li><a href="ast_types.html#Expression">AstExpression</a> expression</li>
+  <li><a href="#IrCodeBlock">IrCodeBlock</a> body</li>
+</ul>
+
+<h5><a name="Address">Address</a>:</h5>
+<ul>
+  (abstract)
+</ul>
+
+<h5><a name="JavaAddress">JavaAddress</a>: extends Address</h5>
+<ul>
+  integer number
+</ul>
+
+<h5><a name="IA32Address">IA32Address</a>: extends Address</h5>
+<ul>
+  ???
+</ul>
+</body>
+</html>

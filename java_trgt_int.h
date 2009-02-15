@@ -15,6 +15,9 @@
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_cell_ref.h"
+#include "ast_variable_declaration.h"
+#include "ir_function.h"
+#include "ir_if_else.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -54,16 +57,15 @@ java_trgt_handle_expression(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_code_block(java_trgt_comp_params_t *params,
-                            AstCodeBlock *code_block,
-                            sym_table_t *sym_table);
+                            IrCodeBlock *code_block);
 
 static void
 java_trgt_handle_function_def(java_trgt_comp_params_t *params,
-                              ir_function_def_t *func);
+                              IrFunction *func);
 
 static void
 java_trgt_handle_if_else(java_trgt_comp_params_t *params, 
-                         AstIfElse *node, 
+                         IrIfElse *if_else, 
                          sym_table_t *sym_table);
 static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
@@ -107,6 +109,13 @@ java_trgt_handle_array_assigment(java_trgt_comp_params_t *params,
                                  sym_table_t *sym_table);
 
 static void
+java_trgt_handle_array_slice_assigment(java_trgt_comp_params_t *params,
+                                       guint var_num,
+                                       AstExpression *start_exp,
+                                       AstExpression *val,
+                                       sym_table_t *sym_table);
+
+static void
 java_trgt_handle_assigment(java_trgt_comp_params_t *params,
                            AstAssigment *node,
                            sym_table_t *sym_table);
@@ -135,8 +144,8 @@ java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
 static void
 java_trgt_prelude(java_trgt_comp_params_t *params);
 
-static void
-java_trgt_epilog(java_trgt_comp_params_t *params);
+//static void
+//java_trgt_epilog(java_trgt_comp_params_t *params);
 
 /**
  * Generate code to load constant integer value on the stack.
@@ -153,6 +162,32 @@ java_trgt_const_int(java_trgt_comp_params_t *params, int value);
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
                         ast_binary_op_type_t type);
+
+/**
+ * Assign numbers to local variables in this code block and any
+ * children code blocks.
+ *
+ * @param first_num the first available empty number
+ * @param code_block the code block to assign numbers to
+ *
+ * @param the number of allocated local variable slots
+ */
+static int
+java_trgt_code_block_assign_addrs(int first_num,
+                                  IrCodeBlock *code_block);
+
+/**
+ * Assign numbers to local variables in any code blocks and sub-blocks
+ * in a if-else statment.
+ *
+ * @param first_num the first available empty number
+ * @param if_else the if-else statment to assign numbers to
+ *
+ * @param the number of allocated local variable slots
+ */
+static int
+java_trgt_if_else_assign_addrs(int first_num,
+                               IrIfElse *if_else);
 
 /**
  * Get next unique label

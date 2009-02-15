@@ -1,7 +1,7 @@
 #ifndef SEM_TABLE_INC_X
 #define SEM_TABLE_INC_X
 
-#include "ir.h"
+#include "ir_symbol.h"
 #include "sym_table_types.h"
 
 /**
@@ -34,12 +34,24 @@ sym_table_delete(sym_table_t* table);
  *         -1 - symbol already present in the table
  */
 int 
-sym_table_add_symbol(sym_table_t* table,
-                     char *name,
-                     ir_symbol_t *symbol);
+sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol);
+
 
 /**
- * @return all symbols in this table as a list of ir_symbol_t pointers
+ * look for a symbol in the provided table
+ *
+ * @param table   the table where to look for the element
+ * @param name    symbol's name
+ *
+ * @return The symbol of NULL of not such symbol is found.
+ */
+IrSymbol *
+sym_table_get_symbol(sym_table_t *table, char *name);
+
+/**
+ * @return all symbols in this table as a list of IrSymbol pointers,
+ *         the list should freed, when not needed anymore,
+ *         by calling g_list_free() 
  */
 GList *
 sym_table_get_all_symbols(sym_table_t* table);
@@ -50,18 +62,5 @@ sym_table_get_all_symbols(sym_table_t* table);
  */
 void
 sym_table_dump(sym_table_t *table);
-
-/**
- * look for a symbol in the provided table
- *
- * @param table   the table where to look for the element
- * @param name    symbol's name
- * @param symbol  if this pointer is not NULL, the found element returned here
- *
- * @return  0 if element is found in the table
- * @return -1 if no such element is present in the table
- */
-int
-sym_table_get_symbol(sym_table_t *table, char *name, ir_symbol_t **symbol);
 
 #endif /* SEM_TABLE_INC_X */

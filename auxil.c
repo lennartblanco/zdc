@@ -42,53 +42,63 @@ compile_file(const char* input_file,
              const char* output_file,
              compile_options_t options)
 {
-   YY_BUFFER_STATE yy_buffer;
-   FILE *input_stream;
-   FILE *output_stream;
-   ir_compile_unit_t *ir_compile_unit;
-   char klass_name[strlen(output_file)];
+    YY_BUFFER_STATE yy_buffer;
+    FILE *input_stream;
+    FILE *output_stream;
+    IrCompileUnit *ir_compile_unit;
+    char klass_name[strlen(output_file)];
 
-   /* open the input source file */
-   input_stream = fopen(input_file, "r");
-   if (input_stream == NULL)
-   {
-       fprintf(stderr, 
-               "error opening file '%s' for reading: %m\n",
-               input_file);
-       return -1;        
-   }
+    /* open the input source file */
+    input_stream = fopen(input_file, "r");
+    if (input_stream == NULL)
+    {
+        fprintf(stderr, 
+                "error opening file '%s' for reading: %m\n",
+                input_file);
+        return -1;        
+    }
 
-   /* setup token parser to read the opened file */
-   yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
-   yy_switch_to_buffer(yy_buffer);
+    /* setup token parser to read the opened file */
+    yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
+    yy_switch_to_buffer(yy_buffer);
 
-   /* open the output file */
-   output_stream = fopen(output_file, "w");
-   if (output_stream == NULL)
-   {
-       fprintf(stderr, 
-               "error opening file '%s' for writing: %m\n",
-               output_file);
-       fclose(input_stream);
-       return -1;        
-   }
+    /* open the output file */
+    output_stream = fopen(output_file, "w");
+    if (output_stream == NULL)
+    {
+        fprintf(stderr, 
+                "error opening file '%s' for writing: %m\n",
+                output_file);
+        fclose(input_stream);
+        return -1;        
+    }
    
 
-   fprintf(output_stream, "; compiling %s\n", input_file);
-   yyparse();
+    fprintf(output_stream, "; compiling %s\n", input_file);
+    yyparse();
 
-   if (options.print_ast)
-   {
-       ast_node_print(XDP_AST_NODE(compile_unit), stdout);
-   }
+    if (options.print_ast)
+    {
+        ast_node_print(XDP_AST_NODE(compile_unit), stdout);
+    }
 
-   ir_compile_unit = semantic_analyze(compile_unit);
+    ir_compile_unit = semantic_analyze(input_file, compile_unit);
+    if (ir_compile_unit == NULL)
+    {
+        /* error during semantic analysis */
+        goto clean_and_exit;  
+    }
 
-   /* use the output file name as the basis for class name */
-   get_class_name(output_file, klass_name);
-   java_trgt_code(ir_compile_unit, output_stream, klass_name);
-//   java_trgt_code(ir_compile_unit, stdout, klass_name);
+    if (options.print_ir)
+    {
+        ir_compile_unit_print(ir_compile_unit, stdout, 0);
+    }
 
+    /* use the output file name as the basis for class name */
+    get_class_name(output_file, klass_name);
+    java_trgt_code(ir_compile_unit, output_stream, klass_name);
+
+clean_and_exit:
    /* clean up */
    fclose(output_stream);
    yy_delete_buffer(yy_buffer);

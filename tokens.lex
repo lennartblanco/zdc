@@ -3,6 +3,8 @@
 
 #include "yystype_def.h"
 #include "yygrammar.h"
+#include "auxil.h"
+
 %}
 %%
 "!"      { return '!'; }

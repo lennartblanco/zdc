@@ -7,6 +7,7 @@
 typedef struct compile_options_s
 {
     bool print_ast;
+    bool print_ir;
 } compile_options_t;
 
 /*---------------------------------------------------------------------------*

@@ -8,7 +8,6 @@
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
 #include "ast_variable_definition.h"
-#include "ast_scalar_variable_ref.h"
 #include "ast_assigment.h"
 #include "ast_function_call.h"
 
@@ -55,14 +54,14 @@ build_tri_area()
 
     /* x = 3 */
     assign =
-        ast_assigment_new(XDP_AST_VARIABLE_REF(ast_scalar_variable_ref_new("x")),
+        ast_assigment_new(ast_variable_ref_new("x"),
                           XDP_AST_EXPRESSION(ast_int_constant_new(3)));
     ast_code_block_add_statment(code_block, XDP_AST_STATMENT(assign));
 
     /* return -(basen + 5) */
     bin_op = 
         ast_binary_operation_new(ast_plus_op,
-                                 XDP_AST_EXPRESSION(ast_scalar_variable_ref_new("basen")),
+                                 XDP_AST_EXPRESSION(ast_variable_ref_new("basen")),
                                  XDP_AST_EXPRESSION(ast_int_constant_new(5)));
     unary_op =
         ast_unary_operation_new(ast_arithm_neg_op, XDP_AST_EXPRESSION(bin_op));

@@ -33,10 +33,13 @@ if [ "$1" ]; then
     exit 0
 fi
 
+run_test empty
+run_test only_comments
 run_test comments
 run_test neg
 run_test func_call
 run_test bool_op
+run_test nested_blocks
 run_test if_else
 run_test fact
 run_test stat_array

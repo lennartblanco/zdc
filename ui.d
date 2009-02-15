@@ -7,6 +7,7 @@ import std.string;
 struct compile_options_s
 {
     bool print_ast;
+    bool print_ir;
 };
 
 extern (C) void g_type_init();
@@ -29,6 +30,8 @@ print_usage_message(char[] progname)
              "Options:\n"
              "  --print-ast        Output Abstaract Syntax Tree for \n"
              "                     each compile unit.\n"
+             "  --print-ir         Output Intermediate Represantation of each\n"
+             "                     compile unit.\n"
              "  --help, -?, -h     Print this help message."
              );
 }
@@ -39,7 +42,9 @@ main(char[][] args)
     char[][] source_files;
 
     compile_options_s options;
+    /* set default compile options */
     options.print_ast = false;
+    options.print_ir = false;
 
     /* parse command line options */
     foreach (arg; args[1..$])
@@ -57,6 +62,10 @@ main(char[][] args)
             else if (arg == "--print-ast")
             {
                 options.print_ast = true;
+            }
+            else if (arg == "--print-ir")
+            {
+                options.print_ir = true;
             }
             else
             {
