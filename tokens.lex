@@ -34,6 +34,7 @@
 "bool"   { return TOK_BOOL; }
 "true"   { return TOK_TRUE; }
 "false"  { return TOK_FALSE; }
+"while"  { return TOK_WHILE; }
 "return" { return TOK_RETURN; }
 "foreach" { return TOK_FOREACH; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; } 

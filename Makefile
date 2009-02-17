@@ -5,7 +5,7 @@ CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
 OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c                \
-	java_trgt.o sem_analyze.o ui.o ast_array_constant.o                   \
+	java_trgt.o sem_analyze.o ui.o ast_array_constant.o ast_while.o       \
         ast_node.o ast_compile_unit.o ast_function.o ast_data_type.o          \
         ast_basic_type.o ast_code_block.o ast_statment.o ast_expression.o     \
         ast_return.o ast_constant.o ast_int_constant.o ast_bool_constant.o    \
@@ -15,7 +15,7 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c                \
         ast_static_array_type.o ast_array_cell_ref.o ast_array_slice_ref.o    \
         ast_auto_type.o                                                       \
         ir_symbol.o ir_variable.o ir_function.o ir_code_block.o ir_statment.o \
-        ir_compile_unit.o ir_if_else.o ir_if_block.o                          \
+        ir_compile_unit.o ir_if_else.o ir_if_block.o ir_while.o               \
 
 
 all: $(PROG)
@@ -58,4 +58,7 @@ $(PROG): $(OBJS)
 	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS)
 
 clean:
-	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h *.class *.j *~
+	make -C tests clean
+	make -C utests clean
+	make -C examples clean
+	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~

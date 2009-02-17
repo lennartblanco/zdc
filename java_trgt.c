@@ -222,6 +222,10 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
         {
             java_trgt_handle_if_else(params, stmts->data, locals);
         }
+        else if (IR_IS_WHILE(stmts->data))
+        {
+            java_trgt_handle_while(params, stmts->data, locals);
+        }
         else
         {
             /* unexpected statment type */
@@ -481,6 +485,35 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
     }
 }
 
+static void
+java_trgt_handle_while(java_trgt_comp_params_t *params, 
+                       IrWhile *while_block, 
+                       sym_table_t *sym_table)
+{
+    assert(params);
+    assert(while_block);
+    assert(IR_IS_WHILE(while_block));
+    assert(sym_table);
+
+    char loop_start[MAX_JAVA_LABEL];
+    char loop_end[MAX_JAVA_LABEL];
+
+    java_trgt_get_next_label(params, loop_start);
+    java_trgt_get_next_label(params, loop_end);
+
+    fprintf(params->out,"; while start\n");
+    fprintf(params->out, "%s:\n", loop_start);
+    java_trgt_handle_expression(params,
+                                ir_while_get_loop_condition(while_block),
+                                sym_table);
+    java_trgt_const_int(params, 1);
+    fprintf(params->out, "    if_icmpne %s\n", loop_end);
+    java_trgt_handle_code_block(params, ir_while_get_body(while_block));
+    fprintf(params->out,
+            "goto %s\n"
+            "%s:\n", loop_start, loop_end);
+    
+}
 
 static void
 java_trgt_handle_if_else(java_trgt_comp_params_t *params, 

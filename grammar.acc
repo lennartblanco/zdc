@@ -20,12 +20,13 @@
 #include "ast_array_constant.h"
 #include "ast_foreach.h"
 
+#include <assert.h>
 
 AstCompileUnit *compile_unit;
 }
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
-       TOK_IF, TOK_ELSE, TOK_FOREACH,
+       TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
        TOK_AUTO, TOK_INT, TOK_VOID, TOK_BOOL;
        
 
@@ -101,6 +102,11 @@ statments_list<n> :
   }
   statments_list<n>
 | code_block<x>
+  {
+      ast_code_block_add_statment((*n).code_block, x.statment);
+  }
+  statments_list<n>
+| while_block<x>
   {
       ast_code_block_add_statment((*n).code_block, x.statment);
   }
@@ -243,6 +249,14 @@ foreach_block<x> :
                 ast_foreach_new(index, value,
                                 XDP_AST_ARRAY_SLICE_REF(aggregate.expression),
                                 code.code_block));
+    }
+;
+
+while_block<x> :
+    TOK_WHILE '(' expression<exp> ')' code_block<code>
+    {
+        (*x).statment =
+            XDP_AST_STATMENT(ast_while_new(exp.expression, code.code_block));
     }
 ;
 

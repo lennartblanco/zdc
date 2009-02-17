@@ -8,11 +8,13 @@
 #include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_if_else.h"
+#include "ast_array_slice_ref.h"
+#include "ast_while.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
 #include "ir_function.h"
-#include "ast_array_slice_ref.h"
+#include "ir_while.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -25,6 +27,11 @@ static void
 sem_analyze_ast_code_block_to_ir(const char *source_file,
                                  AstCodeBlock *ast_code_block,
                                  IrCodeBlock *ir_code_block);
+
+static IrWhile *
+sem_analyze_ast_while_to_ir(const char *source_file,
+                            sym_table_t *parent_symbols,
+                            AstWhile *ast_while);
 
 
 /*---------------------------------------------------------------------------*
@@ -83,12 +90,28 @@ sem_analyze_ast_if_else_to_ir(const char *source_file,
         IrCodeBlock *else_body =
             ir_code_block_new(ir_code_block_get_symbols(parent_block));
 
-        sem_analyze_ast_code_block_to_ir(source_file, ast_else_body,
+        sem_analyze_ast_code_block_to_ir(source_file,
+                                         ast_else_body,
                                          else_body);
+
         ir_if_else_set_else_body(ifelse, else_body);
     }
 
     return ifelse;
+}
+
+static IrWhile *
+sem_analyze_ast_while_to_ir(const char *source_file,
+                            sym_table_t *parent_symbols,
+                            AstWhile *ast_while)
+{
+    IrCodeBlock *body = ir_code_block_new(parent_symbols);
+
+    sem_analyze_ast_code_block_to_ir(source_file,
+                                     ast_while_get_body(ast_while),
+                                     body);    
+
+    return ir_while_new(ast_while_get_loop_condition(ast_while), body);
 }
 
 /**
@@ -159,6 +182,16 @@ sem_analyze_ast_code_block_to_ir(const char *source_file,
             ir_code_block_add_statment(ir_code_block,
                                        ifelse);
 
+            /** @todo delete the stmt node here */
+        }
+        else if (XDP_IS_AST_WHILE(stmt))
+        {
+            IrWhile *w =
+                sem_analyze_ast_while_to_ir(source_file,
+                                            symbols,
+                                            XDP_AST_WHILE(stmt));
+
+            ir_code_block_add_statment(ir_code_block, w);
             /** @todo delete the stmt node here */
         }
         else

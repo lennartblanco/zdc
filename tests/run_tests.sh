@@ -43,4 +43,5 @@ run_test nested_blocks
 run_test if_else
 run_test fact
 run_test stat_array
+run_test while_loop
 echo "_all_tests_passed_"

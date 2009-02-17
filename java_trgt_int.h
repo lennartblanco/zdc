@@ -18,6 +18,7 @@
 #include "ast_variable_declaration.h"
 #include "ir_function.h"
 #include "ir_if_else.h"
+#include "ir_while.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -67,6 +68,12 @@ static void
 java_trgt_handle_if_else(java_trgt_comp_params_t *params, 
                          IrIfElse *if_else, 
                          sym_table_t *sym_table);
+
+static void
+java_trgt_handle_while(java_trgt_comp_params_t *params, 
+                       IrWhile *while_block, 
+                       sym_table_t *sym_table);
+
 static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
                                  AstReturn *ret, 
