@@ -18,6 +18,7 @@
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_constant.h"
+#include "ast_while.h"
 #include "ast_foreach.h"
 
 #include <assert.h>
