@@ -10,11 +10,13 @@
 #include "ast_if_else.h"
 #include "ast_array_slice_ref.h"
 #include "ast_while.h"
+#include "ast_foreach.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
 #include "ir_function.h"
 #include "ir_while.h"
+#include "ir_foreach.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -32,6 +34,11 @@ static IrWhile *
 sem_analyze_ast_while_to_ir(const char *source_file,
                             sym_table_t *parent_symbols,
                             AstWhile *ast_while);
+
+static IrForeach *
+sem_analyze_ast_foreach_to_ir(const char *source_file,
+                              sym_table_t *parent_symbols,
+                              AstForeach *ast_foreach);
 
 
 /*---------------------------------------------------------------------------*
@@ -100,6 +107,9 @@ sem_analyze_ast_if_else_to_ir(const char *source_file,
     return ifelse;
 }
 
+/**
+ * Conver
+ */
 static IrWhile *
 sem_analyze_ast_while_to_ir(const char *source_file,
                             sym_table_t *parent_symbols,
@@ -112,6 +122,54 @@ sem_analyze_ast_while_to_ir(const char *source_file,
                                      body);    
 
     return ir_while_new(ast_while_get_loop_condition(ast_while), body);
+}
+
+static IrForeach *
+sem_analyze_ast_foreach_to_ir(const char *source_file,
+                              sym_table_t *parent_symbols,
+                              AstForeach *ast_foreach)
+{
+    IrForeach *foreach;
+    IrVariable *ir_index = NULL;
+    IrVariable *ir_value;
+    AstVariableDeclaration *var;
+    sym_table_t *loop_symbols;
+    IrCodeBlock *body;
+
+    var = ast_foreach_get_index(ast_foreach);
+    if (var != NULL)
+    {
+        ir_index = 
+          ir_variable_new(ast_variable_declaration_get_data_type(var),
+                          ast_variable_declaration_get_name(var),
+                          NULL);
+    }
+
+    var = ast_foreach_get_value(ast_foreach);
+    ir_value =
+        ir_variable_new(ast_variable_declaration_get_data_type(var),
+                        ast_variable_declaration_get_name(var),
+                        NULL);
+
+    loop_symbols = sym_table_new(parent_symbols);
+
+    if (ir_index != NULL)
+    {
+        sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_index));
+    }
+
+    sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
+
+    body = ir_code_block_new(loop_symbols);
+
+    sem_analyze_ast_code_block_to_ir(source_file,
+                                     ast_foreach_get_body(ast_foreach),
+                                     body);
+
+    foreach = ir_foreach_new(ir_index, ir_value,
+                             ast_foreach_get_aggregate(ast_foreach), body);
+
+    return foreach;
 }
 
 /**
@@ -192,6 +250,15 @@ sem_analyze_ast_code_block_to_ir(const char *source_file,
                                             XDP_AST_WHILE(stmt));
 
             ir_code_block_add_statment(ir_code_block, w);
+            /** @todo delete the stmt node here */
+        }
+        else if (XDP_IS_AST_FOREACH(stmt))
+        {
+            IrForeach *f =
+                sem_analyze_ast_foreach_to_ir(source_file,
+                                              symbols,
+                                              XDP_AST_FOREACH(stmt));
+            ir_code_block_add_statment(ir_code_block, f);
             /** @todo delete the stmt node here */
         }
         else

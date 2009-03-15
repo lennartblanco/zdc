@@ -66,4 +66,16 @@ ast_foreach_new(AstVariableDeclaration *index,
                 AstArraySliceRef *aggregate,
                 AstCodeBlock *body);
 
+AstVariableDeclaration *
+ast_foreach_get_index(AstForeach *self);
+
+AstVariableDeclaration *
+ast_foreach_get_value(AstForeach *self);
+
+AstArraySliceRef *
+ast_foreach_get_aggregate(AstForeach *self);
+
+AstCodeBlock *
+ast_foreach_get_body(AstForeach *self);
+
 #endif /* AST_FOREACH_INC_X */

@@ -62,6 +62,43 @@ ast_foreach_new(AstVariableDeclaration *index,
     return obj;
 }
 
+AstVariableDeclaration *
+ast_foreach_get_index(AstForeach *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FOREACH(self));
+
+    return self->index;
+}
+
+AstVariableDeclaration *
+ast_foreach_get_value(AstForeach *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FOREACH(self));
+
+    return self->value;
+}
+
+AstArraySliceRef *
+ast_foreach_get_aggregate(AstForeach *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FOREACH(self));
+
+    return self->aggregate;
+}
+
+AstCodeBlock *
+ast_foreach_get_body(AstForeach *self)
+{
+    assert(self);
+    assert(XDP_IS_AST_FOREACH(self));
+
+    return self->body;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

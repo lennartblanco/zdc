@@ -5,6 +5,16 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_variable_class_init(gpointer klass, gpointer foo);
+
+static void
+ir_variable_do_print(IrSymbol *self, FILE *out, int indention);
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -19,7 +29,7 @@ ir_variable_get_type(void)
         sizeof (IrVariableClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL,   /* class_init */
+        ir_variable_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrVariable),
@@ -97,4 +107,31 @@ ir_variable_get_initializer(IrVariable *self)
     assert(IR_IS_VARIABLE(self));
 
     return self->initializer;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_variable_class_init(gpointer klass, gpointer foo)
+{
+    ((IrSymbolClass *)klass)->do_print = ir_variable_do_print;
+}
+
+static void
+ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
+{
+    assert(self);
+    assert(IR_IS_VARIABLE(self));
+
+    IrVariable *var = IR_VARIABLE(self);
+    ast_node_print(XDP_AST_NODE(var->type), out);
+    fprintf(out, " %s", ir_symbol_get_name(self));
+
+    if (var->initializer != NULL)
+    {
+        fprintf(out, " = ");
+        ast_node_print(XDP_AST_NODE(var->initializer), out);
+    }
 }

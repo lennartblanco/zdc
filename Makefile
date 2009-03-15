@@ -15,7 +15,7 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c                \
         ast_static_array_type.o ast_array_cell_ref.o ast_array_slice_ref.o    \
         ast_auto_type.o                                                       \
         ir_symbol.o ir_variable.o ir_function.o ir_code_block.o ir_statment.o \
-        ir_compile_unit.o ir_if_else.o ir_if_block.o ir_while.o               \
+        ir_compile_unit.o ir_if_else.o ir_if_block.o ir_while.o ir_foreach.o  \
 
 
 all: $(PROG)

@@ -1117,6 +1117,17 @@ java_trgt_if_else_assign_addrs(int first_num,
 }
 
 static int
+java_trgt_foreach_assign_addrs(int first_num,
+                               IrForeach *foreach)
+{
+    assert(foreach);
+
+    printf("java_trgt_foreach_assign_addrs()\n");
+    return first_num;
+}
+
+
+static int
 java_trgt_code_block_assign_addrs(int first_num,
                                   IrCodeBlock *code_block)
 {
@@ -1163,6 +1174,10 @@ java_trgt_code_block_assign_addrs(int first_num,
         {
             vars = java_trgt_if_else_assign_addrs(num, j->data);
 
+        }
+        else if (IR_IS_FOREACH(j->data))
+        {
+            vars = java_trgt_foreach_assign_addrs(num, j->data);
         }
         if (vars > last_num)
         {

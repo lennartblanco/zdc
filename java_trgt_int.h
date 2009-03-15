@@ -19,6 +19,7 @@
 #include "ir_function.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
+#include "ir_foreach.h"
 
 #ifndef JAVA_TRGT_INT_INC_X
 #define JAVA_TRGT_INT_INC_X
@@ -185,7 +186,7 @@ java_trgt_code_block_assign_addrs(int first_num,
 
 /**
  * Assign numbers to local variables in any code blocks and sub-blocks
- * in a if-else statment.
+ * of an if-else statment.
  *
  * @param first_num the first available empty number
  * @param if_else the if-else statment to assign numbers to
@@ -195,6 +196,19 @@ java_trgt_code_block_assign_addrs(int first_num,
 static int
 java_trgt_if_else_assign_addrs(int first_num,
                                IrIfElse *if_else);
+/**
+ * Assign numbers to local variables in any code blocks and sub-blocks
+ * of a foreach statment.
+ *
+ * @param first_num the first available empty number
+ * @param if_else the if-else statment to assign numbers to
+ *
+ * @param the number of allocated local variable slots
+ */
+static int
+java_trgt_foreach_assign_addrs(int first_num,
+                               IrForeach *foreach);
+
 
 /**
  * Get next unique label

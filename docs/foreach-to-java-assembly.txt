@@ -1,0 +1,27 @@
+foreach statment compilation to java bytecode:
+
+foreach(index, value; array_slice_expression[start..end])
+     hidden local variable: offset
+
+  index = 0
+  offset = $start
+  push end
+  push start
+  sub             ; puts number of elements in array slice expression
+loop_start:
+  dup
+  push $index
+  ifcmpgt loop_end
+  push array_slice_expression reference
+  push $offset
+  push $index
+  add
+  iaload         ; load value in the array at array_slice_expression[current index]
+  store in $value
+  <loop body>
+  $index++;
+  goto loop_start
+lop_end:
+   
+
+ 
