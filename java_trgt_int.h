@@ -76,6 +76,12 @@ java_trgt_handle_while(java_trgt_comp_params_t *params,
                        sym_table_t *sym_table);
 
 static void
+java_trgt_handle_foreach(java_trgt_comp_params_t *params, 
+                         IrForeach *foreach_block, 
+                         sym_table_t *sym_table);
+
+
+static void
 java_trgt_handle_return_statment(java_trgt_comp_params_t *params, 
                                  AstReturn *ret, 
                                  sym_table_t *sym_table);

@@ -56,4 +56,14 @@ ir_foreach_new(IrVariable *index,
                AstArraySliceRef *aggregate,
                IrCodeBlock *body);
 
+
+void
+ir_foreach_set_index(IrForeach *self, IrVariable *index);
+
+IrVariable *
+ir_foreach_get_index(IrForeach *self);
+
+IrVariable *
+ir_foreach_get_value(IrForeach *self);
+
 #endif /* IR_FOREACH_INC_X */

@@ -60,6 +60,31 @@ ir_foreach_new(IrVariable *index,
     return obj;
 }
 
+void
+ir_foreach_set_index(IrForeach *self, IrVariable *index)
+{
+   assert(self);
+   assert(index);
+
+   self->index = index;
+}
+
+IrVariable *
+ir_foreach_get_index(IrForeach *self)
+{
+    assert(self);
+
+    return self->index;
+}
+
+IrVariable *
+ir_foreach_get_value(IrForeach *self)
+{
+   assert(self);
+
+   return self->value;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

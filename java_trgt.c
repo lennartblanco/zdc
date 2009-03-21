@@ -226,6 +226,10 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
         {
             java_trgt_handle_while(params, stmts->data, locals);
         }
+        else if (IR_IS_FOREACH(stmts->data))
+        {
+            java_trgt_handle_foreach(params, stmts->data, locals);
+        }
         else
         {
             /* unexpected statment type */
@@ -569,6 +573,20 @@ java_trgt_handle_if_else(java_trgt_comp_params_t *params,
     /* insert the end of if-else label */
     fprintf(params->out, "%s:\n", end_label);
 }
+
+static void
+java_trgt_handle_foreach(java_trgt_comp_params_t *params, 
+                         IrForeach *foreach,
+                         sym_table_t *sym_table)
+{
+    assert(params);
+    assert(foreach);
+    assert(IR_IS_FOREACH(foreach));
+    assert(sym_table);
+
+    printf("at java_trgt_handle_foreach!\n");
+}
+
 
 static void
 java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
@@ -1121,9 +1139,41 @@ java_trgt_foreach_assign_addrs(int first_num,
                                IrForeach *foreach)
 {
     assert(foreach);
+    IrVariable *var;
+    GValue addr = {0};
+    int num = first_num;
 
-    printf("java_trgt_foreach_assign_addrs()\n");
-    return first_num;
+    g_value_init(&addr, G_TYPE_INT);
+
+    /*
+     * assign local variable number to index variable
+     */
+    var = ir_foreach_get_index(foreach);
+    if (var == NULL)
+    {
+        var = ir_variable_new(XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
+                              "foreach_hidden_index",
+                              NULL);
+        ir_foreach_set_index(foreach, var);
+    }
+    g_value_set_int(&addr, num);
+    ir_variable_assign_addr(var, &addr);
+
+    /*
+     * assign local variable number to value variable
+     */
+    var = ir_foreach_get_value(foreach);
+    num += 1;
+    g_value_set_int(&addr, num);
+    ir_variable_assign_addr(var, &addr);
+
+    /*
+     * reserve one local variable slot for 'offset' variable
+     * that will be used by generated java bytecode
+     */
+    num += 1;
+    
+    return num;
 }
 
 
