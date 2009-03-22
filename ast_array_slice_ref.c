@@ -41,6 +41,12 @@ ast_array_slice_ref_get_type(void)
     return type;
 }
 
+char *
+ast_array_slice_ref_get_name(AstArraySliceRef *self)
+{
+   return ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self));
+}
+
 AstArraySliceRef *
 ast_array_slice_ref_new(char *name,
                         AstExpression *start,

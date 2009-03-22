@@ -1,0 +1,26 @@
+int foreach_slice()
+{
+    int[6] rofl = [0,1,2,3,4,5];
+    int res = 0;
+
+    foreach (int i, int v; rofl[1..4]) {
+      res = res + v;
+    }
+
+    return res;
+}
+
+int foreach_slice_params(int s, int e)
+{
+    int[6] rofl = [10, 11, 12,
+                   13, 14, 15];
+    int res = 0;
+
+    foreach (int i, int v; rofl[s..e]) {
+      res = res + v;
+    }
+
+    return res;
+}
+
+

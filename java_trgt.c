@@ -584,7 +584,119 @@ java_trgt_handle_foreach(java_trgt_comp_params_t *params,
     assert(IR_IS_FOREACH(foreach));
     assert(sym_table);
 
-    printf("at java_trgt_handle_foreach!\n");
+    char loop_start_label[MAX_JAVA_LABEL];
+    char loop_end_label[MAX_JAVA_LABEL];
+    IrVariable *var;
+    /* address of foreach loop's index variable */
+    int index_addr;
+    /* address of foreach loop's value variable */
+    int value_addr;
+    /* address of hidden offset variable */
+    int offset_addr;
+    /* aggregate array's address */
+    int aggregate_addr;
+    
+    AstArraySliceRef *aggregate;
+
+    fprintf(params->out, "; foreach block start\n");
+
+    /* fetch the aggregate array slice we gonna loop over */
+    aggregate = ir_foreach_get_aggregate(foreach);
+
+    /* get aggregate arrays local variable slot */
+    var =
+        IR_VARIABLE(
+            sym_table_get_symbol(sym_table,
+                                 ast_array_slice_ref_get_name(aggregate)));
+    aggregate_addr = g_value_get_int(ir_variable_get_addr(var));
+
+    /* get index variable's local variable slot */
+    var = ir_foreach_get_index(foreach);
+    index_addr = g_value_get_int(ir_variable_get_addr(var));
+
+    /* get value variable's local variable slot */
+    var = ir_foreach_get_value(foreach);
+    value_addr = g_value_get_int(ir_variable_get_addr(var));
+
+    /* a slot for offset variable is reserved after value's variables slot */
+    offset_addr = value_addr + 1;
+
+    /* generate loop start and end lables */
+    java_trgt_get_next_label(params, loop_start_label);
+    java_trgt_get_next_label(params, loop_end_label);
+
+    fprintf(params->out,
+            "; aggregate ref    %d\n"
+            "; $index  address  %d\n"
+            "; $value  address  %d\n"
+            "; $offset address  %d\n"
+            "; loop start label %s\n"
+            "; loop end label   %s\n",
+            aggregate_addr, index_addr, value_addr, offset_addr,
+            loop_start_label, loop_end_label);
+           
+
+    /* initilize index variable */
+    fprintf(params->out, 
+            "; init index variable\n");
+    java_trgt_const_int(params, 0);
+    fprintf(params->out, "    istore%s%d\n", 
+            (0 <= index_addr && index_addr <= 3) ? "_" : " ", index_addr);
+
+    /* push aggregate end index on stack */
+    fprintf(params->out, "; calculate aggregate end value\n");
+    java_trgt_handle_expression(params,
+                                ast_array_slice_ref_get_end(aggregate),
+                                sym_table);
+
+    /* initilize offset variable */
+    fprintf(params->out, "; calculate aggregate start value\n");
+    java_trgt_handle_expression(params,
+                                ast_array_slice_ref_get_start(aggregate),
+                                sym_table);
+    fprintf(params->out,
+            "    dup\n"
+            "    istore%s%d\n", 
+            (0 <= offset_addr && offset_addr <= 3) ? "_" : " ", offset_addr);
+
+    fprintf(params->out,
+            "    isub\n"
+            "; loop start\n"
+            "%s:\n"
+            "    dup\n"
+            "    iload%s%d\n"
+            "    if_icmple %s\n"
+            "    aload%s%d\n"
+            "; push value of aggregate[$offset + $index] on stack\n"
+            "    iload%s%d   ; push $offset on stack\n"
+            "    iload%s%d   ; push $index on stack\n"
+            "    iadd\n"
+            "    iaload\n"
+            "    istore%s%d  ; store aggregate[$offset + $index] in $value\n"
+            "; loop body\n",
+            loop_start_label,
+            (0 <= index_addr && index_addr <= 3) ? "_" : " ", index_addr,
+            loop_end_label,
+            (0 <= aggregate_addr && aggregate_addr <= 3) ? "_" : " ", aggregate_addr,
+            (0 <= offset_addr && offset_addr <= 3) ? "_" : " ", offset_addr,
+            (0 <= index_addr && index_addr <= 3) ? "_" : " ", index_addr,
+            (0 <= value_addr && value_addr <= 3) ? "_" : " ", value_addr);
+
+    /* generate loop body code */
+    java_trgt_handle_code_block(params,
+                                ir_foreach_get_body(foreach));
+
+    fprintf(params->out,
+            "; $index++\n"
+            "    iinc %d 1\n"
+            "    goto %s\n"
+            "%s:\n"
+            "    pop\n",
+            index_addr, 
+            loop_start_label,
+            loop_end_label);
+
+    fprintf(params->out, "; foreach block end\n");
 }
 
 

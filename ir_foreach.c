@@ -85,6 +85,22 @@ ir_foreach_get_value(IrForeach *self)
    return self->value;
 }
 
+AstArraySliceRef *
+ir_foreach_get_aggregate(IrForeach *self)
+{
+    assert(self);
+
+    return self->aggregate;
+}
+
+IrCodeBlock *
+ir_foreach_get_body(IrForeach *self)
+{
+    assert(self);
+
+    return self->body;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
