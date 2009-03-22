@@ -158,9 +158,6 @@ java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
 static void
 java_trgt_prelude(java_trgt_comp_params_t *params);
 
-//static void
-//java_trgt_epilog(java_trgt_comp_params_t *params);
-
 /**
  * Generate code to load constant integer value on the stack.
  *
