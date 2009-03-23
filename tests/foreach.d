@@ -23,4 +23,18 @@ int foreach_slice_params(int s, int e)
     return res;
 }
 
+int foreach_whole_arry(int idx, int val)
+{
+    int[8] arr =
+        [2, 4, 6, 8, 10, 12, 14, 16];    
+    int r = 1;
+
+    arr[idx] = val;
+
+    foreach (int a, int v; arr)
+    {
+        r = r * v;
+    }
+    return r;
+}
 

@@ -587,6 +587,8 @@ java_trgt_handle_foreach(java_trgt_comp_params_t *params,
     char loop_start_label[MAX_JAVA_LABEL];
     char loop_end_label[MAX_JAVA_LABEL];
     IrVariable *var;
+    IrVariable *aggregate_array;
+    AstExpression *exp;
     /* address of foreach loop's index variable */
     int index_addr;
     /* address of foreach loop's value variable */
@@ -596,19 +598,19 @@ java_trgt_handle_foreach(java_trgt_comp_params_t *params,
     /* aggregate array's address */
     int aggregate_addr;
     
-    AstArraySliceRef *aggregate;
+    AstArraySliceRef *aggregate_slice;
 
     fprintf(params->out, "; foreach block start\n");
 
     /* fetch the aggregate array slice we gonna loop over */
-    aggregate = ir_foreach_get_aggregate(foreach);
+    aggregate_slice = ir_foreach_get_aggregate(foreach);
 
     /* get aggregate arrays local variable slot */
-    var =
+    aggregate_array =
         IR_VARIABLE(
             sym_table_get_symbol(sym_table,
-                                 ast_array_slice_ref_get_name(aggregate)));
-    aggregate_addr = g_value_get_int(ir_variable_get_addr(var));
+                                 ast_array_slice_ref_get_name(aggregate_slice)));
+    aggregate_addr = g_value_get_int(ir_variable_get_addr(aggregate_array));
 
     /* get index variable's local variable slot */
     var = ir_foreach_get_index(foreach);
@@ -645,15 +647,39 @@ java_trgt_handle_foreach(java_trgt_comp_params_t *params,
 
     /* push aggregate end index on stack */
     fprintf(params->out, "; calculate aggregate end value\n");
-    java_trgt_handle_expression(params,
-                                ast_array_slice_ref_get_end(aggregate),
-                                sym_table);
+    exp = ast_array_slice_ref_get_end(aggregate_slice);
+
+    if (exp != NULL)
+    {
+        /* an explicit aggregate slice end expression specified */
+        java_trgt_handle_expression(params,
+                                    ast_array_slice_ref_get_end(aggregate_slice),
+                                    sym_table);
+    }
+    else
+    {
+        /* 
+         * no aggregate slice end expression provided, use
+         * array length
+         */
+        AstStaticArrayType *type =
+            XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(aggregate_array));
+        java_trgt_const_int(params, ast_static_array_type_get_length(type));
+    }
 
     /* initilize offset variable */
     fprintf(params->out, "; calculate aggregate start value\n");
-    java_trgt_handle_expression(params,
-                                ast_array_slice_ref_get_start(aggregate),
-                                sym_table);
+    exp = ast_array_slice_ref_get_start(aggregate_slice);
+    if (exp != NULL)
+    {
+        /* an explicit aggregate slice start expression specified */
+        java_trgt_handle_expression(params, exp, sym_table);
+    }
+    else
+    {
+        /* no start expression means start from 0 */
+        java_trgt_const_int(params, 0);
+    }
     fprintf(params->out,
             "    dup\n"
             "    istore%s%d\n", 
