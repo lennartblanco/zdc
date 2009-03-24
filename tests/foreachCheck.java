@@ -10,7 +10,8 @@ public class foreachCheck extends check
 
         /* foreach_slice() tests */
         res = foreach.foreach_slice();
-        check("foreach.foreach_slice()", res, 6);
+        check("foreach.foreach_slice()", res,
+              (1 + 2 + 3) + 2);
 
         res = foreach.foreach_slice_params(1, 2);
         check("foreach.foreach_slice_params(1, 2)", res, 11);
@@ -18,11 +19,12 @@ public class foreachCheck extends check
         /* foreach_slice_params() tests */
         res = foreach.foreach_slice_params(0, 6);
         check("foreach.foreach_slice_params(0, 6)", res,
-              10 + 11 + 12 + 13 + 14 + 15);
+              (10 + 11 + 12 + 13 + 14 + 15) +
+              (0 + 1 + 2 + 3 + 4 + 5));
 
         res = foreach.foreach_slice_params(3, 5);
         check("foreach.foreach_slice_params(3, 5)", res,
-              13 + 14);
+              (13 + 14) + (0 + 1));
 
         /* foreach_whole_arry() tests */
         res = foreach.foreach_whole_arry(0, -1);
