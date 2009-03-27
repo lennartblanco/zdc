@@ -1,12 +1,12 @@
 #!/bin/sh
 
-XDC=../xdc
+XDC="../xdc -march=java"
 
 run_checked()
 {
-    ($1 $2) || 
+    ($@) || 
     {
-        echo "ERROR: '$1 $2' failed"
+        echo "ERROR: '$@' failed"
         exit 1
     }
 }

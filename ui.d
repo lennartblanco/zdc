@@ -1,13 +1,22 @@
 /**
- * 
+ * Compiler's entry point module.
+ * Handle command line arguments and run compilation on
+ * with required options on provided source files.
  */
 import std.stdio;
 import std.string;
 
+enum arch_types_e
+{
+   arch_java = 0,
+   arch_x86  = 1
+}
+
 struct compile_options_s
 {
-    bool print_ast;
-    bool print_ir;
+    arch_types_e  target_arch;
+    bool          print_ast;
+    bool          print_ir;
 };
 
 extern (C) void g_type_init();
@@ -28,12 +37,50 @@ print_usage_message(char[] progname)
     writefln("Compile specified D source file(s).\n"
              "\n"
              "Options:\n"
-             "  --print-ast        Output Abstaract Syntax Tree for \n"
-             "                     each compile unit.\n"
+             "  --march=arch,      Generate code for the specified architecture.\n"
+             "   or -march=arch    The choices for arch are 'java' and 'x86'.\n"
+             "                     If 'java' is specified, compiler will emmit\n"
+             "                     .j java assembly files. If 'x86' is specified,\n"
+             "                     compiler will emmit .S x86 assembly files.\n"
+             "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
+             "                     unit.\n"
              "  --print-ir         Output Intermediate Represantation of each\n"
              "                     compile unit.\n"
              "  --help, -?, -h     Print this help message."
              );
+}
+
+arch_types_e
+parse_march_option(char[] option)
+{
+    char[] arch;
+
+    int eqsign = find(option, "=");
+
+    if (eqsign > -1)
+    {
+        arch = option[eqsign + 1..$];
+    }
+
+    if (eqsign == -1 || arch.length <= 0)
+    {
+        throw new Exception("no value provided for '" ~ option ~
+                            "' option");
+    }
+
+    switch (arch)
+    {
+        case "x86":
+            return arch_types_e.arch_x86;
+        case "java":
+            return arch_types_e.arch_java;
+        default:
+            throw new Exception("unsupported target architecture '" ~ arch ~
+                                "' specified");
+            break;
+    }
+    /* we should not get here */
+    assert(false);
 }
 
 int 
@@ -42,7 +89,9 @@ main(char[][] args)
     char[][] source_files;
 
     compile_options_s options;
+
     /* set default compile options */
+    options.target_arch = arch_types_e.arch_x86;
     options.print_ast = false;
     options.print_ir = false;
 
@@ -66,6 +115,11 @@ main(char[][] args)
             else if (arg == "--print-ir")
             {
                 options.print_ir = true;
+            }
+            else if ((arg.length >=6 && arg[0..6] == "-march") ||
+                     (arg.length >=7 && arg[0..7] == "--march"))
+            {
+                options.target_arch = parse_march_option(arg);
             }
             else
             {

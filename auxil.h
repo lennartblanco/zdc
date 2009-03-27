@@ -4,8 +4,15 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
+typedef enum arch_types_e
+{
+   arch_java = 0,
+   arch_x86  = 1
+} arch_types_t;
+
 typedef struct compile_options_s
 {
+    arch_types_t target_arch;
     bool print_ast;
     bool print_ir;
 } compile_options_t;

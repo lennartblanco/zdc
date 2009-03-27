@@ -94,9 +94,21 @@ compile_file(const char* input_file,
         ir_compile_unit_print(ir_compile_unit, stdout, 0);
     }
 
-    /* use the output file name as the basis for class name */
-    get_class_name(output_file, klass_name);
-    java_trgt_code(ir_compile_unit, output_stream, klass_name);
+    switch (options.target_arch)
+    {
+        case arch_java:
+            /* use the output file name as the basis for class name */
+            get_class_name(output_file, klass_name);
+            java_trgt_code(ir_compile_unit, output_stream, klass_name);
+            break;
+        case arch_x86:
+            printf("x86 architecture not supported\n");
+            break;
+        default:
+            /* unexpected target architecture */
+            assert(false);
+    }
+
 
 clean_and_exit:
    /* clean up */
