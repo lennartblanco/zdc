@@ -94,6 +94,7 @@ get_target_file_name(char[] source_file, arch_types_e arch)
             break;
         case arch_types_e.arch_x86:
             file_ext = ".s";
+            break;
         default:
             /* unexpected architecture type */
             assert(false);
