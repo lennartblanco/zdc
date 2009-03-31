@@ -2,6 +2,11 @@ public class check
 {
     static int passed = 0;
     static int failed = 0;
+
+    protected static void check(String funcCalled)
+    {
+        System.out.println(funcCalled + " [ok]");
+    }
  
     protected static void check(String funcCalled, int res, int expectedRes)
     {

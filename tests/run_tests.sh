@@ -34,6 +34,7 @@ if [ "$1" ]; then
 fi
 
 run_test empty
+run_test rets
 run_test only_comments
 run_test comments
 run_test neg
