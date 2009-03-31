@@ -12,11 +12,11 @@
  *
  * @param comp_unit the IR representation of the compile unit to compile
  * @param out_stream the stream where to write generated stream
- * @param klass_name the class name where to place the generate code
+ * @param source_file the source file name
  */
 void 
-java_trgt_code(IrCompileUnit *comp_unit,
-               FILE *out_stream, 
-               const char *klass_name);
+java_trgt_gen_code(IrCompileUnit *comp_unit,
+                   FILE *out_stream, 
+                   const char *source_file);
 
 #endif /* JAVA_TRGT */

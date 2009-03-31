@@ -20,18 +20,18 @@
  *---------------------------------------------------------------------------*/ 
 
 void
-java_trgt_code(IrCompileUnit *comp_unit,
-               FILE *out_stream, 
-               const char *klass_name)
+java_trgt_gen_code(IrCompileUnit *comp_unit,
+                   FILE *out_stream, 
+                   const char *source_file)
 {
     GList *p;
     java_trgt_comp_params_t params;
     sym_table_t *global_sym_table;
 
     params.out = out_stream;
-    params.class_name = klass_name;
+    params.class_name = get_class_name(source_file);
     strcpy(params.next_label, "A");
-    java_trgt_prelude(&params);
+    java_trgt_prelude(&params, source_file);
 
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
 
@@ -56,10 +56,41 @@ java_trgt_code(IrCompileUnit *comp_unit,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static char *
+get_class_name(const char *file_name)
+{
+    char *class_name;
+    const char *last_slash;
+    char *last_dot;
+
+    class_name = g_malloc(strlen(file_name) - 2);
+
+    last_slash = strrchr(file_name, '/');
+    if (last_slash == NULL)
+    {
+        last_slash = file_name;
+    }
+    else
+    {
+        last_slash += 1;
+    }
+
+    strcpy(class_name, last_slash);
+
+    last_dot = strrchr(class_name, '.');
+    assert(last_dot != NULL);
+
+    last_dot[0] = '\0';
+
+    return class_name;
+}
+
 static void
-java_trgt_prelude(java_trgt_comp_params_t *params)
+java_trgt_prelude(java_trgt_comp_params_t *params,
+                  const char *source_file)
 {
     fprintf(params->out,
+".source %s\n"
 ".class public %s\n"
 ".super java/lang/Object\n"
 "\n"
@@ -70,6 +101,7 @@ java_trgt_prelude(java_trgt_comp_params_t *params)
 "   return\n"
 ".end method\n"
 "\n",
+source_file,
 params->class_name
     );
 }

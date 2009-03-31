@@ -83,6 +83,26 @@ parse_march_option(char[] option)
     assert(false);
 }
 
+char[]
+get_target_file_name(char[] source_file, arch_types_e arch)
+{
+    char[] file_ext;
+    switch (arch)
+    {
+        case arch_types_e.arch_java:
+            file_ext = ".j";
+            break;
+        case arch_types_e.arch_x86:
+            file_ext = ".s";
+        default:
+            /* unexpected architecture type */
+            assert(false);
+    }
+
+    /* replace '.d' with target specific file extansion */
+    return source_file[0..source_file.length-2] ~ file_ext;
+}
+
 int 
 main(char[][] args)
 {
@@ -151,8 +171,8 @@ main(char[][] args)
     {
         string target_file;
 
-        /* replace '.d' with '.j' for the target file name */
-        target_file = file[0..file.length-2] ~ ".j";   
+        /* get compilation target file from source file name */
+        target_file = get_target_file_name(file, options.target_arch);
 
         /* invoke compilation */
         int r = compile_file(std.string.toStringz(file), 

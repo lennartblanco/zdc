@@ -4,7 +4,7 @@ CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
-OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c                \
+OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c x86.o          \
 	java_trgt.o sem_analyze.o ui.o ast_array_constant.o ast_while.o       \
         ast_node.o ast_compile_unit.o ast_function.o ast_data_type.o          \
         ast_basic_type.o ast_code_block.o ast_statment.o ast_expression.o     \

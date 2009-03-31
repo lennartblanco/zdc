@@ -45,6 +45,22 @@ typedef struct java_trgt_comp_params_s
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
+/**
+ * Convert a path to a class name. The filename without the extension becomes
+ * the filename, e.g.
+ *     foo.d > foo
+ *     roo/ma.d > ma
+ *
+ * This function assumes that the provided filename ends with '.d' string.
+ *
+ * @param file_name the file name to use as template for the class name
+ * @return the resulting class name, the name is allocated on the heap and
+ *         should be free()d when no longer needed
+ */
+static char*
+get_class_name(const char *file_name);
+
+
 static char *
 java_trgt_data_type_to_str(AstDataType *data_type);
 
@@ -156,7 +172,8 @@ java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
                                 sym_table_t *sym_table);
 
 static void
-java_trgt_prelude(java_trgt_comp_params_t *params);
+java_trgt_prelude(java_trgt_comp_params_t *params,
+                  const char *source_file);
 
 /**
  * Generate code to load constant integer value on the stack.
