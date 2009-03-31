@@ -9,4 +9,5 @@
  */
 void
 x86_gen_code(IrCompileUnit *comp_unit,
-             FILE *out_stream);
+             FILE *out_stream,
+             const char *source_file);

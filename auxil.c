@@ -83,7 +83,7 @@ compile_file(const char* input_file,
             java_trgt_gen_code(ir_compile_unit, output_stream, input_file);
             break;
         case arch_x86:
-            x86_gen_code(ir_compile_unit, output_stream);
+            x86_gen_code(ir_compile_unit, output_stream, input_file);
             break;
         default:
             /* unexpected target architecture */
