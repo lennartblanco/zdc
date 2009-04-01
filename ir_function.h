@@ -68,6 +68,11 @@ ir_function_new(AstDataType *return_type,
                 GSList *parameters,
                 sym_table_t *parent_scope);
 
+/**
+ * Get the function formal parameters.
+ *
+ * @return formal parameters as a list of AstVariableDeclaration pointer
+ */
 GSList *
 ir_function_get_parameters(IrFunction *self);
 
