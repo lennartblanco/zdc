@@ -6,6 +6,7 @@ public class check
     protected static void check(String funcCalled)
     {
         System.out.println(funcCalled + " [ok]");
+        passed += 1;
     }
  
     protected static void check(String funcCalled, int res, int expectedRes)

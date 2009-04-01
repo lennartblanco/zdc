@@ -12,5 +12,11 @@ public class retsCheck extends check
 
         res = rets.iret_val(-2);
         check("rets.iret_val(-2)", res, -2);
+
+        res = rets.iret_val(1984);
+        check("rets.iret_val(1984)", res, 1984);
+
+
+        exit();
     }
 }
