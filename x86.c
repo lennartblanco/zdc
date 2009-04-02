@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "x86.h"
+#include "ast_variable_declaration.h"
 
 #include <assert.h>
 
@@ -63,7 +64,10 @@ x86_prelude(FILE *out, const char *source_file)
 static void
 x86_compile_function_def(FILE *out, IrFunction *func)
 {
+    GSList *i;
     char *func_name;
+    int len;
+    int addr;
     static int cntr = 0;
 
     func_name = ir_function_get_name(func);
@@ -71,7 +75,9 @@ x86_compile_function_def(FILE *out, IrFunction *func)
     fprintf(out,
             ".globl %s\n"
             "    .type %s, @function\n"
-            "%s:\n",
+            "%s:\n"
+            "    pushl %%ebp\n"
+            "    movl %%esp, %%ebp\n",
             func_name, func_name, func_name);
 
     /* generate dummy body */
@@ -80,5 +86,23 @@ x86_compile_function_def(FILE *out, IrFunction *func)
             "    ret\n",
             (cntr++));
 
+    /* assign locations to function parameter variables */
+    i = ir_function_get_parameters(func);
+    len = g_slist_length(i);
+    addr = len * 4;
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        AstVariableDeclaration *var = i->data;
+        if (addr >= 8)
+        {
+            printf("addr %d", addr);
+        }
+        else
+        {
+            printf("addr eax");
+        }
+        addr -= 4;
+        printf(" '%s' \n", ast_variable_declaration_get_name(var));
+    }
 }
 
