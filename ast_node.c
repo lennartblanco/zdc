@@ -14,7 +14,8 @@ ast_node_class_init(gpointer klass, gpointer foo);
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_node_get_type(void)
+GType
+ast_node_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
@@ -38,13 +39,14 @@ GType ast_node_get_type(void)
     return type;
 }
 
-AstNode* ast_node_new(void)
+AstNode*
+ast_node_new(void)
 {
-    AstNode *node;
+    AstNode *obj;
 
-    node = g_object_new(XDP_TYPE_AST_NODE, NULL);
+    obj = g_object_new(XDP_TYPE_AST_NODE, NULL);
 
-    return node;
+    return obj;
 }
 
 void
