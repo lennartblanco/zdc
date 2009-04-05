@@ -4,6 +4,7 @@
 
 #include "java_trgt_int.h"
 #include "java_trgt.h"
+#include "java_local_slot.h"
 #include "ast_basic_type.h"
 #include "ast_return.h"
 #include "ast_int_constant.h"
@@ -147,7 +148,9 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
         IrVariable *var = l->data;
         AstDataType *var_type = ir_variable_get_data_type(var);
         AstExpression *var_init = ir_variable_get_initializer(var);
-        int addr = g_value_get_int(ir_variable_get_addr(var));
+        int addr =
+            java_local_slot_get_number(
+                JAVA_LOCAL_SLOT(ir_variable_get_location(var)));
 
         /* construct default value for the type */
         if (var_init == NULL)
@@ -642,15 +645,21 @@ java_trgt_handle_foreach(java_trgt_comp_params_t *params,
         IR_VARIABLE(
             sym_table_get_symbol(sym_table,
                                  ast_array_slice_ref_get_name(aggregate_slice)));
-    aggregate_addr = g_value_get_int(ir_variable_get_addr(aggregate_array));
+    aggregate_addr =
+        java_local_slot_get_number(
+            JAVA_LOCAL_SLOT(ir_variable_get_location(aggregate_array)));
 
     /* get index variable's local variable slot */
     var = ir_foreach_get_index(foreach);
-    index_addr = g_value_get_int(ir_variable_get_addr(var));
+    index_addr =
+        java_local_slot_get_number(
+            JAVA_LOCAL_SLOT(ir_variable_get_location(var)));
 
     /* get value variable's local variable slot */
     var = ir_foreach_get_value(foreach);
-    value_addr = g_value_get_int(ir_variable_get_addr(var));
+    value_addr =
+        java_local_slot_get_number(
+            JAVA_LOCAL_SLOT(ir_variable_get_location(var)));
 
     /* a slot for offset variable is reserved after value's variables slot */
     offset_addr = value_addr + 1;
@@ -1051,8 +1060,11 @@ java_trgt_handle_assigment(java_trgt_comp_params_t *params,
         IR_VARIABLE(sym_table_get_symbol(sym_table,
                                          ast_variable_ref_get_name(lvalue)));
     assert(lvalue_var);
+
     /* get lvalue's slot number in local variables array */
-    lvalue_addr = g_value_get_int(ir_variable_get_addr(lvalue_var));
+    lvalue_addr =
+        java_local_slot_get_number(
+            JAVA_LOCAL_SLOT(ir_variable_get_location(lvalue_var)));
 
     if (XDP_IS_AST_ARRAY_CELL_REF(lvalue))
     {
@@ -1109,7 +1121,9 @@ java_trgt_handle_array_cell_ref(java_trgt_comp_params_t *params,
     assert(var != NULL);
 
     /* get variables slot number in local variables array */
-    addr = g_value_get_int(ir_variable_get_addr(var));
+    addr =
+        java_local_slot_get_number(
+            JAVA_LOCAL_SLOT(ir_variable_get_location(var)));
 
 
     /* generate code to put array reference on the stack */
@@ -1143,7 +1157,10 @@ java_trgt_handle_var_value(java_trgt_comp_params_t *params,
     assert(var != NULL);
 
     /* get variables slot number in local variables array */
-    addr = g_value_get_int(ir_variable_get_addr(var));
+    addr =
+        java_local_slot_get_number(
+            JAVA_LOCAL_SLOT(ir_variable_get_location(var)));
+
     /* get variable type */
     type = ir_variable_get_data_type(var);
 
@@ -1212,7 +1229,6 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
     guint local_var_num = 0;
     guint i;
     sym_table_t *local_vars;
-    GValue addr = {0};
     
     /*
      * generate function header
@@ -1242,7 +1258,6 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
     /* 
      * assign numbers to function parameter variables
      */
-    g_value_init(&addr, G_TYPE_INT);
     p = ir_function_get_parameters(func);
     local_vars = ir_function_get_parameter_symbols(func);
     for (i = 0; p != NULL; i++, p = g_slist_next(p))
@@ -1255,8 +1270,7 @@ java_trgt_handle_function_def(java_trgt_comp_params_t *params,
                                  ast_variable_declaration_get_name(var_decl)));
 
         /* assign variable number */
-        g_value_set_int(&addr, i);
-        ir_variable_assign_addr(variable, &addr);
+        ir_variable_set_location(variable, G_OBJECT(java_local_slot_new(i)));
     }
 
     fprintf(params->out, "    .limit locals %d\n", local_var_num + 1);
@@ -1310,10 +1324,7 @@ java_trgt_foreach_assign_addrs(int first_num,
 {
     assert(foreach);
     IrVariable *var;
-    GValue addr = {0};
     int num = first_num;
-
-    g_value_init(&addr, G_TYPE_INT);
 
     /*
      * assign local variable number to index variable
@@ -1326,16 +1337,14 @@ java_trgt_foreach_assign_addrs(int first_num,
                               NULL);
         ir_foreach_set_index(foreach, var);
     }
-    g_value_set_int(&addr, num);
-    ir_variable_assign_addr(var, &addr);
+    ir_variable_set_location(var, G_OBJECT(java_local_slot_new(num)));
 
     /*
      * assign local variable number to value variable
      */
     var = ir_foreach_get_value(foreach);
     num += 1;
-    g_value_set_int(&addr, num);
-    ir_variable_assign_addr(var, &addr);
+    ir_variable_set_location(var, G_OBJECT(java_local_slot_new(num)));
 
     /*
      * reserve one local variable slot for 'offset' variable
@@ -1354,11 +1363,8 @@ java_trgt_code_block_assign_addrs(int first_num,
     sym_table_t *symbols;
     GList *i;
     GSList *j;
-    GValue addr = {0};
     int num = first_num;
     int last_num;
-
-    g_value_init(&addr, G_TYPE_INT);
 
     /*
      * assign number to this code block's local variables
@@ -1369,8 +1375,7 @@ java_trgt_code_block_assign_addrs(int first_num,
     for (;i != NULL; i = g_list_next(i), num += 1)
     {
         IrVariable *symb = i->data;
-        g_value_set_int(&addr, num);
-        ir_variable_assign_addr(symb, &addr);
+        ir_variable_set_location(symb, G_OBJECT(java_local_slot_new(num)));
     }
     g_list_free(i);
     last_num = num - 1;

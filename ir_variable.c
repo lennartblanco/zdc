@@ -62,24 +62,22 @@ ir_variable_new(AstDataType *type,
 }
 
 void
-ir_variable_assign_addr(IrVariable *self, GValue *address)
+ir_variable_set_location(IrVariable *self, GObject *location)
 {
     assert(self);
     assert(IR_IS_VARIABLE(self));
-    assert(address);
+    assert(location);
 
-    bzero(&self->address, sizeof(self->address));
-    g_value_init(&self->address, G_VALUE_TYPE(address));
-    g_value_copy(address, &self->address);
+    self->location = location;
 }
 
-GValue *
-ir_variable_get_addr(IrVariable *self)
+GObject *
+ir_variable_get_location(IrVariable *self)
 {
     assert(self);
     assert(IR_IS_VARIABLE(self));
 
-    return &(self->address);
+    return self->location;
 }
 
 AstDataType *

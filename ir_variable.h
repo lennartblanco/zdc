@@ -37,8 +37,8 @@ typedef struct
     AstDataType   *type;
     /* value to assign to variable when created */
     AstExpression *initializer;
-    /* backend specific address */
-    GValue         address;
+    /* backend specific location of this variable */
+    GObject       *location;
     
 } IrVariable;
 
@@ -68,10 +68,10 @@ ir_variable_new(AstDataType *type,
                 AstExpression *initializer);
 
 void
-ir_variable_assign_addr(IrVariable *self, GValue *address);
+ir_variable_set_location(IrVariable *self, GObject *location);
 
-GValue *
-ir_variable_get_addr(IrVariable *self);
+GObject *
+ir_variable_get_location(IrVariable *self);
 
 char *
 ir_variable_get_name(IrVariable *self);
