@@ -4,7 +4,7 @@ CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
-OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c x86.o          \
+OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c                \
 	sem_analyze.o ui.o ast_array_constant.o ast_while.o                   \
         ast_node.o ast_compile_unit.o ast_function.o ast_data_type.o          \
         ast_basic_type.o ast_code_block.o ast_statment.o ast_expression.o     \
@@ -16,7 +16,8 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.c x86.o          \
         ast_auto_type.o                                                       \
         ir_symbol.o ir_variable.o ir_function.o ir_code_block.o ir_statment.o \
         ir_compile_unit.o ir_if_else.o ir_if_block.o ir_while.o ir_foreach.o  \
-        java_trgt.o java_local_slot.o
+        java_trgt.o java_local_slot.o                                         \
+        x86.o x86_reg_location.o x86_frame_offset.o
 
 
 all: $(PROG)
