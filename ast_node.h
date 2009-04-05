@@ -41,11 +41,11 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType 
-ast_node_get_type (void);
+GType
+ast_node_get_type(void);
 
-AstNode* 
-ast_node_new (void);
+AstNode*
+ast_node_new(void);
 
 void
 ast_node_print(AstNode *self, FILE *out);
