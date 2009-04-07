@@ -1,7 +1,10 @@
 #include <stdbool.h>
 
 #include "x86.h"
+#include "x86_frame_offset.h"
+#include "x86_reg_location.h"
 #include "ast_variable_declaration.h"
+#include "ir_variable.h"
 
 #include <assert.h>
 
@@ -68,6 +71,7 @@ x86_compile_function_def(FILE *out, IrFunction *func)
     char *func_name;
     int len;
     int addr;
+    sym_table_t *param_symbols;
     static int cntr = 0;
 
     func_name = ir_function_get_name(func);
@@ -88,21 +92,34 @@ x86_compile_function_def(FILE *out, IrFunction *func)
 
     /* assign locations to function parameter variables */
     i = ir_function_get_parameters(func);
+    param_symbols = ir_function_get_parameter_symbols(func);
+
     len = g_slist_length(i);
     addr = len * 4;
     for (; i != NULL; i = g_slist_next(i))
     {
         AstVariableDeclaration *var = i->data;
+
+
+        /* convert ast variable declaration to IR variable object */
+        IrVariable *variable =
+            IR_VARIABLE(sym_table_get_symbol(param_symbols,
+                                 ast_variable_declaration_get_name(var)));
+
+
+        /* assign variable number */
         if (addr >= 8)
         {
-            printf("addr %d", addr);
+            ir_variable_set_location(variable, 
+                                     G_OBJECT(x86_frame_offset_new(addr)));
         }
         else
         {
-            printf("addr eax");
+            ir_variable_set_location(variable, 
+                                     G_OBJECT(x86_reg_location_new(eax_reg)));
+
         }
         addr -= 4;
-        printf(" '%s' \n", ast_variable_declaration_get_name(var));
     }
 }
 
