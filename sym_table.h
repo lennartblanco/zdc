@@ -47,10 +47,12 @@ GList *
 sym_table_get_all_symbols(sym_table_t* table);
 
 /**
- * debug function
- * print contents of the symbol table
+ * Print contents of the symbol table to provided stream.
+ *
+ * @param table the table to print
+ * @param out   the stream where to print the table
  */
 void
-sym_table_dump(sym_table_t *table);
+sym_table_print(sym_table_t *table, FILE *out);
 
 #endif /* SEM_TABLE_INC_X */
