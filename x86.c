@@ -3,6 +3,8 @@
 #include "x86.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
+#include "ast_basic_type.h"
+#include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
 #include "ir_variable.h"
 
@@ -17,6 +19,10 @@ x86_prelude(FILE *out, const char *source_file);
 
 static void
 x86_compile_function_def(FILE *out, IrFunction *func);
+
+static int
+x86_code_block_assign_addrs(int first_num,
+                            IrCodeBlock *code_block);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -72,8 +78,8 @@ x86_compile_function_def(FILE *out, IrFunction *func)
     char *func_name;
     int len;
     int addr;
+    int stack_size;
     sym_table_t *param_symbols;
-    static int cntr = 0;
 
     func_name = ir_function_get_name(func);
     /* generate function symbol declaration and function entry point label */
@@ -84,12 +90,6 @@ x86_compile_function_def(FILE *out, IrFunction *func)
             "    pushl %%ebp\n"
             "    movl %%esp, %%ebp\n",
             func_name, func_name, func_name);
-
-    /* generate dummy body */
-    fprintf(out,
-            "    movl $%d, %%eax\n"
-            "    ret\n",
-            (cntr++));
 
     /* assign locations to function parameter variables */
     i = ir_function_get_parameters(func);
@@ -122,5 +122,124 @@ x86_compile_function_def(FILE *out, IrFunction *func)
         }
         addr -= 4;
     }
+
+    stack_size = x86_code_block_assign_addrs(-4, ir_function_get_body(func));
+    printf("%s stack size %d\n", ir_function_get_name(func), stack_size);
+    fprintf(out,
+            "    subl $%d, %%esp\n",
+            -stack_size);
+
+}
+
+static int
+x86_get_variable_storage_size(IrVariable *variable)
+{
+    assert(variable);
+    assert(IR_IS_VARIABLE(variable));
+
+    AstDataType *variable_type;
+
+    variable_type = ir_variable_get_data_type(variable);
+    if (XDP_IS_AST_BASIC_TYPE(variable_type))
+    {
+        AstBasicType *basic_type = XDP_AST_BASIC_TYPE(variable_type);
+
+        switch (ast_basic_type_get_data_type(basic_type))
+        {
+            case int_type:
+                return 4;
+            case bool_type:
+                return 1;
+            default:
+                /* unexpected basic data type */
+                assert(false);
+        }
+    }
+    else if (XDP_IS_AST_STATIC_ARRAY_TYPE(variable_type))
+    {
+        AstStaticArrayType *array_type;
+        int len;
+
+        array_type = XDP_AST_STATIC_ARRAY_TYPE(variable_type);
+        len = ast_static_array_type_get_length(array_type);
+        switch (ast_static_array_type_get_data_type(array_type))
+        {
+            case int_type:
+                return len * 4;
+            case bool_type:
+                return len * 1;
+            default:
+                /* unexpected basic data type */
+                assert(false);
+        }
+    }
+    else
+    {
+        /* unexpected data type */
+        assert(false);
+    }
+    /* we should not get here */
+    assert(false);
+    return 0;
+}
+
+static int
+x86_code_block_assign_addrs(int first_num,
+                            IrCodeBlock *code_block)
+{
+    sym_table_t *symbols;
+    GList *symbols_list;
+    GList *i;
+    GSList *j;
+    int num = first_num;
+    int last_num;
+
+    /*
+     * assign number to this code block's local variables
+     */
+    symbols = ir_code_block_get_symbols(code_block);
+
+    symbols_list = sym_table_get_all_symbols(symbols);
+    for (i = symbols_list; i != NULL; i = g_list_next(i))
+    {
+        IrVariable *var = i->data;
+
+        if (!IR_IS_VARIABLE(var))
+        {
+            /* skip non-variables in symbol table */
+            continue;
+        }
+
+        ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
+        num -= x86_get_variable_storage_size(var);
+
+
+    }
+    g_list_free(symbols_list);
+    last_num = num;
+
+    /*
+     * assign numbers to children code block's variables
+     */
+    j = ir_code_block_get_statments(code_block);
+    for (; j != NULL; j = g_slist_next(j))
+    {
+        int vars = 0;
+        if (IR_IS_CODE_BLOCK(j->data))
+        {
+            vars = x86_code_block_assign_addrs(num, j->data);
+            /* 
+             * keep track if highest local number slot assigned 
+             * in our sub-blocks 
+             */
+        }
+
+        if (vars < last_num)
+        {
+            last_num = vars;
+        }
+    }
+
+    return last_num;
 }
 
