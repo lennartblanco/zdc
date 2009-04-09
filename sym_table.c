@@ -32,6 +32,14 @@ sym_table_new(sym_table_t* parent)
     return tbl;
 }
 
+void
+sym_table_delete(sym_table_t* self)
+{
+    g_hash_table_unref(self->table);
+    self->table = NULL;
+    g_free(self);
+}
+
 int 
 sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol)
 {

@@ -14,7 +14,10 @@ sym_table_t*
 sym_table_new(sym_table_t* parent);
 
 /**
- * Deallocate all resources used by this symbol table
+ * Deallocate all resources used by this symbol table.
+ *
+ * This will not delete symbols objects stored in the table nor will
+ * it delete the parent symbol table.
  */
 void
 sym_table_delete(sym_table_t* table);
