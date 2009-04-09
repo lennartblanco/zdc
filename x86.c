@@ -28,13 +28,14 @@ x86_gen_code(IrCompileUnit *comp_unit,
              const char *source_file)
 {
     sym_table_t *global_sym_table;
+    GList *symbols_list;
     GList *p;
 
     x86_prelude(out_stream, source_file);
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
 
-    p = sym_table_get_all_symbols(global_sym_table);
-    for (; p != NULL; p = g_list_next(p))
+    symbols_list = sym_table_get_all_symbols(global_sym_table);
+    for (p = symbols_list; p != NULL; p = g_list_next(p))
     {
         if (IR_IS_FUNCTION(p->data))
         {
@@ -46,7 +47,7 @@ x86_gen_code(IrCompileUnit *comp_unit,
             assert(false);
         }
     }
-    g_list_free(p);
+    g_list_free(symbols_list);
 
         
 }

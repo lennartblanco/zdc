@@ -25,6 +25,7 @@ java_trgt_gen_code(IrCompileUnit *comp_unit,
                    FILE *out_stream, 
                    const char *source_file)
 {
+    GList *symbols_list;
     GList *p;
     java_trgt_comp_params_t params;
     sym_table_t *global_sym_table;
@@ -36,8 +37,8 @@ java_trgt_gen_code(IrCompileUnit *comp_unit,
 
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
 
-    p = sym_table_get_all_symbols(global_sym_table);
-    for (; p != NULL; p = g_list_next(p))
+    symbols_list = sym_table_get_all_symbols(global_sym_table);
+    for (p = symbols_list; p != NULL; p = g_list_next(p))
     {
         if (IR_IS_FUNCTION(p->data))
         {
@@ -50,7 +51,7 @@ java_trgt_gen_code(IrCompileUnit *comp_unit,
             assert(false);
         }
     }
-    g_list_free(p);
+    g_list_free(symbols_list);
 }
 
 /*---------------------------------------------------------------------------*
@@ -137,13 +138,17 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
                             IrCodeBlock *code_block)
 {
     GSList *stmts;
-    sym_table_t *locals = ir_code_block_get_symbols(code_block);
+    GList *symbols_list;
+    GList *l;
+    sym_table_t *locals;
 
+
+    locals = ir_code_block_get_symbols(code_block);
     /*
      * generate code to initialize all new variables in this code block
      */
-    GList *l = sym_table_get_all_symbols(locals);
-    for (; l != NULL; l = g_list_next(l))
+    symbols_list = sym_table_get_all_symbols(locals);
+    for (l = symbols_list; l != NULL; l = g_list_next(l))
     {
         IrVariable *var = l->data;
         AstDataType *var_type = ir_variable_get_data_type(var);
@@ -230,7 +235,7 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
             assert(false);
         }
     }
-    g_list_free(l);
+    g_list_free(symbols_list);
 
 
     /*
@@ -1361,6 +1366,7 @@ java_trgt_code_block_assign_addrs(int first_num,
                                   IrCodeBlock *code_block)
 {
     sym_table_t *symbols;
+    GList *symbols_list;
     GList *i;
     GSList *j;
     int num = first_num;
@@ -1371,13 +1377,13 @@ java_trgt_code_block_assign_addrs(int first_num,
      */
     symbols = ir_code_block_get_symbols(code_block);
 
-    i = sym_table_get_all_symbols(symbols);
-    for (;i != NULL; i = g_list_next(i), num += 1)
+    symbols_list = sym_table_get_all_symbols(symbols);
+    for (i = symbols_list; i != NULL; i = g_list_next(i), num += 1)
     {
         IrVariable *symb = i->data;
         ir_variable_set_location(symb, G_OBJECT(java_local_slot_new(num)));
     }
-    g_list_free(i);
+    g_list_free(symbols_list);
     last_num = num - 1;
 
     /*
