@@ -22,11 +22,6 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o                \
 
 all: $(PROG)
 
-all_tests: $(PROG)
-	cd tests; ./run_tests.sh
-	make -C utests check
-	@echo "ALL TESTS PASSED"
-
 lex.h lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
 
@@ -58,6 +53,20 @@ lex.o: lex.c lex.h
 
 $(PROG): $(OBJS)
 	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS)
+
+# rules to run tests
+unit_tests:
+	make -C utests check
+
+function_tests_java:
+	cd tests; ./run_tests.sh --march=java
+
+function_tests_x86:
+	cd tests; ./run_tests.sh --march=x86
+
+all_tests: $(PROG) unit_tests function_tests_java
+	@echo "ALL TESTS PASSED"
+
 
 clean:
 	make -C tests clean

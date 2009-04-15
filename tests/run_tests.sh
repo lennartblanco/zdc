@@ -1,6 +1,7 @@
 #!/bin/sh
 
-XDC="../xdc -march=java"
+XDC="../xdc"
+
 
 run_checked()
 {
@@ -11,7 +12,20 @@ run_checked()
     }
 }
 
-run_test()
+run_test_x86()
+{
+    local test_name
+
+    test_name=$1
+
+    echo -n "Compiling $test_name.d "
+    run_checked $XDC -march=x86 $test_name.d
+    echo "[ok]"
+    run_checked gcc -m32 -o $test_name $test_name.s "$test_name"Check.c
+    run_checked ./$test_name
+}
+
+run_test_java()
 {
     local test_name
 
@@ -20,29 +34,45 @@ run_test()
     rm -f $test_name.j
     rm -f $test_name.class
     echo -n "Compiling $test_name.d "
-    run_checked $XDC $test_name.d
+    run_checked $XDC -march=java $test_name.d
     echo "[ok]"
     run_checked jasmin $test_name.j
     run_checked javac "$test_name"Check.java
     run_checked java "$test_name"Check
 }
 
-if [ "$1" ]; then
-    run_test $1
-    echo "'$1' test passed"
+run_all_tests()
+{
+    $RUN_TEST empty
+    $RUN_TEST rets
+    $RUN_TEST only_comments
+    $RUN_TEST comments
+    $RUN_TEST neg
+    $RUN_TEST func_call
+    $RUN_TEST bool_op
+    $RUN_TEST nested_blocks
+    $RUN_TEST if_else
+    $RUN_TEST fact
+    $RUN_TEST stat_array
+    $RUN_TEST while_loop
+    echo "_all_tests_passed_"
+}
+
+if [ "$1" = "--march=java" ]; then
+    RUN_TEST=run_test_java
+elif [ "$1" = "--march=x86" ]; then
+    RUN_TEST=run_test_x86
+else
+    echo "unsupported target architecture specified with option '$1'"
+    exit 1
+fi
+
+$HEJ $ARCH
+
+if [ "$2" ]; then
+    $RUN_TEST $2
+    echo "'$2' test passed"
     exit 0
 fi
 
-run_test empty
-run_test rets
-run_test only_comments
-run_test comments
-run_test neg
-run_test func_call
-run_test bool_op
-run_test nested_blocks
-run_test if_else
-run_test fact
-run_test stat_array
-run_test while_loop
-echo "_all_tests_passed_"
+run_all_tests
