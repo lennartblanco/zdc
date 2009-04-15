@@ -1,14 +1,24 @@
 #include <stdbool.h>
+#include <string.h>
 
 #include "x86.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
+#include "ast_int_constant.h"
+#include "ast_bool_constant.h"
 #include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
+#include "ast_return.h"
 #include "ir_variable.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+#define FUNCTION_EXIT_LABEL_POSTFIX "_exit"
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -20,9 +30,22 @@ x86_prelude(FILE *out, const char *source_file);
 static void
 x86_compile_function_def(FILE *out, IrFunction *func);
 
+static void
+x86_compile_code_block(FILE *out,
+                       IrCodeBlock *code_block,
+                       char *return_label);
+
+static void
+x86_compile_expression(FILE *out, AstExpression *expression);
+
 static int
 x86_code_block_assign_addrs(int first_num,
                             IrCodeBlock *code_block);
+
+static void
+x86_gen_variable_assigment(FILE *out,
+                           IrVariable *variable,
+                           AstExpression *expression);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -78,8 +101,10 @@ x86_compile_function_def(FILE *out, IrFunction *func)
     char *func_name;
     int len;
     int addr;
+    int stack_start = -4;
     int stack_size;
     sym_table_t *param_symbols;
+    bool push_last_arg = false;
 
     func_name = ir_function_get_name(func);
     /* generate function symbol declaration and function entry point label */
@@ -116,18 +141,53 @@ x86_compile_function_def(FILE *out, IrFunction *func)
         }
         else
         {
+            /* last argument is stored in EAX register */
+            push_last_arg = true;
+            stack_start = -8;
             ir_variable_set_location(variable, 
-                                     G_OBJECT(x86_reg_location_new(eax_reg)));
+                                     G_OBJECT(x86_frame_offset_new(-4)));
 
         }
         addr -= 4;
     }
 
-    stack_size = x86_code_block_assign_addrs(-4, ir_function_get_body(func));
-    printf("%s stack size %d\n", ir_function_get_name(func), stack_size);
+    /* assign stack offset to local variables in function body */
+    stack_size = 
+        x86_code_block_assign_addrs(stack_start, ir_function_get_body(func));
+
+    /* pad stack to allign it on 4-byte boundary */
+    if ((stack_size % 4) != 0)
+    {
+        stack_size -= 4 + stack_size % 4;
+    }
+
+    /* generate code to allocate function frame on the stack */
     fprintf(out,
             "    subl $%d, %%esp\n",
             -stack_size);
+
+    /* generate code to store last function argument on the stack */
+    if (push_last_arg)
+    {
+        fprintf(out, "    pushl %%eax\n");
+    }
+
+    /* set-up function exit label */
+    char exit_label[strlen(func_name) + 
+                    strlen(FUNCTION_EXIT_LABEL_POSTFIX) + 1];
+
+    sprintf(exit_label, "%s"FUNCTION_EXIT_LABEL_POSTFIX, func_name);
+
+    /* generate code for function body */
+    x86_compile_code_block(out, ir_function_get_body(func), exit_label);
+
+    /* generate function exit part */
+    fprintf(out,
+            "%s:\n"
+            "    movl %%ebp, %%esp\n"
+            "    popl %%ebp\n"
+            "    ret\n",
+            exit_label);
 
 }
 
@@ -229,7 +289,7 @@ x86_code_block_assign_addrs(int first_num,
         {
             vars = x86_code_block_assign_addrs(num, j->data);
             /* 
-             * keep track if highest local number slot assigned 
+             * keep track if lowers stack offset assigned 
              * in our sub-blocks 
              */
         }
@@ -243,3 +303,134 @@ x86_code_block_assign_addrs(int first_num,
     return last_num;
 }
 
+static void
+x86_compile_code_block(FILE *out,
+                       IrCodeBlock *code_block,
+                       char *return_label)
+{
+    GList *symbols_list;
+    GList *l;
+    sym_table_t *locals;
+
+    locals = ir_code_block_get_symbols(code_block);
+    /*
+     * generate code to initialize all new variables in this code block
+     */
+    symbols_list = sym_table_get_all_symbols(locals);
+    for (l = symbols_list; l != NULL; l = g_list_next(l))
+    {
+        IrVariable *var = l->data;
+        AstDataType *var_type = ir_variable_get_data_type(var);
+        AstExpression *var_init = ir_variable_get_initializer(var);
+
+        /* construct default value for the type */
+        if (var_init == NULL)
+        {
+            if (XDP_IS_AST_BASIC_TYPE(var_type))
+            {
+                basic_data_type_t bdt =
+                    ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(var_type));
+                switch (bdt)
+                {
+                    case int_type:
+                        var_init = XDP_AST_EXPRESSION(ast_int_constant_new(0));
+                        break;
+                    case bool_type:
+                        var_init =
+                            XDP_AST_EXPRESSION(ast_bool_constant_new(false));
+                        break;
+                    default:
+                        assert(false);
+                }
+            }
+            else if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
+            {
+                /* not implemented */
+                assert(false);
+            }
+            else
+            {
+                /* unsupported complex type */
+                assert(false);
+            }
+        }
+
+        if (XDP_IS_AST_BASIC_TYPE(var_type))
+        {
+            x86_gen_variable_assigment(out, var, var_init);
+        }
+        else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
+        {
+//            AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
+            printf("static array\n");
+            /* not implemented */
+            assert(false);
+        }
+        else
+        {
+            /* unexpected data type */
+            assert(false);
+        }
+    }
+    g_list_free(symbols_list);
+
+    /*
+     * generate code for the statments in this code block
+     */
+    GSList *stmts = ir_code_block_get_statments(code_block);
+    for (;stmts != NULL; stmts = g_slist_next(stmts))
+    {
+        if (XDP_IS_AST_RETURN(stmts->data))
+        {
+            AstReturn *ret = XDP_AST_RETURN(stmts->data);
+            AstExpression *return_val = ast_return_get_return_value(ret);
+            if (return_val != NULL)
+            {
+                x86_compile_expression(out, return_val);
+                fprintf(out,
+                        "    popl %%eax\n");
+            }
+            fprintf(out, "    jmp %s\n", return_label);
+        }
+        else
+        {
+            /* unexpected statment type */
+            assert(false);
+        }
+    }
+}
+
+static void
+x86_gen_variable_assigment(FILE *out,
+                           IrVariable *variable,
+                           AstExpression *expression)
+{
+    X86FrameOffset *addr;
+
+    addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
+    x86_compile_expression(out, expression);
+    fprintf(out,
+            "    popl %%eax\n"
+            "    movl %%eax, %d(%%ebp)\n",
+            x86_frame_offset_get_offset(addr));
+}
+
+static void
+x86_compile_expression(FILE *out, AstExpression *expression)
+{
+    assert(out);
+    assert(expression);
+    assert(XDP_IS_AST_EXPRESSION(expression));
+
+    if (XDP_IS_AST_INT_CONSTANT(expression))
+    {
+        fprintf(out,
+                "    pushl $%d\n", 
+                ast_int_constant_get_value(XDP_AST_INT_CONSTANT(expression)));
+    }
+    else
+    {
+        /* unexpected expression type */
+        assert(false);
+    }
+}
