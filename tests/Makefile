@@ -1,2 +1,2 @@
 clean:
-	rm -f *.s *.class *.o *.j *~ core
+	rm -f *.s *.class *.o *.j *~ core x86_check_*
