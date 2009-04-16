@@ -55,16 +55,16 @@ $(PROG): $(OBJS)
 	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS)
 
 # rules to run tests
-unit_tests:
+unit_tests: lex.h lex.c
 	make -C utests check
 
-function_tests_java:
+function_tests_java: $(PROG)
 	cd tests; ./run_tests.sh --march=java
 
-function_tests_x86:
+function_tests_x86: $(PROG)
 	cd tests; ./run_tests.sh --march=x86
 
-all_tests: $(PROG) unit_tests function_tests_java
+all_tests: unit_tests function_tests_java
 	@echo "ALL TESTS PASSED"
 
 
