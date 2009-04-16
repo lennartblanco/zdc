@@ -22,7 +22,7 @@
 
 void
 java_trgt_gen_code(IrCompileUnit *comp_unit,
-                   FILE *out_stream, 
+                   FILE *out_stream,
                    const char *source_file)
 {
     GList *symbols_list;
@@ -42,7 +42,7 @@ java_trgt_gen_code(IrCompileUnit *comp_unit,
     {
         if (IR_IS_FUNCTION(p->data))
         {
-            java_trgt_handle_function_def(&params, 
+            java_trgt_handle_function_def(&params,
                                           p->data);
         }
         else
@@ -280,7 +280,7 @@ java_trgt_handle_code_block(java_trgt_comp_params_t *params,
 
 static void
 java_trgt_handle_expression(java_trgt_comp_params_t *params,
-                            AstExpression *exp, 
+                            AstExpression *exp,
                             sym_table_t *sym_table)
 {
     assert(params);
@@ -511,11 +511,11 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
 
     /* add return type to function signature */
     AstDataType *ret_type = ir_function_get_return_type(func);
-    fprintf(params->out, ")%s\n", 
+    fprintf(params->out, ")%s\n",
            java_trgt_data_type_to_str(ret_type));
 
-    /* 
-     * add code to remove function result from the stack if 
+    /*
+     * add code to remove function result from the stack if
      * requested and if function returns anything
      */
     if (pop_return_value && XDP_IS_AST_BASIC_TYPE(ret_type))
@@ -530,8 +530,8 @@ java_trgt_handle_func_call(java_trgt_comp_params_t *params,
 }
 
 static void
-java_trgt_handle_while(java_trgt_comp_params_t *params, 
-                       IrWhile *while_block, 
+java_trgt_handle_while(java_trgt_comp_params_t *params,
+                       IrWhile *while_block,
                        sym_table_t *sym_table)
 {
     assert(params);
@@ -615,7 +615,7 @@ java_trgt_handle_if_else(java_trgt_comp_params_t *params,
 }
 
 static void
-java_trgt_handle_foreach(java_trgt_comp_params_t *params, 
+java_trgt_handle_foreach(java_trgt_comp_params_t *params,
                          IrForeach *foreach,
                          sym_table_t *sym_table)
 {
