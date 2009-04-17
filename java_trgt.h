@@ -19,4 +19,4 @@ java_trgt_gen_code(IrCompileUnit *comp_unit,
                    FILE *out_stream, 
                    const char *source_file);
 
-#endif /* JAVA_TRGT */
+#endif /* JAVA_TRGT_INC_X */
