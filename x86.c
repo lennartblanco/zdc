@@ -9,6 +9,7 @@
 #include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
+#include "ast_variable_ref.h"
 #include "ast_return.h"
 #include "ir_variable.h"
 
@@ -36,7 +37,9 @@ x86_compile_code_block(FILE *out,
                        char *return_label);
 
 static void
-x86_compile_expression(FILE *out, AstExpression *expression);
+x86_compile_expression(FILE *out,
+                       AstExpression *expression,
+                       sym_table_t *sym_table);
 
 static int
 x86_code_block_assign_addrs(int first_num,
@@ -45,7 +48,8 @@ x86_code_block_assign_addrs(int first_num,
 static void
 x86_gen_variable_assigment(FILE *out,
                            IrVariable *variable,
-                           AstExpression *expression);
+                           AstExpression *expression,
+                           sym_table_t *sym_table);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -161,16 +165,16 @@ x86_compile_function_def(FILE *out, IrFunction *func)
         stack_size -= 4 + stack_size % 4;
     }
 
-    /* generate code to allocate function frame on the stack */
-    fprintf(out,
-            "    subl $%d, %%esp\n",
-            -stack_size);
-
     /* generate code to store last function argument on the stack */
     if (push_last_arg)
     {
         fprintf(out, "    pushl %%eax\n");
     }
+
+    /* generate code to allocate function frame on the stack */
+    fprintf(out,
+            "    subl $%d, %%esp\n",
+            -stack_size);
 
     /* set-up function exit label */
     char exit_label[strlen(func_name) + 
@@ -357,7 +361,7 @@ x86_compile_code_block(FILE *out,
 
         if (XDP_IS_AST_BASIC_TYPE(var_type))
         {
-            x86_gen_variable_assigment(out, var, var_init);
+            x86_gen_variable_assigment(out, var, var_init, locals);
         }
         else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
         {
@@ -386,7 +390,7 @@ x86_compile_code_block(FILE *out,
             AstExpression *return_val = ast_return_get_return_value(ret);
             if (return_val != NULL)
             {
-                x86_compile_expression(out, return_val);
+                x86_compile_expression(out, return_val, locals);
                 fprintf(out,
                         "    popl %%eax\n");
             }
@@ -403,20 +407,22 @@ x86_compile_code_block(FILE *out,
 static void
 x86_gen_variable_assigment(FILE *out,
                            IrVariable *variable,
-                           AstExpression *expression)
+                           AstExpression *expression,
+                           sym_table_t *sym_table)
 {
     X86FrameOffset *addr;
 
     addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    x86_compile_expression(out, expression);
+    x86_compile_expression(out, expression, sym_table);
     fprintf(out,
-            "    popl %%eax\n"
-            "    movl %%eax, %d(%%ebp)\n",
+            "popl %d(%%ebp)\n",
             x86_frame_offset_get_offset(addr));
 }
 
 static void
-x86_compile_expression(FILE *out, AstExpression *expression)
+x86_compile_expression(FILE *out,
+                       AstExpression *expression,
+                       sym_table_t *sym_table)
 {
     assert(out);
     assert(expression);
@@ -427,6 +433,23 @@ x86_compile_expression(FILE *out, AstExpression *expression)
         fprintf(out,
                 "    pushl $%d\n", 
                 ast_int_constant_get_value(XDP_AST_INT_CONSTANT(expression)));
+    }
+    else if (XDP_IS_AST_VARIABLE_REF(expression))
+    {
+        AstVariableRef *var_ref;
+        IrVariable *var;           
+        X86FrameOffset *addr;
+
+        var_ref = XDP_AST_VARIABLE_REF(expression);
+        var =
+            IR_VARIABLE(sym_table_get_symbol(sym_table,
+                                             ast_variable_ref_get_name(var_ref)));
+        addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
+
+        /* put the value of the variable on top of the stack via EAX register */
+        fprintf(out,
+                "pushl %d(%%ebp)\n",
+                x86_frame_offset_get_offset(addr));
     }
     else
     {
