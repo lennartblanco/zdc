@@ -430,6 +430,7 @@ x86_compile_binary_op(FILE *out,
                       sym_table_t *sym_table)
 {
     char *op_mnemonic;
+    bool signextend_left_op = false;
 
     switch (ast_binary_operation_get_operation(op))
     {
@@ -439,6 +440,17 @@ x86_compile_binary_op(FILE *out,
         case ast_minus_op:
             op_mnemonic = "subl";
             break;
+        case ast_mult_op:
+            op_mnemonic = "imul";
+            break;
+        case ast_division_op:
+            op_mnemonic = "idiv";
+            /*
+             * when doing 32-bit signed division divident with idev we
+             * must be first extended to 64-bit value
+             */
+            signextend_left_op = true;
+            break;
         default:
             /* unexpected operation type */
             assert(false);
@@ -446,13 +458,22 @@ x86_compile_binary_op(FILE *out,
     x86_compile_expression(out,
                            ast_binary_operation_get_left(op),
                            sym_table);
-    fprintf(out, "    popl %%eax\n");
     x86_compile_expression(out,
                            ast_binary_operation_get_right(op),
                            sym_table);
-    fprintf(out, 
+    fprintf(out,
+            /* move left operand into eax */
+            "    movl 4(%%esp), %%eax\n"
+            /* place-holder for possible 64-bit extension instruction */
+            "%s"
+            /* evalute operation */
             "    %s (%%esp), %%eax\n"
+            /* remove right operand  from the top of stack */
+            "    addl $4, %%esp\n"
+            /* overwrite the top stack element with operation result */
             "    movl %%eax, (%%esp)\n",
+            /* insert extension of left operand to 64-bit value if needed */
+            signextend_left_op ? "    cdq\n" : "",
             op_mnemonic);
     
 }
