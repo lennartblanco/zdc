@@ -6,6 +6,7 @@
 #include "x86_reg_location.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
+#include "ast_binary_operation.h"
 #include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
@@ -40,6 +41,10 @@ static void
 x86_compile_expression(FILE *out,
                        AstExpression *expression,
                        sym_table_t *sym_table);
+static void
+x86_compile_binary_op(FILE *out,
+                      AstBinaryOperation *op,
+                      sym_table_t *sym_table);
 
 static int
 x86_code_block_assign_addrs(int first_num,
@@ -415,8 +420,41 @@ x86_gen_variable_assigment(FILE *out,
     addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     x86_compile_expression(out, expression, sym_table);
     fprintf(out,
-            "popl %d(%%ebp)\n",
+            "    popl %d(%%ebp)\n",
             x86_frame_offset_get_offset(addr));
+}
+
+static void
+x86_compile_binary_op(FILE *out,
+                      AstBinaryOperation *op,
+                      sym_table_t *sym_table)
+{
+    char *op_mnemonic;
+
+    switch (ast_binary_operation_get_operation(op))
+    {
+        case ast_plus_op:
+            op_mnemonic = "addl";
+            break;
+        case ast_minus_op:
+            op_mnemonic = "subl";
+            break;
+        default:
+            /* unexpected operation type */
+            assert(false);
+    }
+    x86_compile_expression(out,
+                           ast_binary_operation_get_left(op),
+                           sym_table);
+    fprintf(out, "    popl %%eax\n");
+    x86_compile_expression(out,
+                           ast_binary_operation_get_right(op),
+                           sym_table);
+    fprintf(out, 
+            "    %s (%%esp), %%eax\n"
+            "    movl %%eax, (%%esp)\n",
+            op_mnemonic);
+    
 }
 
 static void
@@ -434,6 +472,12 @@ x86_compile_expression(FILE *out,
                 "    pushl $%d\n", 
                 ast_int_constant_get_value(XDP_AST_INT_CONSTANT(expression)));
     }
+    else if (XDP_IS_AST_BINARY_OPERATION(expression))
+    {
+        x86_compile_binary_op(out,
+                              XDP_AST_BINARY_OPERATION(expression),
+                              sym_table);
+    }
     else if (XDP_IS_AST_VARIABLE_REF(expression))
     {
         AstVariableRef *var_ref;
@@ -448,12 +492,13 @@ x86_compile_expression(FILE *out,
 
         /* put the value of the variable on top of the stack via EAX register */
         fprintf(out,
-                "pushl %d(%%ebp)\n",
+                "    pushl %d(%%ebp)\n",
                 x86_frame_offset_get_offset(addr));
     }
     else
     {
         /* unexpected expression type */
+        printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
         assert(false);
     }
 }

@@ -10,12 +10,6 @@ int_ret()
     return 10;
 }
 
-//TODO fix xdc to handle this
-//int bool_ret()
-//{
-//    return true;
-//}
-
 int
 iret_val(int val) { return val; }
 
