@@ -47,7 +47,8 @@ x86_compile_binary_op(FILE *out,
                       sym_table_t *sym_table);
 
 static int
-x86_code_block_assign_addrs(int first_num,
+x86_code_block_assign_addrs(FILE *out,
+                            int first_num,
                             IrCodeBlock *code_block);
 
 static void
@@ -145,16 +146,20 @@ x86_compile_function_def(FILE *out, IrFunction *func)
         /* assign variable number */
         if (addr >= 8)
         {
-            ir_variable_set_location(variable, 
+            ir_variable_set_location(variable,
                                      G_OBJECT(x86_frame_offset_new(addr)));
+            fprintf(out, "# variable '%s' location %d\n",
+                    ir_variable_get_name(variable), addr);
         }
         else
         {
             /* last argument is stored in EAX register */
             push_last_arg = true;
-            stack_start = -8;
-            ir_variable_set_location(variable, 
+            stack_start = -4;
+            ir_variable_set_location(variable,
                                      G_OBJECT(x86_frame_offset_new(-4)));
+            fprintf(out, "# variable '%s' location %d\n",
+                    ir_variable_get_name(variable), -4);
 
         }
         addr -= 4;
@@ -162,7 +167,7 @@ x86_compile_function_def(FILE *out, IrFunction *func)
 
     /* assign stack offset to local variables in function body */
     stack_size = 
-        x86_code_block_assign_addrs(stack_start, ir_function_get_body(func));
+        x86_code_block_assign_addrs(out, stack_start, ir_function_get_body(func));
 
     /* pad stack to allign it on 4-byte boundary */
     if ((stack_size % 4) != 0)
@@ -253,7 +258,8 @@ x86_get_variable_storage_size(IrVariable *variable)
 }
 
 static int
-x86_code_block_assign_addrs(int first_num,
+x86_code_block_assign_addrs(FILE *out,
+                            int first_num,
                             IrCodeBlock *code_block)
 {
     sym_table_t *symbols;
@@ -279,9 +285,10 @@ x86_code_block_assign_addrs(int first_num,
             continue;
         }
 
-        ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
         num -= x86_get_variable_storage_size(var);
-
+        ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
+        fprintf(out, "# variable '%s' location %d\n",
+                ir_variable_get_name(var), num);
 
     }
     g_list_free(symbols_list);
@@ -296,9 +303,9 @@ x86_code_block_assign_addrs(int first_num,
         int vars = 0;
         if (IR_IS_CODE_BLOCK(j->data))
         {
-            vars = x86_code_block_assign_addrs(num, j->data);
+            vars = x86_code_block_assign_addrs(out, num, j->data);
             /* 
-             * keep track if lowers stack offset assigned 
+             * keep track if lowers frame offset assigned 
              * in our sub-blocks 
              */
         }
@@ -396,6 +403,15 @@ x86_compile_code_block(FILE *out,
             if (return_val != NULL)
             {
                 x86_compile_expression(out, return_val, locals);
+                /* todo: 
+                 * here we should take into account the size
+                 * of the data type we are about to return
+                 * popl %eax only works if we are returning 32-bit value,
+                 *    if we want to return for example boolean, this would put
+                 *     garbage into most significant parts of %eax and stack 
+                 *                              will underflow with 3 bytes
+                 *
+                 */
                 fprintf(out,
                         "    popl %%eax\n");
             }
@@ -419,9 +435,26 @@ x86_gen_variable_assigment(FILE *out,
 
     addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     x86_compile_expression(out, expression, sym_table);
-    fprintf(out,
-            "    popl %d(%%ebp)\n",
-            x86_frame_offset_get_offset(addr));
+    switch (x86_get_variable_storage_size(variable))
+    {
+        case 4:
+            fprintf(out,
+                    "# assign 32-bit variable value from the stack\n"
+                    "    popl %d(%%ebp)\n",
+                    x86_frame_offset_get_offset(addr));
+            break;
+        case 1:
+            fprintf(out,
+                    "# assign 8-bit variable value from the stack\n"
+                    "    movb (%%esp), %%al\n"
+                    "    movb %%al, %d(%%ebp)\n"
+                    "    addl $1, %%esp\n",
+                    x86_frame_offset_get_offset(addr));
+            break;
+        default:
+            /* unexpected/unsupported storage size */
+            assert(false);
+    }
 }
 
 static void
@@ -479,6 +512,42 @@ x86_compile_binary_op(FILE *out,
 }
 
 static void
+x86_compile_variable_ref(FILE *out,
+                         AstVariableRef *var_ref,
+                         sym_table_t *sym_table)
+{
+    IrVariable *var;
+    X86FrameOffset *addr;
+
+    var =
+        IR_VARIABLE(sym_table_get_symbol(sym_table,
+                                            ast_variable_ref_get_name(var_ref)));
+    addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
+
+    /* generate code to put the value of the variable on top of the stack */
+    switch (x86_get_variable_storage_size(var))
+    {
+        case 4:
+            fprintf(out,
+                    "# integer variable (32-bit) value fetch\n"
+                    "    pushl %d(%%ebp)\n",
+                    x86_frame_offset_get_offset(addr));
+            break;
+        case 1:
+            fprintf(out,
+                    "# boolean variable (8-bit) value fetch\n"
+                    "    subl $1, %%esp\n"
+                    "    movb %d(%%ebp), %%al\n"
+                    "    movb %%al, (%%esp)\n",
+                    x86_frame_offset_get_offset(addr));
+            break;
+        default:
+            /* unexpected/unsupported storage size */
+            assert(false);
+    }
+}
+
+static void
 x86_compile_expression(FILE *out,
                        AstExpression *expression,
                        sym_table_t *sym_table)
@@ -490,6 +559,7 @@ x86_compile_expression(FILE *out,
     if (XDP_IS_AST_INT_CONSTANT(expression))
     {
         fprintf(out,
+                "# push integer constant onto the stack\n"
                 "    pushl $%d\n", 
                 ast_int_constant_get_value(XDP_AST_INT_CONSTANT(expression)));
     }
@@ -501,20 +571,9 @@ x86_compile_expression(FILE *out,
     }
     else if (XDP_IS_AST_VARIABLE_REF(expression))
     {
-        AstVariableRef *var_ref;
-        IrVariable *var;           
-        X86FrameOffset *addr;
-
-        var_ref = XDP_AST_VARIABLE_REF(expression);
-        var =
-            IR_VARIABLE(sym_table_get_symbol(sym_table,
-                                             ast_variable_ref_get_name(var_ref)));
-        addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
-
-        /* put the value of the variable on top of the stack via EAX register */
-        fprintf(out,
-                "    pushl %d(%%ebp)\n",
-                x86_frame_offset_get_offset(addr));
+        x86_compile_variable_ref(out,
+                                 XDP_AST_VARIABLE_REF(expression),
+                                 sym_table);
     }
     else
     {
