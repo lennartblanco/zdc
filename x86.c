@@ -12,7 +12,10 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_ref.h"
 #include "ast_return.h"
+#include "ir_int_constant.h"
+#include "ir_bool_constant.h"
 #include "ir_variable.h"
+#include "ir_return.h"
 
 #include <assert.h>
 
@@ -39,7 +42,7 @@ x86_compile_code_block(FILE *out,
 
 static void
 x86_compile_expression(FILE *out,
-                       AstExpression *expression,
+                       IrExpression *expression,
                        sym_table_t *sym_table);
 static void
 x86_compile_binary_op(FILE *out,
@@ -54,7 +57,7 @@ x86_code_block_assign_addrs(FILE *out,
 static void
 x86_gen_variable_assigment(FILE *out,
                            IrVariable *variable,
-                           AstExpression *expression,
+                           IrExpression *expression,
                            sym_table_t *sym_table);
 
 /*---------------------------------------------------------------------------*
@@ -337,7 +340,7 @@ x86_compile_code_block(FILE *out,
     {
         IrVariable *var = l->data;
         AstDataType *var_type = ir_variable_get_data_type(var);
-        AstExpression *var_init = ir_variable_get_initializer(var);
+        IrExpression *var_init = ir_variable_get_initializer(var);
 
         /* construct default value for the type */
         if (var_init == NULL)
@@ -349,11 +352,20 @@ x86_compile_code_block(FILE *out,
                 switch (bdt)
                 {
                     case int_type:
-                        var_init = XDP_AST_EXPRESSION(ast_int_constant_new(0));
-                        break;
+                        /* update to new ir-form */
+                        assert(false);
+//                        var_init =
+//                            ir_expression_new(var_type,
+//                                              XDP_AST_EXPRESSION(
+//                                                  ast_int_constant_new(0)));
+//                        break;
                     case bool_type:
-                        var_init =
-                            XDP_AST_EXPRESSION(ast_bool_constant_new(false));
+                        /* update to new ir-form */
+                        assert(false);
+//                        var_init =
+//                            ir_expression_new(var_type,
+//                                              XDP_AST_EXPRESSION(
+//                                                 ast_bool_constant_new(false)));
                         break;
                     default:
                         assert(false);
@@ -396,10 +408,10 @@ x86_compile_code_block(FILE *out,
     GSList *stmts = ir_code_block_get_statments(code_block);
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
-        if (XDP_IS_AST_RETURN(stmts->data))
+        if (IR_IS_RETURN(stmts->data))
         {
-            AstReturn *ret = XDP_AST_RETURN(stmts->data);
-            AstExpression *return_val = ast_return_get_return_value(ret);
+            IrReturn *ret = IR_RETURN(stmts->data);
+            IrExpression *return_val = ir_return_get_return_value(ret);
             if (return_val != NULL)
             {
                 x86_compile_expression(out, return_val, locals);
@@ -428,7 +440,7 @@ x86_compile_code_block(FILE *out,
 static void
 x86_gen_variable_assigment(FILE *out,
                            IrVariable *variable,
-                           AstExpression *expression,
+                           IrExpression *expression,
                            sym_table_t *sym_table)
 {
     X86FrameOffset *addr;
@@ -549,31 +561,31 @@ x86_compile_variable_ref(FILE *out,
 
 static void
 x86_compile_expression(FILE *out,
-                       AstExpression *expression,
+                       IrExpression *expression,
                        sym_table_t *sym_table)
 {
+    AstExpression *ast_exp;
+
     assert(out);
     assert(expression);
-    assert(XDP_IS_AST_EXPRESSION(expression));
+    assert(IR_IS_EXPRESSION(expression));
 
-    if (XDP_IS_AST_INT_CONSTANT(expression))
+    if (IR_IS_INT_CONSTANT(expression))
     {
         fprintf(out,
-                "# push integer constant onto the stack\n"
+                "# push integer constant onto stack\n"
                 "    pushl $%d\n", 
-                ast_int_constant_get_value(XDP_AST_INT_CONSTANT(expression)));
+                ir_int_constant_get_value(IR_INT_CONSTANT(expression)));
     }
-    else if (XDP_IS_AST_BINARY_OPERATION(expression))
+    else if (IR_IS_BOOL_CONSTANT(expression))
     {
-        x86_compile_binary_op(out,
-                              XDP_AST_BINARY_OPERATION(expression),
-                              sym_table);
-    }
-    else if (XDP_IS_AST_VARIABLE_REF(expression))
-    {
-        x86_compile_variable_ref(out,
-                                 XDP_AST_VARIABLE_REF(expression),
-                                 sym_table);
+        gboolean val;
+
+        val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(expression));
+        fprintf(out,
+               "# push boolean constant onto stack\n"
+               "    push $%d\n",
+               val ? 1 : 0);
     }
     else
     {
@@ -581,4 +593,16 @@ x86_compile_expression(FILE *out,
         printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
         assert(false);
     }
+//    else if (XDP_IS_AST_BINARY_OPERATION(ast_exp))
+//    {
+//        x86_compile_binary_op(out,
+//                              expression,
+//                              sym_table);
+//    }
+//    else if (XDP_IS_AST_VARIABLE_REF(ast_exp))
+//    {
+//        x86_compile_variable_ref(out,
+//                                 expression,
+//                                 sym_table);
+//    }
 }

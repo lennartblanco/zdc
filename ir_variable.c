@@ -14,6 +14,9 @@ ir_variable_class_init(gpointer klass, gpointer foo);
 static void
 ir_variable_do_print(IrSymbol *self, FILE *out, int indention);
 
+static AstDataType *
+ir_variable_do_get_data_type(IrExpression *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -46,7 +49,7 @@ ir_variable_get_type(void)
 IrVariable *
 ir_variable_new(AstDataType *type, 
                 char *name,
-                AstExpression *initializer)
+                IrExpression *initializer)
 {
     assert(type);
     assert(name);
@@ -86,7 +89,7 @@ ir_variable_get_data_type(IrVariable *self)
     assert(self);
     assert(IR_IS_VARIABLE(self));
 
-    return self->type;
+    return ir_variable_do_get_data_type(IR_EXPRESSION(self));
 }
 
 char *
@@ -98,7 +101,7 @@ ir_variable_get_name(IrVariable *self)
     return ir_symbol_get_name(IR_SYMBOL(self));
 }
 
-AstExpression *
+IrExpression *
 ir_variable_get_initializer(IrVariable *self)
 {
     assert(self);
@@ -115,6 +118,8 @@ static void
 ir_variable_class_init(gpointer klass, gpointer foo)
 {
     ((IrSymbolClass *)klass)->do_print = ir_variable_do_print;
+    ((IrExpressionClass *)klass)->do_get_data_type =
+        ir_variable_do_get_data_type;
 }
 
 static void
@@ -132,4 +137,13 @@ ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
         fprintf(out, " = ");
         ast_node_print(XDP_AST_NODE(var->initializer), out);
     }
+}
+
+static AstDataType *
+ir_variable_do_get_data_type(IrExpression *self)
+{
+    assert(self);
+    assert(IR_IS_VARIABLE(self));
+
+    return IR_VARIABLE(self)->type;
 }

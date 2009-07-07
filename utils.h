@@ -2,6 +2,22 @@
  * Misc utility functions.
  */
 
+#ifndef UTILS_INC_X
+#define UTILS_INC_X
+
+#include <glib.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+
+typedef struct compilation_status_s
+{
+    const char *source_file;
+    guint errors_count;
+} compilation_status_t;
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -13,7 +29,7 @@
  * @errmsg error message with printf-style formatting
  */
 void
-compile_error(const char *filename, const char *errmsg, ...);
+compile_error(compilation_status_t *compile_status, const char *errmsg, ...);
 
 /**
  * Print the formatted string with indention to the file stream.
@@ -25,3 +41,5 @@ compile_error(const char *filename, const char *errmsg, ...);
  */
 void
 fprintf_indent(FILE *stream, int indention, const char *format, ...);
+
+#endif /* UTILS_INC_X */

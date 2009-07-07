@@ -58,7 +58,7 @@ ir_symbol_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(G_TYPE_OBJECT,
+      type = g_type_register_static(IR_TYPE_EXPRESSION,
                                     "IrSymbolType",
                                     &info, 0);
     }

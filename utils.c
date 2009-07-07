@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "utils.h"
+
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
@@ -14,14 +16,16 @@
  *---------------------------------------------------------------------------*/
 
 void
-compile_error(const char *filename, const char *errmsg, ...)
+compile_error(compilation_status_t *compile_status, const char *errmsg, ...)
 {
     va_list argp;
 
-    printf("%s: error: ", filename);
+    printf("%s: error: ", compile_status->source_file);
     va_start(argp, errmsg);
     vprintf(errmsg, argp);
     va_end(argp);
+
+    compile_status->errors_count += 1;
 }
 
 

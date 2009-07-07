@@ -2,8 +2,8 @@
 #define IR_VARIABLE_INC_X
 
 #include "ir_symbol.h"
+#include "ir_expression.h"
 #include "ast_data_type.h"
-#include "ast_expression.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -36,7 +36,7 @@ typedef struct
     /* variables data type */
     AstDataType   *type;
     /* value to assign to variable when created */
-    AstExpression *initializer;
+    IrExpression  *initializer;
     /* backend specific location of this variable */
     GObject       *location;
     
@@ -65,7 +65,7 @@ ir_variable_get_type(void);
 IrVariable *
 ir_variable_new(AstDataType *type, 
                 char *name,
-                AstExpression *initializer);
+                IrExpression *initializer);
 
 void
 ir_variable_set_location(IrVariable *self, GObject *location);
@@ -79,7 +79,7 @@ ir_variable_get_name(IrVariable *self);
 AstDataType *
 ir_variable_get_data_type(IrVariable *self);
 
-AstExpression *
+IrExpression *
 ir_variable_get_initializer(IrVariable *self);
 
 #endif /* IR_VARIABLE_INC_X */

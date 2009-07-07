@@ -4,6 +4,8 @@
 #include <glib-object.h>
 #include <stdio.h>
 
+#include "ir_expression.h"
+
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
@@ -27,7 +29,7 @@
 
 typedef struct 
 {
-  GObject parent;
+  IrExpression parent;
   /* private */
   char    *name;
 } IrSymbol;

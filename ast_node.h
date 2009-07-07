@@ -44,6 +44,13 @@ typedef struct
 GType
 ast_node_get_type(void);
 
+/**
+ * ast_node_new:
+ *
+ * asdf sd
+ *
+ * Returns: new object
+ */ 
 AstNode*
 ast_node_new(void);
 
