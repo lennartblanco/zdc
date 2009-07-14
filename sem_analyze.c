@@ -14,6 +14,7 @@
 #include "ast_return.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
+#include "ast_binary_operation.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_if_else.h"
@@ -212,6 +213,18 @@ sem_analyze_ast_return_to_ir(compilation_status_t *compile_status,
 }
 
 /**
+ * Convert AST boolean operation to IR form.
+ */
+static IrExpression *
+sem_analyze_ast_boolean_op_to_ir(compilation_status_t *compile_status,
+                                 sym_table_t *symbols,
+                                 AstBinaryOperation *ast_binary_operation)
+{
+    /* not implemented */
+    assert(false);
+}
+
+/**
  * Convert AST expression to IR form.
  */
 static IrExpression *
@@ -253,6 +266,13 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
             return NULL;
         }
         return IR_EXPRESSION(var_symb);
+    } else if (XDP_IS_AST_BINARY_OPERATION(ast_expression)) {
+        AstBinaryOperation *bin_op;
+
+        bin_op = XDP_AST_BINARY_OPERATION(ast_expression);
+
+        return sem_analyze_ast_boolean_op_to_ir(compile_status, 
+                                                symbols, bin_op);
     }
 
     /* unexpected expression type */
