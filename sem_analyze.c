@@ -24,6 +24,7 @@
 #include "ir_while.h"
 #include "ir_foreach.h"
 #include "ir_return.h"
+#include "ir_cast.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -213,14 +214,120 @@ sem_analyze_ast_return_to_ir(compilation_status_t *compile_status,
 }
 
 /**
+ * Return an expression that will preform integer promotion on input
+ * expression.
+ *
+ * If specified expression is of void type or is not basic type, NULL is
+ * returned.
+ */
+static IrExpression *
+sem_analyze_integer_promotion(compilation_status_t *compile_status,
+                              IrExpression *expression)
+{
+    IrExpression *res_exp;
+
+    AstDataType *exp_type;
+    basic_data_type_t exp_data_type;
+
+    exp_type = ir_expression_get_data_type(expression);
+    if (!(XDP_IS_AST_BASIC_TYPE(exp_type))) {
+        compile_error(compile_status, "not a basic type\n");
+        return NULL;
+    }
+
+    exp_data_type = ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_type));
+
+    switch (exp_data_type) {
+        case bool_type:
+            res_exp = IR_EXPRESSION(
+                          ir_cast_new(
+                              XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
+                              expression));
+            break;
+        case void_type:
+            compile_error(compile_status,
+                          "void is invalid type for this expression\n");
+            return NULL;
+        case int_type:
+            /* we don't need to do any type casts */
+            res_exp = expression;
+            break;
+        default:
+            /* unexpected basic type */
+            assert(false);
+    }
+
+    return res_exp;
+}
+
+/**
+ * Build IR representation of an arithmetic binary operation. Adding type
+ * conversion operations if left and right operands are of different types.
+ *
+ * The arithmetic operations are +, -, * and /.
+ */
+static IrExpression *
+sem_analyze_arithmetic_binary_exp(compilation_status_t *compile_status,
+                                  ast_binary_op_type_t operation,
+                                  IrExpression *left,
+                                  IrExpression *right)
+{
+    assert(operation == ast_plus_op  ||
+           operation == ast_minus_op ||
+           operation == ast_mult_op  ||
+           operation == ast_division_op);
+
+   left = sem_analyze_integer_promotion(compile_status, left);
+   if (left == NULL) {
+       return NULL;
+   }
+
+   right = sem_analyze_integer_promotion(compile_status, right);
+   if (right == NULL) {
+       return NULL;
+   }
+
+   /* not implemented */
+   assert(false);
+
+   return NULL;
+}
+
+/**
  * Convert AST boolean operation to IR form.
  */
 static IrExpression *
-sem_analyze_ast_boolean_op_to_ir(compilation_status_t *compile_status,
+sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
-                                 AstBinaryOperation *ast_binary_operation)
+                                 AstBinaryOperation *ast_operation)
 {
-    /* not implemented */
+    IrExpression *left;
+    IrExpression *right;
+    ast_binary_op_type_t op;
+
+    left =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         symbols,
+                                         ast_binary_operation_get_left(ast_operation));
+    right =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         symbols,
+                                         ast_binary_operation_get_right(ast_operation));
+
+    op = ast_binary_operation_get_operation(ast_operation);
+    switch (op) {
+        case ast_plus_op:
+        case ast_minus_op:
+        case ast_mult_op:
+        case ast_division_op:
+            return sem_analyze_arithmetic_binary_exp(compile_status, 
+                                                     op, left, right);
+        default:
+            /* unexpected binary operation */
+            assert(false);
+    }
+
+    /* we should not get here */
     assert(false);
 }
 
@@ -271,8 +378,8 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
 
         bin_op = XDP_AST_BINARY_OPERATION(ast_expression);
 
-        return sem_analyze_ast_boolean_op_to_ir(compile_status, 
-                                                symbols, bin_op);
+        return sem_analyze_ast_binary_op_to_ir(compile_status, 
+                                               symbols, bin_op);
     }
 
     /* unexpected expression type */

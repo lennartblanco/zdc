@@ -31,7 +31,7 @@ typedef struct
 
 typedef struct
 {
-  AstNodeClass parent_class;
+    AstNodeClass parent_class;
 } AstDataTypeClass;
 
 typedef enum basic_data_type_e
