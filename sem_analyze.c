@@ -25,6 +25,7 @@
 #include "ir_foreach.h"
 #include "ir_return.h"
 #include "ir_cast.h"
+#include "ir_binary_operation.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -267,10 +268,10 @@ sem_analyze_integer_promotion(compilation_status_t *compile_status,
  * The arithmetic operations are +, -, * and /.
  */
 static IrExpression *
-sem_analyze_arithmetic_binary_exp(compilation_status_t *compile_status,
-                                  ast_binary_op_type_t operation,
-                                  IrExpression *left,
-                                  IrExpression *right)
+sem_analyze_arithmetic_binary_op(compilation_status_t *compile_status,
+                                 ast_binary_op_type_t operation,
+                                 IrExpression *left,
+                                 IrExpression *right)
 {
     assert(operation == ast_plus_op  ||
            operation == ast_minus_op ||
@@ -287,10 +288,7 @@ sem_analyze_arithmetic_binary_exp(compilation_status_t *compile_status,
        return NULL;
    }
 
-   /* not implemented */
-   assert(false);
-
-   return NULL;
+   return IR_EXPRESSION(ir_binary_operation_new(operation, left, right));
 }
 
 /**
@@ -320,8 +318,8 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
         case ast_minus_op:
         case ast_mult_op:
         case ast_division_op:
-            return sem_analyze_arithmetic_binary_exp(compile_status, 
-                                                     op, left, right);
+            return sem_analyze_arithmetic_binary_op(compile_status, 
+                                                    op, left, right);
         default:
             /* unexpected binary operation */
             assert(false);
@@ -488,7 +486,6 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                                              symbols,
                                              XDP_AST_RETURN(stmt));
             ir_code_block_add_statment(ir_code_block, ret_stmt);
-            printf("return statment! %p\n", ret_stmt);
             /** @todo delete the stmt node here */
         }
         else

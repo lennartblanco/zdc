@@ -12,6 +12,7 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_ref.h"
 #include "ast_return.h"
+#include "ir_binary_operation.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_variable.h"
@@ -46,7 +47,7 @@ x86_compile_expression(FILE *out,
                        sym_table_t *sym_table);
 static void
 x86_compile_binary_op(FILE *out,
-                      AstBinaryOperation *op,
+                      IrBinaryOperation *op,
                       sym_table_t *sym_table);
 
 static int
@@ -471,13 +472,13 @@ x86_gen_variable_assigment(FILE *out,
 
 static void
 x86_compile_binary_op(FILE *out,
-                      AstBinaryOperation *op,
+                      IrBinaryOperation *op,
                       sym_table_t *sym_table)
 {
     char *op_mnemonic;
     bool signextend_left_op = false;
 
-    switch (ast_binary_operation_get_operation(op))
+    switch (ir_binary_operation_get_operation(op))
     {
         case ast_plus_op:
             op_mnemonic = "addl";
@@ -501,10 +502,10 @@ x86_compile_binary_op(FILE *out,
             assert(false);
     }
     x86_compile_expression(out,
-                           ast_binary_operation_get_left(op),
+                           ir_binary_operation_get_left(op),
                            sym_table);
     x86_compile_expression(out,
-                           ast_binary_operation_get_right(op),
+                           ir_binary_operation_get_right(op),
                            sym_table);
     fprintf(out,
             /* move left operand into eax */
@@ -564,8 +565,6 @@ x86_compile_expression(FILE *out,
                        IrExpression *expression,
                        sym_table_t *sym_table)
 {
-    AstExpression *ast_exp;
-
     assert(out);
     assert(expression);
     assert(IR_IS_EXPRESSION(expression));
@@ -587,18 +586,18 @@ x86_compile_expression(FILE *out,
                "    push $%d\n",
                val ? 1 : 0);
     }
+    else if (IR_IS_BINARY_OPERATION(expression))
+    {
+        x86_compile_binary_op(out,
+                              IR_BINARY_OPERATION(expression),
+                              sym_table);
+    }
     else
     {
         /* unexpected expression type */
         printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
         assert(false);
     }
-//    else if (XDP_IS_AST_BINARY_OPERATION(ast_exp))
-//    {
-//        x86_compile_binary_op(out,
-//                              expression,
-//                              sym_table);
-//    }
 //    else if (XDP_IS_AST_VARIABLE_REF(ast_exp))
 //    {
 //        x86_compile_variable_ref(out,
