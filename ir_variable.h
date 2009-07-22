@@ -39,7 +39,6 @@ typedef struct
     IrExpression  *initializer;
     /* backend specific location of this variable */
     GObject       *location;
-    
 } IrVariable;
 
 typedef struct

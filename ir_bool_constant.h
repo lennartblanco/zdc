@@ -46,4 +46,7 @@ ir_bool_constant_get_type(void);
 IrBoolConstant *
 ir_bool_constant_new(gboolean value);
 
+gboolean
+ir_bool_constant_get_value(IrBoolConstant *self);
+
 #endif /* IR_INT_CONSTANT_INC_X */

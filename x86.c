@@ -526,15 +526,10 @@ x86_compile_binary_op(FILE *out,
 
 static void
 x86_compile_variable_ref(FILE *out,
-                         AstVariableRef *var_ref,
-                         sym_table_t *sym_table)
+                         IrVariable *var)
 {
-    IrVariable *var;
     X86FrameOffset *addr;
 
-    var =
-        IR_VARIABLE(sym_table_get_symbol(sym_table,
-                                            ast_variable_ref_get_name(var_ref)));
     addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
 
     /* generate code to put the value of the variable on top of the stack */
@@ -592,16 +587,15 @@ x86_compile_expression(FILE *out,
                               IR_BINARY_OPERATION(expression),
                               sym_table);
     }
+    else if (IR_IS_VARIABLE(expression))
+    {
+        x86_compile_variable_ref(out,
+                                 IR_VARIABLE(expression));
+    }
     else
     {
         /* unexpected expression type */
         printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
         assert(false);
     }
-//    else if (XDP_IS_AST_VARIABLE_REF(ast_exp))
-//    {
-//        x86_compile_variable_ref(out,
-//                                 expression,
-//                                 sym_table);
-//    }
 }
