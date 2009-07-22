@@ -35,7 +35,7 @@ ir_binary_operation_get_type(void)
         NULL    /* instance_init */
       };
       type = g_type_register_static(IR_TYPE_EXPRESSION,
-                                    "IBinaryOperationType",
+                                    "IrBinaryOperationType",
                                     &info, 0);
     }
     return type;
@@ -97,22 +97,22 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy)
 static AstDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self)
 {
-  AstDataType *data_type = NULL;
-  IrBinaryOperation *bin_op = IR_BINARY_OPERATION(self);
+    AstDataType *data_type = NULL;
+    IrBinaryOperation *bin_op = IR_BINARY_OPERATION(self);
   
 
-  switch (bin_op->operation) 
-  {
-      case ast_plus_op:
-      case ast_minus_op:
-      case ast_mult_op:
-      case ast_division_op:
-          data_type = ir_expression_get_data_type(bin_op->left);
-          break;
-      default:
-          /* unexpected binary operation type */
-          g_assert_not_reached();
-  }
+    switch (bin_op->operation) 
+    {
+        case ast_plus_op:
+        case ast_minus_op:
+        case ast_mult_op:
+        case ast_division_op:
+            data_type = ir_expression_get_data_type(bin_op->left);
+            break;
+        default:
+            /* unexpected binary operation type */
+            g_assert_not_reached();
+    }
 
-  return data_type;
+    return data_type;
 }
