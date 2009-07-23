@@ -582,9 +582,9 @@ x86_compile_variable_ref(FILE *out,
         case 1:
             fprintf(out,
                     "# boolean variable (8-bit) value fetch\n"
-                    "    subl $1, %%esp\n"
+                    "    xor %%eax, %%eax\n"
                     "    movb %d(%%ebp), %%al\n"
-                    "    movb %%al, (%%esp)\n",
+                    "    pushl %%eax\n",
                     x86_frame_offset_get_offset(addr));
             break;
         default:
@@ -616,7 +616,7 @@ x86_compile_expression(FILE *out,
         val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(expression));
         fprintf(out,
                "# push boolean constant onto stack\n"
-               "    push $%d\n",
+               "    pushl $%d\n",
                val ? 1 : 0);
     }
     else if (IR_IS_UNARY_OPERATION(expression))
