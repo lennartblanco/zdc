@@ -477,6 +477,12 @@ primary<n> :
   }
 | func_call<n>
 | '(' add_expression<n> ')'
+| '!' primary<x>
+  {
+      (*n).expression =
+          XDP_AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
+                                                     x.expression)); 
+  }
 | '-' primary<x> 
   {
       (*n).expression =
