@@ -456,9 +456,8 @@ x86_gen_variable_assigment(FILE *out,
         case 1:
             fprintf(out,
                     "# assign 8-bit variable value from the stack\n"
-                    "    movb (%%esp), %%al\n"
-                    "    movb %%al, %d(%%ebp)\n"
-                    "    addl $1, %%esp\n",
+                    "    popl %%eax\n"
+                    "    movb %%al, %d(%%ebp)\n",
                     x86_frame_offset_get_offset(addr));
             break;
         default:
