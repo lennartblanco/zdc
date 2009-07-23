@@ -425,6 +425,10 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
                                  AstExpression *ast_expression)
 {
+    assert(compile_status);
+    assert(symbols);
+    assert(ast_expression);
+
     if (XDP_IS_AST_INT_CONSTANT(ast_expression))
     {
         gint32 val;
@@ -522,11 +526,18 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
             AstDataType *var_data_type =
                 ast_variable_definition_get_data_type(var_def);
 
-            IrExpression *initializer =
-                sem_analyze_ast_expression_to_ir(
-                    compile_status,
-                    symbols,
-                    ast_variable_definition_get_initializer(var_def));
+            AstExpression *ast_initializer =
+                ast_variable_definition_get_initializer(var_def);
+
+            IrExpression *initializer = NULL;
+
+            if (ast_initializer != NULL)
+            {
+                initializer =
+                    sem_analyze_ast_expression_to_ir(compile_status,
+                                                     symbols,
+                                                     ast_initializer);
+            }
 
             IrVariable *sym = 
                 ir_variable_new(var_data_type,
