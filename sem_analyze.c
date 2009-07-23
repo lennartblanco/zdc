@@ -425,18 +425,23 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
                                  AstExpression *ast_expression)
 {
-    if (XDP_IS_AST_INT_CONSTANT(ast_expression)) {
+    if (XDP_IS_AST_INT_CONSTANT(ast_expression))
+    {
         gint32 val;
 
         val = ast_int_constant_get_value(XDP_AST_INT_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_int_constant_new(val));
-    } else if (XDP_IS_AST_BOOL_CONSTANT(ast_expression)) {
+    }
+    else if (XDP_IS_AST_BOOL_CONSTANT(ast_expression))
+    {
         gboolean val;
 
         val = 
             ast_bool_constant_get_value(XDP_AST_BOOL_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_bool_constant_new(val));
-    } else if (XDP_IS_AST_VARIABLE_REF(ast_expression)) {
+    }
+    else if (XDP_IS_AST_VARIABLE_REF(ast_expression))
+    {
         AstVariableRef *var_ref;
         IrSymbol *var_symb;
 
@@ -459,14 +464,18 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
             return NULL;
         }
         return IR_EXPRESSION(var_symb);
-    } else if (XDP_IS_AST_UNARY_OPERATION(ast_expression)) {
+    }
+    else if (XDP_IS_AST_UNARY_OPERATION(ast_expression))
+    {
         AstUnaryOperation *op;
 
         op = XDP_AST_UNARY_OPERATION(ast_expression);
 
         return sem_analyze_ast_unary_op_to_ir(compile_status, 
                                               symbols, op);
-    } else if (XDP_IS_AST_BINARY_OPERATION(ast_expression)) {
+    }
+    else if (XDP_IS_AST_BINARY_OPERATION(ast_expression))
+    {
         AstBinaryOperation *bin_op;
 
         bin_op = XDP_AST_BINARY_OPERATION(ast_expression);
