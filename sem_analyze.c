@@ -17,6 +17,7 @@
 #include "ast_unary_operation.h"
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
+#include "ast_function_call.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_if_else.h"
@@ -29,6 +30,7 @@
 #include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_function_call.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -72,6 +74,11 @@ static IrExpression *
 sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
                                  AstBinaryOperation *ast_operation);
+
+static IrExpression *
+sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
+                                sym_table_t *symbols,
+                                AstFunctionCall *func_call);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -416,6 +423,55 @@ sem_analyze_ast_unary_op_to_ir(compilation_status_t *compile_status,
     return IR_EXPRESSION(ir_unary_operation_new(op_type, operand));
 }
 
+static IrExpression *
+sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
+                                sym_table_t *symbols,
+                                AstFunctionCall *func_call)
+{
+    IrSymbol *func_symb;
+    AstDataType *func_return_type;
+    char *func_name;
+    GSList *i;
+    GSList *ir_call_args = NULL;
+
+    func_name = ast_function_call_get_name(func_call);
+
+    /* look-up function in the symbol table */
+    func_symb = sym_table_get_symbol(symbols, func_name);
+    if (func_symb == NULL)
+    {
+        compile_error(compile_status,
+                      "reference to unknow function '%s'\n",
+                      func_name);
+        return NULL;
+    }
+    if (!IR_IS_FUNCTION(func_symb))
+    {
+        compile_error(compile_status,
+                      "called object '%s' is not a function\n",
+                      func_name);
+        return NULL;  
+    }
+
+    func_return_type = ir_function_get_return_type(IR_FUNCTION(func_symb));
+
+    /* convert call argument expressions to IR form */
+    i = ast_function_call_get_arguments(func_call);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        IrExpression *arg;
+
+        arg = 
+            sem_analyze_ast_expression_to_ir(compile_status,
+                                             symbols,
+                                             XDP_AST_EXPRESSION(i->data));
+        ir_call_args = g_slist_prepend(ir_call_args, arg);
+    }
+
+    return IR_EXPRESSION(ir_function_call_new(func_return_type,
+                                              func_name,
+                                              ir_call_args));
+}
 
 /**
  * Convert AST expression to IR form.
@@ -486,6 +542,15 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
 
         return sem_analyze_ast_binary_op_to_ir(compile_status, 
                                                symbols, bin_op);
+    }
+    else if (XDP_IS_AST_FUNCTION_CALL(ast_expression))
+    {
+        AstFunctionCall *func_call;
+
+        func_call = XDP_AST_FUNCTION_CALL(ast_expression);
+        return sem_analyze_ast_func_call_to_ir(compile_status,
+                                               symbols,
+                                               func_call);
     }
 
     /* unexpected expression type */

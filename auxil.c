@@ -31,6 +31,7 @@ compile_file(const char* input_file,
     FILE *input_stream;
     FILE *output_stream;
     IrCompileUnit *ir_compile_unit;
+    int ret = 0;
 
     /* open the input source file */
     input_stream = fopen(input_file, "r");
@@ -68,6 +69,7 @@ compile_file(const char* input_file,
     if (ir_compile_unit == NULL)
     {
         /* error during semantic analysis */
+        ret = -2;
         goto clean_and_exit;  
     }
 
@@ -98,7 +100,7 @@ clean_and_exit:
    fclose(input_stream);
    
 
-   return 0;
+   return ret;
 }
 
 void

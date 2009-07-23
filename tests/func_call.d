@@ -27,7 +27,7 @@ int hej()
     return add(10, foo());
 }
 
-int call_sum(int l)
+int ind_sum(int l)
 {
     return sum(l, get_13(), 10);
 }

@@ -18,6 +18,7 @@
 #include "ir_bool_constant.h"
 #include "ir_variable.h"
 #include "ir_return.h"
+#include "ir_function_call.h"
 
 #include <assert.h>
 
@@ -55,6 +56,11 @@ static void
 x86_compile_unary_op(FILE *out,
                      IrUnaryOperation *op,
                      sym_table_t *sym_table);
+
+static void
+x86_compile_func_call(FILE *out,
+                      IrFunctionCall *func_call,
+                      sym_table_t *sym_table);
 
 static int
 x86_code_block_assign_addrs(FILE *out,
@@ -583,6 +589,59 @@ x86_compile_variable_ref(FILE *out,
 }
 
 static void
+x86_compile_func_call(FILE *out,
+                      IrFunctionCall *func_call,
+                      sym_table_t *sym_table)
+{
+    int arg_num;
+    GSList *i;
+    AstDataType *func_data_type;
+
+    i = ir_function_call_get_arguments(func_call);
+    arg_num = g_slist_length(i);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        x86_compile_expression(out, i->data, sym_table);
+    }
+
+    if (arg_num > 0)
+    {
+        fprintf(out,
+                "# put arg0 into eax\n"
+                "    popl %%eax\n");
+    }
+
+    fprintf(out,
+            "# invoke function\n"
+            "    call %s\n",
+            ir_function_call_get_name(func_call));
+
+    func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
+
+    if (!XDP_IS_AST_BASIC_TYPE(func_data_type))
+    {
+        /* calling function with non-basic return type is not implemented */
+        assert(false);
+    }
+
+    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(func_data_type)))
+    {
+       case void_type:
+           /* nop */
+           break;
+       case bool_type:
+       case int_type:
+           fprintf(out,
+                   "# push function return value on the stack\n"
+                   "    push %%eax\n");
+           break;
+       default:
+           /* unexpected basic data type */
+           assert(false);
+    }
+}
+
+static void
 x86_compile_expression(FILE *out,
                        IrExpression *expression,
                        sym_table_t *sym_table)
@@ -624,6 +683,12 @@ x86_compile_expression(FILE *out,
     {
         x86_compile_variable_ref(out,
                                  IR_VARIABLE(expression));
+    }
+    else if (IR_IS_FUNCTION_CALL(expression))
+    {
+        x86_compile_func_call(out,
+                              IR_FUNCTION_CALL(expression),
+                              sym_table);
     }
     else
     {

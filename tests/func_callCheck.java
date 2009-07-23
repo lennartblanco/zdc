@@ -23,8 +23,8 @@ public class func_callCheck extends check
         res = func_call.sum(-1, 0, 1);
         check("func_call.sum(-1, 0, 1)", res, 0);
 
-        res = func_call.call_sum(5);
-        check("func_call.call_sum(5)", res, 5 + 13 + 10);
+        res = func_call.ind_sum(5);
+        check("func_call.ind_sum(5)", res, 5 + 13 + 10);
 
         exit();
     }
