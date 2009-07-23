@@ -6,10 +6,10 @@
  *          wrappers to call test function with D calling convention         *
  *---------------------------------------------------------------------------*/
 
-int
+bool
 call_return_true()
 {
-   int res;
+   bool res;
 
    asm ("    call return_true\n"
         : "=a"(res)
@@ -18,10 +18,10 @@ call_return_true()
    return res;
 }
 
-int
+bool
 call_return_false()
 {
-   int res;
+   bool res;
 
    asm ("    call return_false\n"
         : "=a"(res)
@@ -29,6 +29,19 @@ call_return_false()
 
    return res;
 }
+
+bool
+call_invert(bool in)
+{
+   bool res;
+
+   asm ("    call invert\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 
 
 /*---------------------------------------------------------------------------*
@@ -42,6 +55,10 @@ main()
 
     /* return_true() test */
     check_bool("return_false()", call_return_false(), false);
+
+    /* invert() tests */
+    check_bool("invert(true)", call_invert(true), false);
+    check_bool("invert(false)", call_invert(false), true);
 
 /*
  * todo add test on:

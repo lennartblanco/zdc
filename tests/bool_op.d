@@ -10,115 +10,120 @@ return_false()
     return false;
 }
 
-bool is_equal(int p0, int p1) { return p0 == p1; }
-
-bool not_equal(int alice, int bob) 
-{ 
-    return alice != bob; 
-}
-
-bool
-is_less_or_equal(int left, 
-                 int right)
+bool invert(bool arg)
 {
-    return left <= right;
+    return !arg;
 }
 
-bool is_greater_or_equal(int l, int r)
-{
-    return l >= r;
-}
+//bool is_equal(int p0, int p1) { return p0 == p1; }
 
-bool
-is_greater(int a, int b)
-{
-    bool res;
+//bool not_equal(int alice, int bob) 
+//{ 
+//    return alice != bob; 
+//}
 
-    res = a > b;
+//bool
+//is_less_or_equal(int left, 
+//                 int right)
+//{
+//    return left <= right;
+//}
 
-    return res;
-}
+//bool is_greater_or_equal(int l, int r)
+//{
+//    return l >= r;
+//}
 
-bool
-greater_tst1()
-{
-    bool f;
+//bool
+//is_greater(int a, int b)
+//{
+//    bool res;
 
-    f = 10 + 2 > 20;
+//    res = a > b;
 
-    return f;
-}
+//    return res;
+//}
 
-bool
-greater_tst2(int x)
-{
-    bool f;
+//bool
+//greater_tst1()
+//{
+//    bool f;
 
-    f = 10 + 2 > 10 * x;
-    return f;
-}
+//    f = 10 + 2 > 20;
 
-bool
-greater_tst3(int x)
-{
-    return 10 + 2 > 20 * x;
-}
+//    return f;
+//}
 
-bool
-is_less(int a, int b)
-{
-    bool res;
+//bool
+//greater_tst2(int x)
+//{
+//    bool f;
 
-    res = a < b;
+//    f = 10 + 2 > 10 * x;
+//    return f;
+//}
 
-    return res;
-}
+//bool
+//greater_tst3(int x)
+//{
+//    return 10 + 2 > 20 * x;
+//}
 
-bool
-less_tst1()
-{
-    bool f;
+//bool
+//is_less(int a, int b)
+//{
+//    bool res;
 
-    f = 10 + 2 < 20;
+//    res = a < b;
 
-    return f;
-}
+//    return res;
+//}
 
-bool
-less_tst2(int x)
-{
-    bool f;
+//bool
+//less_tst1()
+//{
+//    bool f;
 
-    f = 10 + 2 < 20 * x;
-    return f;
-}
+//    f = 10 + 2 < 20;
 
-bool
-less_tst3(int x)
-{
-    return 10 + 2 < 20 * x;
-}
+//    return f;
+//}
 
-bool
-tripple_and_op(bool left, bool right, bool last)
-{
-   return left && right && last;
-}
+//bool
+//less_tst2(int x)
+//{
+//    bool f;
 
-bool
-andor_ops(bool a, bool b, bool c)
-{
-    return a && b || c; 
-}
+//    f = 10 + 2 < 20 * x;
+//    return f;
+//}
 
-bool
-and_oper(bool left, bool right)
-{
-    return left && right;
-}
+//bool
+//less_tst3(int x)
+//{
+//    return 10 + 2 < 20 * x;
+//}
 
-bool
-or_oper(bool l, bool r)
-{
-    return l || r;
-}
+//bool
+//tripple_and_op(bool left, bool right, bool last)
+//{
+//   return left && right && last;
+//}
+
+//bool
+//andor_ops(bool a, bool b, bool c)
+//{
+//    return a && b || c; 
+//}
+
+//bool
+//and_oper(bool left, bool right)
+//{
+//    return left && right;
+//}
+
+//bool
+//or_oper(bool l, bool r)
+//{
+//    return l || r;
+//}

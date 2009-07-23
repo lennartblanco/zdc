@@ -12,6 +12,7 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_ref.h"
 #include "ast_return.h"
+#include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
@@ -49,6 +50,11 @@ static void
 x86_compile_binary_op(FILE *out,
                       IrBinaryOperation *op,
                       sym_table_t *sym_table);
+
+static void
+x86_compile_unary_op(FILE *out,
+                     IrUnaryOperation *op,
+                     sym_table_t *sym_table);
 
 static int
 x86_code_block_assign_addrs(FILE *out,
@@ -433,6 +439,7 @@ x86_compile_code_block(FILE *out,
         else
         {
             /* unexpected statment type */
+            printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(stmts->data)));
             assert(false);
         }
     }
@@ -468,6 +475,37 @@ x86_gen_variable_assigment(FILE *out,
             /* unexpected/unsupported storage size */
             assert(false);
     }
+}
+
+static void
+x86_compile_unary_op(FILE *out,
+                     IrUnaryOperation *op,
+                     sym_table_t *sym_table)
+{
+    ast_unary_op_type_t op_type;
+
+    op_type = ir_unary_operation_get_operation(op);
+
+    x86_compile_expression(out,
+                           ir_unary_operation_get_operand(op),
+                           sym_table);
+
+    switch (op_type)
+    {    
+        case ast_arithm_neg_op:
+            fprintf(out,
+                    "    negl (%%esp)\n");
+            break;
+        case ast_bool_neg_op:
+            fprintf(out,
+                    "    notl (%%esp)\n"
+                    "    andl $0x1, (%%esp)\n");
+            break;
+        default:
+            /* unexpected unary operation */
+            assert(false);
+    }
+
 }
 
 static void
@@ -580,6 +618,12 @@ x86_compile_expression(FILE *out,
                "# push boolean constant onto stack\n"
                "    push $%d\n",
                val ? 1 : 0);
+    }
+    else if (IR_IS_UNARY_OPERATION(expression))
+    {
+        x86_compile_unary_op(out,
+                             IR_UNARY_OPERATION(expression),
+                             sym_table);
     }
     else if (IR_IS_BINARY_OPERATION(expression))
     {

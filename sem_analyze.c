@@ -14,7 +14,9 @@
 #include "ast_return.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
+#include "ast_unary_operation.h"
 #include "ast_binary_operation.h"
+#include "ast_unary_operation.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_if_else.h"
@@ -25,6 +27,7 @@
 #include "ir_foreach.h"
 #include "ir_return.h"
 #include "ir_cast.h"
+#include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "utils.h"
 
@@ -59,6 +62,16 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
                                  AstExpression *ast_expression);
 
+static IrExpression *
+sem_analyze_arithmetic_binary_op(compilation_status_t *compile_status,
+                                 ast_binary_op_type_t operation,
+                                 IrExpression *left,
+                                 IrExpression *right);
+
+static IrExpression *
+sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
+                                 sym_table_t *symbols,
+                                 AstBinaryOperation *ast_operation);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -292,7 +305,7 @@ sem_analyze_arithmetic_binary_op(compilation_status_t *compile_status,
 }
 
 /**
- * Convert AST boolean operation to IR form.
+ * Convert AST binary operation to IR form.
  */
 static IrExpression *
 sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
@@ -328,6 +341,81 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
     /* we should not get here */
     assert(false);
 }
+
+
+/**
+ * Convert AST unary operation to IR form.
+ */
+static IrExpression *
+sem_analyze_ast_unary_op_to_ir(compilation_status_t *compile_status,
+                               sym_table_t *symbols,
+                               AstUnaryOperation *ast_operation)
+{
+    IrExpression *operand;
+    AstDataType *operand_type;
+    basic_data_type_t operand_data_type;
+    ast_unary_op_type_t op_type;
+
+    operand =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         symbols,
+                                         ast_unary_operation_get_operand(ast_operation));
+
+
+    operand_type = ir_expression_get_data_type(operand);
+    if (!(XDP_IS_AST_BASIC_TYPE(operand_type))) {
+        compile_error(compile_status, "not a basic type\n");
+        return NULL;
+    }
+
+    operand_data_type =
+        ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(operand_type));
+
+    op_type = ast_unary_operation_get_operation(ast_operation);
+    switch (op_type)
+    {
+        case ast_arithm_neg_op:
+            switch (operand_data_type)
+            {
+                case int_type:
+                    /* nop */
+                    break;
+                case bool_type:
+                    operand =
+                      IR_EXPRESSION(
+                        ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
+                                    operand));
+                    break;
+                default:
+                    /* unexpected operand data type */
+                    assert(false);
+            }
+            break;
+        case ast_bool_neg_op:
+            switch (operand_data_type)
+            {
+                case bool_type:
+                    /* nop */
+                    break;
+                case int_type:
+                    operand =
+                      IR_EXPRESSION(
+                        ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
+                                    operand));
+                    break;
+                default:
+                    /* unexpected operand data type */
+                    assert(false);
+            }
+            break;
+        default:
+            /* unexpected unary operation */
+            assert(false);
+    }
+
+    return IR_EXPRESSION(ir_unary_operation_new(op_type, operand));
+}
+
 
 /**
  * Convert AST expression to IR form.
@@ -371,6 +459,13 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
             return NULL;
         }
         return IR_EXPRESSION(var_symb);
+    } else if (XDP_IS_AST_UNARY_OPERATION(ast_expression)) {
+        AstUnaryOperation *op;
+
+        op = XDP_AST_UNARY_OPERATION(ast_expression);
+
+        return sem_analyze_ast_unary_op_to_ir(compile_status, 
+                                              symbols, op);
     } else if (XDP_IS_AST_BINARY_OPERATION(ast_expression)) {
         AstBinaryOperation *bin_op;
 
@@ -381,6 +476,7 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
     }
 
     /* unexpected expression type */
+    printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(ast_expression)));
     g_assert_not_reached();
     return NULL;
 }

@@ -1,3 +1,8 @@
+int neg0(int arg)
+{
+  return -arg;
+}
+
 int neg1(int u)
 {
    u = - u;
@@ -46,5 +51,4 @@ int neg6(int l)
 
    return v;
 }
-
 
