@@ -359,20 +359,10 @@ x86_compile_code_block(FILE *out,
                 switch (bdt)
                 {
                     case int_type:
-                        /* update to new ir-form */
-                        assert(false);
-//                        var_init =
-//                            ir_expression_new(var_type,
-//                                              XDP_AST_EXPRESSION(
-//                                                  ast_int_constant_new(0)));
-//                        break;
+                        var_init = IR_EXPRESSION(ir_int_constant_new(0));
+                        break;
                     case bool_type:
-                        /* update to new ir-form */
-                        assert(false);
-//                        var_init =
-//                            ir_expression_new(var_type,
-//                                              XDP_AST_EXPRESSION(
-//                                                 ast_bool_constant_new(false)));
+                        var_init = IR_EXPRESSION(ir_bool_constant_new(false));
                         break;
                     default:
                         assert(false);
