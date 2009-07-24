@@ -19,6 +19,7 @@
 #include "ir_variable.h"
 #include "ir_return.h"
 #include "ir_function_call.h"
+#include "ir_assigment.h"
 
 #include <assert.h>
 
@@ -411,9 +412,11 @@ x86_compile_code_block(FILE *out,
     GSList *stmts = ir_code_block_get_statments(code_block);
     for (;stmts != NULL; stmts = g_slist_next(stmts))
     {
-        if (IR_IS_RETURN(stmts->data))
+        IrStatment *statment = IR_STATMENT(stmts->data);
+
+        if (IR_IS_RETURN(statment))
         {
-            IrReturn *ret = IR_RETURN(stmts->data);
+            IrReturn *ret = IR_RETURN(statment);
             IrExpression *return_val = ir_return_get_return_value(ret);
             if (return_val != NULL)
             {
@@ -423,9 +426,20 @@ x86_compile_code_block(FILE *out,
             }
             fprintf(out, "    jmp %s\n", return_label);
         }
-        else if (IR_IS_FUNCTION_CALL(stmts->data))
+        else if (IR_IS_FUNCTION_CALL(statment))
         {
-            x86_compile_func_call(out, stmts->data, locals, false);
+            x86_compile_func_call(out, 
+                                  IR_FUNCTION_CALL(statment),
+                                  locals,
+                                  false);
+        }
+        else if (IR_IS_ASSIGMENT(statment))
+        {
+            IrAssigment *assig = IR_ASSIGMENT(statment);
+            x86_gen_variable_assigment(out, 
+                                       ir_assigment_get_target(assig),
+                                       ir_assigment_get_value(assig),
+                                       locals);
         }
         else
         {

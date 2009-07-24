@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "sem_analyze.h"
+#include "types.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
 #include "ast_assigment.h"
@@ -30,6 +31,7 @@
 #include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_assigment.h"
 #include "ir_function_call.h"
 #include "utils.h"
 
@@ -44,20 +46,25 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                                  AstCodeBlock *ast_code_block,
                                  IrCodeBlock *ir_code_block);
 
-static IrWhile *
+static IrStatment *
 sem_analyze_ast_while_to_ir(compilation_status_t *compile_status,
                             sym_table_t *parent_symbols,
                             AstWhile *ast_while);
 
-static IrForeach *
+static IrStatment *
 sem_analyze_ast_foreach_to_ir(compilation_status_t *compile_status,
                               sym_table_t *parent_symbols,
                               AstForeach *ast_foreach);
 
-static IrReturn *
+static IrStatment *
 sem_analyze_ast_return_to_ir(compilation_status_t *compile_status,
                              sym_table_t *symbols,
                              AstReturn *ast_return);
+
+static IrStatment *
+sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
+                                sym_table_t *symbols,
+                                AstAssigment *ast_assigment);
 
 static IrExpression *
 sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
@@ -108,7 +115,7 @@ sem_analyze_ast_if_block_to_ir(compilation_status_t *compile_status,
 /**
  * convert AST if_else statment to IR form.
  */
-static IrIfElse * 
+static IrStatment * 
 sem_analyze_ast_if_else_to_ir(compilation_status_t *compile_status,
                               IrCodeBlock *parent_block,
                               AstIfElse *ast_if_else)
@@ -143,13 +150,13 @@ sem_analyze_ast_if_else_to_ir(compilation_status_t *compile_status,
         ir_if_else_set_else_body(ifelse, else_body);
     }
 
-    return ifelse;
+    return IR_STATMENT(ifelse);
 }
 
 /**
  * Convert AST while statment to IR form.
  */
-static IrWhile *
+static IrStatment *
 sem_analyze_ast_while_to_ir(compilation_status_t *compile_status,
                             sym_table_t *parent_symbols,
                             AstWhile *ast_while)
@@ -160,10 +167,11 @@ sem_analyze_ast_while_to_ir(compilation_status_t *compile_status,
                                      ast_while_get_body(ast_while),
                                      body);    
 
-    return ir_while_new(ast_while_get_loop_condition(ast_while), body);
+    return 
+       IR_STATMENT(ir_while_new(ast_while_get_loop_condition(ast_while), body));
 }
 
-static IrForeach *
+static IrStatment *
 sem_analyze_ast_foreach_to_ir(compilation_status_t *compile_status,
                               sym_table_t *parent_symbols,
                               AstForeach *ast_foreach)
@@ -208,13 +216,13 @@ sem_analyze_ast_foreach_to_ir(compilation_status_t *compile_status,
     foreach = ir_foreach_new(ir_index, ir_value,
                              ast_foreach_get_aggregate(ast_foreach), body);
 
-    return foreach;
+    return IR_STATMENT(foreach);
 }
 
 /**
  * Convert AST return statment to IR form.
  */
-static IrReturn *
+static IrStatment *
 sem_analyze_ast_return_to_ir(compilation_status_t *compile_status,
                              sym_table_t *symbols,
                              AstReturn *ast_return)
@@ -231,7 +239,57 @@ sem_analyze_ast_return_to_ir(compilation_status_t *compile_status,
                                            ast_return_value); 
   }
 
-  return ir_return_new(ir_return_value);
+  return IR_STATMENT(ir_return_new(ir_return_value));
+}
+
+static IrStatment *
+sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
+                                sym_table_t *symbols,
+                                AstAssigment *ast_assigment)
+{
+    AstVariableRef *target;
+    IrSymbol *target_sym;
+    AstExpression *value;
+    IrExpression *ir_value;
+    AstDataType *target_type;
+
+    target = ast_assigment_get_target(ast_assigment);
+    value = ast_assigment_get_value(ast_assigment);
+
+    target_sym =
+        sym_table_get_symbol(symbols, ast_variable_ref_get_name(target));
+    if (target_sym == NULL)
+    {
+        compile_error(compile_status,
+                      "'%s' undeclared\n",
+                      ast_variable_ref_get_name(target));
+        return NULL;
+    }
+    if (!IR_IS_VARIABLE(target_sym))
+    {
+        compile_error(compile_status,
+                      "can not assign value to '%s', not a variable\n",
+                      ast_variable_ref_get_name(target));
+        return NULL;
+    }
+
+    target_type = ir_expression_get_data_type(IR_EXPRESSION(target_sym));
+
+    ir_value =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         symbols,
+                                         value);
+
+    ir_value = types_implicit_conv(target_type, ir_value);
+    if (ir_value == NULL)
+    {
+        compile_error(compile_status,
+                      "incompatible types in assigment to '%s'\n",
+                      ast_variable_ref_get_name(target));
+        return NULL;
+    }
+
+    return IR_STATMENT(ir_assigment_new(IR_VARIABLE(target_sym), ir_value));
 }
 
 /**
@@ -578,7 +636,9 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
     i = ast_code_block_get_statments(ast_code_block);
     for (; i != NULL; i = g_slist_next(i))
     {
+        IrStatment *ir_stmt = NULL;
         AstStatment *stmt = XDP_AST_STATMENT(i->data);
+
         /* variable declaration found */
         if (XDP_IS_AST_VARIABLE_DEFINITION(stmt))
         {
@@ -617,6 +677,8 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                 return;
             }
             /** @todo delete the stmt node here */
+            /* no IR statment to add, jump to next ast statment */
+            continue;
         }
         /* sub-code block found */
         else if (XDP_IS_AST_CODE_BLOCK(stmt))
@@ -627,63 +689,64 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
             sem_analyze_ast_code_block_to_ir(compile_status,
                                              XDP_AST_CODE_BLOCK(stmt),
                                              sub_block);
-            ir_code_block_add_statment(ir_code_block, sub_block);
+            ir_stmt = IR_STATMENT(sub_block);
         }
         else if (XDP_IS_AST_IF_ELSE(stmt))
         {
-            IrIfElse *ifelse =
+            ir_stmt =
                 sem_analyze_ast_if_else_to_ir(compile_status,
                                               ir_code_block,
                                               XDP_AST_IF_ELSE(stmt));
-
-            ir_code_block_add_statment(ir_code_block,
-                                       ifelse);
-
-            /** @todo delete the stmt node here */
         }
         else if (XDP_IS_AST_WHILE(stmt))
         {
-            IrWhile *w =
+            ir_stmt =
                 sem_analyze_ast_while_to_ir(compile_status,
                                             symbols,
                                             XDP_AST_WHILE(stmt));
-
-            ir_code_block_add_statment(ir_code_block, w);
-            /** @todo delete the stmt node here */
         }
         else if (XDP_IS_AST_FOREACH(stmt))
         {
-            IrForeach *f =
+            ir_stmt =
                 sem_analyze_ast_foreach_to_ir(compile_status,
                                               symbols,
                                               XDP_AST_FOREACH(stmt));
-            ir_code_block_add_statment(ir_code_block, f);
-            /** @todo delete the stmt node here */
         }
         else if (XDP_IS_AST_RETURN(stmt))
         {
-            IrReturn *ret_stmt =
+            ir_stmt =
                 sem_analyze_ast_return_to_ir(compile_status,
                                              symbols,
                                              XDP_AST_RETURN(stmt));
-            ir_code_block_add_statment(ir_code_block, ret_stmt);
-            /** @todo delete the stmt node here */
         }
         else if (XDP_IS_AST_FUNCTION_CALL(stmt))
         {
-            IrExpression *func_call;
-            
-            func_call = sem_analyze_ast_func_call_to_ir(compile_status,
-                                               symbols,
-                                               XDP_AST_FUNCTION_CALL(stmt));
-
-            ir_code_block_add_statment(ir_code_block, func_call);
-            /** @todo delete the stmt node here */
+            ir_stmt =
+                IR_STATMENT(
+                  sem_analyze_ast_func_call_to_ir(compile_status,
+                                                  symbols,
+                                                  XDP_AST_FUNCTION_CALL(stmt)));
+        }
+        else if (XDP_IS_AST_ASSIGMENT(stmt))
+        {
+            ir_stmt =
+                sem_analyze_ast_assigment_to_ir(compile_status,
+                                                symbols,
+                                                XDP_AST_ASSIGMENT(stmt));
         }
         else
         {
-            ir_code_block_add_statment(ir_code_block, stmt);
+            /* unexpected statment type */
+            assert(false);
         }
+
+        if (ir_stmt == NULL)
+        {
+            /* semantic error found, bail out */
+            return;
+        }
+        ir_code_block_add_statment(ir_code_block, ir_stmt);
+        /** @todo delete the stmt node here */
     }
 }
 

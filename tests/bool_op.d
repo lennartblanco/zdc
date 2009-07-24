@@ -15,115 +15,115 @@ bool invert(bool arg)
     return !arg;
 }
 
-//bool is_equal(int p0, int p1) { return p0 == p1; }
+bool is_equal(int p0, int p1) { return p0 == p1; }
 
-//bool not_equal(int alice, int bob) 
-//{ 
-//    return alice != bob; 
-//}
+bool not_equal(int alice, int bob) 
+{ 
+    return alice != bob; 
+}
 
-//bool
-//is_less_or_equal(int left, 
-//                 int right)
-//{
-//    return left <= right;
-//}
+bool
+is_less_or_equal(int left, 
+                 int right)
+{
+    return left <= right;
+}
 
-//bool is_greater_or_equal(int l, int r)
-//{
-//    return l >= r;
-//}
+bool is_greater_or_equal(int l, int r)
+{
+    return l >= r;
+}
 
-//bool
-//is_greater(int a, int b)
-//{
-//    bool res;
+bool
+is_greater(int a, int b)
+{
+    bool res;
 
-//    res = a > b;
+    res = a > b;
 
-//    return res;
-//}
+    return res;
+}
 
-//bool
-//greater_tst1()
-//{
-//    bool f;
+bool
+greater_tst1()
+{
+    bool f;
 
-//    f = 10 + 2 > 20;
+    f = 10 + 2 > 20;
 
-//    return f;
-//}
+    return f;
+}
 
-//bool
-//greater_tst2(int x)
-//{
-//    bool f;
+bool
+greater_tst2(int x)
+{
+    bool f;
 
-//    f = 10 + 2 > 10 * x;
-//    return f;
-//}
+    f = 10 + 2 > 10 * x;
+    return f;
+}
 
-//bool
-//greater_tst3(int x)
-//{
-//    return 10 + 2 > 20 * x;
-//}
+bool
+greater_tst3(int x)
+{
+    return 10 + 2 > 20 * x;
+}
 
-//bool
-//is_less(int a, int b)
-//{
-//    bool res;
+bool
+is_less(int a, int b)
+{
+    bool res;
 
-//    res = a < b;
+    res = a < b;
 
-//    return res;
-//}
+    return res;
+}
 
-//bool
-//less_tst1()
-//{
-//    bool f;
+bool
+less_tst1()
+{
+    bool f;
 
-//    f = 10 + 2 < 20;
+    f = 10 + 2 < 20;
 
-//    return f;
-//}
+    return f;
+}
 
-//bool
-//less_tst2(int x)
-//{
-//    bool f;
+bool
+less_tst2(int x)
+{
+    bool f;
 
-//    f = 10 + 2 < 20 * x;
-//    return f;
-//}
+    f = 10 + 2 < 20 * x;
+    return f;
+}
 
-//bool
-//less_tst3(int x)
-//{
-//    return 10 + 2 < 20 * x;
-//}
+bool
+less_tst3(int x)
+{
+    return 10 + 2 < 20 * x;
+}
 
-//bool
-//tripple_and_op(bool left, bool right, bool last)
-//{
-//   return left && right && last;
-//}
+bool
+tripple_and_op(bool left, bool right, bool last)
+{
+   return left && right && last;
+}
 
-//bool
-//andor_ops(bool a, bool b, bool c)
-//{
-//    return a && b || c; 
-//}
+bool
+andor_ops(bool a, bool b, bool c)
+{
+    return a && b || c; 
+}
 
-//bool
-//and_oper(bool left, bool right)
-//{
-//    return left && right;
-//}
+bool
+and_oper(bool left, bool right)
+{
+    return left && right;
+}
 
-//bool
-//or_oper(bool l, bool r)
-//{
-//    return l || r;
-//}
+bool
+or_oper(bool l, bool r)
+{
+    return l || r;
+}

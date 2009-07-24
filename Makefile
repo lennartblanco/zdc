@@ -9,8 +9,8 @@ X86_TRGT_OBJS := x86.o x86_reg_location.o x86_frame_offset.o
 
 .PHONY: docs
 
-OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o                \
-	sem_analyze.o ast_array_constant.o ast_while.o                   \
+OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o types.o        \
+	sem_analyze.o ast_array_constant.o ast_while.o                        \
         ast_node.o ast_compile_unit.o ast_function.o ast_data_type.o          \
         ast_basic_type.o ast_code_block.o ast_statment.o ast_expression.o     \
         ast_return.o ast_constant.o ast_int_constant.o ast_bool_constant.o    \
@@ -23,7 +23,7 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o                \
         ir_int_constant.o ir_binary_operation.o ir_unary_operation.o          \
         ir_bool_constant.o ir_cast.o ir_compile_unit.o ir_if_else.o           \
         ir_if_block.o ir_while.o ir_foreach.o ir_expression.o ir_return.o     \
-        ir_function_call.o                                                    \
+        ir_function_call.o ir_assigment.o                                     \
         $(X86_TRGT_OBJS) $(JAVA_TRGT_OBJS)
 
 
