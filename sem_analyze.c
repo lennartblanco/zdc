@@ -669,6 +669,17 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
             ir_code_block_add_statment(ir_code_block, ret_stmt);
             /** @todo delete the stmt node here */
         }
+        else if (XDP_IS_AST_FUNCTION_CALL(stmt))
+        {
+            IrExpression *func_call;
+            
+            func_call = sem_analyze_ast_func_call_to_ir(compile_status,
+                                               symbols,
+                                               XDP_AST_FUNCTION_CALL(stmt));
+
+            ir_code_block_add_statment(ir_code_block, func_call);
+            /** @todo delete the stmt node here */
+        }
         else
         {
             ir_code_block_add_statment(ir_code_block, stmt);

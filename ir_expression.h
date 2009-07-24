@@ -3,8 +3,8 @@
 
 #include <glib-object.h>
 
+#include "ir_statment.h"
 #include "ast_data_type.h"
-#include "ast_expression.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -29,12 +29,12 @@
 
 typedef struct 
 {
-  GObject parent;
+  IrStatment parent;
 } IrExpression;
 
 typedef struct 
 {
-  GObjectClass parent_class;
+  IrStatmentClass parent_class;
   /* public virtual methods */
   AstDataType * (*do_get_data_type) (IrExpression *self);
 } IrExpressionClass;

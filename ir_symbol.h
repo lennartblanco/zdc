@@ -36,7 +36,7 @@ typedef struct
 
 typedef struct 
 {
-  GObjectClass parent_class;
+  IrExpressionClass parent_class;
   /* public virtual methods */
   void (*do_print) (IrSymbol *self, FILE *out, int indention);
 } IrSymbolClass;

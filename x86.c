@@ -60,8 +60,8 @@ x86_compile_unary_op(FILE *out,
 static void
 x86_compile_func_call(FILE *out,
                       IrFunctionCall *func_call,
-                      sym_table_t *sym_table);
-
+                      sym_table_t *sym_table,
+                      bool retain_return_value);
 static int
 x86_code_block_assign_addrs(FILE *out,
                             int first_num,
@@ -418,19 +418,14 @@ x86_compile_code_block(FILE *out,
             if (return_val != NULL)
             {
                 x86_compile_expression(out, return_val, locals);
-                /* todo: 
-                 * here we should take into account the size
-                 * of the data type we are about to return
-                 * popl %eax only works if we are returning 32-bit value,
-                 *    if we want to return for example boolean, this would put
-                 *     garbage into most significant parts of %eax and stack 
-                 *                              will underflow with 3 bytes
-                 *
-                 */
                 fprintf(out,
                         "    popl %%eax\n");
             }
             fprintf(out, "    jmp %s\n", return_label);
+        }
+        else if (IR_IS_FUNCTION_CALL(stmts->data))
+        {
+            x86_compile_func_call(out, stmts->data, locals, false);
         }
         else
         {
@@ -588,10 +583,16 @@ x86_compile_variable_ref(FILE *out,
     }
 }
 
+/**
+ * @param retain_return_value if true and called function is not void, the return 
+ *                            value of the function is pushed on the stack,
+ *                            if false, the return value is discarded
+ */
 static void
 x86_compile_func_call(FILE *out,
                       IrFunctionCall *func_call,
-                      sym_table_t *sym_table)
+                      sym_table_t *sym_table,
+                      bool retain_return_value)
 {
     int arg_num;
     GSList *i;
@@ -624,20 +625,23 @@ x86_compile_func_call(FILE *out,
         assert(false);
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(func_data_type)))
+    if (retain_return_value)
     {
-       case void_type:
-           /* nop */
-           break;
-       case bool_type:
-       case int_type:
-           fprintf(out,
-                   "# push function return value on the stack\n"
-                   "    push %%eax\n");
-           break;
-       default:
-           /* unexpected basic data type */
-           assert(false);
+        switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(func_data_type)))
+        {
+           case void_type:
+               /* nop */
+               break;
+           case bool_type:
+           case int_type:
+               fprintf(out,
+                       "# push function return value on the stack\n"
+                       "    push %%eax\n");
+               break;
+           default:
+               /* unexpected basic data type */
+               assert(false);
+        }
     }
 }
 
@@ -688,7 +692,8 @@ x86_compile_expression(FILE *out,
     {
         x86_compile_func_call(out,
                               IR_FUNCTION_CALL(expression),
-                              sym_table);
+                              sym_table,
+                              true);
     }
     else
     {
