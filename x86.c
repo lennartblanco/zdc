@@ -513,9 +513,9 @@ x86_compile_unary_op(FILE *out,
 }
 
 static void
-x86_compile_binary_op(FILE *out,
-                      IrBinaryOperation *op,
-                      sym_table_t *sym_table)
+x86_compile_iarithm_op(FILE *out,
+                       IrBinaryOperation *op,
+                       sym_table_t *sym_table)
 {
     char *op_mnemonic;
     bool signextend_left_op = false;
@@ -565,6 +565,76 @@ x86_compile_binary_op(FILE *out,
             op_mnemonic);
     
 }
+
+static void
+x86_compile_icomp_op(FILE *out,
+                     IrBinaryOperation *op,
+                     sym_table_t *sym_table)
+{
+    char *set_suffix;
+
+    switch (ir_binary_operation_get_operation(op))
+    {
+        case ast_equal_op:
+            set_suffix = "e";
+            break;
+        case ast_not_equal_op:
+            set_suffix = "ne";
+            break;
+        case ast_less_op:
+            set_suffix = "l";
+            break;
+        case ast_greater_op:
+            set_suffix = "g";
+            break;
+        case ast_less_or_eq_op:
+            set_suffix = "le";
+            break;
+        case ast_greater_or_eq_op:
+            set_suffix = "ge";
+            break;
+        default:
+            /* unexpected operation type */
+            assert(false);
+    }
+
+    x86_compile_expression(out,
+                           ir_binary_operation_get_left(op),
+                           sym_table);
+    x86_compile_expression(out,
+                           ir_binary_operation_get_right(op),
+                           sym_table);
+    fprintf(out,
+            "    xor %%ebx, %%ebx\n"
+            "    popl %%eax\n"
+            "    cmp %%eax, (%%esp)\n"
+            "    set%s %%bl\n"
+            "    movl %%ebx, (%%esp)\n",
+            set_suffix);
+    
+}
+
+static void
+x86_compile_binary_op(FILE *out,
+                      IrBinaryOperation *op,
+                      sym_table_t *sym_table)
+{
+    if (ir_binary_operation_is_iarithm(op))
+    {
+        x86_compile_iarithm_op(out, op, sym_table);
+    }
+    else if (ir_binary_operation_is_icomp(op))
+    {
+        x86_compile_icomp_op(out, op, sym_table);
+    }
+    else
+    {
+        /* unexpected operation type */
+        assert(false);
+    }
+}
+
+
 
 static void
 x86_compile_variable_ref(FILE *out,

@@ -24,4 +24,20 @@ IrExpression *
 types_implicit_conv(AstDataType *target_type,
                     IrExpression *expression);
 
+/**
+ * Return an expression that will preform integer promotion on input
+ * expression.
+ *
+ * If specified expression is of void type or is not basic type, NULL is
+ * returned.
+ */
+IrExpression *
+types_integer_promotion(IrExpression *expression);
+
+bool
+types_usual_arithm_conv(IrExpression *left,
+                        IrExpression *right,
+                        IrExpression **res_left,
+                        IrExpression **res_right);
+
 #endif /* TYPES_INC_X */

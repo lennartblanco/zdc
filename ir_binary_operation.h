@@ -1,6 +1,8 @@
 #ifndef IR_BINARY_OPERATION_INC_X
 #define IR_BINARY_OPERATION_INC_X
 
+#include <stdbool.h>
+
 #include "ast_binary_operation.h"
 #include "ir_expression.h"
 
@@ -60,5 +62,19 @@ ir_binary_operation_get_left(IrBinaryOperation *self);
 
 IrExpression *
 ir_binary_operation_get_right(IrBinaryOperation *self);
+
+/**
+ * Returns true if this is an integer arithmetic binary operation.
+ * Integer arithmetic operations +, -, *, / over integer expressions.
+ */
+bool
+ir_binary_operation_is_iarithm(IrBinaryOperation *self);
+
+/**
+ * Return true of this is an integer comparison operation.
+ * Integer comparison are == and != between to integers.
+ */
+bool
+ir_binary_operation_is_icomp(IrBinaryOperation *self);
 
 #endif /* IR_BINARY_OPERATION_INC_X */

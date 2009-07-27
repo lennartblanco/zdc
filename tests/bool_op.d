@@ -127,3 +127,23 @@ or_oper(bool l, bool r)
 {
     return l || r;
 }
+
+//
+// test cases:
+// foo(10) == 2
+// foo(1) == 1
+// foo() == 2
+//
+int
+nested_eq(int arg)
+{
+  bool a;
+  bool b;
+  bool c;
+
+  a = (1 == (arg == 10)) == false;
+  b = (1 == arg) == (10 == 22);
+  c = 1 == ((arg == 10) == true);
+
+  return  a+b+c;
+}

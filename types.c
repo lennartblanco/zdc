@@ -56,6 +56,94 @@ types_implicit_conv(AstDataType *target_type,
     return res_exp;
 }
 
+IrExpression *
+types_integer_promotion(IrExpression *expression)
+{
+    IrExpression *res_exp;
+
+    AstDataType *exp_type;
+    basic_data_type_t exp_data_type;
+
+    exp_type = ir_expression_get_data_type(expression);
+    if (!(XDP_IS_AST_BASIC_TYPE(exp_type))) {
+        return NULL;
+    }
+
+    exp_data_type = ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_type));
+
+    switch (exp_data_type) {
+        case bool_type:
+            res_exp = IR_EXPRESSION(
+                          ir_cast_new(
+                              XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
+                              expression));
+            break;
+        case void_type:
+            res_exp = NULL;
+            break;
+        case int_type:
+            /* we don't need to do any type casts */
+            res_exp = expression;
+            break;
+        default:
+            /* unexpected basic type */
+            assert(false);
+    }
+
+    return res_exp;
+}
+
+bool
+types_usual_arithm_conv(IrExpression *left,
+                        IrExpression *right,
+                        IrExpression **res_left,
+                        IrExpression **res_right)
+{
+    AstDataType *data_type;
+    basic_data_type_t left_data_type;
+    basic_data_type_t right_data_type;
+
+    /* 
+     * get the data type of left expression
+     */
+
+    data_type = ir_expression_get_data_type(left);
+    /* only conversions of basic types is implemented */
+    assert(XDP_IS_AST_BASIC_TYPE(data_type));
+    left_data_type =
+        ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type));
+
+    if (left_data_type == void_type)
+    {
+        /* converting void types is illegal */
+        return false;
+    }
+    assert(left_data_type == int_type || left_data_type == bool_type);
+
+    /* 
+     * get the data type of right expression
+     */
+
+    data_type = ir_expression_get_data_type(right);
+    /* only conversions of basic types is implemented */
+    assert(XDP_IS_AST_BASIC_TYPE(data_type));
+    right_data_type =
+        ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type));
+
+    if (right_data_type == void_type)
+    {
+        /* converting void types is illegal */
+        return false;
+    }
+    assert(right_data_type == int_type || right_data_type == bool_type);
+
+
+    *res_left = types_integer_promotion(left);
+    *res_right = types_integer_promotion(right);
+
+    return true;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

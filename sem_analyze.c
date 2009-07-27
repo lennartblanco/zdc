@@ -293,53 +293,6 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
 }
 
 /**
- * Return an expression that will preform integer promotion on input
- * expression.
- *
- * If specified expression is of void type or is not basic type, NULL is
- * returned.
- */
-static IrExpression *
-sem_analyze_integer_promotion(compilation_status_t *compile_status,
-                              IrExpression *expression)
-{
-    IrExpression *res_exp;
-
-    AstDataType *exp_type;
-    basic_data_type_t exp_data_type;
-
-    exp_type = ir_expression_get_data_type(expression);
-    if (!(XDP_IS_AST_BASIC_TYPE(exp_type))) {
-        compile_error(compile_status, "not a basic type\n");
-        return NULL;
-    }
-
-    exp_data_type = ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_type));
-
-    switch (exp_data_type) {
-        case bool_type:
-            res_exp = IR_EXPRESSION(
-                          ir_cast_new(
-                              XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
-                              expression));
-            break;
-        case void_type:
-            compile_error(compile_status,
-                          "void is invalid type for this expression\n");
-            return NULL;
-        case int_type:
-            /* we don't need to do any type casts */
-            res_exp = expression;
-            break;
-        default:
-            /* unexpected basic type */
-            assert(false);
-    }
-
-    return res_exp;
-}
-
-/**
  * Build IR representation of an arithmetic binary operation. Adding type
  * conversion operations if left and right operands are of different types.
  *
@@ -356,17 +309,52 @@ sem_analyze_arithmetic_binary_op(compilation_status_t *compile_status,
            operation == ast_mult_op  ||
            operation == ast_division_op);
 
-   left = sem_analyze_integer_promotion(compile_status, left);
-   if (left == NULL) {
-       return NULL;
-   }
+    left = types_integer_promotion(left);
+    if (left == NULL)
+    {
+        goto err_exit;
+    }
 
-   right = sem_analyze_integer_promotion(compile_status, right);
-   if (right == NULL) {
-       return NULL;
-   }
+    right = types_integer_promotion(right);
+    if (right == NULL) 
+    {
+        goto err_exit;
+    }
 
-   return IR_EXPRESSION(ir_binary_operation_new(operation, left, right));
+    return IR_EXPRESSION(ir_binary_operation_new(operation, left, right));
+
+err_exit:
+    compile_error(compile_status, "operand of illegal type\n");
+    return NULL;
+}
+
+static IrExpression *
+sem_analyze_compare_binary_op(compilation_status_t *compile_status,
+                              ast_binary_op_type_t operation,
+                              IrExpression *left,
+                              IrExpression *right)
+{
+    assert(operation == ast_equal_op      ||
+           operation == ast_not_equal_op  ||
+           operation == ast_less_op       ||
+           operation == ast_greater_op    ||
+           operation == ast_less_or_eq_op ||
+           operation == ast_greater_or_eq_op);
+
+    IrExpression *converted_left;
+    IrExpression *converted_right;
+
+    if (!types_usual_arithm_conv(left,
+                                 right,
+                                 &converted_left,
+                                 &converted_right))
+    {
+        compile_error(compile_status, "error usual arith\n");
+    }
+
+    return IR_EXPRESSION(ir_binary_operation_new(operation,
+                                                 converted_left,
+                                                 converted_right));
 }
 
 /**
@@ -398,6 +386,14 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
         case ast_division_op:
             return sem_analyze_arithmetic_binary_op(compile_status, 
                                                     op, left, right);
+        case ast_equal_op:
+        case ast_not_equal_op:
+        case ast_less_op:
+        case ast_greater_op:
+        case ast_less_or_eq_op:
+        case ast_greater_or_eq_op:
+            return sem_analyze_compare_binary_op(compile_status,
+                                                 op, left, right);
         default:
             /* unexpected binary operation */
             assert(false);
