@@ -476,7 +476,7 @@ primary<n> :
           XDP_AST_EXPRESSION(ast_variable_ref_new(x.text));
   }
 | func_call<n>
-| '(' add_expression<n> ')'
+| '(' expression<n> ')'
 | '!' primary<x>
   {
       (*n).expression =
