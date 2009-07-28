@@ -132,6 +132,78 @@ call_is_less(int arg1, int arg2)
    return res;
 }
 
+bool
+call_greater_tst1()
+{
+   bool res;
+
+   asm ("    call greater_tst1\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+bool
+call_greater_tst2(int in)
+{
+   bool res;
+
+   asm ("    call greater_tst2\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+bool
+call_greater_tst3(int in)
+{
+   bool res;
+
+   asm ("    call greater_tst3\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+bool
+call_less_tst1()
+{
+   bool res;
+
+   asm ("    call less_tst1\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+bool
+call_less_tst2(int in)
+{
+   bool res;
+
+   asm ("    call less_tst2\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+bool
+call_less_tst3(int in)
+{
+   bool res;
+
+   asm ("    call less_tst3\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -176,15 +248,32 @@ main()
     check_bool("is_less(100, 8)", call_is_less(100, 8), false);
     check_bool("is_less(0, 0)", call_is_less(0, 0), false);
 
+    /* greater_tst1() test */
+    check_bool("greater_tst1()", call_greater_tst1(), false);
+
+    /* greater_tst2() tests */
+    check_bool("greater_tst2(0)", call_greater_tst2(0), true);
+    check_bool("greater_tst2(-1)", call_greater_tst2(-1), true);
+    check_bool("greater_tst2(2)", call_greater_tst2(2), false);
+
+    /* greater_tst3() tests */
+    check_bool("greater_tst3(2)", call_greater_tst3(2), false);
+    check_bool("greater_tst3(-1)", call_greater_tst3(-1), true);
+
+    /* less_tst1() test */
+    check_bool("less_tst1()", call_less_tst1(), true);
+
+    /* less_tst2() tests */
+    check_bool("less_tst2(2)", call_less_tst2(2), true);
+    check_bool("less_tst2(-1)", call_less_tst2(-1), false);
+
+    /* less_tst3() tests */
+    check_bool("less_tst3(2)", call_less_tst3(2), true);
+    check_bool("less_tst3(-1)", call_less_tst3(-1), false);
+
 /*
  * todo add test on:
  *
- * greater_tst1()
- * greater_tst2(int x)
- * greater_tst3(int x)
- * less_tst1()
- * less_tst2(int x)
- * less_tst3(int x)
  * tripple_and_op(bool left, bool right, bool last)
  * andor_ops(bool a, bool b, bool c)
  * and_oper(bool left, bool right)
