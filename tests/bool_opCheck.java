@@ -23,7 +23,7 @@ public class bool_opCheck extends check
         check("bool_op.less_tst2(2)", res, true);
 
         res = bool_op.less_tst2(-1);
-        check("bool_op.less_tst3(-1)", res, false);
+        check("bool_op.less_tst2(-1)", res, false);
 
         res = bool_op.less_tst3(2);
         check("bool_op.less_tst3(2)", res, true);
