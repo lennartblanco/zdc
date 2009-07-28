@@ -77,4 +77,11 @@ ir_binary_operation_is_iarithm(IrBinaryOperation *self);
 bool
 ir_binary_operation_is_icomp(IrBinaryOperation *self);
 
+/**
+ * Return true of this is an conditional operation.
+ * Conditional operation are && and ||.
+ */
+bool
+ir_binary_operation_is_conditional(IrBinaryOperation *self);
+
 #endif /* IR_BINARY_OPERATION_INC_X */

@@ -349,12 +349,67 @@ sem_analyze_compare_binary_op(compilation_status_t *compile_status,
                                  &converted_left,
                                  &converted_right))
     {
-        compile_error(compile_status, "error usual arith\n");
+        compile_error(compile_status, "illegal types in compare operation\n");
     }
 
     return IR_EXPRESSION(ir_binary_operation_new(operation,
                                                  converted_left,
                                                  converted_right));
+}
+
+static IrExpression *
+sem_analyze_conditional_binary_op(compilation_status_t *compile_status,
+                                  ast_binary_op_type_t operation,
+                                  IrExpression *left,
+                                  IrExpression *right)
+{
+    assert(operation == ast_and_op || operation == ast_or_op);
+
+    AstDataType *data_type;
+    IrExpression *converted_left = left;
+    IrExpression *converted_right = right;
+   
+    /*
+     * check left operand data type
+     */
+    data_type = ir_expression_get_data_type(left);
+
+    /* left operand can not be of void type */
+    if (types_is_void(data_type))
+    {
+        compile_error(compile_status, "left operand can not be of void type\n");
+        return NULL;
+    }
+
+    /* if left operand is not bool, cast to bool */
+    if (!types_is_bool(data_type))
+    {
+        converted_left =
+            IR_EXPRESSION(
+              ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
+                          left));
+    }
+
+    /*
+     * check right operand data type
+     */
+    data_type = ir_expression_get_data_type(right);
+
+
+    /* if right operand is not of void or bool type, cast to bool */
+    if (!types_is_void(data_type) &&
+        !types_is_bool(data_type))
+    {
+        converted_right =
+            IR_EXPRESSION(
+              ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
+                          right));
+    }
+    
+    return IR_EXPRESSION(ir_binary_operation_new(operation,
+                                                 converted_left,
+                                                 converted_right));
+
 }
 
 /**
@@ -378,6 +433,11 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
                                          symbols,
                                          ast_binary_operation_get_right(ast_operation));
 
+    if (left == NULL || right == NULL)
+    {
+        return NULL;
+    }
+
     op = ast_binary_operation_get_operation(ast_operation);
     switch (op) {
         case ast_plus_op:
@@ -394,6 +454,10 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
         case ast_greater_or_eq_op:
             return sem_analyze_compare_binary_op(compile_status,
                                                  op, left, right);
+        case ast_and_op:
+        case ast_or_op:
+            return sem_analyze_conditional_binary_op(compile_status,
+                                                     op, left, right);
         default:
             /* unexpected binary operation */
             assert(false);

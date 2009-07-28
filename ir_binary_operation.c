@@ -1,5 +1,6 @@
 #include "ir_binary_operation.h"
 #include "ast_basic_type.h"
+#include "types.h"
 
 #include <assert.h>
 
@@ -12,6 +13,9 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy);
 
 static AstDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self);
+
+AstDataType *
+ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -149,6 +153,19 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
            op_type == ast_greater_or_eq_op;
 }
 
+bool
+ir_binary_operation_is_conditional(IrBinaryOperation *self)
+{
+    assert(self);
+    assert(IR_IS_BINARY_OPERATION(self));
+
+    ast_binary_op_type_t op_type;
+
+    op_type = ir_binary_operation_get_operation(self);
+
+    return op_type == ast_and_op || op_type == ast_or_op;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -163,7 +180,6 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy)
 static AstDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self)
 {
-    static AstDataType *bool_data_type = NULL;
     AstDataType *data_type = NULL;
     IrBinaryOperation *bin_op = IR_BINARY_OPERATION(self);
   
@@ -176,20 +192,17 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
         case ast_division_op:
             data_type = ir_expression_get_data_type(bin_op->left);
             break;
-        case ast_or_op:
-        case ast_and_op:
         case ast_less_op:
         case ast_greater_op:
         case ast_less_or_eq_op:
         case ast_greater_or_eq_op:
         case ast_equal_op:
         case ast_not_equal_op:
-            if (bool_data_type == NULL)
-            {
-                bool_data_type =
-                    XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type));
-            }
-            data_type = bool_data_type;
+            data_type = types_get_bool_type();
+            break;
+        case ast_and_op:
+        case ast_or_op:
+            data_type = ir_binary_operation_get_conditional_op_type(bin_op);
             break;
         default:
             /* unexpected binary operation type */
@@ -197,4 +210,15 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
     }
 
     return data_type;
+}
+
+AstDataType *
+ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self)
+{
+    if (types_is_void(ir_expression_get_data_type(self->right)))
+    {
+        return types_get_void_type();
+    }
+
+    return types_get_bool_type();
 }

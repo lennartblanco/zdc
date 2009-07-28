@@ -615,6 +615,15 @@ x86_compile_icomp_op(FILE *out,
 }
 
 static void
+x86_compile_conditional_op(FILE *out,
+                           IrBinaryOperation *op,
+                           sym_table_t *sym_table)
+{
+    /* not implemented */
+    assert(false);
+}
+
+static void
 x86_compile_binary_op(FILE *out,
                       IrBinaryOperation *op,
                       sym_table_t *sym_table)
@@ -626,6 +635,10 @@ x86_compile_binary_op(FILE *out,
     else if (ir_binary_operation_is_icomp(op))
     {
         x86_compile_icomp_op(out, op, sym_table);
+    }
+    else if (ir_binary_operation_is_conditional(op))
+    {
+        x86_compile_conditional_op(out, op, sym_table);
     }
     else
     {

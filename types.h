@@ -40,4 +40,30 @@ types_usual_arithm_conv(IrExpression *left,
                         IrExpression **res_left,
                         IrExpression **res_right);
 
+/**
+ * Returns true if data_type represent basic type void,
+ * false otherwise.
+ */
+bool
+types_is_void(AstDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type void,
+ * false otherwise.
+ */
+bool
+types_is_bool(AstDataType *data_type);
+
+/**
+ * Get singelton instance of object representing bool type.
+ */
+AstDataType *
+types_get_bool_type();
+
+/**
+ * Get singelton instance of object representing void type.
+ */
+AstDataType *
+types_get_void_type();
+
 #endif /* TYPES_INC_X */

@@ -144,6 +144,60 @@ types_usual_arithm_conv(IrExpression *left,
     return true;
 }
 
+
+bool
+types_is_void(AstDataType *data_type)
+{
+    if (!XDP_IS_AST_BASIC_TYPE(data_type))
+    {
+        return false;
+    }
+
+    return 
+      ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type)) == void_type;
+}
+
+bool
+types_is_bool(AstDataType *data_type)
+{
+    if (!XDP_IS_AST_BASIC_TYPE(data_type))
+    {
+        return false;
+    }
+
+    return 
+      ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type)) == bool_type;
+}
+
+
+AstDataType *
+types_get_bool_type()
+{
+   static AstDataType *bool_data_type = NULL;
+
+   if (bool_data_type == NULL)
+   {
+      bool_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type));
+   }
+
+   return bool_data_type;
+}
+
+AstDataType *
+types_get_void_type()
+{
+   static AstDataType *void_data_type = NULL;
+
+   if (void_data_type == NULL)
+   {
+      void_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(void_type));
+   }
+
+   return void_data_type;
+}
+
+
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
