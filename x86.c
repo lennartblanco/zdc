@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "label_gen.h"
+#include "types.h"
 #include "x86.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
@@ -29,6 +31,13 @@
 
 #define FUNCTION_EXIT_LABEL_POSTFIX "_exit"
 
+typedef struct x86_comp_params_s
+{
+    FILE *out;
+    label_gen_t label_gen;
+} x86_comp_params_t;
+
+
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -37,42 +46,64 @@ static void
 x86_prelude(FILE *out, const char *source_file);
 
 static void
-x86_compile_function_def(FILE *out, IrFunction *func);
+x86_compile_function_def(x86_comp_params_t *params, IrFunction *func);
 
 static void
-x86_compile_code_block(FILE *out,
+x86_compile_code_block(x86_comp_params_t *params,
                        IrCodeBlock *code_block,
                        char *return_label);
 
 static void
-x86_compile_expression(FILE *out,
+x86_compile_expression(x86_comp_params_t *params,
                        IrExpression *expression,
                        sym_table_t *sym_table);
 static void
-x86_compile_binary_op(FILE *out,
+x86_compile_binary_op(x86_comp_params_t *params,
                       IrBinaryOperation *op,
                       sym_table_t *sym_table);
 
 static void
-x86_compile_unary_op(FILE *out,
+x86_compile_unary_op(x86_comp_params_t *params,
                      IrUnaryOperation *op,
                      sym_table_t *sym_table);
 
 static void
-x86_compile_func_call(FILE *out,
+x86_compile_func_call(x86_comp_params_t *params,
                       IrFunctionCall *func_call,
                       sym_table_t *sym_table,
                       bool retain_return_value);
 static int
-x86_code_block_assign_addrs(FILE *out,
+x86_code_block_assign_addrs(x86_comp_params_t *params,
                             int first_num,
                             IrCodeBlock *code_block);
 
 static void
-x86_gen_variable_assigment(FILE *out,
+x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
                            sym_table_t *sym_table);
+
+static int
+x86_get_variable_storage_size(IrVariable *variable);
+
+static void
+x86_compile_iarithm_op(x86_comp_params_t *params,
+                       IrBinaryOperation *op,
+                       sym_table_t *sym_table);
+
+static void
+x86_compile_icomp_op(x86_comp_params_t *params,
+                     IrBinaryOperation *op,
+                     sym_table_t *sym_table);
+
+static void
+x86_compile_conditional_op(x86_comp_params_t *params,
+                           IrBinaryOperation *op,
+                           sym_table_t *sym_table);
+
+static void
+x86_compile_variable_ref(x86_comp_params_t *params,
+                         IrVariable *var);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -83,9 +114,13 @@ x86_gen_code(IrCompileUnit *comp_unit,
              FILE *out_stream,
              const char *source_file)
 {
+    x86_comp_params_t params;
     sym_table_t *global_sym_table;
     GList *symbols_list;
     GList *p;
+
+    params.out = out_stream;
+    label_gen_init(&(params.label_gen));
 
     x86_prelude(out_stream, source_file);
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
@@ -95,7 +130,7 @@ x86_gen_code(IrCompileUnit *comp_unit,
     {
         if (IR_IS_FUNCTION(p->data))
         {
-            x86_compile_function_def(out_stream, p->data);
+            x86_compile_function_def(&params, p->data);
         }
         else
         {
@@ -122,7 +157,7 @@ x86_prelude(FILE *out, const char *source_file)
 }
 
 static void
-x86_compile_function_def(FILE *out, IrFunction *func)
+x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
 {
     GSList *i;
     char *func_name;
@@ -135,7 +170,7 @@ x86_compile_function_def(FILE *out, IrFunction *func)
 
     func_name = ir_function_get_name(func);
     /* generate function symbol declaration and function entry point label */
-    fprintf(out,
+    fprintf(params->out,
             ".globl %s\n"
             "    .type %s, @function\n"
             "%s:\n"
@@ -165,7 +200,8 @@ x86_compile_function_def(FILE *out, IrFunction *func)
         {
             ir_variable_set_location(variable,
                                      G_OBJECT(x86_frame_offset_new(addr)));
-            fprintf(out, "# variable '%s' location %d\n",
+            fprintf(params->out,
+                    "# variable '%s' location %d\n",
                     ir_variable_get_name(variable), addr);
         }
         else
@@ -175,7 +211,8 @@ x86_compile_function_def(FILE *out, IrFunction *func)
             stack_start = -4;
             ir_variable_set_location(variable,
                                      G_OBJECT(x86_frame_offset_new(-4)));
-            fprintf(out, "# variable '%s' location %d\n",
+            fprintf(params->out,
+                    "# variable '%s' location %d\n",
                     ir_variable_get_name(variable), -4);
 
         }
@@ -184,7 +221,9 @@ x86_compile_function_def(FILE *out, IrFunction *func)
 
     /* assign stack offset to local variables in function body */
     stack_size = 
-        x86_code_block_assign_addrs(out, stack_start, ir_function_get_body(func));
+        x86_code_block_assign_addrs(params,
+                                    stack_start,
+                                    ir_function_get_body(func));
 
     /* pad stack to allign it on 4-byte boundary */
     if ((stack_size % 4) != 0)
@@ -195,11 +234,11 @@ x86_compile_function_def(FILE *out, IrFunction *func)
     /* generate code to store last function argument on the stack */
     if (push_last_arg)
     {
-        fprintf(out, "    pushl %%eax\n");
+        fprintf(params->out, "    pushl %%eax\n");
     }
 
     /* generate code to allocate function frame on the stack */
-    fprintf(out,
+    fprintf(params->out,
             "    subl $%d, %%esp\n",
             -stack_size);
 
@@ -210,10 +249,12 @@ x86_compile_function_def(FILE *out, IrFunction *func)
     sprintf(exit_label, "%s"FUNCTION_EXIT_LABEL_POSTFIX, func_name);
 
     /* generate code for function body */
-    x86_compile_code_block(out, ir_function_get_body(func), exit_label);
+    x86_compile_code_block(params,
+                           ir_function_get_body(func),
+                           exit_label);
 
     /* generate function exit part */
-    fprintf(out,
+    fprintf(params->out,
             "%s:\n"
             "    movl %%ebp, %%esp\n"
             "    popl %%ebp\n"
@@ -275,7 +316,7 @@ x86_get_variable_storage_size(IrVariable *variable)
 }
 
 static int
-x86_code_block_assign_addrs(FILE *out,
+x86_code_block_assign_addrs(x86_comp_params_t *params,
                             int first_num,
                             IrCodeBlock *code_block)
 {
@@ -304,7 +345,7 @@ x86_code_block_assign_addrs(FILE *out,
 
         num -= x86_get_variable_storage_size(var);
         ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
-        fprintf(out, "# variable '%s' location %d\n",
+        fprintf(params->out, "# variable '%s' location %d\n",
                 ir_variable_get_name(var), num);
 
     }
@@ -320,7 +361,7 @@ x86_code_block_assign_addrs(FILE *out,
         int vars = 0;
         if (IR_IS_CODE_BLOCK(j->data))
         {
-            vars = x86_code_block_assign_addrs(out, num, j->data);
+            vars = x86_code_block_assign_addrs(params, num, j->data);
             /* 
              * keep track if lowers frame offset assigned 
              * in our sub-blocks 
@@ -337,7 +378,7 @@ x86_code_block_assign_addrs(FILE *out,
 }
 
 static void
-x86_compile_code_block(FILE *out,
+x86_compile_code_block(x86_comp_params_t *params,
                        IrCodeBlock *code_block,
                        char *return_label)
 {
@@ -389,7 +430,7 @@ x86_compile_code_block(FILE *out,
 
         if (XDP_IS_AST_BASIC_TYPE(var_type))
         {
-            x86_gen_variable_assigment(out, var, var_init, locals);
+            x86_gen_variable_assigment(params, var, var_init, locals);
         }
         else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
         {
@@ -420,15 +461,15 @@ x86_compile_code_block(FILE *out,
             IrExpression *return_val = ir_return_get_return_value(ret);
             if (return_val != NULL)
             {
-                x86_compile_expression(out, return_val, locals);
-                fprintf(out,
+                x86_compile_expression(params, return_val, locals);
+                fprintf(params->out,
                         "    popl %%eax\n");
             }
-            fprintf(out, "    jmp %s\n", return_label);
+            fprintf(params->out, "    jmp %s\n", return_label);
         }
         else if (IR_IS_FUNCTION_CALL(statment))
         {
-            x86_compile_func_call(out, 
+            x86_compile_func_call(params, 
                                   IR_FUNCTION_CALL(statment),
                                   locals,
                                   false);
@@ -436,7 +477,7 @@ x86_compile_code_block(FILE *out,
         else if (IR_IS_ASSIGMENT(statment))
         {
             IrAssigment *assig = IR_ASSIGMENT(statment);
-            x86_gen_variable_assigment(out, 
+            x86_gen_variable_assigment(params, 
                                        ir_assigment_get_target(assig),
                                        ir_assigment_get_value(assig),
                                        locals);
@@ -451,7 +492,7 @@ x86_compile_code_block(FILE *out,
 }
 
 static void
-x86_gen_variable_assigment(FILE *out,
+x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
                            sym_table_t *sym_table)
@@ -459,17 +500,17 @@ x86_gen_variable_assigment(FILE *out,
     X86FrameOffset *addr;
 
     addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    x86_compile_expression(out, expression, sym_table);
+    x86_compile_expression(params, expression, sym_table);
     switch (x86_get_variable_storage_size(variable))
     {
         case 4:
-            fprintf(out,
+            fprintf(params->out,
                     "# assign 32-bit variable value from the stack\n"
                     "    popl %d(%%ebp)\n",
                     x86_frame_offset_get_offset(addr));
             break;
         case 1:
-            fprintf(out,
+            fprintf(params->out,
                     "# assign 8-bit variable value from the stack\n"
                     "    popl %%eax\n"
                     "    movb %%al, %d(%%ebp)\n",
@@ -482,7 +523,7 @@ x86_gen_variable_assigment(FILE *out,
 }
 
 static void
-x86_compile_unary_op(FILE *out,
+x86_compile_unary_op(x86_comp_params_t *params,
                      IrUnaryOperation *op,
                      sym_table_t *sym_table)
 {
@@ -490,18 +531,18 @@ x86_compile_unary_op(FILE *out,
 
     op_type = ir_unary_operation_get_operation(op);
 
-    x86_compile_expression(out,
+    x86_compile_expression(params,
                            ir_unary_operation_get_operand(op),
                            sym_table);
 
     switch (op_type)
     {    
         case ast_arithm_neg_op:
-            fprintf(out,
+            fprintf(params->out,
                     "    negl (%%esp)\n");
             break;
         case ast_bool_neg_op:
-            fprintf(out,
+            fprintf(params->out,
                     "    notl (%%esp)\n"
                     "    andl $0x1, (%%esp)\n");
             break;
@@ -513,7 +554,7 @@ x86_compile_unary_op(FILE *out,
 }
 
 static void
-x86_compile_iarithm_op(FILE *out,
+x86_compile_iarithm_op(x86_comp_params_t *params,
                        IrBinaryOperation *op,
                        sym_table_t *sym_table)
 {
@@ -543,13 +584,13 @@ x86_compile_iarithm_op(FILE *out,
             /* unexpected operation type */
             assert(false);
     }
-    x86_compile_expression(out,
+    x86_compile_expression(params,
                            ir_binary_operation_get_left(op),
                            sym_table);
-    x86_compile_expression(out,
+    x86_compile_expression(params,
                            ir_binary_operation_get_right(op),
                            sym_table);
-    fprintf(out,
+    fprintf(params->out,
             /* move left operand into eax */
             "    movl 4(%%esp), %%eax\n"
             /* place-holder for possible 64-bit extension instruction */
@@ -567,7 +608,7 @@ x86_compile_iarithm_op(FILE *out,
 }
 
 static void
-x86_compile_icomp_op(FILE *out,
+x86_compile_icomp_op(x86_comp_params_t *params,
                      IrBinaryOperation *op,
                      sym_table_t *sym_table)
 {
@@ -598,13 +639,13 @@ x86_compile_icomp_op(FILE *out,
             assert(false);
     }
 
-    x86_compile_expression(out,
+    x86_compile_expression(params,
                            ir_binary_operation_get_left(op),
                            sym_table);
-    x86_compile_expression(out,
+    x86_compile_expression(params,
                            ir_binary_operation_get_right(op),
                            sym_table);
-    fprintf(out,
+    fprintf(params->out,
             "    xor %%ebx, %%ebx\n"
             "    popl %%eax\n"
             "    cmp %%eax, (%%esp)\n"
@@ -615,30 +656,54 @@ x86_compile_icomp_op(FILE *out,
 }
 
 static void
-x86_compile_conditional_op(FILE *out,
+x86_compile_conditional_op(x86_comp_params_t *params,
                            IrBinaryOperation *op,
                            sym_table_t *sym_table)
 {
-    /* not implemented */
-    assert(false);
+    char end_label[LABEL_MAX_LEN];
+    /* only && implemented */
+    assert(ir_binary_operation_get_operation(op) == ast_and_op);
+    /* void typed && not implemented */
+    assert(!types_is_void(ir_expression_get_data_type(IR_EXPRESSION(op))));
+
+    label_gen_next(&(params->label_gen), end_label);
+
+    fprintf(params->out, "# && left operand\n");
+    x86_compile_expression(params,
+                           ir_binary_operation_get_left(op),
+                           sym_table);
+    fprintf(params->out,
+            "#skip right if false\n"
+            "    cmpl $0, (%%esp)\n"
+            "    jz %s\n"
+            "    addl $4, %%esp\n",
+            end_label);
+
+    fprintf(params->out, "# && right operand\n");
+    x86_compile_expression(params,
+                           ir_binary_operation_get_right(op),
+                           sym_table);
+    fprintf(params->out,
+            "%s:\n",
+            end_label);
 }
 
 static void
-x86_compile_binary_op(FILE *out,
+x86_compile_binary_op(x86_comp_params_t *params,
                       IrBinaryOperation *op,
                       sym_table_t *sym_table)
 {
     if (ir_binary_operation_is_iarithm(op))
     {
-        x86_compile_iarithm_op(out, op, sym_table);
+        x86_compile_iarithm_op(params, op, sym_table);
     }
     else if (ir_binary_operation_is_icomp(op))
     {
-        x86_compile_icomp_op(out, op, sym_table);
+        x86_compile_icomp_op(params, op, sym_table);
     }
     else if (ir_binary_operation_is_conditional(op))
     {
-        x86_compile_conditional_op(out, op, sym_table);
+        x86_compile_conditional_op(params, op, sym_table);
     }
     else
     {
@@ -647,10 +712,8 @@ x86_compile_binary_op(FILE *out,
     }
 }
 
-
-
 static void
-x86_compile_variable_ref(FILE *out,
+x86_compile_variable_ref(x86_comp_params_t *params,
                          IrVariable *var)
 {
     X86FrameOffset *addr;
@@ -661,13 +724,13 @@ x86_compile_variable_ref(FILE *out,
     switch (x86_get_variable_storage_size(var))
     {
         case 4:
-            fprintf(out,
+            fprintf(params->out,
                     "# integer variable (32-bit) value fetch\n"
                     "    pushl %d(%%ebp)\n",
                     x86_frame_offset_get_offset(addr));
             break;
         case 1:
-            fprintf(out,
+            fprintf(params->out,
                     "# boolean variable (8-bit) value fetch\n"
                     "    xor %%eax, %%eax\n"
                     "    movb %d(%%ebp), %%al\n"
@@ -686,7 +749,7 @@ x86_compile_variable_ref(FILE *out,
  *                            if false, the return value is discarded
  */
 static void
-x86_compile_func_call(FILE *out,
+x86_compile_func_call(x86_comp_params_t *params,
                       IrFunctionCall *func_call,
                       sym_table_t *sym_table,
                       bool retain_return_value)
@@ -699,17 +762,17 @@ x86_compile_func_call(FILE *out,
     arg_num = g_slist_length(i);
     for (; i != NULL; i = g_slist_next(i))
     {
-        x86_compile_expression(out, i->data, sym_table);
+        x86_compile_expression(params, i->data, sym_table);
     }
 
     if (arg_num > 0)
     {
-        fprintf(out,
+        fprintf(params->out,
                 "# put arg0 into eax\n"
                 "    popl %%eax\n");
     }
 
-    fprintf(out,
+    fprintf(params->out,
             "# invoke function\n"
             "    call %s\n",
             ir_function_call_get_name(func_call));
@@ -731,7 +794,7 @@ x86_compile_func_call(FILE *out,
                break;
            case bool_type:
            case int_type:
-               fprintf(out,
+               fprintf(params->out,
                        "# push function return value on the stack\n"
                        "    push %%eax\n");
                break;
@@ -743,17 +806,17 @@ x86_compile_func_call(FILE *out,
 }
 
 static void
-x86_compile_expression(FILE *out,
+x86_compile_expression(x86_comp_params_t *params,
                        IrExpression *expression,
                        sym_table_t *sym_table)
 {
-    assert(out);
+    assert(params);
     assert(expression);
     assert(IR_IS_EXPRESSION(expression));
 
     if (IR_IS_INT_CONSTANT(expression))
     {
-        fprintf(out,
+        fprintf(params->out,
                 "# push integer constant onto stack\n"
                 "    pushl $%d\n", 
                 ir_int_constant_get_value(IR_INT_CONSTANT(expression)));
@@ -763,31 +826,31 @@ x86_compile_expression(FILE *out,
         gboolean val;
 
         val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(expression));
-        fprintf(out,
+        fprintf(params->out,
                "# push boolean constant onto stack\n"
                "    pushl $%d\n",
                val ? 1 : 0);
     }
     else if (IR_IS_UNARY_OPERATION(expression))
     {
-        x86_compile_unary_op(out,
+        x86_compile_unary_op(params,
                              IR_UNARY_OPERATION(expression),
                              sym_table);
     }
     else if (IR_IS_BINARY_OPERATION(expression))
     {
-        x86_compile_binary_op(out,
+        x86_compile_binary_op(params,
                               IR_BINARY_OPERATION(expression),
                               sym_table);
     }
     else if (IR_IS_VARIABLE(expression))
     {
-        x86_compile_variable_ref(out,
+        x86_compile_variable_ref(params,
                                  IR_VARIABLE(expression));
     }
     else if (IR_IS_FUNCTION_CALL(expression))
     {
-        x86_compile_func_call(out,
+        x86_compile_func_call(params,
                               IR_FUNCTION_CALL(expression),
                               sym_table,
                               true);
