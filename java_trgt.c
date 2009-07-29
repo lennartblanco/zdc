@@ -32,7 +32,8 @@ java_trgt_gen_code(IrCompileUnit *comp_unit,
 
     params.out = out_stream;
     params.class_name = get_class_name(source_file);
-    strcpy(params.next_label, "A");
+    label_gen_init(&params.label_gen);
+
     java_trgt_prelude(&params, source_file);
 
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
@@ -416,45 +417,6 @@ java_trgt_data_type_to_str(AstDataType *data_type)
     return NULL;
 }
 
-STATIC void
-java_trgt_get_next_label(java_trgt_comp_params_t *params,
-                         char *label)
-{
-    int i;
-    char *p;
-
-    strcpy(label, params->next_label);
-
-    p = &(params->next_label[0]);
-
-    i = 0;
-    while (true)
-    {
-        assert(i < MAX_JAVA_LABEL);
-        p[i] += 1;
-        if (p[i] > 'Z' && p[i] < 'a')
-        {
-            p[i] = 'a';
-            break;
-        }
-        else if (p[i] > 'z')
-        {
-            p[i] = 'A';
-            i += 1;
-            if (p[i] == '\0')
-            {
-                p[i] = 'A';
-                p[i+1] = '\0';
-                break;
-            }
-        }
-        else
-        {
-            break;
-        }
-    }
-}
-
 static void
 java_trgt_handle_func_call(java_trgt_comp_params_t *params,
                            AstFunctionCall *fun_call,
@@ -542,8 +504,8 @@ java_trgt_handle_while(java_trgt_comp_params_t *params,
     char loop_start[MAX_JAVA_LABEL];
     char loop_end[MAX_JAVA_LABEL];
 
-    java_trgt_get_next_label(params, loop_start);
-    java_trgt_get_next_label(params, loop_end);
+    label_gen_next(&(params->label_gen), loop_start);
+    label_gen_next(&(params->label_gen), loop_end);
 
     fprintf(params->out,"; while start\n");
     fprintf(params->out, "%s:\n", loop_start);
@@ -573,7 +535,7 @@ java_trgt_handle_if_else(java_trgt_comp_params_t *params,
     char label[MAX_JAVA_LABEL];
     GSList *p;
 
-    java_trgt_get_next_label(params, end_label);
+    label_gen_next(&(params->label_gen), end_label);
 
     /*
      * generate code for all if-else clauses
@@ -587,7 +549,7 @@ java_trgt_handle_if_else(java_trgt_comp_params_t *params,
         java_trgt_handle_expression(params,
                                     ir_if_block_get_condition(if_block),
                                     sym_table);
-        java_trgt_get_next_label(params, label);
+        label_gen_next(&(params->label_gen), label);
 
         /* if condition is not evaluated to true, jump over the if body */
         fprintf(params->out,
@@ -670,8 +632,8 @@ java_trgt_handle_foreach(java_trgt_comp_params_t *params,
     offset_addr = value_addr + 1;
 
     /* generate loop start and end lables */
-    java_trgt_get_next_label(params, loop_start_label);
-    java_trgt_get_next_label(params, loop_end_label);
+    label_gen_next(&(params->label_gen), loop_start_label);
+    label_gen_next(&(params->label_gen), loop_end_label);
 
     fprintf(params->out,
             "; aggregate ref    %d\n"
@@ -780,8 +742,8 @@ java_trgt_comp_ops_body(java_trgt_comp_params_t *params,
     char endLabel[MAX_JAVA_LABEL];
     const char* operationCond;
 
-    java_trgt_get_next_label(params, trueLabel);
-    java_trgt_get_next_label(params, endLabel);
+    label_gen_next(&(params->label_gen), trueLabel);
+    label_gen_next(&(params->label_gen), endLabel);
 
     switch (type)
     {
@@ -861,8 +823,8 @@ java_trgt_handle_andor_op(java_trgt_comp_params_t *params,
     int fall_throught_val;
 
     /* generate the abort and end of operation labels */
-    java_trgt_get_next_label(params, abort_label);
-    java_trgt_get_next_label(params, end_label);
+    label_gen_next(&(params->label_gen), abort_label);
+    label_gen_next(&(params->label_gen), end_label);
 
     ast_binary_op_type_t op_type =
         ast_binary_operation_get_operation(operation);

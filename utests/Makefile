@@ -1,11 +1,13 @@
+include ../objects.mak
+
 PROG := check_xdc
 
 CFLAGS += -DSTATIC= -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
-TEST_SRC := $(wildcard ../*.c)
+TEST_SRC := $(OBJS:%.o=../%.c)
 TEST_OBJS :=  $(TEST_SRC:../%.c=%.o)
-OBJS := check_java_trgt.o  main.o
+OBJS := check_label_gen.o main.o
 
 all: $(PROG)
 

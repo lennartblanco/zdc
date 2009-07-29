@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "label_gen.h"
 #include "sym_table.h"
 #include "ast_return.h"
 #include "ast_assigment.h"
@@ -38,7 +39,7 @@ typedef struct java_trgt_comp_params_s
 {
     FILE *out;
     const char *class_name;
-    char next_label[MAX_JAVA_LABEL];
+    label_gen_t label_gen;
 } java_trgt_comp_params_t;
 
 /*---------------------------------------------------------------------------*
@@ -228,17 +229,6 @@ java_trgt_if_else_assign_addrs(int first_num,
 static int
 java_trgt_foreach_assign_addrs(int first_num,
                                IrForeach *foreach);
-
-
-/**
- * Get next unique label
- *
- * @param label the generated label is into this buffer,
-                this buffer must be at least MAX_JAVA_LABEL bytes long
- */
-STATIC void
-java_trgt_get_next_label(java_trgt_comp_params_t *params,
-                         char *label);
 
 #endif /* JAVA_TRGT_INT_INC_X */
 

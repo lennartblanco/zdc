@@ -6,7 +6,7 @@
  *---------------------------------------------------------------------------*/
 
 void
-java_trgt_add_test_cases(Suite *s);
+label_gen_add_test_cases(Suite *s);
 
 /*---------------------------------------------------------------------------*
  *                               run test suites                             *
@@ -21,7 +21,7 @@ int main()
     SRunner *sr = srunner_create (s);
  
     /* add test cases to the suite */
-    java_trgt_add_test_cases(s);
+    label_gen_add_test_cases(s);
 
     /* run tests */
     srunner_run_all (sr, CK_NORMAL);

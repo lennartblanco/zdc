@@ -3,17 +3,16 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include "../java_trgt_int.h"
+#include "../label_gen.h"
 
 /*---------------------------------------------------------------------------*
  *                                test cases                                 *
  *---------------------------------------------------------------------------*/
 
-START_TEST(test_java_trgt_get_next_label)
+START_TEST(test_label_gen_next)
 {
-
-    java_trgt_comp_params_t param;
-    char l[MAX_JAVA_LABEL];
+    label_gen_t label_gen;
+    char l[LABEL_MAX_LEN];
     char *str;
     int i;
     int *iptr;
@@ -21,13 +20,11 @@ START_TEST(test_java_trgt_get_next_label)
 
     /* set up test environment */
     htable = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
-    param.out = stdout;
-    param.class_name = "";
-    strcpy(param.next_label, "A");
+    label_gen_init(&label_gen);
 
     for (i = 1; i < 3200; i++)
     {
-        java_trgt_get_next_label(&param, l);
+        label_gen_next(&label_gen, l);
 
         /* check that this label have not been returned before */
         iptr = g_hash_table_lookup(htable, l);
@@ -52,14 +49,13 @@ END_TEST
  *---------------------------------------------------------------------------*/
 
 void
-java_trgt_add_test_cases(Suite *s)
+label_gen_add_test_cases(Suite *s)
 {
-    /* Core test case */
-    TCase *tc_core = tcase_create ("java backend");
+    TCase *tc = tcase_create("label generator");
 
-    tcase_add_test (tc_core, test_java_trgt_get_next_label);
+    tcase_add_test(tc, test_label_gen_next);
 
-    suite_add_tcase (s, tc_core);     
+    suite_add_tcase(s, tc);     
 }
 
 
