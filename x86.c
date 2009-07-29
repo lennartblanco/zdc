@@ -661,25 +661,35 @@ x86_compile_conditional_op(x86_comp_params_t *params,
                            sym_table_t *sym_table)
 {
     char end_label[LABEL_MAX_LEN];
-    /* only && implemented */
-    assert(ir_binary_operation_get_operation(op) == ast_and_op);
-    /* void typed && not implemented */
-    assert(!types_is_void(ir_expression_get_data_type(IR_EXPRESSION(op))));
+    int shortcut_value;
+
+    switch (ir_binary_operation_get_operation(op))
+    {
+        case ast_and_op:
+            shortcut_value = 0;
+            break;
+        case ast_or_op:
+            shortcut_value = 1;
+            break;
+        default:
+            /* unexpected conditional operation type */
+            assert(false);
+    }
 
     label_gen_next(&(params->label_gen), end_label);
 
-    fprintf(params->out, "# && left operand\n");
     x86_compile_expression(params,
                            ir_binary_operation_get_left(op),
                            sym_table);
     fprintf(params->out,
-            "#skip right if false\n"
-            "    cmpl $0, (%%esp)\n"
-            "    jz %s\n"
+            /* skip evaluating right operand if we know the operations result */
+            "    cmpl $%d, (%%esp)\n"
+            "    je %s\n"
+            /* remove left operands result from the stack */
             "    addl $4, %%esp\n",
+            shortcut_value,
             end_label);
 
-    fprintf(params->out, "# && right operand\n");
     x86_compile_expression(params,
                            ir_binary_operation_get_right(op),
                            sym_table);

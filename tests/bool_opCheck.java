@@ -114,11 +114,9 @@ public class bool_opCheck extends check
         res = bool_op.tripple_and_op(false, false, false);
         check("bool_op.tripple_and_op(false, false, false)", res, false);
 
-        /* tripple_and_op() tests */
         res = bool_op.tripple_and_op(false, true, false);
         check("bool_op.tripple_and_op(false, true, false)", res, false);
 
-        /* tripple_and_op() tests */
         res = bool_op.tripple_and_op(true, true, true);
         check("bool_op.tripple_and_op(true, true, true)", res, true);
 
