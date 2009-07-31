@@ -9,6 +9,12 @@
  *---------------------------------------------------------------------------*/
 
 /**
+ * Check if expression is numeric literal 0 or 1.
+ */
+bool
+types_is_literal_0or1(IrExpression *expression);
+
+/**
  * Perform implicit conversion of an expression to specified
  * data type. The expression is wrapped into cast operation if
  * needed. The expression is of the target type, no modifications are

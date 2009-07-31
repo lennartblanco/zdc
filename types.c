@@ -11,9 +11,6 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static bool
-is_literal_0or1(IrExpression *expression);
-
 static IrExpression *
 implicit_conv_to_int(IrExpression *expression);
 
@@ -202,11 +199,8 @@ types_get_void_type()
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-/**
- * Check if expression is numeric literal 0 or 1.
- */
-static bool
-is_literal_0or1(IrExpression *expression)
+bool
+types_is_literal_0or1(IrExpression *expression)
 {
     gint32 val;
 
@@ -266,7 +260,7 @@ implicit_conv_to_bool(IrExpression *expression)
     switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
     {
         case int_type:
-            if (is_literal_0or1(expression))
+            if (types_is_literal_0or1(expression))
             {
                 res_exp =
                  IR_EXPRESSION(

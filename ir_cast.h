@@ -51,4 +51,10 @@ ir_cast_get_type(void);
 IrCast *
 ir_cast_new(AstDataType *target_type, IrExpression *value);
 
+AstDataType *
+ir_cast_get_target_type(IrCast *self);
+
+IrExpression *
+ir_cast_get_value(IrCast *self);
+
 #endif /* IR_CAST_INC_X */

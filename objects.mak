@@ -1,5 +1,5 @@
 JAVA_TRGT_OBJS := java_trgt.o java_local_slot.o
-X86_TRGT_OBJS := x86.o x86_reg_location.o x86_frame_offset.o
+X86_TRGT_OBJS := x86.o x86_cast.o x86_reg_location.o x86_frame_offset.o
 
 OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o types.o        \
 	sem_analyze.o label_gen.o ast_array_constant.o ast_while.o            \

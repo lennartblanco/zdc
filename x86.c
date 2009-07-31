@@ -4,6 +4,7 @@
 #include "label_gen.h"
 #include "types.h"
 #include "x86.h"
+#include "x86_cast.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
 #include "ast_int_constant.h"
@@ -14,6 +15,7 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_ref.h"
 #include "ast_return.h"
+#include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
@@ -31,12 +33,11 @@
 
 #define FUNCTION_EXIT_LABEL_POSTFIX "_exit"
 
-typedef struct x86_comp_params_s
+struct x86_comp_params_s
 {
     FILE *out;
     label_gen_t label_gen;
-} x86_comp_params_t;
-
+};
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -52,11 +53,6 @@ static void
 x86_compile_code_block(x86_comp_params_t *params,
                        IrCodeBlock *code_block,
                        char *return_label);
-
-static void
-x86_compile_expression(x86_comp_params_t *params,
-                       IrExpression *expression,
-                       sym_table_t *sym_table);
 static void
 x86_compile_binary_op(x86_comp_params_t *params,
                       IrBinaryOperation *op,
@@ -141,6 +137,70 @@ x86_gen_code(IrCompileUnit *comp_unit,
     g_list_free(symbols_list);
 
         
+}
+
+void
+x86_compile_expression(x86_comp_params_t *params,
+                       IrExpression *expression,
+                       sym_table_t *sym_table)
+{
+    assert(params);
+    assert(expression);
+    assert(IR_IS_EXPRESSION(expression));
+
+    if (IR_IS_INT_CONSTANT(expression))
+    {
+        fprintf(params->out,
+                "# push integer constant onto stack\n"
+                "    pushl $%d\n", 
+                ir_int_constant_get_value(IR_INT_CONSTANT(expression)));
+    }
+    else if (IR_IS_BOOL_CONSTANT(expression))
+    {
+        gboolean val;
+
+        val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(expression));
+        fprintf(params->out,
+               "# push boolean constant onto stack\n"
+               "    pushl $%d\n",
+               val ? 1 : 0);
+    }
+    else if (IR_IS_UNARY_OPERATION(expression))
+    {
+        x86_compile_unary_op(params,
+                             IR_UNARY_OPERATION(expression),
+                             sym_table);
+    }
+    else if (IR_IS_BINARY_OPERATION(expression))
+    {
+        x86_compile_binary_op(params,
+                              IR_BINARY_OPERATION(expression),
+                              sym_table);
+    }
+    else if (IR_IS_VARIABLE(expression))
+    {
+        x86_compile_variable_ref(params,
+                                 IR_VARIABLE(expression));
+    }
+    else if (IR_IS_FUNCTION_CALL(expression))
+    {
+        x86_compile_func_call(params,
+                              IR_FUNCTION_CALL(expression),
+                              sym_table,
+                              true);
+    }
+    else if (IR_IS_CAST(expression))
+    {
+        x86_compile_cast(params,
+                         IR_CAST(expression),
+                         sym_table);
+    }
+    else
+    {
+        /* unexpected expression type */
+        printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
+        assert(false);
+    }
 }
 
 /*---------------------------------------------------------------------------*
@@ -812,63 +872,5 @@ x86_compile_func_call(x86_comp_params_t *params,
                /* unexpected basic data type */
                assert(false);
         }
-    }
-}
-
-static void
-x86_compile_expression(x86_comp_params_t *params,
-                       IrExpression *expression,
-                       sym_table_t *sym_table)
-{
-    assert(params);
-    assert(expression);
-    assert(IR_IS_EXPRESSION(expression));
-
-    if (IR_IS_INT_CONSTANT(expression))
-    {
-        fprintf(params->out,
-                "# push integer constant onto stack\n"
-                "    pushl $%d\n", 
-                ir_int_constant_get_value(IR_INT_CONSTANT(expression)));
-    }
-    else if (IR_IS_BOOL_CONSTANT(expression))
-    {
-        gboolean val;
-
-        val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(expression));
-        fprintf(params->out,
-               "# push boolean constant onto stack\n"
-               "    pushl $%d\n",
-               val ? 1 : 0);
-    }
-    else if (IR_IS_UNARY_OPERATION(expression))
-    {
-        x86_compile_unary_op(params,
-                             IR_UNARY_OPERATION(expression),
-                             sym_table);
-    }
-    else if (IR_IS_BINARY_OPERATION(expression))
-    {
-        x86_compile_binary_op(params,
-                              IR_BINARY_OPERATION(expression),
-                              sym_table);
-    }
-    else if (IR_IS_VARIABLE(expression))
-    {
-        x86_compile_variable_ref(params,
-                                 IR_VARIABLE(expression));
-    }
-    else if (IR_IS_FUNCTION_CALL(expression))
-    {
-        x86_compile_func_call(params,
-                              IR_FUNCTION_CALL(expression),
-                              sym_table,
-                              true);
-    }
-    else
-    {
-        /* unexpected expression type */
-        printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
-        assert(false);
     }
 }

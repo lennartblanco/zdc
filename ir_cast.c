@@ -55,6 +55,24 @@ ir_cast_new(AstDataType *target_type, IrExpression *value)
     return obj;
 }
 
+AstDataType *
+ir_cast_get_target_type(IrCast *self)
+{
+    assert(self);
+    assert(IR_IS_CAST(self));
+
+    return self->target_type;
+}
+
+IrExpression *
+ir_cast_get_value(IrCast *self)
+{
+    assert(self);
+    assert(IR_IS_CAST(self));
+
+    return self->value;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
