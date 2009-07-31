@@ -1,7 +1,5 @@
 #include "check_utils.h"
 
-#include <assert.h>
-
 /*---------------------------------------------------------------------------*
  *          wrappers to call test function with D calling convention         *
  *---------------------------------------------------------------------------*/
@@ -268,6 +266,18 @@ call_andor_ops(bool arg1, bool arg2, bool arg3)
    return res;
 }
 
+int
+call_nested_eq(int in)
+{
+   int res;
+
+   asm ("    call nested_eq\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -385,15 +395,9 @@ main()
                call_andor_ops(false, false, false),
                false);
 
-/*
- * todo add test on:
- *
- * nested_eq(int arg)
- *  test cases:
- * nested_eq(10) == 2
- * nested_eq(1) == 1
- *  nested_eq() == 2
- */
-   assert(false);
+    check_int("nested_eq(10)", call_nested_eq(10), 2);
+    check_int("nested_eq(1)", call_nested_eq(1), 1);
+    check_int("nested_eq(0)", call_nested_eq(0), 2);
+
    check_exit();
 }

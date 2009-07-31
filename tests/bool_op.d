@@ -128,12 +128,6 @@ or_oper(bool l, bool r)
     return l || r;
 }
 
-//
-// test cases:
-// foo(10) == 2
-// foo(1) == 1
-// foo() == 2
-//
 int
 nested_eq(int arg)
 {
