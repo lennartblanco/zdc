@@ -395,6 +395,7 @@ main()
                call_andor_ops(false, false, false),
                false);
 
+    /* nested_eq() tests */
     check_int("nested_eq(10)", call_nested_eq(10), 2);
     check_int("nested_eq(1)", call_nested_eq(1), 1);
     check_int("nested_eq(0)", call_nested_eq(0), 2);
