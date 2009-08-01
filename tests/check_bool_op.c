@@ -375,25 +375,37 @@ main()
                true);
 
     /* andor_ops() tests */
-    check_bool("andor_ops(true, true, true)",
-               call_andor_ops(true, true, true),
+    check_bool("andor_ops(false, false, false)",
+               call_andor_ops(false, false, false),
+               false);
+
+    check_bool("andor_ops(false, false, true)",
+               call_andor_ops(false, false, true),
                true);
+
+    check_bool("andor_ops(false, true, false)",
+               call_andor_ops(false, true, false),
+               false);
 
     check_bool("andor_ops(false, true, true)",
                call_andor_ops(false, true, true),
                true);
 
-    check_bool("andor_ops(false, false, true)",
-               call_andor_ops(false, false, true),
+    check_bool("andor_ops(true, false, false)",
+               call_andor_ops(true, false, false),
+               false);
+
+    check_bool("andor_ops(true, false, true)",
+               call_andor_ops(true, false, true),
                true);
 
     check_bool("andor_ops(true, true, false)",
                call_andor_ops(true, true, false),
                true);
 
-    check_bool("andor_ops(false, false, false)",
-               call_andor_ops(false, false, false),
-               false);
+    check_bool("andor_ops(true, true, true)",
+               call_andor_ops(true, true, true),
+               true);
 
     /* nested_eq() tests */
     check_int("nested_eq(10)", call_nested_eq(10), 2);

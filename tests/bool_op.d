@@ -113,7 +113,7 @@ tripple_and_op(bool left, bool right, bool last)
 bool
 andor_ops(bool a, bool b, bool c)
 {
-    return a && b || c; 
+    return a && b || c;
 }
 
 bool
