@@ -542,6 +542,12 @@ x86_compile_code_block(x86_comp_params_t *params,
                                        ir_assigment_get_value(assig),
                                        locals);
         }
+        else if (IR_IS_CODE_BLOCK(statment))
+        {
+            x86_compile_code_block(params,
+                                   IR_CODE_BLOCK(statment),
+                                   return_label);
+        }
         else
         {
             /* unexpected statment type */

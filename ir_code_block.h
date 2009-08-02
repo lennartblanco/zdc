@@ -28,7 +28,7 @@
 
 typedef struct 
 {
-  GObject parent;
+  IrStatment parent;
   /* private */
   sym_table_t *symbols;
   GSList      *statments;
@@ -36,7 +36,7 @@ typedef struct
 
 typedef struct 
 {
-  GObjectClass parent_class;
+  IrStatmentClass parent_class;
 } IrCodeBlockClass;
 
 /*---------------------------------------------------------------------------*
