@@ -22,6 +22,46 @@ x86_compile_if_block(x86_comp_params_t *params,
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
+int
+x86_if_else_assign_addrs(x86_comp_params_t *params,
+                         int first_num,
+                         IrIfElse *if_else)
+{
+    GSList *i;
+    IrCodeBlock *else_body;
+    int last_num = first_num;
+
+    /* assign numbers to bodies of all if and if-else clauses */
+    i = ir_if_else_get_if_else_blocks(if_else);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        int num = 0;
+        IrIfBlock *if_block = i->data;
+        num = x86_code_block_assign_addrs(params,
+                                          first_num,
+                                          ir_if_block_get_body(if_block));
+        if (num < last_num)
+        {
+            last_num = num;
+        }
+    }
+
+    /* assign numbers to else clause's body */
+    else_body = ir_if_else_get_else_body(if_else);
+    if (else_body != NULL)
+    {
+        int num = 0;
+        num = x86_code_block_assign_addrs(params, first_num, else_body);
+        if (num < last_num)
+        {
+            last_num = num;
+        }
+    }
+
+    return last_num;
+}
+
+
 void
 x86_compile_if_else(x86_comp_params_t *params,
                     IrIfElse *if_else,

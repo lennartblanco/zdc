@@ -60,10 +60,6 @@ x86_compile_func_call(x86_comp_params_t *params,
                       IrFunctionCall *func_call,
                       sym_table_t *sym_table,
                       bool retain_return_value);
-static int
-x86_code_block_assign_addrs(x86_comp_params_t *params,
-                            int first_num,
-                            IrCodeBlock *code_block);
 
 static void
 x86_gen_variable_assigment(x86_comp_params_t *params,
@@ -321,6 +317,72 @@ x86_compile_code_block(x86_comp_params_t *params,
     }
 }
 
+int
+x86_code_block_assign_addrs(x86_comp_params_t *params,
+                            int first_num,
+                            IrCodeBlock *code_block)
+{
+    sym_table_t *symbols;
+    GList *symbols_list;
+    GList *i;
+    GSList *j;
+    int num = first_num;
+    int last_num;
+
+    /*
+     * assign number to this code block's local variables
+     */
+    symbols = ir_code_block_get_symbols(code_block);
+
+    symbols_list = sym_table_get_all_symbols(symbols);
+    for (i = symbols_list; i != NULL; i = g_list_next(i))
+    {
+        IrVariable *var = i->data;
+
+        if (!IR_IS_VARIABLE(var))
+        {
+            /* skip non-variables in symbol table */
+            continue;
+        }
+
+        num -= x86_get_variable_storage_size(var);
+        ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
+        fprintf(params->out, "# variable '%s' location %d\n",
+                ir_variable_get_name(var), num);
+
+    }
+    g_list_free(symbols_list);
+    last_num = num;
+
+    /*
+     * assign numbers to children code block's variables
+     */
+    j = ir_code_block_get_statments(code_block);
+    for (; j != NULL; j = g_slist_next(j))
+    {
+        int vars = 0;
+        if (IR_IS_CODE_BLOCK(j->data))
+        {
+            vars = x86_code_block_assign_addrs(params, num, j->data);
+        }
+        else if (IR_IS_IF_ELSE(j->data))
+        {
+            vars = x86_if_else_assign_addrs(params, num, j->data);
+        }
+
+        /* 
+         * keep track of lowers frame offset assigned 
+         * in our sub-blocks 
+         */
+        if (vars < last_num)
+        {
+            last_num = vars;
+        }
+    }
+
+    return last_num;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -491,73 +553,6 @@ x86_get_variable_storage_size(IrVariable *variable)
     /* we should not get here */
     assert(false);
     return 0;
-}
-
-static int
-x86_code_block_assign_addrs(x86_comp_params_t *params,
-                            int first_num,
-                            IrCodeBlock *code_block)
-{
-    sym_table_t *symbols;
-    GList *symbols_list;
-    GList *i;
-    GSList *j;
-    int num = first_num;
-    int last_num;
-
-    /*
-     * assign number to this code block's local variables
-     */
-    symbols = ir_code_block_get_symbols(code_block);
-
-    symbols_list = sym_table_get_all_symbols(symbols);
-    for (i = symbols_list; i != NULL; i = g_list_next(i))
-    {
-        IrVariable *var = i->data;
-
-        if (!IR_IS_VARIABLE(var))
-        {
-            /* skip non-variables in symbol table */
-            continue;
-        }
-
-        num -= x86_get_variable_storage_size(var);
-        ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
-        fprintf(params->out, "# variable '%s' location %d\n",
-                ir_variable_get_name(var), num);
-
-    }
-    g_list_free(symbols_list);
-    last_num = num;
-
-    /*
-     * assign numbers to children code block's variables
-     */
-    j = ir_code_block_get_statments(code_block);
-    for (; j != NULL; j = g_slist_next(j))
-    {
-        int vars = 0;
-        if (IR_IS_CODE_BLOCK(j->data))
-        {
-            vars = x86_code_block_assign_addrs(params, num, j->data);
-        }
-        else if (IR_IS_IF_ELSE(j->data))
-        {
-            /* assigning variable addresses in if-else code blocks not implemented */
-            assert(false);
-        }
-
-        /* 
-         * keep track of lowers frame offset assigned 
-         * in our sub-blocks 
-         */
-        if (vars < last_num)
-        {
-            last_num = vars;
-        }
-    }
-
-    return last_num;
 }
 
 static void

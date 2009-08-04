@@ -30,6 +30,30 @@ call_nested_blocks2(int in)
    return res;
 }
 
+int
+call_nested_blocks_with_if(bool in)
+{
+   int res;
+
+   asm ("    call nested_blocks_with_if\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+int
+call_nested_blocks_with_if2(int in)
+{
+   int res;
+
+   asm ("    call nested_blocks_with_if2\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -40,27 +64,27 @@ main()
     /* nested_blocks1() test */
     check_int("nested_blocks1()", call_nested_blocks1(), 30);
 
-    /* nested_blocks2() tests */
+    /* nested_blocks() test */
     check_int("nested_blocks2(8)", call_nested_blocks2(8), -1000);
 
-    /* todo: port the tests below to c/x86 */
-    assert(false);
-//        /* test nested_blocks_with_if() */
-//        res = nested_blocks.nested_blocks_with_if(true);
-//        check("nested_blocks.nested_blocks_with_if(true)", res, 30);
+    /* nested_blocks_with_if() tests */
+    check_int("nested_blocks_with_if(true)",
+              call_nested_blocks_with_if(true), 30);
+    check_int("nested_blocks_with_if(false)", 
+              call_nested_blocks_with_if(false), 1123);
 
-//        res = nested_blocks.nested_blocks_with_if(false);
-//        check("nested_blocks.nested_blocks_with_if(false)", res, 1123);
+    /* nested_blocks_with_if2() tests */
+    check_int("nested_blocks_with_if2(-20)",
+              call_nested_blocks_with_if2(-20),
+              -1);
 
-//        /* test nested_blocks_with_if2() */
-//        res = nested_blocks.nested_blocks_with_if2(-20);
-//        check("nested_blocks.nested_blocks_with_if2(-20)", res, -1);
+    check_int("nested_blocks_with_if2(36)",
+              call_nested_blocks_with_if2(36),
+              1);
 
-//        res = nested_blocks.nested_blocks_with_if2(36);
-//        check("nested_blocks.nested_blocks_with_if2(-20)", res, 1);
-
-//        res = nested_blocks.nested_blocks_with_if2(0);
-//        check("nested_blocks.nested_blocks_with_if2(-20)", res, 0);
+    check_int("nested_blocks_with_if2(0)",
+              call_nested_blocks_with_if2(0),
+              0);
 
     check_exit();
 }

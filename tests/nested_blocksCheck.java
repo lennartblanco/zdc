@@ -26,10 +26,10 @@ public class nested_blocksCheck extends check
         check("nested_blocks.nested_blocks_with_if2(-20)", res, -1);
 
         res = nested_blocks.nested_blocks_with_if2(36);
-        check("nested_blocks.nested_blocks_with_if2(-20)", res, 1);
+        check("nested_blocks.nested_blocks_with_if2(36)", res, 1);
 
         res = nested_blocks.nested_blocks_with_if2(0);
-        check("nested_blocks.nested_blocks_with_if2(-20)", res, 0);
+        check("nested_blocks.nested_blocks_with_if2(0)", res, 0);
 
         exit();
     }
