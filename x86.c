@@ -23,6 +23,7 @@
 #include "ir_variable.h"
 #include "ir_return.h"
 #include "ir_function_call.h"
+#include "ir_if_else.h"
 #include "ir_assigment.h"
 
 #include <assert.h>
@@ -100,6 +101,11 @@ x86_compile_conditional_op(x86_comp_params_t *params,
 static void
 x86_compile_variable_ref(x86_comp_params_t *params,
                          IrVariable *var);
+
+static void
+x86_compile_if_else(x86_comp_params_t *params,
+                    IrIfElse *if_else,
+                    sym_table_t *sym_table);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -548,6 +554,12 @@ x86_compile_code_block(x86_comp_params_t *params,
                                    IR_CODE_BLOCK(statment),
                                    return_label);
         }
+        else if (IR_IS_IF_ELSE(statment))
+        {
+            x86_compile_if_else(params,
+                                IR_IF_ELSE(statment),
+                                locals);
+        }
         else
         {
             /* unexpected statment type */
@@ -817,6 +829,23 @@ x86_compile_variable_ref(x86_comp_params_t *params,
             /* unexpected/unsupported storage size */
             assert(false);
     }
+}
+
+static void
+x86_compile_if_else(x86_comp_params_t *params,
+                    IrIfElse *if_else,
+                    sym_table_t *sym_table)
+{
+    GSList *i;
+
+    i = ir_if_else_get_if_else_blocks(if_else);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        IrIfBlock *if_block = IR_IF_BLOCK(i->data);
+        printf("if %p\n", if_block);
+    }
+    
+    printf("if-else end\n");
 }
 
 /**
