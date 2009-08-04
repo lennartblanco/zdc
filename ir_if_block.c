@@ -32,7 +32,7 @@ GType ir_if_block_get_type(void)
 }
 
 IrIfBlock *
-ir_if_block_new(AstExpression *condition, IrCodeBlock *body)
+ir_if_block_new(IrExpression *condition, IrCodeBlock *body)
 {
     assert(condition);
 
@@ -46,7 +46,7 @@ ir_if_block_new(AstExpression *condition, IrCodeBlock *body)
     return obj;
 }
 
-AstExpression *
+IrExpression *
 ir_if_block_get_condition(IrIfBlock *self)
 {
     assert(self);

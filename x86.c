@@ -5,6 +5,7 @@
 #include "types.h"
 #include "x86.h"
 #include "x86_cast.h"
+#include "x86_if_else.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
 #include "ast_int_constant.h"
@@ -34,12 +35,6 @@
 
 #define FUNCTION_EXIT_LABEL_POSTFIX "_exit"
 
-struct x86_comp_params_s
-{
-    FILE *out;
-    label_gen_t label_gen;
-};
-
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -50,10 +45,6 @@ x86_prelude(FILE *out, const char *source_file);
 static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunction *func);
 
-static void
-x86_compile_code_block(x86_comp_params_t *params,
-                       IrCodeBlock *code_block,
-                       char *return_label);
 static void
 x86_compile_binary_op(x86_comp_params_t *params,
                       IrBinaryOperation *op,
@@ -101,11 +92,6 @@ x86_compile_conditional_op(x86_comp_params_t *params,
 static void
 x86_compile_variable_ref(x86_comp_params_t *params,
                          IrVariable *var);
-
-static void
-x86_compile_if_else(x86_comp_params_t *params,
-                    IrIfElse *if_else,
-                    sym_table_t *sym_table);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -206,6 +192,132 @@ x86_compile_expression(x86_comp_params_t *params,
         /* unexpected expression type */
         printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(expression)));
         assert(false);
+    }
+}
+
+void
+x86_compile_code_block(x86_comp_params_t *params,
+                       IrCodeBlock *code_block,
+                       char *return_label)
+{
+    GList *symbols_list;
+    GList *l;
+    sym_table_t *locals;
+
+    locals = ir_code_block_get_symbols(code_block);
+    /*
+     * generate code to initialize all new variables in this code block
+     */
+    symbols_list = sym_table_get_all_symbols(locals);
+    for (l = symbols_list; l != NULL; l = g_list_next(l))
+    {
+        IrVariable *var = l->data;
+        AstDataType *var_type = ir_variable_get_data_type(var);
+        IrExpression *var_init = ir_variable_get_initializer(var);
+
+        /* construct default value for the type */
+        if (var_init == NULL)
+        {
+            if (XDP_IS_AST_BASIC_TYPE(var_type))
+            {
+                basic_data_type_t bdt =
+                    ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(var_type));
+                switch (bdt)
+                {
+                    case int_type:
+                        var_init = IR_EXPRESSION(ir_int_constant_new(0));
+                        break;
+                    case bool_type:
+                        var_init = IR_EXPRESSION(ir_bool_constant_new(false));
+                        break;
+                    default:
+                        assert(false);
+                }
+            }
+            else if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
+            {
+                /* not implemented */
+                assert(false);
+            }
+            else
+            {
+                /* unsupported complex type */
+                assert(false);
+            }
+        }
+
+        if (XDP_IS_AST_BASIC_TYPE(var_type))
+        {
+            x86_gen_variable_assigment(params, var, var_init, locals);
+        }
+        else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
+        {
+//            AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
+            printf("static array\n");
+            /* not implemented */
+            assert(false);
+        }
+        else
+        {
+            /* unexpected data type */
+            assert(false);
+        }
+    }
+    g_list_free(symbols_list);
+
+    /*
+     * generate code for the statments in this code block
+     */
+    GSList *stmts = ir_code_block_get_statments(code_block);
+    for (;stmts != NULL; stmts = g_slist_next(stmts))
+    {
+        IrStatment *statment = IR_STATMENT(stmts->data);
+
+        if (IR_IS_RETURN(statment))
+        {
+            IrReturn *ret = IR_RETURN(statment);
+            IrExpression *return_val = ir_return_get_return_value(ret);
+            if (return_val != NULL)
+            {
+                x86_compile_expression(params, return_val, locals);
+                fprintf(params->out,
+                        "    popl %%eax\n");
+            }
+            fprintf(params->out, "    jmp %s\n", return_label);
+        }
+        else if (IR_IS_FUNCTION_CALL(statment))
+        {
+            x86_compile_func_call(params, 
+                                  IR_FUNCTION_CALL(statment),
+                                  locals,
+                                  false);
+        }
+        else if (IR_IS_ASSIGMENT(statment))
+        {
+            IrAssigment *assig = IR_ASSIGMENT(statment);
+            x86_gen_variable_assigment(params, 
+                                       ir_assigment_get_target(assig),
+                                       ir_assigment_get_value(assig),
+                                       locals);
+        }
+        else if (IR_IS_CODE_BLOCK(statment))
+        {
+            x86_compile_code_block(params,
+                                   IR_CODE_BLOCK(statment),
+                                   return_label);
+        }
+        else if (IR_IS_IF_ELSE(statment))
+        {
+            x86_compile_if_else(params,
+                                IR_IF_ELSE(statment),
+                                locals);
+        }
+        else
+        {
+            /* unexpected statment type */
+            printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(stmts->data)));
+            assert(false);
+        }
     }
 }
 
@@ -428,12 +540,17 @@ x86_code_block_assign_addrs(x86_comp_params_t *params,
         if (IR_IS_CODE_BLOCK(j->data))
         {
             vars = x86_code_block_assign_addrs(params, num, j->data);
-            /* 
-             * keep track if lowers frame offset assigned 
-             * in our sub-blocks 
-             */
+        }
+        else if (IR_IS_IF_ELSE(j->data))
+        {
+            /* assigning variable addresses in if-else code blocks not implemented */
+            assert(false);
         }
 
+        /* 
+         * keep track of lowers frame offset assigned 
+         * in our sub-blocks 
+         */
         if (vars < last_num)
         {
             last_num = vars;
@@ -441,132 +558,6 @@ x86_code_block_assign_addrs(x86_comp_params_t *params,
     }
 
     return last_num;
-}
-
-static void
-x86_compile_code_block(x86_comp_params_t *params,
-                       IrCodeBlock *code_block,
-                       char *return_label)
-{
-    GList *symbols_list;
-    GList *l;
-    sym_table_t *locals;
-
-    locals = ir_code_block_get_symbols(code_block);
-    /*
-     * generate code to initialize all new variables in this code block
-     */
-    symbols_list = sym_table_get_all_symbols(locals);
-    for (l = symbols_list; l != NULL; l = g_list_next(l))
-    {
-        IrVariable *var = l->data;
-        AstDataType *var_type = ir_variable_get_data_type(var);
-        IrExpression *var_init = ir_variable_get_initializer(var);
-
-        /* construct default value for the type */
-        if (var_init == NULL)
-        {
-            if (XDP_IS_AST_BASIC_TYPE(var_type))
-            {
-                basic_data_type_t bdt =
-                    ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(var_type));
-                switch (bdt)
-                {
-                    case int_type:
-                        var_init = IR_EXPRESSION(ir_int_constant_new(0));
-                        break;
-                    case bool_type:
-                        var_init = IR_EXPRESSION(ir_bool_constant_new(false));
-                        break;
-                    default:
-                        assert(false);
-                }
-            }
-            else if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
-            {
-                /* not implemented */
-                assert(false);
-            }
-            else
-            {
-                /* unsupported complex type */
-                assert(false);
-            }
-        }
-
-        if (XDP_IS_AST_BASIC_TYPE(var_type))
-        {
-            x86_gen_variable_assigment(params, var, var_init, locals);
-        }
-        else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
-        {
-//            AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
-            printf("static array\n");
-            /* not implemented */
-            assert(false);
-        }
-        else
-        {
-            /* unexpected data type */
-            assert(false);
-        }
-    }
-    g_list_free(symbols_list);
-
-    /*
-     * generate code for the statments in this code block
-     */
-    GSList *stmts = ir_code_block_get_statments(code_block);
-    for (;stmts != NULL; stmts = g_slist_next(stmts))
-    {
-        IrStatment *statment = IR_STATMENT(stmts->data);
-
-        if (IR_IS_RETURN(statment))
-        {
-            IrReturn *ret = IR_RETURN(statment);
-            IrExpression *return_val = ir_return_get_return_value(ret);
-            if (return_val != NULL)
-            {
-                x86_compile_expression(params, return_val, locals);
-                fprintf(params->out,
-                        "    popl %%eax\n");
-            }
-            fprintf(params->out, "    jmp %s\n", return_label);
-        }
-        else if (IR_IS_FUNCTION_CALL(statment))
-        {
-            x86_compile_func_call(params, 
-                                  IR_FUNCTION_CALL(statment),
-                                  locals,
-                                  false);
-        }
-        else if (IR_IS_ASSIGMENT(statment))
-        {
-            IrAssigment *assig = IR_ASSIGMENT(statment);
-            x86_gen_variable_assigment(params, 
-                                       ir_assigment_get_target(assig),
-                                       ir_assigment_get_value(assig),
-                                       locals);
-        }
-        else if (IR_IS_CODE_BLOCK(statment))
-        {
-            x86_compile_code_block(params,
-                                   IR_CODE_BLOCK(statment),
-                                   return_label);
-        }
-        else if (IR_IS_IF_ELSE(statment))
-        {
-            x86_compile_if_else(params,
-                                IR_IF_ELSE(statment),
-                                locals);
-        }
-        else
-        {
-            /* unexpected statment type */
-            printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(stmts->data)));
-            assert(false);
-        }
-    }
 }
 
 static void
@@ -829,23 +820,6 @@ x86_compile_variable_ref(x86_comp_params_t *params,
             /* unexpected/unsupported storage size */
             assert(false);
     }
-}
-
-static void
-x86_compile_if_else(x86_comp_params_t *params,
-                    IrIfElse *if_else,
-                    sym_table_t *sym_table)
-{
-    GSList *i;
-
-    i = ir_if_else_get_if_else_blocks(if_else);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        IrIfBlock *if_block = IR_IF_BLOCK(i->data);
-        printf("if %p\n", if_block);
-    }
-    
-    printf("if-else end\n");
 }
 
 /**

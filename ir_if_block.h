@@ -29,7 +29,7 @@ typedef struct
 {
   GObject        parent;
   /* private */
-  AstExpression *condition;
+  IrExpression *condition;
   IrCodeBlock   *body;
 } IrIfBlock;
 
@@ -46,9 +46,9 @@ GType
 ir_if_block_get_type(void);
 
 IrIfBlock *
-ir_if_block_new(AstExpression *condition, IrCodeBlock *body);
+ir_if_block_new(IrExpression *condition, IrCodeBlock *body);
 
-AstExpression *
+IrExpression *
 ir_if_block_get_condition(IrIfBlock *self);
 
 IrCodeBlock *

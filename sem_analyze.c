@@ -99,17 +99,22 @@ sem_analyze_ast_if_block_to_ir(compilation_status_t *compile_status,
                                IrCodeBlock *parent_block,
                                AstIfBlock *ast_if_block)
 {
+    sym_table_t *sym_table = ir_code_block_get_symbols(parent_block);
+    AstExpression *ast_condition = ast_if_block_get_condition(ast_if_block);
+
     IrCodeBlock *body = 
         ir_code_block_new(ir_code_block_get_symbols(parent_block));
+
+    IrExpression *condition =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         sym_table,
+                                         ast_condition);
 
     sem_analyze_ast_code_block_to_ir(compile_status,
                                      ast_if_block_get_body(ast_if_block),
                                      body);
 
-    return
-        ir_if_block_new(ast_if_block_get_condition(ast_if_block),
-                        body);
-    
+    return ir_if_block_new(condition, body);
 }
 
 /**
