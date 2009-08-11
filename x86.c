@@ -818,7 +818,7 @@ x86_compile_func_call(x86_comp_params_t *params,
     if (arg_num > 0)
     {
         fprintf(params->out,
-                "# put arg0 into eax\n"
+                "# put last argument into eax\n"
                 "    popl %%eax\n");
     }
 
@@ -826,6 +826,14 @@ x86_compile_func_call(x86_comp_params_t *params,
             "# invoke function\n"
             "    call %s\n",
             ir_function_call_get_name(func_call));
+
+    if (arg_num > 1)
+    {
+        fprintf(params->out,
+                "# remove function call aruments from the stack\n"
+                "    addl $%d, %%esp\n",
+                (arg_num - 1) * 4);
+    }
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
 
