@@ -413,9 +413,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
     fprintf(params->out,
             ".globl %s\n"
             "    .type %s, @function\n"
-            "%s:\n"
-            "    pushl %%ebp\n"
-            "    movl %%esp, %%ebp\n",
+            "%s:\n",
             func_name, func_name, func_name);
 
     /* assign locations to function parameter variables */
@@ -471,16 +469,16 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
         stack_size -= 4 + stack_size % 4;
     }
 
+    /* generate code to allocate function frame on the stack */
+    fprintf(params->out,
+            "    enter $%d, $0\n",
+            -stack_size);
+
     /* generate code to store last function argument on the stack */
     if (push_last_arg)
     {
-        fprintf(params->out, "    pushl %%eax\n");
+        fprintf(params->out, "    movl %%eax, -4(%%ebp)\n");
     }
-
-    /* generate code to allocate function frame on the stack */
-    fprintf(params->out,
-            "    subl $%d, %%esp\n",
-            -stack_size);
 
     /* set-up function exit label */
     char exit_label[strlen(func_name) + 
@@ -496,8 +494,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
     /* generate function exit part */
     fprintf(params->out,
             "%s:\n"
-            "    movl %%ebp, %%esp\n"
-            "    popl %%ebp\n"
+            "    leave\n"
             "    ret\n",
             exit_label);
 
