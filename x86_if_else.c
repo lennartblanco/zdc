@@ -86,8 +86,7 @@ x86_compile_if_else(x86_comp_params_t *params,
     if (else_body != NULL)
     {
         x86_compile_code_block(params,
-                               else_body,
-                               "TODO_implement_return_label_in_else_body");
+                               else_body);
     }
     
     fprintf(params->out,
@@ -125,8 +124,7 @@ x86_compile_if_block(x86_comp_params_t *params,
             skip_label);
 
     x86_compile_code_block(params,
-                           ir_if_block_get_body(if_block),
-                           "TODO_implement_return_label_in_if_block");
+                           ir_if_block_get_body(if_block));
 
     fprintf(params->out,
             "    jmp %s\n"

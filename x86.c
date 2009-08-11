@@ -30,12 +30,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                             type definitions                              *
- *---------------------------------------------------------------------------*/
-
-#define FUNCTION_EXIT_LABEL_POSTFIX "_exit"
-
-/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -193,8 +187,7 @@ x86_compile_expression(x86_comp_params_t *params,
 
 void
 x86_compile_code_block(x86_comp_params_t *params,
-                       IrCodeBlock *code_block,
-                       char *return_label)
+                       IrCodeBlock *code_block)
 {
     GList *symbols_list;
     GList *l;
@@ -279,7 +272,9 @@ x86_compile_code_block(x86_comp_params_t *params,
                 fprintf(params->out,
                         "    popl %%eax\n");
             }
-            fprintf(params->out, "    jmp %s\n", return_label);
+            fprintf(params->out,
+                    "    leave\n"
+                    "    ret\n");
         }
         else if (IR_IS_FUNCTION_CALL(statment))
         {
@@ -299,8 +294,7 @@ x86_compile_code_block(x86_comp_params_t *params,
         else if (IR_IS_CODE_BLOCK(statment))
         {
             x86_compile_code_block(params,
-                                   IR_CODE_BLOCK(statment),
-                                   return_label);
+                                   IR_CODE_BLOCK(statment));
         }
         else if (IR_IS_IF_ELSE(statment))
         {
@@ -480,24 +474,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
         fprintf(params->out, "    movl %%eax, -4(%%ebp)\n");
     }
 
-    /* set-up function exit label */
-    char exit_label[strlen(func_name) + 
-                    strlen(FUNCTION_EXIT_LABEL_POSTFIX) + 1];
-
-    sprintf(exit_label, "%s"FUNCTION_EXIT_LABEL_POSTFIX, func_name);
-
     /* generate code for function body */
     x86_compile_code_block(params,
-                           ir_function_get_body(func),
-                           exit_label);
-
-    /* generate function exit part */
-    fprintf(params->out,
-            "%s:\n"
-            "    leave\n"
-            "    ret\n",
-            exit_label);
-
+                           ir_function_get_body(func));
 }
 
 static int

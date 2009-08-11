@@ -33,8 +33,7 @@ x86_compile_expression(x86_comp_params_t *params,
 
 void
 x86_compile_code_block(x86_comp_params_t *params,
-                       IrCodeBlock *code_block,
-                       char *return_label);
+                       IrCodeBlock *code_block);
 
 int
 x86_code_block_assign_addrs(x86_comp_params_t *params,
