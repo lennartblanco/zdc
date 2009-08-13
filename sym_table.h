@@ -1,5 +1,5 @@
-#ifndef SEM_TABLE_INC_X
-#define SEM_TABLE_INC_X
+#ifndef SYM_TABLE_INC_X
+#define SYM_TABLE_INC_X
 
 #include "ir_symbol.h"
 #include "sym_table_types.h"
@@ -58,4 +58,4 @@ sym_table_get_all_symbols(sym_table_t* table);
 void
 sym_table_print(sym_table_t *table, FILE *out);
 
-#endif /* SEM_TABLE_INC_X */
+#endif /* SYM_TABLE_INC_X */
