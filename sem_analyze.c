@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "sem_analyze.h"
+#include "sem_analyze_validate.h"
 #include "types.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
@@ -41,6 +42,10 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
+static IrCompileUnit *
+sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
+                                   AstCompileUnit *ast_compile_unit);
+
 static void
 sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                                  AstCodeBlock *ast_code_block,
@@ -70,12 +75,6 @@ static IrExpression *
 sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
                                  AstExpression *ast_expression);
-
-static IrExpression *
-sem_analyze_arithmetic_binary_op(compilation_status_t *compile_status,
-                                 ast_binary_op_type_t operation,
-                                 IrExpression *left,
-                                 IrExpression *right);
 
 static IrExpression *
 sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
@@ -297,42 +296,6 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
     return IR_STATMENT(ir_assigment_new(IR_VARIABLE(target_sym), ir_value));
 }
 
-/**
- * Build IR representation of an arithmetic binary operation. Adding type
- * conversion operations if left and right operands are of different types.
- *
- * The arithmetic operations are +, -, * and /.
- */
-static IrExpression *
-sem_analyze_arithmetic_binary_op(compilation_status_t *compile_status,
-                                 ast_binary_op_type_t operation,
-                                 IrExpression *left,
-                                 IrExpression *right)
-{
-    assert(operation == ast_plus_op  ||
-           operation == ast_minus_op ||
-           operation == ast_mult_op  ||
-           operation == ast_division_op);
-
-    left = types_integer_promotion(left);
-    if (left == NULL)
-    {
-        goto err_exit;
-    }
-
-    right = types_integer_promotion(right);
-    if (right == NULL) 
-    {
-        goto err_exit;
-    }
-
-    return IR_EXPRESSION(ir_binary_operation_new(operation, left, right));
-
-err_exit:
-    compile_error(compile_status, "operand of illegal type\n");
-    return NULL;
-}
-
 static IrExpression *
 sem_analyze_compare_binary_op(compilation_status_t *compile_status,
                               ast_binary_op_type_t operation,
@@ -449,8 +412,7 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
         case ast_minus_op:
         case ast_mult_op:
         case ast_division_op:
-            return sem_analyze_arithmetic_binary_op(compile_status, 
-                                                    op, left, right);
+            return IR_EXPRESSION(ir_binary_operation_new(op, left, right));
         case ast_equal_op:
         case ast_not_equal_op:
         case ast_less_op:
@@ -482,66 +444,15 @@ sem_analyze_ast_unary_op_to_ir(compilation_status_t *compile_status,
                                AstUnaryOperation *ast_operation)
 {
     IrExpression *operand;
-    AstDataType *operand_type;
-    basic_data_type_t operand_data_type;
     ast_unary_op_type_t op_type;
+
+    op_type =
+        ast_unary_operation_get_operation(ast_operation);
 
     operand =
         sem_analyze_ast_expression_to_ir(compile_status,
                                          symbols,
                                          ast_unary_operation_get_operand(ast_operation));
-
-
-    operand_type = ir_expression_get_data_type(operand);
-    if (!(XDP_IS_AST_BASIC_TYPE(operand_type))) {
-        compile_error(compile_status, "not a basic type\n");
-        return NULL;
-    }
-
-    operand_data_type =
-        ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(operand_type));
-
-    op_type = ast_unary_operation_get_operation(ast_operation);
-    switch (op_type)
-    {
-        case ast_arithm_neg_op:
-            switch (operand_data_type)
-            {
-                case int_type:
-                    /* nop */
-                    break;
-                case bool_type:
-                    operand =
-                      IR_EXPRESSION(
-                        ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
-                                    operand));
-                    break;
-                default:
-                    /* unexpected operand data type */
-                    assert(false);
-            }
-            break;
-        case ast_bool_neg_op:
-            switch (operand_data_type)
-            {
-                case bool_type:
-                    /* nop */
-                    break;
-                case int_type:
-                    operand =
-                      IR_EXPRESSION(
-                        ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
-                                    operand));
-                    break;
-                default:
-                    /* unexpected operand data type */
-                    assert(false);
-            }
-            break;
-        default:
-            /* unexpected unary operation */
-            assert(false);
-    }
 
     return IR_EXPRESSION(ir_unary_operation_new(op_type, operand));
 }
@@ -551,32 +462,11 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
                                 sym_table_t *symbols,
                                 AstFunctionCall *func_call)
 {
-    IrSymbol *func_symb;
-    AstDataType *func_return_type;
     char *func_name;
     GSList *i;
     GSList *ir_call_args = NULL;
 
     func_name = ast_function_call_get_name(func_call);
-
-    /* look-up function in the symbol table */
-    func_symb = sym_table_get_symbol(symbols, func_name);
-    if (func_symb == NULL)
-    {
-        compile_error(compile_status,
-                      "reference to unknow function '%s'\n",
-                      func_name);
-        return NULL;
-    }
-    if (!IR_IS_FUNCTION(func_symb))
-    {
-        compile_error(compile_status,
-                      "called object '%s' is not a function\n",
-                      func_name);
-        return NULL;  
-    }
-
-    func_return_type = ir_function_get_return_type(IR_FUNCTION(func_symb));
 
     /* convert call argument expressions to IR form */
     i = ast_function_call_get_arguments(func_call);
@@ -591,9 +481,7 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
         ir_call_args = g_slist_prepend(ir_call_args, arg);
     }
 
-    return IR_EXPRESSION(ir_function_call_new(func_return_type,
-                                              func_name,
-                                              ir_call_args));
+    return IR_EXPRESSION(ir_function_call_new(func_name, ir_call_args));
 }
 
 /**
@@ -847,6 +735,31 @@ sem_analyze_ast_func_to_ir(compilation_status_t *compile_status,
     return ir_func;
 }
 
+static IrCompileUnit *
+sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
+                                   AstCompileUnit *ast_compile_unit)
+{
+    IrCompileUnit *comp_unit;
+    GSList *ptr;
+    IrFunction *ir_func;
+    sym_table_t *global_sym_table;
+
+    comp_unit = ir_compile_unit_new();
+
+    global_sym_table = ir_compile_unit_get_symbols(comp_unit);
+
+    ptr = ast_compile_unit_get_functions(ast_compile_unit);
+    for (;ptr != NULL; ptr = ptr->next)
+    {
+        ir_func = sem_analyze_ast_func_to_ir(compile_status,
+                                             XDP_AST_FUNCTION(ptr->data),
+                                             global_sym_table);
+        ir_compile_unit_add_function(comp_unit, ir_func);
+    }
+
+    return comp_unit;
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -854,27 +767,25 @@ sem_analyze_ast_func_to_ir(compilation_status_t *compile_status,
 IrCompileUnit *
 semantic_analyze(const char *source_file, AstCompileUnit *ast_compile_unit)
 {
-    IrCompileUnit        *comp_unit;
-    GSList               *ptr;
-    IrFunction           *ir_func;
-    sym_table_t          *global_sym_table;
+    IrCompileUnit *comp_unit;
+
     compilation_status_t comp_stat;
 
     /* set-up compilation status struct */
     comp_stat.source_file = source_file;
     comp_stat.errors_count = 0;
 
-    comp_unit = ir_compile_unit_new();
-    global_sym_table = ir_compile_unit_get_symbols(comp_unit);
+    comp_unit =
+        sem_analyze_ast_compile_unit_to_ir(&comp_stat, ast_compile_unit);
 
-    ptr = ast_compile_unit_get_functions(ast_compile_unit);
-    for (;ptr != NULL; ptr = ptr->next)
+    /* if there were errors while converting to IR, return failure result */
+    if (comp_stat.errors_count > 0)
     {
-        ir_func = sem_analyze_ast_func_to_ir(&comp_stat,
-                                             XDP_AST_FUNCTION(ptr->data),
-                                             global_sym_table);
-        ir_compile_unit_add_function(comp_unit, ir_func);
+        /* @todo: clean-up comp_unit ? */
+        return NULL;
     }
+
+    sem_analyze_validate(&comp_stat, comp_unit);
 
     /* if there were errors during analysis, return failure result */
     if (comp_stat.errors_count > 0)

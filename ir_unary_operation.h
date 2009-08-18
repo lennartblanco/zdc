@@ -56,4 +56,7 @@ ir_unary_operation_get_operation(IrUnaryOperation *self);
 IrExpression *
 ir_unary_operation_get_operand(IrUnaryOperation *self);
 
+void
+ir_unary_operation_set_operand(IrUnaryOperation *self, IrExpression *operand);
+
 #endif /* IR_UNARY_OPERATION_INC_X */

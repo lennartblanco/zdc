@@ -1,0 +1,391 @@
+#include <stdbool.h>
+
+#include "sem_analyze_validate.h"
+#include "types.h"
+#include "ir_function.h"
+#include "ir_assigment.h"
+#include "ir_function_call.h"
+#include "ir_return.h"
+#include "ir_unary_operation.h"
+#include "ir_binary_operation.h"
+
+#include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+sem_analyze_validate_function(compilation_status_t *compile_status,
+                              IrFunction *func);
+
+static IrExpression *
+sem_analyze_validate_expression(compilation_status_t *compile_status,
+                                sym_table_t *sym_table,
+                                IrExpression *expression);
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
+void
+sem_analyze_validate(compilation_status_t *compile_status,
+                     IrCompileUnit *compile_unit)
+{
+    assert(compile_status);
+    assert(compile_unit);
+
+    sym_table_t *sym_table;
+    GList *symbols_list;
+    GList *i;
+
+    sym_table = ir_compile_unit_get_symbols(compile_unit);
+    symbols_list = sym_table_get_all_symbols(sym_table);
+
+    for (i = symbols_list; i != NULL; i = g_list_next(i))
+    {
+        if (IR_IS_FUNCTION(i->data))
+        {
+            sem_analyze_validate_function(compile_status, IR_FUNCTION(i->data));
+        }
+        else
+        {
+            /* unexpected symbol type */
+            assert(false);
+        }
+    }
+    g_list_free(symbols_list);
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+
+static void
+sem_analyze_validate_function_call(compilation_status_t *compile_status,
+                                   sym_table_t *sym_table,
+                                   IrFunctionCall *func_call)
+{
+    IrSymbol *func_symb;
+    char *func_name;
+    AstDataType *func_return_type;
+    GSList *formal_args;
+    GSList *func_call_args;
+    GSList *validated_args = NULL;
+    GSList *i;
+
+
+    func_name = ir_function_call_get_name(func_call);
+
+    /* look-up function in the symbol table */
+    func_symb = sym_table_get_symbol(sym_table, func_name);
+    if (func_symb == NULL)
+    {
+        compile_error(compile_status,
+                      "reference to unknow function '%s'\n",
+                      func_name);
+        return;
+    }
+    if (!IR_IS_FUNCTION(func_symb))
+    {
+        compile_error(compile_status,
+                      "called object '%s' is not a function\n",
+                      func_name);
+        return; 
+    }
+
+   formal_args = ir_function_get_parameters(IR_FUNCTION(func_symb));
+   func_call_args = ir_function_call_get_arguments(func_call);
+
+printf("expected %d got %d\n",
+       g_slist_length(formal_args),
+       g_slist_length(func_call_args));
+
+   /*
+    * check that function call have correct number of arguments
+    */
+   if (g_slist_length(formal_args) != g_slist_length(func_call_args))
+   {
+       compile_error(compile_status, 
+                     "invalid call to function '%s', expected %d "
+                     "arguments, got %d\n",
+                     func_name,
+                     g_slist_length(formal_args),
+                     g_slist_length(func_call_args));
+       return;
+   }
+
+   /*
+    * validate function call arguments
+    */
+   for (i = func_call_args; i != NULL; i = g_slist_next(i))
+   {
+       IrExpression *exp;
+
+       exp = sem_analyze_validate_expression(compile_status,
+                                             sym_table,
+                                             IR_EXPRESSION(i->data));
+       validated_args = g_slist_prepend(validated_args, exp);
+   }
+   /* store validated call arguments */
+   ir_function_call_set_arguments(func_call, g_slist_reverse(validated_args));
+
+   /* store function call data type */
+   func_return_type = ir_function_get_return_type(IR_FUNCTION(func_symb));
+   ir_function_call_set_return_type(func_call, func_return_type);
+}
+
+/**
+ * validate binary integer arithmetic operation
+ */
+static IrExpression *
+sem_analyze_validate_bin_iarithm(compilation_status_t *compile_status,
+                                 sym_table_t *sym_table,
+                                 IrBinaryOperation *bin_op)
+{
+    assert(ir_binary_operation_is_iarithm(bin_op));
+
+    IrExpression *exp;
+
+
+    /*
+     * integer promote left operand
+     */
+    exp = ir_binary_operation_get_left(bin_op);
+    exp = types_integer_promotion(exp);
+    if (exp == NULL)
+    {
+        compile_error(compile_status, "left operand of illegal type\n");
+        return NULL;
+    }
+    ir_binary_operation_set_left(bin_op, exp);
+
+    /*
+     * integer promote right operand
+     */
+    exp = ir_binary_operation_get_right(bin_op);
+    exp = types_integer_promotion(exp);
+    if (exp == NULL)
+    {
+        compile_error(compile_status, "right operand of illegal type\n");
+        return NULL;
+    }
+    ir_binary_operation_set_right(bin_op, exp);
+
+    return IR_EXPRESSION(bin_op);
+}
+
+static IrExpression *
+sem_analyze_validate_binary_op(compilation_status_t *compile_status,
+                               sym_table_t *sym_table,
+                               IrBinaryOperation *bin_op)
+{
+    IrExpression *exp;
+
+    /* validate left operand */
+    exp = ir_binary_operation_get_left(bin_op);
+    exp = sem_analyze_validate_expression(compile_status,
+                                          sym_table,
+                                          exp);
+    ir_binary_operation_set_left(bin_op, exp);
+
+    /* validate right operand */
+    exp = ir_binary_operation_get_right(bin_op);
+    exp = sem_analyze_validate_expression(compile_status,
+                                          sym_table,
+                                          exp);
+    ir_binary_operation_set_right(bin_op, exp);
+
+    if (ir_binary_operation_is_iarithm(bin_op))
+    {
+        return 
+          sem_analyze_validate_bin_iarithm(compile_status,
+                                           sym_table,
+                                           bin_op);
+    }
+    else if (ir_binary_operation_is_icomp(bin_op))
+    {
+        /* not implemented */
+        assert(false);
+    }
+    else if (ir_binary_operation_is_conditional(bin_op))
+    {
+        /* not implemented */
+        assert(false);
+    }
+
+    /* unexpected binary operation type */
+    assert(false);
+}
+
+static IrExpression *
+sem_analyze_validate_unary_op(compilation_status_t *compile_status,
+                              sym_table_t *sym_table,
+                              IrUnaryOperation *operation)
+{
+    IrExpression *exp;
+
+    exp = ir_unary_operation_get_operand(operation);
+    exp = sem_analyze_validate_expression(compile_status,
+                                          sym_table,
+                                          exp);
+
+    switch (ir_unary_operation_get_operation(operation))
+    {
+        case ast_arithm_neg_op:
+            exp = types_implicit_conv(types_get_int_type(), exp);
+            if (exp == NULL)
+            {
+                compile_error(compile_status,
+                              "can not convert to int type");
+                return NULL;
+            }
+            break;
+        case ast_bool_neg_op:
+            exp = types_implicit_conv(types_get_bool_type(), exp);
+            if (exp == NULL)
+            {
+                compile_error(compile_status,
+                              "can not convert to bool type");
+                return NULL;
+            }
+            break;
+        default:
+            /* unexpected unary operation */
+            assert(false);
+    }
+
+    ir_unary_operation_set_operand(operation, exp);
+    return IR_EXPRESSION(operation);
+}
+
+
+static IrExpression *
+sem_analyze_validate_expression(compilation_status_t *compile_status,
+                                sym_table_t *sym_table,
+                                IrExpression *expression)
+{
+    if (IR_IS_BINARY_OPERATION(expression))
+    {
+        expression = 
+            sem_analyze_validate_binary_op(compile_status,
+                                           sym_table,
+                                           IR_BINARY_OPERATION(expression));
+    }
+    else if (IR_IS_UNARY_OPERATION(expression))
+    {
+        expression =
+            sem_analyze_validate_unary_op(compile_status,
+                                          sym_table,
+                                          IR_UNARY_OPERATION(expression));
+    }
+    else if (IR_IS_FUNCTION_CALL(expression))
+    {
+        sem_analyze_validate_function_call(compile_status,
+                                           sym_table,
+                                           IR_FUNCTION_CALL(expression));
+    }
+
+    return expression;
+}
+
+static void
+sem_analyze_validate_return(compilation_status_t *compile_status,
+                            sym_table_t *sym_table,
+                            IrReturn *ret)
+{
+    IrExpression *ret_exp;
+
+    ret_exp = ir_return_get_return_value(ret);
+
+    if (ret_exp != NULL)
+    {
+        IrExpression *exp;
+        exp = 
+           sem_analyze_validate_expression(compile_status, sym_table, ret_exp);
+        ir_return_set_return_value(ret, exp);
+    }
+}
+
+static void
+sem_analyze_validate_assigment(compilation_status_t *compile_status,
+                               sym_table_t *sym_table,
+                               IrAssigment *assigment)
+{
+    IrExpression *exp;
+
+    exp = ir_assigment_get_value(assigment);
+    exp = sem_analyze_validate_expression(compile_status, sym_table, exp);
+    ir_assigment_set_value(assigment, exp);
+
+}
+
+static void
+sem_analyze_validate_statment(compilation_status_t *compile_status,
+                              sym_table_t *sym_table,
+                              IrStatment *statment)
+{
+    if (IR_IS_FUNCTION_CALL(statment))
+    {
+         sem_analyze_validate_function_call(compile_status,
+                                            sym_table,
+                                            IR_FUNCTION_CALL(statment));
+    }
+    else if (IR_IS_ASSIGMENT(statment))
+    {
+        sem_analyze_validate_assigment(compile_status,
+                                       sym_table,
+                                       IR_ASSIGMENT(statment));
+    }
+    else if (IR_IS_RETURN(statment))
+    {
+        sem_analyze_validate_return(compile_status,
+                                    sym_table,
+                                    IR_RETURN(statment));
+    }
+}
+
+static void
+sem_analyze_validate_code_block(compilation_status_t *compile_status,
+                                IrCodeBlock *code_block)
+{
+    sym_table_t *sym_table;
+    GSList *i;
+
+    sym_table = ir_code_block_get_symbols(code_block);
+
+    i = ir_code_block_get_statments(code_block);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        if (IR_IS_CODE_BLOCK(i->data))
+        {
+            sem_analyze_validate_code_block(compile_status,
+                                            IR_CODE_BLOCK(i->data));
+        }
+        else if (IR_IS_STATMENT(i->data))
+        {
+            sem_analyze_validate_statment(compile_status,
+                                          sym_table,
+                                          IR_STATMENT(i->data));
+        }
+        else
+        {
+            /* unexpected statment type */
+            assert(false);
+        }
+    }
+}
+
+static void
+sem_analyze_validate_function(compilation_status_t *compile_status,
+                              IrFunction *func)
+{
+    IrCodeBlock *body;
+
+    body = ir_function_get_body(func);
+
+
+    sem_analyze_validate_code_block(compile_status, body);
+}
+

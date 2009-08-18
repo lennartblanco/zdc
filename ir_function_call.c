@@ -44,8 +44,7 @@ ir_function_call_get_type(void)
 }
 
 IrFunctionCall *
-ir_function_call_new(AstDataType *return_type,
-                     char *name,
+ir_function_call_new(char *name,
                      GSList *arguments)
 {
     IrFunctionCall *obj;
@@ -54,9 +53,19 @@ ir_function_call_new(AstDataType *return_type,
 
     obj->name = strdup(name);
     obj->arguments = arguments;
-    obj->return_type = return_type;
+    obj->return_type = NULL;
 
     return obj;
+}
+
+void
+ir_function_call_set_return_type(IrFunctionCall *self,
+                                 AstDataType *return_type)
+{
+    assert(self);
+    assert(IR_IS_FUNCTION_CALL(self));
+
+    self->return_type = return_type;
 }
 
 GSList *
@@ -66,6 +75,15 @@ ir_function_call_get_arguments(IrFunctionCall *self)
     assert(IR_IS_FUNCTION_CALL(self));
 
     return self->arguments;
+}
+
+void
+ir_function_call_set_arguments(IrFunctionCall *self, GSList *arguments)
+{
+    assert(self);
+    assert(IR_IS_FUNCTION_CALL(self));
+
+    self->arguments = arguments;
 }
 
 char *

@@ -53,6 +53,15 @@ ir_return_new(IrExpression *return_value)
     return obj;
 }
 
+void
+ir_return_set_return_value(IrReturn *self, IrExpression *return_value)
+{
+    assert(self);
+    assert(IR_IS_RETURN(self));
+
+    self->return_value = return_value;
+}
+
 IrExpression *
 ir_return_get_return_value(IrReturn *self)
 {

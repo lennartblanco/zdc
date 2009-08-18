@@ -51,12 +51,18 @@ ir_function_call_get_type(void);
  *                  in _reversed_ order
  */
 IrFunctionCall *
-ir_function_call_new(AstDataType *return_type,
-                     char *name,
+ir_function_call_new(char *name,
                      GSList *arguments);
+
+void
+ir_function_call_set_return_type(IrFunctionCall *self,
+                                 AstDataType *return_type);
 
 GSList *
 ir_function_call_get_arguments(IrFunctionCall *self);
+
+void
+ir_function_call_set_arguments(IrFunctionCall *self, GSList *arguments);
 
 char *
 ir_function_call_get_name(IrFunctionCall *self);

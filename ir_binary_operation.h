@@ -63,6 +63,14 @@ ir_binary_operation_get_left(IrBinaryOperation *self);
 IrExpression *
 ir_binary_operation_get_right(IrBinaryOperation *self);
 
+void
+ir_binary_operation_set_left(IrBinaryOperation *self,
+                             IrExpression *left);
+
+void
+ir_binary_operation_set_right(IrBinaryOperation *self,
+                             IrExpression *right);
+
 /**
  * Returns true if this is an integer arithmetic binary operation.
  * Integer arithmetic operations +, -, *, / over integer expressions.

@@ -168,6 +168,19 @@ types_is_bool(AstDataType *data_type)
 
 
 AstDataType *
+types_get_int_type()
+{
+   static AstDataType *int_data_type = NULL;
+
+   if (int_data_type == NULL)
+   {
+      int_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(int_type));
+   }
+
+   return int_data_type;
+}
+
+AstDataType *
 types_get_bool_type()
 {
    static AstDataType *bool_data_type = NULL;
@@ -193,12 +206,6 @@ types_get_void_type()
    return void_data_type;
 }
 
-
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
 bool
 types_is_literal_0or1(IrExpression *expression)
 {
@@ -213,6 +220,10 @@ types_is_literal_0or1(IrExpression *expression)
 
     return val == 0 || val == 1;
 }
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
 
 static IrExpression *
 implicit_conv_to_int(IrExpression *expression)

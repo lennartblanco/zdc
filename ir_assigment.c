@@ -63,3 +63,11 @@ ir_assigment_get_value(IrAssigment *self)
     return self->value;
 }
 
+void
+ir_assigment_set_value(IrAssigment *self, IrExpression *value)
+{
+    assert(self);
+    assert(IR_IS_ASSIGMENT(self));
+
+    self->value = value;
+}

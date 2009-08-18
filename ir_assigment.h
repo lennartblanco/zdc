@@ -57,4 +57,7 @@ ir_assigment_get_target(IrAssigment *self);
 IrExpression *
 ir_assigment_get_value(IrAssigment *self);
 
+void
+ir_assigment_set_value(IrAssigment *self, IrExpression *value);
+
 #endif /* IR_ASSIGMENT_INC_X */

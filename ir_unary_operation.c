@@ -72,6 +72,16 @@ ir_unary_operation_get_operand(IrUnaryOperation *self)
     return self->operand;
 }
 
+void
+ir_unary_operation_set_operand(IrUnaryOperation *self,
+                               IrExpression *operand)
+{
+    assert(self);
+    assert(IR_IS_UNARY_OPERATION(self));
+
+    self->operand = operand;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

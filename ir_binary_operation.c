@@ -88,6 +88,26 @@ ir_binary_operation_get_right(IrBinaryOperation *self)
     return self->right;
 }
 
+void
+ir_binary_operation_set_left(IrBinaryOperation *self,
+                             IrExpression *left)
+{
+    assert(self);
+    assert(IR_IS_BINARY_OPERATION(self));
+
+    self->left = left;
+}
+
+void
+ir_binary_operation_set_right(IrBinaryOperation *self,
+                             IrExpression *right)
+{
+    assert(self);
+    assert(IR_IS_BINARY_OPERATION(self));
+
+    self->right = right;
+}
+
 bool
 ir_binary_operation_is_iarithm(IrBinaryOperation *self)
 {
