@@ -2,12 +2,14 @@
 
 #include "sem_analyze_validate.h"
 #include "types.h"
+#include "ast_basic_type.h"
 #include "ir_function.h"
 #include "ir_assigment.h"
 #include "ir_function_call.h"
 #include "ir_return.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_cast.h"
 
 #include <assert.h>
 
@@ -98,10 +100,6 @@ sem_analyze_validate_function_call(compilation_status_t *compile_status,
    formal_args = ir_function_get_parameters(IR_FUNCTION(func_symb));
    func_call_args = ir_function_call_get_arguments(func_call);
 
-printf("expected %d got %d\n",
-       g_slist_length(formal_args),
-       g_slist_length(func_call_args));
-
    /*
     * check that function call have correct number of arguments
     */
@@ -176,6 +174,96 @@ sem_analyze_validate_bin_iarithm(compilation_status_t *compile_status,
     return IR_EXPRESSION(bin_op);
 }
 
+/**
+ * validate binary integer comparison operation
+ */
+static IrExpression *
+sem_analyze_validate_bin_icomp(compilation_status_t *compile_status,
+                               sym_table_t *sym_table,
+                               IrBinaryOperation *bin_op)
+{
+    assert(ir_binary_operation_is_icomp(bin_op));
+
+    IrExpression *converted_left;
+    IrExpression *converted_right;
+
+    if (!types_usual_arithm_conv(ir_binary_operation_get_left(bin_op),
+                                 ir_binary_operation_get_right(bin_op),
+                                 &converted_left,
+                                 &converted_right))
+    {
+        compile_error(compile_status, "illegal types in compare operation\n");
+        return NULL;
+    }
+
+    ir_binary_operation_set_left(bin_op, converted_left);
+    ir_binary_operation_set_right(bin_op, converted_right);
+
+    return IR_EXPRESSION(bin_op);
+}
+
+/**
+ * validate binary conditional operation
+ */
+static IrExpression *
+sem_analyze_validate_bin_conditional(compilation_status_t *compile_status,
+                                     sym_table_t *sym_table,
+                                     IrBinaryOperation *bin_op)
+{
+    assert(ir_binary_operation_is_conditional(bin_op));
+
+    AstDataType *data_type;
+    IrExpression *left;
+    IrExpression *right;
+   
+    left = ir_binary_operation_get_left(bin_op);
+    right = ir_binary_operation_get_right(bin_op);
+
+    /*
+     * check left operand data type
+     */
+    data_type = ir_expression_get_data_type(left);
+
+    /* left operand can not be of void type */
+    if (types_is_void(data_type))
+    {
+        compile_error(compile_status, "left operand can not be of void type\n");
+        return NULL;
+    }
+
+    /* if left operand is not bool, cast to bool */
+    if (!types_is_bool(data_type))
+    {
+        left =
+            IR_EXPRESSION(
+              ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
+                          left));
+    }
+
+    /*
+     * check right operand data type
+     */
+    data_type = ir_expression_get_data_type(right);
+
+
+    /* if right operand is not of void or bool type, cast to bool */
+    if (!types_is_void(data_type) &&
+        !types_is_bool(data_type))
+    {
+        right =
+            IR_EXPRESSION(
+              ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
+                          right));
+    }
+
+    ir_binary_operation_set_left(bin_op, left);
+    ir_binary_operation_set_right(bin_op, right);
+
+
+    
+    return IR_EXPRESSION(bin_op);
+}
+
 static IrExpression *
 sem_analyze_validate_binary_op(compilation_status_t *compile_status,
                                sym_table_t *sym_table,
@@ -206,13 +294,17 @@ sem_analyze_validate_binary_op(compilation_status_t *compile_status,
     }
     else if (ir_binary_operation_is_icomp(bin_op))
     {
-        /* not implemented */
-        assert(false);
+        return
+          sem_analyze_validate_bin_icomp(compile_status,
+                                         sym_table,
+                                         bin_op);
     }
     else if (ir_binary_operation_is_conditional(bin_op))
     {
-        /* not implemented */
-        assert(false);
+        return
+          sem_analyze_validate_bin_conditional(compile_status,
+                                               sym_table,
+                                               bin_op);
     }
 
     /* unexpected binary operation type */
