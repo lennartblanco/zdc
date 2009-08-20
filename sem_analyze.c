@@ -252,48 +252,18 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
                                 AstAssigment *ast_assigment)
 {
     AstVariableRef *target;
-    IrSymbol *target_sym;
     AstExpression *value;
     IrExpression *ir_value;
-    AstDataType *target_type;
 
     target = ast_assigment_get_target(ast_assigment);
     value = ast_assigment_get_value(ast_assigment);
-
-    target_sym =
-        sym_table_get_symbol(symbols, ast_variable_ref_get_name(target));
-    if (target_sym == NULL)
-    {
-        compile_error(compile_status,
-                      "'%s' undeclared\n",
-                      ast_variable_ref_get_name(target));
-        return NULL;
-    }
-    if (!IR_IS_VARIABLE(target_sym))
-    {
-        compile_error(compile_status,
-                      "can not assign value to '%s', not a variable\n",
-                      ast_variable_ref_get_name(target));
-        return NULL;
-    }
-
-    target_type = ir_expression_get_data_type(IR_EXPRESSION(target_sym));
 
     ir_value =
         sem_analyze_ast_expression_to_ir(compile_status,
                                          symbols,
                                          value);
 
-    ir_value = types_implicit_conv(target_type, ir_value);
-    if (ir_value == NULL)
-    {
-        compile_error(compile_status,
-                      "incompatible types in assigment to '%s'\n",
-                      ast_variable_ref_get_name(target));
-        return NULL;
-    }
-
-    return IR_STATMENT(ir_assigment_new(IR_VARIABLE(target_sym), ir_value));
+    return IR_STATMENT(ir_assigment_new(target, ir_value));
 }
 
 /**

@@ -48,6 +48,9 @@ ir_if_block_get_type(void);
 IrIfBlock *
 ir_if_block_new(IrExpression *condition, IrCodeBlock *body);
 
+void
+ir_if_block_set_condition(IrIfBlock *self, IrExpression *condition);
+
 IrExpression *
 ir_if_block_get_condition(IrIfBlock *self);
 

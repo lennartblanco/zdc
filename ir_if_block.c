@@ -46,6 +46,17 @@ ir_if_block_new(IrExpression *condition, IrCodeBlock *body)
     return obj;
 }
 
+void
+ir_if_block_set_condition(IrIfBlock *self, IrExpression *condition)
+{
+    assert(self);
+    assert(IR_IS_IF_BLOCK(self));
+    assert(condition);
+    assert(IR_IS_EXPRESSION(condition));
+
+    self->condition = condition;
+}
+
 IrExpression *
 ir_if_block_get_condition(IrIfBlock *self)
 {

@@ -10,6 +10,7 @@
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_cast.h"
+#include "ir_if_else.h"
 
 #include <assert.h>
 
@@ -25,6 +26,10 @@ static IrExpression *
 sem_analyze_validate_expression(compilation_status_t *compile_status,
                                 sym_table_t *sym_table,
                                 IrExpression *expression);
+
+static void
+sem_analyze_validate_code_block(compilation_status_t *compile_status,
+                                IrCodeBlock *code_block);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -405,12 +410,105 @@ sem_analyze_validate_assigment(compilation_status_t *compile_status,
                                sym_table_t *sym_table,
                                IrAssigment *assigment)
 {
-    IrExpression *exp;
+    AstVariableRef *target;
+    IrExpression *value;
+    IrSymbol *target_sym;
+    AstDataType *target_type;
 
-    exp = ir_assigment_get_value(assigment);
-    exp = sem_analyze_validate_expression(compile_status, sym_table, exp);
-    ir_assigment_set_value(assigment, exp);
+    target = ir_assigment_get_target_ref(assigment);
 
+    target_sym =
+        sym_table_get_symbol(sym_table, ast_variable_ref_get_name(target));
+    if (target_sym == NULL)
+    {
+        compile_error(compile_status,
+                      "'%s' undeclared\n",
+                      ast_variable_ref_get_name(target));
+        return;
+    }
+    if (!IR_IS_VARIABLE(target_sym))
+    {
+        compile_error(compile_status,
+                      "can not assign value to '%s', not a variable\n",
+                      ast_variable_ref_get_name(target));
+        return;
+    }
+
+    value = ir_assigment_get_value(assigment);
+    value = sem_analyze_validate_expression(compile_status, sym_table, value);
+
+
+    target_type = ir_expression_get_data_type(IR_EXPRESSION(target_sym));
+
+    value = types_implicit_conv(target_type, value);
+    if (value == NULL)
+    {
+        compile_error(compile_status,
+                      "incompatible types in assigment to '%s'\n",
+                      ast_variable_ref_get_name(target));
+        return;
+    }
+
+    ir_assigment_set_target(assigment, IR_VARIABLE(target_sym));
+    ir_assigment_set_value(assigment, value);
+}
+
+static void
+sem_analyze_validate_if_block(compilation_status_t *compile_status,
+                             sym_table_t *sym_table,
+                             IrIfBlock *if_block)
+{
+    IrExpression *condition;
+    IrCodeBlock *body;
+
+    /* validate if condition expression */
+    condition = ir_if_block_get_condition(if_block);
+    condition = sem_analyze_validate_expression(compile_status,
+                                                sym_table,
+                                                condition);
+    /* insert implicit conversion to boolean type */
+    condition = types_implicit_conv(types_get_bool_type(),
+                                    condition);
+
+    if (condition == NULL)
+    {
+        compile_error(compile_status,
+                      "can not convert if condition to bool type\n");
+        return;
+    }
+    ir_if_block_set_condition(if_block, condition);
+
+    /* validate if body */
+    body = ir_if_block_get_body(if_block);
+    sem_analyze_validate_code_block(compile_status,
+                                    body);
+}
+
+static void
+sem_analyze_validate_if_else(compilation_status_t *compile_status,
+                             sym_table_t *sym_table,
+                             IrIfElse *if_else)
+{
+   GSList *i;
+   IrCodeBlock *else_body;
+   
+
+   /* validate if-blocks */
+   i = ir_if_else_get_if_else_blocks(if_else);
+   for (; i != NULL; i = g_slist_next(i))
+   {
+       sem_analyze_validate_if_block(compile_status,
+                                     sym_table,
+                                     IR_IF_BLOCK(i->data));
+   }
+
+   /* validate else-body */
+   else_body = ir_if_else_get_else_body(if_else);
+   if (else_body != NULL)
+   {
+       sem_analyze_validate_code_block(compile_status,
+                                       else_body);
+   }
 }
 
 static void
@@ -435,6 +533,12 @@ sem_analyze_validate_statment(compilation_status_t *compile_status,
         sem_analyze_validate_return(compile_status,
                                     sym_table,
                                     IR_RETURN(statment));
+    }
+    else if (IR_IS_IF_ELSE(statment))
+    {
+        sem_analyze_validate_if_else(compile_status,
+                                     sym_table,
+                                     IR_IF_ELSE(statment));
     }
 }
 

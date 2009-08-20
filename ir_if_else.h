@@ -52,6 +52,9 @@ ir_if_else_new(void);
 void
 ir_if_else_add_if_else_block(IrIfElse *self, IrIfBlock *if_block);
 
+/**
+ * @return a list of if-blocks as an instances of IrIfBlock objects
+ */
 GSList *
 ir_if_else_get_if_else_blocks(IrIfElse *self);
 
