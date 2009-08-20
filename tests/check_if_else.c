@@ -106,6 +106,19 @@ call_if_else_test(int in)
    return res;
 }
 
+int
+call_get_sign(int in)
+{
+   int res;
+
+   asm ("    call get_sign\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -150,6 +163,14 @@ main()
     check_int("if_else_test(10)", call_if_else_test(10), 2);
     check_int("if_else_test(15)", call_if_else_test(15), 3);
     check_int("if_else_test(14)", call_if_else_test(14), 4);
+
+    /* get_sign() tests */
+    check_int("get_sign(-102)", call_get_sign(-102), -1);
+    check_int("get_sign(-1)", call_get_sign(-1), -1);
+    check_int("get_sign(18)", call_get_sign(18), 1);
+    check_int("get_sign(1)", call_get_sign(1), 1);
+    check_int("get_sign(0)", call_get_sign(0), 0);
+    
 
     check_exit();
 }

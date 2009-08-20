@@ -112,3 +112,25 @@ if_isnoteq(int x, int y)
     return false;
 }
 
+// return -1 if x is less then 0
+//         1 if x is greater then 0
+//         0 if x is 0
+// (test that compiler handles function calls in if-condition properly)
+int get_sign(int x)
+{
+    int res;
+    if (if_isless(x))
+    {
+        res = -1;
+    }
+    else if (if_isgreater(x))
+    {
+        res = 1;
+    }
+    else
+    {
+        res = x;
+    }
+
+    return res;
+}
