@@ -56,8 +56,8 @@ run_all_tests()
     $RUN_TEST nested_blocks
     $RUN_TEST if_else
     $RUN_TEST fact
-    $RUN_TEST stat_array
     $RUN_TEST while_loop
+    $RUN_TEST stat_array
     echo "_all_tests_passed_"
 }
 
