@@ -144,6 +144,5 @@ main()
     check_int("iret_arg3(11, 221, 31)", call_iret_arg3(11, 221, 31), 31);
     check_int("iret_arg3(76, 1234, 789)", call_iret_arg3(76, 1234, 789), 789);
 
-
     check_exit();
 }
