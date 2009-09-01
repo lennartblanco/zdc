@@ -30,13 +30,13 @@ tools/bin/accent:
 # as we can't compile them, as the rest of the files, with -Werror flag
 #
 entire.o: entire.c auxil.h lex.h
-	cc -c entire.c
+	gcc -g -c entire.c
 
 yygrammar.o: yygrammar.c
-	cc -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) yygrammar.c
+	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) yygrammar.c
 
 lex.o: lex.c lex.h
-	cc -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
+	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
 
 test: $(OBJS) test.o
 	gcc -g -o test $(LDFLAGS) $(OBJS) test.o
