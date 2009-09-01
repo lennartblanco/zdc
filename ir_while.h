@@ -30,7 +30,7 @@ typedef struct
 {
     IrStatment     parent;
     /* private */
-    AstExpression *loop_condition;
+    IrExpression *loop_condition;
     IrCodeBlock   *body;
 } IrWhile;
 
@@ -47,10 +47,13 @@ GType
 ir_while_get_type(void);
 
 IrWhile *
-ir_while_new(AstExpression *loop_condition, IrCodeBlock *body);
+ir_while_new(IrExpression *loop_condition, IrCodeBlock *body);
 
-AstExpression *
+IrExpression *
 ir_while_get_loop_condition(IrWhile *self);
+
+void
+ir_while_set_loop_condition(IrWhile *self, IrExpression *loop_condition);
 
 IrCodeBlock *
 ir_while_get_body(IrWhile *self);

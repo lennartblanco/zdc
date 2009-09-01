@@ -165,14 +165,19 @@ sem_analyze_ast_while_to_ir(compilation_status_t *compile_status,
                             sym_table_t *parent_symbols,
                             AstWhile *ast_while)
 {
+    AstExpression *ast_condition = ast_while_get_loop_condition(ast_while);
     IrCodeBlock *body = ir_code_block_new(parent_symbols);
+
+    IrExpression *condition =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         parent_symbols,
+                                         ast_condition);
 
     sem_analyze_ast_code_block_to_ir(compile_status,
                                      ast_while_get_body(ast_while),
                                      body);    
 
-    return 
-       IR_STATMENT(ir_while_new(ast_while_get_loop_condition(ast_while), body));
+    return IR_STATMENT(ir_while_new(condition, body));
 }
 
 static IrStatment *

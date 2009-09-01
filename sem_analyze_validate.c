@@ -11,6 +11,7 @@
 #include "ir_binary_operation.h"
 #include "ir_cast.h"
 #include "ir_if_else.h"
+#include "ir_while.h"
 
 #include <assert.h>
 
@@ -512,6 +513,38 @@ sem_analyze_validate_if_else(compilation_status_t *compile_status,
 }
 
 static void
+sem_analyze_validate_while(compilation_status_t *compile_status,
+                           sym_table_t *sym_table,
+                           IrWhile *while_statment)
+{
+    IrExpression *condition;
+    IrCodeBlock *body;
+
+    /* validate if condition expression */
+    condition = ir_while_get_loop_condition(while_statment);
+    condition = sem_analyze_validate_expression(compile_status,
+                                                sym_table,
+                                                condition);
+
+    /* insert implicit conversion to boolean type */
+    condition = types_implicit_conv(types_get_bool_type(),
+                                    condition);
+
+    if (condition == NULL)
+    {
+        compile_error(compile_status,
+                      "can not convert while loop condition to bool type\n");
+        return;
+    }
+    ir_while_set_loop_condition(while_statment, condition);
+
+    /* validate if body */
+    body = ir_while_get_body(while_statment);
+    sem_analyze_validate_code_block(compile_status, body);
+}
+
+
+static void
 sem_analyze_validate_statment(compilation_status_t *compile_status,
                               sym_table_t *sym_table,
                               IrStatment *statment)
@@ -539,6 +572,12 @@ sem_analyze_validate_statment(compilation_status_t *compile_status,
         sem_analyze_validate_if_else(compile_status,
                                      sym_table,
                                      IR_IF_ELSE(statment));
+    }
+    else if (IR_IS_WHILE(statment))
+    {
+        sem_analyze_validate_while(compile_status,
+                                   sym_table,
+                                   IR_WHILE(statment));
     }
 }
 

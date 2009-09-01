@@ -43,7 +43,7 @@ ir_while_get_type(void)
 }
 
 IrWhile *
-ir_while_new(AstExpression *loop_condition, IrCodeBlock *body)
+ir_while_new(IrExpression *loop_condition, IrCodeBlock *body)
 {
     IrWhile *obj;
 
@@ -55,7 +55,18 @@ ir_while_new(AstExpression *loop_condition, IrCodeBlock *body)
     return obj;
 }
 
-AstExpression *
+void
+ir_while_set_loop_condition(IrWhile *self, IrExpression *loop_condition)
+{
+    assert(self);
+    assert(IR_IS_WHILE(self));
+    assert(loop_condition);
+    assert(IR_IS_EXPRESSION(loop_condition));
+
+    self->loop_condition = loop_condition;
+}
+
+IrExpression *
 ir_while_get_loop_condition(IrWhile *self)
 {
     assert(self);

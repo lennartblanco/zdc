@@ -26,6 +26,7 @@
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_assigment.h"
+#include "ir_while.h"
 
 #include <assert.h>
 
@@ -38,6 +39,11 @@ x86_prelude(FILE *out, const char *source_file);
 
 static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunction *func);
+
+static void
+x86_compile_while(x86_comp_params_t *params,
+                  IrWhile *while_statment,
+                  sym_table_t *sym_table);
 
 static void
 x86_compile_binary_op(x86_comp_params_t *params,
@@ -302,6 +308,12 @@ x86_compile_code_block(x86_comp_params_t *params,
                                 IR_IF_ELSE(statment),
                                 locals);
         }
+        else if (IR_IS_WHILE(statment))
+        {
+            x86_compile_while(params,
+                              IR_WHILE(statment),
+                              locals);
+        }
         else
         {
             /* unexpected statment type */
@@ -477,6 +489,44 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
     /* generate code for function body */
     x86_compile_code_block(params,
                            ir_function_get_body(func));
+}
+
+static void
+x86_compile_while(x86_comp_params_t *params,
+                  IrWhile *while_statment,
+                  sym_table_t *sym_table)
+{
+    char start_label[LABEL_MAX_LEN];
+    char end_label[LABEL_MAX_LEN];
+
+    label_gen_next(&(params->label_gen), start_label);
+    label_gen_next(&(params->label_gen), end_label);
+
+    fprintf(params->out,
+            "# while loop\n"
+            "%s: # loop start\n"
+            "# eval loop condition\n",
+            start_label);
+
+    x86_compile_expression(params,
+                          ir_while_get_loop_condition(while_statment),
+                          sym_table);
+
+    fprintf(params->out,
+            "# exit loop if loop condition is false\n"
+            "    popl %%eax\n"
+            "    cmp $1, %%eax\n"
+            "    jne %s\n"
+            "# loop body\n",
+            end_label);
+
+    x86_compile_code_block(params, ir_while_get_body(while_statment));
+
+    fprintf(params->out,
+            "    jmp %s\n"
+            "%s: # loop end\n",
+            start_label,
+            end_label);
 }
 
 static int
