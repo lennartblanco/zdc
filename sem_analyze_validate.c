@@ -579,6 +579,10 @@ sem_analyze_validate_statment(compilation_status_t *compile_status,
                                    sym_table,
                                    IR_WHILE(statment));
     }
+    else if (IR_IS_EXPRESSION(statment))
+    {
+        compile_error(compile_status, "expression have no effect\n");
+    }
 }
 
 static void

@@ -61,7 +61,7 @@ func_def<x> :
   {
       args.list = NULL;
   }
-  type<t> TOK_IDENT<name> '(' func_params<args> ')' code_block<code>
+  type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
   {
       (*x).function = ast_function_new(name.text, args.list, t.data_type, code.code_block);
   }
@@ -82,37 +82,73 @@ func_params<params> :
 |   null
 ;
 
-code_block<x> :
-   {  (*x).code_block = ast_code_block_new(); }
-  '{' statments_list<x> '}';
+func_body<code> :
+    block_statment<code>
+;
 
-statments_list<n> :
-  statment<x> 
-  {
-      ast_code_block_add_statment((*n).code_block, x.statment);
-  }
-  ';' statments_list<n>
-| if_else_block<x> 
-  {
-      ast_code_block_add_statment((*n).code_block, x.statment);
-  }
-  statments_list<n>
-| foreach_block<x> 
-  {
-      ast_code_block_add_statment((*n).code_block, x.statment);
-  }
-  statments_list<n>
-| code_block<x>
-  {
-      ast_code_block_add_statment((*n).code_block, x.statment);
-  }
-  statments_list<n>
-| while_block<x>
-  {
-      ast_code_block_add_statment((*n).code_block, x.statment);
-  }
-  statments_list<n>
-| null 
+block_statment<code> :
+    '{' '}'
+    {
+        (*code).code_block = ast_code_block_new();
+    }
+|
+    {
+        (*code).code_block = ast_code_block_new();
+    }
+   '{' statments_list<code> '}'
+;
+
+scope_statment<code_block> :
+    non_empty_statment<stmt>
+    {
+        (*code_block).code_block = ast_code_block_new();
+
+        if (stmt.statment != NULL)
+        {
+             ast_code_block_add_statment((*code_block).code_block,
+                                         stmt.statment);
+        }
+    }
+|   block_statment<code_block>
+;
+
+statments_list<code> :
+    statment<stmt>
+    {
+        if (stmt.statment != NULL)
+        {
+             ast_code_block_add_statment((*code).code_block,
+                                         stmt.statment);
+        }
+    }
+    ( statments_list<code> )?
+;
+
+statment<stmt> :
+    ';'
+    {
+        (*stmt).statment = NULL;
+    }
+|   non_empty_statment<stmt>
+|   scope_block_statment<stmt>
+;
+
+non_empty_statment<stmt> :
+    var_definition<stmt>
+|   var_assigment<stmt>
+|   if_else_block<stmt>
+|   foreach_block<stmt>
+|   while_block<stmt>
+|   expression_statment<stmt>
+|   return_stmt<stmt>
+;
+
+scope_block_statment<x> :
+    block_statment<x>
+;
+
+expression_statment<stmt> :
+     expression<stmt> ';'
 ;
 
 type<x> :
@@ -148,13 +184,6 @@ basic_type<x> :
     }
 ;
 
-statment<x> :
-  var_definition<x>
-| func_call<x> 
-| var_assigment<x>
-| return_stmt<x>
-;
-
 if_else_block<x>:
     {
         (*x).if_else = ast_if_else_new();
@@ -176,21 +205,21 @@ if_else_block<x>:
 ;
 
 if_statment<x>:
-    TOK_IF '(' expression<cond> ')' code_block<code>
+    TOK_IF '(' expression<cond> ')' scope_statment<code>
     {
         (*x).if_block = ast_if_block_new(cond.expression, code.code_block);
     }
 ;
 
 if_else_statment<x>:
-    TOK_ELSE TOK_IF '(' expression<cond> ')' code_block<code>
+    TOK_ELSE TOK_IF '(' expression<cond> ')' scope_statment<code>
     {
         (*x).if_block = ast_if_block_new(cond.expression, code.code_block);
     }
 ;
 
 else_statment<code>:
-    TOK_ELSE code_block<code>
+    TOK_ELSE scope_statment<code>
 ;
 
 foreach_block<x> :
@@ -214,7 +243,7 @@ foreach_block<x> :
                 XDP_AST_EXPRESSION(ast_array_slice_ref_new(aggregate.text,
                                                        NULL, NULL));
         }
-      ) ')' code_block<code>
+      ) ')' scope_statment<code>
     {
         AstVariableDeclaration *index = NULL;
         AstVariableDeclaration *value = NULL;
@@ -254,7 +283,7 @@ foreach_block<x> :
 ;
 
 while_block<x> :
-    TOK_WHILE '(' expression<exp> ')' code_block<code>
+    TOK_WHILE '(' expression<exp> ')' scope_statment<code>
     {
         (*x).statment =
             XDP_AST_STATMENT(ast_while_new(exp.expression, code.code_block));
@@ -262,11 +291,11 @@ while_block<x> :
 ;
 
 return_stmt<x> :
-    TOK_RETURN expression<n> 
+    TOK_RETURN expression<n> ';'
     { 
        (*x).statment = XDP_AST_STATMENT(ast_return_new(n.expression));
     }
-|   TOK_RETURN       
+|   TOK_RETURN ';'
     {
        (*x).statment = XDP_AST_STATMENT(ast_return_new(NULL));
     }
@@ -276,7 +305,7 @@ func_call<n> :
     {
         y.list = NULL;
     }
-    TOK_IDENT<x> '(' ( func_call_args<y> )? ')' 
+    TOK_IDENT<x> '(' ( func_call_args<y> )? ')'
     { 
         (*n).statment =
              XDP_AST_STATMENT(ast_function_call_new(x.text, y.list)); 
@@ -305,12 +334,12 @@ var_declaration<n> :
 ;
 
 var_definition<n> :
-   type<t> TOK_IDENT<x> 
+   type<t> TOK_IDENT<x> ';'
    {
        (*n).variable_definition = 
            ast_variable_definition_new(t.data_type, x.text, NULL);
    }
-|  type<t> TOK_IDENT<x> '=' expression<e> 
+|  type<t> TOK_IDENT<x> '=' expression<e> ';'
    {
        (*n).variable_definition = 
            ast_variable_definition_new(t.data_type, x.text, e.expression);
@@ -320,7 +349,7 @@ var_definition<n> :
 
 
 var_assigment<n> :
-   lvalue<l> '=' expression<y> 
+   lvalue<l> '=' expression<y> ';'
    {
        (*n).statment =
            XDP_AST_STATMENT(ast_assigment_new(l.variable_ref, 

@@ -55,8 +55,8 @@ ast_code_block_new()
 void
 ast_code_block_add_statment(AstCodeBlock *self, AstStatment *statment)
 {
-    assert(self);
     assert(XDP_IS_AST_CODE_BLOCK(self));
+    assert(XDP_IS_AST_STATMENT(statment));
 
     self->statments = g_slist_append(self->statments, statment);
 }

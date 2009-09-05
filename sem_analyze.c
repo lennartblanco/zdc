@@ -581,6 +581,14 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                                                 symbols,
                                                 XDP_AST_ASSIGMENT(stmt));
         }
+        else if (XDP_IS_AST_EXPRESSION(stmt))
+        {
+            ir_stmt =
+                IR_STATMENT(
+                  sem_analyze_ast_expression_to_ir(compile_status,
+                                                   symbols,
+                                                   XDP_AST_EXPRESSION(stmt)));
+        }
         else
         {
             /* unexpected statment type */
