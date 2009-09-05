@@ -118,6 +118,25 @@ call_get_sign(int in)
    return res;
 }
 
+int
+call_iret_n_arg(int arg1, int arg2, int arg3, int arg4)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    pushl %[arg3]\n"
+        "    movl %[arg4],%%eax\n"
+        "    call iret_n_arg\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3),
+          [arg4]"m"(arg4));
+
+   return res;
+}
+
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -170,7 +189,32 @@ main()
     check_int("get_sign(18)", call_get_sign(18), 1);
     check_int("get_sign(1)", call_get_sign(1), 1);
     check_int("get_sign(0)", call_get_sign(0), 0);
-    
+
+    /* iret_n_arg() tests */
+    check_int("iret_n_arg(0, 100, 101, 102)",
+              call_iret_n_arg(0, 100, 101, 102),
+              -1);
+
+    check_int("iret_n_arg(1, 200, 201, 202)",
+              call_iret_n_arg(1, 200, 201, 202),
+              200);
+
+    check_int("iret_n_arg(2, 300, 301, 302)",
+              call_iret_n_arg(2, 300, 301, 302),
+              301);
+
+    check_int("iret_n_arg(3, 400, 401, 402)",
+              call_iret_n_arg(3, 400, 401, 402),
+              402);
+
+    check_int("iret_n_arg(4, 100, 101, 102)",
+              call_iret_n_arg(4, 100, 101, 102),
+              -1);
+
+    check_int("iret_n_arg(12, 100, 101, 102)",
+              call_iret_n_arg(12, 100, 101, 102),
+              -1);
+
 
     check_exit();
 }

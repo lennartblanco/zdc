@@ -16,6 +16,18 @@ call_while_tst1(int in)
    return res;
 }
 
+int
+call_while_tst2(int in)
+{
+   int res;
+
+   asm ("    call while_tst2\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -27,6 +39,13 @@ main()
     check_int("while_tst1(3)", call_while_tst1(3), 21);
     check_int("while_tst1(19)", call_while_tst1(19), 19*2);
     check_int("while_tst1(123)", call_while_tst1(123), 123);
+
+    /* while_tst2() tests */
+    check_int("while_tst2(10)", call_while_tst2(10), 20);
+    check_int("while_tst2(3)", call_while_tst2(3), 21);
+    check_int("while_tst2(19)", call_while_tst2(19), 19*2);
+    check_int("while_tst2(123)", call_while_tst2(123), 123);
+
 
     check_exit();
 }

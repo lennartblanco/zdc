@@ -84,6 +84,41 @@ call_ind_sum(int in)
    return res;
 }
 
+int
+call_subst3(int arg1, int arg2, int arg3)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    call subst3\n"
+        : "=a"(res)
+        : "a" (arg3),
+          [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
+
+int
+call_subst4(int arg1, int arg2, int arg3, int arg4)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    pushl %[arg3]\n"
+        "    call subst4\n"
+        : "=a"(res)
+        : "a" (arg4),
+          [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3));
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -111,6 +146,18 @@ main()
     /* ind_sum() tests */
     check_int("ind_sum(5)", call_ind_sum(5), 5 + 13 + 10);
     check_int("ind_sum(-5)", call_ind_sum(-5), -5 + 13 + 10);
+
+    /* subst3() tests */
+    check_int("subst3(1, 2, 3)", call_subst3(1, 2, 3), 1 - 2 - 3);
+    check_int("subst3(6, 7, 8)", call_subst3(6, 7, 8), 6 - 7 - 8);
+
+    /* subst4() tests */
+    check_int("subst4(1, 2, 3, 100)",
+              call_subst4(1, 2, 3, 100), 1 - 2 - 3 - 100);
+    check_int("subst4(6, 7, 8, 9)",
+              call_subst4(6, 7, 8, 9), 6 - 7 - 8 - 9);
+    check_int("subst4(1, 2, 3, -4)",
+              call_subst4(1, 2, 3, -4), 1 - 2 - 3 - (-4));
 
     check_exit();
 }

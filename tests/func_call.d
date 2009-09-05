@@ -5,6 +5,18 @@ int sum(int first, int second, int third)
     return first + second + third;
 }
 
+int subst3(int first, int second, int third)
+{
+    return first - second - third;
+}
+
+int subst4(int first, int second, int third, int fourth)
+{
+    return first - second - third - fourth;
+}
+
+
+
 int add(int a, int b)
 {
     return a+b;

@@ -134,3 +134,11 @@ int get_sign(int x)
 
     return res;
 }
+
+int iret_n_arg(int n, int arg1, int arg2, int arg3)
+{
+   if (n == 1) return arg1;
+   else if (n == 2) return arg2;
+   else if (n == 3) return arg3;
+   else return -1;
+}
