@@ -15,6 +15,14 @@ call_void_return()
    asm("call void_return");
 }
 
+void
+call_printNum(int arg)
+{
+   asm("call printNum"
+       :
+       : "a"(arg));
+}
+
 int
 call_int_ret()
 {
@@ -108,6 +116,22 @@ call_iret_arg3(int arg1, int arg2, int arg3)
    return res;
 }
 
+void
+call_no_ret_void(int arg1, int arg2)
+{
+   asm ("    pushl %[arg1]\n"
+        "    call no_ret_void\n"
+        "    add $4, %%esp\n" // clear call arguments from the stack
+        :
+        : [arg1]"m"(arg1),
+          "a"(arg2));
+}
+
+void
+call_empty_func()
+{
+   asm("call empty_func");
+}
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -143,6 +167,24 @@ main()
     /* iret_arg3() tests */
     check_int("iret_arg3(11, 221, 31)", call_iret_arg3(11, 221, 31), 31);
     check_int("iret_arg3(76, 1234, 789)", call_iret_arg3(76, 1234, 789), 789);
+
+    /* printNum() tests */
+    call_printNum(10);
+    check("printNum(10)");
+
+    call_printNum(-2048);
+    check("printNum(-2048)");
+
+    /* no_ret_void() tests */
+    call_no_ret_void(1, 2);
+    check("no_ret_void(1, 2)");
+
+    call_no_ret_void(200, -100);
+    check("no_ret_void(200, -100)");
+
+    /* empty_func() test */
+    call_empty_func();
+    check("empty_func()");
 
     check_exit();
 }

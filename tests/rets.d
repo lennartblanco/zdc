@@ -35,3 +35,21 @@ int iret_arg3(int arg1, int arg2, int arg3)
    return arg3;
 }
 
+/* void function, with empty body (that is an implicit return) */
+void printNum(int foo)
+{
+
+}
+
+/* void function with an implicit return */
+void no_ret_void(int a, int b)
+{
+    int x;
+
+    x = a + b;
+    printNum(x);
+}
+
+/* void function without any arguments and empty body */
+void empty_func() {}
+

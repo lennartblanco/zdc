@@ -624,7 +624,29 @@ sem_analyze_validate_function(compilation_status_t *compile_status,
 
     body = ir_function_get_body(func);
 
-
+    /* validate function's body */
     sem_analyze_validate_code_block(compile_status, body);
+
+    /*
+     * For void function, add an implicit return statment if needed
+     */
+    if (types_is_void(ir_function_get_return_type(func)))
+    {
+        GSList *p;
+        IrStatment *last_statment = NULL;
+
+        /* look-up last statment in function body */
+        p = g_slist_last(ir_code_block_get_statments(body));
+        if (p != NULL)
+        {
+            last_statment = p->data;
+        }
+
+        /* if it's not a return, add an implicit return */
+        if (!IR_IS_RETURN(last_statment))
+        {
+            ir_code_block_add_statment(body, ir_return_new(NULL));
+        }
+    }
 }
 
