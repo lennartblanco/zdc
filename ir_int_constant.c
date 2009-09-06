@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "ast_basic_type.h"
+#include "types.h"
 #include "ir_int_constant.h"
 
 #include <assert.h>
@@ -78,10 +78,5 @@ ir_int_constant_class_init(gpointer klass, gpointer dummy)
 static AstDataType *
 ir_int_constant_do_get_data_type(IrExpression *self)
 {
-  static AstDataType *int_data_type = NULL;
-
-  if (int_data_type == NULL) {
-      int_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(int_type));
-  }
-  return int_data_type;
+    return types_get_int_type();
 }

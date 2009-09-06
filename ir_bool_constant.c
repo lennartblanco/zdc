@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "ast_basic_type.h"
+#include "types.h"
 #include "ir_bool_constant.h"
 
 #include <assert.h>
@@ -78,10 +78,5 @@ ir_bool_constant_class_init(gpointer klass, gpointer dummy)
 static AstDataType *
 ir_bool_constant_do_get_data_type(IrExpression *self)
 {
-  static AstDataType *bool_data_type = NULL;
-
-  if (bool_data_type == NULL) {
-      bool_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type));
-  }
-  return bool_data_type;
+  return types_get_bool_type();
 }
