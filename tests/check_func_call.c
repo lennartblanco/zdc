@@ -118,6 +118,17 @@ call_subst4(int arg1, int arg2, int arg3, int arg4)
    return res;
 }
 
+int
+call_add_13(int in)
+{
+   int res;
+
+   asm ("    call add_13\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -158,6 +169,11 @@ main()
               call_subst4(6, 7, 8, 9), 6 - 7 - 8 - 9);
     check_int("subst4(1, 2, 3, -4)",
               call_subst4(1, 2, 3, -4), 1 - 2 - 3 - (-4));
+
+    /* add_13() tests */
+    check_int("add_13(10)", call_add_13(10), 10 + 13);
+    check_int("add_13(0)", call_add_13(0), 0 + 13);
+    check_int("add_13(-14)", call_add_13(-14), -14 + 13);
 
     check_exit();
 }

@@ -43,3 +43,11 @@ int ind_sum(int l)
 {
     return sum(l, get_13(), 10);
 }
+
+// function call in variable initilization expression
+int add_13(int i)
+{
+    int x = get_13();
+
+    return x + i;
+}

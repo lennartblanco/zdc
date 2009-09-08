@@ -591,9 +591,55 @@ sem_analyze_validate_code_block(compilation_status_t *compile_status,
 {
     sym_table_t *sym_table;
     GSList *i;
+    GList *locals;
+    GList *p;
 
     sym_table = ir_code_block_get_symbols(code_block);
 
+    /*
+     * validate default initializer expressions of local variables
+     * in this code block
+     */
+    locals = sym_table_get_all_symbols(sym_table);
+    for (p = locals; p != NULL; p = g_list_next(p))
+    {
+        IrVariable *var;
+        IrExpression *initializer;
+
+        /* skip if not a variable */
+        if (!IR_IS_VARIABLE(p->data))
+        {
+            continue;
+        }
+        var = IR_VARIABLE(p->data);
+        initializer = ir_variable_get_initializer(var);
+
+        /* no initializer expression, skip */
+        if (initializer == NULL)
+        {
+            continue;
+        }
+
+        initializer =
+            sem_analyze_validate_expression(compile_status,
+                                            sym_table,
+                                            initializer);
+
+        initializer =
+            types_implicit_conv(ir_variable_get_data_type(var), initializer);
+
+        if (initializer == NULL)
+        {
+            compile_error(compile_status,
+                          "illegal types in initializer assigment\n");
+            return;
+        }
+    }
+    g_list_free(locals);
+
+    /*
+     * validate statments in the code block
+     */
     i = ir_code_block_get_statments(code_block);
     for (; i != NULL; i = g_slist_next(i))
     {

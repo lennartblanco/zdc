@@ -537,13 +537,6 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                     sem_analyze_ast_expression_to_ir(compile_status,
                                                      symbols,
                                                      ast_initializer);
-                initializer = types_implicit_conv(var_data_type, initializer);
-                if (initializer == NULL)
-                {
-                    compile_error(compile_status,
-                                  "illegal types in initializer assigment\n");
-                    return;
-                }
             }
 
             IrVariable *sym = 
