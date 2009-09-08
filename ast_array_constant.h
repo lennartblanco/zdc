@@ -28,7 +28,6 @@ typedef struct
 {
     AstConstant parent;
     /* private */
-    int length;
     GSList *values;
 } AstArrayConstant;
 

@@ -14,6 +14,7 @@
 #include "ast_while.h"
 #include "ast_foreach.h"
 #include "ast_return.h"
+#include "ast_array_constant.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_unary_operation.h"
@@ -22,6 +23,7 @@
 #include "ast_function_call.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_array_constant.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
@@ -371,6 +373,30 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
     return IR_EXPRESSION(ir_function_call_new(func_name, ir_call_args));
 }
 
+static IrExpression *
+sem_analyze_ast_array_const_to_ir(compilation_status_t *compile_status,
+                                  sym_table_t *symbols,
+                                  AstArrayConstant *ast_arry_const)
+{
+    IrArrayConstant *ir_arry_const;
+    GSList *i;
+
+    ir_arry_const = ir_array_constant_new();
+
+    i = ast_array_constant_get_values(ast_arry_const);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        IrExpression *exp;
+
+        exp =
+          sem_analyze_ast_expression_to_ir(compile_status,
+                                           symbols,
+                                           i->data);
+    }
+
+    return IR_EXPRESSION(ir_arry_const);
+}
+
 /**
  * Convert AST expression to IR form.
  */
@@ -449,6 +475,15 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         return sem_analyze_ast_func_call_to_ir(compile_status,
                                                symbols,
                                                func_call);
+    }
+    else if (XDP_IS_AST_ARRAY_CONSTANT(ast_expression))
+    {
+        AstArrayConstant *arry_const;
+
+        arry_const = XDP_AST_ARRAY_CONSTANT(ast_expression);
+        return sem_analyze_ast_array_const_to_ir(compile_status,
+                                                 symbols,
+                                                 arry_const);
     }
 
     /* unexpected expression type */
