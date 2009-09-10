@@ -18,6 +18,75 @@ static IrExpression *
 implicit_conv_to_bool(IrExpression *expression);
 
 /*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static IrExpression *
+implicit_conv_to_int(IrExpression *expression)
+{
+    IrExpression *res_exp = NULL;
+    AstDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
+    {
+        return NULL;
+    }
+
+    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
+    {
+        case int_type:
+            res_exp = expression;
+            break;
+        case bool_type:
+            res_exp =
+              IR_EXPRESSION(
+                  ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
+                              expression));
+            break;
+        default:
+            /* invalid implicit conversion, return NULL */
+            break;
+    }
+
+    return res_exp;
+}
+
+static IrExpression *
+implicit_conv_to_bool(IrExpression *expression)
+{
+    IrExpression *res_exp = NULL;
+    AstDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
+    {
+        return NULL;
+    }
+
+    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
+    {
+        case int_type:
+            if (types_is_literal_0or1(expression))
+            {
+                res_exp =
+                 IR_EXPRESSION(
+                   ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
+                               expression));
+            }
+            break;
+        case bool_type:
+            res_exp = expression;
+            break;
+        default:
+            /* invalid implicit conversion, return NULL */
+            break;
+    }
+
+    return res_exp;
+}
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -219,74 +288,5 @@ types_is_literal_0or1(IrExpression *expression)
     val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
 
     return val == 0 || val == 1;
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static IrExpression *
-implicit_conv_to_int(IrExpression *expression)
-{
-    IrExpression *res_exp = NULL;
-    AstDataType *exp_data_type;
-    exp_data_type = ir_expression_get_data_type(expression);
-
-    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
-    {
-        return NULL;
-    }
-
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
-    {
-        case int_type:
-            res_exp = expression;
-            break;
-        case bool_type:
-            res_exp =
-              IR_EXPRESSION(
-                  ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
-                              expression));
-            break;
-        default:
-            /* invalid implicit conversion, return NULL */
-            break;
-    }
-
-    return res_exp;
-}
-
-static IrExpression *
-implicit_conv_to_bool(IrExpression *expression)
-{
-    IrExpression *res_exp = NULL;
-    AstDataType *exp_data_type;
-    exp_data_type = ir_expression_get_data_type(expression);
-
-    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
-    {
-        return NULL;
-    }
-
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
-    {
-        case int_type:
-            if (types_is_literal_0or1(expression))
-            {
-                res_exp =
-                 IR_EXPRESSION(
-                   ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
-                               expression));
-            }
-            break;
-        case bool_type:
-            res_exp = expression;
-            break;
-        default:
-            /* invalid implicit conversion, return NULL */
-            break;
-    }
-
-    return res_exp;
 }
 
