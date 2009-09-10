@@ -20,50 +20,81 @@
  *---------------------------------------------------------------------------*/
 
 static void
-sem_analyze_validate_function(compilation_status_t *compile_status,
-                              IrFunction *func);
+validate_function_call(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrFunctionCall *func_call);
 
 static IrExpression *
-sem_analyze_validate_expression(compilation_status_t *compile_status,
-                                sym_table_t *sym_table,
-                                IrExpression *expression);
+validate_bin_iarithm(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrBinaryOperation *bin_op);
+
+static IrExpression *
+validate_bin_icomp(compilation_status_t *compile_status,
+                   sym_table_t *sym_table,
+                   IrBinaryOperation *bin_op);
+
+static IrExpression *
+validate_bin_conditional(compilation_status_t *compile_status,
+                         sym_table_t *sym_table,
+                         IrBinaryOperation *bin_op);
+
+static IrExpression *
+validate_binary_op(compilation_status_t *compile_status,
+                   sym_table_t *sym_table,
+                   IrBinaryOperation *bin_op);
+
+static IrExpression *
+validate_unary_op(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrUnaryOperation *operation);
 
 static void
-sem_analyze_validate_code_block(compilation_status_t *compile_status,
-                                IrCodeBlock *code_block);
+validate_function(compilation_status_t *compile_status,
+                  IrFunction *func);
 
-/*---------------------------------------------------------------------------*
- *                           exported functions                              *
- *---------------------------------------------------------------------------*/
+static IrExpression *
+validate_expression(compilation_status_t *compile_status,
+                    sym_table_t *sym_table,
+                    IrExpression *expression);
 
-void
-sem_analyze_validate(compilation_status_t *compile_status,
-                     IrCompileUnit *compile_unit)
-{
-    assert(compile_status);
-    assert(compile_unit);
+static void
+validate_return(compilation_status_t *compile_status,
+                sym_table_t *sym_table,
+                IrReturn *ret);
 
-    sym_table_t *sym_table;
-    GList *symbols_list;
-    GList *i;
+static void
+validate_assigment(compilation_status_t *compile_status,
+                   sym_table_t *sym_table,
+                   IrAssigment *assigment);
 
-    sym_table = ir_compile_unit_get_symbols(compile_unit);
-    symbols_list = sym_table_get_all_symbols(sym_table);
+static void
+validate_if_block(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrIfBlock *if_block);
 
-    for (i = symbols_list; i != NULL; i = g_list_next(i))
-    {
-        if (IR_IS_FUNCTION(i->data))
-        {
-            sem_analyze_validate_function(compile_status, IR_FUNCTION(i->data));
-        }
-        else
-        {
-            /* unexpected symbol type */
-            assert(false);
-        }
-    }
-    g_list_free(symbols_list);
-}
+static void
+validate_if_else(compilation_status_t *compile_status,
+                 sym_table_t *sym_table,
+                 IrIfElse *if_else);
+
+static void
+validate_while(compilation_status_t *compile_status,
+               sym_table_t *sym_table,
+               IrWhile *while_statment);
+
+static void
+validate_statment(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrStatment *statment);
+
+static void
+validate_code_block(compilation_status_t *compile_status,
+                    IrCodeBlock *code_block);
+
+static void
+validate_function(compilation_status_t *compile_status,
+                  IrFunction *func);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -71,9 +102,9 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
 
 static void
-sem_analyze_validate_function_call(compilation_status_t *compile_status,
-                                   sym_table_t *sym_table,
-                                   IrFunctionCall *func_call)
+validate_function_call(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrFunctionCall *func_call)
 {
     IrSymbol *func_symb;
     char *func_name;
@@ -127,9 +158,9 @@ sem_analyze_validate_function_call(compilation_status_t *compile_status,
    {
        IrExpression *exp;
 
-       exp = sem_analyze_validate_expression(compile_status,
-                                             sym_table,
-                                             IR_EXPRESSION(i->data));
+       exp = validate_expression(compile_status,
+                                 sym_table,
+                                 IR_EXPRESSION(i->data));
        validated_args = g_slist_prepend(validated_args, exp);
    }
    /* store validated call arguments */
@@ -144,9 +175,9 @@ sem_analyze_validate_function_call(compilation_status_t *compile_status,
  * validate binary integer arithmetic operation
  */
 static IrExpression *
-sem_analyze_validate_bin_iarithm(compilation_status_t *compile_status,
-                                 sym_table_t *sym_table,
-                                 IrBinaryOperation *bin_op)
+validate_bin_iarithm(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrBinaryOperation *bin_op)
 {
     assert(ir_binary_operation_is_iarithm(bin_op));
 
@@ -184,9 +215,9 @@ sem_analyze_validate_bin_iarithm(compilation_status_t *compile_status,
  * validate binary integer comparison operation
  */
 static IrExpression *
-sem_analyze_validate_bin_icomp(compilation_status_t *compile_status,
-                               sym_table_t *sym_table,
-                               IrBinaryOperation *bin_op)
+validate_bin_icomp(compilation_status_t *compile_status,
+                   sym_table_t *sym_table,
+                   IrBinaryOperation *bin_op)
 {
     assert(ir_binary_operation_is_icomp(bin_op));
 
@@ -212,9 +243,9 @@ sem_analyze_validate_bin_icomp(compilation_status_t *compile_status,
  * validate binary conditional operation
  */
 static IrExpression *
-sem_analyze_validate_bin_conditional(compilation_status_t *compile_status,
-                                     sym_table_t *sym_table,
-                                     IrBinaryOperation *bin_op)
+validate_bin_conditional(compilation_status_t *compile_status,
+                         sym_table_t *sym_table,
+                         IrBinaryOperation *bin_op)
 {
     assert(ir_binary_operation_is_conditional(bin_op));
 
@@ -271,46 +302,33 @@ sem_analyze_validate_bin_conditional(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-sem_analyze_validate_binary_op(compilation_status_t *compile_status,
-                               sym_table_t *sym_table,
-                               IrBinaryOperation *bin_op)
+validate_binary_op(compilation_status_t *compile_status,
+                   sym_table_t *sym_table,
+                   IrBinaryOperation *bin_op)
 {
     IrExpression *exp;
 
     /* validate left operand */
     exp = ir_binary_operation_get_left(bin_op);
-    exp = sem_analyze_validate_expression(compile_status,
-                                          sym_table,
-                                          exp);
+    exp = validate_expression(compile_status, sym_table, exp);
     ir_binary_operation_set_left(bin_op, exp);
 
     /* validate right operand */
     exp = ir_binary_operation_get_right(bin_op);
-    exp = sem_analyze_validate_expression(compile_status,
-                                          sym_table,
-                                          exp);
+    exp = validate_expression(compile_status, sym_table, exp);
     ir_binary_operation_set_right(bin_op, exp);
 
     if (ir_binary_operation_is_iarithm(bin_op))
     {
-        return 
-          sem_analyze_validate_bin_iarithm(compile_status,
-                                           sym_table,
-                                           bin_op);
+        return validate_bin_iarithm(compile_status, sym_table, bin_op);
     }
     else if (ir_binary_operation_is_icomp(bin_op))
     {
-        return
-          sem_analyze_validate_bin_icomp(compile_status,
-                                         sym_table,
-                                         bin_op);
+        return validate_bin_icomp(compile_status, sym_table, bin_op);
     }
     else if (ir_binary_operation_is_conditional(bin_op))
     {
-        return
-          sem_analyze_validate_bin_conditional(compile_status,
-                                               sym_table,
-                                               bin_op);
+        return validate_bin_conditional(compile_status, sym_table, bin_op);
     }
 
     /* unexpected binary operation type */
@@ -318,16 +336,14 @@ sem_analyze_validate_binary_op(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-sem_analyze_validate_unary_op(compilation_status_t *compile_status,
-                              sym_table_t *sym_table,
-                              IrUnaryOperation *operation)
+validate_unary_op(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrUnaryOperation *operation)
 {
     IrExpression *exp;
 
     exp = ir_unary_operation_get_operand(operation);
-    exp = sem_analyze_validate_expression(compile_status,
-                                          sym_table,
-                                          exp);
+    exp = validate_expression(compile_status, sym_table, exp);
 
     switch (ir_unary_operation_get_operation(operation))
     {
@@ -360,38 +376,38 @@ sem_analyze_validate_unary_op(compilation_status_t *compile_status,
 
 
 static IrExpression *
-sem_analyze_validate_expression(compilation_status_t *compile_status,
-                                sym_table_t *sym_table,
-                                IrExpression *expression)
+validate_expression(compilation_status_t *compile_status,
+                    sym_table_t *sym_table,
+                    IrExpression *expression)
 {
     if (IR_IS_BINARY_OPERATION(expression))
     {
         expression = 
-            sem_analyze_validate_binary_op(compile_status,
-                                           sym_table,
-                                           IR_BINARY_OPERATION(expression));
+            validate_binary_op(compile_status,
+                               sym_table,
+                               IR_BINARY_OPERATION(expression));
     }
     else if (IR_IS_UNARY_OPERATION(expression))
     {
         expression =
-            sem_analyze_validate_unary_op(compile_status,
-                                          sym_table,
-                                          IR_UNARY_OPERATION(expression));
+            validate_unary_op(compile_status,
+                              sym_table,
+                              IR_UNARY_OPERATION(expression));
     }
     else if (IR_IS_FUNCTION_CALL(expression))
     {
-        sem_analyze_validate_function_call(compile_status,
-                                           sym_table,
-                                           IR_FUNCTION_CALL(expression));
+        validate_function_call(compile_status,
+                               sym_table,
+                               IR_FUNCTION_CALL(expression));
     }
 
     return expression;
 }
 
 static void
-sem_analyze_validate_return(compilation_status_t *compile_status,
-                            sym_table_t *sym_table,
-                            IrReturn *ret)
+validate_return(compilation_status_t *compile_status,
+                sym_table_t *sym_table,
+                IrReturn *ret)
 {
     IrExpression *ret_exp;
 
@@ -400,16 +416,15 @@ sem_analyze_validate_return(compilation_status_t *compile_status,
     if (ret_exp != NULL)
     {
         IrExpression *exp;
-        exp = 
-           sem_analyze_validate_expression(compile_status, sym_table, ret_exp);
+        exp = validate_expression(compile_status, sym_table, ret_exp);
         ir_return_set_return_value(ret, exp);
     }
 }
 
 static void
-sem_analyze_validate_assigment(compilation_status_t *compile_status,
-                               sym_table_t *sym_table,
-                               IrAssigment *assigment)
+validate_assigment(compilation_status_t *compile_status,
+                   sym_table_t *sym_table,
+                   IrAssigment *assigment)
 {
     AstVariableRef *target;
     IrExpression *value;
@@ -436,7 +451,7 @@ sem_analyze_validate_assigment(compilation_status_t *compile_status,
     }
 
     value = ir_assigment_get_value(assigment);
-    value = sem_analyze_validate_expression(compile_status, sym_table, value);
+    value = validate_expression(compile_status, sym_table, value);
 
 
     target_type = ir_expression_get_data_type(IR_EXPRESSION(target_sym));
@@ -455,18 +470,17 @@ sem_analyze_validate_assigment(compilation_status_t *compile_status,
 }
 
 static void
-sem_analyze_validate_if_block(compilation_status_t *compile_status,
-                             sym_table_t *sym_table,
-                             IrIfBlock *if_block)
+validate_if_block(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrIfBlock *if_block)
 {
     IrExpression *condition;
     IrCodeBlock *body;
 
     /* validate if condition expression */
     condition = ir_if_block_get_condition(if_block);
-    condition = sem_analyze_validate_expression(compile_status,
-                                                sym_table,
-                                                condition);
+    condition = validate_expression(compile_status, sym_table, condition);
+
     /* insert implicit conversion to boolean type */
     condition = types_implicit_conv(types_get_bool_type(),
                                     condition);
@@ -481,14 +495,13 @@ sem_analyze_validate_if_block(compilation_status_t *compile_status,
 
     /* validate if body */
     body = ir_if_block_get_body(if_block);
-    sem_analyze_validate_code_block(compile_status,
-                                    body);
+    validate_code_block(compile_status, body);
 }
 
 static void
-sem_analyze_validate_if_else(compilation_status_t *compile_status,
-                             sym_table_t *sym_table,
-                             IrIfElse *if_else)
+validate_if_else(compilation_status_t *compile_status,
+                 sym_table_t *sym_table,
+                 IrIfElse *if_else)
 {
    GSList *i;
    IrCodeBlock *else_body;
@@ -498,33 +511,28 @@ sem_analyze_validate_if_else(compilation_status_t *compile_status,
    i = ir_if_else_get_if_else_blocks(if_else);
    for (; i != NULL; i = g_slist_next(i))
    {
-       sem_analyze_validate_if_block(compile_status,
-                                     sym_table,
-                                     IR_IF_BLOCK(i->data));
+       validate_if_block(compile_status, sym_table, IR_IF_BLOCK(i->data));
    }
 
    /* validate else-body */
    else_body = ir_if_else_get_else_body(if_else);
    if (else_body != NULL)
    {
-       sem_analyze_validate_code_block(compile_status,
-                                       else_body);
+       validate_code_block(compile_status, else_body);
    }
 }
 
 static void
-sem_analyze_validate_while(compilation_status_t *compile_status,
-                           sym_table_t *sym_table,
-                           IrWhile *while_statment)
+validate_while(compilation_status_t *compile_status,
+               sym_table_t *sym_table,
+               IrWhile *while_statment)
 {
     IrExpression *condition;
     IrCodeBlock *body;
 
     /* validate if condition expression */
     condition = ir_while_get_loop_condition(while_statment);
-    condition = sem_analyze_validate_expression(compile_status,
-                                                sym_table,
-                                                condition);
+    condition = validate_expression(compile_status, sym_table, condition);
 
     /* insert implicit conversion to boolean type */
     condition = types_implicit_conv(types_get_bool_type(),
@@ -540,44 +548,35 @@ sem_analyze_validate_while(compilation_status_t *compile_status,
 
     /* validate if body */
     body = ir_while_get_body(while_statment);
-    sem_analyze_validate_code_block(compile_status, body);
+    validate_code_block(compile_status, body);
 }
 
-
 static void
-sem_analyze_validate_statment(compilation_status_t *compile_status,
-                              sym_table_t *sym_table,
-                              IrStatment *statment)
+validate_statment(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrStatment *statment)
 {
     if (IR_IS_FUNCTION_CALL(statment))
     {
-         sem_analyze_validate_function_call(compile_status,
-                                            sym_table,
-                                            IR_FUNCTION_CALL(statment));
+         validate_function_call(compile_status,
+                                sym_table,
+                                IR_FUNCTION_CALL(statment));
     }
     else if (IR_IS_ASSIGMENT(statment))
     {
-        sem_analyze_validate_assigment(compile_status,
-                                       sym_table,
-                                       IR_ASSIGMENT(statment));
+        validate_assigment(compile_status, sym_table, IR_ASSIGMENT(statment));
     }
     else if (IR_IS_RETURN(statment))
     {
-        sem_analyze_validate_return(compile_status,
-                                    sym_table,
-                                    IR_RETURN(statment));
+        validate_return(compile_status, sym_table, IR_RETURN(statment));
     }
     else if (IR_IS_IF_ELSE(statment))
     {
-        sem_analyze_validate_if_else(compile_status,
-                                     sym_table,
-                                     IR_IF_ELSE(statment));
+        validate_if_else(compile_status, sym_table, IR_IF_ELSE(statment));
     }
     else if (IR_IS_WHILE(statment))
     {
-        sem_analyze_validate_while(compile_status,
-                                   sym_table,
-                                   IR_WHILE(statment));
+        validate_while(compile_status, sym_table, IR_WHILE(statment));
     }
     else if (IR_IS_EXPRESSION(statment))
     {
@@ -586,8 +585,8 @@ sem_analyze_validate_statment(compilation_status_t *compile_status,
 }
 
 static void
-sem_analyze_validate_code_block(compilation_status_t *compile_status,
-                                IrCodeBlock *code_block)
+validate_code_block(compilation_status_t *compile_status,
+                    IrCodeBlock *code_block)
 {
     sym_table_t *sym_table;
     GSList *i;
@@ -620,10 +619,8 @@ sem_analyze_validate_code_block(compilation_status_t *compile_status,
             continue;
         }
 
-        initializer =
-            sem_analyze_validate_expression(compile_status,
-                                            sym_table,
-                                            initializer);
+        initializer = 
+            validate_expression(compile_status, sym_table, initializer);
 
         initializer =
             types_implicit_conv(ir_variable_get_data_type(var), initializer);
@@ -645,14 +642,11 @@ sem_analyze_validate_code_block(compilation_status_t *compile_status,
     {
         if (IR_IS_CODE_BLOCK(i->data))
         {
-            sem_analyze_validate_code_block(compile_status,
-                                            IR_CODE_BLOCK(i->data));
+            validate_code_block(compile_status, IR_CODE_BLOCK(i->data));
         }
         else if (IR_IS_STATMENT(i->data))
         {
-            sem_analyze_validate_statment(compile_status,
-                                          sym_table,
-                                          IR_STATMENT(i->data));
+            validate_statment(compile_status, sym_table, IR_STATMENT(i->data));
         }
         else
         {
@@ -663,15 +657,15 @@ sem_analyze_validate_code_block(compilation_status_t *compile_status,
 }
 
 static void
-sem_analyze_validate_function(compilation_status_t *compile_status,
-                              IrFunction *func)
+validate_function(compilation_status_t *compile_status,
+                  IrFunction *func)
 {
     IrCodeBlock *body;
 
     body = ir_function_get_body(func);
 
     /* validate function's body */
-    sem_analyze_validate_code_block(compile_status, body);
+    validate_code_block(compile_status, body);
 
     /*
      * For void function, add an implicit return statment if needed
@@ -694,5 +688,38 @@ sem_analyze_validate_function(compilation_status_t *compile_status,
             ir_code_block_add_statment(body, ir_return_new(NULL));
         }
     }
+}
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
+void
+sem_analyze_validate(compilation_status_t *compile_status,
+                     IrCompileUnit *compile_unit)
+{
+    assert(compile_status);
+    assert(compile_unit);
+
+    sym_table_t *sym_table;
+    GList *symbols_list;
+    GList *i;
+
+    sym_table = ir_compile_unit_get_symbols(compile_unit);
+    symbols_list = sym_table_get_all_symbols(sym_table);
+
+    for (i = symbols_list; i != NULL; i = g_list_next(i))
+    {
+        if (IR_IS_FUNCTION(i->data))
+        {
+            validate_function(compile_status, IR_FUNCTION(i->data));
+        }
+        else
+        {
+            /* unexpected symbol type */
+            assert(false);
+        }
+    }
+    g_list_free(symbols_list);
 }
 
