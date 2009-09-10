@@ -119,6 +119,12 @@ main(char[][] args)
     /* parse command line options */
     foreach (arg; args[1..$])
     {
+        /* skip empty string arguments */
+        if (arg.length <= 0)
+        {
+            continue;
+        }
+
         /* should be an option */ 
         if (arg[0..2] == "--" || arg[0..1] == "-")
         {
