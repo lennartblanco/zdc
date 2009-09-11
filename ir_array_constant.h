@@ -1,6 +1,7 @@
 #ifndef IR_ARRAY_CONSTANT_INC_X
 #define IR_ARRAY_CONSTANT_INC_X
 
+#include "ast_static_array_type.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -29,6 +30,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
+    AstStaticArrayType *data_type;
     GSList *values;
 } IrArrayConstant;
 
@@ -49,5 +51,11 @@ ir_array_constant_new();
 
 void
 ir_array_constant_add_value(IrArrayConstant *self, IrExpression *value);
+
+void
+ir_array_constant_set_values(IrArrayConstant *self, GSList *values);
+
+GSList *
+ir_array_constant_get_values(IrArrayConstant *self);
 
 #endif /* IR_ARRAY_CONSTANT_INC_X */

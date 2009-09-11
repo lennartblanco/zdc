@@ -392,6 +392,7 @@ sem_analyze_ast_array_const_to_ir(compilation_status_t *compile_status,
           sem_analyze_ast_expression_to_ir(compile_status,
                                            symbols,
                                            i->data);
+        ir_array_constant_add_value(ir_arry_const, exp);
     }
 
     return IR_EXPRESSION(ir_arry_const);

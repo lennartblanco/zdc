@@ -2,8 +2,10 @@
 
 #include "types.h"
 #include "ast_basic_type.h"
+#include "ast_static_array_type.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
+#include "ir_array_constant.h"
 
 #include <assert.h>
 
@@ -16,6 +18,41 @@ implicit_conv_to_int(IrExpression *expression);
 
 static IrExpression *
 implicit_conv_to_bool(IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_basic_type(AstDataType *target_type, IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_static_array_type(AstDataType *target_type,
+                                   IrExpression *expression);
+
+/**
+ * preform implicit conversion of an static int array literal to to static bool
+ * array
+ *
+ * @return implicitly converted expression, or NULL if such conversation
+ *         is illegal
+ */
+static IrExpression *
+implicit_conv_static_int_array_to_bool(IrExpression *expression);
+
+/**
+ * preform implicit conversion of an expression to static bool array
+ *
+ * @return implicitly converted expression, or NULL if such conversation
+ *         is illegal
+ */
+static IrExpression *
+implicit_conv_to_static_bool_array_type(IrExpression *expression);
+
+/**
+ * preform implicit conversion of an expression to static int array
+ *
+ * @return implicitly converted expression, or NULL if such conversation
+ *         is illegal
+ */
+static IrExpression *
+implicit_conv_to_static_int_array_type(IrExpression *expression);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -86,21 +123,13 @@ implicit_conv_to_bool(IrExpression *expression)
     return res_exp;
 }
 
-/*---------------------------------------------------------------------------*
- *                           exported functions                              *
- *---------------------------------------------------------------------------*/
-
-IrExpression *
-types_implicit_conv(AstDataType *target_type,
-                    IrExpression *expression)
+static IrExpression *
+implicit_conv_to_basic_type(AstDataType *target_type, IrExpression *expression)
 {
-    IrExpression *res_exp = NULL;
+    assert(XDP_IS_AST_BASIC_TYPE(target_type));
+    assert(IR_IS_EXPRESSION(expression));
 
-    if (!XDP_IS_AST_BASIC_TYPE(target_type))
-    {
-        /* non-basic type conversion not implemented */
-        assert(false);
-    }
+    IrExpression *res_exp = NULL;
 
     switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(target_type)))
     {
@@ -120,6 +149,169 @@ types_implicit_conv(AstDataType *target_type,
     }
 
     return res_exp;
+}
+
+static IrExpression *
+implicit_conv_static_int_array_to_bool(IrExpression *expression)
+{
+    assert(IR_IS_ARRAY_CONSTANT(expression));
+
+    IrArrayConstant *array = IR_ARRAY_CONSTANT(expression);
+    GSList *i;
+
+    /*
+     * check if it is possible implicitly cast this array literal
+     * to static boolean array
+     */
+    i = ir_array_constant_get_values(array);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        if (!types_is_literal_0or1(i->data))
+        {
+            return NULL;
+        }
+    }
+
+    IrCast *cast_exp;
+    int length;
+    AstStaticArrayType *arry_type;
+
+    arry_type =
+        XDP_AST_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
+
+    length = 
+        ast_static_array_type_get_length(arry_type);
+
+    cast_exp =
+        ir_cast_new(XDP_AST_DATA_TYPE(ast_static_array_type_new(bool_type,
+                                                                length)),
+                    expression);
+    return IR_EXPRESSION(cast_exp);
+}
+
+static IrExpression *
+implicit_conv_to_static_bool_array_type(IrExpression *expression)
+{
+    assert(IR_IS_ARRAY_CONSTANT(expression));
+
+    AstStaticArrayType *arry_type;
+
+    arry_type =
+        XDP_AST_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
+
+    switch (ast_static_array_type_get_data_type(arry_type))
+    {
+        case bool_type:
+            return expression;
+        case int_type:
+            return implicit_conv_static_int_array_to_bool(expression);
+        default:
+            /* unexpected element basic data type */
+            assert(false);
+    }
+}
+
+static IrExpression *
+implicit_conv_to_static_int_array_type(IrExpression *expression)
+{
+    assert(IR_IS_ARRAY_CONSTANT(expression));
+
+    AstStaticArrayType *arry_type;
+
+    arry_type =
+        XDP_AST_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
+
+    switch (ast_static_array_type_get_data_type(arry_type))
+    {
+        case int_type:
+            return expression;
+        case bool_type:
+        {
+            IrCast *cast_exp;
+            int length;
+            length = ast_static_array_type_get_length(arry_type);
+            cast_exp =
+              ir_cast_new(XDP_AST_DATA_TYPE(ast_static_array_type_new(int_type,
+                                                                      length)),
+                          expression);
+            return IR_EXPRESSION(cast_exp);
+
+        }
+        default:
+            /* unexpected element basic data type */
+            assert(false);
+    }
+}
+
+static IrExpression *
+implicit_conv_to_static_array_type(AstDataType *target_type,
+                                   IrExpression *expression)
+{
+    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(target_type));
+    assert(IR_IS_EXPRESSION(expression));
+
+    AstDataType *source_type;
+
+    source_type = ir_expression_get_data_type(expression);
+    if (XDP_IS_AST_BASIC_TYPE(source_type))
+    {
+        /*
+         * conversation of basic type expression to
+         * static arrays not implemented 
+         */
+        assert(false);
+    }
+
+    if (!XDP_IS_AST_STATIC_ARRAY_TYPE(source_type))
+    {
+        return NULL;
+    }
+
+    AstStaticArrayType *src_arry_type;
+    AstStaticArrayType *dst_arry_type;
+
+    src_arry_type = XDP_AST_STATIC_ARRAY_TYPE(source_type);
+    dst_arry_type = XDP_AST_STATIC_ARRAY_TYPE(target_type);
+
+    if (ast_static_array_type_get_length(src_arry_type) !=
+        ast_static_array_type_get_length(dst_arry_type))
+    {
+        return NULL;
+    }
+
+    switch (ast_static_array_type_get_data_type(dst_arry_type))
+    {
+        case int_type:
+            return implicit_conv_to_static_int_array_type(expression);
+        case bool_type:
+            return implicit_conv_to_static_bool_array_type(expression);
+        default:
+            /* unexpected element type */
+            assert(false);
+    }
+}
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
+IrExpression *
+types_implicit_conv(AstDataType *target_type,
+                    IrExpression *expression)
+{
+
+    if (XDP_IS_AST_BASIC_TYPE(target_type))
+    {
+        return implicit_conv_to_basic_type(target_type, expression);
+    }
+    else if (XDP_IS_AST_STATIC_ARRAY_TYPE(target_type))
+    {
+        return implicit_conv_to_static_array_type(target_type,
+                                                  expression);
+    }
+
+    /* unexpected target type */
+    assert(false);
 }
 
 IrExpression *

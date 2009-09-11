@@ -44,7 +44,7 @@ typedef struct
 GType ast_static_array_type_get_type(void);
 
 
-AstStaticArrayType * 
+AstStaticArrayType *
 ast_static_array_type_new(basic_data_type_t data_type, int length);
 
 basic_data_type_t

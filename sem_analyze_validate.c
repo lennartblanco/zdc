@@ -9,6 +9,7 @@
 #include "ir_return.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_array_constant.h"
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
@@ -95,6 +96,11 @@ validate_code_block(compilation_status_t *compile_status,
 static void
 validate_function(compilation_status_t *compile_status,
                   IrFunction *func);
+
+static void
+validate_array_constant(compilation_status_t *compile_status,
+                        sym_table_t *sym_table,
+                        IrArrayConstant *array_const);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -400,6 +406,12 @@ validate_expression(compilation_status_t *compile_status,
                                sym_table,
                                IR_FUNCTION_CALL(expression));
     }
+    else if (IR_IS_ARRAY_CONSTANT(expression))
+    {
+        validate_array_constant(compile_status,
+                                sym_table,
+                                IR_ARRAY_CONSTANT(expression));
+    }
 
     return expression;
 }
@@ -628,7 +640,7 @@ validate_code_block(compilation_status_t *compile_status,
         if (initializer == NULL)
         {
             compile_error(compile_status,
-                          "illegal types in initializer assigment\n");
+                          "illegal type in initializer assigment\n");
             return;
         }
     }
@@ -688,6 +700,50 @@ validate_function(compilation_status_t *compile_status,
             ir_code_block_add_statment(body, ir_return_new(NULL));
         }
     }
+}
+
+static void
+validate_array_constant(compilation_status_t *compile_status,
+                        sym_table_t *sym_table,
+                        IrArrayConstant *array_const)
+{
+    GSList *i;
+    GSList *validated_values = NULL;
+    AstDataType *vals_trgt_type = NULL;
+
+    i = ir_array_constant_get_values(array_const);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        IrExpression *exp;
+
+        exp = validate_expression(compile_status,
+                                  sym_table,
+                                  i->data);
+        if (vals_trgt_type == NULL)
+        {
+            vals_trgt_type = ir_expression_get_data_type(exp);
+        }
+        else
+        {
+            /*
+             * type cast all values in array literal expression to
+             * the type of the first expression
+             */
+            exp = types_implicit_conv(vals_trgt_type, exp);
+        }
+
+        if (exp == NULL)
+        {
+            /* illegal implicit conversation */
+            compile_error(compile_status,
+                          "can not implicitly convert array literal value\n");
+        }
+
+        validated_values = g_slist_prepend(validated_values, exp);
+    }
+
+    ir_array_constant_set_values(array_const, 
+                                 g_slist_reverse(validated_values));
 }
 
 /*---------------------------------------------------------------------------*
