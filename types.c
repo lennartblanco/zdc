@@ -295,6 +295,21 @@ implicit_conv_to_static_array_type(AstDataType *target_type,
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
+int
+types_get_storage_size(basic_data_type_t data_type)
+{
+    switch (data_type)
+    {
+        case int_type:
+            return 4;
+        case bool_type:
+            return 1;
+        default:
+            /* unexpected basic data type */
+            assert(false);
+    }
+}
+
 IrExpression *
 types_implicit_conv(AstDataType *target_type,
                     IrExpression *expression)

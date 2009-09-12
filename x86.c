@@ -11,6 +11,7 @@
 #include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
+#include "ir_array_literal.h"
 #include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
@@ -61,6 +62,11 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
                            sym_table_t *sym_table);
+static void
+x86_gen_array_literal_assigment(x86_comp_params_t *params, 
+                                IrVariable *variable,
+                                IrArrayLiteral *array_literal,
+                                sym_table_t *sym_table);
 
 static int
 x86_get_variable_storage_size(IrVariable *variable);
@@ -83,6 +89,26 @@ x86_compile_conditional_op(x86_comp_params_t *params,
 static void
 x86_compile_variable_ref(x86_comp_params_t *params,
                          IrVariable *var);
+
+void
+x86_compile_expression(x86_comp_params_t *params,
+                       IrExpression *expression,
+                       sym_table_t *sym_table);
+
+/**
+ * Generate code to pop 32-bit value off the stack and
+ * move it to frame offset location (e.g. local variable).
+ *
+ * @param params       compilation pass parameters handle
+ * @param frame_offset function frame offset (offset relative to eps register)
+ *                     where to move pop-ed data
+ * @param storage_size number of bytes to store, if less then 4 bytes (32-bit),
+ *                     more significant bytes will be discarded
+ */
+static void
+x86_gen_store_value(x86_comp_params_t *params,
+                    int frame_offset,
+                    int storage_size);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -117,9 +143,7 @@ x86_gen_code(IrCompileUnit *comp_unit,
             assert(false);
         }
     }
-    g_list_free(symbols_list);
-
-        
+    g_list_free(symbols_list);        
 }
 
 void
@@ -242,10 +266,10 @@ x86_compile_code_block(x86_comp_params_t *params,
         }
         else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
         {
-//            AstStaticArrayType *sarray = XDP_AST_STATIC_ARRAY_TYPE(var_type);
-            printf("static array\n");
-            /* not implemented */
-            assert(false);
+            x86_gen_array_literal_assigment(params,
+                                            var,
+                                            IR_ARRAY_LITERAL(var_init),
+                                            locals);
         }
         else
         {
@@ -537,16 +561,7 @@ x86_get_variable_storage_size(IrVariable *variable)
     {
         AstBasicType *basic_type = XDP_AST_BASIC_TYPE(variable_type);
 
-        switch (ast_basic_type_get_data_type(basic_type))
-        {
-            case int_type:
-                return 4;
-            case bool_type:
-                return 1;
-            default:
-                /* unexpected basic data type */
-                assert(false);
-        }
+        return types_get_storage_size(ast_basic_type_get_data_type(basic_type));
     }
     else if (XDP_IS_AST_STATIC_ARRAY_TYPE(variable_type))
     {
@@ -555,16 +570,10 @@ x86_get_variable_storage_size(IrVariable *variable)
 
         array_type = XDP_AST_STATIC_ARRAY_TYPE(variable_type);
         len = ast_static_array_type_get_length(array_type);
-        switch (ast_static_array_type_get_data_type(array_type))
-        {
-            case int_type:
-                return len * 4;
-            case bool_type:
-                return len * 1;
-            default:
-                /* unexpected basic data type */
-                assert(false);
-        }
+
+        return 
+            len * types_get_storage_size(
+                      ast_static_array_type_get_data_type(array_type));
     }
     else
     {
@@ -577,6 +586,32 @@ x86_get_variable_storage_size(IrVariable *variable)
 }
 
 static void
+x86_gen_store_value(x86_comp_params_t *params,
+                    int frame_offset,
+                    int storage_size)
+{
+    switch (storage_size)
+    {
+        case 4:
+            fprintf(params->out,
+                    "# store 32-bit variable value from the stack\n"
+                    "    popl %d(%%ebp)\n",
+                    frame_offset);
+            break;
+        case 1:
+            fprintf(params->out,
+                    "# store 8-bit variable value from the stack\n"
+                    "    popl %%eax\n"
+                    "    movb %%al, %d(%%ebp)\n",
+                    frame_offset);
+            break;
+        default:
+            /* unexpected/unsupported storage size */
+            assert(false);
+    }
+}
+
+static void
 x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
@@ -586,25 +621,58 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
 
     addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     x86_compile_expression(params, expression, sym_table);
-    switch (x86_get_variable_storage_size(variable))
+    x86_gen_store_value(params,
+                        x86_frame_offset_get_offset(addr),
+                        x86_get_variable_storage_size(variable));
+}
+
+static void
+x86_gen_array_literal_assigment(x86_comp_params_t *params, 
+                                IrVariable *variable,
+                                IrArrayLiteral *array_literal,
+                                sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_VARIABLE(variable));
+    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable)));
+    assert(X86_IS_FRAME_OFFSET(ir_variable_get_location(variable)));
+    assert(IR_IS_ARRAY_LITERAL(array_literal));
+    assert(sym_table);
+
+    X86FrameOffset *array_loc;
+    int loc;
+    int storage_size;
+    GSList *i;
+    AstStaticArrayType *array_type;
+
+    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
+    array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    storage_size = types_get_storage_size(ast_static_array_type_get_data_type(array_type));
+
+printf("element type %d size %d\n",
+       ast_static_array_type_get_data_type(array_type),
+       storage_size);
+
+    loc = x86_frame_offset_get_offset(array_loc);
+    i = ir_array_literal_get_values(array_literal);
+
+    fprintf(params->out, "# assign array literal to array '%s'\n",
+            ir_variable_get_name(variable));
+
+    for (; i != NULL; i = g_slist_next(i), loc += storage_size)
     {
-        case 4:
-            fprintf(params->out,
-                    "# assign 32-bit variable value from the stack\n"
-                    "    popl %d(%%ebp)\n",
-                    x86_frame_offset_get_offset(addr));
-            break;
-        case 1:
-            fprintf(params->out,
-                    "# assign 8-bit variable value from the stack\n"
-                    "    popl %%eax\n"
-                    "    movb %%al, %d(%%ebp)\n",
-                    x86_frame_offset_get_offset(addr));
-            break;
-        default:
-            /* unexpected/unsupported storage size */
-            assert(false);
+        fprintf(params->out,
+                "# evaluate value for loc %d(%%ebp)\n",
+                loc);
+        x86_compile_expression(params, i->data, sym_table);
+        fprintf(params->out,
+                "# store value in array cell\n");
+
+        x86_gen_store_value(params, loc, storage_size);
+
+printf("loc %d data %p\n", loc, i->data);
     }
+
 }
 
 static void

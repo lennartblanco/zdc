@@ -9,6 +9,12 @@
  *---------------------------------------------------------------------------*/
 
 /**
+ * Get storage size in bytes of an basic data type.
+ */
+int
+types_get_storage_size(basic_data_type_t data_type);
+
+/**
  * Check if expression is numeric literal 0 or 1.
  */
 bool
