@@ -14,7 +14,7 @@
 #include "ast_while.h"
 #include "ast_foreach.h"
 #include "ast_return.h"
-#include "ast_array_constant.h"
+#include "ast_array_literal.h"
 #include "ast_int_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_unary_operation.h"
@@ -87,6 +87,11 @@ static IrExpression *
 sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
                                 sym_table_t *symbols,
                                 AstFunctionCall *func_call);
+
+static IrExpression *
+sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
+                                    sym_table_t *symbols,
+                                    AstArrayLiteral *ast_arry_literal);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -374,16 +379,16 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-sem_analyze_ast_array_const_to_ir(compilation_status_t *compile_status,
-                                  sym_table_t *symbols,
-                                  AstArrayConstant *ast_arry_const)
+sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
+                                    sym_table_t *symbols,
+                                    AstArrayLiteral *ast_arry_literal)
 {
     IrArrayConstant *ir_arry_const;
     GSList *i;
 
     ir_arry_const = ir_array_constant_new();
 
-    i = ast_array_constant_get_values(ast_arry_const);
+    i = ast_array_literal_get_values(ast_arry_literal);
     for (; i != NULL; i = g_slist_next(i))
     {
         IrExpression *exp;
@@ -477,14 +482,14 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                                symbols,
                                                func_call);
     }
-    else if (XDP_IS_AST_ARRAY_CONSTANT(ast_expression))
+    else if (XDP_IS_AST_ARRAY_LITERAL(ast_expression))
     {
-        AstArrayConstant *arry_const;
+        AstArrayLiteral *arry_literal;
 
-        arry_const = XDP_AST_ARRAY_CONSTANT(ast_expression);
-        return sem_analyze_ast_array_const_to_ir(compile_status,
-                                                 symbols,
-                                                 arry_const);
+        arry_literal = XDP_AST_ARRAY_LITERAL(ast_expression);
+        return sem_analyze_ast_array_literal_to_ir(compile_status,
+                                                   symbols,
+                                                   arry_literal);
     }
 
     /* unexpected expression type */

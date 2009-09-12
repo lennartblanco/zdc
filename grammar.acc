@@ -17,7 +17,7 @@
 #include "ast_assigment.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
-#include "ast_array_constant.h"
+#include "ast_array_literal.h"
 #include "ast_while.h"
 #include "ast_foreach.h"
 
@@ -524,7 +524,7 @@ primary<n> :
           XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
                                                     i.expression));
   }
-| array_constant<n>
+| array_literal<n>
 | array_slice<n>
 ;
 
@@ -543,21 +543,21 @@ array_slice<n> :
     }
 ;
 
-array_constant<n> :
+array_literal<n> :
   {
       (*n).expression =
-          XDP_AST_EXPRESSION(ast_array_constant_new());
+          XDP_AST_EXPRESSION(ast_array_literal_new());
   }
   '['
   expression<first>
   {
-      ast_array_constant_add_value(XDP_AST_ARRAY_CONSTANT((*n).expression),
-                                   first.expression);
+      ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
+                                  first.expression);
   } 
   (',' expression<nth>
   {
-      ast_array_constant_add_value(XDP_AST_ARRAY_CONSTANT((*n).expression),
-                                   nth.expression);
+      ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
+                                  nth.expression);
   }   
   )* 
   ']'

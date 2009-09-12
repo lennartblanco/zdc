@@ -11,7 +11,7 @@
 #include "ast_bool_constant.h"
 #include "ast_static_array_type.h"
 #include "ast_array_slice_ref.h"
-#include "ast_array_constant.h"
+#include "ast_array_literal.h"
 #include "ir_variable.h"
 
 #include <assert.h>
@@ -946,7 +946,7 @@ java_trgt_handle_array_slice_assigment(java_trgt_comp_params_t *params,
                                        sym_table_t *sym_table)
 {
     /* only constant expression supported at this time */
-    assert(XDP_IS_AST_ARRAY_CONSTANT(val));
+    assert(XDP_IS_AST_ARRAY_LITERAL(val));
 
     gint32 array_idx;
 
@@ -973,8 +973,7 @@ java_trgt_handle_array_slice_assigment(java_trgt_comp_params_t *params,
      * this should be checked for static cases during semantic checks
      * BEWARE: the semantic checks for array assigments are not implemented yet
      */    
-    GSList *p = 
-        ast_array_constant_get_values(XDP_AST_ARRAY_CONSTANT(val));
+    GSList *p = ast_array_literal_get_values(XDP_AST_ARRAY_LITERAL(val));
 
     for (;p != NULL; p = g_slist_next(p), ++array_idx)
     {

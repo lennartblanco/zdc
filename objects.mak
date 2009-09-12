@@ -5,7 +5,7 @@ X86_TRGT_OBJS := x86.o x86_cast.o x86_reg_location.o x86_frame_offset.o       \
 
 OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o types.o        \
 	sem_analyze.o sem_analyze_validate.o label_gen.o                      \
-        ast_array_constant.o ast_while.o                                      \
+        ast_array_literal.o ast_while.o                                       \
         ast_node.o ast_compile_unit.o ast_function.o ast_data_type.o          \
         ast_basic_type.o ast_code_block.o ast_statment.o ast_expression.o     \
         ast_return.o ast_constant.o ast_int_constant.o ast_bool_constant.o    \
