@@ -35,7 +35,7 @@ ast_array_literal_get_type(void)
         NULL    /* instance_init */
       };
       type = g_type_register_static(XDP_TYPE_AST_CONSTANT,
-                                    "AstArrayConstantType",
+                                    "AstArrayLiteralType",
                                     &info, 0);
     }
     return type;

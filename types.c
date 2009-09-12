@@ -5,7 +5,7 @@
 #include "ast_static_array_type.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
-#include "ir_array_constant.h"
+#include "ir_array_literal.h"
 
 #include <assert.h>
 
@@ -154,16 +154,16 @@ implicit_conv_to_basic_type(AstDataType *target_type, IrExpression *expression)
 static IrExpression *
 implicit_conv_static_int_array_to_bool(IrExpression *expression)
 {
-    assert(IR_IS_ARRAY_CONSTANT(expression));
+    assert(IR_IS_ARRAY_LITERAL(expression));
 
-    IrArrayConstant *array = IR_ARRAY_CONSTANT(expression);
+    IrArrayLiteral *array = IR_ARRAY_LITERAL(expression);
     GSList *i;
 
     /*
      * check if it is possible implicitly cast this array literal
      * to static boolean array
      */
-    i = ir_array_constant_get_values(array);
+    i = ir_array_literal_get_values(array);
     for (; i != NULL; i = g_slist_next(i))
     {
         if (!types_is_literal_0or1(i->data))
@@ -192,7 +192,7 @@ implicit_conv_static_int_array_to_bool(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_static_bool_array_type(IrExpression *expression)
 {
-    assert(IR_IS_ARRAY_CONSTANT(expression));
+    assert(IR_IS_ARRAY_LITERAL(expression));
 
     AstStaticArrayType *arry_type;
 
@@ -214,7 +214,7 @@ implicit_conv_to_static_bool_array_type(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_static_int_array_type(IrExpression *expression)
 {
-    assert(IR_IS_ARRAY_CONSTANT(expression));
+    assert(IR_IS_ARRAY_LITERAL(expression));
 
     AstStaticArrayType *arry_type;
 

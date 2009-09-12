@@ -9,7 +9,7 @@
 #include "ir_return.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
-#include "ir_array_constant.h"
+#include "ir_array_literal.h"
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
@@ -98,9 +98,9 @@ validate_function(compilation_status_t *compile_status,
                   IrFunction *func);
 
 static void
-validate_array_constant(compilation_status_t *compile_status,
-                        sym_table_t *sym_table,
-                        IrArrayConstant *array_const);
+validate_array_literal(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrArrayLiteral *array_literal);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -406,11 +406,11 @@ validate_expression(compilation_status_t *compile_status,
                                sym_table,
                                IR_FUNCTION_CALL(expression));
     }
-    else if (IR_IS_ARRAY_CONSTANT(expression))
+    else if (IR_IS_ARRAY_LITERAL(expression))
     {
-        validate_array_constant(compile_status,
-                                sym_table,
-                                IR_ARRAY_CONSTANT(expression));
+        validate_array_literal(compile_status,
+                               sym_table,
+                               IR_ARRAY_LITERAL(expression));
     }
 
     return expression;
@@ -703,15 +703,15 @@ validate_function(compilation_status_t *compile_status,
 }
 
 static void
-validate_array_constant(compilation_status_t *compile_status,
-                        sym_table_t *sym_table,
-                        IrArrayConstant *array_const)
+validate_array_literal(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrArrayLiteral *array_literal)
 {
     GSList *i;
     GSList *validated_values = NULL;
     AstDataType *vals_trgt_type = NULL;
 
-    i = ir_array_constant_get_values(array_const);
+    i = ir_array_literal_get_values(array_literal);
     for (; i != NULL; i = g_slist_next(i))
     {
         IrExpression *exp;
@@ -742,8 +742,8 @@ validate_array_constant(compilation_status_t *compile_status,
         validated_values = g_slist_prepend(validated_values, exp);
     }
 
-    ir_array_constant_set_values(array_const, 
-                                 g_slist_reverse(validated_values));
+    ir_array_literal_set_values(array_literal, 
+                                g_slist_reverse(validated_values));
 }
 
 /*---------------------------------------------------------------------------*

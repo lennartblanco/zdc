@@ -23,7 +23,7 @@
 #include "ast_function_call.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
-#include "ir_array_constant.h"
+#include "ir_array_literal.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
@@ -383,10 +383,10 @@ sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
                                     sym_table_t *symbols,
                                     AstArrayLiteral *ast_arry_literal)
 {
-    IrArrayConstant *ir_arry_const;
+    IrArrayLiteral *ir_arry_literal;
     GSList *i;
 
-    ir_arry_const = ir_array_constant_new();
+    ir_arry_literal = ir_array_literal_new();
 
     i = ast_array_literal_get_values(ast_arry_literal);
     for (; i != NULL; i = g_slist_next(i))
@@ -397,10 +397,10 @@ sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
           sem_analyze_ast_expression_to_ir(compile_status,
                                            symbols,
                                            i->data);
-        ir_array_constant_add_value(ir_arry_const, exp);
+        ir_array_literal_add_value(ir_arry_literal, exp);
     }
 
-    return IR_EXPRESSION(ir_arry_const);
+    return IR_EXPRESSION(ir_arry_literal);
 }
 
 /**
