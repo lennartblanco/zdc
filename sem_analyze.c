@@ -93,6 +93,11 @@ sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
                                     sym_table_t *symbols,
                                     AstArrayLiteral *ast_arry_literal);
 
+static void
+sem_analyze_ast_var_def_to_ir(compilation_status_t *compile_status,
+                              AstVariableDefinition *var_def,
+                              sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -497,6 +502,43 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
     g_assert_not_reached();
     return NULL;
 }
+
+
+static void
+sem_analyze_ast_var_def_to_ir(compilation_status_t *compile_status,
+                              AstVariableDefinition *var_def,
+                              sym_table_t *sym_table)
+{
+    /*
+     * put the variable definition into the local symbol table
+     */
+
+    AstDataType *var_data_type = ast_variable_definition_get_data_type(var_def);
+    AstExpression *ast_initializer =
+        ast_variable_definition_get_initializer(var_def);
+    IrExpression *initializer = NULL;
+
+    if (ast_initializer != NULL)
+    {
+        initializer =
+            sem_analyze_ast_expression_to_ir(compile_status,
+                                             sym_table,
+                                             ast_initializer);
+    }
+
+    IrVariable *sym =
+        ir_variable_new(var_data_type,
+                        ast_variable_definition_get_name(var_def),
+                        initializer);
+
+    if (sym_table_add_symbol(sym_table, IR_SYMBOL(sym)) != 0)
+    {
+        compile_error(compile_status, 
+                      "redeclaration of symbol '%s'\n",
+                      ir_symbol_get_name(IR_SYMBOL(sym)));
+    }
+}
+
 /**
  * convert AST code block representation to IR form.
  */
@@ -523,40 +565,12 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
         /* variable declaration found */
         if (XDP_IS_AST_VARIABLE_DEFINITION(stmt))
         {
-            /*
-             * put the variable definition into the local symbol table
-             */
-            AstVariableDefinition *var_def =
-                XDP_AST_VARIABLE_DEFINITION(stmt);
+            AstVariableDefinition *var_def = XDP_AST_VARIABLE_DEFINITION(stmt);
 
-            AstDataType *var_data_type =
-                ast_variable_definition_get_data_type(var_def);
+            sem_analyze_ast_var_def_to_ir(compile_status,
+                                          var_def,
+                                          symbols);
 
-            AstExpression *ast_initializer =
-                ast_variable_definition_get_initializer(var_def);
-
-            IrExpression *initializer = NULL;
-
-            if (ast_initializer != NULL)
-            {
-                initializer =
-                    sem_analyze_ast_expression_to_ir(compile_status,
-                                                     symbols,
-                                                     ast_initializer);
-            }
-
-            IrVariable *sym = 
-                ir_variable_new(var_data_type,
-                                ast_variable_definition_get_name(var_def),
-                                initializer);
-
-            if (sym_table_add_symbol(symbols, IR_SYMBOL(sym)) != 0)
-            {
-                compile_error(compile_status, 
-                              "redeclaration of symbol '%s'\n",
-                              ir_symbol_get_name(IR_SYMBOL(sym)));
-                return;
-            }
             /** @todo delete the stmt node here */
             /* no IR statment to add, jump to next ast statment */
             continue;
