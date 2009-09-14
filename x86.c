@@ -12,6 +12,7 @@
 #include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
 #include "ir_array_literal.h"
+#include "ir_array_cell_ref.h"
 #include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
@@ -67,6 +68,11 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
                                 IrVariable *variable,
                                 IrArrayLiteral *array_literal,
                                 sym_table_t *sym_table);
+
+static void
+x86_compile_array_cell_ref(x86_comp_params_t *params,
+                           IrArrayCellRef *array_cell,
+                           sym_table_t *sym_table);
 
 static int
 x86_get_variable_storage_size(IrVariable *variable);
@@ -195,6 +201,12 @@ x86_compile_expression(x86_comp_params_t *params,
                               IR_FUNCTION_CALL(expression),
                               sym_table,
                               true);
+    }
+    else if (IR_IS_ARRAY_CELL_REF(expression))
+    {
+        x86_compile_array_cell_ref(params,
+                                   IR_ARRAY_CELL_REF(expression),
+                                   sym_table);
     }
     else if (IR_IS_CAST(expression))
     {
@@ -647,11 +659,8 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
 
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
-    storage_size = types_get_storage_size(ast_static_array_type_get_data_type(array_type));
-
-printf("element type %d size %d\n",
-       ast_static_array_type_get_data_type(array_type),
-       storage_size);
+    storage_size = 
+      types_get_storage_size(ast_static_array_type_get_data_type(array_type));
 
     loc = x86_frame_offset_get_offset(array_loc);
     i = ir_array_literal_get_values(array_literal);
@@ -669,10 +678,63 @@ printf("element type %d size %d\n",
                 "# store value in array cell\n");
 
         x86_gen_store_value(params, loc, storage_size);
-
-printf("loc %d data %p\n", loc, i->data);
     }
+}
 
+static void
+x86_compile_array_cell_ref(x86_comp_params_t *params,
+                           IrArrayCellRef *array_cell,
+                           sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ARRAY_CELL_REF(array_cell));
+    assert(sym_table);
+
+    fprintf(params->out,
+            "# fetch array cell value\n"
+            "  # evaluate index expression");
+
+    x86_compile_expression(params,
+                           ir_array_cell_ref_get_index(array_cell),
+                           sym_table);
+
+
+    X86FrameOffset *array_loc;
+    IrVariable *variable;
+    int storage_size;
+    AstStaticArrayType *array_type;
+
+
+    variable = ir_array_cell_ref_get_symbol(array_cell);
+    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
+    array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    storage_size = 
+      types_get_storage_size(ast_static_array_type_get_data_type(array_type));
+
+    fprintf(params->out,
+            "    popl %%eax # store array index in eax\n");
+
+    switch (storage_size)
+    {
+        case 4:
+            fprintf(params->out,
+                    "   # fetch 32-bit array element\n"
+                    "    movl %d(%%ebp, %%eax, 4), %%eax\n"
+                    "    pushl %%eax\n",
+                    x86_frame_offset_get_offset(array_loc));
+            break;
+        case 1:
+            fprintf(params->out,
+                    "   # fetch 8-bit array element\n"
+                    "    xor %%ebx, %%ebx\n"
+                    "    movb %d(%%ebp, %%eax, 1), %%bl\n"
+                    "    pushl %%ebx\n",
+                    x86_frame_offset_get_offset(array_loc));
+            break;
+        default:
+            /* unexpected storage size */
+            assert(false);
+    }              
 }
 
 static void

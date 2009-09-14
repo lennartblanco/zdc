@@ -38,7 +38,8 @@ typedef enum basic_data_type_e
 {
     void_type, 
     bool_type,               /* boolean */
-    int_type                 /* int 32-bit signed */
+    int_type,                /* int 32-bit signed */
+    uint_type                /* int 32-bit unsigned */
 } basic_data_type_t;
 
 /*---------------------------------------------------------------------------*

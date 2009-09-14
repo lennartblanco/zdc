@@ -13,6 +13,7 @@
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
+#include "ir_array_cell_ref.h"
 
 #include <assert.h>
 
@@ -380,6 +381,33 @@ validate_unary_op(compilation_status_t *compile_status,
     return IR_EXPRESSION(operation);
 }
 
+static void
+validate_array_cell_ref(compilation_status_t *compile_status,
+                        sym_table_t *sym_table,
+                        IrArrayCellRef *cell_ref)
+{
+    IrExpression *idx_exp;
+
+    /*
+     * valida array index expression
+     */
+    idx_exp = ir_array_cell_ref_get_index(cell_ref);
+    idx_exp = validate_expression(compile_status,
+                                  sym_table,
+                                  idx_exp);
+
+    /*
+     * implicitly convert index expression to uint type
+     */
+    idx_exp = types_implicit_conv(types_get_uint_type(), idx_exp);
+    if (idx_exp == NULL)
+    {
+        compile_error(compile_status, "illegal index expression type\n");
+        return;
+    }
+
+    ir_array_cell_ref_set_index(cell_ref, idx_exp);
+}
 
 static IrExpression *
 validate_expression(compilation_status_t *compile_status,
@@ -405,6 +433,12 @@ validate_expression(compilation_status_t *compile_status,
         validate_function_call(compile_status,
                                sym_table,
                                IR_FUNCTION_CALL(expression));
+    }
+    else if (IR_IS_ARRAY_CELL_REF(expression))
+    {
+        validate_array_cell_ref(compile_status,
+                                sym_table,
+                                IR_ARRAY_CELL_REF(expression));
     }
     else if (IR_IS_ARRAY_LITERAL(expression))
     {

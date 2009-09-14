@@ -17,6 +17,9 @@ x86_compile_cast_to_bool(IrExpression *value);
 static void
 x86_compile_cast_to_int(AstDataType *value_type);
 
+static void
+x86_compile_cast_to_uint(AstDataType *value_type);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -47,6 +50,9 @@ x86_compile_cast(x86_comp_params_t *params,
             break;
         case int_type:
             x86_compile_cast_to_int(ir_expression_get_data_type(value));
+            break;
+        case uint_type:
+            x86_compile_cast_to_uint(ir_expression_get_data_type(value));
             break;
         default:
             /* unexpected basic data type */
@@ -97,6 +103,28 @@ x86_compile_cast_to_int(AstDataType *value_type)
     {
         case bool_type:
         case int_type:
+            /* no need to explicitly convert boolean and integer values */
+            break;
+        default:
+            /* unexpected basic data type */
+            assert(false);
+    }
+}
+
+static void
+x86_compile_cast_to_uint(AstDataType *value_type)
+{
+    if (!XDP_IS_AST_BASIC_TYPE(value_type))
+    {
+        /* not implemented */
+        assert(false);
+    }
+
+    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(value_type)))
+    {
+        case bool_type:
+        case int_type:
+        case uint_type:
             /* no need to explicitly convert boolean and integer values */
             break;
         default:

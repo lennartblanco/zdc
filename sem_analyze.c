@@ -21,9 +21,11 @@
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
 #include "ast_function_call.h"
+#include "ast_array_cell_ref.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_array_literal.h"
+#include "ir_array_cell_ref.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
@@ -439,8 +441,11 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
     {
         AstVariableRef *var_ref;
         IrSymbol *var_symb;
+        IrExpression *ir_expression;
 
-        /* look-up the variable in the symbol table */
+        /*
+         * look-up the variable in the symbol table
+         */
         var_ref = XDP_AST_VARIABLE_REF(ast_expression);
         var_symb = sym_table_get_symbol(symbols,
                                         ast_variable_ref_get_name(var_ref));
@@ -458,7 +463,34 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                           "return expression symbol must be a variable\n");
             return NULL;
         }
-        return IR_EXPRESSION(var_symb);
+
+        if (XDP_IS_AST_ARRAY_CELL_REF(var_ref))
+        {
+            AstArrayCellRef *array_cell_ref;
+            AstExpression *ast_index_exp;
+            IrExpression *ir_index_exp;
+
+            /*
+             * convert array index expression to IR form
+             */
+            array_cell_ref = XDP_AST_ARRAY_CELL_REF(var_ref);
+            ast_index_exp = ast_array_cell_ref_get_index(array_cell_ref);
+            ir_index_exp = 
+                sem_analyze_ast_expression_to_ir(compile_status,
+                                                 symbols,
+                                                 ast_index_exp);
+            /* create IR array cell ref */
+            ir_expression =
+                IR_EXPRESSION(ir_array_cell_ref_new(IR_VARIABLE(var_symb),
+                                                    ir_index_exp));
+                                              
+        }
+        else if (XDP_IS_AST_VARIABLE_REF(var_ref))
+        {
+            ir_expression = IR_EXPRESSION(var_symb);
+        }
+
+        return ir_expression;
     }
     else if (XDP_IS_AST_UNARY_OPERATION(ast_expression))
     {

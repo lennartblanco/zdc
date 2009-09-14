@@ -66,12 +66,17 @@ types_is_void(AstDataType *data_type);
 bool
 types_is_bool(AstDataType *data_type);
 
-
 /**
  * Get singelton instance of object representing int type.
  */
 AstDataType *
 types_get_int_type();
+
+/**
+ * Get singelton instance of object representing uint type.
+ */
+AstDataType *
+types_get_uint_type();
 
 /**
  * Get singelton instance of object representing bool type.
