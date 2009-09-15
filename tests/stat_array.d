@@ -16,16 +16,15 @@ bool init_bool_array(int i)
     return arr[i];
 }
 
-//int init_exp_tst(int l)
-//{
-//    // check various init expressions
-//    int m = 15;
-//    int r = l;
-//    int[4] a = [l,2,3,4];
+int init_exp_tst(int l)
+{
+    // check various init expressions
+    int m = 15;
+    int r = l;
+    int[4] a = [l,2,3,4];
 
-//    return (a[0] + a[1] - m) * l;
-//}
-
+    return (a[0] + a[1] - m) * l;
+}
 
 //int intops(int val, int index)
 //{

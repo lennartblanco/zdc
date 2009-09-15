@@ -1,6 +1,8 @@
 #include <stdbool.h>
 
 #include "ir_array_cell_ref.h"
+#include "ast_basic_type.h"
+#include "ast_static_array_type.h"
 
 #include <assert.h>
 
@@ -54,6 +56,7 @@ ir_array_cell_ref_new(IrVariable *array, IrExpression *index)
     obj = g_object_new(IR_TYPE_ARRAY_CELL_REF, NULL);
     obj->symbol = array;
     obj->index = index;
+    obj->data_type = NULL;
 
     return obj;
 }
@@ -98,6 +101,21 @@ static AstDataType *
 ir_array_cell_ref_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ARRAY_CELL_REF(self));
-    /* not implemented */
-    assert(false);
+
+    IrArrayCellRef *cell = IR_ARRAY_CELL_REF(self);
+
+    if (cell->data_type == NULL)
+    {
+        AstStaticArrayType *array_data_type;
+        basic_data_type_t array_basic_type;
+
+        array_data_type =
+            XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->symbol));
+        array_basic_type = ast_static_array_type_get_data_type(array_data_type);
+
+        cell->data_type =
+            XDP_AST_DATA_TYPE(ast_basic_type_new(array_basic_type));
+    }
+ 
+    return cell->data_type;
 }

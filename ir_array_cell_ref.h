@@ -31,6 +31,7 @@ typedef struct
     /* private */
     IrVariable   *symbol;
     IrExpression *index;
+    AstDataType  *data_type;
 } IrArrayCellRef;
 
 typedef struct

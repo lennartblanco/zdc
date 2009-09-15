@@ -16,13 +16,24 @@ call_init_int_array(int in)
    return res;
 }
 
-
 bool
 call_init_bool_array(int in)
 {
    bool res;
 
    asm ("    call init_bool_array\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+int
+call_init_exp_tst(int in)
+{
+   int res;
+
+   asm ("    call init_exp_tst\n"
         : "=a"(res)
         : "a"(in));
 
@@ -49,6 +60,11 @@ main()
     check_bool("init_bool_array(1)", call_init_bool_array(1), true);
     check_bool("init_bool_array(2)", call_init_bool_array(2), false);
     check_bool("init_bool_array(3)", call_init_bool_array(3), false);
+
+    /* init_exp_tst() tests */
+    check_int("init_exp_tst(2)", call_init_exp_tst(2), (2 + 2 - 15) * 2);
+    check_int("init_exp_tst(2)", call_init_exp_tst(100), (100 + 2 - 15) * 100);
+
 
     check_exit();
 }
