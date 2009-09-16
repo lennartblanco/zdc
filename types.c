@@ -5,6 +5,7 @@
 #include "ast_static_array_type.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
+#include "ir_bool_constant.h"
 #include "ir_array_literal.h"
 
 #include <assert.h>
@@ -328,6 +329,20 @@ implicit_conv_to_static_array_type(AstDataType *target_type,
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
+
+IrExpression *
+types_get_default_initializer(basic_data_type_t data_type)
+{
+    switch (data_type)
+    {
+        case int_type:
+            return IR_EXPRESSION(ir_int_constant_new(0));
+        case bool_type:
+            return IR_EXPRESSION(ir_bool_constant_new(false));
+        default:
+            assert(false);
+    }
+}
 
 int
 types_get_storage_size(basic_data_type_t data_type)

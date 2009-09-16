@@ -116,6 +116,30 @@ x86_gen_store_value(x86_comp_params_t *params,
                     int frame_offset,
                     int storage_size);
 
+/**
+ * Generate code for default initialization of an array.
+ *
+ * @param params       compilation pass parameters handle
+ * @param variable     array which should be default initialized
+ * @param sym_table    symbols where the array is defined
+ */
+static void
+x86_gen_default_array_initializer(x86_comp_params_t *params,
+                                  IrVariable *variable,
+                                  sym_table_t *sym_table);
+
+/**
+ * Generate code for initialization of an variable.
+ *
+ * @param params       compilation pass parameters handle
+ * @param variable     variable which should be initialized
+ * @param sym_table    symbols where the array is defined
+ */
+static void
+x86_compile_variable_initializer(x86_comp_params_t *params,
+                                 IrVariable *variable,
+                                 sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -237,57 +261,9 @@ x86_compile_code_block(x86_comp_params_t *params,
     symbols_list = sym_table_get_all_symbols(locals);
     for (l = symbols_list; l != NULL; l = g_list_next(l))
     {
-        IrVariable *var = l->data;
-        AstDataType *var_type = ir_variable_get_data_type(var);
-        IrExpression *var_init = ir_variable_get_initializer(var);
-
-        /* construct default value for the type */
-        if (var_init == NULL)
-        {
-            if (XDP_IS_AST_BASIC_TYPE(var_type))
-            {
-                basic_data_type_t bdt =
-                    ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(var_type));
-                switch (bdt)
-                {
-                    case int_type:
-                        var_init = IR_EXPRESSION(ir_int_constant_new(0));
-                        break;
-                    case bool_type:
-                        var_init = IR_EXPRESSION(ir_bool_constant_new(false));
-                        break;
-                    default:
-                        assert(false);
-                }
-            }
-            else if (XDP_IS_AST_STATIC_ARRAY_TYPE(var_type))
-            {
-                /* not implemented */
-                assert(false);
-            }
-            else
-            {
-                /* unsupported complex type */
-                assert(false);
-            }
-        }
-
-        if (XDP_IS_AST_BASIC_TYPE(var_type))
-        {
-            x86_gen_variable_assigment(params, var, var_init, locals);
-        }
-        else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
-        {
-            x86_gen_array_literal_assigment(params,
-                                            var,
-                                            IR_ARRAY_LITERAL(var_init),
-                                            locals);
-        }
-        else
-        {
-            /* unexpected data type */
-            assert(false);
-        }
+        x86_compile_variable_initializer(params,
+                                         l->data,
+                                         locals);
     }
     g_list_free(symbols_list);
 
@@ -560,6 +536,51 @@ x86_compile_while(x86_comp_params_t *params,
             end_label);
 }
 
+static void
+x86_compile_variable_initializer(x86_comp_params_t *params,
+                                 IrVariable *variable,
+                                 sym_table_t *sym_table)
+{
+    AstDataType *var_type = ir_variable_get_data_type(variable);
+    IrExpression *var_init = ir_variable_get_initializer(variable);
+
+    if (XDP_IS_AST_BASIC_TYPE(var_type))
+    {
+        /* construct default value for the type */
+        if (var_init == NULL)
+        {
+            basic_data_type_t data_type;
+
+            data_type =
+                ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(var_type));
+
+            var_init = types_get_default_initializer(data_type);
+        }
+        x86_gen_variable_assigment(params, variable, var_init, sym_table);
+    }
+    else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
+    {
+        if (var_init == NULL)
+        {
+            x86_gen_default_array_initializer(params,
+                                              variable,
+                                              sym_table);
+        }
+        else
+        {
+            x86_gen_array_literal_assigment(params,
+                                            variable,
+                                            IR_ARRAY_LITERAL(var_init),
+                                            sym_table);
+        }
+    }
+    else
+    {
+        /* unexpected data type */
+        assert(false);
+    }
+}
+
 static int
 x86_get_variable_storage_size(IrVariable *variable)
 {
@@ -639,6 +660,80 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
 }
 
 static void
+x86_gen_default_array_initializer(x86_comp_params_t *params,
+                                  IrVariable *variable,
+                                  sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_VARIABLE(variable));
+    assert(sym_table);
+
+    char start_label[LABEL_MAX_LEN];
+    IrExpression *init_exp;
+    AstStaticArrayType *array_type;
+    X86FrameOffset *array_loc;
+    int storage_size;
+
+    /* fetch array data type */
+    array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    /* fetch array frame offset */
+    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
+    /* fetch array element storage size */
+    storage_size =
+      types_get_storage_size(ast_static_array_type_get_data_type(array_type));
+
+    /* get default initilizer expression for array element type */
+    init_exp =
+        types_get_default_initializer(
+            ast_static_array_type_get_data_type(array_type));
+
+    /* generate loop label */
+    label_gen_next(&(params->label_gen), start_label);
+
+
+    /* code to evaluate array element default initilizer */
+    fprintf(params->out,
+            "# evaluate array element default initilizer\n");
+    x86_compile_expression(params, init_exp, sym_table);
+
+    /*
+     * code to store element default initilizer in register
+     * and set loop counter to last element in the array
+     */   
+    fprintf(params->out,
+            "    popl %%ebx\n"
+            "    movl $%d, %%eax\n"
+            "%s:\n",
+            ast_static_array_type_get_length(array_type) - 1,
+            start_label);
+
+    /* code to store default value in array element at loop counter index */
+    switch (storage_size)
+    {
+        case 4:
+            fprintf(params->out,
+                    "    movl %%ebx, %d(%%ebp, %%eax, 4)\n",
+                    x86_frame_offset_get_offset(array_loc));
+
+            break;
+        case 1:
+            fprintf(params->out,
+                    "    movb %%bl, %d(%%ebp, %%eax, 1)\n",
+                    x86_frame_offset_get_offset(array_loc));
+            break;
+        default:
+            /* unexpected storage size */
+            assert(false);
+    }
+
+    /* decrement loop counter and check if we should make another iteration */
+    fprintf(params->out,
+            "    sub $1, %%eax\n"
+            "    jae %s\n",
+            start_label);
+}
+
+static void
 x86_gen_array_literal_assigment(x86_comp_params_t *params, 
                                 IrVariable *variable,
                                 IrArrayLiteral *array_literal,
@@ -659,7 +754,7 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
 
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
-    storage_size = 
+    storage_size =
       types_get_storage_size(ast_static_array_type_get_data_type(array_type));
 
     loc = x86_frame_offset_get_offset(array_loc);
@@ -692,7 +787,7 @@ x86_compile_array_cell_ref(x86_comp_params_t *params,
 
     fprintf(params->out,
             "# fetch array cell value\n"
-            "  # evaluate index expression");
+            "  # evaluate index expression\n");
 
     x86_compile_expression(params,
                            ir_array_cell_ref_get_index(array_cell),

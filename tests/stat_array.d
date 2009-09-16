@@ -2,6 +2,7 @@
 // Test static array operations
 //
 
+// static int array, initilized with array literal expression
 int init_int_array(int i)
 {
     int[4] arr = [10, 11, 12, 13];
@@ -9,9 +10,26 @@ int init_int_array(int i)
     return arr[i];
 }
 
+// static bool array, initilized with array literal expression
 bool init_bool_array(int i)
 {
     bool[4] arr = [true, true, false, false];
+
+    return arr[i];
+}
+
+// static int array, with default initialization
+int def_init_int_array(int i)
+{
+    int[6] arr;
+
+    return arr[i];
+}
+
+// static bool array, with default initialization
+bool def_init_bool_array(int i)
+{
+    bool[8] arr;
 
     return arr[i];
 }

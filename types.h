@@ -2,6 +2,7 @@
 #define TYPES_INC_X
 
 #include "ast_data_type.h"
+#include "ast_basic_type.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -51,6 +52,11 @@ types_usual_arithm_conv(IrExpression *left,
                         IrExpression *right,
                         IrExpression **res_left,
                         IrExpression **res_right);
+/**
+ * Get default initializer expression for a basic data type.
+ */
+IrExpression *
+types_get_default_initializer(basic_data_type_t data_type);
 
 /**
  * Returns true if data_type represent basic type void,
