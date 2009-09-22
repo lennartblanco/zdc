@@ -10,6 +10,7 @@
 #include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_if_else.h"
+#include "ast_variable_ref.h"
 #include "ast_array_slice_ref.h"
 #include "ast_while.h"
 #include "ast_foreach.h"
@@ -26,6 +27,7 @@
 #include "ir_bool_constant.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell_ref.h"
+#include "ir_scalar.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
@@ -272,17 +274,47 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
 {
     AstVariableRef *target;
     AstExpression *value;
+    IrLvalue *lvalue;
     IrExpression *ir_value;
 
     target = ast_assigment_get_target(ast_assigment);
     value = ast_assigment_get_value(ast_assigment);
+
+    if (XDP_IS_AST_ARRAY_CELL_REF(target))
+    {
+        AstArrayCellRef *arry_cell_ref;
+        AstExpression *ast_index_exp;
+        IrExpression *ir_index_exp;
+        
+        arry_cell_ref = XDP_AST_ARRAY_CELL_REF(target);
+
+        /* convert array index expression to IR form */
+        ast_index_exp = ast_array_cell_ref_get_index(arry_cell_ref);
+        ir_index_exp =
+            sem_analyze_ast_expression_to_ir(compile_status,
+                                             symbols,
+                                             ast_index_exp);
+
+        lvalue =
+          IR_LVALUE(ir_array_cell_ref_new(ast_variable_ref_get_name(target),
+                                          ir_index_exp));
+    }
+    else if (XDP_IS_AST_VARIABLE_REF(target))
+    {
+        lvalue = IR_LVALUE(ir_scalar_new(ast_variable_ref_get_name(target)));
+    }
+    else
+    {
+        /* unexpected lvalue type */
+        assert(false);
+    }
 
     ir_value =
         sem_analyze_ast_expression_to_ir(compile_status,
                                          symbols,
                                          value);
 
-    return IR_STATMENT(ir_assigment_new(target, ir_value));
+    return IR_STATMENT(ir_assigment_new(lvalue, ir_value));
 }
 
 /**
@@ -440,29 +472,11 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
     else if (XDP_IS_AST_VARIABLE_REF(ast_expression))
     {
         AstVariableRef *var_ref;
-        IrSymbol *var_symb;
         IrExpression *ir_expression;
+        char *var_name;
 
-        /*
-         * look-up the variable in the symbol table
-         */
         var_ref = XDP_AST_VARIABLE_REF(ast_expression);
-        var_symb = sym_table_get_symbol(symbols,
-                                        ast_variable_ref_get_name(var_ref));
-        if (var_symb == NULL) 
-        {
-            compile_error(compile_status, 
-                          "reference to unknow symbol '%s'\n",
-                          ast_variable_ref_get_name(var_ref));
-            return NULL;
-
-        }
-        else if (!IR_IS_VARIABLE(var_symb))
-        {
-            compile_error(compile_status,
-                          "return expression symbol must be a variable\n");
-            return NULL;
-        }
+        var_name = ast_variable_ref_get_name(var_ref);
 
         if (XDP_IS_AST_ARRAY_CELL_REF(var_ref))
         {
@@ -481,13 +495,13 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                                  ast_index_exp);
             /* create IR array cell ref */
             ir_expression =
-                IR_EXPRESSION(ir_array_cell_ref_new(IR_VARIABLE(var_symb),
+                IR_EXPRESSION(ir_array_cell_ref_new(var_name,
                                                     ir_index_exp));
                                               
         }
         else if (XDP_IS_AST_VARIABLE_REF(var_ref))
         {
-            ir_expression = IR_EXPRESSION(var_symb);
+            ir_expression = IR_EXPRESSION(ir_scalar_new(var_name));
         }
 
         return ir_expression;

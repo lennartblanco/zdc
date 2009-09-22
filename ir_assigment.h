@@ -4,7 +4,7 @@
 #include "ast_variable_ref.h"
 #include "ir_statment.h"
 #include "ir_expression.h"
-#include "ir_variable.h"
+#include "ir_lvalue.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -32,8 +32,7 @@ typedef struct
     IrStatment          parent;
 
     /* private */
-    AstVariableRef     *target_ref;
-    IrVariable         *target;
+    IrLvalue           *lvalue;
     IrExpression       *value;
 } IrAssigment;
 
@@ -50,17 +49,14 @@ GType
 ir_assigment_get_type(void);
 
 IrAssigment *
-ir_assigment_new(AstVariableRef *target_ref,
+ir_assigment_new(IrLvalue *lvalue,
                  IrExpression *value);
 
-AstVariableRef *
-ir_assigment_get_target_ref(IrAssigment *self);
+IrLvalue *
+ir_assigment_get_lvalue(IrAssigment *self);
 
 void
-ir_assigment_set_target(IrAssigment *self, IrVariable *target);
-
-IrVariable *
-ir_assigment_get_target(IrAssigment *self);
+ir_assigment_set_lvalue(IrAssigment *self, IrLvalue *lvalue);
 
 IrExpression *
 ir_assigment_get_value(IrAssigment *self);

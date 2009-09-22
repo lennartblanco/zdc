@@ -18,6 +18,6 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o types.o        \
         ir_int_constant.o ir_binary_operation.o ir_unary_operation.o          \
         ir_bool_constant.o ir_cast.o ir_compile_unit.o ir_if_else.o           \
         ir_if_block.o ir_while.o ir_foreach.o ir_expression.o ir_return.o     \
-        ir_function_call.o ir_assigment.o ir_array_literal.o                  \
-        ir_array_cell_ref.o                                                   \
+        ir_function_call.o ir_assigment.o ir_array_literal.o ir_lvalue.o      \
+        ir_array_cell_ref.o ir_scalar.o                                       \
         $(X86_TRGT_OBJS) $(JAVA_TRGT_OBJS)

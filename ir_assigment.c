@@ -32,53 +32,39 @@ ir_assigment_get_type(void)
 }
 
 IrAssigment *
-ir_assigment_new(AstVariableRef *target_ref,
+ir_assigment_new(IrLvalue *lvalue,
                  IrExpression *value)
 {
     IrAssigment *obj;
 
     obj = g_object_new(IR_TYPE_ASSIGMENT, NULL);
 
-    obj->target_ref = target_ref;
-    obj->target = NULL;
+    obj->lvalue = lvalue;
     obj->value = value;
 
     return obj;
 }
 
-AstVariableRef *
-ir_assigment_get_target_ref(IrAssigment *self)
+IrLvalue *
+ir_assigment_get_lvalue(IrAssigment *self)
 {
-    assert(self);
     assert(IR_IS_ASSIGMENT(self));
 
-    return self->target_ref;
-}
-
-IrVariable *
-ir_assigment_get_target(IrAssigment *self)
-{
-    assert(self);
-    assert(IR_IS_ASSIGMENT(self));
-
-    return self->target;
+    return self->lvalue;
 }
 
 void
-ir_assigment_set_target(IrAssigment *self, IrVariable *target)
+ir_assigment_set_lvalue(IrAssigment *self, IrLvalue *lvalue)
 {
-    assert(self);
     assert(IR_IS_ASSIGMENT(self));
-    assert(target);
-    assert(IR_IS_VARIABLE(target));
+    assert(IR_IS_LVALUE(lvalue));
 
-    self->target = target;
+    self->lvalue = lvalue;
 }
 
 IrExpression *
 ir_assigment_get_value(IrAssigment *self)
 {
-    assert(self);
     assert(IR_IS_ASSIGMENT(self));
 
     return self->value;

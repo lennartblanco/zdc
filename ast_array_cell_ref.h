@@ -47,6 +47,9 @@ ast_array_cell_ref_get_type(void);
 AstArrayCellRef *
 ast_array_cell_ref_new(char *name, AstExpression *index);
 
+char *
+ast_array_cell_ref_get_name(AstArrayCellRef *self);
+
 AstExpression *
 ast_array_cell_ref_get_index(AstArrayCellRef *self);
 

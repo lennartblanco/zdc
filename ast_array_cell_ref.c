@@ -57,7 +57,6 @@ ast_array_cell_ref_new(char *name, AstExpression *index)
 AstExpression *
 ast_array_cell_ref_get_index(AstArrayCellRef *self)
 {
-    assert(self);
     assert(XDP_IS_AST_ARRAY_CELL_REF(self));
 
     return self->index;

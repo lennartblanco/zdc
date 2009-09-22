@@ -3,6 +3,8 @@
 #include "sem_analyze_validate.h"
 #include "types.h"
 #include "ast_basic_type.h"
+#include "ast_array_cell_ref.h"
+#include "ir_scalar.h"
 #include "ir_function.h"
 #include "ir_assigment.h"
 #include "ir_function_call.h"
@@ -102,6 +104,11 @@ static void
 validate_array_literal(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
                        IrArrayLiteral *array_literal);
+
+static IrExpression *
+validate_scalar(compilation_status_t *compile_status,
+                sym_table_t *sym_table,
+                IrScalar *scalar);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -381,15 +388,48 @@ validate_unary_op(compilation_status_t *compile_status,
     return IR_EXPRESSION(operation);
 }
 
-static void
+static IrExpression *
 validate_array_cell_ref(compilation_status_t *compile_status,
                         sym_table_t *sym_table,
                         IrArrayCellRef *cell_ref)
 {
     IrExpression *idx_exp;
+    IrSymbol *array_symb;
+    AstDataType *symb_type;
 
     /*
-     * valida array index expression
+     * look-up the array in the symbol table
+     */
+    array_symb = sym_table_get_symbol(sym_table,
+                                      ir_array_cell_get_name(cell_ref));
+    if (array_symb == NULL) 
+    {
+        compile_error(compile_status, 
+                      "reference to unknow array symbol '%s'\n",
+                      ir_array_cell_get_name(cell_ref));
+        return NULL;
+    }
+    else if (!IR_IS_VARIABLE(array_symb))
+    {
+        compile_error(compile_status,
+                      "unexpected reference to non variable\n");
+        return NULL;
+    }
+
+    /* 
+     * check that referenced symbol is an static array variable
+     */
+    symb_type = ir_variable_get_data_type(IR_VARIABLE(array_symb));
+    if (!XDP_IS_AST_STATIC_ARRAY_TYPE(symb_type))
+    {
+        compile_error(compile_status,
+                      "array element expression over non array\n");
+        return NULL;
+    }
+    ir_array_cell_ref_set_symbol(cell_ref, IR_VARIABLE(array_symb));
+
+    /*
+     * validate array index expression
      */
     idx_exp = ir_array_cell_ref_get_index(cell_ref);
     idx_exp = validate_expression(compile_status,
@@ -403,10 +443,12 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     if (idx_exp == NULL)
     {
         compile_error(compile_status, "illegal index expression type\n");
-        return;
+        return NULL;
     }
 
     ir_array_cell_ref_set_index(cell_ref, idx_exp);
+
+    return IR_EXPRESSION(cell_ref);
 }
 
 static IrExpression *
@@ -436,15 +478,23 @@ validate_expression(compilation_status_t *compile_status,
     }
     else if (IR_IS_ARRAY_CELL_REF(expression))
     {
-        validate_array_cell_ref(compile_status,
-                                sym_table,
-                                IR_ARRAY_CELL_REF(expression));
+        expression =
+            validate_array_cell_ref(compile_status,
+                                    sym_table,
+                                    IR_ARRAY_CELL_REF(expression));
     }
     else if (IR_IS_ARRAY_LITERAL(expression))
     {
         validate_array_literal(compile_status,
                                sym_table,
                                IR_ARRAY_LITERAL(expression));
+    }
+    else if (IR_IS_SCALAR(expression))
+    {
+        expression =
+            validate_scalar(compile_status,
+                            sym_table,
+                            IR_SCALAR(expression));
     }
 
     return expression;
@@ -472,46 +522,75 @@ validate_assigment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
                    IrAssigment *assigment)
 {
-    AstVariableRef *target;
+    IrLvalue *lvalue;
     IrExpression *value;
-    IrSymbol *target_sym;
+    IrSymbol *lvalue_sym;
     AstDataType *target_type;
 
-    target = ir_assigment_get_target_ref(assigment);
+    /*
+     * look-up and validate lvalue symbol name
+     */
+    lvalue = ir_assigment_get_lvalue(assigment);
 
-    target_sym =
-        sym_table_get_symbol(sym_table, ast_variable_ref_get_name(target));
-    if (target_sym == NULL)
+    lvalue_sym =
+        sym_table_get_symbol(sym_table, ir_lvalue_get_name(lvalue));
+    if (lvalue_sym == NULL)
     {
         compile_error(compile_status,
-                      "'%s' undeclared\n",
-                      ast_variable_ref_get_name(target));
+                      "undefined identifier '%s'\n",
+                      ir_lvalue_get_name(lvalue));
         return;
     }
-    if (!IR_IS_VARIABLE(target_sym))
+    if (!IR_IS_VARIABLE(lvalue_sym))
     {
         compile_error(compile_status,
                       "can not assign value to '%s', not a variable\n",
-                      ast_variable_ref_get_name(target));
+                      ir_lvalue_get_name(lvalue));
         return;
     }
 
+    if (IR_IS_ARRAY_CELL_REF(lvalue))
+    {
+        ir_array_cell_ref_set_symbol(IR_ARRAY_CELL_REF(lvalue),
+                                     IR_VARIABLE(lvalue_sym));
+    }
+    else if (IR_IS_SCALAR(lvalue))
+    {
+        ir_scalar_set_variable(IR_SCALAR(lvalue),
+                               IR_VARIABLE(lvalue_sym));
+    }
+    else
+    {
+        /* unexpected target type */
+        assert(false);
+    }
+
+    /*
+     * validate assigment right value
+     */
     value = ir_assigment_get_value(assigment);
     value = validate_expression(compile_status, sym_table, value);
+    if (value == NULL)
+    {
+        compile_error(compile_status,
+                      "invalid assigment expression\n");
+        return;
+    }
 
-
-    target_type = ir_expression_get_data_type(IR_EXPRESSION(target_sym));
+    /*
+     * check that lvalue and assign expression have compatible data types
+     */
+    target_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
 
     value = types_implicit_conv(target_type, value);
     if (value == NULL)
     {
         compile_error(compile_status,
                       "incompatible types in assigment to '%s'\n",
-                      ast_variable_ref_get_name(target));
+                      ir_lvalue_get_name(lvalue));
         return;
     }
 
-    ir_assigment_set_target(assigment, IR_VARIABLE(target_sym));
     ir_assigment_set_value(assigment, value);
 }
 
@@ -668,6 +747,15 @@ validate_code_block(compilation_status_t *compile_status,
         initializer = 
             validate_expression(compile_status, sym_table, initializer);
 
+        if (initializer == NULL)
+        {
+            /* 
+             * initializer expression was invalid,
+             * skip to next variable
+             */
+            continue;
+        }
+
         initializer =
             types_implicit_conv(ir_variable_get_data_type(var), initializer);
 
@@ -675,7 +763,7 @@ validate_code_block(compilation_status_t *compile_status,
         {
             compile_error(compile_status,
                           "illegal type in initializer assigment\n");
-            return;
+            continue;
         }
     }
     g_list_free(locals);
@@ -778,6 +866,37 @@ validate_array_literal(compilation_status_t *compile_status,
 
     ir_array_literal_set_values(array_literal, 
                                 g_slist_reverse(validated_values));
+}
+
+static IrExpression *
+validate_scalar(compilation_status_t *compile_status,
+                sym_table_t *sym_table,
+                IrScalar *scalar)
+{
+    IrSymbol *scalar_symb;
+
+    /*
+     * look-up the variable in the symbol table
+     */
+    scalar_symb = sym_table_get_symbol(sym_table,
+                                       ir_scalar_get_variable_name(scalar));
+    if (scalar_symb == NULL) 
+    {
+        compile_error(compile_status, 
+                      "reference to unknow symbol '%s'\n",
+                      ir_scalar_get_variable_name(scalar));
+        return NULL;
+    }
+    else if (!IR_IS_VARIABLE(scalar_symb))
+    {
+        compile_error(compile_status,
+                      "unexpected reference to non variable\n");
+        return NULL;
+    }
+
+    ir_scalar_set_variable(scalar, IR_VARIABLE(scalar_symb));
+
+    return IR_EXPRESSION(scalar);
 }
 
 /*---------------------------------------------------------------------------*

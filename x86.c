@@ -18,6 +18,7 @@
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_scalar.h"
 #include "ir_variable.h"
 #include "ir_return.h"
 #include "ir_function_call.h"
@@ -93,13 +94,23 @@ x86_compile_conditional_op(x86_comp_params_t *params,
                            sym_table_t *sym_table);
 
 static void
-x86_compile_variable_ref(x86_comp_params_t *params,
-                         IrVariable *var);
+x86_compile_scalar(x86_comp_params_t *params,
+                   IrScalar *scalar);
 
 void
 x86_compile_expression(x86_comp_params_t *params,
                        IrExpression *expression,
                        sym_table_t *sym_table);
+
+static void
+x86_compile_assigment(x86_comp_params_t *params,
+                      IrAssigment *assigment,
+                      sym_table_t *sym_table);
+
+static void
+x86_gen_array_cell_assigment(x86_comp_params_t *params,
+                             IrArrayCellRef *array_cell_ref,
+                             sym_table_t *sym_table);
 
 /**
  * Generate code to pop 32-bit value off the stack and
@@ -214,10 +225,15 @@ x86_compile_expression(x86_comp_params_t *params,
                               IR_BINARY_OPERATION(expression),
                               sym_table);
     }
-    else if (IR_IS_VARIABLE(expression))
+    else if (IR_IS_ARRAY_CELL_REF(expression))
     {
-        x86_compile_variable_ref(params,
-                                 IR_VARIABLE(expression));
+        x86_compile_array_cell_ref(params,
+                                   IR_ARRAY_CELL_REF(expression),
+                                   sym_table);
+    }
+    else if (IR_IS_SCALAR(expression))
+    {
+        x86_compile_scalar(params, IR_SCALAR(expression));
     }
     else if (IR_IS_FUNCTION_CALL(expression))
     {
@@ -225,12 +241,6 @@ x86_compile_expression(x86_comp_params_t *params,
                               IR_FUNCTION_CALL(expression),
                               sym_table,
                               true);
-    }
-    else if (IR_IS_ARRAY_CELL_REF(expression))
-    {
-        x86_compile_array_cell_ref(params,
-                                   IR_ARRAY_CELL_REF(expression),
-                                   sym_table);
     }
     else if (IR_IS_CAST(expression))
     {
@@ -299,10 +309,11 @@ x86_compile_code_block(x86_comp_params_t *params,
         else if (IR_IS_ASSIGMENT(statment))
         {
             IrAssigment *assig = IR_ASSIGMENT(statment);
-            x86_gen_variable_assigment(params, 
-                                       ir_assigment_get_target(assig),
-                                       ir_assigment_get_value(assig),
-                                       locals);
+            x86_compile_assigment(params, assig, locals);
+//            x86_gen_variable_assigment(params, 
+//                                       ir_assigment_get_lvalue(assig),
+//                                       ir_assigment_get_value(assig),
+//                                       locals);
         }
         else if (IR_IS_CODE_BLOCK(statment))
         {
@@ -657,6 +668,54 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
     x86_gen_store_value(params,
                         x86_frame_offset_get_offset(addr),
                         x86_get_variable_storage_size(variable));
+}
+
+static void
+x86_gen_array_cell_assigment(x86_comp_params_t *params,
+                             IrArrayCellRef *array_cell_ref,
+                             sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ARRAY_CELL_REF(array_cell_ref));
+    assert(sym_table);
+
+    fprintf(params->out,
+            "# array cell assigment\n");
+/* not implemented */
+    assert(false);
+}
+
+static void
+x86_compile_assigment(x86_comp_params_t *params,
+                      IrAssigment *assigment,
+                      sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+
+    IrLvalue *lvalue;
+
+    lvalue = ir_assigment_get_lvalue(assigment);
+
+    if (IR_IS_SCALAR(lvalue))
+    {
+        x86_gen_variable_assigment(params,
+                                   ir_scalar_get_variable(IR_SCALAR(lvalue)),
+                                   ir_assigment_get_value(assigment),
+                                   sym_table);
+    }
+    else if (IR_IS_ARRAY_CELL_REF(lvalue))
+    {
+        x86_gen_array_cell_assigment(params,
+                                     IR_ARRAY_CELL_REF(lvalue),
+                                     sym_table);
+    }
+    else
+    {
+        /* unexpected lvalue type */
+        assert(false);
+    }
 }
 
 static void
@@ -1033,11 +1092,13 @@ x86_compile_binary_op(x86_comp_params_t *params,
 }
 
 static void
-x86_compile_variable_ref(x86_comp_params_t *params,
-                         IrVariable *var)
+x86_compile_scalar(x86_comp_params_t *params,
+                   IrScalar *scalar)
 {
+    IrVariable *var;
     X86FrameOffset *addr;
 
+    var = ir_scalar_get_variable(scalar);
     addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
 
     /* generate code to put the value of the variable on top of the stack */

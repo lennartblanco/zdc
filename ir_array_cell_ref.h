@@ -1,6 +1,7 @@
 #ifndef IR_ARRAY_CELL_REF_INC_X
 #define IR_ARRAY_CELL_REF_INC_X
 
+#include "ir_lvalue.h"
 #include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
@@ -26,17 +27,17 @@
 
 typedef struct
 {
-    IrExpression parent;
+    IrLvalue parent;
 
     /* private */
-    IrVariable   *symbol;
+    IrVariable   *array_symbol;
     IrExpression *index;
     AstDataType  *data_type;
 } IrArrayCellRef;
 
 typedef struct
 {
-    IrExpressionClass parent_class;
+    IrLvalueClass parent_class;
 } IrArrayCellRefClass;
 
 /*---------------------------------------------------------------------------*
@@ -47,11 +48,29 @@ GType
 ir_array_cell_ref_get_type(void);
 
 IrArrayCellRef *
-ir_array_cell_ref_new(IrVariable *symbol, IrExpression *index);
+ir_array_cell_ref_new(char *array_name, IrExpression *index);
 
+/**
+ * get array name
+ */
+char *
+ir_array_cell_get_name(IrArrayCellRef *self);
+
+/**
+ * set array symbol
+ */
+void
+ir_array_cell_ref_set_symbol(IrArrayCellRef *self, IrVariable *array_symbol);
+
+/**
+ * get array symbol
+ */
 IrVariable *
 ir_array_cell_ref_get_symbol(IrArrayCellRef *self);
 
+/**
+ * get array index expression
+ */
 IrExpression *
 ir_array_cell_ref_get_index(IrArrayCellRef *self);
 

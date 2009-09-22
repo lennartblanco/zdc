@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <string.h>
 
 #include "ir_array_cell_ref.h"
 #include "ast_basic_type.h"
@@ -38,7 +39,7 @@ ir_array_cell_ref_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_EXPRESSION,
+      type = g_type_register_static(IR_TYPE_LVALUE,
                                     "IrArrayCellRefType",
                                     &info, 0);
     }
@@ -46,27 +47,49 @@ ir_array_cell_ref_get_type(void)
 }
 
 IrArrayCellRef *
-ir_array_cell_ref_new(IrVariable *array, IrExpression *index)
+ir_array_cell_ref_new(char *array_name, IrExpression *index)
 {
-    assert(IR_IS_VARIABLE(array));
+    assert(array_name);
     assert(IR_IS_EXPRESSION(index));
 
     IrArrayCellRef *obj;
 
-    obj = g_object_new(IR_TYPE_ARRAY_CELL_REF, NULL);
-    obj->symbol = array;
+    obj = g_object_new(IR_TYPE_ARRAY_CELL_REF, 
+                       "ir-lvalue-symbol-name", array_name,
+                       NULL);
+
+    obj->array_symbol = NULL;
     obj->index = index;
     obj->data_type = NULL;
 
     return obj;
 }
 
+char *
+ir_array_cell_get_name(IrArrayCellRef *self)
+{
+    assert(IR_IS_ARRAY_CELL_REF(self));
+
+    return ir_lvalue_get_name(IR_LVALUE(self));
+}
+
+void
+ir_array_cell_ref_set_symbol(IrArrayCellRef *self, IrVariable *array_symbol)
+{
+    assert(IR_IS_ARRAY_CELL_REF(self));
+    assert(IR_VARIABLE(array_symbol));
+
+    self->array_symbol = array_symbol;
+    self->data_type = NULL;
+}
+
 IrVariable *
 ir_array_cell_ref_get_symbol(IrArrayCellRef *self)
 {
     assert(IR_IS_ARRAY_CELL_REF(self));
+    assert(IR_VARIABLE(self->array_symbol));
 
-    return self->symbol;
+    return self->array_symbol;
 }
 
 IrExpression *
@@ -110,7 +133,7 @@ ir_array_cell_ref_do_get_data_type(IrExpression *self)
         basic_data_type_t array_basic_type;
 
         array_data_type =
-            XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->symbol));
+            XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->array_symbol));
         array_basic_type = ast_static_array_type_get_data_type(array_data_type);
 
         cell->data_type =
