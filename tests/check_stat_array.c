@@ -64,6 +64,20 @@ call_init_exp_tst(int in)
    return res;
 }
 
+int
+call_intops(int arg1, int arg2)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call intops\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -101,6 +115,9 @@ main()
     check_int("init_exp_tst(2)", call_init_exp_tst(2), (2 + 2 - 15) * 2);
     check_int("init_exp_tst(2)", call_init_exp_tst(100), (100 + 2 - 15) * 100);
 
+    /* intops() tests */
+    check_int("intops(3, 1)", call_intops(3, 1), 3 + 20 + 30 + 20);
+    check_int("intops(-12, 2)", call_intops(-12, 2), -12 + 20 + 30 + 30);
 
     check_exit();
 }

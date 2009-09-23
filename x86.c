@@ -109,7 +109,7 @@ x86_compile_assigment(x86_comp_params_t *params,
 
 static void
 x86_gen_array_cell_assigment(x86_comp_params_t *params,
-                             IrArrayCellRef *array_cell_ref,
+                             IrAssigment *assigment,
                              sym_table_t *sym_table);
 
 /**
@@ -671,21 +671,6 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
 }
 
 static void
-x86_gen_array_cell_assigment(x86_comp_params_t *params,
-                             IrArrayCellRef *array_cell_ref,
-                             sym_table_t *sym_table)
-{
-    assert(params);
-    assert(IR_IS_ARRAY_CELL_REF(array_cell_ref));
-    assert(sym_table);
-
-    fprintf(params->out,
-            "# array cell assigment\n");
-/* not implemented */
-    assert(false);
-}
-
-static void
 x86_compile_assigment(x86_comp_params_t *params,
                       IrAssigment *assigment,
                       sym_table_t *sym_table)
@@ -707,9 +692,7 @@ x86_compile_assigment(x86_comp_params_t *params,
     }
     else if (IR_IS_ARRAY_CELL_REF(lvalue))
     {
-        x86_gen_array_cell_assigment(params,
-                                     IR_ARRAY_CELL_REF(lvalue),
-                                     sym_table);
+        x86_gen_array_cell_assigment(params, assigment, sym_table);
     }
     else
     {
@@ -889,6 +872,72 @@ x86_compile_array_cell_ref(x86_comp_params_t *params,
             /* unexpected storage size */
             assert(false);
     }              
+}
+
+static void
+x86_gen_array_cell_assigment(x86_comp_params_t *params,
+                             IrAssigment *assigment,
+                             sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+
+    IrArrayCellRef *array_cell;
+    AstDataType *cell_type;
+    int storage_size;
+    X86FrameOffset *array_loc;
+    IrVariable *variable;
+
+    fprintf(params->out,
+            "# array cell assigment\n");
+
+    /* compile code to evaluate right value */
+    x86_compile_expression(params,
+                           ir_assigment_get_value(assigment),
+                           sym_table);
+
+    /* compile code to evaluate array index expression */
+    array_cell = IR_ARRAY_CELL_REF(ir_assigment_get_lvalue(assigment));
+    x86_compile_expression(params,
+                           ir_array_cell_ref_get_index(array_cell),
+                           sym_table);
+
+    cell_type =
+        ir_expression_get_data_type(IR_EXPRESSION(array_cell));
+
+    /* only arrays of basic data types implemented */
+    assert(XDP_IS_AST_BASIC_TYPE(cell_type));
+
+    variable = ir_array_cell_ref_get_symbol(array_cell);
+    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
+
+    storage_size =
+       types_get_storage_size(
+            ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(cell_type)));
+
+    fprintf(params->out,
+            "    popl %%eax # store array index in eax\n"
+            "    popl %%ebx # store right value in ebx\n");
+
+    switch (storage_size)
+    {
+        case 4:
+            fprintf(params->out,
+                    "   # store 32-bit array element\n"
+                    "    movl %%ebx, %d(%%ebp, %%eax, 4)\n",
+                    x86_frame_offset_get_offset(array_loc));
+            break;
+        case 1:
+            fprintf(params->out,
+                    "   # store 8-bit array element\n"
+                    "    movb  %%bl, %d(%%ebp, %%eax, 1)\n",
+                    x86_frame_offset_get_offset(array_loc));
+            break;
+        default:
+            /* unexpected storage size */
+            assert(false);
+    }    
 }
 
 static void

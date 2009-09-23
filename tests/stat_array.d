@@ -44,20 +44,20 @@ int init_exp_tst(int l)
     return (a[0] + a[1] - m) * l;
 }
 
-//int intops(int val, int index)
-//{
-//    // operations on integer array
-//    int[3] arr;
-//    int sum;
+int intops(int val, int index)
+{
+    // operations on integer array
+    int[3] arr;
+    int sum;
 
-//    arr[0] = val;
-//    arr[1] = 20;
-//    arr[2] = 30;
+    arr[0] = val;
+    arr[1] = 20;
+    arr[2] = 30;
 
-//    sum = arr[0] + arr[1] + arr[2];
+    sum = arr[0] + arr[1] + arr[2];
 
-//    return sum + arr[index];
-//}
+    return sum + arr[index];
+}
 
 //bool boolops(bool a, bool b, bool c, int index)
 //{
