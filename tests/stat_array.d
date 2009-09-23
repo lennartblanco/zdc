@@ -59,26 +59,25 @@ int intops(int val, int index)
     return sum + arr[index];
 }
 
-//bool boolops(bool a, bool b, bool c, int index)
-//{
-//    // operation on boolean array
-//    bool[4] l;
-//    l[0] = true;
-//    l[1] = a;
-//    l[2] = b;
-//    l[3] = c;
+bool boolops(bool a, bool b, bool c, int index)
+{
+    // operation on boolean array
+    bool[4] l;
+    l[0] = true;
+    l[1] = a;
+    l[2] = b;
+    l[3] = c;
 
-//    return l[0] && l[index];
-//}
+    return l[0] && l[index];
+}
 
-//// equivalent to boolops() but in different code style
-//bool boolops2(bool a, bool b, bool c, int index)
-//{
-//    bool[4] l = [true, a, b, c];
+// equivalent to boolops() but in different code style
+bool boolops2(bool a, bool b, bool c, int index)
+{
+    bool[4] l = [true, a, b, c];
 
-//    return l[0] && l[index];
-//}
-
+    return l[0] && l[index];
+}
 
 //// test array constant assigment to the shorthand array slice (foo[])
 //int slice_assig_sum()

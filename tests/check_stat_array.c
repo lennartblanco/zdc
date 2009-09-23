@@ -79,6 +79,44 @@ call_intops(int arg1, int arg2)
    return res;
 }
 
+bool
+call_boolops(bool arg1, bool arg2, bool arg3, int arg4)
+{
+   bool res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    pushl %[arg3]\n"
+        "    movl %[arg4], %%eax\n"
+        "    call boolops\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3),
+          [arg4]"m"(arg4));
+
+   return res;
+}
+
+bool
+call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
+{
+   bool res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    pushl %[arg3]\n"
+        "    movl %[arg4], %%eax\n"
+        "    call boolops2\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3),
+          [arg4]"m"(arg4));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -118,6 +156,24 @@ main()
     /* intops() tests */
     check_int("intops(3, 1)", call_intops(3, 1), 3 + 20 + 30 + 20);
     check_int("intops(-12, 2)", call_intops(-12, 2), -12 + 20 + 30 + 30);
+
+    /* boolops() tests */
+    check_bool("boolops(true, true, false, 2)",
+               call_boolops(true, true, false, 2),
+               true && true);
+
+    check_bool("boolops(false, true, false, 1)",
+               call_boolops(false, true, false, 1),
+               true && false);
+
+    /* boolops2() tests */
+    check_bool("boolops2(true, true, false, 2)",
+               call_boolops2(true, true, false, 2),
+               true && true);
+
+    check_bool("boolops2(false, true, false, 1)",
+               call_boolops2(false, true, false, 1),
+               true && false);
 
     check_exit();
 }
