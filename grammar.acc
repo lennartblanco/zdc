@@ -34,20 +34,20 @@ AstCompileUnit *compile_unit;
        
 
 root :
-   {
-       compile_unit = ast_compile_unit_new();
-   }
-   comp_unit
+    {
+        compile_unit = ast_compile_unit_new();
+    }
+    comp_unit
 ;
 
 null :
 ;
 
 comp_unit :
-  {
-       n.compile_unit = compile_unit;
-  }
-  ( declaration<n> )*
+    {
+        n.compile_unit = compile_unit;
+    }
+    ( declaration<n> )*
 | null;
 
 declaration<n> :
@@ -97,26 +97,25 @@ linkage_attribute<linkage> :
 ;
 
 func_def_list<unit> :
-  func_def_list<unit>  func_def<func>
-  {
+    func_def_list<unit>  func_def<func>
+    {
         ast_compile_unit_add_function_def((*unit).compile_unit,
                                           func.function_def);
-  }
+    }
 | null
 ;
 
 func_def<x> :
-  {
-      args.list = NULL;
-  }
-  type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
-  {
-      (*x).function_def = 
-          ast_function_def_new(name.text,
-                               args.list,
-                               t.data_type,
-                               code.code_block);
-  }
+    {
+        args.list = NULL;
+    }
+    type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
+    {
+        (*x).function_def = ast_function_def_new(name.text,
+                                                 args.list,
+                                                 t.data_type,
+                                                 code.code_block);
+    }
 ;
 
 func_params<params> :
@@ -201,7 +200,7 @@ scope_block_statment<x> :
 ;
 
 expression_statment<stmt> :
-     expression<stmt> ';'
+    expression<stmt> ';'
 ;
 
 type<x> :
@@ -469,116 +468,116 @@ eq_expression<n> :
 ;
 
 rel_expression<n> :
-  add_expression<l> '<' add_expression<r> 
-  { 
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
-                                                      l.expression,
-                                                      r.expression));
-  }
-| add_expression<l> '>' add_expression<r> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
-                                                      l.expression,
-                                                      r.expression)); 
-  }
-| add_expression<l> '<''=' add_expression<r> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
-                                                      l.expression,
-                                                      r.expression)); 
-  }
-| add_expression<l> '>''=' add_expression<r> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
-                                                      l.expression,
-                                                      r.expression)); 
-  }
-| add_expression<n>
+    add_expression<l> '<' add_expression<r> 
+    { 
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
+                                                        l.expression,
+                                                        r.expression));
+    }
+|   add_expression<l> '>' add_expression<r> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
+                                                        l.expression,
+                                                        r.expression)); 
+    }
+|   add_expression<l> '<''=' add_expression<r> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
+                                                        l.expression,
+                                                        r.expression)); 
+    }
+|   add_expression<l> '>''=' add_expression<r> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
+                                                        l.expression,
+                                                        r.expression)); 
+    }
+|   add_expression<n>
 ;
 
 add_expression<n> :
-  add_expression<l> '+' mult_expression<r> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
-                                                      l.expression,
-                                                      r.expression));
-  }
-| add_expression<l> '-' mult_expression<r>
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
-                                                      l.expression,
-                                                      r.expression));
-  }
-| mult_expression<n>
+    add_expression<l> '+' mult_expression<r> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
+                                                        l.expression,
+                                                        r.expression));
+    }
+|   add_expression<l> '-' mult_expression<r>
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
+                                                        l.expression,
+                                                        r.expression));
+    }
+|   mult_expression<n>
 ;
 
 mult_expression<n> :
-  mult_expression<l> '*' primary<r> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
-                                                      l.expression,
-                                                      r.expression));
-  }
-| mult_expression<l> '/' primary<r> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
-                                                      l.expression,
-                                                      r.expression)); 
-  }
-| primary<n>
+    mult_expression<l> '*' primary<r> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
+                                                        l.expression,
+                                                        r.expression));
+    }
+|   mult_expression<l> '/' primary<r> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
+                                                        l.expression,
+                                                        r.expression)); 
+    }
+|   primary<n>
 ;
 
 primary<n> :
-  TOK_NUMBER<x>
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_int_constant_new(x.integer));
-  }
-| TOK_TRUE
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_bool_constant_new(true));
-  }
-| TOK_FALSE
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_bool_constant_new(false));
-  }
-| TOK_IDENT<x>
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_variable_ref_new(x.text));
-  }
-| func_call<n>
-| '(' expression<n> ')'
-| '!' primary<x>
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
+    TOK_NUMBER<x>
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_int_constant_new(x.integer));
+    }
+|   TOK_TRUE
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_bool_constant_new(true));
+    }
+|   TOK_FALSE
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_bool_constant_new(false));
+    }
+|   TOK_IDENT<x>
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_variable_ref_new(x.text));
+    }
+|   func_call<n>
+|   '(' expression<n> ')'
+|   '!' primary<x>
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
                                                      x.expression)); 
-  }
-| '-' primary<x> 
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
+    }
+|   '-' primary<x> 
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
                                                      x.expression)); 
-  }
-| TOK_IDENT<name> '[' expression<i> ']'
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
+    }
+|   TOK_IDENT<name> '[' expression<i> ']'
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
                                                     i.expression));
-  }
-| array_literal<n>
-| array_slice<n>
+    }
+|   array_literal<n>
+|   array_slice<n>
 ;
 
 array_slice<n> :
@@ -597,21 +596,20 @@ array_slice<n> :
 ;
 
 array_literal<n> :
-  {
-      (*n).expression =
-          XDP_AST_EXPRESSION(ast_array_literal_new());
-  }
-  '['
-  expression<first>
-  {
-      ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
-                                  first.expression);
-  } 
-  (',' expression<nth>
-  {
-      ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
-                                  nth.expression);
-  }   
-  )* 
-  ']'
+    {
+        (*n).expression = XDP_AST_EXPRESSION(ast_array_literal_new());
+    }
+    '['
+    expression<first>
+    {
+        ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
+                                    first.expression);
+    } 
+    (',' expression<nth>
+    {
+        ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
+                                    nth.expression);
+    }   
+    )* 
+    ']'
 ;
