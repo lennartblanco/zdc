@@ -42,34 +42,43 @@ ast_compile_unit_get_type(void)
 }
 
 AstCompileUnit*
-ast_compile_unit_new (void)
+ast_compile_unit_new(void)
 {
     AstCompileUnit *node;
 
     node = g_object_new(XDP_TYPE_AST_COMPILE_UNIT, NULL);
-    node->functions = NULL;
+    node->function_defs = NULL;
+    node->function_decls = NULL;
 
     return node;
 }
 
 void
-ast_compile_unit_add_function(AstCompileUnit *self,
-                              AstFunction *function)
+ast_compile_unit_add_function_decl(AstCompileUnit *self,
+                                   AstFunctionDecl *function_decl)
 {
-    assert(self);
     assert(XDP_IS_AST_COMPILE_UNIT(self));
-    assert(function);
+    assert(XDP_IS_AST_FUNCTION_DECL(function_decl));
 
-    self->functions = g_slist_append(self->functions, function);
+    self->function_decls = g_slist_append(self->function_decls, function_decl);
+}
+
+void
+ast_compile_unit_add_function_def(AstCompileUnit *self,
+                                  AstFunctionDef *function_def)
+{
+    assert(XDP_IS_AST_COMPILE_UNIT(self));
+    assert(XDP_IS_AST_FUNCTION_DEF(function_def));
+
+    self->function_defs = g_slist_append(self->function_defs, function_def);
 }
 
 GSList *
-ast_compile_unit_get_functions(AstCompileUnit *self)
+ast_compile_unit_get_function_defs(AstCompileUnit *self)
 {
-    assert(self);
     assert(XDP_IS_AST_COMPILE_UNIT(self));
 
-    return self->functions;
+    return self->function_defs;
 }
 
 /*---------------------------------------------------------------------------*
@@ -80,14 +89,20 @@ static void
 ast_compile_unit_do_print(AstNode *self, FILE *out)
 {
     assert(XDP_IS_AST_COMPILE_UNIT(self));
-    AstCompileUnit *comp_unit = (AstCompileUnit *)self;
-    fprintf(out, "compile unit [%p]\n", comp_unit);
-    GSList *p = comp_unit->functions;
 
-    while(p != NULL)
+    AstCompileUnit *comp_unit = (AstCompileUnit *)self;
+    GSList *i;
+
+    fprintf(out, "compile unit [%p]\n", comp_unit);
+
+    for (i = comp_unit->function_defs; i != NULL; i = g_slist_next(i))
     {
-        ast_node_print(XDP_AST_NODE(p->data), out);
-        p = p->next;
+        ast_node_print(XDP_AST_NODE(i->data), out);
+    }
+
+    for (i = comp_unit->function_decls; i != NULL; i = g_slist_next(i))
+    {
+        ast_node_print(XDP_AST_NODE(i->data), out);
     }
 }
 

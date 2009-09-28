@@ -1,7 +1,8 @@
 #ifndef AST_COMPILE_UNIT_INC_X
 #define AST_COMPILE_UNIT_INC_X
 
-#include "ast_function.h"
+#include "ast_function_decl.h"
+#include "ast_function_def.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -28,7 +29,8 @@ typedef struct
 {
   AstNode parent;
   /* private */
-  GSList *functions;
+  GSList *function_defs;
+  GSList *function_decls;
 } AstCompileUnit;
 
 typedef struct 
@@ -40,15 +42,19 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_compile_unit_get_type (void);
+GType ast_compile_unit_get_type(void);
 
-AstCompileUnit* ast_compile_unit_new (void);
+AstCompileUnit* ast_compile_unit_new(void);
 
 void
-ast_compile_unit_add_function(AstCompileUnit *self,
-                              AstFunction *function);
+ast_compile_unit_add_function_decl(AstCompileUnit *self,
+                                   AstFunctionDecl *function_decl);
+
+void
+ast_compile_unit_add_function_def(AstCompileUnit *self,
+                                  AstFunctionDef *function_def);
 
 GSList *
-ast_compile_unit_get_functions(AstCompileUnit *self);
+ast_compile_unit_get_function_defs(AstCompileUnit *self);
 
 #endif /* AST_COMPILE_UNIT_INC_X */

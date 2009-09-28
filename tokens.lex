@@ -36,8 +36,10 @@
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }
 "return" { return TOK_RETURN; }
+"extern" { return TOK_EXTERN; }
 "foreach" { return TOK_FOREACH; }
-[[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; } 
+("C"|"D") { yylval.text = strdup(yytext); return TOK_LINKAGE_TYPE; }
+[[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
 [0-9]+   { yylval.integer = atoi(yytext); return TOK_NUMBER; }
 " "      { /* skip blank */ }
 "//".*   { /* consume comment */ }

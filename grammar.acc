@@ -14,6 +14,7 @@
 #include "ast_bool_constant.h"
 #include "ast_array_cell_ref.h"
 #include "ast_array_slice_ref.h"
+#include "ast_function_decl.h"
 #include "ast_assigment.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
@@ -28,6 +29,7 @@ AstCompileUnit *compile_unit;
 
 %token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
+       TOK_EXTERN, TOK_LINKAGE_TYPE,
        TOK_AUTO, TOK_INT, TOK_VOID, TOK_BOOL;
        
 
@@ -45,14 +47,60 @@ comp_unit :
   {
        n.compile_unit = compile_unit;
   }
-  func_def_list<n>
+  ( declaration<n> )*
 | null;
+
+declaration<n> :
+    func_def_list<n>
+|   declaration_blocks<n>
+;
+
+declaration_blocks<unit> :
+    {
+        linkage.text = NULL;
+    }
+    declaration_block<unit, linkage>
+;
+
+declaration_block<unit, linkage> :
+    {
+        char *l = (*linkage).text;
+    }
+    ( linkage_attribute<local_linkage>
+        {
+            l = local_linkage.text;
+        }
+    )?
+    func_declaration<func>
+    {
+        ast_compile_unit_add_function_decl((*unit).compile_unit,
+                                           func.function_decl);
+        ast_function_decl_set_linkage(func.function_decl, l);
+    }
+|   linkage_attribute<l> '{' ( declaration_block<unit, l> )* '}'
+;
+
+func_declaration<func> :
+    type<t> TOK_IDENT<name> '(' func_params<args> ')' ';'
+    {
+        (*func).function_decl = ast_function_decl_new(name.text,
+                                                      args.list,
+                                                      t.data_type);
+    }
+;
+
+linkage_attribute<linkage> :
+    {
+        (*linkage).text = NULL;
+    }
+    TOK_EXTERN ( '(' TOK_LINKAGE_TYPE<linkage> ')' )?
+;
 
 func_def_list<unit> :
   func_def_list<unit>  func_def<func>
   {
-        ast_compile_unit_add_function((*unit).compile_unit,
-                                      func.function);
+        ast_compile_unit_add_function_def((*unit).compile_unit,
+                                          func.function_def);
   }
 | null
 ;
@@ -63,23 +111,28 @@ func_def<x> :
   }
   type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
   {
-      (*x).function = ast_function_new(name.text, args.list, t.data_type, code.code_block);
+      (*x).function_def = 
+          ast_function_def_new(name.text,
+                               args.list,
+                               t.data_type,
+                               code.code_block);
   }
 ;
 
 func_params<params> :
-    {
-        l.list = NULL;
-    }
     var_declaration<n> ',' func_params<l>
     {
         (*params).list = g_slist_prepend(l.list, n.variable_declaration);
     }
 |   var_declaration<n>
     {
+        (*params).list = NULL;
         (*params).list = g_slist_prepend((*params).list, n.variable_declaration);
     }
 |   null
+    {
+        (*params).list = NULL;
+    }
 ;
 
 func_body<code> :

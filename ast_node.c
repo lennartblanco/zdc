@@ -1,5 +1,7 @@
 #include "ast_node.h"
 
+#include <assert.h>
+
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -52,6 +54,9 @@ ast_node_new(void)
 void
 ast_node_print(AstNode *self, FILE *out)
 {
+    assert(XDP_IS_AST_NODE(self));
+    assert(out);
+
     XDP_AST_NODE_GET_CLASS(self)->do_print(self, out);
 }
 

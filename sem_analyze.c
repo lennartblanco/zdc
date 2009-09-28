@@ -77,6 +77,11 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
                                 sym_table_t *symbols,
                                 AstAssigment *ast_assigment);
 
+static IrFunction *
+sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
+                               AstFunctionDef *ast_func_def,
+                               sym_table_t *global_sym_table);
+
 static IrExpression *
 sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                  sym_table_t *symbols,
@@ -700,25 +705,25 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
 }
 
 /**
- * convert AST representation of a function to IR form.
+ * convert AST representation of a function definition to IR form.
  */
 static IrFunction *
-sem_analyze_ast_func_to_ir(compilation_status_t *compile_status,
-                           AstFunction *ast_func,
-                           sym_table_t *global_sym_table)
+sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
+                               AstFunctionDef *ast_func_def,
+                               sym_table_t *global_sym_table)
 {
     IrFunction *ir_func;
 
     ir_func = 
-        ir_function_new(ast_function_get_return_type(ast_func),
-                        ast_function_get_name(ast_func),
-                        ast_function_get_parameters(ast_func),
+        ir_function_new(ast_function_def_get_return_type(ast_func_def),
+                        ast_function_def_get_name(ast_func_def),
+                        ast_function_def_get_parameters(ast_func_def),
                         global_sym_table);
 
 
     /* convert function body to ir format */
     sem_analyze_ast_code_block_to_ir(compile_status,
-                                     ast_function_get_body(ast_func),
+                                     ast_function_def_get_body(ast_func_def),
                                      ir_function_get_body(ir_func));
 
     return ir_func;
@@ -737,12 +742,13 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
 
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
 
-    ptr = ast_compile_unit_get_functions(ast_compile_unit);
+    ptr = ast_compile_unit_get_function_defs(ast_compile_unit);
     for (;ptr != NULL; ptr = ptr->next)
     {
-        ir_func = sem_analyze_ast_func_to_ir(compile_status,
-                                             XDP_AST_FUNCTION(ptr->data),
-                                             global_sym_table);
+        ir_func =
+            sem_analyze_ast_func_def_to_ir(compile_status,
+                                           XDP_AST_FUNCTION_DEF(ptr->data),
+                                           global_sym_table);
         ir_compile_unit_add_function(comp_unit, ir_func);
     }
 

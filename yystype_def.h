@@ -14,7 +14,8 @@ union yystype_u
     basic_data_type_t          basic_data_type;
     AstCompileUnit             *compile_unit;
     AstCodeBlock               *code_block;
-    AstFunction                *function;
+    AstFunctionDecl            *function_decl;
+    AstFunctionDef             *function_def;
     AstStatment                *statment;
     AstDataType                *data_type;
     AstVariableRef             *variable_ref;

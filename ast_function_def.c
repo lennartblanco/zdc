@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "ast_function.h"
+#include "ast_function_def.h"
 
 #include <assert.h>
 
@@ -9,49 +9,49 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_function_do_print(AstNode *self, FILE *out);
+ast_function_def_do_print(AstNode *self, FILE *out);
 
 static void
-ast_function_class_init(gpointer klass, gpointer dummy);
+ast_function_def_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-ast_function_get_type(void)
+ast_function_def_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstFunctionClass),
+        sizeof (AstFunctionDefClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_function_class_init,   /* class_init */
+        ast_function_def_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstFunction),
+        sizeof (AstFunctionDef),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(XDP_TYPE_AST_NODE,
-                                    "AstFunctionType",
+                                    "AstFunctionDefType",
                                     &info, 0);
     }
     return type;
 }
 
-AstFunction* 
-ast_function_new(char *name, 
-                 GSList *parameters,
-                 AstDataType *return_type,
-                 AstCodeBlock *body)
+AstFunctionDef* 
+ast_function_def_new(char *name, 
+                     GSList *parameters,
+                     AstDataType *return_type,
+                     AstCodeBlock *body)
 {
-    AstFunction *func;
+    AstFunctionDef *func;
 
-    func = g_object_new(XDP_TYPE_AST_FUNCTION, NULL);
+    func = g_object_new(XDP_TYPE_AST_FUNCTION_DEF, NULL);
     func->name = strdup(name);
     func->parameters = parameters;
     func->return_type = return_type;
@@ -61,37 +61,33 @@ ast_function_new(char *name,
 }
 
 char *
-ast_function_get_name(AstFunction *self)
+ast_function_def_get_name(AstFunctionDef *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION(self));
+    assert(XDP_IS_AST_FUNCTION_DEF(self));
 
     return self->name;
 }
 
 GSList *
-ast_function_get_parameters(AstFunction *self)
+ast_function_def_get_parameters(AstFunctionDef *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION(self));
+    assert(XDP_IS_AST_FUNCTION_DEF(self));
 
     return self->parameters;
 }
 
 AstDataType *
-ast_function_get_return_type(AstFunction *self)
+ast_function_def_get_return_type(AstFunctionDef *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION(self));
+    assert(XDP_IS_AST_FUNCTION_DEF(self));
 
     return self->return_type;
 }
 
 AstCodeBlock *
-ast_function_get_body(AstFunction *self)
+ast_function_def_get_body(AstFunctionDef *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION(self));
+    assert(XDP_IS_AST_FUNCTION_DEF(self));
 
     return self->body;
 }
@@ -102,14 +98,13 @@ ast_function_get_body(AstFunction *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_function_do_print(AstNode *self, FILE *out)
+ast_function_def_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION(self));
+    assert(XDP_IS_AST_FUNCTION_DEF(self));
     assert(out);
 
-    AstFunction *func = (AstFunction *)self;
-    fprintf(out, "function [%p]\n"         \
+    AstFunctionDef *func = (AstFunctionDef *)self;
+    fprintf(out, "function definition [%p]\n" \
                  "  name: %s return type:",
                  self, func->name);
 
@@ -131,8 +126,8 @@ ast_function_do_print(AstNode *self, FILE *out)
 }
 
 static void
-ast_function_class_init(gpointer klass, gpointer dummy)
+ast_function_def_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_function_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_function_def_do_print;
 }
 
