@@ -77,7 +77,11 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
                                 sym_table_t *symbols,
                                 AstAssigment *ast_assigment);
 
-static IrFunction *
+static IrFunctionDecl *
+sem_analyze_ast_func_decl_to_ir(compilation_status_t *compile_status,
+                                AstFunctionDecl *ast_func_decl);
+
+static IrFunctionDef *
 sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
                                AstFunctionDef *ast_func_def,
                                sym_table_t *global_sym_table);
@@ -704,27 +708,44 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
     }
 }
 
+static IrFunctionDecl *
+sem_analyze_ast_func_decl_to_ir(compilation_status_t *compile_status,
+                                AstFunctionDecl *ast_func_decl)
+{
+    assert(compile_status);
+    assert(XDP_IS_AST_FUNCTION_DECL(ast_func_decl));
+
+printf("func '%s' linkage type '%s'\n",
+       ast_function_decl_get_name(ast_func_decl),
+       ast_function_decl_get_linkage(ast_func_decl));
+
+    return 
+        ir_function_decl_new(ast_function_decl_get_return_type(ast_func_decl),
+                             ast_function_decl_get_name(ast_func_decl),
+                             ast_function_decl_get_parameters(ast_func_decl));
+}
+
 /**
  * convert AST representation of a function definition to IR form.
  */
-static IrFunction *
+static IrFunctionDef *
 sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
                                AstFunctionDef *ast_func_def,
                                sym_table_t *global_sym_table)
 {
-    IrFunction *ir_func;
+    IrFunctionDef *ir_func;
 
     ir_func = 
-        ir_function_new(ast_function_def_get_return_type(ast_func_def),
-                        ast_function_def_get_name(ast_func_def),
-                        ast_function_def_get_parameters(ast_func_def),
-                        global_sym_table);
+        ir_function_def_new(ast_function_def_get_return_type(ast_func_def),
+                            ast_function_def_get_name(ast_func_def),
+                            ast_function_def_get_parameters(ast_func_def),
+                            global_sym_table);
 
 
     /* convert function body to ir format */
     sem_analyze_ast_code_block_to_ir(compile_status,
                                      ast_function_def_get_body(ast_func_def),
-                                     ir_function_get_body(ir_func));
+                                     ir_function_def_get_body(ir_func));
 
     return ir_func;
 }
@@ -734,22 +755,41 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
                                    AstCompileUnit *ast_compile_unit)
 {
     IrCompileUnit *comp_unit;
-    GSList *ptr;
-    IrFunction *ir_func;
+    GSList *i;
     sym_table_t *global_sym_table;
 
     comp_unit = ir_compile_unit_new();
 
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
 
-    ptr = ast_compile_unit_get_function_defs(ast_compile_unit);
-    for (;ptr != NULL; ptr = ptr->next)
+    /*
+     * store all function declarations in module's symbol table
+     */
+    i = ast_compile_unit_get_function_decls(ast_compile_unit);
+    for (;i != NULL; i = i->next)
     {
-        ir_func =
+        IrFunctionDecl *ir_func_decl;
+
+        ir_func_decl =
+            sem_analyze_ast_func_decl_to_ir(compile_status,
+                                            XDP_AST_FUNCTION_DECL(i->data));
+        ir_compile_unit_add_function_decl(comp_unit, ir_func_decl);
+    }
+    
+    /*
+     * convert all function definitions to IR form and store them
+     * in module's symbol table
+     */
+    i = ast_compile_unit_get_function_defs(ast_compile_unit);
+    for (;i != NULL; i = i->next)
+    {
+        IrFunctionDef *ir_func_def;
+
+        ir_func_def =
             sem_analyze_ast_func_def_to_ir(compile_status,
-                                           XDP_AST_FUNCTION_DEF(ptr->data),
+                                           XDP_AST_FUNCTION_DEF(i->data),
                                            global_sym_table);
-        ir_compile_unit_add_function(comp_unit, ir_func);
+        ir_compile_unit_add_function_def(comp_unit, ir_func_def);
     }
 
     return comp_unit;

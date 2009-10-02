@@ -80,10 +80,10 @@ compile_file(const char* input_file,
 
     switch (options.target_arch)
     {
-        case arch_java:
-            /* use the output file name as the basis for class name */
-            java_trgt_gen_code(ir_compile_unit, output_stream, input_file);
-            break;
+//        case arch_java:
+//            /* use the output file name as the basis for class name */
+//            java_trgt_gen_code(ir_compile_unit, output_stream, input_file);
+//            break;
         case arch_x86:
             x86_gen_code(ir_compile_unit, output_stream, input_file);
             break;

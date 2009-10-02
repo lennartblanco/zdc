@@ -4,7 +4,8 @@
 #include <glib-object.h>
 
 #include "sym_table.h"
-#include "ir_function.h"
+#include "ir_function_def.h"
+#include "ir_function_decl.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -32,6 +33,7 @@ typedef struct
   GObject        parent;
   /* private */
   sym_table_t    *symbols;
+  GSList         *function_defs;
 } IrCompileUnit;
 
 typedef struct 
@@ -53,7 +55,15 @@ sym_table_t *
 ir_compile_unit_get_symbols(IrCompileUnit *self);
 
 void
-ir_compile_unit_add_function(IrCompileUnit *self, IrFunction *function);
+ir_compile_unit_add_function_decl(IrCompileUnit *self,
+                                  IrFunctionDecl *function_decl);
+
+void
+ir_compile_unit_add_function_def(IrCompileUnit *self,
+                                 IrFunctionDef *function_def);
+
+GSList *
+ir_compile_unit_get_function_defs(IrCompileUnit *self);
 
 void
 ir_compile_unit_print(IrCompileUnit *self, FILE *out, int indention);

@@ -1,8 +1,16 @@
 #include "ir_function.h"
-#include "ir_variable.h"
-#include "ast_variable_declaration.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+enum
+{
+    IR_FUNCTION_LINKAGE_TYPE = 1
+};
+
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -13,6 +21,18 @@ ir_function_class_init(gpointer klass, gpointer foo);
 
 static void
 ir_function_do_print(IrSymbol *self, FILE *out, int indention);
+
+static void
+ir_function_set_property(GObject *object,
+                         guint property_id,
+                         const GValue *value,
+                         GParamSpec *pspec);
+
+static void
+ir_function_get_property(GObject *object,
+                         guint property_id,
+                         GValue *value,
+                         GParamSpec *pspec);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -43,93 +63,47 @@ ir_function_get_type(void)
     return type;
 }
 
-IrFunction *
-ir_function_new(AstDataType *return_type,
-                char *name,
-                GSList *parameters,
-                sym_table_t *parent_scope)
-{
-    assert(return_type);
-    assert(name);
-    assert(parent_scope);
-
-    IrFunction *obj;
-    GSList *p;
-
-    obj = g_object_new(IR_TYPE_FUNCTION,
-                       "ir-symbol-name", name,
-                       NULL);
-
-    obj->return_type = return_type;
-    obj->parameters = parameters;
-
-    /*
-     * set-up the symbol table containing function's parameters
-     */
-    obj->param_symbols = sym_table_new(parent_scope);
-    p = parameters;
-    for (; p != NULL; p = g_slist_next(p))
-    {        
-        AstVariableDeclaration *var_decl = p->data;
-
-        /* convert ast variable declaration to IR variable object */
-        IrVariable *variable = 
-            ir_variable_new(ast_variable_declaration_get_data_type(var_decl),
-                            ast_variable_declaration_get_name(var_decl), NULL);
-
-        /* add to parameter to function's symbol table */
-        sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(variable));
-    }
-
-    obj->body = ir_code_block_new(obj->param_symbols);
-    
-    return obj;
-}
-
 char *
 ir_function_get_name(IrFunction *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION(self));
 
     return ir_symbol_get_name(IR_SYMBOL(self));
 }
 
+void
+ir_function_set_parameters(IrFunction *self, GSList *parameters)
+{
+    assert(IR_IS_FUNCTION(self));
+
+    self->parameters = parameters;
+}
+
 GSList *
 ir_function_get_parameters(IrFunction *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION(self));
 
     return self->parameters;
 }
 
-sym_table_t *
-ir_function_get_parameter_symbols(IrFunction *self)
+void
+ir_function_set_return_type(IrFunction *self, AstDataType *return_type)
 {
-    assert(self);
     assert(IR_IS_FUNCTION(self));
+    assert(XDP_IS_AST_DATA_TYPE(return_type));
 
-    return self->param_symbols;
+    self->return_type = return_type;
 }
 
 AstDataType *
 ir_function_get_return_type(IrFunction *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION(self));
 
     return self->return_type;
 }
 
-IrCodeBlock *
-ir_function_get_body(IrFunction *self)
-{
-    assert(self);
-    assert(IR_IS_FUNCTION(self));
-
-    return self->body;
-}
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -158,12 +132,37 @@ ir_function_do_print(IrSymbol *self, FILE *out, int indention)
         ast_node_print(XDP_AST_NODE(i->data), out);
         fprintf(out, "%s", g_slist_next(i) != NULL ? ", " : "");
     }
-    fprintf_indent(out, indention, "\n  body:\n");
-    ir_code_block_print(func->body, out, indention + 2);
 }
 
 static void
 ir_function_class_init(gpointer klass, gpointer foo)
 {
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    GParamSpec *pspec;
+
+/* not implemented */
+assert(0);
+
+    /*
+     * setup this structure for setting and getting properties
+     */
+//    gobject_class->set_property = ir_function_set_property;
+//    gobject_class->get_property = ir_function_get_property;
+
+//    /*
+//     * install 'name' property 
+//     */
+//    pspec = g_param_spec_string("ir-function-linkage-type",
+//                                "ir function linkage",
+//                                "the linkage type attribute of the function",
+//TODO!!!
+//                                "no-name-set" /* default value */,
+//                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+//    g_object_class_install_property(gobject_class,
+//                                    IR_VARIABLE_NAME,
+//                                    pspec);
+
+
     ((IrSymbolClass *)klass)->do_print = ir_function_do_print;
 }

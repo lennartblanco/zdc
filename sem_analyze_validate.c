@@ -54,8 +54,8 @@ validate_unary_op(compilation_status_t *compile_status,
                   IrUnaryOperation *operation);
 
 static void
-validate_function(compilation_status_t *compile_status,
-                  IrFunction *func);
+validate_function_def(compilation_status_t *compile_status,
+                      IrFunctionDef *func_def);
 
 static IrExpression *
 validate_expression(compilation_status_t *compile_status,
@@ -95,10 +95,6 @@ validate_statment(compilation_status_t *compile_status,
 static void
 validate_code_block(compilation_status_t *compile_status,
                     IrCodeBlock *code_block);
-
-static void
-validate_function(compilation_status_t *compile_status,
-                  IrFunction *func);
 
 static void
 validate_array_literal(compilation_status_t *compile_status,
@@ -791,12 +787,15 @@ validate_code_block(compilation_status_t *compile_status,
 }
 
 static void
-validate_function(compilation_status_t *compile_status,
-                  IrFunction *func)
+validate_function_def(compilation_status_t *compile_status,
+                      IrFunctionDef *func_def)
 {
+    assert(compile_status);
+    assert(IR_IS_FUNCTION_DEF(func_def));
+
     IrCodeBlock *body;
 
-    body = ir_function_get_body(func);
+    body = ir_function_def_get_body(func_def);
 
     /* validate function's body */
     validate_code_block(compile_status, body);
@@ -804,7 +803,7 @@ validate_function(compilation_status_t *compile_status,
     /*
      * For void function, add an implicit return statment if needed
      */
-    if (types_is_void(ir_function_get_return_type(func)))
+    if (types_is_void(ir_function_def_get_return_type(func_def)))
     {
         GSList *p;
         IrStatment *last_statment = NULL;
@@ -910,25 +909,14 @@ sem_analyze_validate(compilation_status_t *compile_status,
     assert(compile_status);
     assert(compile_unit);
 
-    sym_table_t *sym_table;
-    GList *symbols_list;
-    GList *i;
+    GSList *i;
 
-    sym_table = ir_compile_unit_get_symbols(compile_unit);
-    symbols_list = sym_table_get_all_symbols(sym_table);
-
-    for (i = symbols_list; i != NULL; i = g_list_next(i))
+    i = ir_compile_unit_get_function_defs(compile_unit);
+    for (; i != NULL; i = g_slist_next(i))
     {
-        if (IR_IS_FUNCTION(i->data))
-        {
-            validate_function(compile_status, IR_FUNCTION(i->data));
-        }
-        else
-        {
-            /* unexpected symbol type */
-            assert(false);
-        }
+        assert(IR_IS_FUNCTION_DEF(i->data));
+        validate_function_def(compile_status, IR_FUNCTION_DEF(i->data));
     }
-    g_list_free(symbols_list);
+
 }
 

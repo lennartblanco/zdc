@@ -67,6 +67,15 @@ ast_function_decl_set_linkage(AstFunctionDecl *self,
 
     self->linkage = linkage;
 }
+
+char *
+ast_function_decl_get_linkage(AstFunctionDecl *self)
+{
+    assert(XDP_IS_AST_FUNCTION_DECL(self));
+
+    return self->linkage;
+}
+
 char *
 ast_function_decl_get_name(AstFunctionDecl *self)
 {

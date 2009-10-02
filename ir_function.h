@@ -27,14 +27,20 @@
 #define IR_FUNCTION_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_FUNCTION, IrFunctionClass))
 
+typedef enum ir_linkage_type_e
+{
+  ir_d_linkage,
+  ir_c_linkage
+} ir_linkage_type_t;
+
+
 typedef struct
 {
-    IrSymbol parent;
+    IrSymbol          parent;
     /* private */
-    GSList       *parameters;
-    sym_table_t  *param_symbols;
-    AstDataType  *return_type;
-    IrCodeBlock  *body;
+    GSList            *parameters;
+    AstDataType       *return_type;
+    ir_linkage_type_t linkage_type;
 } IrFunction;
 
 typedef struct
@@ -49,24 +55,8 @@ typedef struct
 GType
 ir_function_get_type(void);
 
-
-/**
- * Create new IR function object.
- *
- * @param return_type  return type of the function
- * @param name         name of the function
- * @param parameter    parameters of the function,
- *                     as a list of AstVariableDeclaration objects
- * @param parent_scope the symbol table of the semantical scope where the
- *                     function is declared
- *
- * @return object representing an IR function
- */
-IrFunction *
-ir_function_new(AstDataType *return_type,
-                char *name,
-                GSList *parameters,
-                sym_table_t *parent_scope);
+void
+ir_function_set_parameters(IrFunction *self, GSList *parameters);
 
 /**
  * Get the function formal parameters.
@@ -76,11 +66,8 @@ ir_function_new(AstDataType *return_type,
 GSList *
 ir_function_get_parameters(IrFunction *self);
 
-/**
- * Get symbol table that contains function parameters.
- */
-sym_table_t *
-ir_function_get_parameter_symbols(IrFunction *self);
+void
+ir_function_set_return_type(IrFunction *self, AstDataType *return_type);
 
 AstDataType *
 ir_function_get_return_type(IrFunction *self);
@@ -88,8 +75,8 @@ ir_function_get_return_type(IrFunction *self);
 char *
 ir_function_get_name(IrFunction *self);
 
-IrCodeBlock *
-ir_function_get_body(IrFunction *self);
+//void
+//ir_function_set_linkage(IrFunctionDecl *self, ir_linkage_type_t linkage);
 
 void
 ir_function_print(IrFunction *self, FILE *out, int indention);

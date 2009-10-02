@@ -11,7 +11,7 @@
 
 enum
 {
-    IR_VARIABLE_NAME = 1
+    IR_SYMBOL_NAME = 1
 };
 
 /*---------------------------------------------------------------------------*
@@ -91,7 +91,7 @@ ir_symbol_set_property(GObject *object,
                        GParamSpec *pspec)
 {
     /* we only have one property */
-    assert(property_id == IR_VARIABLE_NAME);
+    assert(property_id == IR_SYMBOL_NAME);
     IrSymbol *sym = IR_SYMBOL(object);
 
     sym->name = g_value_dup_string(value);
@@ -129,7 +129,7 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
                                 G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
     g_object_class_install_property(gobject_class,
-                                    IR_VARIABLE_NAME,
+                                    IR_SYMBOL_NAME,
                                     pspec);
 
     /*

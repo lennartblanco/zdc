@@ -37,6 +37,7 @@ ir_compile_unit_new()
 
     obj = g_object_new(IR_TYPE_COMPILE_UNIT, NULL);
     obj->symbols = sym_table_new(NULL);
+    obj->function_defs = NULL;
 
     return obj;
 }
@@ -51,14 +52,40 @@ ir_compile_unit_get_symbols(IrCompileUnit *self)
 }
 
 void
-ir_compile_unit_add_function(IrCompileUnit *self, IrFunction *function)
+ir_compile_unit_add_function_decl(IrCompileUnit *self,
+                                  IrFunctionDecl *function_decl)
 {
-    assert(self);
     assert(IR_IS_COMPILE_UNIT(self));
-    assert(function);
-    assert(IR_IS_FUNCTION(function));
+    assert(IR_IS_FUNCTION_DECL(function_decl));
 
-    assert(sym_table_add_symbol(self->symbols, IR_SYMBOL(function)) == 0);
+    int res;
+
+    res = sym_table_add_symbol(self->symbols, IR_SYMBOL(function_decl));
+    assert(res == 0);
+}
+
+void
+ir_compile_unit_add_function_def(IrCompileUnit *self,
+                                 IrFunctionDef *function_def)
+{
+    assert(IR_IS_COMPILE_UNIT(self));
+    assert(IR_IS_FUNCTION_DEF(function_def));
+
+    int res;
+
+    res = sym_table_add_symbol(self->symbols, IR_SYMBOL(function_def));
+    assert(res == 0);
+
+    self->function_defs =
+      g_slist_prepend(self->function_defs, function_def);
+}
+
+GSList *
+ir_compile_unit_get_function_defs(IrCompileUnit *self)
+{
+    assert(IR_IS_COMPILE_UNIT(self));
+
+    return self->function_defs;
 }
 
 void

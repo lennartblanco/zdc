@@ -74,6 +74,14 @@ ast_compile_unit_add_function_def(AstCompileUnit *self,
 }
 
 GSList *
+ast_compile_unit_get_function_decls(AstCompileUnit *self)
+{
+    assert(XDP_IS_AST_COMPILE_UNIT(self));
+
+    return self->function_decls;
+}
+
+GSList *
 ast_compile_unit_get_function_defs(AstCompileUnit *self)
 {
     assert(XDP_IS_AST_COMPILE_UNIT(self));

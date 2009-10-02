@@ -36,7 +36,7 @@ static void
 x86_prelude(FILE *out, const char *source_file);
 
 static void
-x86_compile_function_def(x86_comp_params_t *params, IrFunction *func);
+x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
 
 static void
 x86_compile_while(x86_comp_params_t *params,
@@ -162,8 +162,7 @@ x86_gen_code(IrCompileUnit *comp_unit,
 {
     x86_comp_params_t params;
     sym_table_t *global_sym_table;
-    GList *symbols_list;
-    GList *p;
+    GSList *i;
 
     params.out = out_stream;
     label_gen_init(&(params.label_gen));
@@ -171,20 +170,12 @@ x86_gen_code(IrCompileUnit *comp_unit,
     x86_prelude(out_stream, source_file);
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
 
-    symbols_list = sym_table_get_all_symbols(global_sym_table);
-    for (p = symbols_list; p != NULL; p = g_list_next(p))
+    i = ir_compile_unit_get_function_defs(comp_unit);
+    for (; i != NULL; i = g_slist_next(i))
     {
-        if (IR_IS_FUNCTION(p->data))
-        {
-            x86_compile_function_def(&params, p->data);
-        }
-        else
-        {
-            /* unexpected symbol type */
-            assert(false);
-        }
+        assert(IR_IS_FUNCTION_DEF(i->data));
+        x86_compile_function_def(&params, i->data);
     }
-    g_list_free(symbols_list);        
 }
 
 void
@@ -421,7 +412,7 @@ x86_prelude(FILE *out, const char *source_file)
 }
 
 static void
-x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
+x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 {
     GSList *i;
     char *func_name;
@@ -432,7 +423,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
     sym_table_t *param_symbols;
     bool push_last_arg = false;
 
-    func_name = ir_function_get_name(func);
+    func_name = ir_function_def_get_name(func_def);
     /* generate function symbol declaration and function entry point label */
     fprintf(params->out,
             ".globl %s\n"
@@ -441,8 +432,8 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
             func_name, func_name, func_name);
 
     /* assign locations to function parameter variables */
-    i = ir_function_get_parameters(func);
-    param_symbols = ir_function_get_parameter_symbols(func);
+    i = ir_function_def_get_parameters(func_def);
+    param_symbols = ir_function_def_get_parameter_symbols(func_def);
 
     len = g_slist_length(i);
     addr = len * 4;
@@ -485,7 +476,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
     stack_size = 
         x86_code_block_assign_addrs(params,
                                     stack_start,
-                                    ir_function_get_body(func));
+                                    ir_function_def_get_body(func_def));
 
     /* pad stack to allign it on 4-byte boundary */
     if ((stack_size % 4) != 0)
@@ -506,7 +497,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunction *func)
 
     /* generate code for function body */
     x86_compile_code_block(params,
-                           ir_function_get_body(func));
+                           ir_function_def_get_body(func_def));
 }
 
 static void
