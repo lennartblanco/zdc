@@ -23,7 +23,6 @@ extern (C) void g_type_init();
 extern (C) int compile_file(char* input_file,
                             char* output_file,
                             compile_options_s options);
-extern (C) int printf(char *str, ...);
 
 /**
  * Print the usage help message for xdc to stdout.
