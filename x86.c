@@ -1179,6 +1179,10 @@ x86_compile_func_call(x86_comp_params_t *params,
     GSList *i;
     AstDataType *func_data_type;
 
+printf("call '%s' linkage '%d'\n",
+ir_function_call_get_name(func_call),
+ir_function_call_get_linkage(func_call));
+
     i = ir_function_call_get_arguments(func_call);
     arg_num = g_slist_length(i);
     for (; i != NULL; i = g_slist_next(i))

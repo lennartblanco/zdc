@@ -33,7 +33,6 @@ typedef enum ir_linkage_type_e
   ir_c_linkage
 } ir_linkage_type_t;
 
-
 typedef struct
 {
     IrSymbol          parent;
@@ -75,8 +74,8 @@ ir_function_get_return_type(IrFunction *self);
 char *
 ir_function_get_name(IrFunction *self);
 
-//void
-//ir_function_set_linkage(IrFunctionDecl *self, ir_linkage_type_t linkage);
+ir_linkage_type_t
+ir_function_get_linkage(IrFunction *self);
 
 void
 ir_function_print(IrFunction *self, FILE *out, int indention);

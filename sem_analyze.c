@@ -78,8 +78,7 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
                                 AstAssigment *ast_assigment);
 
 static IrFunctionDecl *
-sem_analyze_ast_func_decl_to_ir(compilation_status_t *compile_status,
-                                AstFunctionDecl *ast_func_decl);
+sem_analyze_ast_func_decl_to_ir(AstFunctionDecl *ast_func_decl);
 
 static IrFunctionDef *
 sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
@@ -709,20 +708,37 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
 }
 
 static IrFunctionDecl *
-sem_analyze_ast_func_decl_to_ir(compilation_status_t *compile_status,
-                                AstFunctionDecl *ast_func_decl)
+sem_analyze_ast_func_decl_to_ir(AstFunctionDecl *ast_func_decl)
 {
-    assert(compile_status);
     assert(XDP_IS_AST_FUNCTION_DECL(ast_func_decl));
 
-printf("func '%s' linkage type '%s'\n",
-       ast_function_decl_get_name(ast_func_decl),
-       ast_function_decl_get_linkage(ast_func_decl));
+    IrFunctionDecl *func_decl;
+    char *linkage_type_name;
+    ir_linkage_type_t linkage_type;
 
-    return 
+
+    linkage_type_name = ast_function_decl_get_linkage(ast_func_decl);
+
+    if (linkage_type_name == NULL || g_str_equal("D", linkage_type_name))
+    {
+        /* default linkage type is 'D' */
+        linkage_type = ir_d_linkage;
+    }
+    else if (g_str_equal("C", linkage_type_name))
+    {
+        linkage_type = ir_c_linkage;
+    } else {
+        /* unexpected linkage type string */
+        assert(false);
+    }
+
+    func_decl = 
         ir_function_decl_new(ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
-                             ast_function_decl_get_parameters(ast_func_decl));
+                             ast_function_decl_get_parameters(ast_func_decl),
+                             linkage_type);
+
+    return func_decl;
 }
 
 /**
@@ -771,8 +787,7 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
         IrFunctionDecl *ir_func_decl;
 
         ir_func_decl =
-            sem_analyze_ast_func_decl_to_ir(compile_status,
-                                            XDP_AST_FUNCTION_DECL(i->data));
+            sem_analyze_ast_func_decl_to_ir(XDP_AST_FUNCTION_DECL(i->data));
         ir_compile_unit_add_function_decl(comp_unit, ir_func_decl);
     }
     

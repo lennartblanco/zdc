@@ -45,6 +45,7 @@ ir_function_decl_get_type(void);
 IrFunctionDecl *
 ir_function_decl_new(AstDataType *return_type,
                      char *name,
-                     GSList *parameters);
+                     GSList *parameters,
+                     ir_linkage_type_t linkage_type);
 
 #endif /* IR_FUNCTION_DECL_INC_X */

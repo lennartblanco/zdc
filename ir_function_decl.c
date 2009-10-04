@@ -35,7 +35,8 @@ ir_function_decl_get_type(void)
 IrFunctionDecl *
 ir_function_decl_new(AstDataType *return_type,
                      char *name,
-                     GSList *parameters)
+                     GSList *parameters,
+                     ir_linkage_type_t linkage_type)
 {
     assert(XDP_IS_AST_DATA_TYPE(return_type));
     assert(name);
@@ -44,6 +45,7 @@ ir_function_decl_new(AstDataType *return_type,
 
     obj = g_object_new(IR_TYPE_FUNCTION_DECL,
                        "ir-symbol-name", name,
+                       "ir-function-linkage-type", linkage_type,
                        NULL);
    
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);

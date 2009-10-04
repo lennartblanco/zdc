@@ -2,6 +2,7 @@
 #define IR_FUNCTION_CALL_INC_X
 
 #include "ir_expression.h"
+#include "ir_function.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -31,6 +32,7 @@ typedef struct
     char                 *name;
     GSList               *arguments;
     AstDataType          *return_type;
+    ir_linkage_type_t    linkage;
 } IrFunctionCall;
 
 typedef struct
@@ -57,6 +59,13 @@ ir_function_call_new(char *name,
 void
 ir_function_call_set_return_type(IrFunctionCall *self,
                                  AstDataType *return_type);
+
+void
+ir_function_call_set_linkage(IrFunctionCall *self,
+                             ir_linkage_type_t linkage);
+
+ir_linkage_type_t
+ir_function_call_get_linkage(IrFunctionCall *self);
 
 GSList *
 ir_function_call_get_arguments(IrFunctionCall *self);

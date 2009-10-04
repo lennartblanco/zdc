@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "ir_function.h"
 
 #include <assert.h>
@@ -11,6 +13,8 @@ enum
     IR_FUNCTION_LINKAGE_TYPE = 1
 };
 
+
+#define IR_TYPE_LINKAGE_ATTR ir_linkage_attr_get_type()
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -33,6 +37,9 @@ ir_function_get_property(GObject *object,
                          guint property_id,
                          GValue *value,
                          GParamSpec *pspec);
+
+static GType
+ir_linkage_attr_get_type(void);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -69,6 +76,14 @@ ir_function_get_name(IrFunction *self)
     assert(IR_IS_FUNCTION(self));
 
     return ir_symbol_get_name(IR_SYMBOL(self));
+}
+
+ir_linkage_type_t
+ir_function_get_linkage(IrFunction *self)
+{
+    assert(IR_IS_FUNCTION(self));
+
+    return self->linkage_type;
 }
 
 void
@@ -140,29 +155,73 @@ ir_function_class_init(gpointer klass, gpointer foo)
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     GParamSpec *pspec;
 
-/* not implemented */
-assert(0);
-
     /*
      * setup this structure for setting and getting properties
      */
-//    gobject_class->set_property = ir_function_set_property;
-//    gobject_class->get_property = ir_function_get_property;
+    gobject_class->set_property = ir_function_set_property;
+    gobject_class->get_property = ir_function_get_property;
 
-//    /*
-//     * install 'name' property 
-//     */
-//    pspec = g_param_spec_string("ir-function-linkage-type",
-//                                "ir function linkage",
-//                                "the linkage type attribute of the function",
-//TODO!!!
-//                                "no-name-set" /* default value */,
-//                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+    /*
+     * install 'name' property 
+     */
+    pspec = g_param_spec_enum("ir-function-linkage-type",
+                              "ir function linkage",
+                              "the linkage type attribute of the function",
+                              IR_TYPE_LINKAGE_ATTR,
+                              ir_d_linkage,
+                              G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
-//    g_object_class_install_property(gobject_class,
-//                                    IR_VARIABLE_NAME,
-//                                    pspec);
+    g_object_class_install_property(gobject_class,
+                                    IR_FUNCTION_LINKAGE_TYPE,
+                                    pspec);
 
 
     ((IrSymbolClass *)klass)->do_print = ir_function_do_print;
+}
+
+static void
+ir_function_set_property(GObject *object,
+                         guint property_id,
+                         const GValue *value,
+                         GParamSpec *pspec)
+{
+    assert(IR_IS_FUNCTION(object));
+
+    IrFunction *func = IR_FUNCTION(object);
+
+    /* we only have one property */
+    assert(property_id == IR_FUNCTION_LINKAGE_TYPE);
+
+    func->linkage_type = g_value_get_enum(value);
+}
+
+static void
+ir_function_get_property(GObject *object,
+                         guint property_id,
+                         GValue *value,
+                         GParamSpec *pspec)
+{
+    /* not implemented */
+    assert(false);
+}
+
+
+static GType
+ir_linkage_attr_get_type(void)
+{
+  static GType linkage_attr_type = 0;
+  static GEnumValue linkage_attr[] =
+  {
+      {ir_d_linkage, "D", "D linkage"},
+      {ir_c_linkage, "C", "C linkage"},
+      {0, NULL, NULL}
+  };
+
+  if (linkage_attr_type == 0)
+  {
+      linkage_attr_type =
+          g_enum_register_static("IrLinkageAttrType", linkage_attr);
+  }
+  return linkage_attr_type;
+
 }

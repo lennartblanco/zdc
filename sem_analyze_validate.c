@@ -144,6 +144,10 @@ validate_function_call(compilation_status_t *compile_status,
         return; 
     }
 
+    /* store linkage attribute type of the callee */
+   ir_function_call_set_linkage(func_call,
+                                ir_function_get_linkage(IR_FUNCTION(func_symb)));
+
    formal_args = ir_function_get_parameters(IR_FUNCTION(func_symb));
    func_call_args = ir_function_call_get_arguments(func_call);
 

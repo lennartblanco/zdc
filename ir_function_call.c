@@ -54,6 +54,7 @@ ir_function_call_new(char *name,
     obj->name = strdup(name);
     obj->arguments = arguments;
     obj->return_type = NULL;
+    obj->linkage = ir_d_linkage;
 
     return obj;
 }
@@ -62,16 +63,31 @@ void
 ir_function_call_set_return_type(IrFunctionCall *self,
                                  AstDataType *return_type)
 {
-    assert(self);
     assert(IR_IS_FUNCTION_CALL(self));
 
     self->return_type = return_type;
 }
 
+void
+ir_function_call_set_linkage(IrFunctionCall *self,
+                             ir_linkage_type_t linkage)
+{
+    assert(IR_IS_FUNCTION_CALL(self));
+
+    self->linkage = linkage;
+}
+
+ir_linkage_type_t
+ir_function_call_get_linkage(IrFunctionCall *self)
+{
+    assert(IR_IS_FUNCTION_CALL(self));
+
+    return self->linkage;
+}
+
 GSList *
 ir_function_call_get_arguments(IrFunctionCall *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION_CALL(self));
 
     return self->arguments;
@@ -80,7 +96,6 @@ ir_function_call_get_arguments(IrFunctionCall *self)
 void
 ir_function_call_set_arguments(IrFunctionCall *self, GSList *arguments)
 {
-    assert(self);
     assert(IR_IS_FUNCTION_CALL(self));
 
     self->arguments = arguments;
@@ -89,7 +104,6 @@ ir_function_call_set_arguments(IrFunctionCall *self, GSList *arguments)
 char *
 ir_function_call_get_name(IrFunctionCall *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION_CALL(self));
 
     return self->name;
