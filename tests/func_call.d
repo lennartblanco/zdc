@@ -51,3 +51,9 @@ int add_13(int i)
 
     return x + i;
 }
+
+// test calling a function (subst3) with 3 arguments
+int invoke_subst3(int x)
+{
+    return subst3(x, 10, 20);
+}

@@ -130,6 +130,19 @@ call_add_13(int in)
    return res;
 }
 
+int
+call_invoke_subst3(int in)
+{
+   int res;
+
+   asm ("    call invoke_subst3\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -174,6 +187,10 @@ main()
     check_int("add_13(10)", call_add_13(10), 10 + 13);
     check_int("add_13(0)", call_add_13(0), 0 + 13);
     check_int("add_13(-14)", call_add_13(-14), -14 + 13);
+
+    /* invoke_subst3() tests */
+    check_int("invoke_subst3(5)", call_invoke_subst3(5), 5 - 10 - 20);
+    check_int("invoke_subst3(200)", call_invoke_subst3(200), 200 - 10 - 20);
 
     check_exit();
 }
