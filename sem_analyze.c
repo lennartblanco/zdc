@@ -421,6 +421,7 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
                                              XDP_AST_EXPRESSION(i->data));
         ir_call_args = g_slist_prepend(ir_call_args, arg);
     }
+    ir_call_args = g_slist_reverse(ir_call_args);
 
     return IR_EXPRESSION(ir_function_call_new(func_name, ir_call_args));
 }
