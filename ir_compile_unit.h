@@ -2,6 +2,7 @@
 #define IR_COMPILE_UNIT_INC_X
 
 #include <glib-object.h>
+#include <stdbool.h>
 
 #include "sym_table.h"
 #include "ir_function_def.h"
@@ -54,11 +55,19 @@ ir_compile_unit_new();
 sym_table_t *
 ir_compile_unit_get_symbols(IrCompileUnit *self);
 
-void
+/**
+ * @return true if function declaration was successfully added,
+ *         false if function with this name is already declared
+ */
+bool
 ir_compile_unit_add_function_decl(IrCompileUnit *self,
                                   IrFunctionDecl *function_decl);
 
-void
+/**
+ * @return true if function definition was successfully added,
+ *         false if function with this name is already defined
+ */
+bool
 ir_compile_unit_add_function_def(IrCompileUnit *self,
                                  IrFunctionDef *function_def);
 

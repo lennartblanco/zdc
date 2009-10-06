@@ -51,33 +51,36 @@ ir_compile_unit_get_symbols(IrCompileUnit *self)
     return self->symbols;
 }
 
-void
+bool
 ir_compile_unit_add_function_decl(IrCompileUnit *self,
                                   IrFunctionDecl *function_decl)
 {
     assert(IR_IS_COMPILE_UNIT(self));
     assert(IR_IS_FUNCTION_DECL(function_decl));
 
-    int res;
-
-    res = sym_table_add_symbol(self->symbols, IR_SYMBOL(function_decl));
-    assert(res == 0);
+    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(function_decl)) == -1)
+    {
+        return false;
+    }
+    return true;
 }
 
-void
+bool
 ir_compile_unit_add_function_def(IrCompileUnit *self,
                                  IrFunctionDef *function_def)
 {
     assert(IR_IS_COMPILE_UNIT(self));
     assert(IR_IS_FUNCTION_DEF(function_def));
 
-    int res;
-
-    res = sym_table_add_symbol(self->symbols, IR_SYMBOL(function_def));
-    assert(res == 0);
+    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(function_def)) == -1)
+    {
+        return false;
+    }
 
     self->function_defs =
       g_slist_prepend(self->function_defs, function_def);
+
+   return true;
 }
 
 GSList *

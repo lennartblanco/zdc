@@ -789,7 +789,12 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
 
         ir_func_decl =
             sem_analyze_ast_func_decl_to_ir(XDP_AST_FUNCTION_DECL(i->data));
-        ir_compile_unit_add_function_decl(comp_unit, ir_func_decl);
+        if (!ir_compile_unit_add_function_decl(comp_unit, ir_func_decl))
+        {
+            compile_error(compile_status,
+                          "redeclaration of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+        }
     }
     
     /*
@@ -805,7 +810,12 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
             sem_analyze_ast_func_def_to_ir(compile_status,
                                            XDP_AST_FUNCTION_DEF(i->data),
                                            global_sym_table);
-        ir_compile_unit_add_function_def(comp_unit, ir_func_def);
+        if (!ir_compile_unit_add_function_def(comp_unit, ir_func_def))
+        {
+            compile_error(compile_status,
+                          "redifinition of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+        }
     }
 
     return comp_unit;
