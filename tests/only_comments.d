@@ -3,4 +3,4 @@
  * There is only comments here.
  */
 
-// D compile must be able to handle such file
+// D compiler must be able to handle such file
