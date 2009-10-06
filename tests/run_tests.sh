@@ -56,6 +56,7 @@ run_all_tests()
     $RUN_TEST nested_blocks
     $RUN_TEST if_else
     $RUN_TEST fact
+    $RUN_TEST extern_c
     $RUN_TEST while_loop
     $RUN_TEST stat_array
     $RUN_TEST foreach
