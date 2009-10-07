@@ -1,5 +1,6 @@
 #include <stdbool.h>
-#include "ast_basic_type.h"
+
+#include "dt_basic_type.h"
 
 #include <assert.h>
 
@@ -8,55 +9,55 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_basic_type_do_print(AstNode *self, FILE *out);
+dt_basic_type_do_print(AstNode *self, FILE *out);
 
 static void
-ast_basic_type_class_init(gpointer klass, gpointer dummy);
+dt_basic_type_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_basic_type_get_type(void)
+GType
+dt_basic_type_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstBasicTypeClass),
+        sizeof (DtBasicTypeClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_basic_type_class_init,   /* class_init */
+        dt_basic_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstBasicType),
+        sizeof (DtBasicType),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(XDP_TYPE_AST_DATA_TYPE,
-                                    "AstBasicTypeType",
+                                    "DtBasicTypeType",
                                     &info, 0);
     }
     return type;
 }
 
-AstBasicType * 
-ast_basic_type_new(basic_data_type_t data_type)
+DtBasicType * 
+dt_basic_type_new(basic_data_type_t data_type)
 {
-    AstBasicType *basic_type;
+    DtBasicType *basic_type;
 
-    basic_type = g_object_new(XDP_TYPE_AST_BASIC_TYPE, NULL);
+    basic_type = g_object_new(DT_TYPE_BASIC_TYPE, NULL);
     basic_type->data_type = data_type;
 
     return basic_type;
 }
 
 basic_data_type_t
-ast_basic_type_get_data_type(AstBasicType *self)
+dt_basic_type_get_data_type(DtBasicType *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_BASIC_TYPE(self));
+    assert(DT_IS_BASIC_TYPE(self));
 
     return self->data_type;
 }
@@ -66,10 +67,10 @@ ast_basic_type_get_data_type(AstBasicType *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_basic_type_do_print(AstNode *self, FILE *out)
+dt_basic_type_do_print(AstNode *self, FILE *out)
 {
     char *str;
-    switch (XDP_AST_BASIC_TYPE(self)->data_type)
+    switch (DT_BASIC_TYPE(self)->data_type)
     {
         case int_type:
             str = "int";
@@ -88,8 +89,8 @@ ast_basic_type_do_print(AstNode *self, FILE *out)
 }
 
 static void
-ast_basic_type_class_init(gpointer klass, gpointer dummy)
+dt_basic_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_basic_type_do_print;
+    ((AstNodeClass *)klass)->do_print = dt_basic_type_do_print;
 }
 

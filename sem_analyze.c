@@ -7,7 +7,6 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
 #include "ast_assigment.h"
-#include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_if_else.h"
 #include "ast_variable_ref.h"

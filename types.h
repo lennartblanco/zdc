@@ -1,8 +1,7 @@
 #ifndef TYPES_INC_X
 #define TYPES_INC_X
 
-#include "ast_data_type.h"
-#include "ast_basic_type.h"
+#include "dt_basic_type.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*

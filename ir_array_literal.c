@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "ast_basic_type.h"
+#include "dt_basic_type.h"
 #include "ir_array_literal.h"
 
 #include <assert.h>
@@ -110,13 +110,13 @@ ir_array_literal_do_get_data_type(IrExpression *self)
         assert(IR_IS_EXPRESSION(first_val));
 
         first_val_type = ir_expression_get_data_type(first_val);
-        if (!XDP_IS_AST_BASIC_TYPE(first_val_type))
+        if (!DT_IS_BASIC_TYPE(first_val_type))
         {
             /* array literals of non-basic types not implemented */
             assert(false);
         }
         first_val_basic_data_type =
-            ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(first_val_type));
+            dt_basic_type_get_data_type(DT_BASIC_TYPE(first_val_type));
 
         arr_literal->data_type =
             ast_static_array_type_new(first_val_basic_data_type,

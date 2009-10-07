@@ -5,7 +5,7 @@
 
 #include "yystype_def.h"
 #include "ast_auto_type.h"
-#include "ast_basic_type.h"
+#include "dt_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_return.h"
 #include "ast_binary_operation.h"
@@ -213,7 +213,7 @@ type<x> :
 |   basic_type<t>
     {
         (*x).data_type =
-            XDP_AST_DATA_TYPE(ast_basic_type_new(t.basic_data_type));
+            XDP_AST_DATA_TYPE(dt_basic_type_new(t.basic_data_type));
     }
 |   TOK_AUTO
     {

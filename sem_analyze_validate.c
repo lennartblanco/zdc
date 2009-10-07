@@ -2,7 +2,6 @@
 
 #include "sem_analyze_validate.h"
 #include "types.h"
-#include "ast_basic_type.h"
 #include "ast_array_cell_ref.h"
 #include "ir_scalar.h"
 #include "ir_function.h"
@@ -285,10 +284,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     /* if left operand is not bool, cast to bool */
     if (!types_is_bool(data_type))
     {
-        left =
-            IR_EXPRESSION(
-              ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
-                          left));
+        left = IR_EXPRESSION(ir_cast_new(types_get_bool_type(), left));
     }
 
     /*
@@ -301,10 +297,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     if (!types_is_void(data_type) &&
         !types_is_bool(data_type))
     {
-        right =
-            IR_EXPRESSION(
-              ir_cast_new(XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type)),
-                          right));
+        right = IR_EXPRESSION(ir_cast_new(types_get_bool_type(), right));
     }
 
     ir_binary_operation_set_left(bin_op, left);

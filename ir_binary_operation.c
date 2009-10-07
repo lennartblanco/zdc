@@ -1,5 +1,4 @@
 #include "ir_binary_operation.h"
-#include "ast_basic_type.h"
 #include "types.h"
 
 #include <assert.h>
@@ -119,12 +118,12 @@ ir_binary_operation_is_iarithm(IrBinaryOperation *self)
     assert(IR_IS_BINARY_OPERATION(self));
 
     data_type = ir_expression_get_data_type(IR_EXPRESSION(self));
-    if (!XDP_IS_AST_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC_TYPE(data_type))
     {
         return false;
     }
 
-    bdt = ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type));
+    bdt = dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
 
     if (bdt != int_type && bdt != bool_type)
     {
@@ -151,12 +150,12 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
     assert(IR_IS_BINARY_OPERATION(self));
 
     data_type = ir_expression_get_data_type(IR_EXPRESSION(self));
-    if (!XDP_IS_AST_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC_TYPE(data_type))
     {
         return false;
     }
 
-    bdt = ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type));
+    bdt = dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
 
     if (bdt != int_type && bdt != bool_type)
     {

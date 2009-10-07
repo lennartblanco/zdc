@@ -8,7 +8,6 @@
 #include "x86_if_else.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
-#include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ast_variable_declaration.h"
 #include "ir_array_literal.h"
@@ -546,16 +545,14 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
     AstDataType *var_type = ir_variable_get_data_type(variable);
     IrExpression *var_init = ir_variable_get_initializer(variable);
 
-    if (XDP_IS_AST_BASIC_TYPE(var_type))
+    if (DT_IS_BASIC_TYPE(var_type))
     {
         /* construct default value for the type */
         if (var_init == NULL)
         {
             basic_data_type_t data_type;
 
-            data_type =
-                ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(var_type));
-
+            data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type));
             var_init = types_get_default_initializer(data_type);
         }
         x86_gen_variable_assigment(params, variable, var_init, sym_table);
@@ -592,11 +589,11 @@ x86_get_variable_storage_size(IrVariable *variable)
     AstDataType *variable_type;
 
     variable_type = ir_variable_get_data_type(variable);
-    if (XDP_IS_AST_BASIC_TYPE(variable_type))
+    if (DT_IS_BASIC_TYPE(variable_type))
     {
-        AstBasicType *basic_type = XDP_AST_BASIC_TYPE(variable_type);
+        DtBasicType *basic_type = DT_BASIC_TYPE(variable_type);
 
-        return types_get_storage_size(ast_basic_type_get_data_type(basic_type));
+        return types_get_storage_size(dt_basic_type_get_data_type(basic_type));
     }
     else if (XDP_IS_AST_STATIC_ARRAY_TYPE(variable_type))
     {
@@ -898,14 +895,14 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
         ir_expression_get_data_type(IR_EXPRESSION(array_cell));
 
     /* only arrays of basic data types implemented */
-    assert(XDP_IS_AST_BASIC_TYPE(cell_type));
+    assert(DT_IS_BASIC_TYPE(cell_type));
 
     variable = ir_array_cell_ref_get_symbol(array_cell);
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
 
     storage_size =
        types_get_storage_size(
-            ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(cell_type)));
+            dt_basic_type_get_data_type(DT_BASIC_TYPE(cell_type)));
 
     fprintf(params->out,
             "    popl %%eax # store array index in eax\n"
@@ -1207,7 +1204,7 @@ x86_compile_d_func_call(x86_comp_params_t *params,
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
 
-    if (!XDP_IS_AST_BASIC_TYPE(func_data_type))
+    if (!DT_IS_BASIC_TYPE(func_data_type))
     {
         /* calling function with non-basic return type is not implemented */
         assert(false);
@@ -1215,7 +1212,7 @@ x86_compile_d_func_call(x86_comp_params_t *params,
 
     if (retain_return_value)
     {
-        switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(func_data_type)))
+        switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(func_data_type)))
         {
            case void_type:
                /* nop */
@@ -1267,7 +1264,7 @@ x86_compile_c_func_call(x86_comp_params_t *params,
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
 
-    if (!XDP_IS_AST_BASIC_TYPE(func_data_type))
+    if (!DT_IS_BASIC_TYPE(func_data_type))
     {
         /* calling function with non-basic return type is not implemented */
         assert(false);
@@ -1275,7 +1272,7 @@ x86_compile_c_func_call(x86_comp_params_t *params,
 
     if (retain_return_value)
     {
-        switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(func_data_type)))
+        switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(func_data_type)))
         {
            case void_type:
                /* nop */

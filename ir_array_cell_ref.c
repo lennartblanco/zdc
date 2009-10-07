@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "ir_array_cell_ref.h"
-#include "ast_basic_type.h"
+#include "dt_basic_type.h"
 #include "ast_static_array_type.h"
 
 #include <assert.h>
@@ -137,7 +137,7 @@ ir_array_cell_ref_do_get_data_type(IrExpression *self)
         array_basic_type = ast_static_array_type_get_data_type(array_data_type);
 
         cell->data_type =
-            XDP_AST_DATA_TYPE(ast_basic_type_new(array_basic_type));
+            XDP_AST_DATA_TYPE(dt_basic_type_new(array_basic_type));
     }
  
     return cell->data_type;

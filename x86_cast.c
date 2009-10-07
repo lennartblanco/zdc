@@ -3,7 +3,6 @@
 #include "x86.h"
 #include "x86_cast.h"
 #include "types.h"
-#include "ast_basic_type.h"
 
 #include <assert.h>
 
@@ -37,13 +36,13 @@ x86_compile_cast(x86_comp_params_t *params,
 
     x86_compile_expression(params, value, sym_table);
 
-    if (!XDP_IS_AST_BASIC_TYPE(target_type))
+    if (!DT_IS_BASIC_TYPE(target_type))
     {
         /* not implemented */
         assert(false);
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(target_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(target_type)))
     {
         case bool_type:
             x86_compile_cast_to_bool(value);
@@ -71,7 +70,7 @@ x86_compile_cast_to_bool(IrExpression *value)
 
     value_type = ir_expression_get_data_type(value);
 
-    if (!XDP_IS_AST_BASIC_TYPE(value_type))
+    if (!DT_IS_BASIC_TYPE(value_type))
     {
         /* not implemented */
         assert(false);
@@ -93,13 +92,13 @@ x86_compile_cast_to_bool(IrExpression *value)
 static void
 x86_compile_cast_to_int(AstDataType *value_type)
 {
-    if (!XDP_IS_AST_BASIC_TYPE(value_type))
+    if (!DT_IS_BASIC_TYPE(value_type))
     {
         /* not implemented */
         assert(false);
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(value_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(value_type)))
     {
         case bool_type:
         case int_type:
@@ -114,13 +113,13 @@ x86_compile_cast_to_int(AstDataType *value_type)
 static void
 x86_compile_cast_to_uint(AstDataType *value_type)
 {
-    if (!XDP_IS_AST_BASIC_TYPE(value_type))
+    if (!DT_IS_BASIC_TYPE(value_type))
     {
         /* not implemented */
         assert(false);
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(value_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(value_type)))
     {
         case bool_type:
         case int_type:

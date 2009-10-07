@@ -1,7 +1,6 @@
 #include <stdbool.h>
 
 #include "types.h"
-#include "ast_basic_type.h"
 #include "ast_static_array_type.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
@@ -69,12 +68,12 @@ implicit_conv_to_int(IrExpression *expression)
     AstDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC_TYPE(exp_data_type))
     {
         return NULL;
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
     {
         case int_type:
             res_exp = expression;
@@ -99,12 +98,12 @@ implicit_conv_to_uint(IrExpression *expression)
     AstDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC_TYPE(exp_data_type))
     {
         return NULL;
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
     {
         case uint_type:
             res_exp = expression;
@@ -129,12 +128,12 @@ implicit_conv_to_bool(IrExpression *expression)
     AstDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!XDP_IS_AST_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC_TYPE(exp_data_type))
     {
         return NULL;
     }
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
     {
         case int_type:
         case uint_type:
@@ -158,12 +157,12 @@ implicit_conv_to_bool(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_basic_type(AstDataType *target_type, IrExpression *expression)
 {
-    assert(XDP_IS_AST_BASIC_TYPE(target_type));
+    assert(DT_IS_BASIC_TYPE(target_type));
     assert(IR_IS_EXPRESSION(expression));
 
     IrExpression *res_exp = NULL;
 
-    switch (ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(target_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(target_type)))
     {
         case void_type:
             /* not implemented */
@@ -288,7 +287,7 @@ implicit_conv_to_static_array_type(AstDataType *target_type,
     AstDataType *source_type;
 
     source_type = ir_expression_get_data_type(expression);
-    if (XDP_IS_AST_BASIC_TYPE(source_type))
+    if (DT_IS_BASIC_TYPE(source_type))
     {
         /*
          * conversation of basic type expression to
@@ -364,7 +363,7 @@ types_implicit_conv(AstDataType *target_type,
                     IrExpression *expression)
 {
 
-    if (XDP_IS_AST_BASIC_TYPE(target_type))
+    if (DT_IS_BASIC_TYPE(target_type))
     {
         return implicit_conv_to_basic_type(target_type, expression);
     }
@@ -387,17 +386,17 @@ types_integer_promotion(IrExpression *expression)
     basic_data_type_t exp_data_type;
 
     exp_type = ir_expression_get_data_type(expression);
-    if (!(XDP_IS_AST_BASIC_TYPE(exp_type))) {
+    if (!(DT_IS_BASIC_TYPE(exp_type))) {
         return NULL;
     }
 
-    exp_data_type = ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(exp_type));
+    exp_data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_type));
 
     switch (exp_data_type) {
         case bool_type:
             res_exp = IR_EXPRESSION(
                           ir_cast_new(
-                              XDP_AST_DATA_TYPE(ast_basic_type_new(int_type)),
+                              XDP_AST_DATA_TYPE(dt_basic_type_new(int_type)),
                               expression));
             break;
         case void_type:
@@ -431,9 +430,9 @@ types_usual_arithm_conv(IrExpression *left,
 
     data_type = ir_expression_get_data_type(left);
     /* only conversions of basic types is implemented */
-    assert(XDP_IS_AST_BASIC_TYPE(data_type));
+    assert(DT_IS_BASIC_TYPE(data_type));
     left_data_type =
-        ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type));
+        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
 
     if (left_data_type == void_type)
     {
@@ -448,9 +447,9 @@ types_usual_arithm_conv(IrExpression *left,
 
     data_type = ir_expression_get_data_type(right);
     /* only conversions of basic types is implemented */
-    assert(XDP_IS_AST_BASIC_TYPE(data_type));
+    assert(DT_IS_BASIC_TYPE(data_type));
     right_data_type =
-        ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type));
+        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
 
     if (right_data_type == void_type)
     {
@@ -470,25 +469,23 @@ types_usual_arithm_conv(IrExpression *left,
 bool
 types_is_void(AstDataType *data_type)
 {
-    if (!XDP_IS_AST_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC_TYPE(data_type))
     {
         return false;
     }
 
-    return 
-      ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type)) == void_type;
+    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == void_type;
 }
 
 bool
 types_is_bool(AstDataType *data_type)
 {
-    if (!XDP_IS_AST_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC_TYPE(data_type))
     {
         return false;
     }
 
-    return 
-      ast_basic_type_get_data_type(XDP_AST_BASIC_TYPE(data_type)) == bool_type;
+    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == bool_type;
 }
 
 
@@ -499,7 +496,7 @@ types_get_int_type()
 
    if (int_data_type == NULL)
    {
-      int_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(int_type));
+      int_data_type = XDP_AST_DATA_TYPE(dt_basic_type_new(int_type));
    }
 
    return int_data_type;
@@ -512,7 +509,7 @@ types_get_uint_type()
 
    if (uint_data_type == NULL)
    {
-      uint_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(uint_type));
+      uint_data_type = XDP_AST_DATA_TYPE(dt_basic_type_new(uint_type));
    }
 
    return uint_data_type;
@@ -525,7 +522,7 @@ types_get_bool_type()
 
    if (bool_data_type == NULL)
    {
-      bool_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(bool_type));
+      bool_data_type = XDP_AST_DATA_TYPE(dt_basic_type_new(bool_type));
    }
 
    return bool_data_type;
@@ -538,7 +535,7 @@ types_get_void_type()
 
    if (void_data_type == NULL)
    {
-      void_data_type = XDP_AST_DATA_TYPE(ast_basic_type_new(void_type));
+      void_data_type = XDP_AST_DATA_TYPE(dt_basic_type_new(void_type));
    }
 
    return void_data_type;
