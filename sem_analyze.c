@@ -567,7 +567,7 @@ sem_analyze_ast_var_def_to_ir(compilation_status_t *compile_status,
      * put the variable definition into the local symbol table
      */
 
-    AstDataType *var_data_type = ast_variable_definition_get_data_type(var_def);
+    DtDataType *var_data_type = ast_variable_definition_get_data_type(var_def);
     AstExpression *ast_initializer =
         ast_variable_definition_get_initializer(var_def);
     IrExpression *initializer = NULL;

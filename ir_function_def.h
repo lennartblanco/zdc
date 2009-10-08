@@ -59,7 +59,7 @@ ir_function_def_get_type(void);
  * @return object representing an IR function
  */
 IrFunctionDef *
-ir_function_def_new(AstDataType *return_type,
+ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
                     sym_table_t *parent_scope);
@@ -75,7 +75,7 @@ ir_function_def_get_name(IrFunctionDef *self);
 GSList *
 ir_function_def_get_parameters(IrFunctionDef *self);
 
-AstDataType *
+DtDataType *
 ir_function_def_get_return_type(IrFunctionDef *self);
 
 /**

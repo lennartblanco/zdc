@@ -6,8 +6,7 @@
  * of function signature plus the full AST for function body's code.
  */
 
-#include "ast_node.h"
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 #include "ast_code_block.h"
 
 /*---------------------------------------------------------------------------*
@@ -38,7 +37,7 @@ typedef struct
     /* private */
     char         *name;
     GSList       *parameters;
-    AstDataType  *return_type;
+    DtDataType   *return_type;
     AstCodeBlock *body;
 } AstFunctionDef;
 
@@ -57,7 +56,7 @@ ast_function_def_get_type(void);
 AstFunctionDef *
 ast_function_def_new(char *name,
                      GSList *parameters,
-                     AstDataType *return_type,
+                     DtDataType *return_type,
                      AstCodeBlock *body);
 
 char *
@@ -66,7 +65,7 @@ ast_function_def_get_name(AstFunctionDef *self);
 GSList *
 ast_function_def_get_parameters(AstFunctionDef *self);
 
-AstDataType *
+DtDataType *
 ast_function_def_get_return_type(AstFunctionDef *self);
 
 AstCodeBlock *

@@ -1,7 +1,7 @@
 #ifndef AST_VARIABLE_DECLARATION_INC_X
 #define AST_VARIABLE_DECLARATION_INC_X
 
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -29,7 +29,7 @@ typedef struct
     AstNode      parent;
 
     /* private */
-    AstDataType  *type;
+    DtDataType  *type;
     char         *name;
 } AstVariableDeclaration;
 
@@ -46,9 +46,9 @@ GType
 ast_variable_declaration_get_type(void);
 
 AstVariableDeclaration *
-ast_variable_declaration_new(AstDataType *type, char *name);
+ast_variable_declaration_new(DtDataType *type, char *name);
 
-AstDataType *
+DtDataType *
 ast_variable_declaration_get_data_type(AstVariableDeclaration *self);
 
 char *

@@ -1,7 +1,7 @@
 #ifndef DT_BASIC_TYPE_INC_X
 #define DT_BASIC_TYPE_INC_X
 
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,14 +26,14 @@
 
 typedef struct
 {
-    AstDataType parent;
+    DtDataType parent;
     /* private */
     basic_data_type_t data_type;
 } DtBasicType;
 
 typedef struct
 {
-    AstDataTypeClass parent_class;
+    DtDataTypeClass parent_class;
 } DtBasicTypeClass;
 
 /*---------------------------------------------------------------------------*

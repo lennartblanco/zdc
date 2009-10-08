@@ -33,7 +33,7 @@ types_is_literal_0or1(IrExpression *expression);
  *         if it is not legal to convert expression to target_type
  */
 IrExpression *
-types_implicit_conv(AstDataType *target_type,
+types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression);
 
 /**
@@ -62,37 +62,37 @@ types_get_default_initializer(basic_data_type_t data_type);
  * false otherwise.
  */
 bool
-types_is_void(AstDataType *data_type);
+types_is_void(DtDataType *data_type);
 
 /**
  * Returns true if data_type represent basic type void,
  * false otherwise.
  */
 bool
-types_is_bool(AstDataType *data_type);
+types_is_bool(DtDataType *data_type);
 
 /**
  * Get singelton instance of object representing int type.
  */
-AstDataType *
+DtDataType *
 types_get_int_type();
 
 /**
  * Get singelton instance of object representing uint type.
  */
-AstDataType *
+DtDataType *
 types_get_uint_type();
 
 /**
  * Get singelton instance of object representing bool type.
  */
-AstDataType *
+DtDataType *
 types_get_bool_type();
 
 /**
  * Get singelton instance of object representing void type.
  */
-AstDataType *
+DtDataType *
 types_get_void_type();
 
 #endif /* TYPES_INC_X */

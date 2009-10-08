@@ -32,7 +32,7 @@ ir_expression_get_type(void)
     return type;
 }
 
-AstDataType *
+DtDataType *
 ir_expression_get_data_type(IrExpression *self)
 {
     assert(self);

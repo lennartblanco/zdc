@@ -117,7 +117,7 @@ validate_function_call(compilation_status_t *compile_status,
 {
     IrSymbol *func_symb;
     char *func_name;
-    AstDataType *func_return_type;
+    DtDataType *func_return_type;
     GSList *formal_args;
     GSList *func_call_args;
     GSList *validated_args = NULL;
@@ -262,7 +262,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
 {
     assert(ir_binary_operation_is_conditional(bin_op));
 
-    AstDataType *data_type;
+    DtDataType *data_type;
     IrExpression *left;
     IrExpression *right;
    
@@ -388,7 +388,7 @@ validate_array_cell_ref(compilation_status_t *compile_status,
 {
     IrExpression *idx_exp;
     IrSymbol *array_symb;
-    AstDataType *symb_type;
+    DtDataType *symb_type;
 
     /*
      * look-up the array in the symbol table
@@ -518,15 +518,14 @@ validate_assigment(compilation_status_t *compile_status,
     IrLvalue *lvalue;
     IrExpression *value;
     IrSymbol *lvalue_sym;
-    AstDataType *target_type;
+    DtDataType *target_type;
 
     /*
      * look-up and validate lvalue symbol name
      */
     lvalue = ir_assigment_get_lvalue(assigment);
 
-    lvalue_sym =
-        sym_table_get_symbol(sym_table, ir_lvalue_get_name(lvalue));
+    lvalue_sym = sym_table_get_symbol(sym_table, ir_lvalue_get_name(lvalue));
     if (lvalue_sym == NULL)
     {
         compile_error(compile_status,
@@ -827,7 +826,7 @@ validate_array_literal(compilation_status_t *compile_status,
 {
     GSList *i;
     GSList *validated_values = NULL;
-    AstDataType *vals_trgt_type = NULL;
+    DtDataType *vals_trgt_type = NULL;
 
     i = ir_array_literal_get_values(array_literal);
     for (; i != NULL; i = g_slist_next(i))

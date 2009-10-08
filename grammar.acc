@@ -207,17 +207,16 @@ type<x> :
 |   basic_type<t> '[' TOK_NUMBER<num> ']'
     {
         (*x).data_type =
-            XDP_AST_DATA_TYPE(ast_static_array_type_new(t.basic_data_type,
-                                                        num.integer));
+            DT_DATA_TYPE(ast_static_array_type_new(t.basic_data_type,
+                                                   num.integer));
     }
 |   basic_type<t>
     {
-        (*x).data_type =
-            XDP_AST_DATA_TYPE(dt_basic_type_new(t.basic_data_type));
+        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(t.basic_data_type));
     }
 |   TOK_AUTO
     {
-        (*x).data_type = XDP_AST_DATA_TYPE(ast_auto_type_new());
+        (*x).data_type = DT_DATA_TYPE(ast_auto_type_new());
     }
 ;
 
@@ -307,8 +306,8 @@ foreach_block<x> :
         {
             if (idx_type.data_type == NULL)
             {
-                /* if not type is specified handle as auto type */
-                idx_type.data_type = XDP_AST_DATA_TYPE(ast_auto_type_new());
+                /* if no type is specified handle as auto type */
+                idx_type.data_type = DT_DATA_TYPE(ast_auto_type_new());
             }
             index = ast_variable_declaration_new(idx_type.data_type,
                                                  idx_name.text);
@@ -320,7 +319,7 @@ foreach_block<x> :
         if (val_type.data_type == NULL)
         {
             /* if not type is specified handle as auto type */
-            val_type.data_type = XDP_AST_DATA_TYPE(ast_auto_type_new());
+            val_type.data_type = DT_DATA_TYPE(ast_auto_type_new());
         }
         value = ast_variable_declaration_new(val_type.data_type,
                                              val_name.text);

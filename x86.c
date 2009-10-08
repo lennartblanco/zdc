@@ -542,7 +542,7 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
                                  IrVariable *variable,
                                  sym_table_t *sym_table)
 {
-    AstDataType *var_type = ir_variable_get_data_type(variable);
+    DtDataType *var_type = ir_variable_get_data_type(variable);
     IrExpression *var_init = ir_variable_get_initializer(variable);
 
     if (DT_IS_BASIC_TYPE(var_type))
@@ -586,7 +586,7 @@ x86_get_variable_storage_size(IrVariable *variable)
     assert(variable);
     assert(IR_IS_VARIABLE(variable));
 
-    AstDataType *variable_type;
+    DtDataType *variable_type;
 
     variable_type = ir_variable_get_data_type(variable);
     if (DT_IS_BASIC_TYPE(variable_type))
@@ -872,7 +872,7 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
     assert(sym_table);
 
     IrArrayCellRef *array_cell;
-    AstDataType *cell_type;
+    DtDataType *cell_type;
     int storage_size;
     X86FrameOffset *array_loc;
     IrVariable *variable;
@@ -1173,7 +1173,7 @@ x86_compile_d_func_call(x86_comp_params_t *params,
 
     int arg_num;
     GSList *i;
-    AstDataType *func_data_type;
+    DtDataType *func_data_type;
 
     i = ir_function_call_get_arguments(func_call);
     arg_num = g_slist_length(i);
@@ -1241,7 +1241,7 @@ x86_compile_c_func_call(x86_comp_params_t *params,
     assert(sym_table);
 
     GSList *i;
-    AstDataType *func_data_type;
+    DtDataType *func_data_type;
 
     i = ir_function_call_get_arguments(func_call);
 

@@ -12,7 +12,7 @@
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -94,7 +94,7 @@ ir_array_literal_class_init(gpointer klass, gpointer dummy)
         ir_array_literal_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ARRAY_LITERAL(self));
@@ -103,7 +103,7 @@ ir_array_literal_do_get_data_type(IrExpression *self)
     if (arr_literal->data_type == NULL)
     {
         IrExpression *first_val;
-        AstDataType *first_val_type;
+        DtDataType *first_val_type;
         basic_data_type_t first_val_basic_data_type;
 
         first_val = g_slist_nth_data(arr_literal->values, 0);
@@ -122,5 +122,5 @@ ir_array_literal_do_get_data_type(IrExpression *self)
             ast_static_array_type_new(first_val_basic_data_type,
                                       g_slist_length(arr_literal->values));
     }
-    return XDP_AST_DATA_TYPE(arr_literal->data_type);
+    return DT_DATA_TYPE(arr_literal->data_type);
 }

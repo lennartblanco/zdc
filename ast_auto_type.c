@@ -33,7 +33,7 @@ GType ast_auto_type_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_DATA_TYPE,
+      type = g_type_register_static(DT_TYPE_DATA_TYPE,
                                     "AstAutoTypeType",
                                     &info, 0);
     }

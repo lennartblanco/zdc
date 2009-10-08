@@ -41,12 +41,12 @@ ir_function_def_get_type(void)
 }
 
 IrFunctionDef *
-ir_function_def_new(AstDataType *return_type,
+ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
                     sym_table_t *parent_scope)
 {
-    assert(XDP_IS_AST_DATA_TYPE(return_type));
+    assert(DT_IS_DATA_TYPE(return_type));
     assert(name);
     assert(parent_scope);
 
@@ -102,7 +102,7 @@ ir_function_def_get_parameters(IrFunctionDef *self)
     return ir_function_get_parameters(IR_FUNCTION(self));
 }
 
-AstDataType *
+DtDataType *
 ir_function_def_get_return_type(IrFunctionDef *self)
 {
     assert(IR_IS_FUNCTION_DEF(self));

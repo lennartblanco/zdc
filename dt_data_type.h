@@ -1,5 +1,5 @@
-#ifndef AST_DATA_TYPE_INC_X
-#define AST_DATA_TYPE_INC_X
+#ifndef DT_DATA_TYPE_INC_X
+#define DT_DATA_TYPE_INC_X
 
 #include "ast_node.h"
 
@@ -7,32 +7,32 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_DATA_TYPE ast_data_type_get_type()
+#define DT_TYPE_DATA_TYPE dt_data_type_get_type()
 
-#define XDP_AST_DATA_TYPE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_DATA_TYPE, AstDataType))
+#define DT_DATA_TYPE(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_DATA_TYPE, DtDataType))
 
-#define XDP_AST_DATA_TYPE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_DATA_TYPE, AstDataTypeClass))
+#define DT_DATA_TYPE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_DATA_TYPE, DtDataTypeClass))
 
-#define XDP_IS_AST_DATA_TYPE(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_DATA_TYPE))
+#define DT_IS_DATA_TYPE(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_TYPE_DATA_TYPE))
 
-#define XDP_IS_AST_DATA_TYPE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_DATA_TYPE))
+#define DT_IS_DATA_TYPE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_DATA_TYPE))
 
-#define XDP_AST_DATA_TYPE_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_DATA_TYPE, AstDataTypeClass))
+#define DT_DATA_TYPE_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_DATA_TYPE, DtDataTypeClass))
 
 typedef struct
 {
     AstNode parent;
-} AstDataType;
+} DtDataType;
 
 typedef struct
 {
     AstNodeClass parent_class;
-} AstDataTypeClass;
+} DtDataTypeClass;
 
 typedef enum basic_data_type_e
 {
@@ -46,6 +46,7 @@ typedef enum basic_data_type_e
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_data_type_get_type(void);
+GType
+dt_data_type_get_type(void);
 
-#endif /* AST_DATA_TYPE_INC_X */
+#endif /* DT_DATA_TYPE_INC_X */

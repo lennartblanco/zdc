@@ -44,7 +44,7 @@ ast_variable_definition_get_type(void)
 }
 
 AstVariableDefinition *
-ast_variable_definition_new(AstDataType *type,
+ast_variable_definition_new(DtDataType *type,
                             char *name, 
                             AstExpression *initializer)
 {
@@ -58,7 +58,7 @@ ast_variable_definition_new(AstDataType *type,
     return obj;
 }
 
-AstDataType *
+DtDataType *
 ast_variable_definition_get_data_type(AstVariableDefinition *self)
 {
     assert(self);

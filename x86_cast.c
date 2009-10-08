@@ -14,10 +14,10 @@ static void
 x86_compile_cast_to_bool(IrExpression *value);
 
 static void
-x86_compile_cast_to_int(AstDataType *value_type);
+x86_compile_cast_to_int(DtDataType *value_type);
 
 static void
-x86_compile_cast_to_uint(AstDataType *value_type);
+x86_compile_cast_to_uint(DtDataType *value_type);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -29,7 +29,7 @@ x86_compile_cast(x86_comp_params_t *params,
                  sym_table_t *sym_table)
 {
     IrExpression *value;
-    AstDataType *target_type;
+    DtDataType *target_type;
 
     value = ir_cast_get_value(cast);
     target_type = ir_cast_get_target_type(cast);
@@ -66,7 +66,7 @@ x86_compile_cast(x86_comp_params_t *params,
 static void
 x86_compile_cast_to_bool(IrExpression *value)
 {
-    AstDataType *value_type;
+    DtDataType *value_type;
 
     value_type = ir_expression_get_data_type(value);
 
@@ -90,7 +90,7 @@ x86_compile_cast_to_bool(IrExpression *value)
 }
 
 static void
-x86_compile_cast_to_int(AstDataType *value_type)
+x86_compile_cast_to_int(DtDataType *value_type)
 {
     if (!DT_IS_BASIC_TYPE(value_type))
     {
@@ -111,7 +111,7 @@ x86_compile_cast_to_int(AstDataType *value_type)
 }
 
 static void
-x86_compile_cast_to_uint(AstDataType *value_type)
+x86_compile_cast_to_uint(DtDataType *value_type)
 {
     if (!DT_IS_BASIC_TYPE(value_type))
     {

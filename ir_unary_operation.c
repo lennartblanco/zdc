@@ -9,7 +9,7 @@
 static void
 ir_unary_operation_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_unary_operation_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -57,7 +57,6 @@ ir_unary_operation_new(ast_unary_op_type_t operation,
 ast_unary_op_type_t
 ir_unary_operation_get_operation(IrUnaryOperation *self)
 {
-    assert(self);
     assert(IR_IS_UNARY_OPERATION(self));
 
     return self->operation;
@@ -66,7 +65,6 @@ ir_unary_operation_get_operation(IrUnaryOperation *self)
 IrExpression *
 ir_unary_operation_get_operand(IrUnaryOperation *self)
 {
-    assert(self);
     assert(IR_IS_UNARY_OPERATION(self));
 
     return self->operand;
@@ -76,7 +74,6 @@ void
 ir_unary_operation_set_operand(IrUnaryOperation *self,
                                IrExpression *operand)
 {
-    assert(self);
     assert(IR_IS_UNARY_OPERATION(self));
 
     self->operand = operand;
@@ -93,10 +90,9 @@ ir_unary_operation_class_init(gpointer klass, gpointer dummy)
         ir_unary_operation_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_unary_operation_do_get_data_type(IrExpression *self)
 {
-    assert(self);
     IrUnaryOperation *op = IR_UNARY_OPERATION(self);
     IrExpression *operand;
 

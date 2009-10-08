@@ -4,7 +4,7 @@
 #include <glib-object.h>
 
 #include "ir_statment.h"
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -36,7 +36,7 @@ typedef struct
 {
   IrStatmentClass parent_class;
   /* public virtual methods */
-  AstDataType * (*do_get_data_type) (IrExpression *self);
+  DtDataType * (*do_get_data_type) (IrExpression *self);
 } IrExpressionClass;
 
 /*---------------------------------------------------------------------------*
@@ -46,7 +46,7 @@ typedef struct
 GType
 ir_expression_get_type(void);
 
-AstDataType *
+DtDataType *
 ir_expression_get_data_type(IrExpression *self);
 
 #endif /* IR_EXPRESSION_INC_X */

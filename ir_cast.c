@@ -11,7 +11,7 @@
 static void
 ir_cast_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_cast_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -44,7 +44,7 @@ ir_cast_get_type(void)
 }
 
 IrCast *
-ir_cast_new(AstDataType *target_type, IrExpression *value)
+ir_cast_new(DtDataType *target_type, IrExpression *value)
 {
     IrCast *obj;
 
@@ -55,7 +55,7 @@ ir_cast_new(AstDataType *target_type, IrExpression *value)
     return obj;
 }
 
-AstDataType *
+DtDataType *
 ir_cast_get_target_type(IrCast *self)
 {
     assert(self);
@@ -83,7 +83,7 @@ ir_cast_class_init(gpointer klass, gpointer dummy)
     ((IrExpressionClass *)klass)->do_get_data_type = ir_cast_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_cast_do_get_data_type(IrExpression *self)
 {
     return IR_CAST(self)->target_type;

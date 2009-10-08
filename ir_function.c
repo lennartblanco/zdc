@@ -103,15 +103,15 @@ ir_function_get_parameters(IrFunction *self)
 }
 
 void
-ir_function_set_return_type(IrFunction *self, AstDataType *return_type)
+ir_function_set_return_type(IrFunction *self, DtDataType *return_type)
 {
     assert(IR_IS_FUNCTION(self));
-    assert(XDP_IS_AST_DATA_TYPE(return_type));
+    assert(DT_IS_DATA_TYPE(return_type));
 
     self->return_type = return_type;
 }
 
-AstDataType *
+DtDataType *
 ir_function_get_return_type(IrFunction *self)
 {
     assert(IR_IS_FUNCTION(self));

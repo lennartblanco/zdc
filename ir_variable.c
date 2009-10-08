@@ -14,7 +14,7 @@ ir_variable_class_init(gpointer klass, gpointer foo);
 static void
 ir_variable_do_print(IrSymbol *self, FILE *out, int indention);
 
-static AstDataType *
+static DtDataType *
 ir_variable_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -47,7 +47,7 @@ ir_variable_get_type(void)
 }
 
 IrVariable *
-ir_variable_new(AstDataType *type, 
+ir_variable_new(DtDataType *type, 
                 char *name,
                 IrExpression *initializer)
 {
@@ -83,7 +83,7 @@ ir_variable_get_location(IrVariable *self)
     return self->location;
 }
 
-AstDataType *
+DtDataType *
 ir_variable_get_data_type(IrVariable *self)
 {
     assert(self);
@@ -125,7 +125,6 @@ ir_variable_class_init(gpointer klass, gpointer foo)
 static void
 ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
 
     IrVariable *var = IR_VARIABLE(self);
@@ -139,10 +138,9 @@ ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
     }
 }
 
-static AstDataType *
+static DtDataType *
 ir_variable_do_get_data_type(IrExpression *self)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
 
     return IR_VARIABLE(self)->type;

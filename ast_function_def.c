@@ -43,10 +43,10 @@ ast_function_def_get_type(void)
     return type;
 }
 
-AstFunctionDef* 
-ast_function_def_new(char *name, 
+AstFunctionDef *
+ast_function_def_new(char *name,
                      GSList *parameters,
-                     AstDataType *return_type,
+                     DtDataType *return_type,
                      AstCodeBlock *body)
 {
     AstFunctionDef *func;
@@ -76,7 +76,7 @@ ast_function_def_get_parameters(AstFunctionDef *self)
     return self->parameters;
 }
 
-AstDataType *
+DtDataType *
 ast_function_def_get_return_type(AstFunctionDef *self)
 {
     assert(XDP_IS_AST_FUNCTION_DEF(self));

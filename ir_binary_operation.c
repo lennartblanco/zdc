@@ -10,10 +10,10 @@
 static void
 ir_binary_operation_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self);
 
-AstDataType *
+DtDataType *
 ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self);
 
 /*---------------------------------------------------------------------------*
@@ -110,7 +110,7 @@ ir_binary_operation_set_right(IrBinaryOperation *self,
 bool
 ir_binary_operation_is_iarithm(IrBinaryOperation *self)
 {
-    AstDataType *data_type;
+    DtDataType *data_type;
     basic_data_type_t bdt;
     ast_binary_op_type_t op_type;
 
@@ -142,7 +142,7 @@ ir_binary_operation_is_iarithm(IrBinaryOperation *self)
 bool
 ir_binary_operation_is_icomp(IrBinaryOperation *self)
 {
-    AstDataType *data_type;
+    DtDataType *data_type;
     basic_data_type_t bdt;
     ast_binary_op_type_t op_type;
 
@@ -196,10 +196,10 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy)
         ir_binary_operation_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self)
 {
-    AstDataType *data_type = NULL;
+    DtDataType *data_type = NULL;
     IrBinaryOperation *bin_op = IR_BINARY_OPERATION(self);
   
 
@@ -231,7 +231,7 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
     return data_type;
 }
 
-AstDataType *
+DtDataType *
 ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self)
 {
     if (types_is_void(ir_expression_get_data_type(self->right)))

@@ -1,7 +1,7 @@
 #ifndef AST_AUTO_TYPE_INC_X
 #define AST_AUTO_TYPE_INC_X
 
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,22 +26,22 @@
 
 typedef struct
 {
-    AstDataType parent;
+    DtDataType parent;
 } AstAutoType;
 
 typedef struct
 {
-    AstDataTypeClass parent_class;
+    DtDataTypeClass parent_class;
 } AstAutoTypeClass;
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_auto_type_get_type(void);
+GType
+ast_auto_type_get_type(void);
 
 AstAutoType * 
 ast_auto_type_new();
-
 
 #endif /* AST_AUTO_TYPE_INC_X */

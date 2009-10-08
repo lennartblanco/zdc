@@ -11,13 +11,13 @@ union yystype_u
 {
     char                       *text;
     int                        integer;
+    DtDataType                 *data_type;
     basic_data_type_t          basic_data_type;
     AstCompileUnit             *compile_unit;
     AstCodeBlock               *code_block;
     AstFunctionDecl            *function_decl;
     AstFunctionDef             *function_def;
     AstStatment                *statment;
-    AstDataType                *data_type;
     AstVariableRef             *variable_ref;
     AstExpression              *expression;
     AstVariableDeclaration     *variable_declaration;

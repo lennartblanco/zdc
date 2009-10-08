@@ -12,7 +12,7 @@
 static void
 ir_int_constant_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_int_constant_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -58,7 +58,6 @@ ir_int_constant_new(gint32 value)
 gint32
 ir_int_constant_get_value(IrIntConstant *self)
 {
-    assert(self);
     assert(IR_IS_INT_CONSTANT(self));
 
     return self->value;
@@ -75,7 +74,7 @@ ir_int_constant_class_init(gpointer klass, gpointer dummy)
         ir_int_constant_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_int_constant_do_get_data_type(IrExpression *self)
 {
     return types_get_int_type();

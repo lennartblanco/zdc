@@ -2,8 +2,8 @@
 #define AST_VARIABLE_DEFINITION_INC_X
 
 #include "ast_statment.h"
-#include "ast_data_type.h"
 #include "ast_expression.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -31,7 +31,7 @@ typedef struct
     AstStatment      parent;
 
     /* private */
-    AstDataType   *type;
+    DtDataType    *type;
     char          *name;
     AstExpression *initializer;
 } AstVariableDefinition;
@@ -49,11 +49,11 @@ GType
 ast_variable_definition_get_type(void);
 
 AstVariableDefinition *
-ast_variable_definition_new(AstDataType *type,
+ast_variable_definition_new(DtDataType *type,
                             char *name, 
                             AstExpression *initializer);
 
-AstDataType *
+DtDataType *
 ast_variable_definition_get_data_type(AstVariableDefinition *self);
 
 char *

@@ -11,7 +11,7 @@
 static void
 ir_function_call_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_function_call_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -61,7 +61,7 @@ ir_function_call_new(char *name,
 
 void
 ir_function_call_set_return_type(IrFunctionCall *self,
-                                 AstDataType *return_type)
+                                 DtDataType *return_type)
 {
     assert(IR_IS_FUNCTION_CALL(self));
 
@@ -121,7 +121,7 @@ ir_function_call_class_init(gpointer klass, gpointer dummy)
         ir_function_call_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_function_call_do_get_data_type(IrExpression *self)
 {
   return IR_FUNCTION_CALL(self)->return_type;

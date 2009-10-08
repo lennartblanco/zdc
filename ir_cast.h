@@ -28,7 +28,7 @@ typedef struct
 {
     IrExpression parent;
     /* private */
-    AstDataType *target_type;
+    DtDataType *target_type;
     IrExpression *value;
 } IrCast;
 
@@ -49,9 +49,9 @@ ir_cast_get_type(void);
  * @param value the expression to type convert
  */
 IrCast *
-ir_cast_new(AstDataType *target_type, IrExpression *value);
+ir_cast_new(DtDataType *target_type, IrExpression *value);
 
-AstDataType *
+DtDataType *
 ir_cast_get_target_type(IrCast *self);
 
 IrExpression *

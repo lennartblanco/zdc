@@ -3,7 +3,7 @@
 
 #include "ir_symbol.h"
 #include "ir_expression.h"
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -29,12 +29,13 @@
 typedef struct
 {
     IrSymbol       parent;
+
     /*
      * private 
      */
 
     /* variables data type */
-    AstDataType   *type;
+    DtDataType    *type;
     /* value to assign to variable when created */
     IrExpression  *initializer;
     /* backend specific location of this variable */
@@ -62,7 +63,7 @@ ir_variable_get_type(void);
  *        to assign default type value
  */
 IrVariable *
-ir_variable_new(AstDataType *type, 
+ir_variable_new(DtDataType *type, 
                 char *name,
                 IrExpression *initializer);
 
@@ -75,7 +76,7 @@ ir_variable_get_location(IrVariable *self);
 char *
 ir_variable_get_name(IrVariable *self);
 
-AstDataType *
+DtDataType *
 ir_variable_get_data_type(IrVariable *self);
 
 IrExpression *

@@ -14,7 +14,7 @@
 static void
 ir_array_cell_ref_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_array_cell_ref_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -120,7 +120,7 @@ ir_array_cell_ref_class_init(gpointer klass, gpointer dummy)
         ir_array_cell_ref_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_array_cell_ref_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ARRAY_CELL_REF(self));
@@ -136,8 +136,7 @@ ir_array_cell_ref_do_get_data_type(IrExpression *self)
             XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->array_symbol));
         array_basic_type = ast_static_array_type_get_data_type(array_data_type);
 
-        cell->data_type =
-            XDP_AST_DATA_TYPE(dt_basic_type_new(array_basic_type));
+        cell->data_type = DT_DATA_TYPE(dt_basic_type_new(array_basic_type));
     }
  
     return cell->data_type;

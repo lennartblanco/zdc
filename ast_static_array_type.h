@@ -1,7 +1,7 @@
 #ifndef AST_STATIC_ARRAY_TYPE_INC_X
 #define AST_STATIC_ARRAY_TYPE_INC_X
 
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    AstDataType parent;
+    DtDataType parent;
     /* private */
     basic_data_type_t data_type;
     int length;
@@ -34,15 +34,15 @@ typedef struct
 
 typedef struct
 {
-    AstDataTypeClass parent_class;
+    DtDataTypeClass parent_class;
 } AstStaticArrayTypeClass;
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_static_array_type_get_type(void);
-
+GType
+ast_static_array_type_get_type(void);
 
 AstStaticArrayType *
 ast_static_array_type_new(basic_data_type_t data_type, int length);

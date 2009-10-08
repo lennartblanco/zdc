@@ -31,7 +31,7 @@ typedef struct
     /* private */
     char                 *name;
     GSList               *arguments;
-    AstDataType          *return_type;
+    DtDataType           *return_type;
     ir_linkage_type_t    linkage;
 } IrFunctionCall;
 
@@ -58,7 +58,7 @@ ir_function_call_new(char *name,
 
 void
 ir_function_call_set_return_type(IrFunctionCall *self,
-                                 AstDataType *return_type);
+                                 DtDataType *return_type);
 
 void
 ir_function_call_set_linkage(IrFunctionCall *self,

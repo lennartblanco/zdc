@@ -12,7 +12,7 @@
 static void
 ir_bool_constant_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_bool_constant_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -75,7 +75,7 @@ ir_bool_constant_class_init(gpointer klass, gpointer dummy)
         ir_bool_constant_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_bool_constant_do_get_data_type(IrExpression *self)
 {
   return types_get_bool_type();

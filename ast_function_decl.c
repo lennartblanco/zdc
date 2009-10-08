@@ -46,7 +46,7 @@ ast_function_decl_get_type(void)
 AstFunctionDecl *
 ast_function_decl_new(char *name,
                       GSList *parameters,
-                      AstDataType *return_type)
+                      DtDataType *return_type)
 {
     AstFunctionDecl *func;
 
@@ -92,7 +92,7 @@ ast_function_decl_get_parameters(AstFunctionDecl *self)
     return self->parameters;
 }
 
-AstDataType *
+DtDataType *
 ast_function_decl_get_return_type(AstFunctionDecl *self)
 {
     assert(XDP_IS_AST_FUNCTION_DECL(self));

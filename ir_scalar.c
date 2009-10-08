@@ -12,7 +12,7 @@
 static void
 ir_scalar_class_init(gpointer klass, gpointer dummy);
 
-static AstDataType *
+static DtDataType *
 ir_scalar_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
@@ -96,7 +96,7 @@ ir_scalar_class_init(gpointer klass, gpointer dummy)
         ir_scalar_do_get_data_type;
 }
 
-static AstDataType *
+static DtDataType *
 ir_scalar_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_SCALAR(self));

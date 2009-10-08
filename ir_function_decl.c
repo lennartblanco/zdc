@@ -33,12 +33,12 @@ ir_function_decl_get_type(void)
 }
 
 IrFunctionDecl *
-ir_function_decl_new(AstDataType *return_type,
+ir_function_decl_new(DtDataType *return_type,
                      char *name,
                      GSList *parameters,
                      ir_linkage_type_t linkage_type)
 {
-    assert(XDP_IS_AST_DATA_TYPE(return_type));
+    assert(DT_IS_DATA_TYPE(return_type));
     assert(name);
 
     IrFunctionDecl *obj;

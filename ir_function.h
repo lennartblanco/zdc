@@ -3,7 +3,7 @@
 
 #include "ir_symbol.h"
 #include "ir_code_block.h"
-#include "ast_data_type.h"
+#include "dt_data_type.h"
 #include "utils.h"
 
 /*---------------------------------------------------------------------------*
@@ -38,7 +38,7 @@ typedef struct
     IrSymbol          parent;
     /* private */
     GSList            *parameters;
-    AstDataType       *return_type;
+    DtDataType        *return_type;
     ir_linkage_type_t linkage_type;
 } IrFunction;
 
@@ -66,9 +66,9 @@ GSList *
 ir_function_get_parameters(IrFunction *self);
 
 void
-ir_function_set_return_type(IrFunction *self, AstDataType *return_type);
+ir_function_set_return_type(IrFunction *self, DtDataType *return_type);
 
-AstDataType *
+DtDataType *
 ir_function_get_return_type(IrFunction *self);
 
 char *
