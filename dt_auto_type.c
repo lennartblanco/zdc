@@ -1,4 +1,4 @@
-#include "ast_auto_type.h"
+#include "dt_auto_type.h"
 
 #include <assert.h>
 
@@ -7,45 +7,46 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_auto_type_do_print(AstNode *self, FILE *out);
+dt_auto_type_do_print(AstNode *self, FILE *out);
 
 static void
-ast_auto_type_class_init(gpointer klass, gpointer dummy);
+dt_auto_type_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_auto_type_get_type(void)
+GType
+dt_auto_type_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstAutoTypeClass),
+        sizeof (DtAutoTypeClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_auto_type_class_init,   /* class_init */
+        dt_auto_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstAutoType),
+        sizeof (DtAutoType),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(DT_TYPE_DATA_TYPE,
-                                    "AstAutoTypeType",
+                                    "DtAutoTypeType",
                                     &info, 0);
     }
     return type;
 }
 
-AstAutoType *
-ast_auto_type_new()
+DtAutoType *
+dt_auto_type_new()
 {
-    AstAutoType *obj;
+    DtAutoType *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_AUTO_TYPE, NULL);
+    obj = g_object_new(DT_TYPE_AUTO_TYPE, NULL);
 
     return obj;
 }
@@ -55,14 +56,14 @@ ast_auto_type_new()
  *---------------------------------------------------------------------------*/
 
 static void
-ast_auto_type_do_print(AstNode *self, FILE *out)
+dt_auto_type_do_print(AstNode *self, FILE *out)
 {
     fprintf(out, "auto");
 }
 
 static void
-ast_auto_type_class_init(gpointer klass, gpointer dummy)
+dt_auto_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_auto_type_do_print;
+    ((AstNodeClass *)klass)->do_print = dt_auto_type_do_print;
 }
 
