@@ -6,7 +6,7 @@
 #include "yystype_def.h"
 #include "dt_auto_type.h"
 #include "dt_basic_type.h"
-#include "ast_static_array_type.h"
+#include "dt_static_array_type.h"
 #include "ast_return.h"
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
@@ -207,8 +207,8 @@ type<x> :
 |   basic_type<t> '[' TOK_NUMBER<num> ']'
     {
         (*x).data_type =
-            DT_DATA_TYPE(ast_static_array_type_new(t.basic_data_type,
-                                                   num.integer));
+            DT_DATA_TYPE(dt_static_array_type_new(t.basic_data_type,
+                                                  num.integer));
     }
 |   basic_type<t>
     {

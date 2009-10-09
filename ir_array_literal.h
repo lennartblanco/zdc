@@ -1,7 +1,7 @@
 #ifndef IR_ARRAY_LITERAL_INC_X
 #define IR_ARRAY_LITERAL_INC_X
 
-#include "ast_static_array_type.h"
+#include "dt_static_array_type.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -30,7 +30,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
-    AstStaticArrayType *data_type;
+    DtStaticArrayType *data_type;
     GSList *values;
 } IrArrayLiteral;
 

@@ -1,5 +1,6 @@
 #include <stdbool.h>
-#include "ast_static_array_type.h"
+
+#include "dt_static_array_type.h"
 
 #include <assert.h>
 
@@ -8,45 +9,46 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_static_array_type_do_print(AstNode *self, FILE *out);
+dt_static_array_type_do_print(AstNode *self, FILE *out);
 
 static void
-ast_static_array_type_class_init(gpointer klass, gpointer dummy);
+dt_static_array_type_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_static_array_type_get_type(void)
+GType
+dt_static_array_type_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstStaticArrayTypeClass),
+        sizeof (DtStaticArrayTypeClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_static_array_type_class_init,   /* class_init */
+        dt_static_array_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstStaticArrayType),
+        sizeof (DtStaticArrayType),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(DT_TYPE_DATA_TYPE,
-                                    "AstStaticArrayTypeType",
+                                    "DtStaticArrayTypeType",
                                     &info, 0);
     }
     return type;
 }
 
-AstStaticArrayType * 
-ast_static_array_type_new(basic_data_type_t data_type, int length)
+DtStaticArrayType *
+dt_static_array_type_new(basic_data_type_t data_type, int length)
 {
-    AstStaticArrayType *obj;
+    DtStaticArrayType *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_STATIC_ARRAY_TYPE, NULL);
+    obj = g_object_new(DT_TYPE_STATIC_ARRAY_TYPE, NULL);
     obj->data_type = data_type;
     obj->length = length;
 
@@ -54,19 +56,17 @@ ast_static_array_type_new(basic_data_type_t data_type, int length)
 }
 
 basic_data_type_t
-ast_static_array_type_get_data_type(AstStaticArrayType *self)
+dt_static_array_type_get_data_type(DtStaticArrayType *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(self));
+    assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
     return self->data_type;
 }
 
 int
-ast_static_array_type_get_length(AstStaticArrayType *self)
+dt_static_array_type_get_length(DtStaticArrayType *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(self));
+    assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
     return self->length;
 }
@@ -76,14 +76,13 @@ ast_static_array_type_get_length(AstStaticArrayType *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_static_array_type_do_print(AstNode *self, FILE *out)
+dt_static_array_type_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(self));
+    assert(DT_IS_STATIC_ARRAY_TYPE(self));
     assert(out);
 
     char *str;
-    AstStaticArrayType *obj = XDP_AST_STATIC_ARRAY_TYPE(self);
+    DtStaticArrayType *obj = DT_STATIC_ARRAY_TYPE(self);
 
     switch(obj->data_type)
     {
@@ -104,8 +103,8 @@ ast_static_array_type_do_print(AstNode *self, FILE *out)
 }
 
 static void
-ast_static_array_type_class_init(gpointer klass, gpointer dummy)
+dt_static_array_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_static_array_type_do_print;
+    ((AstNodeClass *)klass)->do_print = dt_static_array_type_do_print;
 }
 

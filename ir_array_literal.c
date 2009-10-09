@@ -119,8 +119,8 @@ ir_array_literal_do_get_data_type(IrExpression *self)
             dt_basic_type_get_data_type(DT_BASIC_TYPE(first_val_type));
 
         arr_literal->data_type =
-            ast_static_array_type_new(first_val_basic_data_type,
-                                      g_slist_length(arr_literal->values));
+            dt_static_array_type_new(first_val_basic_data_type,
+                                     g_slist_length(arr_literal->values));
     }
     return DT_DATA_TYPE(arr_literal->data_type);
 }

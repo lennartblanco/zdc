@@ -1,7 +1,6 @@
 #include <stdbool.h>
 
 #include "types.h"
-#include "ast_static_array_type.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
@@ -208,17 +207,13 @@ implicit_conv_static_int_array_to_bool(IrExpression *expression)
 
     IrCast *cast_exp;
     int length;
-    AstStaticArrayType *arry_type;
+    DtStaticArrayType *arry_type;
 
-    arry_type =
-        XDP_AST_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
-
-    length = 
-        ast_static_array_type_get_length(arry_type);
+    arry_type = DT_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    length = dt_static_array_type_get_length(arry_type);
 
     cast_exp =
-        ir_cast_new(DT_DATA_TYPE(ast_static_array_type_new(bool_type,
-                                                           length)),
+        ir_cast_new(DT_DATA_TYPE(dt_static_array_type_new(bool_type, length)),
                     expression);
     return IR_EXPRESSION(cast_exp);
 }
@@ -228,12 +223,10 @@ implicit_conv_to_static_bool_array_type(IrExpression *expression)
 {
     assert(IR_IS_ARRAY_LITERAL(expression));
 
-    AstStaticArrayType *arry_type;
+    DtStaticArrayType *arry_type;
 
-    arry_type =
-        XDP_AST_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
-
-    switch (ast_static_array_type_get_data_type(arry_type))
+    arry_type = DT_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    switch (dt_static_array_type_get_data_type(arry_type))
     {
         case bool_type:
             return expression;
@@ -250,12 +243,10 @@ implicit_conv_to_static_int_array_type(IrExpression *expression)
 {
     assert(IR_IS_ARRAY_LITERAL(expression));
 
-    AstStaticArrayType *arry_type;
+    DtStaticArrayType *arry_type;
 
-    arry_type =
-        XDP_AST_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
-
-    switch (ast_static_array_type_get_data_type(arry_type))
+    arry_type = DT_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    switch (dt_static_array_type_get_data_type(arry_type))
     {
         case int_type:
             return expression;
@@ -263,10 +254,10 @@ implicit_conv_to_static_int_array_type(IrExpression *expression)
         {
             IrCast *cast_exp;
             int length;
-            length = ast_static_array_type_get_length(arry_type);
+            length = dt_static_array_type_get_length(arry_type);
             cast_exp =
-              ir_cast_new(DT_DATA_TYPE(ast_static_array_type_new(int_type,
-                                                                 length)),
+              ir_cast_new(DT_DATA_TYPE(dt_static_array_type_new(int_type,
+                                                                length)),
                           expression);
             return IR_EXPRESSION(cast_exp);
 
@@ -281,7 +272,7 @@ static IrExpression *
 implicit_conv_to_static_array_type(DtDataType *target_type,
                                    IrExpression *expression)
 {
-    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(target_type));
+    assert(DT_IS_STATIC_ARRAY_TYPE(target_type));
     assert(IR_IS_EXPRESSION(expression));
 
     DtDataType *source_type;
@@ -296,24 +287,24 @@ implicit_conv_to_static_array_type(DtDataType *target_type,
         assert(false);
     }
 
-    if (!XDP_IS_AST_STATIC_ARRAY_TYPE(source_type))
+    if (!DT_IS_STATIC_ARRAY_TYPE(source_type))
     {
         return NULL;
     }
 
-    AstStaticArrayType *src_arry_type;
-    AstStaticArrayType *dst_arry_type;
+    DtStaticArrayType *src_arry_type;
+    DtStaticArrayType *dst_arry_type;
 
-    src_arry_type = XDP_AST_STATIC_ARRAY_TYPE(source_type);
-    dst_arry_type = XDP_AST_STATIC_ARRAY_TYPE(target_type);
+    src_arry_type = DT_STATIC_ARRAY_TYPE(source_type);
+    dst_arry_type = DT_STATIC_ARRAY_TYPE(target_type);
 
-    if (ast_static_array_type_get_length(src_arry_type) !=
-        ast_static_array_type_get_length(dst_arry_type))
+    if (dt_static_array_type_get_length(src_arry_type) !=
+        dt_static_array_type_get_length(dst_arry_type))
     {
         return NULL;
     }
 
-    switch (ast_static_array_type_get_data_type(dst_arry_type))
+    switch (dt_static_array_type_get_data_type(dst_arry_type))
     {
         case int_type:
             return implicit_conv_to_static_int_array_type(expression);
@@ -367,10 +358,9 @@ types_implicit_conv(DtDataType *target_type,
     {
         return implicit_conv_to_basic_type(target_type, expression);
     }
-    else if (XDP_IS_AST_STATIC_ARRAY_TYPE(target_type))
+    else if (DT_IS_STATIC_ARRAY_TYPE(target_type))
     {
-        return implicit_conv_to_static_array_type(target_type,
-                                                  expression);
+        return implicit_conv_to_static_array_type(target_type, expression);
     }
 
     /* unexpected target type */

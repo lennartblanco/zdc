@@ -11,9 +11,8 @@ OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o types.o        \
         ast_bool_constant.o ast_binary_operation.o ast_unary_operation.o      \
         ast_assigment.o ast_variable_declaration.o ast_variable_definition.o  \
         ast_if_block.o ast_variable_ref.o ast_function_call.o ast_if_else.o   \
-        ast_foreach.o ast_static_array_type.o ast_array_cell_ref.o            \
-        ast_array_slice_ref.o                                                 \
-        dt_data_type.o dt_auto_type.o dt_basic_type.o                         \
+        ast_foreach.o ast_array_cell_ref.o ast_array_slice_ref.o              \
+        dt_data_type.o dt_auto_type.o dt_basic_type.o dt_static_array_type.o  \
         ir_symbol.o ir_variable.o ir_function.o ir_code_block.o ir_statment.o \
         ir_int_constant.o ir_binary_operation.o ir_unary_operation.o          \
         ir_bool_constant.o ir_cast.o ir_compile_unit.o ir_if_else.o           \

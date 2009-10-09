@@ -8,7 +8,7 @@
 #include "x86_if_else.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
-#include "ast_static_array_type.h"
+#include "dt_static_array_type.h"
 #include "ast_variable_declaration.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell_ref.h"
@@ -557,7 +557,7 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
         }
         x86_gen_variable_assigment(params, variable, var_init, sym_table);
     }
-    else if (XDP_AST_STATIC_ARRAY_TYPE(var_type))
+    else if (DT_STATIC_ARRAY_TYPE(var_type))
     {
         if (var_init == NULL)
         {
@@ -595,17 +595,17 @@ x86_get_variable_storage_size(IrVariable *variable)
 
         return types_get_storage_size(dt_basic_type_get_data_type(basic_type));
     }
-    else if (XDP_IS_AST_STATIC_ARRAY_TYPE(variable_type))
+    else if (DT_IS_STATIC_ARRAY_TYPE(variable_type))
     {
-        AstStaticArrayType *array_type;
+        DtStaticArrayType *array_type;
         int len;
 
-        array_type = XDP_AST_STATIC_ARRAY_TYPE(variable_type);
-        len = ast_static_array_type_get_length(array_type);
+        array_type = DT_STATIC_ARRAY_TYPE(variable_type);
+        len = dt_static_array_type_get_length(array_type);
 
         return 
             len * types_get_storage_size(
-                      ast_static_array_type_get_data_type(array_type));
+                      dt_static_array_type_get_data_type(array_type));
     }
     else
     {
@@ -700,22 +700,22 @@ x86_gen_default_array_initializer(x86_comp_params_t *params,
 
     char start_label[LABEL_MAX_LEN];
     IrExpression *init_exp;
-    AstStaticArrayType *array_type;
+    DtStaticArrayType *array_type;
     X86FrameOffset *array_loc;
     int storage_size;
 
     /* fetch array data type */
-    array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
     /* fetch array frame offset */
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     /* fetch array element storage size */
     storage_size =
-      types_get_storage_size(ast_static_array_type_get_data_type(array_type));
+      types_get_storage_size(dt_static_array_type_get_data_type(array_type));
 
     /* get default initilizer expression for array element type */
     init_exp =
         types_get_default_initializer(
-            ast_static_array_type_get_data_type(array_type));
+            dt_static_array_type_get_data_type(array_type));
 
     /* generate loop label */
     label_gen_next(&(params->label_gen), start_label);
@@ -734,7 +734,7 @@ x86_gen_default_array_initializer(x86_comp_params_t *params,
             "    popl %%ebx\n"
             "    movl $%d, %%eax\n"
             "%s:\n",
-            ast_static_array_type_get_length(array_type) - 1,
+            dt_static_array_type_get_length(array_type) - 1,
             start_label);
 
     /* code to store default value in array element at loop counter index */
@@ -771,7 +771,7 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
 {
     assert(params);
     assert(IR_IS_VARIABLE(variable));
-    assert(XDP_IS_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable)));
+    assert(DT_IS_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable)));
     assert(X86_IS_FRAME_OFFSET(ir_variable_get_location(variable)));
     assert(IR_IS_ARRAY_LITERAL(array_literal));
     assert(sym_table);
@@ -780,12 +780,12 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
     int loc;
     int storage_size;
     GSList *i;
-    AstStaticArrayType *array_type;
+    DtStaticArrayType *array_type;
 
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
     storage_size =
-      types_get_storage_size(ast_static_array_type_get_data_type(array_type));
+      types_get_storage_size(dt_static_array_type_get_data_type(array_type));
 
     loc = x86_frame_offset_get_offset(array_loc);
     i = ir_array_literal_get_values(array_literal);
@@ -827,14 +827,14 @@ x86_compile_array_cell_ref(x86_comp_params_t *params,
     X86FrameOffset *array_loc;
     IrVariable *variable;
     int storage_size;
-    AstStaticArrayType *array_type;
+    DtStaticArrayType *array_type;
 
 
     variable = ir_array_cell_ref_get_symbol(array_cell);
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    array_type = XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
     storage_size = 
-      types_get_storage_size(ast_static_array_type_get_data_type(array_type));
+      types_get_storage_size(dt_static_array_type_get_data_type(array_type));
 
     fprintf(params->out,
             "    popl %%eax # store array index in eax\n");

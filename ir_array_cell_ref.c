@@ -3,7 +3,7 @@
 
 #include "ir_array_cell_ref.h"
 #include "dt_basic_type.h"
-#include "ast_static_array_type.h"
+#include "dt_static_array_type.h"
 
 #include <assert.h>
 
@@ -129,12 +129,12 @@ ir_array_cell_ref_do_get_data_type(IrExpression *self)
 
     if (cell->data_type == NULL)
     {
-        AstStaticArrayType *array_data_type;
+        DtStaticArrayType *array_data_type;
         basic_data_type_t array_basic_type;
 
         array_data_type =
-            XDP_AST_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->array_symbol));
-        array_basic_type = ast_static_array_type_get_data_type(array_data_type);
+            DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->array_symbol));
+        array_basic_type = dt_static_array_type_get_data_type(array_data_type);
 
         cell->data_type = DT_DATA_TYPE(dt_basic_type_new(array_basic_type));
     }
