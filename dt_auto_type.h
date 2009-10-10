@@ -10,19 +10,19 @@
 #define DT_TYPE_AUTO_TYPE dt_auto_type_get_type()
 
 #define DT_AUTO_TYPE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_AUTO_TYPE, DtAutoType))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_AUTO_TYPE, DtAutoType))
 
 #define DT_AUTO_TYPE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), DT_AUTO_TYPE, DtAutoTypeClass))
+  (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_AUTO_TYPE, DtAutoTypeClass))
 
 #define DT_IS_AUTO_TYPE(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_AUTO_TYPE))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_TYPE_AUTO_TYPE))
 
 #define DT_IS_AUTO_TYPE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_AUTO_TYPE))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_AUTO_TYPE))
 
 #define DT_AUTO_TYPE_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_AUTO_TYPE, AstAutoTypeClass))
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_AUTO_TYPE, AstAutoTypeClass))
 
 typedef struct
 {
