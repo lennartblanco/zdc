@@ -59,9 +59,7 @@ ir_function_def_new(DtDataType *return_type,
 
     
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);
-//    obj->return_type = return_type;
     ir_function_set_parameters(IR_FUNCTION(obj), parameters);
-//    obj->parameters = parameters;
 
     /*
      * set-up the symbol table containing function's parameters
