@@ -7,11 +7,23 @@
 #include "utils.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_code_block_class_init(gpointer klass, gpointer foo);
+
+static void
+ir_code_block_do_print(IrStatment *self, FILE *out, int indention);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ir_code_block_get_type(void)
+GType
+ir_code_block_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
@@ -21,7 +33,7 @@ GType ir_code_block_get_type(void)
         sizeof (IrCodeBlockClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL,   /* class_init */
+        ir_code_block_class_init,  /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrCodeBlock),
@@ -77,35 +89,31 @@ ir_code_block_get_statments(IrCodeBlock *self)
     return self->statments;
 }
 
-void
-ir_code_block_print(IrCodeBlock *self, FILE *out, int indention)
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_code_block_class_init(gpointer klass, gpointer foo)
 {
-    assert(self);
+    ((IrStatmentClass *)klass)->do_print = ir_code_block_do_print;
+}
+
+static void
+ir_code_block_do_print(IrStatment *self, FILE *out, int indention)
+{
     assert(IR_IS_CODE_BLOCK(self));
     assert(out);
 
-    GSList *i = self->statments;
+    IrCodeBlock *code_blk;
 
-    fprintf_indent(out, indention, "code block [%p]\n{\n", self);
+    code_blk = IR_CODE_BLOCK(self);
+    GSList *i = code_blk->statments;
+
+    fprintf_indent(out, indention, "code block [%p]\n{\n", code_blk);
     for (; i != NULL; i = g_slist_next(i))
     {
-        if (XDP_IS_AST_STATMENT(i->data))
-        {
-            ast_node_print(XDP_AST_NODE(i->data), out);
-        }
-        else if (IR_IS_STATMENT(i->data))
-        {
-            ir_statment_print(i->data, out, indention + 2);
-        }
-        else if (IR_IS_CODE_BLOCK(i->data))
-        {
-            ir_code_block_print(i->data, out, indention + 2);
-        }
-        else
-        {
-            /* unexpected type in the list */
-            assert(false);
-        }
+        ir_statment_print(i->data, out, indention + 2);
     }
     fprintf_indent(out, indention, "}\n");
 }

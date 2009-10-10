@@ -8,8 +8,11 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-//static void
-//ir_function_def_class_init(gpointer klass, gpointer foo);
+static void
+ir_function_def_class_init(gpointer klass, gpointer foo);
+
+static void
+ir_function_def_do_print(IrSymbol *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -26,7 +29,7 @@ ir_function_def_get_type(void)
         sizeof (IrFunctionDefClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL,   /* class_init */
+        ir_function_def_class_init,  /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrFunctionDef),
@@ -111,7 +114,6 @@ ir_function_def_get_return_type(IrFunctionDef *self)
 sym_table_t *
 ir_function_def_get_parameter_symbols(IrFunctionDef *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION_DEF(self));
 
     return self->param_symbols;
@@ -120,7 +122,6 @@ ir_function_def_get_parameter_symbols(IrFunctionDef *self)
 IrCodeBlock *
 ir_function_def_get_body(IrFunctionDef *self)
 {
-    assert(self);
     assert(IR_IS_FUNCTION_DEF(self));
 
     return self->body;
@@ -130,8 +131,25 @@ ir_function_def_get_body(IrFunctionDef *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-//static void
-//ir_function_class_init(gpointer klass, gpointer foo)
-//{
-//    ((IrSymbolClass *)klass)->do_print = ir_function_do_print;
-//}
+static void
+ir_function_def_class_init(gpointer klass, gpointer foo)
+{
+    ((IrSymbolClass *)klass)->do_print = ir_function_def_do_print;
+}
+
+static void
+ir_function_def_do_print(IrSymbol *self, FILE *out, int indention)
+{
+    assert(IR_IS_FUNCTION_DEF(self));
+    assert(out);
+
+    IrFunctionDef *func;
+
+    ir_function_print(IR_FUNCTION(self), out, indention);
+
+    func = IR_FUNCTION_DEF(self);
+    fprintf_indent(out, indention + 2, "body:\n");
+    ir_statment_print(IR_STATMENT(func->body), out, indention + 2);
+
+}
+

@@ -34,7 +34,8 @@ GType ir_if_block_get_type(void)
 IrIfBlock *
 ir_if_block_new(IrExpression *condition, IrCodeBlock *body)
 {
-    assert(condition);
+    assert(IR_IS_EXPRESSION(condition));
+    assert(IR_IS_CODE_BLOCK(body));
 
     IrIfBlock *obj;
 
@@ -49,9 +50,7 @@ ir_if_block_new(IrExpression *condition, IrCodeBlock *body)
 void
 ir_if_block_set_condition(IrIfBlock *self, IrExpression *condition)
 {
-    assert(self);
     assert(IR_IS_IF_BLOCK(self));
-    assert(condition);
     assert(IR_IS_EXPRESSION(condition));
 
     self->condition = condition;
@@ -60,7 +59,6 @@ ir_if_block_set_condition(IrIfBlock *self, IrExpression *condition)
 IrExpression *
 ir_if_block_get_condition(IrIfBlock *self)
 {
-    assert(self);
     assert(IR_IS_IF_BLOCK(self));
 
     return self->condition;
@@ -69,7 +67,6 @@ ir_if_block_get_condition(IrIfBlock *self)
 IrCodeBlock *
 ir_if_block_get_body(IrIfBlock *self)
 {
-    assert(self);
     assert(IR_IS_IF_BLOCK(self));
 
     return self->body;
@@ -79,14 +76,13 @@ ir_if_block_get_body(IrIfBlock *self)
 void
 ir_if_block_print(IrIfBlock *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_IF_BLOCK(self));
     assert(out);
 
     fprintf_indent(out, indention, 
                    "if-block [%p]:\n condition: ", self);
-    ast_node_print(XDP_AST_NODE(self->condition), out);
+    ir_statment_print(IR_STATMENT(self->condition), out, indention + 2);
     fprintf(out, "\n");
     fprintf_indent(out, indention, " body:\n");
-    ir_code_block_print(self->body, out, indention + 2);
+    ir_statment_print(IR_STATMENT(self->body), out, indention + 2);
 }

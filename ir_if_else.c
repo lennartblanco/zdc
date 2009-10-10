@@ -109,7 +109,7 @@ ir_if_else_do_print(IrStatment *self, FILE *out, int indention)
     IrIfElse *ifelse = IR_IF_ELSE(self);
     GSList *i;
 
-    fprintf_indent(out, indention, "if-else block [%p]\n{\n  if-blocks:\n", ifelse);
+    fprintf_indent(out, indention, "if-else [%p]\n{\n  if-blocks:\n", ifelse);
 
     for (i = ifelse->if_else_blocks; i != NULL; i = g_slist_next(i))
     {
@@ -119,7 +119,7 @@ ir_if_else_do_print(IrStatment *self, FILE *out, int indention)
     if (ifelse->else_body != NULL)
     {
         fprintf_indent(out, indention, "  else body [%p]:\n", ifelse->else_body);
-        ir_code_block_print(ifelse->else_body, out, indention + 2);
+        ir_statment_print(IR_STATMENT(ifelse->else_body), out, indention + 2);
     }
     
     fprintf_indent(out, indention, "}\n");

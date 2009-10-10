@@ -2,7 +2,6 @@
 #define IR_WHILE_INC_X
 
 #include "ir_statment.h"
-#include "ast_expression.h"
 #include "ir_code_block.h"
 
 /*---------------------------------------------------------------------------*

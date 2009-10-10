@@ -128,7 +128,7 @@ ir_foreach_do_print(IrStatment *self, FILE *out, int indention)
     fprintf_indent(out, indention, "\n  aggregate: ");
     ast_node_print(XDP_AST_NODE(foreach->aggregate), out);
     fprintf_indent(out, indention, "\n");
-    ir_code_block_print(foreach->body, out, indention + 2);
+    ir_statment_print(IR_STATMENT(foreach->body), out, indention + 2);
 }
 
 static void

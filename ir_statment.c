@@ -45,7 +45,6 @@ ir_statment_get_type(void)
 void
 ir_statment_print(IrStatment *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_STATMENT(self));
     assert(out);
 
@@ -59,7 +58,6 @@ ir_statment_print(IrStatment *self, FILE *out, int indention)
 static void
 ir_statment_do_print(IrStatment *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_STATMENT(self));
     assert(out);
 

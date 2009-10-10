@@ -99,9 +99,9 @@ ir_while_do_print(IrStatment *self, FILE *out, int indention)
     IrWhile *w = IR_WHILE(self);
 
     fprintf_indent(out, indention, "while [%p]\nloop_condition: ", w);
-    ast_node_print(XDP_AST_NODE(w->loop_condition), out);
+    ir_statment_print(IR_STATMENT(w->loop_condition), out, indention);
     fprintf_indent(out, indention, "\nbody:\n");
-    ir_code_block_print(w->body, out, indention + 2);
+    ir_statment_print(IR_STATMENT(w->body), out, indention + 2);
     
 }
 

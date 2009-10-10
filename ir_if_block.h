@@ -1,7 +1,6 @@
 #ifndef IR_IF_BLOCK_INC_X
 #define IR_IF_BLOCK_INC_X
 
-#include "ast_expression.h"
 #include "ir_code_block.h"
 
 /*---------------------------------------------------------------------------*

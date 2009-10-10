@@ -120,6 +120,15 @@ ir_function_get_return_type(IrFunction *self)
     return self->return_type;
 }
 
+void
+ir_function_print(IrFunction *self, FILE *out, int indention)
+{
+    assert(IR_IS_FUNCTION(self));
+    assert(out);
+
+    ir_function_do_print(IR_SYMBOL(self), out, indention);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -142,11 +151,18 @@ ir_function_do_print(IrSymbol *self, FILE *out, int indention)
     dt_data_type_print(func->return_type, out);
     fprintf_indent(out, indention, "\n  parameters: ");
 
-    GSList *i = func->parameters;
-    for (;i != NULL; i = g_slist_next(i))
+    if (func->parameters)
     {
-        ast_node_print(XDP_AST_NODE(i->data), out);
-        fprintf(out, "%s", g_slist_next(i) != NULL ? ", " : "");
+      GSList *i = func->parameters;
+      for (;i != NULL; i = g_slist_next(i))
+      {
+          ast_node_print(XDP_AST_NODE(i->data), out);
+          fprintf(out, "%s", g_slist_next(i) != NULL ? ", " : "\n");
+      }
+    }
+    else
+    {
+        fprintf(out, "(none)\n");
     }
 }
 

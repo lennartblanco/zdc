@@ -68,7 +68,4 @@ ir_code_block_add_statment(IrCodeBlock *self, void *statment);
 GSList *
 ir_code_block_get_statments(IrCodeBlock *self);
 
-void
-ir_code_block_print(IrCodeBlock *self, FILE *out, int indention);
-
 #endif /* IR_CODE_BLOCK_INC_X */
