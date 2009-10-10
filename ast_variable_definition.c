@@ -96,7 +96,7 @@ ast_variable_definition_do_print(AstNode *self, FILE *out)
     AstVariableDefinition *obj = (AstVariableDefinition *)self;
 
     fprintf(out, "  ");
-    ast_node_print(XDP_AST_NODE(obj->type), out);
+    dt_data_type_print(obj->type, out);
     fprintf(out, " %s", obj->name);
     if (obj->initializer != NULL)
     {

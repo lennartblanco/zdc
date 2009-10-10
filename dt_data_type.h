@@ -1,7 +1,8 @@
 #ifndef DT_DATA_TYPE_INC_X
 #define DT_DATA_TYPE_INC_X
 
-#include "ast_node.h"
+#include <glib-object.h>
+#include <stdio.h>
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,12 +27,14 @@
 
 typedef struct
 {
-    AstNode parent;
+    GObject parent;
 } DtDataType;
 
 typedef struct
 {
-    AstNodeClass parent_class;
+    GObjectClass parent_class;
+    /* public virtual methods */
+    void (*do_print) (DtDataType *self, FILE *out);
 } DtDataTypeClass;
 
 typedef enum basic_data_type_e
@@ -48,5 +51,8 @@ typedef enum basic_data_type_e
 
 GType
 dt_data_type_get_type(void);
+
+void
+dt_data_type_print(DtDataType *self, FILE *out);
 
 #endif /* DT_DATA_TYPE_INC_X */

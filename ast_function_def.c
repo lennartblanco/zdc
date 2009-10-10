@@ -108,7 +108,7 @@ ast_function_def_do_print(AstNode *self, FILE *out)
                  "  name: %s return type:",
                  self, func->name);
 
-    ast_node_print(XDP_AST_NODE(func->return_type), out);
+    dt_data_type_print(func->return_type, out);
     fprintf(out, "\n  params: ");
 
     GSList *p = func->parameters;

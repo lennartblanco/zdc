@@ -1,6 +1,7 @@
 #ifndef AST_VARIABLE_DECLARATION_INC_X
 #define AST_VARIABLE_DECLARATION_INC_X
 
+#include "ast_node.h"
 #include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*

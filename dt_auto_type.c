@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_auto_type_do_print(AstNode *self, FILE *out);
+dt_auto_type_do_print(DtDataType *self, FILE *out);
 
 static void
 dt_auto_type_class_init(gpointer klass, gpointer dummy);
@@ -56,14 +56,16 @@ dt_auto_type_new()
  *---------------------------------------------------------------------------*/
 
 static void
-dt_auto_type_do_print(AstNode *self, FILE *out)
+dt_auto_type_do_print(DtDataType *self, FILE *out)
 {
+    assert(DT_IS_AUTO_TYPE(self));
+
     fprintf(out, "auto");
 }
 
 static void
 dt_auto_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = dt_auto_type_do_print;
+    ((DtDataTypeClass *)klass)->do_print = dt_auto_type_do_print;
 }
 

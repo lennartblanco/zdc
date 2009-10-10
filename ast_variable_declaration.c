@@ -86,7 +86,7 @@ ast_variable_declaration_do_print(AstNode *self, FILE *out)
 
     AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;
 
-    ast_node_print(XDP_AST_NODE(var_dec->type), out);
+    dt_data_type_print(var_dec->type, out);
     fprintf(out, " %s", var_dec->name);
 }
 

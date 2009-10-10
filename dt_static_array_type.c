@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_static_array_type_do_print(AstNode *self, FILE *out);
+dt_static_array_type_do_print(DtDataType *self, FILE *out);
 
 static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy);
@@ -76,7 +76,7 @@ dt_static_array_type_get_length(DtStaticArrayType *self)
  *---------------------------------------------------------------------------*/
 
 static void
-dt_static_array_type_do_print(AstNode *self, FILE *out)
+dt_static_array_type_do_print(DtDataType *self, FILE *out)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
     assert(out);
@@ -105,6 +105,6 @@ dt_static_array_type_do_print(AstNode *self, FILE *out)
 static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = dt_static_array_type_do_print;
+    ((DtDataTypeClass *)klass)->do_print = dt_static_array_type_do_print;
 }
 

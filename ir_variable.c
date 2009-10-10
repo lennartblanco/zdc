@@ -128,13 +128,13 @@ ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
     assert(IR_IS_VARIABLE(self));
 
     IrVariable *var = IR_VARIABLE(self);
-    ast_node_print(XDP_AST_NODE(var->type), out);
+    dt_data_type_print(var->type, out);
     fprintf(out, " %s", ir_symbol_get_name(self));
 
     if (var->initializer != NULL)
     {
         fprintf(out, " = ");
-        ast_node_print(XDP_AST_NODE(var->initializer), out);
+        ir_statment_print(IR_STATMENT(var->initializer), out, indention);
     }
 }
 

@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_basic_type_do_print(AstNode *self, FILE *out);
+dt_basic_type_do_print(DtDataType *self, FILE *out);
 
 static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy);
@@ -67,8 +67,10 @@ dt_basic_type_get_data_type(DtBasicType *self)
  *---------------------------------------------------------------------------*/
 
 static void
-dt_basic_type_do_print(AstNode *self, FILE *out)
+dt_basic_type_do_print(DtDataType *self, FILE *out)
 {
+    assert(DT_IS_BASIC_TYPE(self));
+
     char *str;
     switch (DT_BASIC_TYPE(self)->data_type)
     {
@@ -91,6 +93,6 @@ dt_basic_type_do_print(AstNode *self, FILE *out)
 static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = dt_basic_type_do_print;
+    ((DtDataTypeClass *)klass)->do_print = dt_basic_type_do_print;
 }
 
