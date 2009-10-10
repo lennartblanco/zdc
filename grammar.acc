@@ -204,7 +204,7 @@ expression_statment<stmt> :
 ;
 
 type<x> :
-|   basic_type<t> '[' TOK_NUMBER<num> ']'
+    basic_type<t> '[' TOK_NUMBER<num> ']'
     {
         (*x).data_type =
             DT_DATA_TYPE(dt_static_array_type_new(t.basic_data_type,
