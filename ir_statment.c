@@ -61,7 +61,8 @@ ir_statment_do_print(IrStatment *self, FILE *out, int indention)
     assert(IR_IS_STATMENT(self));
     assert(out);
 
-    fprintf_indent(out, indention, "Some IR statment [%p]\n", self);
+    fprintf_indent(out, indention, "%s statment [%p]\n", 
+                   g_type_name(G_TYPE_FROM_INSTANCE(self)), self);
 }
 
 static void

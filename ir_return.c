@@ -56,7 +56,6 @@ ir_return_new(IrExpression *return_value)
 void
 ir_return_set_return_value(IrReturn *self, IrExpression *return_value)
 {
-    assert(self);
     assert(IR_IS_RETURN(self));
 
     self->return_value = return_value;
@@ -65,7 +64,6 @@ ir_return_set_return_value(IrReturn *self, IrExpression *return_value)
 IrExpression *
 ir_return_get_return_value(IrReturn *self)
 {
-    assert(self);
     assert(IR_IS_RETURN(self));
 
     return self->return_value;
@@ -86,6 +84,9 @@ ir_return_do_print(IrStatment *self, FILE *out, int indention)
     IrReturn *ret = IR_RETURN(self);
 
     fprintf_indent(out, indention, "return [%p]\n", ret);
+    fprintf_indent(out, indention + 2, "return value:\n");
+    ir_statment_print(IR_STATMENT(ret->return_value), out, indention + 4);
+    
 }
 
 static void
