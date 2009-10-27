@@ -89,6 +89,16 @@ int slice_assig_sum()
     return b[0] + b[1] + b[2];
 }
 
+// test boolean array literal to shorthand array slice assigment (xs[])
+bool bslice_assig(int i)
+{
+  bool[5] xs;
+
+  xs[] = [true, false, true, true, false];
+
+  return xs[i];
+}
+
 //// test assigning to array slices with static indexes
 //int slices_ops(int last_val)
 //{

@@ -129,6 +129,18 @@ call_slice_assig_sum()
    return res;
 }
 
+bool
+call_bslice_assig(int arg)
+{
+   bool res;
+
+   asm ("    call bslice_assig\n"
+        : "=a"(res)
+        : "a"(arg));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -189,6 +201,13 @@ main()
 
     /* slice_assig_sum() test */
     check_int("slice_assig_sum()", call_slice_assig_sum(), 6);
+
+    /* bslice_assig() tests */
+    check_bool("bslice_assig(0)", call_bslice_assig(0), true);
+    check_bool("bslice_assig(1)", call_bslice_assig(1), false);
+    check_bool("bslice_assig(2)", call_bslice_assig(2), true);
+    check_bool("bslice_assig(3)", call_bslice_assig(3), true);
+    check_bool("bslice_assig(4)", call_bslice_assig(4), false);
 
     check_exit();
 }
