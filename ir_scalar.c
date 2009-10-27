@@ -52,8 +52,6 @@ ir_scalar_new(char *variable_name)
     obj = g_object_new(IR_TYPE_SCALAR,
                        "ir-lvalue-symbol-name", variable_name,
                        NULL);
-    obj->variable = NULL;
-
     return obj;
 }
 
@@ -64,26 +62,6 @@ ir_scalar_get_variable_name(IrScalar *self)
 
     return ir_lvalue_get_name(IR_LVALUE(self));
 }
-
-void
-ir_scalar_set_variable(IrScalar *self,
-                       IrVariable *variable)
-{
-    assert(IR_IS_SCALAR(self));
-    assert(IR_IS_VARIABLE(variable));
-
-    self->variable = variable;
-}
-
-IrVariable *
-ir_scalar_get_variable(IrScalar *self)
-{
-    assert(IR_IS_SCALAR(self));
-    assert(IR_IS_VARIABLE(self->variable));
-
-    return self->variable;
-}
-
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -102,8 +80,9 @@ ir_scalar_do_get_data_type(IrExpression *self)
     assert(IR_IS_SCALAR(self));
 
     IrScalar *scalar = IR_SCALAR(self);
+    IrVariable *variable = ir_lvalue_get_variable(IR_LVALUE(scalar));
 
-    assert(scalar->variable != NULL);
+    assert(variable != NULL);
 
-    return ir_expression_get_data_type(IR_EXPRESSION(scalar->variable));
+    return ir_expression_get_data_type(IR_EXPRESSION(variable));
 }

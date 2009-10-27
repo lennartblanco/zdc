@@ -117,6 +117,18 @@ call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
    return res;
 }
 
+int
+call_slice_assig_sum()
+{
+   int res;
+
+   asm ("    call slice_assig_sum\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -174,6 +186,9 @@ main()
     check_bool("boolops2(false, true, false, 1)",
                call_boolops2(false, true, false, 1),
                true && false);
+
+    /* slice_assig_sum() test */
+    check_int("slice_assig_sum()", call_slice_assig_sum(), 6);
 
     check_exit();
 }

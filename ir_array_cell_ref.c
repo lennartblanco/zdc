@@ -58,7 +58,6 @@ ir_array_cell_ref_new(char *array_name, IrExpression *index)
                        "ir-lvalue-symbol-name", array_name,
                        NULL);
 
-    obj->array_symbol = NULL;
     obj->index = index;
     obj->data_type = NULL;
 
@@ -71,25 +70,6 @@ ir_array_cell_get_name(IrArrayCellRef *self)
     assert(IR_IS_ARRAY_CELL_REF(self));
 
     return ir_lvalue_get_name(IR_LVALUE(self));
-}
-
-void
-ir_array_cell_ref_set_symbol(IrArrayCellRef *self, IrVariable *array_symbol)
-{
-    assert(IR_IS_ARRAY_CELL_REF(self));
-    assert(IR_VARIABLE(array_symbol));
-
-    self->array_symbol = array_symbol;
-    self->data_type = NULL;
-}
-
-IrVariable *
-ir_array_cell_ref_get_symbol(IrArrayCellRef *self)
-{
-    assert(IR_IS_ARRAY_CELL_REF(self));
-    assert(IR_VARIABLE(self->array_symbol));
-
-    return self->array_symbol;
 }
 
 IrExpression *
@@ -129,11 +109,13 @@ ir_array_cell_ref_do_get_data_type(IrExpression *self)
 
     if (cell->data_type == NULL)
     {
+        IrVariable *array_symbol;
         DtStaticArrayType *array_data_type;
         basic_data_type_t array_basic_type;
 
+        array_symbol = ir_lvalue_get_variable(IR_LVALUE(cell));
         array_data_type =
-            DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(cell->array_symbol));
+            DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array_symbol));
         array_basic_type = dt_static_array_type_get_data_type(array_data_type);
 
         cell->data_type = DT_DATA_TYPE(dt_basic_type_new(array_basic_type));

@@ -32,9 +32,6 @@
 typedef struct
 {
     IrLvalue parent;
-
-    /* private */
-    IrVariable *variable;
 } IrScalar;
 
 typedef struct

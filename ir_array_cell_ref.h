@@ -30,7 +30,6 @@ typedef struct
     IrLvalue parent;
 
     /* private */
-    IrVariable   *array_symbol;
     IrExpression *index;
     DtDataType   *data_type;
 } IrArrayCellRef;

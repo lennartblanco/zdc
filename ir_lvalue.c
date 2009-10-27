@@ -69,6 +69,24 @@ ir_lvalue_get_name(IrLvalue *self)
     return self->symbol_name;
 }
 
+void
+ir_lvalue_set_variable(IrLvalue *self,
+                       IrVariable *variable)
+{
+    assert(IR_IS_LVALUE(self));
+    assert(IR_IS_VARIABLE(variable));
+
+    self->variable = variable;
+}
+
+IrVariable *
+ir_lvalue_get_variable(IrLvalue *self)
+{
+    assert(IR_IS_LVALUE(self));
+
+    return self->variable;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

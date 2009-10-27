@@ -10,7 +10,9 @@
 #include "ir_return.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_array_slice.h"
 #include "ir_array_literal.h"
+#include "ir_uint_constant.h"
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
@@ -22,7 +24,7 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static void
+static IrExpression *
 validate_function_call(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
                        IrFunctionCall *func_call);
@@ -95,7 +97,12 @@ static void
 validate_code_block(compilation_status_t *compile_status,
                     IrCodeBlock *code_block);
 
-static void
+static bool
+validate_array_slice(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrArraySlice *array_slice);
+
+static IrExpression *
 validate_array_literal(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
                        IrArrayLiteral *array_literal);
@@ -110,7 +117,7 @@ validate_scalar(compilation_status_t *compile_status,
  *---------------------------------------------------------------------------*/
 
 
-static void
+static IrExpression *
 validate_function_call(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
                        IrFunctionCall *func_call)
@@ -133,14 +140,14 @@ validate_function_call(compilation_status_t *compile_status,
         compile_error(compile_status,
                       "reference to unknow function '%s'\n",
                       func_name);
-        return;
+        return NULL;
     }
     if (!IR_IS_FUNCTION(func_symb))
     {
         compile_error(compile_status,
                       "called object '%s' is not a function\n",
                       func_name);
-        return; 
+        return NULL;
     }
 
     /* store linkage attribute type of the callee */
@@ -161,7 +168,7 @@ validate_function_call(compilation_status_t *compile_status,
                      func_name,
                      g_slist_length(formal_args),
                      g_slist_length(func_call_args));
-       return;
+       return NULL;
    }
 
    /*
@@ -182,6 +189,8 @@ validate_function_call(compilation_status_t *compile_status,
    /* store function call data type */
    func_return_type = ir_function_get_return_type(IR_FUNCTION(func_symb));
    ir_function_call_set_return_type(func_call, func_return_type);
+
+   return IR_EXPRESSION(func_call);
 }
 
 /**
@@ -393,6 +402,11 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     /*
      * look-up the array in the symbol table
      */
+/* @todo the look-up of array cell symbol will be looked up and validated twice,
+ * if array cell ref is used as lvalue in an assigment expression,
+ * the symbol will be first looked-up and validated in validate_assigment()
+ * figure out a way to avoid doing this twice
+ */
     array_symb = sym_table_get_symbol(sym_table,
                                       ir_array_cell_get_name(cell_ref));
     if (array_symb == NULL) 
@@ -419,7 +433,7 @@ validate_array_cell_ref(compilation_status_t *compile_status,
                       "array element expression over non array\n");
         return NULL;
     }
-    ir_array_cell_ref_set_symbol(cell_ref, IR_VARIABLE(array_symb));
+    ir_lvalue_set_variable(IR_LVALUE(cell_ref), IR_VARIABLE(array_symb));
 
     /*
      * validate array index expression
@@ -451,7 +465,7 @@ validate_expression(compilation_status_t *compile_status,
 {
     if (IR_IS_BINARY_OPERATION(expression))
     {
-        expression = 
+        expression =
             validate_binary_op(compile_status,
                                sym_table,
                                IR_BINARY_OPERATION(expression));
@@ -465,9 +479,10 @@ validate_expression(compilation_status_t *compile_status,
     }
     else if (IR_IS_FUNCTION_CALL(expression))
     {
-        validate_function_call(compile_status,
-                               sym_table,
-                               IR_FUNCTION_CALL(expression));
+        expression =
+            validate_function_call(compile_status,
+                                   sym_table,
+                                   IR_FUNCTION_CALL(expression));
     }
     else if (IR_IS_ARRAY_CELL_REF(expression))
     {
@@ -524,7 +539,6 @@ validate_assigment(compilation_status_t *compile_status,
      * look-up and validate lvalue symbol name
      */
     lvalue = ir_assigment_get_lvalue(assigment);
-
     lvalue_sym = sym_table_get_symbol(sym_table, ir_lvalue_get_name(lvalue));
     if (lvalue_sym == NULL)
     {
@@ -533,6 +547,7 @@ validate_assigment(compilation_status_t *compile_status,
                       ir_lvalue_get_name(lvalue));
         return;
     }
+    /* check that referenced symbol is valid lvalue */
     if (!IR_IS_VARIABLE(lvalue_sym))
     {
         compile_error(compile_status,
@@ -541,20 +556,23 @@ validate_assigment(compilation_status_t *compile_status,
         return;
     }
 
-    if (IR_IS_ARRAY_CELL_REF(lvalue))
+    ir_lvalue_set_variable(lvalue, IR_VARIABLE(lvalue_sym));
+
+    if (IR_IS_ARRAY_CELL_REF(lvalue) &&
+        (validate_array_cell_ref(compile_status,
+                                 sym_table,
+                                 IR_ARRAY_CELL_REF((lvalue))) == NULL))
     {
-        ir_array_cell_ref_set_symbol(IR_ARRAY_CELL_REF(lvalue),
-                                     IR_VARIABLE(lvalue_sym));
+        /* invalid array cell reference expression */
+        return;
     }
-    else if (IR_IS_SCALAR(lvalue))
+    else if (IR_IS_ARRAY_SLICE(lvalue) &&
+        !(validate_array_slice(compile_status,
+                              sym_table,
+                              IR_ARRAY_SLICE(lvalue))))
     {
-        ir_scalar_set_variable(IR_SCALAR(lvalue),
-                               IR_VARIABLE(lvalue_sym));
-    }
-    else
-    {
-        /* unexpected target type */
-        assert(false);
+        /* invalid array slice expression */
+        return;
     }
 
     /*
@@ -819,7 +837,91 @@ validate_function_def(compilation_status_t *compile_status,
     }
 }
 
-static void
+static bool
+validate_array_slice(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrArraySlice *array_slice)
+{
+    IrVariable *var;
+    DtDataType *var_dt;
+    IrExpression *exp;
+
+    /*
+     * check that array slice expression symbol is of array type
+     */
+    var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
+    var_dt = ir_variable_get_data_type(var);
+
+    if (!DT_IS_STATIC_ARRAY_TYPE(var_dt))
+    {
+        compile_error(compile_status, 
+                      "illegal array slice expression over "
+                      "non-array variable\n");
+        return false;
+    }
+
+    /*
+     * validate start expression
+     */
+    exp = ir_array_slice_get_start(array_slice);
+    if (exp == NULL)
+    {
+        exp = IR_EXPRESSION(ir_uint_constant_new(0));
+    }
+    else
+    {
+        exp = validate_expression(compile_status, sym_table, exp);
+        if (exp == NULL)
+        {
+            /* invalid start expression */
+            return false;
+        }
+        exp = types_implicit_conv(types_get_uint_type(), exp);
+        if (exp == NULL)
+        {
+            compile_error(compile_status,
+                          "cannot implicitly convert array slice start"
+                          " expression to uint type\n");
+            return false;
+        }
+    }
+    ir_array_slice_set_start(array_slice, exp);
+
+    /*
+     * validate end expression
+     */
+    exp = ir_array_slice_get_end(array_slice);
+    if (exp == NULL)
+    {
+        guint32 end_idx;
+
+        end_idx =
+            dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
+        exp = IR_EXPRESSION(ir_uint_constant_new(end_idx));
+    }
+    else
+    {
+        exp = validate_expression(compile_status, sym_table, exp);
+        if (exp == NULL)
+        {
+            /* invalid end expression */
+            return false;
+        }
+        exp = types_implicit_conv(types_get_uint_type(), exp);
+        if (exp == NULL)
+        {
+            compile_error(compile_status,
+                          "cannot implicitly convert array slice end"
+                          " expression to uint type\n");
+            return false;
+        }
+    }
+    ir_array_slice_set_end(array_slice, exp);
+
+    return true;
+}
+
+static IrExpression *
 validate_array_literal(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
                        IrArrayLiteral *array_literal)
@@ -854,6 +956,7 @@ validate_array_literal(compilation_status_t *compile_status,
             /* illegal implicit conversation */
             compile_error(compile_status,
                           "can not implicitly convert array literal value\n");
+            return NULL;
         }
 
         validated_values = g_slist_prepend(validated_values, exp);
@@ -861,6 +964,7 @@ validate_array_literal(compilation_status_t *compile_status,
 
     ir_array_literal_set_values(array_literal, 
                                 g_slist_reverse(validated_values));
+    return IR_EXPRESSION(array_literal);
 }
 
 static IrExpression *
@@ -889,7 +993,7 @@ validate_scalar(compilation_status_t *compile_status,
         return NULL;
     }
 
-    ir_scalar_set_variable(scalar, IR_VARIABLE(scalar_symb));
+    ir_lvalue_set_variable(IR_LVALUE(scalar), IR_VARIABLE(scalar_symb));
 
     return IR_EXPRESSION(scalar);
 }

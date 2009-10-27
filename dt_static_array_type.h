@@ -29,7 +29,7 @@ typedef struct
     DtDataType parent;
     /* private */
     basic_data_type_t data_type;
-    int length;
+    guint32 length;
 } DtStaticArrayType;
 
 typedef struct
@@ -45,12 +45,12 @@ GType
 dt_static_array_type_get_type(void);
 
 DtStaticArrayType *
-dt_static_array_type_new(basic_data_type_t data_type, int length);
+dt_static_array_type_new(basic_data_type_t data_type, guint32 length);
 
 basic_data_type_t
 dt_static_array_type_get_data_type(DtStaticArrayType *self);
 
-int
+guint32
 dt_static_array_type_get_length(DtStaticArrayType *self);
 
 #endif /* DT_STATIC_ARRAY_TYPE_INC_X */

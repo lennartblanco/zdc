@@ -12,10 +12,12 @@
 #include "ast_variable_declaration.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell_ref.h"
+#include "ir_array_slice.h"
 #include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
+#include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_scalar.h"
 #include "ir_variable.h"
@@ -150,6 +152,11 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
                                  IrVariable *variable,
                                  sym_table_t *sym_table);
 
+static void
+x86_compile_array_slice_assigment(x86_comp_params_t *params,
+                                  IrAssigment *assigment,
+                                  sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -189,9 +196,14 @@ x86_compile_expression(x86_comp_params_t *params,
     if (IR_IS_INT_CONSTANT(expression))
     {
         fprintf(params->out,
-                "# push integer constant onto stack\n"
-                "    pushl $%d\n", 
+                "    pushl $%d     # push integer constant onto stack\n", 
                 ir_int_constant_get_value(IR_INT_CONSTANT(expression)));
+    }
+    else if (IR_IS_UINT_CONSTANT(expression))
+    {
+        fprintf(params->out,
+                "    pushl $%u     # push unsigned integer constant onto stack\n", 
+                ir_uint_constant_get_value(IR_UINT_CONSTANT(expression)));
     }
     else if (IR_IS_BOOL_CONSTANT(expression))
     {
@@ -674,13 +686,17 @@ x86_compile_assigment(x86_comp_params_t *params,
     if (IR_IS_SCALAR(lvalue))
     {
         x86_gen_variable_assigment(params,
-                                   ir_scalar_get_variable(IR_SCALAR(lvalue)),
+                                   ir_lvalue_get_variable(lvalue),
                                    ir_assigment_get_value(assigment),
                                    sym_table);
     }
     else if (IR_IS_ARRAY_CELL_REF(lvalue))
     {
         x86_gen_array_cell_assigment(params, assigment, sym_table);
+    }
+    else if (IR_IS_ARRAY_SLICE(lvalue))
+    {
+        x86_compile_array_slice_assigment(params, assigment, sym_table);
     }
     else
     {
@@ -807,6 +823,116 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
 }
 
 static void
+x86_compile_array_slice_assigment(x86_comp_params_t *params,
+                                  IrAssigment *assigment,
+                                  sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+
+    /* only assigment of array literals to array slices implemented */
+    assert(IR_IS_ARRAY_LITERAL(ir_assigment_get_value(assigment)));
+
+    IrArraySlice *lvalue;
+    IrArrayLiteral *rvalue;
+    IrVariable *array;
+    X86FrameOffset *array_loc;
+    int array_offset;
+    int storage_size;
+    guint array_literal_len;
+    GSList *i;
+    char loop_label[LABEL_MAX_LEN];
+
+    lvalue = IR_ARRAY_SLICE(ir_assigment_get_lvalue(assigment));
+    rvalue = IR_ARRAY_LITERAL(ir_assigment_get_value(assigment));
+
+    array = ir_lvalue_get_variable(IR_LVALUE(lvalue));
+    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(array));
+    array_offset = x86_frame_offset_get_offset(array_loc);
+
+    label_gen_next(&(params->label_gen), loop_label);
+
+    /* fetch array element storage size */
+    storage_size =
+      types_get_storage_size(
+          dt_static_array_type_get_data_type(DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array))));
+
+    /*
+     * evaluate array slice start and stop index expressions
+     */
+    fprintf(params->out,
+            "# assign array literal to array slice\n"
+            "  # evaluate array slice start expression\n");
+    x86_compile_expression(params,
+                           ir_array_slice_get_start(lvalue),
+                           sym_table);
+
+    fprintf(params->out,
+            "  # evaluate array slice end expression\n");
+    x86_compile_expression(params,
+                           ir_array_slice_get_end(lvalue),
+                           sym_table);
+
+    /*
+     * evaluate array literal expressions, in reversed order
+     */
+    i = g_slist_copy(ir_array_literal_get_values(rvalue));
+    array_literal_len = g_slist_length(i);
+    i = g_slist_reverse(i);
+    fprintf(params->out, "  #evaluate array literal expressions\n");
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        x86_compile_expression(params,
+                               i->data,
+                               sym_table);
+    }
+    g_slist_free(i);
+
+    fprintf(params->out,
+            "  # calculate the start address of the array\n"
+            "    movl %%ebp, %%eax\n"
+            "    addl $%d, %%eax\n"
+            "    movl %u(%%esp), %%ebx # store start index in edx\n"
+            "    movl %u(%%esp), %%ecx # store end index in eax\n"
+            "%s:\n"
+            "    popl %%edx            # store array literal element in edx\n",
+            array_offset,
+            (array_literal_len + 1) * 4,
+            array_literal_len * 4,
+            loop_label);
+
+    switch (storage_size)
+    {
+        case 4:
+            fprintf(params->out,
+                    "    movl %%edx, (%%eax, %%ebx, 4)\n");
+            break;
+        case 1:
+            fprintf(params->out,
+                    "    movb %%dl, (%%eax, %%ebx, 1)\n");
+            break;
+        default:
+            /* unexpected storage size */
+            assert(false);
+    }
+
+    fprintf(params->out,
+            "    inc %%ebx\n"
+            "    cmp %%ecx, %%ebx\n"
+            "    jl %s\n"
+            "    # remove slice start and end values from stack\n"
+            "    addl $8, %%esp\n",
+            loop_label);
+
+
+
+printf("array loc type %s offset %d storage size %d array lit len %u\n",
+g_type_name(G_TYPE_FROM_INSTANCE(array_loc)), array_offset, storage_size, array_literal_len);
+}
+
+
+static void
 x86_compile_array_cell_ref(x86_comp_params_t *params,
                            IrArrayCellRef *array_cell,
                            sym_table_t *sym_table)
@@ -830,7 +956,7 @@ x86_compile_array_cell_ref(x86_comp_params_t *params,
     DtStaticArrayType *array_type;
 
 
-    variable = ir_array_cell_ref_get_symbol(array_cell);
+    variable = ir_lvalue_get_variable(IR_LVALUE(array_cell));
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
     storage_size = 
@@ -897,7 +1023,7 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
     /* only arrays of basic data types implemented */
     assert(DT_IS_BASIC_TYPE(cell_type));
 
-    variable = ir_array_cell_ref_get_symbol(array_cell);
+    variable = ir_lvalue_get_variable(IR_LVALUE(array_cell));
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
 
     storage_size =
@@ -1135,7 +1261,7 @@ x86_compile_scalar(x86_comp_params_t *params,
     IrVariable *var;
     X86FrameOffset *addr;
 
-    var = ir_scalar_get_variable(scalar);
+    var = ir_lvalue_get_variable(IR_LVALUE(scalar));
     addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
 
     /* generate code to put the value of the variable on top of the stack */

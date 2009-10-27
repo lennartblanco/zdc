@@ -1,19 +1,18 @@
-* x86: fix return statments from if-else bodies
-  test code:
+* following (semantically invalid code) will trip an assertion:
 
-int foo(int a)
+void ad()
 {
-  if (a < 0)
-  {
-    return -1;
-  }
-  else if (a > 0)
-  {
-    return 1;
-  }
-  else {
-    return 0;
-  }
+  int ya;
+
+  ya[1334] = 3;
 }
 
-The generated code for return above will get invalid dummy jump labels.
+(process:23778): GLib-GObject-WARNING **: invalid cast from `DtBasicTypeType' to `DtStaticArrayTypeType'
+xdc: dt_static_array_type.c:61: dt_static_array_type_get_data_type: Assertion `(((__extension__ ({ GTypeInstance *__inst = (GTypeInstance*) ((self)); GType __t = (dt_static_array_type_get_type()); gboolean __r; if (__inst && __inst->g_class && __inst->g_class->g_type == __t) __r = (!(0)); else __r = g_type_check_instance_is_a (__inst, __t); __r; }))))' failed.
+Aborted (core dumped)
+
+Expected, an compile error printout.
+
+
+* in semantic validation pass, check if static arrays specified are over 16Mb and
+ generate a compiler warning (as per D specifications, static arrays are not allowed to be over 16Mb)

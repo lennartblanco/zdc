@@ -34,7 +34,7 @@ public class stat_arrayCheck extends check
         ires = stat_array.call_sum_stat();
         check("stat_array.call_sum_stat()", ires, 13);
 
-        /* slice_assig_sum() and slices_ops() tests */
+        /* slices_ops() and slices_ops() tests */
         ires = stat_array.slices_ops(85);
         check("stat_array.slices_ops(85)", ires, -85);
 

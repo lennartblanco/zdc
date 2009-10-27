@@ -23,6 +23,7 @@
 #include "ast_array_cell_ref.h"
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_array_slice.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell_ref.h"
 #include "ir_scalar.h"
@@ -304,6 +305,40 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
         lvalue =
           IR_LVALUE(ir_array_cell_ref_new(ast_variable_ref_get_name(target),
                                           ir_index_exp));
+    }
+    else if (XDP_IS_AST_ARRAY_SLICE_REF(target))
+    {
+        AstArraySliceRef *array_slice;
+        char *name;
+        AstExpression *ast_start_idx;
+        IrExpression *ir_start_idx = NULL;
+        AstExpression *ast_end_idx;
+        IrExpression *ir_end_idx = NULL;
+
+        array_slice = XDP_AST_ARRAY_SLICE_REF(target);
+        name = ast_array_slice_ref_get_name(array_slice);
+
+        /* convert start expression, if any, to IR-form */
+        ast_start_idx = ast_array_slice_ref_get_start(array_slice);
+        if (ast_start_idx != NULL)
+        {
+            ir_start_idx =
+                sem_analyze_ast_expression_to_ir(compile_status,
+                                                 symbols,
+                                                 ast_start_idx);
+        }
+
+        /* convert end expression, if any, to IR-form */
+        ast_end_idx = ast_array_slice_ref_get_end(array_slice);
+        if (ast_end_idx != NULL)
+        {
+            ir_end_idx =
+                sem_analyze_ast_expression_to_ir(compile_status,
+                                                 symbols,
+                                                 ast_end_idx);
+        }
+
+        lvalue = IR_LVALUE(ir_array_slice_new(name, ir_start_idx, ir_end_idx));
     }
     else if (XDP_IS_AST_VARIABLE_REF(target))
     {

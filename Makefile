@@ -2,7 +2,7 @@ include objects.mak
 
 ACCENT := tools/bin/accent
 PROG := xdc
-CFLAGS += -Werror
+#CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 

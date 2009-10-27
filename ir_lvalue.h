@@ -6,6 +6,7 @@
  */
 
 #include "ir_expression.h"
+#include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -34,6 +35,7 @@ typedef struct
 
     /* private */
     char *symbol_name;
+    IrVariable *variable;
 } IrLvalue;
 
 typedef struct
@@ -50,5 +52,12 @@ ir_lvalue_get_type(void);
 
 char *
 ir_lvalue_get_name(IrLvalue *self);
+
+void
+ir_lvalue_set_variable(IrLvalue *self,
+                       IrVariable *variable);
+
+IrVariable *
+ir_lvalue_get_variable(IrLvalue *self);
 
 #endif /* IR_LVALUE_INC_X */
