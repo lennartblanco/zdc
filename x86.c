@@ -312,10 +312,6 @@ x86_compile_code_block(x86_comp_params_t *params,
         {
             IrAssigment *assig = IR_ASSIGMENT(statment);
             x86_compile_assigment(params, assig, locals);
-//            x86_gen_variable_assigment(params, 
-//                                       ir_assigment_get_lvalue(assig),
-//                                       ir_assigment_get_value(assig),
-//                                       locals);
         }
         else if (IR_IS_CODE_BLOCK(statment))
         {
@@ -924,11 +920,6 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
             "    # remove slice start and end values from stack\n"
             "    addl $8, %%esp\n",
             loop_label);
-
-
-
-printf("array loc type %s offset %d storage size %d array lit len %u\n",
-g_type_name(G_TYPE_FROM_INSTANCE(array_loc)), array_offset, storage_size, array_literal_len);
 }
 
 
