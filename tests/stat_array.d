@@ -99,16 +99,16 @@ bool bslice_assig(int i)
   return xs[i];
 }
 
-//// test assigning to array slices with static indexes
-//int slices_ops(int last_val)
-//{
-//    int[4] m;
+// test assigning to array slices with static indexes
+int slices_ops(int last_val)
+{
+    int[4] m;
 
-//    m[0..4] = [1 + 4, 1, -100, -1000];
-//    m[2..4] = [slice_assig_sum(), last_val];
+    m[0..4] = [1 + 4, 1, -100, -1000];
+    m[2..4] = [slice_assig_sum(), last_val];
 
-//    return m[0] + m[1] - m[2] - m[3];
-//}
+    return m[0] + m[1] - m[2] - m[3];
+}
 
 ////
 //// test static array as a

@@ -3,6 +3,7 @@
 
 #include "ir_array_slice.h"
 #include "ir_uint_constant.h"
+#include "dt_array_type.h"
 #include "dt_static_array_type.h"
 
 #include <assert.h>
@@ -156,9 +157,8 @@ ir_array_slice_do_get_data_type(IrExpression *self)
         }
         else
         {
-printf("dynamic array\n");
-/* not implemented */
-assert(false);
+            slice->data_type =
+                DT_DATA_TYPE(dt_array_type_new(array_basic_type));
         }
     }
  

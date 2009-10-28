@@ -1,7 +1,7 @@
 #ifndef DT_STATIC_ARRAY_TYPE_INC_X
 #define DT_STATIC_ARRAY_TYPE_INC_X
 
-#include "dt_data_type.h"
+#include "dt_array_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,15 +26,14 @@
 
 typedef struct
 {
-    DtDataType parent;
+    DtArrayType parent;
     /* private */
-    basic_data_type_t data_type;
     guint32 length;
 } DtStaticArrayType;
 
 typedef struct
 {
-    DtDataTypeClass parent_class;
+    DtArrayTypeClass parent_class;
 } DtStaticArrayTypeClass;
 
 /*---------------------------------------------------------------------------*

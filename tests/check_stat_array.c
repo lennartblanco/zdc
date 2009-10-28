@@ -141,6 +141,18 @@ call_bslice_assig(int arg)
    return res;
 }
 
+int
+call_slices_ops(int arg)
+{
+   int res;
+
+   asm ("    call slices_ops\n"
+        : "=a"(res)
+        : "a"(arg));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -208,6 +220,9 @@ main()
     check_bool("bslice_assig(2)", call_bslice_assig(2), true);
     check_bool("bslice_assig(3)", call_bslice_assig(3), true);
     check_bool("bslice_assig(4)", call_bslice_assig(4), false);
+
+    /* slices_ops() test */
+    check_int("slices_ops(85)", call_slices_ops(85), -85);
 
     check_exit();
 }

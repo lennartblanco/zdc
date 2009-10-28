@@ -5,6 +5,7 @@
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_array_literal.h"
+#include "dt_array_type.h"
 
 #include <assert.h>
 
@@ -27,6 +28,10 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression);
 static IrExpression *
 implicit_conv_to_static_array_type(DtDataType *target_type,
                                    IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_array_type(DtDataType *target_type,
+                            IrExpression *expression);
 
 /**
  * preform implicit conversion of an static int array literal to to static bool
@@ -316,6 +321,50 @@ implicit_conv_to_static_array_type(DtDataType *target_type,
     }
 }
 
+static IrExpression *
+implicit_conv_to_array_type(DtDataType *target_type,
+                           IrExpression *expression)
+{
+    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *source_type;
+
+    source_type = ir_expression_get_data_type(expression);
+    if (DT_IS_BASIC_TYPE(source_type))
+    {
+        /*
+         * conversation of basic type expression to
+         * dynamic arrays not implemented 
+         */
+        assert(false);
+    }
+
+    if (!DT_IS_ARRAY_TYPE(source_type) &&
+        !DT_IS_STATIC_ARRAY_TYPE(source_type))
+    {
+        return NULL;
+    }
+
+    DtArrayType *src_arry_type;
+    DtArrayType *dst_arry_type;
+
+    src_arry_type = DT_ARRAY_TYPE(source_type);
+    dst_arry_type = DT_ARRAY_TYPE(target_type);
+
+    switch (dt_array_type_get_data_type(dst_arry_type))
+    {
+        case int_type:
+            return implicit_conv_to_static_int_array_type(expression);
+        case bool_type:
+            return implicit_conv_to_static_bool_array_type(expression);
+        default:
+            /* unexpected element type */
+            assert(false);
+    }
+}
+
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -361,6 +410,10 @@ types_implicit_conv(DtDataType *target_type,
     else if (DT_IS_STATIC_ARRAY_TYPE(target_type))
     {
         return implicit_conv_to_static_array_type(target_type, expression);
+    }
+    else if (DT_IS_ARRAY_TYPE(target_type))
+    {
+        return implicit_conv_to_array_type(target_type, expression);
     }
 
     /* unexpected target type */
