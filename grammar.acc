@@ -580,7 +580,7 @@ primary<n> :
 ;
 
 array_slice<n> :
-|   TOK_IDENT<name>
+    TOK_IDENT<name>
     {
         start.expression = NULL;
         end.expression = NULL;
