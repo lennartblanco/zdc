@@ -72,8 +72,6 @@ else
     exit 1
 fi
 
-$HEJ $ARCH
-
 if [ "$2" ]; then
     $RUN_TEST $2
     echo "'$2' test passed"
