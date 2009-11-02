@@ -34,7 +34,9 @@
  *---------------------------------------------------------------------------*/
 
 static void
-x86_prelude(FILE *out, const char *source_file);
+x86_prelude(x86_comp_params_t *params,
+            const char *source_file,
+            sym_table_t *sym_table);
 
 static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
@@ -172,9 +174,9 @@ x86_gen_code(IrCompileUnit *comp_unit,
 
     params.out = out_stream;
     label_gen_init(&(params.label_gen));
-
-    x86_prelude(out_stream, source_file);
     global_sym_table = ir_compile_unit_get_symbols(comp_unit);
+
+    x86_prelude(&params, source_file, global_sym_table);
 
     i = ir_compile_unit_get_function_defs(comp_unit);
     for (; i != NULL; i = g_slist_next(i))
@@ -410,12 +412,49 @@ x86_code_block_assign_addrs(x86_comp_params_t *params,
  *---------------------------------------------------------------------------*/
 
 static void
-x86_prelude(FILE *out, const char *source_file)
+x86_prelude(x86_comp_params_t *params,
+            const char *source_file,
+            sym_table_t *sym_table)
 {
-    fprintf(out,
+    IrSymbol *main_symb;
+
+    fprintf(params->out,
             "    .file \"%s\"\n"
             "    .text\n",
             source_file);
+
+    /*
+     * if entry point function main() is defined,
+     * generate code to call it and to terminate the application
+     * after main() have returned
+     */
+    main_symb = sym_table_get_symbol(sym_table, "main");
+    if (IR_IS_FUNCTION(main_symb))
+    {
+      IrFunction *main_func;
+      bool exit_code_returned;
+
+      main_func = IR_FUNCTION(main_symb);
+      
+      /* only entry point without arguments supported */
+      assert(ir_function_get_parameters(main_func) == NULL);
+
+      /*
+       * if main() returns a value, use it as exit code,
+       * otherwise exit with code 0
+       */
+      exit_code_returned = 
+        types_is_int(ir_function_get_return_type(main_func));
+
+      fprintf(params->out,
+              ".globl _start\n"
+              "_start:\n"
+              "    call main\n"
+              "    movl %s, %%ebx\n"
+              "    movl $1, %%eax\n"
+              "    int $0x80\n",
+              exit_code_returned ? "%eax" : "$0");
+    }
 }
 
 static void

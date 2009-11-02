@@ -529,6 +529,16 @@ types_is_bool(DtDataType *data_type)
     return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == bool_type;
 }
 
+bool
+types_is_int(DtDataType *data_type)
+{
+    if (!DT_IS_BASIC_TYPE(data_type))
+    {
+        return false;
+    }
+
+    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == int_type;
+}
 
 DtDataType *
 types_get_int_type()

@@ -998,6 +998,45 @@ validate_scalar(compilation_status_t *compile_status,
     return IR_EXPRESSION(scalar);
 }
 
+static void
+validate_entry_point(compilation_status_t *compile_status,
+                     IrCompileUnit *compile_unit)
+{
+    assert(compile_status);
+    assert(IR_IS_COMPILE_UNIT(compile_unit));
+
+    sym_table_t *sym_table;
+    IrSymbol *main_symb;
+    IrFunction *main_func;
+    DtDataType *main_ret_type;
+
+    sym_table = ir_compile_unit_get_symbols(compile_unit);
+    main_symb = sym_table_get_symbol(sym_table, "main");
+
+    if (!IR_IS_FUNCTION(main_symb))
+    {
+        /* no entry point function defined */
+        return;
+    }
+
+    main_func = IR_FUNCTION(main_symb);
+    if (ir_function_get_parameters(main_func) != NULL)
+    {
+        compile_error(compile_status, 
+                      "only void main() and int main() "
+                      "entry points supported\n");
+        return;
+    }
+
+    main_ret_type = ir_function_get_return_type(main_func);
+    if (!types_is_void(main_ret_type) &&
+        !types_is_int(main_ret_type))
+    {
+       compile_error(compile_status, 
+                     "function main() must return int or void\n");
+    }
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -1011,12 +1050,13 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
     GSList *i;
 
+    validate_entry_point(compile_status, compile_unit);
+
     i = ir_compile_unit_get_function_defs(compile_unit);
     for (; i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_FUNCTION_DEF(i->data));
         validate_function_def(compile_status, IR_FUNCTION_DEF(i->data));
     }
-
 }
 

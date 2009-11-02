@@ -72,6 +72,13 @@ bool
 types_is_bool(DtDataType *data_type);
 
 /**
+ * Returns true if data_type represent basic type int,
+ * false otherwise.
+ */
+bool
+types_is_int(DtDataType *data_type);
+
+/**
  * Get singelton instance of object representing int type.
  */
 DtDataType *
