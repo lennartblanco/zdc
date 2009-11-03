@@ -20,7 +20,7 @@ run_test_x86()
     test_binary="x86_check_"$test_name
 
     echo -n "Compiling $test_name.d "
-    run_checked $XDC -march=x86 $test_name.d
+    run_checked $XDC -march=x86 -S $test_name.d
     echo "[ok]"
     run_checked gcc -g -m32 -o $test_binary $test_name.s check_"$test_name".c \
                 check_utils.c

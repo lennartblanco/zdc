@@ -1,6 +1,6 @@
 /**
  * Compiler's entry point module.
- * Handle command line arguments and run compilation on
+ * Handle command line arguments and run compilation
  * with required options on provided source files.
  */
 import std.stdio;
@@ -12,17 +12,25 @@ enum arch_types_e
    arch_x86  = 1
 }
 
+enum compilation_stages_e
+{
+  compile_stage,             /* generate assembly file (.s) */
+  assemble_stage,            /* genarate object file   (.o) */
+  link_stage                 /* build elf binary            */
+}
+
 struct compile_options_s
 {
-    arch_types_e  target_arch;
-    bool          print_ast;
-    bool          print_ir;
+    arch_types_e         target_arch;
+    bool                 print_ast;
+    bool                 print_ir;
 };
 
 extern (C) void g_type_init();
 extern (C) int compile_file(char* input_file,
                             char* output_file,
                             compile_options_s options);
+extern (C) uint system(char *command);
 
 /**
  * Print the usage help message for xdc to stdout.
@@ -40,7 +48,10 @@ print_usage_message(char[] progname)
              "   or -march=arch    The choices for arch are 'java' and 'x86'.\n"
              "                     If 'java' is specified, compiler will emmit\n"
              "                     .j java assembly files. If 'x86' is specified,\n"
-             "                     compiler will emmit .S x86 assembly files.\n"
+             "                     compiler will emmit .s x86 assembly files.\n"
+             "  -o outfile         Place output in file outfile.\n"
+             "  -S                 Generate assembly files only.\n"
+             "  -c                 Compile only, do not link.\n"
              "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
              "                     unit.\n"
              "  --print-ir         Output Intermediate Represantation of each\n"
@@ -103,21 +114,84 @@ get_target_file_name(char[] source_file, arch_types_e arch)
     return source_file[0..source_file.length-2] ~ file_ext;
 }
 
+/**
+ * Create an object file (.o) from provided assembly file by invoking assembler.
+ * Object file name is generated from assembly file name by replacing .s
+ * extension with .o.
+ *
+ * @return created object file name or null if assembler returned with error
+ */
+string
+assemble_file(string assembly_file)
+{
+    string object_file_name;
+    string command;
+
+    object_file_name = assembly_file[0..$-2] ~ ".o";
+
+    command = "as -o " ~ object_file_name ~ " " ~ assembly_file;
+
+    if (system(std.string.toStringz(command)) != 0)
+    {
+        return null;
+    }
+
+  return object_file_name;
+}
+
+/**
+ * Link the provided object files and libc into output elf file.
+ *
+ * @param output_file the elf output file. if null is provided, an output
+ *                    file will be generated from first object file name.
+ * @param object_files the object file names to link
+ * @return 0 if linked successfully, -1 if linker returned an error
+ */
+int
+link_files(string output_file, string[] object_files)
+{
+    string ofile = output_file;
+    string command;
+
+    if (ofile == null)
+    {
+        ofile = object_files[0][0..$-2];
+    }
+
+    command = "ld -dynamic-linker /lib/ld-linux.so.2 -o " ~ ofile ~ " -lc";
+    foreach (file; object_files)
+    {
+      command ~= " " ~ file;
+    }
+
+    if (system(std.string.toStringz(command)) != 0)
+    {
+        return -1;
+    }
+    return 0;
+}
+
 int 
 main(char[][] args)
 {
     char[][] source_files;
+    char[][] object_files;
+    string output_file;
 
     compile_options_s options;
+    compilation_stages_e last_compilation_stage;
 
     /* set default compile options */
+    last_compilation_stage = compilation_stages_e.link_stage;
     options.target_arch = arch_types_e.arch_x86;
     options.print_ast = false;
     options.print_ir = false;
 
     /* parse command line options */
-    foreach (arg; args[1..$])
+    for (int i = 1; i < args.length; i += 1)
     {
+        string arg = args[i];
+
         /* skip empty string arguments */
         if (arg.length <= 0)
         {
@@ -133,6 +207,24 @@ main(char[][] args)
             {
                 print_usage_message(args[0]);
                 return 0;
+            }
+            else if (arg == "-o")
+            {
+                if (i + 1 >= args.length)
+                {
+                    writefln("bork");
+                    return -1;
+                }
+                output_file = args[i+1];
+                i += 1;
+            }
+            else if (arg == "-S")
+            {
+                last_compilation_stage = compilation_stages_e.compile_stage;
+            }
+            else if (arg == "-c")
+            {
+                last_compilation_stage = compilation_stages_e.assemble_stage;
             }
             else if (arg == "--print-ast")
             {
@@ -171,7 +263,7 @@ main(char[][] args)
         return -1;
     }
 
-    /* compile all specified source files */
+    /* compile and assemble all specified source files */
     g_type_init();
     foreach (file; source_files)
     {
@@ -189,6 +281,31 @@ main(char[][] args)
             /* there were error compiling the file, bail out */
             return r;
         }
+
+        /* unless -S flag is specified, assemble generated file */
+        if (last_compilation_stage > compilation_stages_e.compile_stage)
+        {
+            string obj_file = assemble_file(target_file);
+            if (obj_file == null)
+            {
+                writefln("error assembling '%s'", target_file);
+                return -1;
+            }
+            object_files ~= obj_file;
+        }
     }
+
+    /* unless linkage stage is disabled, invoke linker on our object files */
+    if (last_compilation_stage >= compilation_stages_e.link_stage)
+    {
+        int r;
+
+        r = link_files(output_file, object_files);
+        if (r != 0)
+        {
+            return r;
+        }
+    }
+
     return 0;
 }
