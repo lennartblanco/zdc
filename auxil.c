@@ -12,7 +12,10 @@
 
 #include <assert.h>
 
+static const char *source_file;
+
 extern AstCompileUnit *compile_unit;
+extern long yypos;
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -44,6 +47,8 @@ compile_file(const char* input_file,
     }
 
     /* setup token parser to read the opened file */
+    source_file = input_file;
+    yypos = 1;
     yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
     yy_switch_to_buffer(yy_buffer);
 
@@ -106,9 +111,7 @@ clean_and_exit:
 void
 yyerror(char *msg)
 {
-   extern long yypos;
-
-   printf("line %ld: %s\n", yypos, msg);
+   printf("%s:%ld: %s\n", source_file, yypos, msg);
    exit(1);
 }
 
