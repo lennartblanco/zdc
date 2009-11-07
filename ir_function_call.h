@@ -54,7 +54,8 @@ ir_function_call_get_type(void);
  */
 IrFunctionCall *
 ir_function_call_new(char *name,
-                     GSList *arguments);
+                     GSList *arguments,
+                     guint line_number);
 
 void
 ir_function_call_set_return_type(IrFunctionCall *self,

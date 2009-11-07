@@ -1,0 +1,25 @@
+void func1()
+{
+  no_exist_func(10, 20);
+}
+
+void func2(int x)
+{
+  x(19);
+}
+
+int
+callee(int a, int b)
+{
+  if (a > b)
+  {
+    return a;
+  }
+
+  return a + b;
+}
+
+void func3()
+{
+  callee(1);
+}

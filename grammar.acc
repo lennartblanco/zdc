@@ -363,7 +363,7 @@ func_call<n> :
     TOK_IDENT<x> '(' ( func_call_args<y> )? ')'
     { 
         (*n).statment =
-             XDP_AST_STATMENT(ast_function_call_new(x.text, y.list)); 
+             XDP_AST_STATMENT(ast_function_call_new(x.text, y.list, yypos)); 
     }
 ;
 

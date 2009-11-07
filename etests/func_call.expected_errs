@@ -1,0 +1,3 @@
+func_call.d:24: error: invalid call to function 'callee', expected 2 arguments, got 1
+func_call.d:8: error: called object 'x' is not a function
+func_call.d:3: error: reference to unknow function 'no_exist_func'

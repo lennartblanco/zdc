@@ -465,7 +465,9 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
     }
     ir_call_args = g_slist_reverse(ir_call_args);
 
-    return IR_EXPRESSION(ir_function_call_new(func_name, ir_call_args));
+    return IR_EXPRESSION(ir_function_call_new(func_name,
+                                              ir_call_args,
+                                              ast_node_get_line_num(func_call)));
 }
 
 static IrExpression *

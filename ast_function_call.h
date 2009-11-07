@@ -46,7 +46,9 @@ GType
 ast_function_call_get_type(void);
 
 AstFunctionCall *
-ast_function_call_new(char *name, GSList *arguments);
+ast_function_call_new(char *name,
+                      GSList *arguments,
+                      guint line_number);
 
 char *
 ast_function_call_get_name(AstFunctionCall *self);

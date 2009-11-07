@@ -45,11 +45,14 @@ ir_function_call_get_type(void)
 
 IrFunctionCall *
 ir_function_call_new(char *name,
-                     GSList *arguments)
+                     GSList *arguments,
+                     guint line_number)
 {
     IrFunctionCall *obj;
 
-    obj = g_object_new(IR_TYPE_FUNCTION_CALL, NULL);
+    obj = g_object_new(IR_TYPE_FUNCTION_CALL,
+                       "ir-node-line-number", line_number,
+                       NULL);
 
     obj->name = strdup(name);
     obj->arguments = arguments;

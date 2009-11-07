@@ -44,11 +44,15 @@ ast_function_call_get_type(void)
 }
 
 AstFunctionCall *
-ast_function_call_new(char *name, GSList *arguments)
+ast_function_call_new(char *name,
+                      GSList *arguments,
+                      guint line_number)
 {
     AstFunctionCall *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_FUNCTION_CALL, NULL);
+    obj = g_object_new(XDP_TYPE_AST_FUNCTION_CALL,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->name = strdup(name);
     obj->arguments = arguments;
 

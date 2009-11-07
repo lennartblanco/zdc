@@ -137,14 +137,16 @@ validate_function_call(compilation_status_t *compile_status,
     func_symb = sym_table_get_symbol(sym_table, func_name);
     if (func_symb == NULL)
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(func_call),
                       "reference to unknow function '%s'\n",
                       func_name);
         return NULL;
     }
     if (!IR_IS_FUNCTION(func_symb))
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(func_call),
                       "called object '%s' is not a function\n",
                       func_name);
         return NULL;
@@ -162,7 +164,8 @@ validate_function_call(compilation_status_t *compile_status,
     */
    if (g_slist_length(formal_args) != g_slist_length(func_call_args))
    {
-       old_compile_error(compile_status, 
+       compile_error(compile_status,
+                     IR_NODE(func_call),
                      "invalid call to function '%s', expected %d "
                      "arguments, got %d\n",
                      func_name,

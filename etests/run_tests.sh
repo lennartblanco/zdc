@@ -43,3 +43,4 @@ run_test()
 run_test "array_slice" && echo "ok" || echo "FAILED"
 run_test "assigment" && echo "ok" || echo "FAILED"
 run_test "sym_clash" && echo "ok" || echo "FAILED"
+run_test "func_call" && echo "ok" || echo "FAILED"
