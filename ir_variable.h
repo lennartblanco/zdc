@@ -65,7 +65,8 @@ ir_variable_get_type(void);
 IrVariable *
 ir_variable_new(DtDataType *type, 
                 char *name,
-                IrExpression *initializer);
+                IrExpression *initializer,
+                guint line_number);
 
 void
 ir_variable_set_location(IrVariable *self, GObject *location);

@@ -47,7 +47,8 @@ IrFunctionDef *
 ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
-                    sym_table_t *parent_scope)
+                    sym_table_t *parent_scope,
+                    guint line_number)
 {
     assert(DT_IS_DATA_TYPE(return_type));
     assert(name);
@@ -57,6 +58,7 @@ ir_function_def_new(DtDataType *return_type,
     GSList *p;
 
     obj = g_object_new(IR_TYPE_FUNCTION_DEF,
+                       "ir-node-line-number", line_number,
                        "ir-symbol-name", name,
                        NULL);
 
@@ -76,7 +78,9 @@ ir_function_def_new(DtDataType *return_type,
         /* convert ast variable declaration to IR variable object */
         IrVariable *variable = 
             ir_variable_new(ast_variable_declaration_get_data_type(var_decl),
-                            ast_variable_declaration_get_name(var_decl), NULL);
+                            ast_variable_declaration_get_name(var_decl),
+                            NULL,
+                            ast_node_get_line_num(var_decl));
 
         /* add to parameter to function's symbol table */
         sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(variable));

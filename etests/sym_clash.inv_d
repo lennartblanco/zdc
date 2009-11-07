@@ -1,0 +1,19 @@
+void func1()
+{
+  int koobcam;
+  int length;
+  int koobcam;
+}
+
+bool bfunc1()
+{
+  return true;
+}
+
+void bfunc1()
+{
+  int x;
+}
+
+extern (D) void ext_func1();
+extern (C) int ext_func1();

@@ -57,7 +57,8 @@ AstFunctionDef *
 ast_function_def_new(char *name,
                      GSList *parameters,
                      DtDataType *return_type,
-                     AstCodeBlock *body);
+                     AstCodeBlock *body,
+                     guint line_number);
 
 char *
 ast_function_def_get_name(AstFunctionDef *self);

@@ -36,7 +36,8 @@ IrFunctionDecl *
 ir_function_decl_new(DtDataType *return_type,
                      char *name,
                      GSList *parameters,
-                     ir_linkage_type_t linkage_type)
+                     ir_linkage_type_t linkage_type,
+                     guint line_number)
 {
     assert(DT_IS_DATA_TYPE(return_type));
     assert(name);
@@ -46,6 +47,7 @@ ir_function_decl_new(DtDataType *return_type,
     obj = g_object_new(IR_TYPE_FUNCTION_DECL,
                        "ir-symbol-name", name,
                        "ir-function-linkage-type", linkage_type,
+                       "ir-node-line-number", line_number,
                        NULL);
    
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);

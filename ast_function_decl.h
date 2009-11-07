@@ -56,7 +56,8 @@ ast_function_decl_get_type(void);
 AstFunctionDecl *
 ast_function_decl_new(char *name,
                       GSList *parameters,
-                      DtDataType *return_type);
+                      DtDataType *return_type,
+                      guint line_number);
 
 /**
  * Set function's linkage type attribute

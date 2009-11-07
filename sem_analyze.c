@@ -221,14 +221,16 @@ sem_analyze_ast_foreach_to_ir(compilation_status_t *compile_status,
         ir_index = 
           ir_variable_new(ast_variable_declaration_get_data_type(var),
                           ast_variable_declaration_get_name(var),
-                          NULL);
+                          NULL,
+                          ast_node_get_line_num(var));
     }
 
     var = ast_foreach_get_value(ast_foreach);
     ir_value =
         ir_variable_new(ast_variable_declaration_get_data_type(var),
                         ast_variable_declaration_get_name(var),
-                        NULL);
+                        NULL,
+                        ast_node_get_line_num(var));
 
     loop_symbols = sym_table_new(parent_symbols);
 
@@ -626,13 +628,15 @@ sem_analyze_ast_var_def_to_ir(compilation_status_t *compile_status,
     IrVariable *sym =
         ir_variable_new(var_data_type,
                         ast_variable_definition_get_name(var_def),
-                        initializer);
+                        initializer,
+                        ast_node_get_line_num(var_def));
 
     if (sym_table_add_symbol(sym_table, IR_SYMBOL(sym)) != 0)
     {
-        old_compile_error(compile_status, 
-                          "redeclaration of symbol '%s'\n",
-                          ir_symbol_get_name(IR_SYMBOL(sym)));
+        compile_error(compile_status, 
+                      IR_NODE(sym),
+                      "redeclaration of symbol '%s'\n",
+                      ir_symbol_get_name(IR_SYMBOL(sym)));
     }
 }
 
@@ -779,7 +783,8 @@ sem_analyze_ast_func_decl_to_ir(AstFunctionDecl *ast_func_decl)
         ir_function_decl_new(ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
                              ast_function_decl_get_parameters(ast_func_decl),
-                             linkage_type);
+                             linkage_type,
+                             ast_node_get_line_num(ast_func_decl));
 
     return func_decl;
 }
@@ -798,7 +803,8 @@ sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
         ir_function_def_new(ast_function_def_get_return_type(ast_func_def),
                             ast_function_def_get_name(ast_func_def),
                             ast_function_def_get_parameters(ast_func_def),
-                            global_sym_table);
+                            global_sym_table,
+                            ast_node_get_line_num(ast_func_def));
 
 
     /* convert function body to ir format */
@@ -833,9 +839,10 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
             sem_analyze_ast_func_decl_to_ir(XDP_AST_FUNCTION_DECL(i->data));
         if (!ir_compile_unit_add_function_decl(comp_unit, ir_func_decl))
         {
-            old_compile_error(compile_status,
-                              "redeclaration of function '%s'\n",
-                              ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+            compile_error(compile_status,
+                          IR_NODE(ir_func_decl),
+                          "redeclaration of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
         }
     }
     
@@ -854,9 +861,10 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
                                            global_sym_table);
         if (!ir_compile_unit_add_function_def(comp_unit, ir_func_def))
         {
-            old_compile_error(compile_status,
-                              "redifinition of function '%s'\n",
-                              ir_function_get_name(IR_FUNCTION(ir_func_def)));
+            compile_error(compile_status,
+                          IR_NODE(ir_func_def),
+                          "redifinition of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
         }
     }
 

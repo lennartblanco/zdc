@@ -51,7 +51,8 @@ ast_variable_definition_get_type(void);
 AstVariableDefinition *
 ast_variable_definition_new(DtDataType *type,
                             char *name, 
-                            AstExpression *initializer);
+                            AstExpression *initializer,
+                            guint line_number);
 
 DtDataType *
 ast_variable_definition_get_data_type(AstVariableDefinition *self);

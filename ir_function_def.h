@@ -62,7 +62,8 @@ IrFunctionDef *
 ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
-                    sym_table_t *parent_scope);
+                    sym_table_t *parent_scope,
+                    guint line_number);
 
 char *
 ir_function_def_get_name(IrFunctionDef *self);

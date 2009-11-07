@@ -46,6 +46,7 @@ IrFunctionDecl *
 ir_function_decl_new(DtDataType *return_type,
                      char *name,
                      GSList *parameters,
-                     ir_linkage_type_t linkage_type);
+                     ir_linkage_type_t linkage_type,
+                     guint line_number);
 
 #endif /* IR_FUNCTION_DECL_INC_X */

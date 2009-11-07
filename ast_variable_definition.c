@@ -46,11 +46,14 @@ ast_variable_definition_get_type(void)
 AstVariableDefinition *
 ast_variable_definition_new(DtDataType *type,
                             char *name, 
-                            AstExpression *initializer)
+                            AstExpression *initializer,
+                            guint line_number)
 {
     AstVariableDefinition *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_VARIABLE_DEFINITION, NULL);
+    obj = g_object_new(XDP_TYPE_AST_VARIABLE_DEFINITION,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->type = type;
     obj->name = strdup(name);
     obj->initializer = initializer;

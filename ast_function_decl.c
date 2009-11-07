@@ -46,11 +46,14 @@ ast_function_decl_get_type(void)
 AstFunctionDecl *
 ast_function_decl_new(char *name,
                       GSList *parameters,
-                      DtDataType *return_type)
+                      DtDataType *return_type,
+                      guint line_number)
 {
     AstFunctionDecl *func;
 
-    func = g_object_new(XDP_TYPE_AST_FUNCTION_DECL, NULL);
+    func = g_object_new(XDP_TYPE_AST_FUNCTION_DECL,
+                        "ast-node-line-number", line_number,
+                        NULL);
     func->name = strdup(name);
     func->parameters = parameters;
     func->return_type = return_type;

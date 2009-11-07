@@ -47,11 +47,14 @@ AstFunctionDef *
 ast_function_def_new(char *name,
                      GSList *parameters,
                      DtDataType *return_type,
-                     AstCodeBlock *body)
+                     AstCodeBlock *body,
+                     guint line_number)
 {
     AstFunctionDef *func;
 
-    func = g_object_new(XDP_TYPE_AST_FUNCTION_DEF, NULL);
+    func = g_object_new(XDP_TYPE_AST_FUNCTION_DEF,
+                       "ast-node-line-number", line_number,
+                        NULL);
     func->name = strdup(name);
     func->parameters = parameters;
     func->return_type = return_type;

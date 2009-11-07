@@ -85,7 +85,8 @@ func_declaration<func> :
     {
         (*func).function_decl = ast_function_decl_new(name.text,
                                                       args.list,
-                                                      t.data_type);
+                                                      t.data_type,
+                                                      yypos);
     }
 ;
 
@@ -114,7 +115,8 @@ func_def<x> :
         (*x).function_def = ast_function_def_new(name.text,
                                                  args.list,
                                                  t.data_type,
-                                                 code.code_block);
+                                                 code.code_block,
+                                                 yypos);
     }
 ;
 
@@ -390,12 +392,15 @@ var_definition<n> :
    type<t> TOK_IDENT<x> ';'
    {
        (*n).variable_definition = 
-           ast_variable_definition_new(t.data_type, x.text, NULL);
+           ast_variable_definition_new(t.data_type, x.text, NULL, yypos);
    }
 |  type<t> TOK_IDENT<x> '=' expression<e> ';'
    {
        (*n).variable_definition = 
-           ast_variable_definition_new(t.data_type, x.text, e.expression);
+           ast_variable_definition_new(t.data_type,
+                                       x.text,
+                                       e.expression,
+                                       yypos);
    }
 
 ;

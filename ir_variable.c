@@ -49,7 +49,8 @@ ir_variable_get_type(void)
 IrVariable *
 ir_variable_new(DtDataType *type, 
                 char *name,
-                IrExpression *initializer)
+                IrExpression *initializer,
+                guint line_number)
 {
     assert(type);
     assert(name);
@@ -57,6 +58,7 @@ ir_variable_new(DtDataType *type,
     IrVariable *obj;
 
     obj = g_object_new(IR_TYPE_VARIABLE,
+                       "ir-node-line-number", line_number,
                        "ir-symbol-name", name,
                        NULL);
     obj->type = type;
