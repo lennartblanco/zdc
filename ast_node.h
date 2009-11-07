@@ -28,6 +28,8 @@
 typedef struct 
 {
   GObject parent;
+  /* private */
+  guint line_number;
 } AstNode;
 
 typedef struct 
@@ -53,6 +55,12 @@ ast_node_get_type(void);
  */ 
 AstNode*
 ast_node_new(void);
+
+/**
+ * Get source file line number where this node is defined.
+ */
+guint
+ast_node_get_line_num(void *self);
 
 void
 ast_node_print(AstNode *self, FILE *out);

@@ -44,7 +44,7 @@ GType
 ast_variable_ref_get_type(void);
 
 AstVariableRef *
-ast_variable_ref_new(char *name);
+ast_variable_ref_new(char *name, guint line_number);
 
 char *
 ast_variable_ref_get_name(AstVariableRef *self);

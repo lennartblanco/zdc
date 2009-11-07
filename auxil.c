@@ -51,18 +51,7 @@ compile_file(const char* input_file,
     yypos = 1;
     yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
     yy_switch_to_buffer(yy_buffer);
-
-    /* open the output file */
-    output_stream = fopen(output_file, "w");
-    if (output_stream == NULL)
-    {
-        fprintf(stderr, 
-                "error opening file '%s' for writing: %m\n",
-                output_file);
-        fclose(input_stream);
-        return -1;        
-    }
-   
+ 
     /* parse the source file */
     yyparse();
     if (options.print_ast)
@@ -83,6 +72,17 @@ compile_file(const char* input_file,
         ir_compile_unit_print(ir_compile_unit, stdout, 0);
     }
 
+    /* open the output file */
+    output_stream = fopen(output_file, "w");
+    if (output_stream == NULL)
+    {
+        fprintf(stderr, 
+                "error opening file '%s' for writing: %m\n",
+                output_file);
+        fclose(input_stream);
+        return -1;        
+    }
+
     switch (options.target_arch)
     {
 //        case arch_java:
@@ -98,9 +98,9 @@ compile_file(const char* input_file,
     }
 
 
-clean_and_exit:
    /* clean up */
    fclose(output_stream);
+clean_and_exit:
    yy_delete_buffer(yy_buffer);
    fclose(input_stream);
    

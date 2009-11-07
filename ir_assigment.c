@@ -33,11 +33,14 @@ ir_assigment_get_type(void)
 
 IrAssigment *
 ir_assigment_new(IrLvalue *lvalue,
-                 IrExpression *value)
+                 IrExpression *value,
+                 guint line_number)
 {
     IrAssigment *obj;
 
-    obj = g_object_new(IR_TYPE_ASSIGMENT, NULL);
+    obj = g_object_new(IR_TYPE_ASSIGMENT,
+                       "ir-node-line-number", line_number,
+                       NULL);
 
     obj->lvalue = lvalue;
     obj->value = value;

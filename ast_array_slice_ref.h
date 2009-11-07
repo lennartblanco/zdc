@@ -48,7 +48,8 @@ ast_array_slice_ref_get_type(void);
 AstArraySliceRef *
 ast_array_slice_ref_new(char *name,
                         AstExpression *start,
-                        AstExpression *end);
+                        AstExpression *end,
+                        guint line_number);
 char *
 ast_array_slice_ref_get_name(AstArraySliceRef *self);
 

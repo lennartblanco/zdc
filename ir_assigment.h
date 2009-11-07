@@ -50,7 +50,8 @@ ir_assigment_get_type(void);
 
 IrAssigment *
 ir_assigment_new(IrLvalue *lvalue,
-                 IrExpression *value);
+                 IrExpression *value,
+                 guint line_number);
 
 IrLvalue *
 ir_assigment_get_lvalue(IrAssigment *self);

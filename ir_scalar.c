@@ -45,11 +45,12 @@ ir_scalar_get_type(void)
 }
 
 IrScalar *
-ir_scalar_new(char *variable_name)
+ir_scalar_new(char *variable_name, guint line_number)
 {
     IrScalar *obj;
 
     obj = g_object_new(IR_TYPE_SCALAR,
+                       "ir-node-line-number", line_number,
                        "ir-lvalue-symbol-name", variable_name,
                        NULL);
     return obj;

@@ -50,7 +50,8 @@ ir_array_slice_get_type(void);
 IrArraySlice *
 ir_array_slice_new(char *array_name,
                    IrExpression *start,
-                   IrExpression *end);
+                   IrExpression *end,
+                   guint line_number);
 
 IrExpression *
 ir_array_slice_get_start(IrArraySlice *self);

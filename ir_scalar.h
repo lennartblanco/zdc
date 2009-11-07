@@ -47,7 +47,7 @@ GType
 ir_scalar_get_type(void);
 
 IrScalar *
-ir_scalar_new(char *variable_name);
+ir_scalar_new(char *variable_name, guint line_number);
 
 char *
 ir_scalar_get_variable_name(IrScalar *self);

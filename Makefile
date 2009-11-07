@@ -38,9 +38,6 @@ yygrammar.o: yygrammar.c
 lex.o: lex.c lex.h
 	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
 
-test: $(OBJS) test.o
-	gcc -g -o test $(LDFLAGS) $(OBJS) test.o
-
 $(PROG): $(OBJS) ui.o
 	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS) ui.o
 
@@ -54,7 +51,10 @@ function_tests_java: $(PROG)
 function_tests_x86: $(PROG)
 	cd tests; ./run_tests.sh --march=x86
 
-all_tests: unit_tests function_tests_java
+errors_tests: $(PROG)
+	cd etests; ./run_tests.sh
+
+all_tests: unit_tests function_tests_java errors_tests
 	@echo "ALL TESTS PASSED"
 
 
@@ -64,6 +64,7 @@ docs:
 clean:
 	make -C docs clean
 	make -C tests clean
+	make -C etests clean
 	make -C utests clean
 	make -C examples clean
 	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~

@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "ast_node.h"
+#include "ir_node.h"
 
 #include <assert.h>
 
@@ -10,101 +10,71 @@
 
 enum
 {
-    XDP_AST_NDDE_LINE_NUMBER = 1
+    IR_NDDE_LINE_NUMBER = 1
 };
-
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
 static void
-ast_node_do_print(AstNode *self, FILE *out);
+ir_node_class_init(gpointer klass, gpointer foo);
 
 static void
-ast_node_class_init(gpointer klass, gpointer foo);
+ir_node_set_property(GObject *object,
+                     guint property_id,
+                     const GValue *value,
+                     GParamSpec *pspec);
 
 static void
-ast_node_set_property(GObject *object,
-                      guint property_id,
-                      const GValue *value,
-                      GParamSpec *pspec);
-
-static void
-ast_node_get_property(GObject *object,
-                      guint property_id,
-                      GValue *value,
-                      GParamSpec *pspec);
+ir_node_get_property(GObject *object,
+                     guint property_id,
+                     GValue *value,
+                     GParamSpec *pspec);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-ast_node_get_type(void)
+ir_node_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstNodeClass),
+        sizeof (IrNodeClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_node_class_init,   /* class_init */
+        ir_node_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstNode),
+        sizeof (IrNode),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(G_TYPE_OBJECT,
-                                    "AstNodeType",
+                                    "IrNodeType",
                                     &info, 0);
     }
     return type;
 }
 
-AstNode*
-ast_node_new(void)
-{
-    AstNode *obj;
-
-    obj = g_object_new(XDP_TYPE_AST_NODE, NULL);
-
-    return obj;
-}
-
 guint
-ast_node_get_line_num(void *self)
+ir_node_get_line_num(void *self)
 {
-    assert(XDP_IS_AST_NODE(self));
+    assert(IR_IS_NODE(self));
 
-    return (XDP_AST_NODE(self)->line_number);
-}
-
-void
-ast_node_print(AstNode *self, FILE *out)
-{
-    assert(XDP_IS_AST_NODE(self));
-    assert(out);
-
-    XDP_AST_NODE_GET_CLASS(self)->do_print(self, out);
+    return (IR_NODE(self)->line_number);
 }
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-
 static void
-ast_node_do_print(AstNode *self, FILE *out)
-{
-    fprintf(out, "Some AST node [%p]\n", self);
-}
-
-static void
-ast_node_class_init(gpointer klass, gpointer foo)
+ir_node_class_init(gpointer klass, gpointer foo)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     GParamSpec *pspec;
@@ -112,14 +82,14 @@ ast_node_class_init(gpointer klass, gpointer foo)
     /*
      * setup this structure for setting and getting properties
      */
-    gobject_class->set_property = ast_node_set_property;
-    gobject_class->get_property = ast_node_get_property;
+    gobject_class->set_property = ir_node_set_property;
+    gobject_class->get_property = ir_node_get_property;
 
     /*
      * install 'line-number' property 
      */
-    pspec = g_param_spec_uint("ast-node-line-number",
-                              "ast node line number",
+    pspec = g_param_spec_uint("ir-node-line-number",
+                              "ir node line number",
                               "source file line number",
                               0,          /* min value */
                               G_MAXUINT,  /* max value */
@@ -127,38 +97,36 @@ ast_node_class_init(gpointer klass, gpointer foo)
                               G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
     g_object_class_install_property(gobject_class,
-                                    XDP_AST_NDDE_LINE_NUMBER,
+                                    IR_NDDE_LINE_NUMBER,
                                     pspec);
 
-
-    /* install default implementation of print method */
-    ((AstNodeClass *)klass)->do_print = ast_node_do_print;
 }
 
 static void
-ast_node_set_property(GObject *object,
-                      guint property_id,
-                      const GValue *value,
-                      GParamSpec *pspec)
+ir_node_set_property(GObject *object,
+                     guint property_id,
+                     const GValue *value,
+                     GParamSpec *pspec)
 {
-    assert(XDP_IS_AST_NODE(object));
+    assert(IR_IS_NODE(object));
     /* we only have one property */
-    assert(property_id == XDP_AST_NDDE_LINE_NUMBER);
-    AstNode *node = XDP_AST_NODE(object);
+    assert(property_id == IR_NDDE_LINE_NUMBER);
+    IrNode *node = IR_NODE(object);
 
     node->line_number = g_value_get_uint(value);
 
 //printf("%s line num %u\n", g_type_name(G_TYPE_FROM_INSTANCE(object)),
-//                     g_value_get_uint(value));
+//                     node->line_number);
 }
 
 static void
-ast_node_get_property(GObject *object,
-                      guint property_id,
-                      GValue *value,
-                      GParamSpec *pspec)
+ir_node_get_property(GObject *object,
+                     guint property_id,
+                     GValue *value,
+                     GParamSpec *pspec)
 {
     /* not implemented */
     assert(false);
 }
+
 

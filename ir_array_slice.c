@@ -50,13 +50,15 @@ ir_array_slice_get_type(void)
 IrArraySlice *
 ir_array_slice_new(char *array_name,
                    IrExpression *start,
-                   IrExpression *end)
+                   IrExpression *end,
+                   guint line_number)
 {
     assert(array_name);
 
     IrArraySlice *obj;
 
     obj = g_object_new(IR_TYPE_ARRAY_SLICE,
+                       "ir-node-line-number", line_number,
                        "ir-lvalue-symbol-name", array_name,
                        NULL);
 

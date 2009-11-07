@@ -48,7 +48,8 @@ ast_assigment_get_type(void);
 
 AstAssigment *
 ast_assigment_new(AstVariableRef *target,
-                  AstExpression *value);
+                  AstExpression *value,
+                  guint line_number);
 
 AstVariableRef *
 ast_assigment_get_target(AstAssigment *self);

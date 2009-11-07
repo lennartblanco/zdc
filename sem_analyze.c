@@ -338,11 +338,16 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
                                                  ast_end_idx);
         }
 
-        lvalue = IR_LVALUE(ir_array_slice_new(name, ir_start_idx, ir_end_idx));
+        lvalue = IR_LVALUE(ir_array_slice_new(name,
+                                              ir_start_idx,
+                                              ir_end_idx,
+                                              ast_node_get_line_num(target)));
     }
     else if (XDP_IS_AST_VARIABLE_REF(target))
     {
-        lvalue = IR_LVALUE(ir_scalar_new(ast_variable_ref_get_name(target)));
+        lvalue =
+            IR_LVALUE(ir_scalar_new(ast_variable_ref_get_name(target),
+                                    ast_node_get_line_num(target)));
     }
     else
     {
@@ -355,7 +360,9 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
                                          symbols,
                                          value);
 
-    return IR_STATMENT(ir_assigment_new(lvalue, ir_value));
+    return IR_STATMENT(ir_assigment_new(lvalue,
+                                        ir_value,
+                                        ast_node_get_line_num(ast_assigment)));
 }
 
 /**
@@ -543,7 +550,9 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         }
         else if (XDP_IS_AST_VARIABLE_REF(var_ref))
         {
-            ir_expression = IR_EXPRESSION(ir_scalar_new(var_name));
+            ir_expression =
+                IR_EXPRESSION(ir_scalar_new(var_name,
+                                            ast_node_get_line_num(var_ref)));
         }
 
         return ir_expression;
@@ -621,9 +630,9 @@ sem_analyze_ast_var_def_to_ir(compilation_status_t *compile_status,
 
     if (sym_table_add_symbol(sym_table, IR_SYMBOL(sym)) != 0)
     {
-        compile_error(compile_status, 
-                      "redeclaration of symbol '%s'\n",
-                      ir_symbol_get_name(IR_SYMBOL(sym)));
+        old_compile_error(compile_status, 
+                          "redeclaration of symbol '%s'\n",
+                          ir_symbol_get_name(IR_SYMBOL(sym)));
     }
 }
 
@@ -824,9 +833,9 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
             sem_analyze_ast_func_decl_to_ir(XDP_AST_FUNCTION_DECL(i->data));
         if (!ir_compile_unit_add_function_decl(comp_unit, ir_func_decl))
         {
-            compile_error(compile_status,
-                          "redeclaration of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+            old_compile_error(compile_status,
+                              "redeclaration of function '%s'\n",
+                              ir_function_get_name(IR_FUNCTION(ir_func_decl)));
         }
     }
     
@@ -845,9 +854,9 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
                                            global_sym_table);
         if (!ir_compile_unit_add_function_def(comp_unit, ir_func_def))
         {
-            compile_error(compile_status,
-                          "redifinition of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+            old_compile_error(compile_status,
+                              "redifinition of function '%s'\n",
+                              ir_function_get_name(IR_FUNCTION(ir_func_def)));
         }
     }
 

@@ -5,7 +5,7 @@
 #ifndef UTILS_INC_X
 #define UTILS_INC_X
 
-#include <glib.h>
+#include "ir_node.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -29,7 +29,19 @@ typedef struct compilation_status_s
  * @errmsg error message with printf-style formatting
  */
 void
-compile_error(compilation_status_t *compile_status, const char *errmsg, ...);
+compile_error(compilation_status_t *compile_status,
+                  IrNode *error_node,
+                  const char *errmsg,
+                  ...);
+
+/**
+ * Report a compile time error.
+ *
+ * @param filename the name of the source file where error is found.
+ * @errmsg error message with printf-style formatting
+ */
+void
+old_compile_error(compilation_status_t *compile_status, const char *errmsg, ...);
 
 /**
  * Print the formatted string with indention to the file stream.

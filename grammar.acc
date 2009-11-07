@@ -292,7 +292,9 @@ foreach_block<x> :
         { 
             aggregate.expression =
                 XDP_AST_EXPRESSION(ast_array_slice_ref_new(aggregate.text,
-                                                       NULL, NULL));
+                                                           NULL,
+                                                           NULL,
+                                                           yypos));
         }
       ) ')' scope_statment<code>
     {
@@ -404,14 +406,15 @@ var_assigment<n> :
    {
        (*n).statment =
            XDP_AST_STATMENT(ast_assigment_new(l.variable_ref, 
-                                              y.expression));
+                                              y.expression,
+                                              yypos));
    }
 ;
 
 lvalue<n> :
     TOK_IDENT<x>
     {
-        (*n).variable_ref = ast_variable_ref_new(x.text);
+        (*n).variable_ref = ast_variable_ref_new(x.text, yypos);
     }
 |   TOK_IDENT<name> '[' expression<exp> ']'
     {
@@ -553,7 +556,7 @@ primary<n> :
 |   TOK_IDENT<x>
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_variable_ref_new(x.text));
+            XDP_AST_EXPRESSION(ast_variable_ref_new(x.text, yypos));
     }
 |   func_call<n>
 |   '(' expression<n> ')'
@@ -590,7 +593,8 @@ array_slice<n> :
         (*n).expression =
             XDP_AST_EXPRESSION(ast_array_slice_ref_new(name.text,
                                                        start.expression,
-                                                       end.expression));
+                                                       end.expression,
+                                                       yypos));
     }
 ;
 

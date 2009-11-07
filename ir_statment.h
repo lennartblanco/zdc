@@ -1,8 +1,9 @@
 #ifndef IR_STATMENT_INC_X
 #define IR_STATMENT_INC_X
 
-#include <glib-object.h>
 #include <stdio.h>
+
+#include "ir_node.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -27,14 +28,14 @@
 
 typedef struct 
 {
-  GObject parent;
+  IrNode parent;
 } IrStatment;
 
 typedef struct 
 {
-  GObjectClass parent_class;
+  IrNodeClass parent_class;
   /* public virtual methods */
-  void (*do_print) (IrStatment *self, FILE *out, int indention);
+  void (*do_print) (IrStatment *self, FILE *out, int indention); /* @todo move this method to IrNode class */
 } IrStatmentClass;
 
 /*---------------------------------------------------------------------------*

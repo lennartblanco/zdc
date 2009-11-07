@@ -41,26 +41,29 @@ ast_array_slice_ref_get_type(void)
     return type;
 }
 
-char *
-ast_array_slice_ref_get_name(AstArraySliceRef *self)
-{
-   return ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self));
-}
-
 AstArraySliceRef *
 ast_array_slice_ref_new(char *name,
                         AstExpression *start,
-                        AstExpression *end)
+                        AstExpression *end,
+                        guint line_number)
 {
     AstArraySliceRef *obj;
 
     obj = g_object_new(XDP_TYPE_AST_ARRAY_SLICE_REF,
+                       "ast-node-line-number", line_number,
                        "ast-variable-ref-name", name,
                        NULL);
+
     obj->start = start;
     obj->end = end;
 
     return obj;
+}
+
+char *
+ast_array_slice_ref_get_name(AstArraySliceRef *self)
+{
+   return ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self));
 }
 
 AstExpression *

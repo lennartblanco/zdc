@@ -137,14 +137,14 @@ validate_function_call(compilation_status_t *compile_status,
     func_symb = sym_table_get_symbol(sym_table, func_name);
     if (func_symb == NULL)
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "reference to unknow function '%s'\n",
                       func_name);
         return NULL;
     }
     if (!IR_IS_FUNCTION(func_symb))
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "called object '%s' is not a function\n",
                       func_name);
         return NULL;
@@ -162,7 +162,7 @@ validate_function_call(compilation_status_t *compile_status,
     */
    if (g_slist_length(formal_args) != g_slist_length(func_call_args))
    {
-       compile_error(compile_status, 
+       old_compile_error(compile_status, 
                      "invalid call to function '%s', expected %d "
                      "arguments, got %d\n",
                      func_name,
@@ -213,7 +213,7 @@ validate_bin_iarithm(compilation_status_t *compile_status,
     exp = types_integer_promotion(exp);
     if (exp == NULL)
     {
-        compile_error(compile_status, "left operand of illegal type\n");
+        old_compile_error(compile_status, "left operand of illegal type\n");
         return NULL;
     }
     ir_binary_operation_set_left(bin_op, exp);
@@ -225,7 +225,7 @@ validate_bin_iarithm(compilation_status_t *compile_status,
     exp = types_integer_promotion(exp);
     if (exp == NULL)
     {
-        compile_error(compile_status, "right operand of illegal type\n");
+        old_compile_error(compile_status, "right operand of illegal type\n");
         return NULL;
     }
     ir_binary_operation_set_right(bin_op, exp);
@@ -251,7 +251,7 @@ validate_bin_icomp(compilation_status_t *compile_status,
                                  &converted_left,
                                  &converted_right))
     {
-        compile_error(compile_status, "illegal types in compare operation\n");
+        old_compile_error(compile_status, "illegal types in compare operation\n");
         return NULL;
     }
 
@@ -286,7 +286,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     /* left operand can not be of void type */
     if (types_is_void(data_type))
     {
-        compile_error(compile_status, "left operand can not be of void type\n");
+        old_compile_error(compile_status, "left operand can not be of void type\n");
         return NULL;
     }
 
@@ -367,7 +367,7 @@ validate_unary_op(compilation_status_t *compile_status,
             exp = types_implicit_conv(types_get_int_type(), exp);
             if (exp == NULL)
             {
-                compile_error(compile_status,
+                old_compile_error(compile_status,
                               "can not convert to int type");
                 return NULL;
             }
@@ -376,7 +376,7 @@ validate_unary_op(compilation_status_t *compile_status,
             exp = types_implicit_conv(types_get_bool_type(), exp);
             if (exp == NULL)
             {
-                compile_error(compile_status,
+                old_compile_error(compile_status,
                               "can not convert to bool type");
                 return NULL;
             }
@@ -411,14 +411,14 @@ validate_array_cell_ref(compilation_status_t *compile_status,
                                       ir_array_cell_get_name(cell_ref));
     if (array_symb == NULL) 
     {
-        compile_error(compile_status, 
+        old_compile_error(compile_status, 
                       "reference to unknow array symbol '%s'\n",
                       ir_array_cell_get_name(cell_ref));
         return NULL;
     }
     else if (!IR_IS_VARIABLE(array_symb))
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "unexpected reference to non variable\n");
         return NULL;
     }
@@ -429,7 +429,7 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     symb_type = ir_variable_get_data_type(IR_VARIABLE(array_symb));
     if (!DT_IS_STATIC_ARRAY_TYPE(symb_type))
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "array element expression over non array\n");
         return NULL;
     }
@@ -449,7 +449,7 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     idx_exp = types_implicit_conv(types_get_uint_type(), idx_exp);
     if (idx_exp == NULL)
     {
-        compile_error(compile_status, "illegal index expression type\n");
+        old_compile_error(compile_status, "illegal index expression type\n");
         return NULL;
     }
 
@@ -543,6 +543,7 @@ validate_assigment(compilation_status_t *compile_status,
     if (lvalue_sym == NULL)
     {
         compile_error(compile_status,
+                      IR_NODE(lvalue),
                       "undefined identifier '%s'\n",
                       ir_lvalue_get_name(lvalue));
         return;
@@ -551,6 +552,7 @@ validate_assigment(compilation_status_t *compile_status,
     if (!IR_IS_VARIABLE(lvalue_sym))
     {
         compile_error(compile_status,
+                      IR_NODE(lvalue),
                       "can not assign value to '%s', not a variable\n",
                       ir_lvalue_get_name(lvalue));
         return;
@@ -583,6 +585,7 @@ validate_assigment(compilation_status_t *compile_status,
     if (value == NULL)
     {
         compile_error(compile_status,
+                      IR_NODE(ir_assigment_get_value(assigment)),
                       "invalid assigment expression\n");
         return;
     }
@@ -596,6 +599,7 @@ validate_assigment(compilation_status_t *compile_status,
     if (value == NULL)
     {
         compile_error(compile_status,
+                      IR_NODE(assigment),
                       "incompatible types in assigment to '%s'\n",
                       ir_lvalue_get_name(lvalue));
         return;
@@ -622,7 +626,7 @@ validate_if_block(compilation_status_t *compile_status,
 
     if (condition == NULL)
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "can not convert if condition to bool type\n");
         return;
     }
@@ -675,7 +679,7 @@ validate_while(compilation_status_t *compile_status,
 
     if (condition == NULL)
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "can not convert while loop condition to bool type\n");
         return;
     }
@@ -715,7 +719,7 @@ validate_statment(compilation_status_t *compile_status,
     }
     else if (IR_IS_EXPRESSION(statment))
     {
-        compile_error(compile_status, "expression have no effect\n");
+        old_compile_error(compile_status, "expression have no effect\n");
     }
 }
 
@@ -771,7 +775,7 @@ validate_code_block(compilation_status_t *compile_status,
 
         if (initializer == NULL)
         {
-            compile_error(compile_status,
+            old_compile_error(compile_status,
                           "illegal type in initializer assigment\n");
             continue;
         }
@@ -854,7 +858,8 @@ validate_array_slice(compilation_status_t *compile_status,
 
     if (!DT_IS_STATIC_ARRAY_TYPE(var_dt))
     {
-        compile_error(compile_status, 
+        compile_error(compile_status,
+                      IR_NODE(array_slice),
                       "illegal array slice expression over "
                       "non-array variable\n");
         return false;
@@ -880,6 +885,7 @@ validate_array_slice(compilation_status_t *compile_status,
         if (exp == NULL)
         {
             compile_error(compile_status,
+                          IR_NODE(array_slice),
                           "cannot implicitly convert array slice start"
                           " expression to uint type\n");
             return false;
@@ -911,6 +917,7 @@ validate_array_slice(compilation_status_t *compile_status,
         if (exp == NULL)
         {
             compile_error(compile_status,
+                          IR_NODE(array_slice),
                           "cannot implicitly convert array slice end"
                           " expression to uint type\n");
             return false;
@@ -954,7 +961,7 @@ validate_array_literal(compilation_status_t *compile_status,
         if (exp == NULL)
         {
             /* illegal implicit conversation */
-            compile_error(compile_status,
+            old_compile_error(compile_status,
                           "can not implicitly convert array literal value\n");
             return NULL;
         }
@@ -981,14 +988,14 @@ validate_scalar(compilation_status_t *compile_status,
                                        ir_scalar_get_variable_name(scalar));
     if (scalar_symb == NULL) 
     {
-        compile_error(compile_status, 
+        old_compile_error(compile_status, 
                       "reference to unknow symbol '%s'\n",
                       ir_scalar_get_variable_name(scalar));
         return NULL;
     }
     else if (!IR_IS_VARIABLE(scalar_symb))
     {
-        compile_error(compile_status,
+        old_compile_error(compile_status,
                       "unexpected reference to non variable\n");
         return NULL;
     }
@@ -1022,7 +1029,7 @@ validate_entry_point(compilation_status_t *compile_status,
     main_func = IR_FUNCTION(main_symb);
     if (ir_function_get_parameters(main_func) != NULL)
     {
-        compile_error(compile_status, 
+        old_compile_error(compile_status, 
                       "only void main() and int main() "
                       "entry points supported\n");
         return;
@@ -1032,7 +1039,7 @@ validate_entry_point(compilation_status_t *compile_status,
     if (!types_is_void(main_ret_type) &&
         !types_is_int(main_ret_type))
     {
-       compile_error(compile_status, 
+       old_compile_error(compile_status, 
                      "function main() must return int or void\n");
     }
 }

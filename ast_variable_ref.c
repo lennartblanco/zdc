@@ -65,11 +65,12 @@ ast_variable_ref_get_type(void)
 }
 
 AstVariableRef* 
-ast_variable_ref_new(char *name)
+ast_variable_ref_new(char *name, guint line_number)
 {
     AstVariableRef *ref;
 
     ref = g_object_new(XDP_TYPE_AST_VARIABLE_REF,
+                       "ast-node-line-number", line_number,
                        "ast-variable-ref-name", name,
                        NULL);
     return ref;

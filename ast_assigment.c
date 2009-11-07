@@ -43,11 +43,14 @@ ast_assigment_get_type(void)
 
 AstAssigment *
 ast_assigment_new(AstVariableRef *target,
-                  AstExpression *value)
+                  AstExpression *value,
+                  guint line_number)
 {
     AstAssigment *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_ASSIGMENT, NULL);
+    obj = g_object_new(XDP_TYPE_AST_ASSIGMENT,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->target = target;
     obj->value = value;
 
