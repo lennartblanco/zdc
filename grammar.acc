@@ -425,7 +425,8 @@ lvalue<n> :
     {
         (*n).variable_ref =
             XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
-                                                        exp.expression));
+                                                        exp.expression,
+                                                        yypos));
     }
 |   array_slice<n>
 ;
@@ -440,7 +441,8 @@ oror_expression<n> :
         (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_or_op,
                                                       l.expression,
-                                                      r.expression)); 
+                                                      r.expression,
+                                                      yypos));
     }
 |   andand_expression<n>
 ;
@@ -451,7 +453,8 @@ andand_expression<n> :
         (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_and_op,
                                                       l.expression,
-                                                      r.expression)); 
+                                                      r.expression,
+                                                      yypos));
     }
 |   eq_expression<n>
 ;  
@@ -462,14 +465,16 @@ eq_expression<n> :
         (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_equal_op,
                                                       l.expression,
-                                                      r.expression)); 
+                                                      r.expression,
+                                                      yypos));
     }
 |   rel_expression<l> '!''=' rel_expression<r> 
     {
       (*n).expression =
           XDP_AST_EXPRESSION(ast_binary_operation_new(ast_not_equal_op,
                                                       l.expression,
-                                                      r.expression)); 
+                                                      r.expression,
+                                                      yypos)); 
     }
 |   rel_expression<n>
 ;
@@ -480,28 +485,32 @@ rel_expression<n> :
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
                                                         l.expression,
-                                                        r.expression));
+                                                        r.expression,
+                                                        yypos));
     }
 |   add_expression<l> '>' add_expression<r> 
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
                                                         l.expression,
-                                                        r.expression)); 
+                                                        r.expression,
+                                                        yypos));
     }
 |   add_expression<l> '<''=' add_expression<r> 
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
                                                         l.expression,
-                                                        r.expression)); 
+                                                        r.expression,
+                                                        yypos));
     }
 |   add_expression<l> '>''=' add_expression<r> 
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
                                                         l.expression,
-                                                        r.expression)); 
+                                                        r.expression,
+                                                        yypos));
     }
 |   add_expression<n>
 ;
@@ -512,14 +521,16 @@ add_expression<n> :
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
                                                         l.expression,
-                                                        r.expression));
+                                                        r.expression,
+                                                        yypos));
     }
 |   add_expression<l> '-' mult_expression<r>
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
                                                         l.expression,
-                                                        r.expression));
+                                                        r.expression,
+                                                        yypos));
     }
 |   mult_expression<n>
 ;
@@ -530,14 +541,16 @@ mult_expression<n> :
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
                                                         l.expression,
-                                                        r.expression));
+                                                        r.expression,
+                                                        yypos));
     }
 |   mult_expression<l> '/' primary<r> 
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
                                                         l.expression,
-                                                        r.expression)); 
+                                                        r.expression,
+                                                        yypos));
     }
 |   primary<n>
 ;
@@ -581,7 +594,8 @@ primary<n> :
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
-                                                    i.expression));
+                                                      i.expression,
+                                                      yypos));
     }
 |   array_literal<n>
 |   array_slice<n>

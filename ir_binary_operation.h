@@ -46,13 +46,14 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType 
+GType
 ir_binary_operation_get_type(void);
 
 IrBinaryOperation *
 ir_binary_operation_new(ast_binary_op_type_t operation,
                         IrExpression *left,
-                        IrExpression *right);
+                        IrExpression *right,
+                        guint line_number);
 
 ast_binary_op_type_t
 ir_binary_operation_get_operation(IrBinaryOperation *self);

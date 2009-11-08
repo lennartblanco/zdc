@@ -1,0 +1,38 @@
+void
+func1()
+{
+  a[19] = false;
+}
+
+void
+func2()
+{
+  int x;
+
+  x = lst[3];
+}
+
+void
+func3()
+{
+  int y;
+
+  y = func3[3];
+}
+
+void
+func4()
+{
+  bool z;
+
+  z = z[34];
+}
+
+bool
+func5()
+{
+  bool[6] ar;
+
+  return ar[func4()];
+}
+

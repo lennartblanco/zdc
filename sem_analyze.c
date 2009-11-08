@@ -306,7 +306,8 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
 
         lvalue =
           IR_LVALUE(ir_array_cell_ref_new(ast_variable_ref_get_name(target),
-                                          ir_index_exp));
+                                          ir_index_exp,
+                                          ast_node_get_line_num(ast_assigment)));
     }
     else if (XDP_IS_AST_ARRAY_SLICE_REF(target))
     {
@@ -378,6 +379,7 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
     IrExpression *left;
     IrExpression *right;
     ast_binary_op_type_t op;
+    guint line_number;
 
     left =
         sem_analyze_ast_expression_to_ir(compile_status,
@@ -394,6 +396,7 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
     }
 
     op = ast_binary_operation_get_operation(ast_operation);
+    line_number = ast_node_get_line_num(ast_operation);
     switch (op) {
         case ast_plus_op:
         case ast_minus_op:
@@ -407,7 +410,10 @@ sem_analyze_ast_binary_op_to_ir(compilation_status_t *compile_status,
         case ast_greater_or_eq_op:
         case ast_and_op:
         case ast_or_op:
-            return IR_EXPRESSION(ir_binary_operation_new(op, left, right));
+            return IR_EXPRESSION(ir_binary_operation_new(op,
+                                                         left,
+                                                         right,
+                                                         line_number));
         default:
             /* unexpected binary operation */
             assert(false);
@@ -549,7 +555,8 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
             /* create IR array cell ref */
             ir_expression =
                 IR_EXPRESSION(ir_array_cell_ref_new(var_name,
-                                                    ir_index_exp));
+                                                    ir_index_exp,
+                                                    ast_node_get_line_num(var_ref)));
                                               
         }
         else if (XDP_IS_AST_VARIABLE_REF(var_ref))

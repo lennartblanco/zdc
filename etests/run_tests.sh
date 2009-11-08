@@ -40,7 +40,9 @@ run_test()
 }
 
 # TODO make a loop over all *.inv_d files instead
-run_test "array_slice" && echo "ok" || echo "FAILED"
-run_test "assigment" && echo "ok" || echo "FAILED"
-run_test "sym_clash" && echo "ok" || echo "FAILED"
-run_test "func_call" && echo "ok" || echo "FAILED"
+run_test "array_slice" && echo "  ok" || echo "FAILED"
+run_test "assigment" && echo "    ok" || echo "FAILED"
+run_test "sym_clash" && echo "    ok" || echo "FAILED"
+run_test "func_call" && echo "    ok" || echo "FAILED"
+run_test "types" && echo "        ok" || echo "FAILED"
+run_test "array_element" && echo "ok" || echo "FAILED"

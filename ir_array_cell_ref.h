@@ -47,7 +47,9 @@ GType
 ir_array_cell_ref_get_type(void);
 
 IrArrayCellRef *
-ir_array_cell_ref_new(char *array_name, IrExpression *index);
+ir_array_cell_ref_new(char *array_name,
+                      IrExpression *index,
+                      guint line_number);
 
 /**
  * get array name

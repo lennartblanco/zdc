@@ -69,7 +69,8 @@ ast_binary_operation_get_type(void);
 AstBinaryOperation *
 ast_binary_operation_new(ast_binary_op_type_t operation,
                          AstExpression *left,
-                         AstExpression *right);
+                         AstExpression *right,
+                         guint line_number);
 
 ast_binary_op_type_t
 ast_binary_operation_get_operation(AstBinaryOperation *self);

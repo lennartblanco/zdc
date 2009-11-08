@@ -42,11 +42,14 @@ ast_array_cell_ref_get_type(void)
 }
 
 AstArrayCellRef *
-ast_array_cell_ref_new(char *name, AstExpression *index)
+ast_array_cell_ref_new(char *name,
+                       AstExpression *index,
+                       guint line_number)
 {
     AstArrayCellRef *obj;
 
     obj = g_object_new(XDP_TYPE_AST_ARRAY_CELL_REF,
+                       "ast-node-line-number", line_number,
                        "ast-variable-ref-name", name,
                        NULL);
     obj->index = index;

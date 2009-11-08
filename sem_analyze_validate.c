@@ -289,7 +289,9 @@ validate_bin_conditional(compilation_status_t *compile_status,
     /* left operand can not be of void type */
     if (types_is_void(data_type))
     {
-        old_compile_error(compile_status, "left operand can not be of void type\n");
+        compile_error(compile_status,
+                      IR_NODE(bin_op),
+                      "left operand can not be of void type\n");
         return NULL;
     }
 
@@ -370,8 +372,9 @@ validate_unary_op(compilation_status_t *compile_status,
             exp = types_implicit_conv(types_get_int_type(), exp);
             if (exp == NULL)
             {
-                old_compile_error(compile_status,
-                              "can not convert to int type");
+                compile_error(compile_status,
+                              IR_NODE(ir_unary_operation_get_operand(operation)),
+                              "can not convert to int type\n");
                 return NULL;
             }
             break;
@@ -379,8 +382,9 @@ validate_unary_op(compilation_status_t *compile_status,
             exp = types_implicit_conv(types_get_bool_type(), exp);
             if (exp == NULL)
             {
-                old_compile_error(compile_status,
-                              "can not convert to bool type");
+                compile_error(compile_status,
+                              IR_NODE(ir_unary_operation_get_operand(operation)),
+                              "can not convert to bool type\n");
                 return NULL;
             }
             break;
@@ -414,14 +418,16 @@ validate_array_cell_ref(compilation_status_t *compile_status,
                                       ir_array_cell_get_name(cell_ref));
     if (array_symb == NULL) 
     {
-        old_compile_error(compile_status, 
+        compile_error(compile_status,
+                      IR_NODE(cell_ref),
                       "reference to unknow array symbol '%s'\n",
                       ir_array_cell_get_name(cell_ref));
         return NULL;
     }
     else if (!IR_IS_VARIABLE(array_symb))
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(cell_ref),
                       "unexpected reference to non variable\n");
         return NULL;
     }
@@ -432,7 +438,8 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     symb_type = ir_variable_get_data_type(IR_VARIABLE(array_symb));
     if (!DT_IS_STATIC_ARRAY_TYPE(symb_type))
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(cell_ref),
                       "array element expression over non array\n");
         return NULL;
     }
@@ -452,7 +459,9 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     idx_exp = types_implicit_conv(types_get_uint_type(), idx_exp);
     if (idx_exp == NULL)
     {
-        old_compile_error(compile_status, "illegal index expression type\n");
+        compile_error(compile_status,
+                      IR_NODE(ir_array_cell_ref_get_index(cell_ref)),
+                      "illegal index expression type\n");
         return NULL;
     }
 

@@ -47,14 +47,19 @@ ir_array_cell_ref_get_type(void)
 }
 
 IrArrayCellRef *
-ir_array_cell_ref_new(char *array_name, IrExpression *index)
+ir_array_cell_ref_new(char *array_name,
+                      IrExpression *index,
+                      guint line_number)
 {
     assert(array_name);
     assert(IR_IS_EXPRESSION(index));
 
     IrArrayCellRef *obj;
 
-    obj = g_object_new(IR_TYPE_ARRAY_CELL_REF, 
+assert(line_number > 0);
+
+    obj = g_object_new(IR_TYPE_ARRAY_CELL_REF,
+                       "ir-node-line-number", line_number,
                        "ir-lvalue-symbol-name", array_name,
                        NULL);
 

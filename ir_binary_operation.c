@@ -48,11 +48,14 @@ ir_binary_operation_get_type(void)
 IrBinaryOperation *
 ir_binary_operation_new(ast_binary_op_type_t operation,
                         IrExpression *left,
-                        IrExpression *right)
+                        IrExpression *right,
+                        guint line_number)
 {
     IrBinaryOperation *obj;
 
-    obj = g_object_new(IR_TYPE_BINARY_OPERATION, NULL);
+    obj = g_object_new(IR_TYPE_BINARY_OPERATION,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->operation = operation;
     obj->left = left;
     obj->right = right;

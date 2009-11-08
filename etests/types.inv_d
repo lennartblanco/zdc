@@ -1,0 +1,29 @@
+void func1()
+{
+  bool res;
+
+  res = func1() || false;
+}
+
+void func1b()
+{
+  bool res;
+
+  res = func1() && false;
+}
+
+int func2()
+{
+  return -func1();
+}
+
+bool func3()
+{
+  int x = 20;
+
+  return !x;
+}
+
+
+
+
