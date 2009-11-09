@@ -1,0 +1,17 @@
+void
+void_func()
+{
+
+}
+
+int foa()
+{
+  int x = void_func();
+  int c = [true, false];
+  int[10] arry;
+
+  bool b = arry[1..4];
+
+  return x;
+}
+

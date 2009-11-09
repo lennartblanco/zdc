@@ -42,11 +42,13 @@ ast_array_literal_get_type(void)
 }
 
 AstArrayLiteral *
-ast_array_literal_new(gint32 value)
+ast_array_literal_new(guint line_number)
 {
     AstArrayLiteral *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_ARRAY_LITERAL, NULL);
+    obj = g_object_new(XDP_TYPE_AST_ARRAY_LITERAL,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->values = NULL;
 
     return obj;

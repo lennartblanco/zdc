@@ -47,7 +47,7 @@ GType
 ir_array_literal_get_type(void);
 
 IrArrayLiteral *
-ir_array_literal_new();
+ir_array_literal_new(guint line_number);
 
 void
 ir_array_literal_add_value(IrArrayLiteral *self, IrExpression *value);

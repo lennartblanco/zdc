@@ -44,7 +44,7 @@ GType
 ast_array_literal_get_type(void);
 
 AstArrayLiteral *
-ast_array_literal_new();
+ast_array_literal_new(guint line_number);
 
 void
 ast_array_literal_add_value(AstArrayLiteral *self, AstExpression *value);

@@ -1,2 +1,44 @@
 * in semantic validation pass, check if static arrays specified are over 16Mb and
  generate a compiler warning (as per D specifications, static arrays are not allowed to be over 16Mb)
+
+* following (probably, check the specs, but both dmd and gdc accept it) correct D code is rejected with
+compile errors by xdc:
+
+int
+func1(int irds)
+{
+  int x;
+
+  if (irds) { x = 10; }
+
+  return x;
+}
+
+void
+func2(int i)
+{
+  int x = i;
+
+  while (i)
+  {
+    writefln("i %s\n", i--);
+  }
+}
+
+void main()
+{
+  int i;
+
+  i = 10;
+  writefln("func1(%d) = %s", i, func1(i));
+
+  i = 2;
+  writefln("func1(%d) = %s", i, func1(i));
+
+  i = 0;
+  writefln("func1(%d) = %s", i, func1(i));
+
+  func2(2);
+}
+
+import std.stdio; 

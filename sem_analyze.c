@@ -484,7 +484,8 @@ sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
     IrArrayLiteral *ir_arry_literal;
     GSList *i;
 
-    ir_arry_literal = ir_array_literal_new();
+    ir_arry_literal =
+        ir_array_literal_new(ast_node_get_line_num(ast_arry_literal));
 
     i = ast_array_literal_get_values(ast_arry_literal);
     for (; i != NULL; i = g_slist_next(i))

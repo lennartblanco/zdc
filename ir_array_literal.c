@@ -45,11 +45,13 @@ ir_array_literal_get_type(void)
 }
 
 IrArrayLiteral *
-ir_array_literal_new(gint32 value)
+ir_array_literal_new(guint line_number)
 {
     IrArrayLiteral *obj;
 
-    obj = g_object_new(IR_TYPE_ARRAY_LITERAL, NULL);
+    obj = g_object_new(IR_TYPE_ARRAY_LITERAL,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->values = NULL;
     obj->data_type = NULL;
 

@@ -787,7 +787,8 @@ validate_code_block(compilation_status_t *compile_status,
 
         if (initializer == NULL)
         {
-            old_compile_error(compile_status,
+            compile_error(compile_status,
+                          IR_NODE(ir_variable_get_initializer(var)),
                           "illegal type in initializer assigment\n");
             continue;
         }
