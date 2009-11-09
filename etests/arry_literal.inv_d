@@ -1,0 +1,12 @@
+int fuzz()
+{
+  int[3] arry;
+
+  arry[1..4] = [34, arry[1..3], 2];
+  arry[] = [1, 2, 3, 4];
+  arry[1..2] = [dw];
+  arry[2..4] = [fuzz, 3];
+
+  return arry[2];
+}
+

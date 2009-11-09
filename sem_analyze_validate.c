@@ -505,9 +505,10 @@ validate_expression(compilation_status_t *compile_status,
     }
     else if (IR_IS_ARRAY_LITERAL(expression))
     {
-        validate_array_literal(compile_status,
-                               sym_table,
-                               IR_ARRAY_LITERAL(expression));
+        expression =
+            validate_array_literal(compile_status,
+                                   sym_table,
+                                   IR_ARRAY_LITERAL(expression));
     }
     else if (IR_IS_SCALAR(expression))
     {
@@ -958,6 +959,14 @@ validate_array_literal(compilation_status_t *compile_status,
         exp = validate_expression(compile_status,
                                   sym_table,
                                   i->data);
+        if (exp == NULL)
+        {
+           compile_error(compile_status,
+                         IR_NODE(i->data),
+                         "invalid array literal value expression\n");
+           return NULL;
+        }
+
         if (vals_trgt_type == NULL)
         {
             vals_trgt_type = ir_expression_get_data_type(exp);
@@ -974,7 +983,8 @@ validate_array_literal(compilation_status_t *compile_status,
         if (exp == NULL)
         {
             /* illegal implicit conversation */
-            old_compile_error(compile_status,
+            compile_error(compile_status,
+                          IR_NODE(i->data),
                           "can not implicitly convert array literal value\n");
             return NULL;
         }
@@ -1001,14 +1011,16 @@ validate_scalar(compilation_status_t *compile_status,
                                        ir_scalar_get_variable_name(scalar));
     if (scalar_symb == NULL) 
     {
-        old_compile_error(compile_status, 
+        compile_error(compile_status,
+                      IR_NODE(scalar),
                       "reference to unknow symbol '%s'\n",
                       ir_scalar_get_variable_name(scalar));
         return NULL;
     }
     else if (!IR_IS_VARIABLE(scalar_symb))
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(scalar),
                       "unexpected reference to non variable\n");
         return NULL;
     }
