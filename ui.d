@@ -280,7 +280,6 @@ main(char[][] args)
         {
             /* there were error compiling the file, bail out */
             return r;
-//return 0;
         }
 
         /* unless -S flag is specified, assemble generated file */
