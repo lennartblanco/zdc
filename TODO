@@ -42,3 +42,14 @@ void main()
 }
 
 import std.stdio; 
+
+* following code trigger an assertion failure in x86 backend, expected an compiler error printout:
+
+int foo()
+{
+    int[6] m;
+    int[3] r;
+
+    m = [9, 7, 6, 5, 4, 3];
+}
+
