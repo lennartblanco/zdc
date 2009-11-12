@@ -159,6 +159,16 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
                                   IrAssigment *assigment,
                                   sym_table_t *sym_table);
 
+static void
+x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
+                                             IrAssigment *assigment,
+                                             sym_table_t *sym_table);
+
+static void
+x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
+                                             IrAssigment *assigment,
+                                             sym_table_t *sym_table);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -857,17 +867,19 @@ x86_gen_array_literal_assigment(x86_comp_params_t *params,
     }
 }
 
+/**
+ * Generate code for assigment of an array literal expression to
+ * array slice.
+ */
 static void
-x86_compile_array_slice_assigment(x86_comp_params_t *params,
-                                  IrAssigment *assigment,
-                                  sym_table_t *sym_table)
+x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
+                                             IrAssigment *assigment,
+                                             sym_table_t *sym_table)
 {
     assert(params);
     assert(IR_IS_ASSIGMENT(assigment));
-    assert(sym_table);
-
-    /* only assigment of array literals to array slices implemented */
     assert(IR_IS_ARRAY_LITERAL(ir_assigment_get_value(assigment)));
+    assert(sym_table);
 
     IrArraySlice *lvalue;
     IrArrayLiteral *rvalue;
@@ -959,6 +971,212 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
             "    # remove slice start and end values from stack\n"
             "    addl $8, %%esp\n",
             loop_label);
+}
+
+/**
+ * Generate code for assigment of an array slice expression to
+ * array slice.
+ */
+static void
+x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
+                                             IrAssigment *assigment,
+                                             sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(IR_IS_ARRAY_SLICE(ir_assigment_get_lvalue(assigment)));
+    assert(IR_IS_ARRAY_SLICE(ir_assigment_get_value(assigment)));
+    assert(sym_table);
+
+    IrArraySlice *src_slice;
+    IrArraySlice *dst_slice;
+    IrVariable *var;
+    int src_offset;
+    int dst_offset;
+    int storage_size;
+    guint index_shift_steps;
+
+    src_slice = IR_ARRAY_SLICE(ir_assigment_get_value(assigment));
+    dst_slice = IR_ARRAY_SLICE(ir_assigment_get_lvalue(assigment));
+
+
+    /*
+     * get source slice arrays frame offset
+     */
+    var = ir_lvalue_get_variable(IR_LVALUE(src_slice));
+    src_offset = 
+        x86_frame_offset_get_offset(
+             X86_FRAME_OFFSET(ir_variable_get_location(var)));
+
+    /*
+     * get destination slice arrays frame offset
+     */
+    var = ir_lvalue_get_variable(IR_LVALUE(dst_slice));
+    dst_offset =
+        x86_frame_offset_get_offset(
+             X86_FRAME_OFFSET(ir_variable_get_location(var)));
+
+    /*
+     * get array elements storage size
+     */
+    storage_size =
+      types_get_storage_size(
+          dt_array_type_get_data_type(
+              DT_ARRAY_TYPE(ir_expression_get_data_type(
+                  IR_EXPRESSION(src_slice)))));
+
+    /*
+     * we use left shift to operation to multiply index of element 
+     * with arrays storage size, figure out how many bits should be shifted
+     */
+    switch (storage_size)
+    {
+        case 4:
+            index_shift_steps = 2;
+            break;
+        case 2:
+            index_shift_steps = 1;
+            break;
+        case 1:
+            index_shift_steps = 0;
+            break;
+        default:
+            /* unsupported element array size */
+            assert(false);
+    }
+
+    /*
+     * The assigment indexes are placed as follows in the stack:
+     * 
+     * destination slice start index  12(%%esp)
+     * destination slice end index     8(%%esp)
+     * source slice start index        4(%%esp)
+     * source slice end index           (%%esp)
+     *
+     * During calculation we store memcpy arguments in following registers:
+     * 
+     * %eax - memcpy n (length) argument
+     * %ebx - memcpy src argument
+     * %ecx - memcpy dest argument
+     */
+
+    /*
+     * Generate code to evalute slice index expression and put
+     * result on the stack, as desribe above.
+     */
+    fprintf(params->out,
+            "# array slice to array slice assigment\n"
+            " # destination slice start index\n");
+
+    x86_compile_expression(params,
+                           ir_array_slice_get_start(dst_slice),
+                           sym_table);
+
+    fprintf(params->out,
+            " # destination slice end index\n");
+
+    x86_compile_expression(params,
+                           ir_array_slice_get_end(dst_slice),
+                           sym_table);
+
+    fprintf(params->out,
+            " # source slice start index\n");
+
+    x86_compile_expression(params,
+                           ir_array_slice_get_start(src_slice),
+                           sym_table);
+
+    fprintf(params->out,
+            " # source slice end index\n");
+
+    x86_compile_expression(params,
+                           ir_array_slice_get_end(src_slice),
+                           sym_table);
+
+    /*
+     * Generate code to calculate arguments to memcpy and call it
+     */
+    fprintf(params->out,
+            "    movl 8(%%esp), %%eax  # calculate slice length\n"
+            "    subl 12(%%esp), %%eax\n");
+
+    if (index_shift_steps > 0)
+    {
+        fprintf(params->out,
+                "    # multiply slice length by array element storage size\n"
+                "    sall $%u, %%eax\n",
+                index_shift_steps);
+    }
+
+    fprintf(params->out,
+            "# memcpy src argument -> ebx\n"
+            "    movl %%ebp, %%ebx\n");
+
+    if (index_shift_steps > 0)
+    {
+        fprintf(params->out,
+                "    sall $%u, 4(%%esp)\n",
+                 index_shift_steps);
+    }
+
+    fprintf(params->out,
+            "    addl 4(%%esp), %%ebx\n"
+            "    addl $%d, %%ebx\n"
+            "# memcpy dest argument -> ecx\n"
+            "    movl %%ebp, %%ecx\n",
+            src_offset);
+
+    if (index_shift_steps > 0)
+    {
+        fprintf(params->out,
+                "    sall $%u, 12(%%esp)\n",
+                index_shift_steps);
+    }
+
+    fprintf(params->out,
+            "    addl 12(%%esp), %%ecx\n"
+            "    addl $%d, %%ecx\n"
+            "# put memcpy arguments on stack\n"
+            "    addl $16, %%esp\n"
+            "    pushl %%eax\n"
+            "    pushl %%ebx\n"
+            "    pushl %%ecx\n"
+            "    call memcpy\n"
+            "    addl $4, %%esp     # remove memcpy retrun value from stack\n",
+            dst_offset);
+}
+
+static void
+x86_compile_array_slice_assigment(x86_comp_params_t *params,
+                                  IrAssigment *assigment,
+                                  sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+
+    IrExpression *value;
+
+    value = ir_assigment_get_value(assigment);
+
+    if (IR_IS_ARRAY_LITERAL(value))
+    {
+        x86_compile_array_literal_to_slice_assigment(params,
+                                                     assigment,
+                                                     sym_table);
+    }
+    else if (IR_IS_ARRAY_SLICE(value))
+    {
+        x86_compile_array_slice_to_slice_assigment(params,
+                                                   assigment,
+                                                   sym_table);
+    }
+    else
+    {
+        /* unexpected right value type */
+        assert(false);
+    }
+
 }
 
 

@@ -5,6 +5,7 @@
 #include "ir_int_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_array_literal.h"
+#include "ir_array_slice.h"
 #include "dt_array_type.h"
 
 #include <assert.h>
@@ -60,6 +61,12 @@ implicit_conv_to_static_bool_array_type(IrExpression *expression);
  */
 static IrExpression *
 implicit_conv_to_static_int_array_type(IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_int_array_type(IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_bool_array_type(IrExpression *expression);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -226,17 +233,22 @@ implicit_conv_static_int_array_to_bool(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_static_bool_array_type(IrExpression *expression)
 {
-    assert(IR_IS_ARRAY_LITERAL(expression));
+    assert(IR_IS_ARRAY_LITERAL(expression) ||
+           IR_IS_ARRAY_SLICE(expression));
 
-    DtStaticArrayType *arry_type;
+    DtArrayType *arry_type;
 
-    arry_type = DT_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
-    switch (dt_static_array_type_get_data_type(arry_type))
+    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    switch (dt_array_type_get_data_type(arry_type))
     {
         case bool_type:
             return expression;
         case int_type:
-            return implicit_conv_static_int_array_to_bool(expression);
+            if (DT_IS_STATIC_ARRAY_TYPE(arry_type))
+            {
+                return implicit_conv_static_int_array_to_bool(expression);
+            }
+            return NULL;
         default:
             /* unexpected element basic data type */
             assert(false);
@@ -246,27 +258,90 @@ implicit_conv_to_static_bool_array_type(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_static_int_array_type(IrExpression *expression)
 {
-    assert(IR_IS_ARRAY_LITERAL(expression));
+    DtArrayType *arry_type;
 
-    DtStaticArrayType *arry_type;
+    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
 
-    arry_type = DT_STATIC_ARRAY_TYPE(ir_expression_get_data_type(expression));
-    switch (dt_static_array_type_get_data_type(arry_type))
+    switch (dt_array_type_get_data_type(arry_type))
     {
         case int_type:
             return expression;
         case bool_type:
         {
             IrCast *cast_exp;
-            int length;
-            length = dt_static_array_type_get_length(arry_type);
+            if (DT_IS_STATIC_ARRAY_TYPE(arry_type))
+            {
+                int length;
+                length =
+                  dt_static_array_type_get_length(
+                    DT_STATIC_ARRAY_TYPE(arry_type));
+                cast_exp =
+                  ir_cast_new(DT_DATA_TYPE(dt_static_array_type_new(int_type,
+                                                                    length)),
+                               expression);
+            }
+            else
+            {
+                cast_exp =
+                  ir_cast_new(DT_DATA_TYPE(dt_array_type_new(int_type)),
+                              expression);
+            }
+            return IR_EXPRESSION(cast_exp);
+
+        }
+        default:
+            /* unexpected element basic data type */
+            assert(false);
+    }
+}
+
+static IrExpression *
+implicit_conv_to_int_array_type(IrExpression *expression)
+{
+    assert(IR_IS_ARRAY_LITERAL(expression) ||
+           IR_IS_ARRAY_SLICE(expression));
+
+    DtArrayType *arry_type;
+
+    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
+
+    switch (dt_array_type_get_data_type(arry_type))
+    {
+        case int_type:
+            return expression;
+        case bool_type:
+        {
+            IrCast *cast_exp;
+
             cast_exp =
-              ir_cast_new(DT_DATA_TYPE(dt_static_array_type_new(int_type,
-                                                                length)),
+              ir_cast_new(DT_DATA_TYPE(dt_array_type_new(int_type)),
                           expression);
             return IR_EXPRESSION(cast_exp);
 
         }
+        default:
+            /* unexpected element basic data type */
+            assert(false);
+    }
+}
+
+static IrExpression *
+implicit_conv_to_bool_array_type(IrExpression *expression)
+{
+    assert(IR_IS_ARRAY_LITERAL(expression) ||
+           IR_IS_ARRAY_SLICE(expression));
+
+    DtArrayType *arry_type;
+
+    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    switch (dt_array_type_get_data_type(arry_type))
+    {
+        case bool_type:
+            return expression;
+        case int_type:
+            /* not implemented */
+            assert(false);
+            //return implicit_conv_static_int_array_to_bool(expression);
         default:
             /* unexpected element basic data type */
             assert(false);
@@ -292,21 +367,25 @@ implicit_conv_to_static_array_type(DtDataType *target_type,
         assert(false);
     }
 
-    if (!DT_IS_STATIC_ARRAY_TYPE(source_type))
+    if (!DT_IS_ARRAY_TYPE(source_type))
     {
         return NULL;
     }
 
-    DtStaticArrayType *src_arry_type;
     DtStaticArrayType *dst_arry_type;
 
-    src_arry_type = DT_STATIC_ARRAY_TYPE(source_type);
     dst_arry_type = DT_STATIC_ARRAY_TYPE(target_type);
 
-    if (dt_static_array_type_get_length(src_arry_type) !=
-        dt_static_array_type_get_length(dst_arry_type))
+    if (DT_IS_STATIC_ARRAY_TYPE(source_type))
     {
-        return NULL;
+        DtStaticArrayType *src_arry_type;
+        src_arry_type = DT_STATIC_ARRAY_TYPE(source_type);
+
+       if (dt_static_array_type_get_length(src_arry_type) !=
+           dt_static_array_type_get_length(dst_arry_type))
+       {
+          return NULL;
+       }
     }
 
     switch (dt_static_array_type_get_data_type(dst_arry_type))
@@ -355,9 +434,9 @@ implicit_conv_to_array_type(DtDataType *target_type,
     switch (dt_array_type_get_data_type(dst_arry_type))
     {
         case int_type:
-            return implicit_conv_to_static_int_array_type(expression);
+            return implicit_conv_to_int_array_type(expression);
         case bool_type:
-            return implicit_conv_to_static_bool_array_type(expression);
+            return implicit_conv_to_bool_array_type(expression);
         default:
             /* unexpected element type */
             assert(false);

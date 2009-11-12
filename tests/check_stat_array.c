@@ -153,6 +153,42 @@ call_slices_ops(int arg)
    return res;
 }
 
+int
+call_int_slice_to_shorthand_slice(int arg)
+{
+   int res;
+
+   asm ("    call int_slice_to_shorthand_slice\n"
+        : "=a"(res)
+        : "a"(arg));
+
+   return res;
+}
+
+int
+call_int_slice_to_slice(int arg)
+{
+   int res;
+
+   asm ("    call int_slice_to_slice\n"
+        : "=a"(res)
+        : "a"(arg));
+
+   return res;
+}
+
+bool
+call_bool_slice_to_slice(bool in)
+{
+   bool res;
+
+   asm ("    call bool_slice_to_slice\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -223,6 +259,38 @@ main()
 
     /* slices_ops() test */
     check_int("slices_ops(85)", call_slices_ops(85), -85);
+
+    /* int_slice_to_shorthand_slice() tests */
+    check_int("int_slice_to_shorthand_slice(0)",
+              call_int_slice_to_shorthand_slice(0), 9 + 7 + 6);
+    check_int("int_slice_to_shorthand_slice(1)",
+              call_int_slice_to_shorthand_slice(1), 7 + 6 + 5);
+    check_int("int_slice_to_shorthand_slice(2)",
+              call_int_slice_to_shorthand_slice(2), 6 + 5 + 4);
+    check_int("int_slice_to_shorthand_slice(3)",
+              call_int_slice_to_shorthand_slice(3), 5 + 4 + 3);
+
+    /* int_slice_to_slice() tests */
+    check_int("int_slice_to_slice(0)",
+              call_int_slice_to_slice(0), 15 + 24);
+
+    check_int("int_slice_to_slice(2)",
+              call_int_slice_to_slice(2), -33 + 42);
+
+    check_int("int_slice_to_slice(3)",
+              call_int_slice_to_slice(3), 42 + 51);
+
+    check_int("int_slice_to_slice(4)",
+              call_int_slice_to_slice(4), 51 + 60);
+
+    /* bool_slice_to_slice() tests */
+    check_bool("bool_slice_to_slice(true)",
+               call_bool_slice_to_slice(true), true);
+
+    /* bool_slice_to_slice() tests */
+    check_bool("bool_slice_to_slice(false)",
+               call_bool_slice_to_slice(false), false);
+
 
     check_exit();
 }

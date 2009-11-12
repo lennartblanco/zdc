@@ -5,4 +5,4 @@ array_element.d:20: error: unexpected reference to non variable
 array_element.d:20: error: invalid assigment expression
 array_element.d:12: error: reference to unknow array symbol 'lst'
 array_element.d:12: error: invalid assigment expression
-array_element.d:4: error: undefined identifier 'a'
+array_element.d:4: error: reference to unknow array symbol 'a'

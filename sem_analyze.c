@@ -283,87 +283,24 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
 {
     AstVariableRef *target;
     AstExpression *value;
-    IrLvalue *lvalue;
+    IrExpression *ir_target;
     IrExpression *ir_value;
 
     target = ast_assigment_get_target(ast_assigment);
     value = ast_assigment_get_value(ast_assigment);
 
-    if (XDP_IS_AST_ARRAY_CELL_REF(target))
-    {
-        AstArrayCellRef *arry_cell_ref;
-        AstExpression *ast_index_exp;
-        IrExpression *ir_index_exp;
-        
-        arry_cell_ref = XDP_AST_ARRAY_CELL_REF(target);
-
-        /* convert array index expression to IR form */
-        ast_index_exp = ast_array_cell_ref_get_index(arry_cell_ref);
-        ir_index_exp =
-            sem_analyze_ast_expression_to_ir(compile_status,
-                                             symbols,
-                                             ast_index_exp);
-
-        lvalue =
-          IR_LVALUE(ir_array_cell_ref_new(ast_variable_ref_get_name(target),
-                                          ir_index_exp,
-                                          ast_node_get_line_num(ast_assigment)));
-    }
-    else if (XDP_IS_AST_ARRAY_SLICE_REF(target))
-    {
-        AstArraySliceRef *array_slice;
-        char *name;
-        AstExpression *ast_start_idx;
-        IrExpression *ir_start_idx = NULL;
-        AstExpression *ast_end_idx;
-        IrExpression *ir_end_idx = NULL;
-
-        array_slice = XDP_AST_ARRAY_SLICE_REF(target);
-        name = ast_array_slice_ref_get_name(array_slice);
-
-        /* convert start expression, if any, to IR-form */
-        ast_start_idx = ast_array_slice_ref_get_start(array_slice);
-        if (ast_start_idx != NULL)
-        {
-            ir_start_idx =
-                sem_analyze_ast_expression_to_ir(compile_status,
-                                                 symbols,
-                                                 ast_start_idx);
-        }
-
-        /* convert end expression, if any, to IR-form */
-        ast_end_idx = ast_array_slice_ref_get_end(array_slice);
-        if (ast_end_idx != NULL)
-        {
-            ir_end_idx =
-                sem_analyze_ast_expression_to_ir(compile_status,
-                                                 symbols,
-                                                 ast_end_idx);
-        }
-
-        lvalue = IR_LVALUE(ir_array_slice_new(name,
-                                              ir_start_idx,
-                                              ir_end_idx,
-                                              ast_node_get_line_num(target)));
-    }
-    else if (XDP_IS_AST_VARIABLE_REF(target))
-    {
-        lvalue =
-            IR_LVALUE(ir_scalar_new(ast_variable_ref_get_name(target),
-                                    ast_node_get_line_num(target)));
-    }
-    else
-    {
-        /* unexpected lvalue type */
-        assert(false);
-    }
+    ir_target =
+        sem_analyze_ast_expression_to_ir(compile_status,
+                                         symbols,
+                                         XDP_AST_EXPRESSION(target));
+    assert(IR_IS_LVALUE(ir_target));
 
     ir_value =
         sem_analyze_ast_expression_to_ir(compile_status,
                                          symbols,
                                          value);
 
-    return IR_STATMENT(ir_assigment_new(lvalue,
+    return IR_STATMENT(ir_assigment_new(IR_LVALUE(ir_target),
                                         ir_value,
                                         ast_node_get_line_num(ast_assigment)));
 }
@@ -528,6 +465,44 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         val = 
             ast_bool_constant_get_value(XDP_AST_BOOL_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_bool_constant_new(val));
+    }
+    else if (XDP_IS_AST_ARRAY_SLICE_REF(ast_expression))
+    {
+        AstArraySliceRef *array_slice;
+        char *name;
+        AstExpression *ast_start_idx;
+        IrExpression *ir_start_idx = NULL;
+        AstExpression *ast_end_idx;
+        IrExpression *ir_end_idx = NULL;
+        guint line_numer = ast_node_get_line_num(ast_expression);
+
+        array_slice = XDP_AST_ARRAY_SLICE_REF(ast_expression);
+        name = ast_array_slice_ref_get_name(array_slice);
+
+        /* convert start expression, if any, to IR-form */
+        ast_start_idx = ast_array_slice_ref_get_start(array_slice);
+        if (ast_start_idx != NULL)
+        {
+            ir_start_idx =
+                sem_analyze_ast_expression_to_ir(compile_status,
+                                                 symbols,
+                                                 ast_start_idx);
+        }
+
+        /* convert end expression, if any, to IR-form */
+        ast_end_idx = ast_array_slice_ref_get_end(array_slice);
+        if (ast_end_idx != NULL)
+        {
+            ir_end_idx =
+                sem_analyze_ast_expression_to_ir(compile_status,
+                                                 symbols,
+                                                 ast_end_idx);
+        }
+
+        return IR_EXPRESSION(ir_array_slice_new(name,
+                                                ir_start_idx,
+                                                ir_end_idx,
+                                                line_numer));
     }
     else if (XDP_IS_AST_VARIABLE_REF(ast_expression))
     {
