@@ -1,0 +1,8 @@
+/**
+ *
+ */
+bool
+main()
+{
+  return false;
+}

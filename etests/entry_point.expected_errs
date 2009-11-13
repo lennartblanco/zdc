@@ -1,0 +1,1 @@
+entry_point.d:8: error: function main() must return int or void

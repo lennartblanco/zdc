@@ -1062,7 +1062,8 @@ validate_entry_point(compilation_status_t *compile_status,
     main_func = IR_FUNCTION(main_symb);
     if (ir_function_get_parameters(main_func) != NULL)
     {
-        old_compile_error(compile_status, 
+        compile_error(compile_status,
+                      IR_NODE(main_func),
                       "only void main() and int main() "
                       "entry points supported\n");
         return;
@@ -1072,7 +1073,8 @@ validate_entry_point(compilation_status_t *compile_status,
     if (!types_is_void(main_ret_type) &&
         !types_is_int(main_ret_type))
     {
-       old_compile_error(compile_status, 
+       compile_error(compile_status,
+                     IR_NODE(main_func),
                      "function main() must return int or void\n");
     }
 }
