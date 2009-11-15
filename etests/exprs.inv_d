@@ -1,0 +1,23 @@
+void func() { }
+
+bool
+if_func()
+{
+  if (func()) { return false; }
+
+  return true;
+}
+
+void
+while_func()
+{
+  while (func()) { }
+}
+
+void
+exp_func()
+{
+  120 + 2;
+}
+
+

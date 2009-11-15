@@ -29,8 +29,6 @@ compile_error(compilation_status_t *compile_status,
               const char *errmsg,
               ...)
 {
-//printf("error_node %s\n", g_type_name(G_TYPE_FROM_INSTANCE(error_node)));
-
     assert(compile_status);
     assert(compile_status->source_file);
     assert(IR_IS_NODE(error_node));
@@ -53,21 +51,6 @@ compile_error(compilation_status_t *compile_status,
 
     compile_status->errors_count += 1;
 }
-
-
-void
-old_compile_error(compilation_status_t *compile_status, const char *errmsg, ...)
-{
-    va_list argp;
-
-    fprintf(stderr, "%s: error: ", compile_status->source_file);
-    va_start(argp, errmsg);
-    vfprintf(stderr, errmsg, argp);
-    va_end(argp);
-
-    compile_status->errors_count += 1;
-}
-
 
 void
 fprintf_indent(FILE *stream, int indention, const char *format, ...)

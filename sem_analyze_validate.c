@@ -629,7 +629,8 @@ validate_if_block(compilation_status_t *compile_status,
 
     if (condition == NULL)
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(ir_if_block_get_condition(if_block)),
                       "can not convert if condition to bool type\n");
         return;
     }
@@ -682,7 +683,8 @@ validate_while(compilation_status_t *compile_status,
 
     if (condition == NULL)
     {
-        old_compile_error(compile_status,
+        compile_error(compile_status,
+                      IR_NODE(ir_while_get_loop_condition(while_statment)),
                       "can not convert while loop condition to bool type\n");
         return;
     }
@@ -722,7 +724,9 @@ validate_statment(compilation_status_t *compile_status,
     }
     else if (IR_IS_EXPRESSION(statment))
     {
-        old_compile_error(compile_status, "expression have no effect\n");
+        compile_error(compile_status,
+                      IR_NODE(statment),
+                      "expression have no effect\n");
     }
 }
 

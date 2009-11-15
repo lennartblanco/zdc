@@ -35,15 +35,6 @@ compile_error(compilation_status_t *compile_status,
                   ...);
 
 /**
- * Report a compile time error.
- *
- * @param filename the name of the source file where error is found.
- * @errmsg error message with printf-style formatting
- */
-void
-old_compile_error(compilation_status_t *compile_status, const char *errmsg, ...);
-
-/**
  * Print the formatted string with indention to the file stream.
  *
  * @param stream    the stream to print to
