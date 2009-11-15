@@ -1,0 +1,7 @@
+bin_ops.d:36: error: illegal types in compare operation
+bin_ops.d:27: error: left operand of illegal type
+bin_ops.d:27: error: invalid assigment expression
+bin_ops.d:21: error: right operand of illegal type
+bin_ops.d:21: error: invalid assigment expression
+bin_ops.d:15: error: reference to unknow symbol 'y'
+bin_ops.d:9: error: reference to unknow symbol 'x'

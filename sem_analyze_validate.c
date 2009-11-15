@@ -30,9 +30,9 @@ validate_function_call(compilation_status_t *compile_status,
                        IrFunctionCall *func_call);
 
 static IrExpression *
-validate_bin_iarithm(compilation_status_t *compile_status,
-                     sym_table_t *sym_table,
-                     IrBinaryOperation *bin_op);
+validate_bin_arithm(compilation_status_t *compile_status,
+                    sym_table_t *sym_table,
+                    IrBinaryOperation *bin_op);
 
 static IrExpression *
 validate_bin_icomp(compilation_status_t *compile_status,
@@ -205,11 +205,11 @@ validate_function_call(compilation_status_t *compile_status,
  * validate binary integer arithmetic operation
  */
 static IrExpression *
-validate_bin_iarithm(compilation_status_t *compile_status,
-                     sym_table_t *sym_table,
-                     IrBinaryOperation *bin_op)
+validate_bin_arithm(compilation_status_t *compile_status,
+                    sym_table_t *sym_table,
+                    IrBinaryOperation *bin_op)
 {
-    assert(ir_binary_operation_is_iarithm(bin_op));
+    assert(ir_binary_operation_is_arithm(bin_op));
 
     IrExpression *exp;
 
@@ -221,7 +221,9 @@ validate_bin_iarithm(compilation_status_t *compile_status,
     exp = types_integer_promotion(exp);
     if (exp == NULL)
     {
-        old_compile_error(compile_status, "left operand of illegal type\n");
+        compile_error(compile_status,
+                      IR_NODE(ir_binary_operation_get_left(bin_op)),
+                      "left operand of illegal type\n");
         return NULL;
     }
     ir_binary_operation_set_left(bin_op, exp);
@@ -233,7 +235,9 @@ validate_bin_iarithm(compilation_status_t *compile_status,
     exp = types_integer_promotion(exp);
     if (exp == NULL)
     {
-        old_compile_error(compile_status, "right operand of illegal type\n");
+        compile_error(compile_status,
+                      IR_NODE(ir_binary_operation_get_right(bin_op)),
+                      "right operand of illegal type\n");
         return NULL;
     }
     ir_binary_operation_set_right(bin_op, exp);
@@ -259,7 +263,9 @@ validate_bin_icomp(compilation_status_t *compile_status,
                                  &converted_left,
                                  &converted_right))
     {
-        old_compile_error(compile_status, "illegal types in compare operation\n");
+        compile_error(compile_status,
+                      IR_NODE(bin_op),
+                      "illegal types in compare operation\n");
         return NULL;
     }
 
@@ -337,16 +343,23 @@ validate_binary_op(compilation_status_t *compile_status,
     /* validate left operand */
     exp = ir_binary_operation_get_left(bin_op);
     exp = validate_expression(compile_status, sym_table, exp);
+    if (exp == NULL) {
+        return NULL;
+    }
     ir_binary_operation_set_left(bin_op, exp);
 
     /* validate right operand */
     exp = ir_binary_operation_get_right(bin_op);
     exp = validate_expression(compile_status, sym_table, exp);
+    if (exp == NULL) {
+        return NULL;
+    }
     ir_binary_operation_set_right(bin_op, exp);
 
-    if (ir_binary_operation_is_iarithm(bin_op))
+    /* do operation specific validation */
+    if (ir_binary_operation_is_arithm(bin_op))
     {
-        return validate_bin_iarithm(compile_status, sym_table, bin_op);
+        return validate_bin_arithm(compile_status, sym_table, bin_op);
     }
     else if (ir_binary_operation_is_icomp(bin_op))
     {
@@ -414,11 +427,6 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     /*
      * look-up the array in the symbol table
      */
-/* @todo the look-up of array cell symbol will be looked up and validated twice,
- * if array cell ref is used as lvalue in an assigment expression,
- * the symbol will be first looked-up and validated in validate_assigment()
- * figure out a way to avoid doing this twice
- */
     array_symb = sym_table_get_symbol(sym_table,
                                       ir_array_cell_get_name(cell_ref));
     if (array_symb == NULL) 

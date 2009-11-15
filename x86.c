@@ -1483,7 +1483,7 @@ x86_compile_binary_op(x86_comp_params_t *params,
                       IrBinaryOperation *op,
                       sym_table_t *sym_table)
 {
-    if (ir_binary_operation_is_iarithm(op))
+    if (ir_binary_operation_is_arithm(op))
     {
         x86_compile_iarithm_op(params, op, sym_table);
     }

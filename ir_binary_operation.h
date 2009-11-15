@@ -73,11 +73,11 @@ ir_binary_operation_set_right(IrBinaryOperation *self,
                              IrExpression *right);
 
 /**
- * Returns true if this is an integer arithmetic binary operation.
- * Integer arithmetic operations +, -, *, / over integer expressions.
+ * Returns true if this is an arithmetic binary operation.
+ * Arithmetic operations are '+', '-', '*' and '/'.
  */
 bool
-ir_binary_operation_is_iarithm(IrBinaryOperation *self);
+ir_binary_operation_is_arithm(IrBinaryOperation *self);
 
 /**
  * Return true of this is an integer comparison operation.

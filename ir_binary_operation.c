@@ -111,27 +111,12 @@ ir_binary_operation_set_right(IrBinaryOperation *self,
 }
 
 bool
-ir_binary_operation_is_iarithm(IrBinaryOperation *self)
+ir_binary_operation_is_arithm(IrBinaryOperation *self)
 {
-    DtDataType *data_type;
-    basic_data_type_t bdt;
     ast_binary_op_type_t op_type;
 
     assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
-
-    data_type = ir_expression_get_data_type(IR_EXPRESSION(self));
-    if (!DT_IS_BASIC_TYPE(data_type))
-    {
-        return false;
-    }
-
-    bdt = dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
-
-    if (bdt != int_type && bdt != bool_type)
-    {
-        return false;
-    }
 
     op_type = ir_binary_operation_get_operation(self);
 

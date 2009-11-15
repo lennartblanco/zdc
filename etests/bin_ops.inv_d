@@ -1,0 +1,39 @@
+void func()
+{
+
+}
+
+bool
+inv_left()
+{
+  return x && true;
+}
+
+bool
+inv_right()
+{
+  return true && y;
+}
+
+void
+bin_add1(int arg)
+{
+  arg = 1 + func();
+}
+
+void
+bin_add2(int arg)
+{
+  arg = func() + 2;
+}
+
+
+bool
+bin_cmp()
+{
+  int[2] x;
+
+  return func() > 3;
+}
+
+
