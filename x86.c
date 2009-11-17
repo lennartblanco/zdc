@@ -1105,40 +1105,24 @@ x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
 
     fprintf(params->out,
             "# memcpy src argument -> ebx\n"
-            "    movl %%ebp, %%ebx\n");
-
-    if (index_shift_steps > 0)
-    {
-        fprintf(params->out,
-                "    sall $%u, 4(%%esp)\n",
-                 index_shift_steps);
-    }
+            "    movl 4(%%esp), %%ebx\n"
+            "    lea %d(%%ebp, %%ebx, %d), %%ebx\n",
+            src_offset, storage_size);
 
     fprintf(params->out,
-            "    addl 4(%%esp), %%ebx\n"
-            "    addl $%d, %%ebx\n"
             "# memcpy dest argument -> ecx\n"
-            "    movl %%ebp, %%ecx\n",
-            src_offset);
-
-    if (index_shift_steps > 0)
-    {
-        fprintf(params->out,
-                "    sall $%u, 12(%%esp)\n",
-                index_shift_steps);
-    }
+            "    movl 12(%%esp), %%ecx\n"
+            "    lea %d(%%ebp, %%ecx, %d), %%ecx\n",
+            dst_offset, storage_size);
 
     fprintf(params->out,
-            "    addl 12(%%esp), %%ecx\n"
-            "    addl $%d, %%ecx\n"
             "# put memcpy arguments on stack\n"
             "    addl $16, %%esp\n"
             "    pushl %%eax\n"
             "    pushl %%ebx\n"
             "    pushl %%ecx\n"
             "    call memcpy\n"
-            "    addl $4, %%esp     # remove memcpy retrun value from stack\n",
-            dst_offset);
+            "    addl $4, %%esp     # remove memcpy retrun value from stack\n");
 }
 
 static void
