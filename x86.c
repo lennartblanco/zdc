@@ -163,6 +163,10 @@ static void
 x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
                                              IrAssigment *assigment,
                                              sym_table_t *sym_table);
+static void
+x86_compile_array_slice(x86_comp_params_t *params,
+                        IrArraySlice *array_slice,
+                        sym_table_t *sym_table);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -250,6 +254,13 @@ x86_compile_expression(x86_comp_params_t *params,
                               IR_FUNCTION_CALL(expression),
                               sym_table,
                               true);
+    }
+    else if (IR_IS_ARRAY_SLICE(expression))
+    {
+        x86_compile_array_slice(params,
+                                IR_ARRAY_SLICE(expression),
+                                sym_table);
+                               
     }
     else if (IR_IS_CAST(expression))
     {
@@ -966,6 +977,96 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
             "    # remove slice start and end values from stack\n"
             "    addl $8, %%esp\n",
             loop_label);
+}
+
+static void
+x86_compile_array_slice(x86_comp_params_t *params,
+                        IrArraySlice *array_slice,
+                        sym_table_t *sym_table)
+{
+    IrVariable *var;
+    int array_offset;
+    int storage_size;
+    guint index_shift_steps;
+
+    /*
+     * get source slice arrays frame offset
+     */
+    var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
+    array_offset = 
+        x86_frame_offset_get_offset(
+             X86_FRAME_OFFSET(ir_variable_get_location(var)));
+
+    /*
+     * get array elements storage size
+     */
+    storage_size =
+      types_get_storage_size(
+          dt_array_type_get_data_type(
+              DT_ARRAY_TYPE(ir_expression_get_data_type(
+                  IR_EXPRESSION(array_slice)))));
+
+    /*
+     * we use left shift to operation to multiply index of element 
+     * with arrays storage size, figure out how many bits should be shifted
+     */
+    switch (storage_size)
+    {
+        case 4:
+            index_shift_steps = 2;
+            break;
+        case 2:
+            index_shift_steps = 1;
+            break;
+        case 1:
+            index_shift_steps = 0;
+            break;
+        default:
+            /* unsupported element array size */
+            assert(false);
+    }
+
+
+    fprintf(params->out,
+            "# put contents of array slice on the stack\n"
+            " # evaluate array slice start index\n");
+    x86_compile_expression(params,
+                           ir_array_slice_get_start(array_slice),
+                           sym_table);
+
+    fprintf(params->out,
+            " #evaluate array slice end index\n");
+    x86_compile_expression(params,
+                           ir_array_slice_get_end(array_slice),
+                           sym_table);
+
+    fprintf(params->out,
+            " # calculate array slice length\n"
+            "    popl %%eax\n"
+            "    subl (%%esp), %%eax\n");
+
+    if (index_shift_steps > 0)
+    {
+        fprintf(params->out,
+                "    # multiply slice length by array element storage size\n"
+                "    sall $%u, %%eax\n",
+                index_shift_steps);
+    }
+
+    fprintf(params->out,
+            " # calculate array slice effective start address\n"
+            "    popl %%ecx\n"
+            "    lea %d(%%ebp, %%ecx, %d), %%ecx\n"
+            " # make room for array slice on the stack\n"
+            "    movl %%esp, %%edx\n"
+            "    subl %%eax, %%edx\n"
+            "    movl %%edx, %%esp\n"
+            "    pushl %%eax\n"
+            "    pushl %%ecx\n"
+            "    pushl %%edx\n"
+            "    call memcpy\n"
+            "    addl $12, %%esp\n",
+            array_offset, storage_size);
 }
 
 /**
