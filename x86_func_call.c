@@ -1,5 +1,5 @@
 #include "x86_func_call.h"
-#include "dt_basic_type.h"
+#include "types.h"
 
 #include <assert.h>
 
@@ -74,15 +74,34 @@ compile_d_func_call(x86_comp_params_t *params,
     int arg_num;
     GSList *i;
     DtDataType *func_data_type;
+    DtDataType *last_param_type;
+    bool last_param_in_reg = false;
 
     i = ir_function_call_get_arguments(func_call);
     arg_num = g_slist_length(i);
     for (; i != NULL; i = g_slist_next(i))
     {
         x86_compile_expression(params, i->data, sym_table);
+
+        if (g_slist_next(i) == NULL)
+        {
+            last_param_type = ir_expression_get_data_type(i->data);
+        }
     }
 
-    if (arg_num > 0)
+    if (DT_IS_BASIC_TYPE(last_param_type))
+    {
+        int storage_size;
+
+        storage_size =
+          types_get_storage_size(
+               dt_basic_type_get_data_type(DT_BASIC_TYPE(last_param_type)));
+        last_param_in_reg = storage_size  <= 4;
+    }
+
+    printf("last arg datatype %s\n", g_type_name(G_TYPE_FROM_INSTANCE(last_param_type)));
+
+    if (last_param_in_reg)
     {
         fprintf(params->out,
                 "# put last argument into eax\n"
@@ -96,10 +115,14 @@ compile_d_func_call(x86_comp_params_t *params,
 
     if (arg_num > 1)
     {
-        fprintf(params->out,
-                "# remove function call arguments from the stack\n"
-                "    addl $%d, %%esp\n",
-                (arg_num - 1) * 4);
+        /*
+         * @todo this does not work anymore, we need to take into account
+         * the size of for example static arrays pushed onto stack
+         */
+//        fprintf(params->out,
+//                "# remove function call arguments from the stack\n"
+//                "    addl $%d, %%esp\n",
+//                (arg_num - 1) * 4);
     }
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
