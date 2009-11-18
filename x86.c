@@ -7,6 +7,7 @@
 #include "x86_cast.h"
 #include "x86_if_else.h"
 #include "x86_func_call.h"
+#include "x86_code_block.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
 #include "dt_static_array_type.h"
@@ -26,7 +27,6 @@
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_assigment.h"
-#include "ir_while.h"
 
 #include <assert.h>
 
@@ -43,11 +43,6 @@ static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
 
 static void
-x86_compile_while(x86_comp_params_t *params,
-                  IrWhile *while_statment,
-                  sym_table_t *sym_table);
-
-static void
 x86_compile_binary_op(x86_comp_params_t *params,
                       IrBinaryOperation *op,
                       sym_table_t *sym_table);
@@ -57,12 +52,12 @@ x86_compile_unary_op(x86_comp_params_t *params,
                      IrUnaryOperation *op,
                      sym_table_t *sym_table);
 
-static void
+void
 x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
                            sym_table_t *sym_table);
-static void
+void
 x86_gen_array_literal_assigment(x86_comp_params_t *params, 
                                 IrVariable *variable,
                                 IrArrayLiteral *array_literal,
@@ -72,9 +67,6 @@ static void
 x86_compile_array_cell_ref(x86_comp_params_t *params,
                            IrArrayCellRef *array_cell,
                            sym_table_t *sym_table);
-
-static int
-x86_get_variable_storage_size(IrVariable *variable);
 
 static void
 x86_compile_iarithm_op(x86_comp_params_t *params,
@@ -94,16 +86,6 @@ x86_compile_conditional_op(x86_comp_params_t *params,
 static void
 x86_compile_scalar(x86_comp_params_t *params,
                    IrScalar *scalar);
-
-void
-x86_compile_expression(x86_comp_params_t *params,
-                       IrExpression *expression,
-                       sym_table_t *sym_table);
-
-static void
-x86_compile_assigment(x86_comp_params_t *params,
-                      IrAssigment *assigment,
-                      sym_table_t *sym_table);
 
 static void
 x86_gen_array_cell_assigment(x86_comp_params_t *params,
@@ -132,22 +114,10 @@ x86_gen_store_value(x86_comp_params_t *params,
  * @param variable     array which should be default initialized
  * @param sym_table    symbols where the array is defined
  */
-static void
+void
 x86_gen_default_array_initializer(x86_comp_params_t *params,
                                   IrVariable *variable,
                                   sym_table_t *sym_table);
-
-/**
- * Generate code for initialization of an variable.
- *
- * @param params       compilation pass parameters handle
- * @param variable     variable which should be initialized
- * @param sym_table    symbols where the array is defined
- */
-static void
-x86_compile_variable_initializer(x86_comp_params_t *params,
-                                 IrVariable *variable,
-                                 sym_table_t *sym_table);
 
 static void
 x86_compile_array_slice_assigment(x86_comp_params_t *params,
@@ -276,151 +246,76 @@ x86_compile_expression(x86_comp_params_t *params,
     }
 }
 
-void
-x86_compile_code_block(x86_comp_params_t *params,
-                       IrCodeBlock *code_block)
+int
+x86_get_variable_storage_size(IrVariable *variable)
 {
-    GList *symbols_list;
-    GList *l;
-    sym_table_t *locals;
+    assert(variable);
+    assert(IR_IS_VARIABLE(variable));
 
-    locals = ir_code_block_get_symbols(code_block);
-    /*
-     * generate code to initialize all new variables in this code block
-     */
-    symbols_list = sym_table_get_all_symbols(locals);
-    for (l = symbols_list; l != NULL; l = g_list_next(l))
+    DtDataType *variable_type;
+
+    variable_type = ir_variable_get_data_type(variable);
+    if (DT_IS_BASIC_TYPE(variable_type))
     {
-        x86_compile_variable_initializer(params,
-                                         l->data,
-                                         locals);
-    }
-    g_list_free(symbols_list);
+        DtBasicType *basic_type = DT_BASIC_TYPE(variable_type);
 
-    /*
-     * generate code for the statments in this code block
-     */
-    GSList *stmts = ir_code_block_get_statments(code_block);
-    for (;stmts != NULL; stmts = g_slist_next(stmts))
+        return types_get_storage_size(dt_basic_type_get_data_type(basic_type));
+    }
+    else if (DT_IS_STATIC_ARRAY_TYPE(variable_type))
     {
-        IrStatment *statment = IR_STATMENT(stmts->data);
+        DtStaticArrayType *array_type;
+        int len;
 
-        if (IR_IS_RETURN(statment))
-        {
-            IrReturn *ret = IR_RETURN(statment);
-            IrExpression *return_val = ir_return_get_return_value(ret);
-            if (return_val != NULL)
-            {
-                x86_compile_expression(params, return_val, locals);
-                fprintf(params->out,
-                        "    popl %%eax\n");
-            }
-            fprintf(params->out,
-                    "    leave\n"
-                    "    ret\n");
-        }
-        else if (IR_IS_FUNCTION_CALL(statment))
-        {
-            x86_compile_func_call(params, 
-                                  IR_FUNCTION_CALL(statment),
-                                  locals,
-                                  false);
-        }
-        else if (IR_IS_ASSIGMENT(statment))
-        {
-            IrAssigment *assig = IR_ASSIGMENT(statment);
-            x86_compile_assigment(params, assig, locals);
-        }
-        else if (IR_IS_CODE_BLOCK(statment))
-        {
-            x86_compile_code_block(params,
-                                   IR_CODE_BLOCK(statment));
-        }
-        else if (IR_IS_IF_ELSE(statment))
-        {
-            x86_compile_if_else(params,
-                                IR_IF_ELSE(statment),
-                                locals);
-        }
-        else if (IR_IS_WHILE(statment))
-        {
-            x86_compile_while(params,
-                              IR_WHILE(statment),
-                              locals);
-        }
-        else
-        {
-            /* unexpected statment type */
-            printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(stmts->data)));
-            assert(false);
-        }
+        array_type = DT_STATIC_ARRAY_TYPE(variable_type);
+        len = dt_static_array_type_get_length(array_type);
+
+        return 
+            len * types_get_storage_size(
+                      dt_static_array_type_get_data_type(array_type));
     }
+    else
+    {
+        /* unexpected data type */
+        assert(false);
+    }
+    /* we should not get here */
+    assert(false);
+    return 0;
 }
 
-int
-x86_code_block_assign_addrs(x86_comp_params_t *params,
-                            int first_num,
-                            IrCodeBlock *code_block)
+void
+x86_compile_assigment(x86_comp_params_t *params,
+                      IrAssigment *assigment,
+                      sym_table_t *sym_table)
 {
-    sym_table_t *symbols;
-    GList *symbols_list;
-    GList *i;
-    GSList *j;
-    int num = first_num;
-    int last_num;
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
 
-    /*
-     * assign number to this code block's local variables
-     */
-    symbols = ir_code_block_get_symbols(code_block);
+    IrLvalue *lvalue;
 
-    symbols_list = sym_table_get_all_symbols(symbols);
-    for (i = symbols_list; i != NULL; i = g_list_next(i))
+    lvalue = ir_assigment_get_lvalue(assigment);
+
+    if (IR_IS_SCALAR(lvalue))
     {
-        IrVariable *var = i->data;
-
-        if (!IR_IS_VARIABLE(var))
-        {
-            /* skip non-variables in symbol table */
-            continue;
-        }
-
-        num -= x86_get_variable_storage_size(var);
-        ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
-        fprintf(params->out, "# variable '%s' location %d\n",
-                ir_variable_get_name(var), num);
-
+        x86_gen_variable_assigment(params,
+                                   ir_lvalue_get_variable(lvalue),
+                                   ir_assigment_get_value(assigment),
+                                   sym_table);
     }
-    g_list_free(symbols_list);
-    last_num = num;
-
-    /*
-     * assign numbers to children code block's variables
-     */
-    j = ir_code_block_get_statments(code_block);
-    for (; j != NULL; j = g_slist_next(j))
+    else if (IR_IS_ARRAY_CELL_REF(lvalue))
     {
-        int vars = 0;
-        if (IR_IS_CODE_BLOCK(j->data))
-        {
-            vars = x86_code_block_assign_addrs(params, num, j->data);
-        }
-        else if (IR_IS_IF_ELSE(j->data))
-        {
-            vars = x86_if_else_assign_addrs(params, num, j->data);
-        }
-
-        /* 
-         * keep track of lowers frame offset assigned 
-         * in our sub-blocks 
-         */
-        if (vars < last_num)
-        {
-            last_num = vars;
-        }
+        x86_gen_array_cell_assigment(params, assigment, sym_table);
     }
-
-    return last_num;
+    else if (IR_IS_ARRAY_SLICE(lvalue))
+    {
+        x86_compile_array_slice_assigment(params, assigment, sym_table);
+    }
+    else
+    {
+        /* unexpected lvalue type */
+        assert(false);
+    }
 }
 
 /*---------------------------------------------------------------------------*
@@ -562,7 +457,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                            ir_function_def_get_body(func_def));
 }
 
-static void
+void
 x86_compile_while(x86_comp_params_t *params,
                   IrWhile *while_statment,
                   sym_table_t *sym_table)
@@ -601,86 +496,6 @@ x86_compile_while(x86_comp_params_t *params,
 }
 
 static void
-x86_compile_variable_initializer(x86_comp_params_t *params,
-                                 IrVariable *variable,
-                                 sym_table_t *sym_table)
-{
-    DtDataType *var_type = ir_variable_get_data_type(variable);
-    IrExpression *var_init = ir_variable_get_initializer(variable);
-
-    if (DT_IS_BASIC_TYPE(var_type))
-    {
-        /* construct default value for the type */
-        if (var_init == NULL)
-        {
-            basic_data_type_t data_type;
-
-            data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type));
-            var_init = types_get_default_initializer(data_type);
-        }
-        x86_gen_variable_assigment(params, variable, var_init, sym_table);
-    }
-    else if (DT_STATIC_ARRAY_TYPE(var_type))
-    {
-        if (var_init == NULL)
-        {
-            x86_gen_default_array_initializer(params,
-                                              variable,
-                                              sym_table);
-        }
-        else
-        {
-            x86_gen_array_literal_assigment(params,
-                                            variable,
-                                            IR_ARRAY_LITERAL(var_init),
-                                            sym_table);
-        }
-    }
-    else
-    {
-        /* unexpected data type */
-        assert(false);
-    }
-}
-
-static int
-x86_get_variable_storage_size(IrVariable *variable)
-{
-    assert(variable);
-    assert(IR_IS_VARIABLE(variable));
-
-    DtDataType *variable_type;
-
-    variable_type = ir_variable_get_data_type(variable);
-    if (DT_IS_BASIC_TYPE(variable_type))
-    {
-        DtBasicType *basic_type = DT_BASIC_TYPE(variable_type);
-
-        return types_get_storage_size(dt_basic_type_get_data_type(basic_type));
-    }
-    else if (DT_IS_STATIC_ARRAY_TYPE(variable_type))
-    {
-        DtStaticArrayType *array_type;
-        int len;
-
-        array_type = DT_STATIC_ARRAY_TYPE(variable_type);
-        len = dt_static_array_type_get_length(array_type);
-
-        return 
-            len * types_get_storage_size(
-                      dt_static_array_type_get_data_type(array_type));
-    }
-    else
-    {
-        /* unexpected data type */
-        assert(false);
-    }
-    /* we should not get here */
-    assert(false);
-    return 0;
-}
-
-static void
 x86_gen_store_value(x86_comp_params_t *params,
                     int frame_offset,
                     int storage_size)
@@ -706,7 +521,7 @@ x86_gen_store_value(x86_comp_params_t *params,
     }
 }
 
-static void
+void
 x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
@@ -721,42 +536,7 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
                         x86_get_variable_storage_size(variable));
 }
 
-static void
-x86_compile_assigment(x86_comp_params_t *params,
-                      IrAssigment *assigment,
-                      sym_table_t *sym_table)
-{
-    assert(params);
-    assert(IR_IS_ASSIGMENT(assigment));
-    assert(sym_table);
-
-    IrLvalue *lvalue;
-
-    lvalue = ir_assigment_get_lvalue(assigment);
-
-    if (IR_IS_SCALAR(lvalue))
-    {
-        x86_gen_variable_assigment(params,
-                                   ir_lvalue_get_variable(lvalue),
-                                   ir_assigment_get_value(assigment),
-                                   sym_table);
-    }
-    else if (IR_IS_ARRAY_CELL_REF(lvalue))
-    {
-        x86_gen_array_cell_assigment(params, assigment, sym_table);
-    }
-    else if (IR_IS_ARRAY_SLICE(lvalue))
-    {
-        x86_compile_array_slice_assigment(params, assigment, sym_table);
-    }
-    else
-    {
-        /* unexpected lvalue type */
-        assert(false);
-    }
-}
-
-static void
+void
 x86_gen_default_array_initializer(x86_comp_params_t *params,
                                   IrVariable *variable,
                                   sym_table_t *sym_table)
@@ -830,7 +610,7 @@ x86_gen_default_array_initializer(x86_comp_params_t *params,
             start_label);
 }
 
-static void
+void
 x86_gen_array_literal_assigment(x86_comp_params_t *params, 
                                 IrVariable *variable,
                                 IrArrayLiteral *array_literal,

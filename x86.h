@@ -1,5 +1,8 @@
 #include "label_gen.h"
 #include "ir_compile_unit.h"
+#include "ir_while.h"
+#include "ir_variable.h"
+#include "ir_assigment.h"
 
 #ifndef X86_INC_X
 #define X86_INC_X
@@ -32,13 +35,16 @@ x86_compile_expression(x86_comp_params_t *params,
                        sym_table_t *sym_table);
 
 void
-x86_compile_code_block(x86_comp_params_t *params,
-                       IrCodeBlock *code_block);
+x86_compile_while(x86_comp_params_t *params,
+                  IrWhile *while_statment,
+                  sym_table_t *sym_table);
 
 int
-x86_code_block_assign_addrs(x86_comp_params_t *params,
-                            int first_num,
-                            IrCodeBlock *code_block);
+x86_get_variable_storage_size(IrVariable *variable);
 
+void
+x86_compile_assigment(x86_comp_params_t *params,
+                      IrAssigment *assigment,
+                      sym_table_t *sym_table);
 
 #endif /* X86_INC_X */

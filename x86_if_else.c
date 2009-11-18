@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "x86_if_else.h"
+#include "x86_code_block.h"
 
 #include <assert.h>
 
