@@ -1,0 +1,53 @@
+int foo(int a, int b);
+
+               <-- esp
+-4  b
+ 0  old_ebp    <-- ebp
+ 4  ret_addr
+ 8  a
+
+
+int foo(int a, int b, int c);
+
+-4  c
+ 0  old_ebp    <-- ebp
+ 4  ret_addr
+ 8  b
+12  a
+
+int foo(int[3] x);
+
+ 0  old_ebp    <-- ebp
+ 4  ret_addr
+ 8  x[0]
+    x[1]
+    x[2]
+
+int foo(int[3] a, int b);
+
+-4  b
+ 0  old_ebp    <-- ebp
+ 4  ret_addr
+ 8  a[0]
+    a[1]
+    a[2]
+
+int foo(int a, int[2] b, int c);
+
+-4  c
+ 0  old_ebp    <-- ebp
+ 4  ret_addr
+ 8  b[0]
+12  b[1]
+16  a
+
+int foo(int a, int b, int[4] c);
+
+ 0  old_ebp    <-- ebp
+ 4  ret_addr
+ 8  c[0]
+12  c[1]
+16  c[2]
+20  c[3]
+24  b
+28  a
