@@ -1,5 +1,6 @@
 #include "x86_code_block.h"
 #include "x86_func_call.h"
+#include "x86_while.h"
 #include "x86_if_else.h"
 #include "x86_frame_offset.h"
 #include "types.h"
