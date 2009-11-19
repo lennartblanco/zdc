@@ -369,24 +369,17 @@ x86_prelude(x86_comp_params_t *params,
 }
 
 static void
-x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
+x86_func_params_assign_addrs(x86_comp_params_t *params,
+                             IrFunctionDef *func_def,
+                             bool *push_last_arg)
 {
-    GSList *i;
-    char *func_name;
-    int len;
     int addr;
-    int stack_start = -4;
-    int stack_size;
+    int len;
+    GSList *i;
     sym_table_t *param_symbols;
-    bool push_last_arg = false;
+    int stack_start = -4;
 
-    func_name = ir_function_def_get_name(func_def);
-    /* generate function symbol declaration and function entry point label */
-    fprintf(params->out,
-            ".globl %s\n"
-            "    .type %s, @function\n"
-            "%s:\n",
-            func_name, func_name, func_name);
+    *push_last_arg = false;
 
     /* assign locations to function parameter variables */
     i = ir_function_def_get_parameters(func_def);
@@ -417,7 +410,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
         else
         {
             /* last argument is stored in EAX register */
-            push_last_arg = true;
+            *push_last_arg = true;
             stack_start = -4;
             ir_variable_set_location(variable,
                                      G_OBJECT(x86_frame_offset_new(-4)));
@@ -428,6 +421,26 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
         }
         addr -= 4;
     }
+
+}
+
+static void
+x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
+{
+    char *func_name;
+    int stack_start = -4;
+    int stack_size;
+    bool push_last_arg;
+
+    func_name = ir_function_def_get_name(func_def);
+    /* generate function symbol declaration and function entry point label */
+    fprintf(params->out,
+            ".globl %s\n"
+            "    .type %s, @function\n"
+            "%s:\n",
+            func_name, func_name, func_name);
+
+    x86_func_params_assign_addrs(params, func_def, &push_last_arg);
 
     /* assign stack offset to local variables in function body */
     stack_size = 
