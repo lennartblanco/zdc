@@ -14,4 +14,4 @@ x86_compile_func_call(x86_comp_params_t *params,
                       sym_table_t *sym_table,
                       bool retain_return_value);
 
-#endif /* X86_IF_ELSE_INC_X */
+#endif /* X86_FUNC_CALL_INC_X */
