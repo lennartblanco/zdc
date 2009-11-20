@@ -73,17 +73,10 @@ ir_function_def_new(DtDataType *return_type,
     p = parameters;
     for (; p != NULL; p = g_slist_next(p))
     {        
-        AstVariableDeclaration *var_decl = p->data;
-
-        /* convert ast variable declaration to IR variable object */
-        IrVariable *variable = 
-            ir_variable_new(ast_variable_declaration_get_data_type(var_decl),
-                            ast_variable_declaration_get_name(var_decl),
-                            NULL,
-                            ast_node_get_line_num(var_decl));
+        assert(IR_IS_VARIABLE(p->data));
 
         /* add to parameter to function's symbol table */
-        sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(variable));
+        sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(p->data));
     }
 
     obj->body = ir_code_block_new(obj->param_symbols);

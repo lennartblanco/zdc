@@ -382,21 +382,14 @@ x86_func_params_assign_addrs(x86_comp_params_t *params,
     *push_last_arg = false;
 
     /* assign locations to function parameter variables */
-    i = ir_function_def_get_parameters(func_def);
     param_symbols = ir_function_def_get_parameter_symbols(func_def);
 
+    i = ir_function_def_get_parameters(func_def);
     len = g_slist_length(i);
     addr = len * 4;
     for (; i != NULL; i = g_slist_next(i))
     {
-        AstVariableDeclaration *var = i->data;
-
-
-        /* convert ast variable declaration to IR variable object */
-        IrVariable *variable =
-            IR_VARIABLE(sym_table_get_symbol(param_symbols,
-                                 ast_variable_declaration_get_name(var)));
-
+        IrVariable *variable = IR_VARIABLE(i->data);
 
         /* assign variable number */
         if (addr >= 8)

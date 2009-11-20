@@ -783,11 +783,31 @@ sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
                                sym_table_t *global_sym_table)
 {
     IrFunctionDef *ir_func;
+    GSList *parameters = NULL;
+    GSList *i;
+
+    /* convert function parameters to IR form */
+    i = ast_function_def_get_parameters(ast_func_def);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        AstVariableDeclaration *ast_var;
+        IrVariable *ir_var;
+
+        ast_var = XDP_AST_VARIABLE_DECLARATION(i->data);
+
+        ir_var = 
+            ir_variable_new(ast_variable_declaration_get_data_type(ast_var),
+                            ast_variable_declaration_get_name(ast_var),
+                            NULL,
+                            ast_node_get_line_num(ast_var));
+        parameters = g_slist_prepend(parameters, ir_var);
+    }
+    parameters = g_slist_reverse(parameters);
 
     ir_func = 
         ir_function_def_new(ast_function_def_get_return_type(ast_func_def),
                             ast_function_def_get_name(ast_func_def),
-                            ast_function_def_get_parameters(ast_func_def),
+                            parameters,
                             global_sym_table,
                             ast_node_get_line_num(ast_func_def));
 
