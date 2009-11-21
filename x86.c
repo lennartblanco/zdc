@@ -52,7 +52,7 @@ x86_compile_unary_op(x86_comp_params_t *params,
                      IrUnaryOperation *op,
                      sym_table_t *sym_table);
 
-void
+static void
 x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
@@ -554,7 +554,7 @@ x86_gen_store_value(x86_comp_params_t *params,
     }
 }
 
-void
+static void
 x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
