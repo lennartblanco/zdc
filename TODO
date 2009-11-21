@@ -75,3 +75,4 @@ $ dmd -c err.d
 err.d(11): Error: function err.sum_stat (int first, int[5u] s, int last) is not callable using argument types (int,int,int)
 err.d(11): Error: cannot implicitly convert expression (t) of type int to int[5u]
 
+* add a check that non-void functions have a return statment, and throw compile error otherwise
