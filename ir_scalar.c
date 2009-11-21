@@ -56,6 +56,16 @@ ir_scalar_new(char *variable_name, guint line_number)
     return obj;
 }
 
+void
+ir_scalar_set_variable(IrScalar *self,
+                       IrVariable *variable)
+{
+    assert(IR_IS_SCALAR(self));
+    assert(IR_IS_VARIABLE(variable));
+
+    ir_lvalue_set_variable(IR_LVALUE(self), variable);
+}
+
 char *
 ir_scalar_get_variable_name(IrScalar *self)
 {
