@@ -161,28 +161,120 @@ bool_slice_to_slice(bool arg)
 //    return r[0] + r[1] + r[2];
 //}
 
-////
-//// test static array as a
-//// function parameter
-////
-//int sum_stat(int[3] s)
-//{
-//    return s[0] + s[1] + s[2];
-//}
+//
+// test static array as a
+// function parameter
+//
+int sum_stat(int[3] s)
+{
+    return s[0] + s[1] + s[2];
+}
 
-//int
-//call_sum_stat()
-//{
-//    int[3] l = [1, 2, 3];
-//    int[3] m;
+int
+call_sum_stat()
+{
+    int[3] l = [1, 2, 3];
+    int[3] m;
 
-//    m[0] = -6;
-//    m[1] = 6;
-//    m[2] = 7;
+    m[0] = -6;
+    m[1] = 6;
+    m[2] = 7;
 
 
-//   return sum_stat(m) + sum_stat(l);
-//}
+   return sum_stat(m[]) + sum_stat(l[]);
+}
+
+//
+// test static array as last function parameter
+//
+int
+stat_array_last_arg(int x, int[3] y)
+{
+  return y[x];
+}
+
+int
+run_stat_array_last_arg()
+{
+   int[7] arr = [10, 11, 12, 13, 14, 15, 16];
+   int[3] tst = [20, 30, 40];
+   int res;
+   int i;
+
+   res = stat_array_last_arg(0, arr[0..3]);
+   i = 2;
+   res = res + stat_array_last_arg(1, arr[i..i+3]);
+   res = res * stat_array_last_arg(2, tst[]);
+
+   return res;
+}
+
+//
+// test static array as last function parameter
+//
+int
+stat_array_first_arg(int[3] y, int mag, bool invert)
+{
+  int sum = 0;
+
+  sum = y[0] + y[1] + y[2];
+
+  if (invert) { sum = 0 - sum; };
+
+  return sum * mag;
+}
+
+int
+run_stat_array_first_arg()
+{
+  int r;
+  int[3] nums = [-20, -30, -40];
+
+  return stat_array_first_arg(nums[], 1, true) +
+         stat_array_first_arg(nums[0..3], 10, false);
+}
+
+//
+// test boolean static array as function parameter
+//
+int
+stat_array_bool(bool[4] s)
+{
+  int i = 0;
+  int res = 0;
+
+  while (i < 4)
+  {
+     if (s[i])
+     {
+       res = res + 1;
+     }
+     i = i + 1;
+  }
+
+  return res;
+}
+
+int
+run_stat_array_bool(bool big_sum)
+{
+   int r = -99;
+   bool[4] sarray = [false, true, false, true];
+   bool[8] larray = [false, false, false, false, true, true, true, false];
+
+   if (big_sum)
+   {
+       r = (stat_array_bool(sarray[]) +
+            stat_array_bool(larray[1..5])) *
+            stat_array_bool(larray[4..8]);
+   }
+   else
+   {
+       r = stat_array_bool(larray[0..5]);
+   }
+
+   return r;
+}
 
 ////
 //// test assigment of a static integer array from single integer constant

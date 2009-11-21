@@ -189,6 +189,55 @@ call_bool_slice_to_slice(bool in)
    return res;
 }
 
+int
+call_call_sum_stat()
+{
+   int res;
+
+   asm ("    call call_sum_stat\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+int
+call_run_stat_array_last_arg()
+{
+   int res;
+
+   asm ("    call run_stat_array_last_arg\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+int
+call_run_stat_array_first_arg()
+{
+   int res;
+
+   asm ("    call run_stat_array_first_arg\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+int
+call_run_stat_array_bool(bool arg)
+{
+   int res;
+
+   asm ("    call run_stat_array_bool\n"
+        : "=a"(res)
+        : "a" (arg));
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -290,6 +339,28 @@ main()
     /* bool_slice_to_slice() tests */
     check_bool("bool_slice_to_slice(false)",
                call_bool_slice_to_slice(false), false);
+
+    /* call_sum_stat() and sum_stat() test */
+    check_int("call_sum_stat()", 
+              call_call_sum_stat(),
+              (1 + 2 + 3) + ((-6) + 6 + 7));
+
+    /* run_stat_array_last_arg() and stat_array_last_arg() test */
+    check_int("run_stat_array_last_arg()",
+              call_run_stat_array_last_arg(), 40 * (10 + 13));
+
+    /* run_stat_array_first_arg() and stat_array_first_arg() test */
+    check_int("run_stat_array_first_arg()",
+              call_run_stat_array_first_arg(), 
+               (0 - ((-20) + (-30) + (-40))) * 1 +
+                ((-20) + (-30) + (-40)) * 10);
+
+    /* run_stat_array_bool() and stat_array_bool() tests */
+    check_int("run_stat_array_bool(true)",
+              call_run_stat_array_bool(true), (2 + 1) * 3);
+
+    check_int("run_stat_array_bool(false)",
+              call_run_stat_array_bool(false), 0);
 
 
     check_exit();
