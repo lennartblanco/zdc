@@ -140,7 +140,7 @@ x86_code_block_assign_addrs(x86_comp_params_t *params,
             continue;
         }
 
-        num -= x86_get_variable_storage_size(var);
+        num -= x86_get_expression_storage_size(IR_EXPRESSION(var));
         ir_variable_set_location(var, G_OBJECT(x86_frame_offset_new(num)));
         fprintf(params->out, "# variable '%s' location %d\n",
                 ir_variable_get_name(var), num);

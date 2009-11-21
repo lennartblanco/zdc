@@ -1,7 +1,6 @@
 #include "label_gen.h"
 #include "ir_compile_unit.h"
 #include "ir_while.h"
-#include "ir_variable.h"
 #include "ir_assigment.h"
 
 #ifndef X86_INC_X
@@ -33,12 +32,25 @@ void
 x86_compile_expression(x86_comp_params_t *params,
                        IrExpression *expression,
                        sym_table_t *sym_table);
+
 int
-x86_get_variable_storage_size(IrVariable *variable);
+x86_get_expression_storage_size(IrExpression *expression);
 
 void
 x86_compile_assigment(x86_comp_params_t *params,
                       IrAssigment *assigment,
                       sym_table_t *sym_table);
+
+bool
+x86_in_reg_as_last_func_arg(IrExpression *parameter);
+
+/**
+ * Alligned an address/offset in 32-bit word boundary, 
+ * by increasing it if needed.
+ *
+ * @return word alligned address
+ */
+int
+x86_inc_to_word_boundary(int addr);
 
 #endif /* X86_INC_X */

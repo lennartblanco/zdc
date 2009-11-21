@@ -246,27 +246,47 @@ x86_compile_expression(x86_comp_params_t *params,
     }
 }
 
+/* @todo:
+ * add following unit test
+ *
+ * int asd;
+ * for (asd = -20; asd < 31; asd++) {
+ *  assert(x86_inc_to_word_boundary(asd) % 4 == 0);
+ * }
+ */
 int
-x86_get_variable_storage_size(IrVariable *variable)
+x86_inc_to_word_boundary(int addr)
 {
-    assert(variable);
-    assert(IR_IS_VARIABLE(variable));
+    int mod4 = addr % 4;
 
-    DtDataType *variable_type;
-
-    variable_type = ir_variable_get_data_type(variable);
-    if (DT_IS_BASIC_TYPE(variable_type))
+    if (mod4 == 0)
     {
-        DtBasicType *basic_type = DT_BASIC_TYPE(variable_type);
+        return addr;
+    }
+
+    return addr + (4 - (mod4));
+}
+
+int
+x86_get_expression_storage_size(IrExpression *expression)
+{
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *data_type;
+    data_type = ir_expression_get_data_type(expression);
+
+    if (DT_IS_BASIC_TYPE(data_type))
+    {
+        DtBasicType *basic_type = DT_BASIC_TYPE(data_type);
 
         return types_get_storage_size(dt_basic_type_get_data_type(basic_type));
     }
-    else if (DT_IS_STATIC_ARRAY_TYPE(variable_type))
+    else if (DT_IS_STATIC_ARRAY_TYPE(data_type))
     {
         DtStaticArrayType *array_type;
         int len;
 
-        array_type = DT_STATIC_ARRAY_TYPE(variable_type);
+        array_type = DT_STATIC_ARRAY_TYPE(data_type);
         len = dt_static_array_type_get_length(array_type);
 
         return 
@@ -368,60 +388,103 @@ x86_prelude(x86_comp_params_t *params,
     }
 }
 
+/**
+ * @return False if this type of parameter is passed via stack, when
+ *         used as last argument in function call.
+ *         True if it is passed via eax register.
+ */ 
+bool
+x86_in_reg_as_last_func_arg(IrExpression *parameter)
+{
+    /*
+     * @todo: here we need to take into account 3 byte structs and
+     * floating point variables
+     */
+    return
+        x86_get_expression_storage_size(parameter) <= 4;
+}
+
 static void
 x86_func_params_assign_addrs(x86_comp_params_t *params,
                              IrFunctionDef *func_def,
-                             bool *push_last_arg)
+                             bool *last_arg_in_reg)
 {
-    int addr;
-    int len;
+    GSList *rev_params;
     GSList *i;
-    sym_table_t *param_symbols;
-    int stack_start = -4;
+    IrVariable *param;
+    X86FrameOffset* offset;
+    int next_offset;
 
-    *push_last_arg = false;
-
-    /* assign locations to function parameter variables */
-    param_symbols = ir_function_def_get_parameter_symbols(func_def);
+    *last_arg_in_reg = false;
 
     i = ir_function_def_get_parameters(func_def);
-    len = g_slist_length(i);
-    addr = len * 4;
-    for (; i != NULL; i = g_slist_next(i))
+    if (i == NULL)
     {
-        IrVariable *variable = IR_VARIABLE(i->data);
-
-        /* assign variable number */
-        if (addr >= 8)
-        {
-            ir_variable_set_location(variable,
-                                     G_OBJECT(x86_frame_offset_new(addr)));
-            fprintf(params->out,
-                    "# variable '%s' location %d\n",
-                    ir_variable_get_name(variable), addr);
-        }
-        else
-        {
-            /* last argument is stored in EAX register */
-            *push_last_arg = true;
-            stack_start = -4;
-            ir_variable_set_location(variable,
-                                     G_OBJECT(x86_frame_offset_new(-4)));
-            fprintf(params->out,
-                    "# variable '%s' location %d\n",
-                    ir_variable_get_name(variable), -4);
-
-        }
-        addr -= 4;
+      /* function without any in-parameters, we are done here */
+      return;
     }
 
+    /* we want to proccess function parameters in reversed order */     
+    rev_params = g_slist_reverse(g_slist_copy(i));
+    i = rev_params;
+
+    /*
+     * Depending on if last argument is passed via stack or eax,
+     * assign correct stack frame offset and set next available offset
+     */
+    param = IR_VARIABLE(i->data);
+    *last_arg_in_reg = x86_in_reg_as_last_func_arg(IR_EXPRESSION(param));
+    if (*last_arg_in_reg)
+    {
+        offset = x86_frame_offset_new(-4);
+        next_offset = 8;
+    }
+    else
+    {
+        offset = x86_frame_offset_new(8);
+        next_offset = 
+            x86_inc_to_word_boundary(
+                8 + x86_get_expression_storage_size(IR_EXPRESSION(param)));
+    }
+    ir_variable_set_location(param, G_OBJECT(offset));
+
+    /*
+     * assign stack frame offset to the rest of parametrs
+     */
+    i = g_slist_next(i);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        param = IR_VARIABLE(i->data);
+        offset = x86_frame_offset_new(next_offset);
+        ir_variable_set_location(param, G_OBJECT(offset));
+        next_offset += x86_get_expression_storage_size(IR_EXPRESSION(param));
+        next_offset = x86_inc_to_word_boundary(next_offset);
+    }
+
+    /*
+     * dump offset allocations into generated file for
+     * for ease of debugging of generated assembly
+     */
+    i = ir_function_def_get_parameters(func_def);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        param = IR_VARIABLE(i->data);
+        offset = X86_FRAME_OFFSET(ir_variable_get_location(param));
+        fprintf(params->out,
+                "# variable '%s' location '%d'\n",
+                ir_variable_get_name(param),
+                x86_frame_offset_get_offset(offset));
+    }
+
+    /* clean-up */
+    g_slist_free(rev_params);
 }
 
 static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 {
     char *func_name;
-    int stack_start = -4;
+    int stack_start;
     int stack_size;
     bool push_last_arg;
 
@@ -434,6 +497,8 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             func_name, func_name, func_name);
 
     x86_func_params_assign_addrs(params, func_def, &push_last_arg);
+
+    stack_start = push_last_arg ? -4 : 0;    
 
     /* assign stack offset to local variables in function body */
     stack_size = 
@@ -499,9 +564,10 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
 
     addr = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     x86_compile_expression(params, expression, sym_table);
-    x86_gen_store_value(params,
-                        x86_frame_offset_get_offset(addr),
-                        x86_get_variable_storage_size(variable));
+    x86_gen_store_value(
+        params,
+        x86_frame_offset_get_offset(addr),
+        x86_get_expression_storage_size(IR_EXPRESSION(variable)));
 }
 
 void
@@ -1341,7 +1407,7 @@ x86_compile_scalar(x86_comp_params_t *params,
     addr = X86_FRAME_OFFSET(ir_variable_get_location(var));
 
     /* generate code to put the value of the variable on top of the stack */
-    switch (x86_get_variable_storage_size(var))
+    switch (x86_get_expression_storage_size(IR_EXPRESSION(var)))
     {
         case 4:
             fprintf(params->out,

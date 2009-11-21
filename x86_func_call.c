@@ -1,5 +1,6 @@
 #include "x86_func_call.h"
 #include "types.h"
+#include "ir_function_def.h"
 
 #include <assert.h>
 
@@ -71,36 +72,53 @@ compile_d_func_call(x86_comp_params_t *params,
     assert(IR_IS_FUNCTION_CALL(func_call));
     assert(sym_table);
 
-    int arg_num;
     GSList *i;
     DtDataType *func_data_type;
-    DtDataType *last_param_type;
+    IrFunctionDef *callee_def;
     bool last_param_in_reg = false;
+    int args_size_on_stack = 0;
 
+    callee_def =
+        IR_FUNCTION_DEF(
+             sym_table_get_symbol(sym_table,
+                                  ir_function_call_get_name(func_call)));
+
+    /*
+     * generate code that evaluates all function call arguments expression
+     * and pushes them onto stack
+     */
     i = ir_function_call_get_arguments(func_call);
-    arg_num = g_slist_length(i);
     for (; i != NULL; i = g_slist_next(i))
     {
         x86_compile_expression(params, i->data, sym_table);
-
-        if (g_slist_next(i) == NULL)
-        {
-            last_param_type = ir_expression_get_data_type(i->data);
-        }
     }
 
-    if (DT_IS_BASIC_TYPE(last_param_type))
+    /*
+     * calculate the size call arguments are using on stack,
+     * also note if last argument is passed on stack or via a register
+     */
+    i = ir_function_def_get_parameters(callee_def);
+    for (; i != NULL; i = g_slist_next(i))
     {
-        int storage_size;
+        IrVariable *var = IR_VARIABLE(i->data);
 
-        storage_size =
-          types_get_storage_size(
-               dt_basic_type_get_data_type(DT_BASIC_TYPE(last_param_type)));
-        last_param_in_reg = storage_size  <= 4;
+        if (g_slist_next(i) != NULL)
+        {
+            args_size_on_stack += x86_get_expression_storage_size(IR_EXPRESSION(var));
+        }
+        else
+        {
+            /* last argument */
+            last_param_in_reg = x86_in_reg_as_last_func_arg(IR_EXPRESSION(var));
+            if (!last_param_in_reg)
+            {
+                args_size_on_stack += x86_get_expression_storage_size(IR_EXPRESSION(var));
+            }
+        }
+        args_size_on_stack = x86_inc_to_word_boundary(args_size_on_stack);
     }
 
-    printf("last arg datatype %s\n", g_type_name(G_TYPE_FROM_INSTANCE(last_param_type)));
-
+    /* pop last argument into eax if needed */
     if (last_param_in_reg)
     {
         fprintf(params->out,
@@ -113,16 +131,11 @@ compile_d_func_call(x86_comp_params_t *params,
             "    call %s\n",
             ir_function_call_get_name(func_call));
 
-    if (arg_num > 1)
+    if (args_size_on_stack > 0)
     {
-        /*
-         * @todo this does not work anymore, we need to take into account
-         * the size of for example static arrays pushed onto stack
-         */
-//        fprintf(params->out,
-//                "# remove function call arguments from the stack\n"
-//                "    addl $%d, %%esp\n",
-//                (arg_num - 1) * 4);
+        fprintf(params->out,
+                "    addl $%d, %%esp #pop call args from stack\n",
+                args_size_on_stack);
     }
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
