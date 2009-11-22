@@ -57,12 +57,6 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrVariable *variable,
                            IrExpression *expression,
                            sym_table_t *sym_table);
-void
-x86_gen_array_literal_assigment(x86_comp_params_t *params, 
-                                IrVariable *variable,
-                                IrArrayLiteral *array_literal,
-                                sym_table_t *sym_table);
-
 static void
 x86_compile_array_cell_ref(x86_comp_params_t *params,
                            IrArrayCellRef *array_cell,
@@ -106,18 +100,6 @@ static void
 x86_gen_store_value(x86_comp_params_t *params,
                     int frame_offset,
                     int storage_size);
-
-/**
- * Generate code for default initialization of an array.
- *
- * @param params       compilation pass parameters handle
- * @param variable     array which should be default initialized
- * @param sym_table    symbols where the array is defined
- */
-void
-x86_gen_default_array_initializer(x86_comp_params_t *params,
-                                  IrVariable *variable,
-                                  sym_table_t *sym_table);
 
 static void
 x86_compile_array_slice_assigment(x86_comp_params_t *params,
@@ -570,123 +552,6 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
         x86_get_expression_storage_size(IR_EXPRESSION(variable)));
 }
 
-void
-x86_gen_default_array_initializer(x86_comp_params_t *params,
-                                  IrVariable *variable,
-                                  sym_table_t *sym_table)
-{
-    assert(params);
-    assert(IR_IS_VARIABLE(variable));
-    assert(sym_table);
-
-    char start_label[LABEL_MAX_LEN];
-    IrExpression *init_exp;
-    DtStaticArrayType *array_type;
-    X86FrameOffset *array_loc;
-    int storage_size;
-
-    /* fetch array data type */
-    array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
-    /* fetch array frame offset */
-    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    /* fetch array element storage size */
-    storage_size =
-      types_get_storage_size(dt_static_array_type_get_data_type(array_type));
-
-    /* get default initilizer expression for array element type */
-    init_exp =
-        types_get_default_initializer(
-            dt_static_array_type_get_data_type(array_type));
-
-    /* generate loop label */
-    label_gen_next(&(params->label_gen), start_label);
-
-
-    /* code to evaluate array element default initilizer */
-    fprintf(params->out,
-            "# evaluate array element default initilizer\n");
-    x86_compile_expression(params, init_exp, sym_table);
-
-    /*
-     * code to store element default initilizer in register
-     * and set loop counter to last element in the array
-     */   
-    fprintf(params->out,
-            "    popl %%ebx\n"
-            "    movl $%d, %%eax\n"
-            "%s:\n",
-            dt_static_array_type_get_length(array_type) - 1,
-            start_label);
-
-    /* code to store default value in array element at loop counter index */
-    switch (storage_size)
-    {
-        case 4:
-            fprintf(params->out,
-                    "    movl %%ebx, %d(%%ebp, %%eax, 4)\n",
-                    x86_frame_offset_get_offset(array_loc));
-
-            break;
-        case 1:
-            fprintf(params->out,
-                    "    movb %%bl, %d(%%ebp, %%eax, 1)\n",
-                    x86_frame_offset_get_offset(array_loc));
-            break;
-        default:
-            /* unexpected storage size */
-            assert(false);
-    }
-
-    /* decrement loop counter and check if we should make another iteration */
-    fprintf(params->out,
-            "    sub $1, %%eax\n"
-            "    jae %s\n",
-            start_label);
-}
-
-void
-x86_gen_array_literal_assigment(x86_comp_params_t *params, 
-                                IrVariable *variable,
-                                IrArrayLiteral *array_literal,
-                                sym_table_t *sym_table)
-{
-    assert(params);
-    assert(IR_IS_VARIABLE(variable));
-    assert(DT_IS_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable)));
-    assert(X86_IS_FRAME_OFFSET(ir_variable_get_location(variable)));
-    assert(IR_IS_ARRAY_LITERAL(array_literal));
-    assert(sym_table);
-
-    X86FrameOffset *array_loc;
-    int loc;
-    int storage_size;
-    GSList *i;
-    DtStaticArrayType *array_type;
-
-    array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
-    storage_size =
-      types_get_storage_size(dt_static_array_type_get_data_type(array_type));
-
-    loc = x86_frame_offset_get_offset(array_loc);
-    i = ir_array_literal_get_values(array_literal);
-
-    fprintf(params->out, "# assign array literal to array '%s'\n",
-            ir_variable_get_name(variable));
-
-    for (; i != NULL; i = g_slist_next(i), loc += storage_size)
-    {
-        fprintf(params->out,
-                "# evaluate value for loc %d(%%ebp)\n",
-                loc);
-        x86_compile_expression(params, i->data, sym_table);
-        fprintf(params->out,
-                "# store value in array cell\n");
-
-        x86_gen_store_value(params, loc, storage_size);
-    }
-}
-
 /**
  * Generate code for assigment of an array literal expression to
  * array slice.
@@ -889,8 +754,8 @@ x86_compile_array_slice(x86_comp_params_t *params,
  */
 static void
 x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
-                                             IrAssigment *assigment,
-                                             sym_table_t *sym_table)
+                                           IrAssigment *assigment,
+                                           sym_table_t *sym_table)
 {
     assert(params);
     assert(IR_IS_ASSIGMENT(assigment));
@@ -1041,6 +906,92 @@ x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
 }
 
 static void
+x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
+                                          IrAssigment *assigment,
+                                          sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+
+    IrExpression *value;
+    IrArraySlice *array_slice;
+    IrVariable *var;
+    int array_offset;
+    int storage_size;
+    char loop_label[LABEL_MAX_LEN];
+
+
+    label_gen_next(&(params->label_gen), loop_label);
+
+    array_slice = IR_ARRAY_SLICE(ir_assigment_get_lvalue(assigment));
+    value = ir_assigment_get_value(assigment);
+    assert(DT_IS_BASIC_TYPE(ir_expression_get_data_type(value)));
+
+    /*
+     * get source slice arrays frame offset
+     */
+    var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
+    array_offset = 
+        x86_frame_offset_get_offset(
+             X86_FRAME_OFFSET(ir_variable_get_location(var)));
+
+    /*
+     * get array elements storage size
+     */
+    storage_size =
+      types_get_storage_size(
+          dt_array_type_get_data_type(
+              DT_ARRAY_TYPE(ir_expression_get_data_type(
+                  IR_EXPRESSION(array_slice)))));
+
+    fprintf(params->out,
+            "# assign basic type expression to an array slice\n"
+            " # eval assignee\n");
+    x86_compile_expression(params, value, sym_table);
+
+    fprintf(params->out,
+            " # eval array slice start index expression\n");
+    x86_compile_expression(params,
+                           ir_array_slice_get_start(array_slice),
+                           sym_table);
+    fprintf(params->out,
+            " # eval array slice end index expression\n");
+    x86_compile_expression(params,
+                           ir_array_slice_get_end(array_slice),
+                           sym_table);
+
+    fprintf(params->out,
+            "    popl %%ecx   # calc array slice length\n"
+            "    subl (%%esp), %%ecx\n"
+            "    pop %%eax\n"
+            "    lea %d(%%ebp, %%eax, %d), %%eax\n"
+            "    pop %%edx\n"
+            "%s:\n",
+            array_offset, storage_size, loop_label);
+
+    switch (storage_size)
+    {
+        case 4:
+            fprintf(params->out,
+                    "    movl %%edx, (%%eax)\n");
+            break;
+        case 1:
+            fprintf(params->out,
+                    "    movb %%dl, (%%eax)\n");
+            break;
+        default:
+            /* unexpected storage size */
+            g_assert(false);
+    }
+
+    fprintf(params->out,
+            "    addl $%d, %%eax\n"
+            "    loop %s\n",
+            storage_size, loop_label);
+}
+
+static void
 x86_compile_array_slice_assigment(x86_comp_params_t *params,
                                   IrAssigment *assigment,
                                   sym_table_t *sym_table)
@@ -1067,10 +1018,11 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
     }
     else
     {
-        /* unexpected right value type */
-        assert(false);
+        /* this should be an basic data type assigment to array slice */
+        x86_compile_basic_type_to_slice_assigment(params,
+                                                  assigment,
+                                                  sym_table);
     }
-
 }
 
 

@@ -192,55 +192,53 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
 {
     DtDataType *var_type = ir_variable_get_data_type(variable);
     IrExpression *var_init = ir_variable_get_initializer(variable);
+    IrLvalue *lval;
     IrAssigment *assigment;
 
     if (DT_IS_BASIC_TYPE(var_type))
     {
-        IrScalar *lval;
-
-        /* construct default value for the type */
         if (var_init == NULL)
         {
+            /* construct default initializer value for the type */
             basic_data_type_t data_type;
 
             data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type));
             var_init = types_get_default_initializer(data_type);
         }
 
-        lval = ir_scalar_new(ir_variable_get_name(variable), 0);
-        ir_scalar_set_variable(lval, variable);
-        assigment = ir_assigment_new(IR_LVALUE(lval), var_init, 0);
-
-        x86_compile_assigment(params, assigment, sym_table);
+        lval = IR_LVALUE(ir_scalar_new(ir_variable_get_name(variable), 0));
+        ir_lvalue_set_variable(lval, variable);
     }
     else if (DT_STATIC_ARRAY_TYPE(var_type))
     {
-        IrArraySlice *lval;
+        DtStaticArrayType *var_array_type = DT_STATIC_ARRAY_TYPE(var_type);
         IrUintConstant *start_idx;
         IrUintConstant *end_idx;
 
+        /*
+         * build an lvalue that represent a slice over the whole array
+         */
         start_idx = ir_uint_constant_new(0);
         end_idx =
             ir_uint_constant_new(
-               dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_type)));
+                dt_static_array_type_get_length(var_array_type));
 
-        lval = ir_array_slice_new(ir_variable_get_name(variable),
-                                  IR_EXPRESSION(start_idx),
-                                  IR_EXPRESSION(end_idx),
-                                  0);
-        ir_lvalue_set_variable(IR_LVALUE(lval), variable);
+        lval = IR_LVALUE(ir_array_slice_new(ir_variable_get_name(variable),
+                                            IR_EXPRESSION(start_idx),
+                                            IR_EXPRESSION(end_idx),
+                                            0));
+        ir_lvalue_set_variable(lval, variable);
 
         if (var_init == NULL)
         {
-            x86_gen_default_array_initializer(params,
-                                              variable,
-                                              sym_table);
-        }
-        else
-        {
+            /*
+             * construct default initializer value for 
+             * the arrays element type
+             */
+            basic_data_type_t data_type;
 
-            assigment = ir_assigment_new(IR_LVALUE(lval), var_init, 0);
-            x86_compile_assigment(params, assigment, sym_table);
+            data_type = dt_static_array_type_get_data_type(var_array_type);
+            var_init = types_get_default_initializer(data_type);
         }
     }
     else
@@ -248,6 +246,14 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
         /* unexpected data type */
         assert(false);
     }
+
+    /* generate assigment code of the initializer value to the variable */
+    assigment = ir_assigment_new(lval, var_init, 0);
+    x86_compile_assigment(params, assigment, sym_table);
+
+    /* clean-up temp assigment statment objects */
+    g_object_unref(assigment);
+    g_object_unref(lval);
 }
 
 
