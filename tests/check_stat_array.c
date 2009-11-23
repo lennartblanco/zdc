@@ -237,6 +237,50 @@ call_run_stat_array_bool(bool arg)
    return res;
 }
 
+int
+call_scalar_to_arry_slice_assig(int arg1, int arg2)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call scalar_to_arry_slice_assig\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
+
+int
+call_stat_array_bool_var_init(int arg1, int arg2, bool arg3)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    movl %[arg3], %%eax\n"
+        "    call stat_array_bool_var_init\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3));
+
+   return res;
+}
+
+int
+call_implicit_arry_lit_casts(int arg)
+{
+   int res;
+
+   asm ("    call implicit_arry_lit_casts\n"
+        : "=a"(res)
+        : "a"(arg));
+
+   return res;
+}
+
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -362,6 +406,34 @@ main()
     check_int("run_stat_array_bool(false)",
               call_run_stat_array_bool(false), 0);
 
+    /* scalar_to_arry_slice_assig() tests */
+    check_int("scalar_to_arry_slice_assig(2, 5)",
+               call_scalar_to_arry_slice_assig(2, 5), 2 * 3 + 5 * 3);
+    check_int("scalar_to_arry_slice_assig(-100, 99)",
+               call_scalar_to_arry_slice_assig(-100, 99), -100 * 3 + 99 * 3);
+
+    /* stat_array_bool_var_init() tests */
+    check_int("stat_array_bool_var_init(3, 100, true)",
+               call_stat_array_bool_var_init(3, 100, true), 103);
+
+    check_int("stat_array_bool_var_init(2, 20, false)",
+               call_stat_array_bool_var_init(2, 20, false), 20);
+
+    check_int("stat_array_bool_var_init(3, 100, true)",
+               call_stat_array_bool_var_init(0, 0, true), 3);
+
+    /* implicit_arry_lit_casts() tests */
+    check_int("implicit_arry_lit_casts(0)",
+              call_implicit_arry_lit_casts(0), 0);
+
+    check_int("implicit_arry_lit_casts(0)",
+              call_implicit_arry_lit_casts(1), 0);
+
+    check_int("implicit_arry_lit_casts(0)",
+              call_implicit_arry_lit_casts(2), 0);
+
+    check_int("implicit_arry_lit_casts(0)",
+              call_implicit_arry_lit_casts(3), 1);
 
     check_exit();
 }

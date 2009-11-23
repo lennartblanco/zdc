@@ -276,49 +276,38 @@ run_stat_array_bool(bool big_sum)
    return r;
 }
 
-////
-//// test assigment of a static integer array from single integer constant
-////
-//// test cases:
-//// stat_array_int_const_init(0, 102) = 62
-//// stat_array_int_const_init(2, 2) = -22
-//// stat_array_int_const_init(4, -100) = 80
-////
-//int
-//stat_array_int_const_init(int idx, int val)
-//{
-//    int[5] ar = 10;
+//
+// test assigment of integer scalar to array slice
+int
+scalar_to_arry_slice_assig(int l, int r)
+{
+    int[6] arr = l;
 
-//    ar[idx] = val;
+    arr[3..6] = r;
 
-//    return ar[0] - ar[1] - ar[2] - ar[3] - ar[4];
-//}
+    return arr[0] + arr[1] + arr[2] + arr[3] + arr[4] + arr[5];
+}
 
-////
-//// test assigment of a static integer array from a single boolean variable
-////
-//// test cases:
-//// stat_array_bool_var_init(3, 100, true) = 103
-//// stat_array_bool_var_init(2, 20, false) = 20
-//// stat_array_bool_var_init(0, 0, true) = 3
-////
-//int
-//stat_array_bool_var_init(int idx, int val, bool init)
-//{
-//    int[4] la = init;
+//
+// test assigment of a static integer array from a single boolean variable
+//
+int
+stat_array_bool_var_init(int idx, int val, bool init)
+{
+    int[4] la = init;
 
-//    la[idx] = val;
+    la[idx] = val;
 
-//    return la[3] + la[2] + la[1] + la[0];
-//}
+    return la[3] + la[2] + la[1] + la[0];
+}
 
-////
-//// test implicit conversation of '0' and '1' in boolean array literal
-//// test implicit conversation of bool[4] array literal to int[4] static array 
-//int implicit_arry_lit_casts(int i)
-//{
-//    int[4] arr = [false, 0, 0, true];
+//
+// test implicit conversation of '0' and '1' in boolean array literal
+// test implicit conversation of bool[4] array literal to int[4] static array 
+int implicit_arry_lit_casts(int i)
+{
+    int[4] arr = [false, 0, 0, true];
 
-//    return arr[i];
-//}
+    return arr[i];
+}
 
