@@ -16,7 +16,7 @@
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
-#include "ir_array_cell_ref.h"
+#include "ir_array_cell.h"
 
 #include <assert.h>
 
@@ -416,9 +416,9 @@ validate_unary_op(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-validate_array_cell_ref(compilation_status_t *compile_status,
-                        sym_table_t *sym_table,
-                        IrArrayCellRef *cell_ref)
+validate_array_cell(compilation_status_t *compile_status,
+                    sym_table_t *sym_table,
+                    IrArrayCell *cell)
 {
     IrExpression *idx_exp;
     IrSymbol *array_symb;
@@ -428,19 +428,19 @@ validate_array_cell_ref(compilation_status_t *compile_status,
      * look-up the array in the symbol table
      */
     array_symb = sym_table_get_symbol(sym_table,
-                                      ir_array_cell_get_name(cell_ref));
+                                      ir_array_cell_get_name(cell));
     if (array_symb == NULL) 
     {
         compile_error(compile_status,
-                      IR_NODE(cell_ref),
+                      IR_NODE(cell),
                       "reference to unknow array symbol '%s'\n",
-                      ir_array_cell_get_name(cell_ref));
+                      ir_array_cell_get_name(cell));
         return NULL;
     }
     else if (!IR_IS_VARIABLE(array_symb))
     {
         compile_error(compile_status,
-                      IR_NODE(cell_ref),
+                      IR_NODE(cell),
                       "unexpected reference to non variable\n");
         return NULL;
     }
@@ -452,16 +452,16 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     if (!DT_IS_STATIC_ARRAY_TYPE(symb_type))
     {
         compile_error(compile_status,
-                      IR_NODE(cell_ref),
+                      IR_NODE(cell),
                       "array element expression over non array\n");
         return NULL;
     }
-    ir_lvalue_set_variable(IR_LVALUE(cell_ref), IR_VARIABLE(array_symb));
+    ir_lvalue_set_variable(IR_LVALUE(cell), IR_VARIABLE(array_symb));
 
     /*
      * validate array index expression
      */
-    idx_exp = ir_array_cell_ref_get_index(cell_ref);
+    idx_exp = ir_array_cell_get_index(cell);
     idx_exp = validate_expression(compile_status,
                                   sym_table,
                                   idx_exp);
@@ -473,14 +473,14 @@ validate_array_cell_ref(compilation_status_t *compile_status,
     if (idx_exp == NULL)
     {
         compile_error(compile_status,
-                      IR_NODE(ir_array_cell_ref_get_index(cell_ref)),
+                      IR_NODE(ir_array_cell_get_index(cell)),
                       "illegal index expression type\n");
         return NULL;
     }
 
-    ir_array_cell_ref_set_index(cell_ref, idx_exp);
+    ir_array_cell_set_index(cell, idx_exp);
 
-    return IR_EXPRESSION(cell_ref);
+    return IR_EXPRESSION(cell);
 }
 
 static IrExpression *
@@ -509,12 +509,12 @@ validate_expression(compilation_status_t *compile_status,
                                    sym_table,
                                    IR_FUNCTION_CALL(expression));
     }
-    else if (IR_IS_ARRAY_CELL_REF(expression))
+    else if (IR_IS_ARRAY_CELL(expression))
     {
         expression =
-            validate_array_cell_ref(compile_status,
-                                    sym_table,
-                                    IR_ARRAY_CELL_REF(expression));
+            validate_array_cell(compile_status,
+                                sym_table,
+                                IR_ARRAY_CELL(expression));
     }
     else if (IR_IS_ARRAY_LITERAL(expression))
     {

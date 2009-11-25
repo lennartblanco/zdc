@@ -25,7 +25,7 @@
 #include "ir_bool_constant.h"
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
-#include "ir_array_cell_ref.h"
+#include "ir_array_cell.h"
 #include "ir_scalar.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
@@ -530,9 +530,9 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                                  ast_index_exp);
             /* create IR array cell ref */
             ir_expression =
-                IR_EXPRESSION(ir_array_cell_ref_new(var_name,
-                                                    ir_index_exp,
-                                                    ast_node_get_line_num(var_ref)));
+                IR_EXPRESSION(ir_array_cell_new(var_name,
+                                                ir_index_exp,
+                                                ast_node_get_line_num(var_ref)));
                                               
         }
         else if (XDP_IS_AST_VARIABLE_REF(var_ref))

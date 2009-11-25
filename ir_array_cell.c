@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "ir_array_cell_ref.h"
+#include "ir_array_cell.h"
 #include "dt_basic_type.h"
 #include "dt_static_array_type.h"
 
@@ -12,53 +12,51 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ir_array_cell_ref_class_init(gpointer klass, gpointer dummy);
+ir_array_cell_class_init(gpointer klass, gpointer dummy);
 
 static DtDataType *
-ir_array_cell_ref_do_get_data_type(IrExpression *self);
+ir_array_cell_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType 
-ir_array_cell_ref_get_type(void)
+ir_array_cell_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (IrArrayCellRefClass),
+        sizeof (IrArrayCellClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_array_cell_ref_class_init, /* class_init */
+        ir_array_cell_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (IrArrayCellRef),
+        sizeof (IrArrayCell),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(IR_TYPE_LVALUE,
-                                    "IrArrayCellRefType",
+                                    "IrArrayCellType",
                                     &info, 0);
     }
     return type;
 }
 
-IrArrayCellRef *
-ir_array_cell_ref_new(char *array_name,
-                      IrExpression *index,
-                      guint line_number)
+IrArrayCell *
+ir_array_cell_new(char *array_name, IrExpression *index, guint line_number)
 {
     assert(array_name);
     assert(IR_IS_EXPRESSION(index));
 
-    IrArrayCellRef *obj;
+    IrArrayCell *obj;
 
-assert(line_number > 0);
 
-    obj = g_object_new(IR_TYPE_ARRAY_CELL_REF,
+
+    obj = g_object_new(IR_TYPE_ARRAY_CELL,
                        "ir-node-line-number", line_number,
                        "ir-lvalue-symbol-name", array_name,
                        NULL);
@@ -70,25 +68,25 @@ assert(line_number > 0);
 }
 
 char *
-ir_array_cell_get_name(IrArrayCellRef *self)
+ir_array_cell_get_name(IrArrayCell *self)
 {
-    assert(IR_IS_ARRAY_CELL_REF(self));
+    assert(IR_IS_ARRAY_CELL(self));
 
     return ir_lvalue_get_name(IR_LVALUE(self));
 }
 
 IrExpression *
-ir_array_cell_ref_get_index(IrArrayCellRef *self)
+ir_array_cell_get_index(IrArrayCell *self)
 {
-    assert(IR_IS_ARRAY_CELL_REF(self));
+    assert(IR_IS_ARRAY_CELL(self));
 
     return self->index;
 }
 
 void
-ir_array_cell_ref_set_index(IrArrayCellRef *self, IrExpression *index)
+ir_array_cell_set_index(IrArrayCell *self, IrExpression *index)
 {
-    assert(IR_IS_ARRAY_CELL_REF(self));
+    assert(IR_IS_ARRAY_CELL(self));
     assert(IR_IS_EXPRESSION(index));
 
     self->index = index;
@@ -99,18 +97,18 @@ ir_array_cell_ref_set_index(IrArrayCellRef *self, IrExpression *index)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_array_cell_ref_class_init(gpointer klass, gpointer dummy)
+ir_array_cell_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
-        ir_array_cell_ref_do_get_data_type;
+        ir_array_cell_do_get_data_type;
 }
 
 static DtDataType *
-ir_array_cell_ref_do_get_data_type(IrExpression *self)
+ir_array_cell_do_get_data_type(IrExpression *self)
 {
-    assert(IR_IS_ARRAY_CELL_REF(self));
+    assert(IR_IS_ARRAY_CELL(self));
 
-    IrArrayCellRef *cell = IR_ARRAY_CELL_REF(self);
+    IrArrayCell *cell = IR_ARRAY_CELL(self);
 
     if (cell->data_type == NULL)
     {

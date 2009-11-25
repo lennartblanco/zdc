@@ -13,7 +13,7 @@
 #include "dt_static_array_type.h"
 #include "ast_variable_declaration.h"
 #include "ir_array_literal.h"
-#include "ir_array_cell_ref.h"
+#include "ir_array_cell.h"
 #include "ir_array_slice.h"
 #include "ir_cast.h"
 #include "ir_unary_operation.h"
@@ -58,9 +58,9 @@ x86_gen_variable_assigment(x86_comp_params_t *params,
                            IrExpression *expression,
                            sym_table_t *sym_table);
 static void
-x86_compile_array_cell_ref(x86_comp_params_t *params,
-                           IrArrayCellRef *array_cell,
-                           sym_table_t *sym_table);
+x86_compile_array_cell(x86_comp_params_t *params,
+                       IrArrayCell *array_cell,
+                       sym_table_t *sym_table);
 
 static void
 x86_compile_iarithm_op(x86_comp_params_t *params,
@@ -190,11 +190,11 @@ x86_compile_expression(x86_comp_params_t *params,
                               IR_BINARY_OPERATION(expression),
                               sym_table);
     }
-    else if (IR_IS_ARRAY_CELL_REF(expression))
+    else if (IR_IS_ARRAY_CELL(expression))
     {
-        x86_compile_array_cell_ref(params,
-                                   IR_ARRAY_CELL_REF(expression),
-                                   sym_table);
+        x86_compile_array_cell(params,
+                               IR_ARRAY_CELL(expression),
+                               sym_table);
     }
     else if (IR_IS_SCALAR(expression))
     {
@@ -305,7 +305,7 @@ x86_compile_assigment(x86_comp_params_t *params,
                                    ir_assigment_get_value(assigment),
                                    sym_table);
     }
-    else if (IR_IS_ARRAY_CELL_REF(lvalue))
+    else if (IR_IS_ARRAY_CELL(lvalue))
     {
         x86_gen_array_cell_assigment(params, assigment, sym_table);
     }
@@ -1027,12 +1027,12 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
 
 
 static void
-x86_compile_array_cell_ref(x86_comp_params_t *params,
-                           IrArrayCellRef *array_cell,
-                           sym_table_t *sym_table)
+x86_compile_array_cell(x86_comp_params_t *params,
+                       IrArrayCell *array_cell,
+                       sym_table_t *sym_table)
 {
     assert(params);
-    assert(IR_IS_ARRAY_CELL_REF(array_cell));
+    assert(IR_IS_ARRAY_CELL(array_cell));
     assert(sym_table);
 
     fprintf(params->out,
@@ -1040,7 +1040,7 @@ x86_compile_array_cell_ref(x86_comp_params_t *params,
             "  # evaluate index expression\n");
 
     x86_compile_expression(params,
-                           ir_array_cell_ref_get_index(array_cell),
+                           ir_array_cell_get_index(array_cell),
                            sym_table);
 
 
@@ -1091,7 +1091,7 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
     assert(IR_IS_ASSIGMENT(assigment));
     assert(sym_table);
 
-    IrArrayCellRef *array_cell;
+    IrArrayCell *array_cell;
     DtDataType *cell_type;
     int storage_size;
     X86FrameOffset *array_loc;
@@ -1106,9 +1106,9 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
                            sym_table);
 
     /* compile code to evaluate array index expression */
-    array_cell = IR_ARRAY_CELL_REF(ir_assigment_get_lvalue(assigment));
+    array_cell = IR_ARRAY_CELL(ir_assigment_get_lvalue(assigment));
     x86_compile_expression(params,
-                           ir_array_cell_ref_get_index(array_cell),
+                           ir_array_cell_get_index(array_cell),
                            sym_table);
 
     cell_type =
