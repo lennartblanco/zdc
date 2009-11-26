@@ -55,7 +55,6 @@ ast_int_constant_new(gint32 value)
 gint32
 ast_int_constant_get_value(AstIntConstant *self)
 {
-    assert(self);
     assert(XDP_IS_AST_INT_CONSTANT(self));
 
     return self->value;
@@ -68,9 +67,8 @@ ast_int_constant_get_value(AstIntConstant *self)
 static void
 ast_int_constant_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(out);
     assert(XDP_IS_AST_INT_CONSTANT(self));
+    assert(out);
     fprintf(out, "%d", XDP_AST_INT_CONSTANT(self)->value);
 }
 
