@@ -87,6 +87,7 @@ func_declaration<func> :
                                                       args.list,
                                                       t.data_type,
                                                       yypos);
+        free(name.text);
     }
 ;
 
@@ -117,6 +118,7 @@ func_def<x> :
                                                  t.data_type,
                                                  code.code_block,
                                                  yypos);
+        free(name.text);
     }
 ;
 
@@ -367,7 +369,8 @@ func_call<n> :
     TOK_IDENT<x> '(' ( func_call_args<y> )? ')'
     { 
         (*n).statment =
-             XDP_AST_STATMENT(ast_function_call_new(x.text, y.list, yypos)); 
+             XDP_AST_STATMENT(ast_function_call_new(x.text, y.list, yypos));
+        free(x.text);
     }
 ;
 
@@ -389,6 +392,7 @@ var_declaration<n> :
    { 
        (*n).variable_declaration = 
            ast_variable_declaration_new(t.data_type, x.text);
+       free(x.text);
    }
 ;
 
@@ -397,6 +401,7 @@ var_definition<n> :
    {
        (*n).variable_definition = 
            ast_variable_definition_new(t.data_type, x.text, NULL, yypos);
+       free(x.text);
    }
 |  type<t> TOK_IDENT<x> '=' expression<e> ';'
    {
@@ -405,6 +410,7 @@ var_definition<n> :
                                        x.text,
                                        e.expression,
                                        yypos);
+       free(x.text);
    }
 
 ;
@@ -424,6 +430,7 @@ lvalue<n> :
     TOK_IDENT<x>
     {
         (*n).variable_ref = ast_variable_ref_new(x.text, yypos);
+        free(x.text);
     }
 |   TOK_IDENT<name> '[' expression<exp> ']'
     {
@@ -431,6 +438,7 @@ lvalue<n> :
             XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
                                                         exp.expression,
                                                         yypos));
+        free(name.text);
     }
 |   array_slice<n>
 ;
@@ -584,6 +592,7 @@ primary<n> :
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_variable_ref_new(x.text, yypos));
+        free(x.text);
     }
 |   func_call<n>
 |   '(' expression<n> ')'
@@ -591,13 +600,13 @@ primary<n> :
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
-                                                     x.expression)); 
+                                                       x.expression)); 
     }
 |   '-' primary<x> 
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
-                                                     x.expression)); 
+                                                       x.expression)); 
     }
 |   TOK_IDENT<name> '[' expression<i> ']'
     {
@@ -605,6 +614,7 @@ primary<n> :
             XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
                                                       i.expression,
                                                       yypos));
+        free(name.text);
     }
 |   array_literal<n>
 |   array_slice<n>
@@ -623,6 +633,7 @@ array_slice<n> :
                                                        start.expression,
                                                        end.expression,
                                                        yypos));
+        free(name.text);
     }
 ;
 
