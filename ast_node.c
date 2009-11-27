@@ -147,9 +147,6 @@ ast_node_set_property(GObject *object,
     AstNode *node = XDP_AST_NODE(object);
 
     node->line_number = g_value_get_uint(value);
-
-//printf("%s line num %u\n", g_type_name(G_TYPE_FROM_INSTANCE(object)),
-//                     g_value_get_uint(value));
 }
 
 static void
