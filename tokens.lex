@@ -28,6 +28,7 @@
 "&"      { return '&'; }
 "if"     { return TOK_IF; }
 "int"    { return TOK_INT; }
+"uint"   { return TOK_UINT; }
 "auto"   { return TOK_AUTO; }
 "else"   { return TOK_ELSE; }
 "void"   { return TOK_VOID; }
@@ -40,7 +41,8 @@
 "foreach" { return TOK_FOREACH; }
 ("C"|"D") { yylval.text = strdup(yytext); return TOK_LINKAGE_TYPE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
-[0-9]+   { yylval.integer = atoi(yytext); return TOK_NUMBER; }
+[0-9]+   { yylval.integer = atoi(yytext); return TOK_INT_CONST; }
+[0-9]+("u"|"U") {  yylval.uinteger = atoi(yytext); return TOK_UINT_CONST; }
 " "      { /* skip blank */ }
 "//".*   { /* consume comment */ }
 "/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {

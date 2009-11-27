@@ -25,6 +25,13 @@ void
 check_int(char *function_called, int res, int expected_res);
 
 /**
+ * Check if functions with unsigned integer return value have 
+ * returned expected result.
+ */
+void
+check_uint(char *function_called, unsigned res, unsigned expected_res);
+
+/**
  * Check if functions with boolean return value have returned expected result.
  */
 void

@@ -15,6 +15,7 @@
 #include "ast_return.h"
 #include "ast_array_literal.h"
 #include "ast_int_constant.h"
+#include "ast_uint_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_unary_operation.h"
 #include "ast_binary_operation.h"
@@ -22,6 +23,7 @@
 #include "ast_function_call.h"
 #include "ast_array_cell_ref.h"
 #include "ir_int_constant.h"
+#include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
@@ -457,6 +459,13 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
 
         val = ast_int_constant_get_value(XDP_AST_INT_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_int_constant_new(val));
+    }
+    else if (XDP_IS_AST_UINT_CONSTANT(ast_expression))
+    {
+        guint32 val;
+
+        val = ast_uint_constant_get_value(XDP_AST_UINT_CONSTANT(ast_expression));
+        return IR_EXPRESSION(ir_uint_constant_new(val));
     }
     else if (XDP_IS_AST_BOOL_CONSTANT(ast_expression))
     {

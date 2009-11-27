@@ -10,7 +10,8 @@
 union yystype_u
 {
     char                       *text;
-    int                        integer;
+    gint32                     integer;
+    guint32                    uinteger;
     DtDataType                 *data_type;
     basic_data_type_t          basic_data_type;
     AstCompileUnit             *compile_unit;

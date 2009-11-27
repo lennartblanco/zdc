@@ -46,6 +46,9 @@ dt_array_type_get_type(void);
 DtArrayType *
 dt_array_type_new(basic_data_type_t data_type);
 
+/**
+ * Get element data type
+ */
 basic_data_type_t
 dt_array_type_get_data_type(DtArrayType *self);
 

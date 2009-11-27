@@ -992,6 +992,41 @@ x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
 }
 
 static void
+x86_compile_cast_to_array_slice_assigment(x86_comp_params_t *params,
+                                          IrAssigment *assigment,
+                                          sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+
+    IrCast *cast;
+    IrExpression *value;
+    DtArrayType *trgt_type;
+    DtArrayType *src_type;
+
+    cast = IR_CAST(ir_assigment_get_value(assigment));
+    trgt_type = DT_ARRAY_TYPE(ir_cast_get_target_type(cast));
+
+    value = ir_cast_get_value(cast);
+    src_type = DT_ARRAY_TYPE(ir_expression_get_data_type(value));
+
+    /* only casting between uint[] and int[] arrays implemented */
+    assert((dt_array_type_get_data_type(trgt_type) == int_type ||
+            dt_array_type_get_data_type(trgt_type) == uint_type) &&
+           (dt_array_type_get_data_type(src_type) == int_type ||
+            dt_array_type_get_data_type(src_type) == uint_type));
+ 
+    /*
+     * no need to generate explicit casting code when going between
+     * uint[] and int[] arrays, just overwrite the cast expression with
+     * it's value and compile the assigment.
+     */
+    ir_assigment_set_value(assigment, value);
+    x86_compile_array_slice_assigment(params, assigment, sym_table);
+}
+
+static void
 x86_compile_array_slice_assigment(x86_comp_params_t *params,
                                   IrAssigment *assigment,
                                   sym_table_t *sym_table)
@@ -1015,6 +1050,12 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
         x86_compile_array_slice_to_slice_assigment(params,
                                                    assigment,
                                                    sym_table);
+    }
+    else if (IR_IS_CAST(value))
+    {
+        x86_compile_cast_to_array_slice_assigment(params,
+                                                  assigment,
+                                                  sym_table);
     }
     else
     {

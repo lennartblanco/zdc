@@ -53,6 +53,7 @@ run_all_tests()
     $RUN_TEST func_call
     $RUN_TEST implicit_cast
     $RUN_TEST bool_op
+    $RUN_TEST uint_op
     $RUN_TEST nested_blocks
     $RUN_TEST if_else
     $RUN_TEST fact

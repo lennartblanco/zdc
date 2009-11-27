@@ -77,6 +77,9 @@ dt_basic_type_do_print(DtDataType *self, FILE *out)
         case int_type:
             str = "int";
             break;
+        case uint_type:
+            str = "uint";
+            break;
         case void_type:
             str = "void";
             break;

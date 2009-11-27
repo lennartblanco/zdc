@@ -155,6 +155,7 @@ compile_d_func_call(x86_comp_params_t *params,
                break;
            case bool_type:
            case int_type:
+           case uint_type:
                fprintf(params->out,
                        "# push function return value on the stack\n"
                        "    push %%eax\n");

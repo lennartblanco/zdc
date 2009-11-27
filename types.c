@@ -3,6 +3,7 @@
 #include "types.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
+#include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_array_literal.h"
 #include "ir_array_slice.h"
@@ -61,6 +62,9 @@ implicit_conv_to_static_bool_array_type(IrExpression *expression);
  */
 static IrExpression *
 implicit_conv_to_static_int_array_type(IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_static_uint_array_type(IrExpression *expression);
 
 static IrExpression *
 implicit_conv_to_int_array_type(IrExpression *expression);
@@ -266,6 +270,7 @@ implicit_conv_to_static_int_array_type(IrExpression *expression)
     {
         case int_type:
             return expression;
+        case uint_type:
         case bool_type:
         {
             IrCast *cast_exp;
@@ -277,6 +282,47 @@ implicit_conv_to_static_int_array_type(IrExpression *expression)
                     DT_STATIC_ARRAY_TYPE(arry_type));
                 cast_exp =
                   ir_cast_new(DT_DATA_TYPE(dt_static_array_type_new(int_type,
+                                                                    length)),
+                               expression);
+            }
+            else
+            {
+                cast_exp =
+                  ir_cast_new(DT_DATA_TYPE(dt_array_type_new(int_type)),
+                              expression);
+            }
+            return IR_EXPRESSION(cast_exp);
+
+        }
+        default:
+            /* unexpected element basic data type */
+            assert(false);
+    }
+}
+
+static IrExpression *
+implicit_conv_to_static_uint_array_type(IrExpression *expression)
+{
+    DtArrayType *arry_type;
+
+    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
+
+    switch (dt_array_type_get_data_type(arry_type))
+    {
+        case uint_type:
+            return expression;
+        case int_type:
+        case bool_type:
+        {
+            IrCast *cast_exp;
+            if (DT_IS_STATIC_ARRAY_TYPE(arry_type))
+            {
+                int length;
+                length =
+                  dt_static_array_type_get_length(
+                    DT_STATIC_ARRAY_TYPE(arry_type));
+                cast_exp =
+                  ir_cast_new(DT_DATA_TYPE(dt_static_array_type_new(uint_type,
                                                                     length)),
                                expression);
             }
@@ -417,6 +463,8 @@ implicit_conv_to_static_array_type(DtDataType *target_type,
     {
         case int_type:
             return implicit_conv_to_static_int_array_type(expression);
+        case uint_type:
+            return implicit_conv_to_static_uint_array_type(expression);
         case bool_type:
             return implicit_conv_to_static_bool_array_type(expression);
         default:
@@ -476,6 +524,8 @@ types_get_default_initializer(basic_data_type_t data_type)
     {
         case int_type:
             return IR_EXPRESSION(ir_int_constant_new(0));
+        case uint_type:
+            return IR_EXPRESSION(ir_uint_constant_new(0));
         case bool_type:
             return IR_EXPRESSION(ir_bool_constant_new(false));
         default:
@@ -489,6 +539,7 @@ types_get_storage_size(basic_data_type_t data_type)
     switch (data_type)
     {
         case int_type:
+        case uint_type:
             return 4;
         case bool_type:
             return 1;
@@ -544,6 +595,7 @@ types_integer_promotion(IrExpression *expression)
             res_exp = NULL;
             break;
         case int_type:
+        case uint_type:
             /* we don't need to do any type casts */
             res_exp = expression;
             break;
@@ -580,7 +632,9 @@ types_usual_arithm_conv(IrExpression *left,
         /* converting void types is illegal */
         return false;
     }
-    assert(left_data_type == int_type || left_data_type == bool_type);
+    assert(left_data_type == int_type  ||
+           left_data_type == uint_type ||
+           left_data_type == bool_type);
 
     /* 
      * get the data type of right expression
@@ -597,11 +651,27 @@ types_usual_arithm_conv(IrExpression *left,
         /* converting void types is illegal */
         return false;
     }
-    assert(right_data_type == int_type || right_data_type == bool_type);
+    assert(right_data_type == int_type  ||
+           right_data_type == uint_type ||
+           right_data_type == bool_type);
 
 
+    /* do integer promotions of both operands */
     *res_left = types_integer_promotion(left);
     *res_right = types_integer_promotion(right);
+
+    /* fetch data-types of integer promoted operands */
+    data_type = ir_expression_get_data_type(left);
+    assert(DT_IS_BASIC_TYPE(data_type)); /* non-basic types not implemened */
+    left_data_type =
+        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
+    assert(DT_IS_BASIC_TYPE(data_type)); /* non-basic types not implemened */
+    right_data_type =
+        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
+
+    /* more usual arithmetic conversions rules not implemented */
+    assert(right_data_type == left_data_type);
+
 
     return true;
 }

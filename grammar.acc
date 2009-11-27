@@ -27,10 +27,10 @@
 AstCompileUnit *compile_unit;
 }
 
-%token TOK_NUMBER, TOK_IDENT, TOK_RETURN, TOK_TRUE, TOK_FALSE,
-       TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
+%token TOK_INT_CONST, TOK_UINT_CONST, TOK_IDENT, TOK_TRUE, TOK_FALSE,
+       TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
-       TOK_AUTO, TOK_INT, TOK_VOID, TOK_BOOL;
+       TOK_AUTO, TOK_INT, TOK_UINT, TOK_VOID, TOK_BOOL;
        
 
 root :
@@ -206,7 +206,7 @@ expression_statment<stmt> :
 ;
 
 type<x> :
-    basic_type<t> '[' TOK_NUMBER<num> ']'
+    basic_type<t> '[' TOK_INT_CONST<num> ']'
     {
         (*x).data_type =
             DT_DATA_TYPE(dt_static_array_type_new(t.basic_data_type,
@@ -227,11 +227,15 @@ basic_type<x> :
     {
         (*x).basic_data_type = void_type;
     }
-|   TOK_INT    
+|   TOK_UINT
+    {
+        (*x).basic_data_type = uint_type;
+    }
+|   TOK_INT
     {
         (*x).basic_data_type = int_type;
     }
-|   TOK_BOOL   
+|   TOK_BOOL
     { 
         (*x).basic_data_type = bool_type; 
     }
@@ -556,10 +560,15 @@ mult_expression<n> :
 ;
 
 primary<n> :
-    TOK_NUMBER<x>
+    TOK_INT_CONST<x>
     {
         (*n).expression =
             XDP_AST_EXPRESSION(ast_int_constant_new(x.integer));
+    }
+|   TOK_UINT_CONST<x>
+    {
+        (*n).expression =
+            XDP_AST_EXPRESSION(ast_uint_constant_new(x.uinteger));
     }
 |   TOK_TRUE
     {

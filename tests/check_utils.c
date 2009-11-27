@@ -41,6 +41,23 @@ check_int(char *function_called, int res, int expected_res)
 }
 
 void
+check_uint(char *function_called, unsigned res, unsigned expected_res)
+{
+    printf("%s = %u", function_called, res);
+    if (res == expected_res) 
+    {
+        printf(" [ok]\n");
+        passed += 1;
+    }
+    else
+    {
+        printf(" unexpected result!\n");
+        failed += 1;
+    }
+}
+
+
+void
 check_bool(char *function_called, bool res, bool expected_res)
 {
     printf("%s = %s", function_called, BOOL_TO_STR(res));
@@ -55,6 +72,7 @@ check_bool(char *function_called, bool res, bool expected_res)
         failed += 1;
     }
 }
+
 
 void
 check_exit()
