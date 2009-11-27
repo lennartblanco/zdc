@@ -46,11 +46,11 @@ AstWhile *
 ast_while_new(AstExpression *loop_condition,
               AstCodeBlock *body)
 {
-    assert(loop_condition);
+    assert(XDP_IS_AST_EXPRESSION(loop_condition));
 
     AstWhile *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_WHILE, NULL);
+    obj = g_object_new(AST_TYPE_WHILE, NULL);
     obj->loop_condition = loop_condition;
     obj->body = body;
 
@@ -60,8 +60,7 @@ ast_while_new(AstExpression *loop_condition,
 AstExpression *
 ast_while_get_loop_condition(AstWhile *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_WHILE(self));
+    assert(AST_IS_WHILE(self));
 
     return self->loop_condition;
 }
@@ -69,8 +68,7 @@ ast_while_get_loop_condition(AstWhile *self)
 AstCodeBlock *
 ast_while_get_body(AstWhile *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_WHILE(self));
+    assert(AST_IS_WHILE(self));
 
     return self->body;
 }
@@ -85,9 +83,9 @@ ast_while_do_print(AstNode *self, FILE *out)
 {
     assert(self);
     assert(out);
-    assert(XDP_IS_AST_WHILE(self));
+    assert(AST_IS_WHILE(self));
 
-    AstWhile *while_loop = XDP_AST_WHILE(self);
+    AstWhile *while_loop = AST_WHILE(self);
 
     fprintf(out, "  while ( ");
     ast_node_print(XDP_AST_NODE(while_loop->loop_condition), out);

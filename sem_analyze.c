@@ -688,12 +688,12 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                                               ir_code_block,
                                               XDP_AST_IF_ELSE(stmt));
         }
-        else if (XDP_IS_AST_WHILE(stmt))
+        else if (AST_IS_WHILE(stmt))
         {
             ir_stmt =
                 sem_analyze_ast_while_to_ir(compile_status,
                                             symbols,
-                                            XDP_AST_WHILE(stmt));
+                                            AST_WHILE(stmt));
         }
         else if (XDP_IS_AST_FOREACH(stmt))
         {
