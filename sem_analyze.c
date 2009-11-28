@@ -513,13 +513,13 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                                 ir_end_idx,
                                                 line_numer));
     }
-    else if (XDP_IS_AST_VARIABLE_REF(ast_expression))
+    else if (AST_IS_VARIABLE_REF(ast_expression))
     {
         AstVariableRef *var_ref;
         IrExpression *ir_expression;
         char *var_name;
 
-        var_ref = XDP_AST_VARIABLE_REF(ast_expression);
+        var_ref = AST_VARIABLE_REF(ast_expression);
         var_name = ast_variable_ref_get_name(var_ref);
 
         if (XDP_IS_AST_ARRAY_CELL_REF(var_ref))
@@ -544,7 +544,7 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
                                                 ast_node_get_line_num(var_ref)));
                                               
         }
-        else if (XDP_IS_AST_VARIABLE_REF(var_ref))
+        else if (AST_IS_VARIABLE_REF(var_ref))
         {
             ir_expression =
                 IR_EXPRESSION(ir_scalar_new(var_name,

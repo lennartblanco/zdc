@@ -435,9 +435,9 @@ lvalue<n> :
 |   TOK_IDENT<name> '[' expression<exp> ']'
     {
         (*n).variable_ref =
-            XDP_AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
-                                                        exp.expression,
-                                                        yypos));
+            AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
+                                                    exp.expression,
+                                                    yypos));
         free(name.text);
     }
 |   array_slice<n>

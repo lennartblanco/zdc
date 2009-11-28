@@ -34,7 +34,7 @@ ast_array_slice_ref_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_VARIABLE_REF,
+      type = g_type_register_static(AST_TYPE_VARIABLE_REF,
                                     "AstArraySliceRefType",
                                     &info, 0);
     }
@@ -63,7 +63,7 @@ ast_array_slice_ref_new(char *name,
 char *
 ast_array_slice_ref_get_name(AstArraySliceRef *self)
 {
-   return ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self));
+   return ast_variable_ref_get_name(AST_VARIABLE_REF(self));
 }
 
 AstExpression *
@@ -96,8 +96,7 @@ ast_array_slice_ref_do_print(AstNode *self, FILE *out)
     assert(out);
 
     AstArraySliceRef *ref = XDP_AST_ARRAY_SLICE_REF(self);
-    fprintf(out, "%s[",
-            ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self)));
+    fprintf(out, "%s[", ast_variable_ref_get_name(AST_VARIABLE_REF(self)));
     if (ref->start != NULL && ref->end != NULL)
     {
         ast_node_print(XDP_AST_NODE(ref->start), out);

@@ -34,7 +34,7 @@ ast_array_cell_ref_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_VARIABLE_REF,
+      type = g_type_register_static(AST_TYPE_VARIABLE_REF,
                                     "AstArrayCellRefType",
                                     &info, 0);
     }
@@ -77,8 +77,7 @@ ast_array_cell_ref_do_print(AstNode *self, FILE *out)
     assert(out);
 
     AstArrayCellRef *ref = XDP_AST_ARRAY_CELL_REF(self);
-    fprintf(out, "%s[",
-            ast_variable_ref_get_name(XDP_AST_VARIABLE_REF(self)));
+    fprintf(out, "%s[", ast_variable_ref_get_name(AST_VARIABLE_REF(self)));
     ast_node_print(XDP_AST_NODE(ref->index), out);
     fprintf(out, "]");
 }

@@ -69,7 +69,7 @@ ast_variable_ref_new(char *name, guint line_number)
 {
     AstVariableRef *ref;
 
-    ref = g_object_new(XDP_TYPE_AST_VARIABLE_REF,
+    ref = g_object_new(AST_TYPE_VARIABLE_REF,
                        "ast-node-line-number", line_number,
                        "ast-variable-ref-name", name,
                        NULL);
@@ -79,8 +79,7 @@ ast_variable_ref_new(char *name, guint line_number)
 char *
 ast_variable_ref_get_name(AstVariableRef *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_VARIABLE_REF(self));
+    assert(AST_IS_VARIABLE_REF(self));
 
     return self->name;
 }
@@ -127,7 +126,7 @@ ast_variable_ref_set_property(GObject *object,
 {
     /* we only have one property */
     assert(property_id == XDP_AST_VARIABLE_REF_NAME);
-    AstVariableRef *varref = XDP_AST_VARIABLE_REF(object);
+    AstVariableRef *varref = AST_VARIABLE_REF(object);
 
     varref->name = g_value_dup_string(value);    
 }
@@ -145,12 +144,11 @@ ast_variable_ref_get_property(GObject *object,
 static void
 ast_variable_ref_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(XDP_IS_AST_VARIABLE_REF(self));
+    assert(AST_IS_VARIABLE_REF(self));
     assert(out);
 
     fprintf(out, "%s",
-            XDP_AST_VARIABLE_REF(self)->name);
+            AST_VARIABLE_REF(self)->name);
 }
 
 
