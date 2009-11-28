@@ -426,13 +426,13 @@ main()
     check_int("implicit_arry_lit_casts(0)",
               call_implicit_arry_lit_casts(0), 0);
 
-    check_int("implicit_arry_lit_casts(0)",
+    check_int("implicit_arry_lit_casts(1)",
               call_implicit_arry_lit_casts(1), 0);
 
-    check_int("implicit_arry_lit_casts(0)",
+    check_int("implicit_arry_lit_casts(2)",
               call_implicit_arry_lit_casts(2), 0);
 
-    check_int("implicit_arry_lit_casts(0)",
+    check_int("implicit_arry_lit_casts(3)",
               call_implicit_arry_lit_casts(3), 1);
 
     check_exit();
