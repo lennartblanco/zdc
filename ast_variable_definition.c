@@ -51,7 +51,7 @@ ast_variable_definition_new(DtDataType *type,
 {
     AstVariableDefinition *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_VARIABLE_DEFINITION,
+    obj = g_object_new(AST_TYPE_VARIABLE_DEFINITION,
                        "ast-node-line-number", line_number,
                        NULL);
     obj->type = type;
@@ -64,7 +64,7 @@ ast_variable_definition_new(DtDataType *type,
 DtDataType *
 ast_variable_definition_get_data_type(AstVariableDefinition *self)
 {
-    assert(self);
+    assert(AST_IS_VARIABLE_DEFINITION(self));
 
     return self->type;
 }
@@ -72,7 +72,7 @@ ast_variable_definition_get_data_type(AstVariableDefinition *self)
 char *
 ast_variable_definition_get_name(AstVariableDefinition *self)
 {
-    assert(self);
+    assert(AST_IS_VARIABLE_DEFINITION(self));
 
     return self->name;
 }
@@ -80,7 +80,7 @@ ast_variable_definition_get_name(AstVariableDefinition *self)
 AstExpression *
 ast_variable_definition_get_initializer(AstVariableDefinition *self)
 {
-    assert(self);
+    assert(AST_IS_VARIABLE_DEFINITION(self));
 
     return self->initializer;
 }
@@ -93,7 +93,7 @@ ast_variable_definition_get_initializer(AstVariableDefinition *self)
 static void
 ast_variable_definition_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_VARIABLE_DEFINITION(self));
     assert(out);
 
     AstVariableDefinition *obj = (AstVariableDefinition *)self;

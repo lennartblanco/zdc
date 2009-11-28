@@ -658,9 +658,9 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
         AstStatment *stmt = XDP_AST_STATMENT(i->data);
 
         /* variable declaration found */
-        if (XDP_IS_AST_VARIABLE_DEFINITION(stmt))
+        if (AST_IS_VARIABLE_DEFINITION(stmt))
         {
-            AstVariableDefinition *var_def = XDP_AST_VARIABLE_DEFINITION(stmt);
+            AstVariableDefinition *var_def = AST_VARIABLE_DEFINITION(stmt);
 
             sem_analyze_ast_var_def_to_ir(compile_status,
                                           var_def,
