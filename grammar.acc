@@ -11,6 +11,7 @@
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
 #include "ast_int_constant.h"
+#include "ast_uint_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_array_cell_ref.h"
 #include "ast_array_slice_ref.h"
