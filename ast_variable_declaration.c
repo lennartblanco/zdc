@@ -48,7 +48,7 @@ ast_variable_declaration_new(DtDataType *type, char *name)
 {
     AstVariableDeclaration *node;
 
-    node = g_object_new(XDP_TYPE_AST_VARIABLE_DECLARATION, NULL);
+    node = g_object_new(AST_TYPE_VARIABLE_DECLARATION, NULL);
     node->type = type;
     node->name = strdup(name);
 
@@ -59,8 +59,7 @@ ast_variable_declaration_new(DtDataType *type, char *name)
 DtDataType *
 ast_variable_declaration_get_data_type(AstVariableDeclaration *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_VARIABLE_DECLARATION(self));
+    assert(AST_IS_VARIABLE_DECLARATION(self));
 
     return self->type;
 }
@@ -68,8 +67,7 @@ ast_variable_declaration_get_data_type(AstVariableDeclaration *self)
 char *
 ast_variable_declaration_get_name(AstVariableDeclaration *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_VARIABLE_DECLARATION(self));
+    assert(AST_IS_VARIABLE_DECLARATION(self));
 
     return self->name;
 }
@@ -81,7 +79,7 @@ ast_variable_declaration_get_name(AstVariableDeclaration *self)
 static void
 ast_variable_declaration_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_VARIABLE_DECLARATION(self));
     assert(out);
 
     AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;

@@ -802,7 +802,7 @@ sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
         AstVariableDeclaration *ast_var;
         IrVariable *ir_var;
 
-        ast_var = XDP_AST_VARIABLE_DECLARATION(i->data);
+        ast_var = AST_VARIABLE_DECLARATION(i->data);
 
         ir_var = 
             ir_variable_new(ast_variable_declaration_get_data_type(ast_var),
