@@ -7,22 +7,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_UNARY_OPERATION ast_unary_operation_get_type()
+#define AST_TYPE_UNARY_OPERATION ast_unary_operation_get_type()
 
-#define XDP_AST_UNARY_OPERATION(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_UNARY_OPERATION, AstUnaryOperation))
+#define AST_UNARY_OPERATION(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_UNARY_OPERATION, AstUnaryOperation))
 
-#define XDP_AST_UNARY_OPERATION_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_UNARY_OPERATION, AstUnaryOperationClass))
+#define AST_UNARY_OPERATION_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_UNARY_OPERATION, AstUnaryOperationClass))
 
-#define XDP_IS_AST_UNARY_OPERATION(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_UNARY_OPERATION))
+#define AST_IS_UNARY_OPERATION(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_UNARY_OPERATION))
 
-#define XDP_IS_AST_UNARY_OPERATION_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_UNARY_OPERATION))
+#define AST_IS_UNARY_OPERATION_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_UNARY_OPERATION))
 
-#define XDP_AST_UNARY_OPERATION_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_UNARY_OPERATION, AstUnaryOperationClass))
+#define AST_UNARY_OPERATION_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_UNARY_OPERATION, AstUnaryOperationClass))
 
 /*
  * binary operations types

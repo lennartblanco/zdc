@@ -59,11 +59,10 @@ ir_code_block_get_symbols(IrCodeBlock *self);
  * Append a statment to the end of this code block.
  *
  * @param self the code block to append to
- * @param statment a statment to append, must be an instance of either
- *                  IR_STATMENT or XDP_AST_STATMENT
+ * @param statment a statment to append
  */
 void
-ir_code_block_add_statment(IrCodeBlock *self, void *statment);
+ir_code_block_add_statment(IrCodeBlock *self, IrStatment *statment);
 
 GSList *
 ir_code_block_get_statments(IrCodeBlock *self);

@@ -7,22 +7,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_BINARY_OPERATION ast_binary_operation_get_type()
+#define AST_TYPE_BINARY_OPERATION ast_binary_operation_get_type()
 
-#define XDP_AST_BINARY_OPERATION(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_BINARY_OPERATION, AstBinaryOperation))
+#define AST_BINARY_OPERATION(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_BINARY_OPERATION, AstBinaryOperation))
 
-#define XDP_AST_BINARY_OPERATION_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_BINARY_OPERATION, AstBinaryOperationClass))
+#define AST_BINARY_OPERATION_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_BINARY_OPERATION, AstBinaryOperationClass))
 
-#define XDP_IS_AST_BINARY_OPERATION(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_BINARY_OPERATION))
+#define AST_IS_BINARY_OPERATION(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_BINARY_OPERATION))
 
-#define XDP_IS_AST_BINARY_OPERATION_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_BINARY_OPERATION))
+#define AST_IS_BINARY_OPERATION_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_BINARY_OPERATION))
 
-#define XDP_AST_BINARY_OPERATION_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_BINARY_OPERATION, AstBinaryOperationClass))
+#define AST_BINARY_OPERATION_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_BINARY_OPERATION, AstBinaryOperationClass))
 
 /*
  * binary operations types

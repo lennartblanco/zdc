@@ -844,7 +844,7 @@ validate_function_def(compilation_status_t *compile_status,
         /* if it's not a return, add an implicit return */
         if (!IR_IS_RETURN(last_statment))
         {
-            ir_code_block_add_statment(body, ir_return_new(NULL));
+            ir_code_block_add_statment(body, IR_STATMENT(ir_return_new(NULL)));
         }
     }
 }

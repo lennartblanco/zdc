@@ -35,7 +35,7 @@ ast_foreach_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstForeachType",
                                     &info, 0);
     }
@@ -53,7 +53,7 @@ ast_foreach_new(AstVariableDeclaration *index,
 
     AstForeach *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_FOREACH, NULL);
+    obj = g_object_new(AST_TYPE_FOREACH, NULL);
     obj->index = index;
     obj->value = value;
     obj->aggregate = aggregate;
@@ -65,8 +65,7 @@ ast_foreach_new(AstVariableDeclaration *index,
 AstVariableDeclaration *
 ast_foreach_get_index(AstForeach *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FOREACH(self));
+    assert(AST_IS_FOREACH(self));
 
     return self->index;
 }
@@ -74,8 +73,7 @@ ast_foreach_get_index(AstForeach *self)
 AstVariableDeclaration *
 ast_foreach_get_value(AstForeach *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FOREACH(self));
+    assert(AST_IS_FOREACH(self));
 
     return self->value;
 }
@@ -83,8 +81,7 @@ ast_foreach_get_value(AstForeach *self)
 AstArraySliceRef *
 ast_foreach_get_aggregate(AstForeach *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FOREACH(self));
+    assert(AST_IS_FOREACH(self));
 
     return self->aggregate;
 }
@@ -92,8 +89,7 @@ ast_foreach_get_aggregate(AstForeach *self)
 AstCodeBlock *
 ast_foreach_get_body(AstForeach *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FOREACH(self));
+    assert(AST_IS_FOREACH(self));
 
     return self->body;
 }
@@ -106,24 +102,23 @@ ast_foreach_get_body(AstForeach *self)
 static void
 ast_foreach_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_FOREACH(self));
     assert(out);
-    assert(XDP_IS_AST_FOREACH(self));
 
-    AstForeach *foreach = XDP_AST_FOREACH(self);
+    AstForeach *foreach = AST_FOREACH(self);
 
     fprintf(out, "  foreach (");
     if (foreach->index != NULL)
     {
-        ast_node_print(XDP_AST_NODE(foreach->index), out);
+        ast_node_print(AST_NODE(foreach->index), out);
         fprintf(out, ", ");
     }
-    ast_node_print(XDP_AST_NODE(foreach->value), out);
+    ast_node_print(AST_NODE(foreach->value), out);
     fprintf(out, "; ");
 
-    ast_node_print(XDP_AST_NODE(foreach->aggregate), out);
+    ast_node_print(AST_NODE(foreach->aggregate), out);
     fprintf(out, ")\n");
-    ast_node_print(XDP_AST_NODE(foreach->body), out);
+    ast_node_print(AST_NODE(foreach->body), out);
     fprintf(out, "\n");
 }
 

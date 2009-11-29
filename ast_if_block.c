@@ -34,7 +34,7 @@ ast_if_block_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
+      type = g_type_register_static(AST_TYPE_NODE,
                                     "AstIfBlockType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_if_block_new(AstExpression *condition, AstCodeBlock *body)
 {
     AstIfBlock *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_IF_BLOCK, NULL);
+    obj = g_object_new(AST_TYPE_IF_BLOCK, NULL);
     obj->condition = condition;
     obj->body = body;
 
@@ -56,8 +56,7 @@ ast_if_block_new(AstExpression *condition, AstCodeBlock *body)
 AstExpression *
 ast_if_block_get_condition(AstIfBlock *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_IF_BLOCK(self));
+    assert(AST_IS_IF_BLOCK(self));
 
     return self->condition;
 }
@@ -65,8 +64,7 @@ ast_if_block_get_condition(AstIfBlock *self)
 AstCodeBlock *
 ast_if_block_get_body(AstIfBlock *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_IF_BLOCK(self));
+    assert(AST_IS_IF_BLOCK(self));
 
     return self->body;
 }
@@ -78,17 +76,17 @@ ast_if_block_get_body(AstIfBlock *self)
 static void
 ast_if_block_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_IF_BLOCK(self));
     assert(out);
 
     AstIfBlock *if_block = (AstIfBlock *)self;
 
     fprintf(out, "   if (");
 
-    ast_node_print(XDP_AST_NODE(if_block->condition), out);
+    ast_node_print(AST_NODE(if_block->condition), out);
 
     fprintf(out, ")\n");
-    ast_node_print(XDP_AST_NODE(if_block->body), out);
+    ast_node_print(AST_NODE(if_block->body), out);
 }
 
 static void

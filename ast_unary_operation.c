@@ -34,7 +34,7 @@ ast_unary_operation_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+      type = g_type_register_static(AST_TYPE_EXPRESSION,
                                     "AstUnaryOperationType",
                                     &info, 0);
     }
@@ -47,7 +47,7 @@ ast_unary_operation_new(ast_unary_op_type_t operation,
 {
     AstUnaryOperation *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_UNARY_OPERATION, NULL);
+    obj = g_object_new(AST_TYPE_UNARY_OPERATION, NULL);
     obj->operation = operation;
     obj->operand = operand;
 
@@ -57,8 +57,7 @@ ast_unary_operation_new(ast_unary_op_type_t operation,
 ast_unary_op_type_t
 ast_unary_operation_get_operation(AstUnaryOperation *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_UNARY_OPERATION(self));
+    assert(AST_IS_UNARY_OPERATION(self));
 
     return self->operation;
 }
@@ -66,8 +65,7 @@ ast_unary_operation_get_operation(AstUnaryOperation *self)
 AstExpression *
 ast_unary_operation_get_operand(AstUnaryOperation *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_UNARY_OPERATION(self));
+    assert(AST_IS_UNARY_OPERATION(self));
 
     return self->operand;
 }
@@ -79,8 +77,7 @@ ast_unary_operation_get_operand(AstUnaryOperation *self)
 static void
 ast_unary_operation_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(XDP_IS_AST_UNARY_OPERATION(self));
+    assert(AST_IS_UNARY_OPERATION(self));
     assert(out);
 
     AstUnaryOperation *op = (AstUnaryOperation *)self;
@@ -96,7 +93,7 @@ ast_unary_operation_do_print(AstNode *self, FILE *out)
             break;
     }
     fprintf(out, "%s(", str);
-    ast_node_print(XDP_AST_NODE(op->operand), out);
+    ast_node_print(AST_NODE(op->operand), out);
     fprintf(out, ")");
 }
 

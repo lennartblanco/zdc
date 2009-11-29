@@ -69,7 +69,6 @@ ir_variable_new(DtDataType *type,
 void
 ir_variable_set_location(IrVariable *self, GObject *location)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
     assert(location);
 
@@ -79,7 +78,6 @@ ir_variable_set_location(IrVariable *self, GObject *location)
 GObject *
 ir_variable_get_location(IrVariable *self)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
 
     return self->location;

@@ -300,10 +300,10 @@ foreach_block<x> :
         | TOK_IDENT<aggregate> 
         { 
             aggregate.expression =
-                XDP_AST_EXPRESSION(ast_array_slice_ref_new(aggregate.text,
-                                                           NULL,
-                                                           NULL,
-                                                           yypos));
+                AST_EXPRESSION(ast_array_slice_ref_new(aggregate.text,
+                                                       NULL,
+                                                       NULL,
+                                                       yypos));
         }
       ) ')' scope_statment<code>
     {
@@ -337,9 +337,9 @@ foreach_block<x> :
  
         /* build foreach ast node */
         (*x).statment =
-            XDP_AST_STATMENT(
+            AST_STATMENT(
                 ast_foreach_new(index, value,
-                                XDP_AST_ARRAY_SLICE_REF(aggregate.expression),
+                                AST_ARRAY_SLICE_REF(aggregate.expression),
                                 code.code_block));
     }
 ;
@@ -348,18 +348,18 @@ while_block<x> :
     TOK_WHILE '(' expression<exp> ')' scope_statment<code>
     {
         (*x).statment =
-            XDP_AST_STATMENT(ast_while_new(exp.expression, code.code_block));
+            AST_STATMENT(ast_while_new(exp.expression, code.code_block));
     }
 ;
 
 return_stmt<x> :
     TOK_RETURN expression<n> ';'
     { 
-       (*x).statment = XDP_AST_STATMENT(ast_return_new(n.expression));
+       (*x).statment = AST_STATMENT(ast_return_new(n.expression));
     }
 |   TOK_RETURN ';'
     {
-       (*x).statment = XDP_AST_STATMENT(ast_return_new(NULL));
+       (*x).statment = AST_STATMENT(ast_return_new(NULL));
     }
 ;
 
@@ -370,7 +370,7 @@ func_call<n> :
     TOK_IDENT<x> '(' ( func_call_args<y> )? ')'
     { 
         (*n).statment =
-             XDP_AST_STATMENT(ast_function_call_new(x.text, y.list, yypos));
+            AST_STATMENT(ast_function_call_new(x.text, y.list, yypos));
         free(x.text);
     }
 ;
@@ -421,9 +421,9 @@ var_assigment<n> :
    lvalue<l> '=' expression<y> ';'
    {
        (*n).statment =
-           XDP_AST_STATMENT(ast_assigment_new(l.variable_ref, 
-                                              y.expression,
-                                              yypos));
+           AST_STATMENT(ast_assigment_new(l.variable_ref, 
+                                           y.expression,
+                                           yypos));
    }
 ;
 
@@ -452,10 +452,10 @@ oror_expression<n> :
     oror_expression<l> '|''|' andand_expression<r>
     {
         (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_or_op,
-                                                      l.expression,
-                                                      r.expression,
-                                                      yypos));
+          AST_EXPRESSION(ast_binary_operation_new(ast_or_op,
+                                                  l.expression,
+                                                  r.expression,
+                                                  yypos));
     }
 |   andand_expression<n>
 ;
@@ -464,10 +464,10 @@ andand_expression<n> :
     andand_expression<l> '&''&' eq_expression<r>
     {
         (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_and_op,
-                                                      l.expression,
-                                                      r.expression,
-                                                      yypos));
+          AST_EXPRESSION(ast_binary_operation_new(ast_and_op,
+                                                  l.expression,
+                                                  r.expression,
+                                                  yypos));
     }
 |   eq_expression<n>
 ;  
@@ -476,18 +476,18 @@ eq_expression<n> :
     rel_expression<l> '=''=' rel_expression<r> 
     {
         (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_equal_op,
-                                                      l.expression,
-                                                      r.expression,
-                                                      yypos));
+          AST_EXPRESSION(ast_binary_operation_new(ast_equal_op,
+                                                  l.expression,
+                                                  r.expression,
+                                                  yypos));
     }
 |   rel_expression<l> '!''=' rel_expression<r> 
     {
       (*n).expression =
-          XDP_AST_EXPRESSION(ast_binary_operation_new(ast_not_equal_op,
-                                                      l.expression,
-                                                      r.expression,
-                                                      yypos)); 
+          AST_EXPRESSION(ast_binary_operation_new(ast_not_equal_op,
+                                                  l.expression,
+                                                  r.expression,
+                                                  yypos)); 
     }
 |   rel_expression<n>
 ;
@@ -496,34 +496,34 @@ rel_expression<n> :
     add_expression<l> '<' add_expression<r> 
     { 
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   add_expression<l> '>' add_expression<r> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   add_expression<l> '<''=' add_expression<r> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   add_expression<l> '>''=' add_expression<r> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   add_expression<n>
 ;
@@ -532,18 +532,18 @@ add_expression<n> :
     add_expression<l> '+' mult_expression<r> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   add_expression<l> '-' mult_expression<r>
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   mult_expression<n>
 ;
@@ -552,18 +552,18 @@ mult_expression<n> :
     mult_expression<l> '*' primary<r> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   mult_expression<l> '/' primary<r> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
-                                                        l.expression,
-                                                        r.expression,
-                                                        yypos));
+            AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
     }
 |   primary<n>
 ;
@@ -572,27 +572,27 @@ primary<n> :
     TOK_INT_CONST<x>
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_int_constant_new(x.integer));
+            AST_EXPRESSION(ast_int_constant_new(x.integer));
     }
 |   TOK_UINT_CONST<x>
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_uint_constant_new(x.uinteger));
+            AST_EXPRESSION(ast_uint_constant_new(x.uinteger));
     }
 |   TOK_TRUE
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_bool_constant_new(true));
+            AST_EXPRESSION(ast_bool_constant_new(true));
     }
 |   TOK_FALSE
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_bool_constant_new(false));
+            AST_EXPRESSION(ast_bool_constant_new(false));
     }
 |   TOK_IDENT<x>
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_variable_ref_new(x.text, yypos));
+            AST_EXPRESSION(ast_variable_ref_new(x.text, yypos));
         free(x.text);
     }
 |   func_call<n>
@@ -600,21 +600,20 @@ primary<n> :
 |   '!' primary<x>
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
-                                                       x.expression)); 
+            AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op, x.expression)); 
     }
 |   '-' primary<x> 
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
-                                                       x.expression)); 
+            AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
+                                                   x.expression)); 
     }
 |   TOK_IDENT<name> '[' expression<i> ']'
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_array_cell_ref_new(name.text,
-                                                      i.expression,
-                                                      yypos));
+            AST_EXPRESSION(ast_array_cell_ref_new(name.text,
+                                                  i.expression,
+                                                  yypos));
         free(name.text);
     }
 |   array_literal<n>
@@ -630,27 +629,27 @@ array_slice<n> :
     '[' (expression<start> '.' '.' expression<end>)? ']'
     {
         (*n).expression =
-            XDP_AST_EXPRESSION(ast_array_slice_ref_new(name.text,
-                                                       start.expression,
-                                                       end.expression,
-                                                       yypos));
+            AST_EXPRESSION(ast_array_slice_ref_new(name.text,
+                                                   start.expression,
+                                                   end.expression,
+                                                   yypos));
         free(name.text);
     }
 ;
 
 array_literal<n> :
     {
-        (*n).expression = XDP_AST_EXPRESSION(ast_array_literal_new(yypos));
+        (*n).expression = AST_EXPRESSION(ast_array_literal_new(yypos));
     }
     '['
     expression<first>
     {
-        ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
+        ast_array_literal_add_value(AST_ARRAY_LITERAL((*n).expression),
                                     first.expression);
     } 
     (',' expression<nth>
     {
-        ast_array_literal_add_value(XDP_AST_ARRAY_LITERAL((*n).expression),
+        ast_array_literal_add_value(AST_ARRAY_LITERAL((*n).expression),
                                     nth.expression);
     }   
     )* 

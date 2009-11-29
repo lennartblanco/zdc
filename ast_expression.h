@@ -7,22 +7,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_EXPRESSION ast_expression_get_type()
+#define AST_TYPE_EXPRESSION ast_expression_get_type()
 
-#define XDP_AST_EXPRESSION(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_EXPRESSION, AstExpression))
+#define AST_EXPRESSION(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_EXPRESSION, AstExpression))
 
-#define XDP_AST_EXPRESSION_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_EXPRESSION, AstExpressionClass))
+#define AST_EXPRESSION_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_EXPRESSION, AstExpressionClass))
 
-#define XDP_IS_AST_EXPRESSION(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_EXPRESSION))
+#define AST_IS_EXPRESSION(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_EXPRESSION))
 
-#define XDP_IS_AST_EXPRESSION_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_EXPRESSION))
+#define AST_IS_EXPRESSION_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_EXPRESSION))
 
-#define XDP_AST_EXPRESSION_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_EXPRESSION, AstExpressionClass))
+#define AST_EXPRESSION_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_EXPRESSION, AstExpressionClass))
 
 typedef struct
 {

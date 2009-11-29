@@ -34,7 +34,7 @@ ast_array_literal_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_CONSTANT,
+      type = g_type_register_static(AST_TYPE_CONSTANT,
                                     "AstArrayLiteralType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_array_literal_new(guint line_number)
 {
     AstArrayLiteral *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_ARRAY_LITERAL,
+    obj = g_object_new(AST_TYPE_ARRAY_LITERAL,
                        "ast-node-line-number", line_number,
                        NULL);
     obj->values = NULL;
@@ -57,8 +57,8 @@ ast_array_literal_new(guint line_number)
 void
 ast_array_literal_add_value(AstArrayLiteral *self, AstExpression *value)
 {
-    assert(XDP_IS_AST_ARRAY_LITERAL(self));
-    assert(XDP_IS_AST_EXPRESSION(value));
+    assert(AST_IS_ARRAY_LITERAL(self));
+    assert(AST_IS_EXPRESSION(value));
 
     self->values = g_slist_append(self->values, value);
 }
@@ -66,7 +66,7 @@ ast_array_literal_add_value(AstArrayLiteral *self, AstExpression *value)
 GSList *
 ast_array_literal_get_values(AstArrayLiteral *self)
 {
-    assert(XDP_IS_AST_ARRAY_LITERAL(self));
+    assert(AST_IS_ARRAY_LITERAL(self));
 
     return self->values;
 }
@@ -78,14 +78,14 @@ ast_array_literal_get_values(AstArrayLiteral *self)
 static void
 ast_array_literal_do_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_ARRAY_LITERAL(self));
+    assert(AST_IS_ARRAY_LITERAL(self));
     assert(out);
 
     fprintf(out, "[");
-    GSList *p = XDP_AST_ARRAY_LITERAL(self)->values;
+    GSList *p = AST_ARRAY_LITERAL(self)->values;
     for (; p != NULL; p = g_slist_next(p))
     {
-        ast_node_print(XDP_AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out);
         if (g_slist_next(p) != NULL)
         {
             fprintf(out, ",");

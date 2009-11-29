@@ -34,7 +34,7 @@ ast_int_constant_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_CONSTANT,
+      type = g_type_register_static(AST_TYPE_CONSTANT,
                                     "AstIntConstantType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_int_constant_new(gint32 value)
 {
     AstIntConstant *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_INT_CONSTANT, NULL);
+    obj = g_object_new(AST_TYPE_INT_CONSTANT, NULL);
     obj->value = value;
 
     return obj;
@@ -55,7 +55,7 @@ ast_int_constant_new(gint32 value)
 gint32
 ast_int_constant_get_value(AstIntConstant *self)
 {
-    assert(XDP_IS_AST_INT_CONSTANT(self));
+    assert(AST_IS_INT_CONSTANT(self));
 
     return self->value;
 }
@@ -67,9 +67,9 @@ ast_int_constant_get_value(AstIntConstant *self)
 static void
 ast_int_constant_do_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_INT_CONSTANT(self));
+    assert(AST_IS_INT_CONSTANT(self));
     assert(out);
-    fprintf(out, "%d", XDP_AST_INT_CONSTANT(self)->value);
+    fprintf(out, "%d", AST_INT_CONSTANT(self)->value);
 }
 
 static void

@@ -56,7 +56,7 @@ compile_file(const char* input_file,
     yyparse();
     if (options.print_ast)
     {
-        ast_node_print(XDP_AST_NODE(compile_unit), stdout);
+        ast_node_print(AST_NODE(compile_unit), stdout);
     }
 
     ir_compile_unit = semantic_analyze(input_file, compile_unit);

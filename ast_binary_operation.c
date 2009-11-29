@@ -36,7 +36,7 @@ ast_binary_operation_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+      type = g_type_register_static(AST_TYPE_EXPRESSION,
                                     "AstBinaryOperationType",
                                     &info, 0);
     }
@@ -51,7 +51,7 @@ ast_binary_operation_new(ast_binary_op_type_t operation,
 {
     AstBinaryOperation *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_BINARY_OPERATION,
+    obj = g_object_new(AST_TYPE_BINARY_OPERATION,
                        "ast-node-line-number", line_number,
                        NULL);
     obj->operation = operation;
@@ -64,8 +64,7 @@ ast_binary_operation_new(ast_binary_op_type_t operation,
 ast_binary_op_type_t
 ast_binary_operation_get_operation(AstBinaryOperation *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_BINARY_OPERATION(self));
+    assert(AST_IS_BINARY_OPERATION(self));
 
     return self->operation;
 }
@@ -73,8 +72,7 @@ ast_binary_operation_get_operation(AstBinaryOperation *self)
 AstExpression *
 ast_binary_operation_get_left(AstBinaryOperation *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_BINARY_OPERATION(self));
+    assert(AST_IS_BINARY_OPERATION(self));
 
     return self->left;
 }
@@ -82,8 +80,7 @@ ast_binary_operation_get_left(AstBinaryOperation *self)
 AstExpression *
 ast_binary_operation_get_right(AstBinaryOperation *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_BINARY_OPERATION(self));
+    assert(AST_IS_BINARY_OPERATION(self));
 
     return self->right;
 }
@@ -95,13 +92,13 @@ ast_binary_operation_get_right(AstBinaryOperation *self)
 static void
 ast_binary_operation_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_BINARY_OPERATION(self));
     assert(out);
 
     AstBinaryOperation *bin_op = (AstBinaryOperation *)self;
 
     char *str;
-    ast_node_print(XDP_AST_NODE(bin_op->left), out);
+    ast_node_print(AST_NODE(bin_op->left), out);
     switch (bin_op->operation)
     {
         case ast_less_op:           /*  <  */
@@ -146,7 +143,7 @@ ast_binary_operation_do_print(AstNode *self, FILE *out)
             break;
     }
     fprintf(out, " %s ", str);
-    ast_node_print(XDP_AST_NODE(bin_op->right), out);
+    ast_node_print(AST_NODE(bin_op->right), out);
 }
 
 static void

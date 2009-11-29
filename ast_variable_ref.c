@@ -10,7 +10,7 @@
 
 enum
 {
-    XDP_AST_VARIABLE_REF_NAME = 1
+    AST_VARIABLE_REF_NAME = 1
 };
 
 /*---------------------------------------------------------------------------*
@@ -57,7 +57,7 @@ ast_variable_ref_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+      type = g_type_register_static(AST_TYPE_EXPRESSION,
                                     "AstVariableRefType",
                                     &info, 0);
     }
@@ -110,7 +110,7 @@ ast_variable_ref_class_init(gpointer klass, gpointer foo)
                                 G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
     g_object_class_install_property(gobject_class,
-                                    XDP_AST_VARIABLE_REF_NAME,
+                                    AST_VARIABLE_REF_NAME,
                                     pspec);
 
     /* override 'print()' method */
@@ -125,7 +125,7 @@ ast_variable_ref_set_property(GObject *object,
                               GParamSpec *pspec)
 {
     /* we only have one property */
-    assert(property_id == XDP_AST_VARIABLE_REF_NAME);
+    assert(property_id == AST_VARIABLE_REF_NAME);
     AstVariableRef *varref = AST_VARIABLE_REF(object);
 
     varref->name = g_value_dup_string(value);    

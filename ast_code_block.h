@@ -7,22 +7,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_CODE_BLOCK ast_code_block_get_type()
+#define AST_TYPE_CODE_BLOCK ast_code_block_get_type()
 
-#define XDP_AST_CODE_BLOCK(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_CODE_BLOCK, AstCodeBlock))
+#define AST_CODE_BLOCK(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_CODE_BLOCK, AstCodeBlock))
 
-#define XDP_AST_CODE_BLOCK_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_CODE_BLOCK, AstCodeBlockClass))
+#define AST_CODE_BLOCK_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_CODE_BLOCK, AstCodeBlockClass))
 
-#define XDP_IS_AST_CODE_BLOCK(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_CODE_BLOCK))
+#define AST_IS_CODE_BLOCK(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_CODE_BLOCK))
 
-#define XDP_IS_AST_CODE_BLOCK_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_CODE_BLOCK))
+#define AST_IS_CODE_BLOCK_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_CODE_BLOCK))
 
-#define XDP_AST_CODE_BLOCK_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_CODE_BLOCK, AstCodeBlockClass))
+#define AST_CODE_BLOCK_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_CODE_BLOCK, AstCodeBlockClass))
 
 typedef struct
 {

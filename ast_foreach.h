@@ -10,22 +10,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_FOREACH ast_foreach_get_type()
+#define AST_TYPE_FOREACH ast_foreach_get_type()
 
-#define XDP_AST_FOREACH(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_FOREACH, AstForeach))
+#define AST_FOREACH(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_FOREACH, AstForeach))
 
-#define XDP_AST_FOREACH_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_FOREACH, AstForeachClass))
+#define AST_FOREACH_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_FOREACH, AstForeachClass))
 
-#define XDP_IS_AST_FOREACH(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_FOREACH))
+#define AST_IS_FOREACH(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_FOREACH))
 
-#define XDP_IS_AST_FOREACH_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_FOREACH))
+#define AST_IS_FOREACH_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_FOREACH))
 
-#define XDP_AST_FOREACH_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_FOREACH, AstForeachClass))
+#define AST_FOREACH_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_FOREACH, AstForeachClass))
 
 typedef struct
 {

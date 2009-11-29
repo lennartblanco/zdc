@@ -8,22 +8,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_IF_ELSE ast_if_else_get_type()
+#define AST_TYPE_IF_ELSE ast_if_else_get_type()
 
-#define XDP_AST_IF_ELSE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_IF_ELSE, AstIfElse))
+#define AST_IF_ELSE(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_IF_ELSE, AstIfElse))
 
-#define XDP_AST_IF_ELSE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_IF_ELSE, AstIfElseClass))
+#define AST_IF_ELSE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_IF_ELSE, AstIfElseClass))
 
-#define XDP_IS_AST_IF_ELSE(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_IF_ELSE))
+#define AST_IS_IF_ELSE(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_IF_ELSE))
 
-#define XDP_IS_AST_IF_ELSE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_IF_ELSE))
+#define AST_IS_IF_ELSE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_IF_ELSE))
 
-#define XDP_AST_IF_ELSE_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_FUNCTION, AstIfElseClass))
+#define AST_IF_ELSE_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_IF_ELSE, AstIfElseClass))
 
 typedef struct
 {

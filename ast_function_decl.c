@@ -36,7 +36,7 @@ ast_function_decl_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
+      type = g_type_register_static(AST_TYPE_NODE,
                                     "AstFunctionDeclType",
                                     &info, 0);
     }
@@ -51,7 +51,7 @@ ast_function_decl_new(char *name,
 {
     AstFunctionDecl *func;
 
-    func = g_object_new(XDP_TYPE_AST_FUNCTION_DECL,
+    func = g_object_new(AST_TYPE_FUNCTION_DECL,
                         "ast-node-line-number", line_number,
                         NULL);
     func->name = strdup(name);
@@ -66,7 +66,7 @@ void
 ast_function_decl_set_linkage(AstFunctionDecl *self,
                               char *linkage)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(self));
+    assert(AST_IS_FUNCTION_DECL(self));
 
     self->linkage = linkage;
 }
@@ -74,7 +74,7 @@ ast_function_decl_set_linkage(AstFunctionDecl *self,
 char *
 ast_function_decl_get_linkage(AstFunctionDecl *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(self));
+    assert(AST_IS_FUNCTION_DECL(self));
 
     return self->linkage;
 }
@@ -82,7 +82,7 @@ ast_function_decl_get_linkage(AstFunctionDecl *self)
 char *
 ast_function_decl_get_name(AstFunctionDecl *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(self));
+    assert(AST_IS_FUNCTION_DECL(self));
 
     return self->name;
 }
@@ -90,7 +90,7 @@ ast_function_decl_get_name(AstFunctionDecl *self)
 GSList *
 ast_function_decl_get_parameters(AstFunctionDecl *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(self));
+    assert(AST_IS_FUNCTION_DECL(self));
 
     return self->parameters;
 }
@@ -98,7 +98,7 @@ ast_function_decl_get_parameters(AstFunctionDecl *self)
 DtDataType *
 ast_function_decl_get_return_type(AstFunctionDecl *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(self));
+    assert(AST_IS_FUNCTION_DECL(self));
 
     return self->return_type;
 }
@@ -110,7 +110,7 @@ ast_function_decl_get_return_type(AstFunctionDecl *self)
 static void
 ast_function_decl_do_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(self));
+    assert(AST_IS_FUNCTION_DECL(self));
     assert(out);
 
     AstFunctionDecl *func = (AstFunctionDecl *)self;
@@ -125,7 +125,7 @@ ast_function_decl_do_print(AstNode *self, FILE *out)
     GSList *p = func->parameters;
     while(p != NULL)
     {
-        ast_node_print(XDP_AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out);
         if (p->next != NULL)
         {
             fprintf(out, ", ");

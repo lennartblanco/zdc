@@ -14,7 +14,7 @@
 #define AST_WHILE(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_WHILE, AstWhile))
 
-#define XDP_AST_WHILE_CLASS(klass) \
+#define AST_WHILE_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_WHILE, AstWhileClass))
 
 #define AST_IS_WHILE(obj) \

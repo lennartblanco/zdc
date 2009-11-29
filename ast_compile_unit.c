@@ -34,7 +34,7 @@ ast_compile_unit_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
+      type = g_type_register_static(AST_TYPE_NODE,
                                     "AstCompileUnitType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_compile_unit_new(void)
 {
     AstCompileUnit *node;
 
-    node = g_object_new(XDP_TYPE_AST_COMPILE_UNIT, NULL);
+    node = g_object_new(AST_TYPE_COMPILE_UNIT, NULL);
     node->function_defs = NULL;
     node->function_decls = NULL;
 
@@ -57,8 +57,8 @@ void
 ast_compile_unit_add_function_decl(AstCompileUnit *self,
                                    AstFunctionDecl *function_decl)
 {
-    assert(XDP_IS_AST_COMPILE_UNIT(self));
-    assert(XDP_IS_AST_FUNCTION_DECL(function_decl));
+    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_FUNCTION_DECL(function_decl));
 
     self->function_decls = g_slist_append(self->function_decls, function_decl);
 }
@@ -67,8 +67,8 @@ void
 ast_compile_unit_add_function_def(AstCompileUnit *self,
                                   AstFunctionDef *function_def)
 {
-    assert(XDP_IS_AST_COMPILE_UNIT(self));
-    assert(XDP_IS_AST_FUNCTION_DEF(function_def));
+    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_FUNCTION_DEF(function_def));
 
     self->function_defs = g_slist_append(self->function_defs, function_def);
 }
@@ -76,7 +76,7 @@ ast_compile_unit_add_function_def(AstCompileUnit *self,
 GSList *
 ast_compile_unit_get_function_decls(AstCompileUnit *self)
 {
-    assert(XDP_IS_AST_COMPILE_UNIT(self));
+    assert(AST_IS_COMPILE_UNIT(self));
 
     return self->function_decls;
 }
@@ -84,7 +84,7 @@ ast_compile_unit_get_function_decls(AstCompileUnit *self)
 GSList *
 ast_compile_unit_get_function_defs(AstCompileUnit *self)
 {
-    assert(XDP_IS_AST_COMPILE_UNIT(self));
+    assert(AST_IS_COMPILE_UNIT(self));
 
     return self->function_defs;
 }
@@ -96,7 +96,8 @@ ast_compile_unit_get_function_defs(AstCompileUnit *self)
 static void
 ast_compile_unit_do_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_COMPILE_UNIT(self));
+    assert(AST_IS_COMPILE_UNIT(self));
+    assert(out);
 
     AstCompileUnit *comp_unit = (AstCompileUnit *)self;
     GSList *i;
@@ -105,12 +106,12 @@ ast_compile_unit_do_print(AstNode *self, FILE *out)
 
     for (i = comp_unit->function_defs; i != NULL; i = g_slist_next(i))
     {
-        ast_node_print(XDP_AST_NODE(i->data), out);
+        ast_node_print(AST_NODE(i->data), out);
     }
 
     for (i = comp_unit->function_decls; i != NULL; i = g_slist_next(i))
     {
-        ast_node_print(XDP_AST_NODE(i->data), out);
+        ast_node_print(AST_NODE(i->data), out);
     }
 }
 

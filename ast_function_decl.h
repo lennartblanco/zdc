@@ -13,22 +13,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_FUNCTION_DECL ast_function_decl_get_type()
+#define AST_TYPE_FUNCTION_DECL ast_function_decl_get_type()
 
-#define XDP_AST_FUNCTION_DECL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_FUNCTION_DECL, AstFunctionDecl))
+#define AST_FUNCTION_DECL(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_FUNCTION_DECL, AstFunctionDecl))
 
-#define XDP_AST_FUNCTION_DECL_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_FUNCTION_DECL, AstFunctionDeclClass))
+#define AST_FUNCTION_DECL_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_FUNCTION_DECL, AstFunctionDeclClass))
 
-#define XDP_IS_AST_FUNCTION_DECL(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_FUNCTION_DECL))
+#define AST_IS_FUNCTION_DECL(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_FUNCTION_DECL))
 
-#define XDP_IS_AST_FUNCTION_DECL_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_FUNCTION_DECL))
+#define AST_IS_FUNCTION_DECL_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_FUNCTION_DECL))
 
-#define XDP_AST_FUNCTION_DECL_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_FUNCTION_DECL, AstFunctionDeclClass))
+#define AST_FUNCTION_DECL_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_FUNCTION_DECL, AstFunctionDeclClass))
 
 typedef struct
 {

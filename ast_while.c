@@ -35,7 +35,7 @@ ast_while_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstWhileType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ AstWhile *
 ast_while_new(AstExpression *loop_condition,
               AstCodeBlock *body)
 {
-    assert(XDP_IS_AST_EXPRESSION(loop_condition));
+    assert(AST_IS_EXPRESSION(loop_condition));
 
     AstWhile *obj;
 
@@ -88,9 +88,9 @@ ast_while_do_print(AstNode *self, FILE *out)
     AstWhile *while_loop = AST_WHILE(self);
 
     fprintf(out, "  while ( ");
-    ast_node_print(XDP_AST_NODE(while_loop->loop_condition), out);
+    ast_node_print(AST_NODE(while_loop->loop_condition), out);
     fprintf(out, " )\n");
-    ast_node_print(XDP_AST_NODE(while_loop->body), out);
+    ast_node_print(AST_NODE(while_loop->body), out);
 }
 
 static void

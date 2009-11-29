@@ -34,7 +34,7 @@ ast_return_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstReturnType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_return_new(AstExpression *return_value)
 { 
     AstReturn *ret;
 
-    ret = g_object_new(XDP_TYPE_AST_RETURN, NULL);
+    ret = g_object_new(AST_TYPE_RETURN, NULL);
     ret->return_value = return_value;
 
     return ret;
@@ -55,8 +55,7 @@ ast_return_new(AstExpression *return_value)
 AstExpression *
 ast_return_get_return_value(AstReturn *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_RETURN(self));
+    assert(AST_IS_RETURN(self));
 
     return self->return_value;
 }
@@ -68,14 +67,14 @@ ast_return_get_return_value(AstReturn *self)
 static void
 ast_return_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_RETURN(self));
     assert(out);
-    assert(XDP_IS_AST_RETURN(self));
+
     fprintf(out, "  return ");
     AstReturn *ret = (AstReturn *)self;
     if (ret->return_value != NULL)
     {
-        ast_node_print(XDP_AST_NODE(ret->return_value), out);
+        ast_node_print(AST_NODE(ret->return_value), out);
     }
     fprintf(out, "\n");
 }

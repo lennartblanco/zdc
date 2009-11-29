@@ -10,7 +10,7 @@
 
 enum
 {
-    XDP_AST_NDDE_LINE_NUMBER = 1
+    AST_NDDE_LINE_NUMBER = 1
 };
 
 
@@ -70,7 +70,7 @@ ast_node_new(void)
 {
     AstNode *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_NODE, NULL);
+    obj = g_object_new(AST_TYPE_NODE, NULL);
 
     return obj;
 }
@@ -78,18 +78,17 @@ ast_node_new(void)
 guint
 ast_node_get_line_num(void *self)
 {
-    assert(XDP_IS_AST_NODE(self));
+    assert(AST_IS_NODE(self));
 
-    return (XDP_AST_NODE(self)->line_number);
+    return (AST_NODE(self)->line_number);
 }
 
 void
 ast_node_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_NODE(self));
-    assert(out);
+    assert(AST_IS_NODE(self));
 
-    XDP_AST_NODE_GET_CLASS(self)->do_print(self, out);
+    AST_NODE_GET_CLASS(self)->do_print(self, out);
 }
 
 /*---------------------------------------------------------------------------*
@@ -100,6 +99,8 @@ ast_node_print(AstNode *self, FILE *out)
 static void
 ast_node_do_print(AstNode *self, FILE *out)
 {
+    assert(AST_IS_NODE(self));
+
     fprintf(out, "Some AST node [%p]\n", self);
 }
 
@@ -127,7 +128,7 @@ ast_node_class_init(gpointer klass, gpointer foo)
                               G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
     g_object_class_install_property(gobject_class,
-                                    XDP_AST_NDDE_LINE_NUMBER,
+                                    AST_NDDE_LINE_NUMBER,
                                     pspec);
 
 
@@ -141,10 +142,11 @@ ast_node_set_property(GObject *object,
                       const GValue *value,
                       GParamSpec *pspec)
 {
-    assert(XDP_IS_AST_NODE(object));
+    assert(AST_IS_NODE(object));
+
     /* we only have one property */
-    assert(property_id == XDP_AST_NDDE_LINE_NUMBER);
-    AstNode *node = XDP_AST_NODE(object);
+    assert(property_id == AST_NDDE_LINE_NUMBER);
+    AstNode *node = AST_NODE(object);
 
     node->line_number = g_value_get_uint(value);
 }

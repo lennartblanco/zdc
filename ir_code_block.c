@@ -2,8 +2,6 @@
 
 #include "ir_code_block.h"
 #include "ir_statment.h"
-#include "ast_node.h"
-#include "ast_statment.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -68,14 +66,10 @@ ir_code_block_get_symbols(IrCodeBlock *self)
 }
 
 void
-ir_code_block_add_statment(IrCodeBlock *self, void *statment)
+ir_code_block_add_statment(IrCodeBlock *self, IrStatment *statment)
 {
-    assert(self);
     assert(IR_IS_CODE_BLOCK(self));
-    assert(statment);
-    assert(IR_IS_STATMENT(statment) || 
-           XDP_IS_AST_STATMENT(statment) ||
-           IR_IS_CODE_BLOCK(statment));
+    assert(IR_IS_STATMENT(statment));
 
     self->statments = g_slist_append(self->statments, statment);
 }

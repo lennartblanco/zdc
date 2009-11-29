@@ -161,7 +161,7 @@ sem_analyze_ast_if_else_to_ir(compilation_status_t *compile_status,
         IrIfBlock *ifblock =
                sem_analyze_ast_if_block_to_ir(compile_status,
                                               parent_block,
-                                              XDP_AST_IF_BLOCK(i->data));
+                                              AST_IF_BLOCK(i->data));
         ir_if_else_add_if_else_block(ifelse, ifblock);
     }
 
@@ -294,7 +294,7 @@ sem_analyze_ast_assigment_to_ir(compilation_status_t *compile_status,
     ir_target =
         sem_analyze_ast_expression_to_ir(compile_status,
                                          symbols,
-                                         XDP_AST_EXPRESSION(target));
+                                         AST_EXPRESSION(target));
     assert(IR_IS_LVALUE(ir_target));
 
     ir_value =
@@ -405,7 +405,7 @@ sem_analyze_ast_func_call_to_ir(compilation_status_t *compile_status,
         arg = 
             sem_analyze_ast_expression_to_ir(compile_status,
                                              symbols,
-                                             XDP_AST_EXPRESSION(i->data));
+                                             AST_EXPRESSION(i->data));
         ir_call_args = g_slist_prepend(ir_call_args, arg);
     }
     ir_call_args = g_slist_reverse(ir_call_args);
@@ -453,29 +453,29 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
     assert(symbols);
     assert(ast_expression);
 
-    if (XDP_IS_AST_INT_CONSTANT(ast_expression))
+    if (AST_IS_INT_CONSTANT(ast_expression))
     {
         gint32 val;
 
-        val = ast_int_constant_get_value(XDP_AST_INT_CONSTANT(ast_expression));
+        val = ast_int_constant_get_value(AST_INT_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_int_constant_new(val));
     }
-    else if (XDP_IS_AST_UINT_CONSTANT(ast_expression))
+    else if (AST_IS_UINT_CONSTANT(ast_expression))
     {
         guint32 val;
 
-        val = ast_uint_constant_get_value(XDP_AST_UINT_CONSTANT(ast_expression));
+        val = ast_uint_constant_get_value(AST_UINT_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_uint_constant_new(val));
     }
-    else if (XDP_IS_AST_BOOL_CONSTANT(ast_expression))
+    else if (AST_IS_BOOL_CONSTANT(ast_expression))
     {
         gboolean val;
 
         val = 
-            ast_bool_constant_get_value(XDP_AST_BOOL_CONSTANT(ast_expression));
+            ast_bool_constant_get_value(AST_BOOL_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_bool_constant_new(val));
     }
-    else if (XDP_IS_AST_ARRAY_SLICE_REF(ast_expression))
+    else if (AST_IS_ARRAY_SLICE_REF(ast_expression))
     {
         AstArraySliceRef *array_slice;
         char *name;
@@ -485,7 +485,7 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         IrExpression *ir_end_idx = NULL;
         guint line_numer = ast_node_get_line_num(ast_expression);
 
-        array_slice = XDP_AST_ARRAY_SLICE_REF(ast_expression);
+        array_slice = AST_ARRAY_SLICE_REF(ast_expression);
         name = ast_array_slice_ref_get_name(array_slice);
 
         /* convert start expression, if any, to IR-form */
@@ -522,7 +522,7 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         var_ref = AST_VARIABLE_REF(ast_expression);
         var_name = ast_variable_ref_get_name(var_ref);
 
-        if (XDP_IS_AST_ARRAY_CELL_REF(var_ref))
+        if (AST_IS_ARRAY_CELL_REF(var_ref))
         {
             AstArrayCellRef *array_cell_ref;
             AstExpression *ast_index_exp;
@@ -531,7 +531,7 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
             /*
              * convert array index expression to IR form
              */
-            array_cell_ref = XDP_AST_ARRAY_CELL_REF(var_ref);
+            array_cell_ref = AST_ARRAY_CELL_REF(var_ref);
             ast_index_exp = ast_array_cell_ref_get_index(array_cell_ref);
             ir_index_exp = 
                 sem_analyze_ast_expression_to_ir(compile_status,
@@ -553,38 +553,38 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
 
         return ir_expression;
     }
-    else if (XDP_IS_AST_UNARY_OPERATION(ast_expression))
+    else if (AST_IS_UNARY_OPERATION(ast_expression))
     {
         AstUnaryOperation *op;
 
-        op = XDP_AST_UNARY_OPERATION(ast_expression);
+        op = AST_UNARY_OPERATION(ast_expression);
 
         return sem_analyze_ast_unary_op_to_ir(compile_status, 
                                               symbols, op);
     }
-    else if (XDP_IS_AST_BINARY_OPERATION(ast_expression))
+    else if (AST_IS_BINARY_OPERATION(ast_expression))
     {
         AstBinaryOperation *bin_op;
 
-        bin_op = XDP_AST_BINARY_OPERATION(ast_expression);
+        bin_op = AST_BINARY_OPERATION(ast_expression);
 
         return sem_analyze_ast_binary_op_to_ir(compile_status, 
                                                symbols, bin_op);
     }
-    else if (XDP_IS_AST_FUNCTION_CALL(ast_expression))
+    else if (AST_IS_FUNCTION_CALL(ast_expression))
     {
         AstFunctionCall *func_call;
 
-        func_call = XDP_AST_FUNCTION_CALL(ast_expression);
+        func_call = AST_FUNCTION_CALL(ast_expression);
         return sem_analyze_ast_func_call_to_ir(compile_status,
                                                symbols,
                                                func_call);
     }
-    else if (XDP_IS_AST_ARRAY_LITERAL(ast_expression))
+    else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {
         AstArrayLiteral *arry_literal;
 
-        arry_literal = XDP_AST_ARRAY_LITERAL(ast_expression);
+        arry_literal = AST_ARRAY_LITERAL(ast_expression);
         return sem_analyze_ast_array_literal_to_ir(compile_status,
                                                    symbols,
                                                    arry_literal);
@@ -655,7 +655,7 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
     for (; i != NULL; i = g_slist_next(i))
     {
         IrStatment *ir_stmt = NULL;
-        AstStatment *stmt = XDP_AST_STATMENT(i->data);
+        AstStatment *stmt = AST_STATMENT(i->data);
 
         /* variable declaration found */
         if (AST_IS_VARIABLE_DEFINITION(stmt))
@@ -671,22 +671,22 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
             continue;
         }
         /* sub-code block found */
-        else if (XDP_IS_AST_CODE_BLOCK(stmt))
+        else if (AST_IS_CODE_BLOCK(stmt))
         {
             IrCodeBlock *sub_block =
                 ir_code_block_new(symbols);
 
             sem_analyze_ast_code_block_to_ir(compile_status,
-                                             XDP_AST_CODE_BLOCK(stmt),
+                                             AST_CODE_BLOCK(stmt),
                                              sub_block);
             ir_stmt = IR_STATMENT(sub_block);
         }
-        else if (XDP_IS_AST_IF_ELSE(stmt))
+        else if (AST_IS_IF_ELSE(stmt))
         {
             ir_stmt =
                 sem_analyze_ast_if_else_to_ir(compile_status,
                                               ir_code_block,
-                                              XDP_AST_IF_ELSE(stmt));
+                                              AST_IF_ELSE(stmt));
         }
         else if (AST_IS_WHILE(stmt))
         {
@@ -695,42 +695,42 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
                                             symbols,
                                             AST_WHILE(stmt));
         }
-        else if (XDP_IS_AST_FOREACH(stmt))
+        else if (AST_IS_FOREACH(stmt))
         {
             ir_stmt =
                 sem_analyze_ast_foreach_to_ir(compile_status,
                                               symbols,
-                                              XDP_AST_FOREACH(stmt));
+                                              AST_FOREACH(stmt));
         }
-        else if (XDP_IS_AST_RETURN(stmt))
+        else if (AST_IS_RETURN(stmt))
         {
             ir_stmt =
                 sem_analyze_ast_return_to_ir(compile_status,
                                              symbols,
-                                             XDP_AST_RETURN(stmt));
+                                             AST_RETURN(stmt));
         }
-        else if (XDP_IS_AST_FUNCTION_CALL(stmt))
+        else if (AST_IS_FUNCTION_CALL(stmt))
         {
             ir_stmt =
                 IR_STATMENT(
                   sem_analyze_ast_func_call_to_ir(compile_status,
                                                   symbols,
-                                                  XDP_AST_FUNCTION_CALL(stmt)));
+                                                  AST_FUNCTION_CALL(stmt)));
         }
-        else if (XDP_IS_AST_ASSIGMENT(stmt))
+        else if (AST_IS_ASSIGMENT(stmt))
         {
             ir_stmt =
                 sem_analyze_ast_assigment_to_ir(compile_status,
                                                 symbols,
-                                                XDP_AST_ASSIGMENT(stmt));
+                                                AST_ASSIGMENT(stmt));
         }
-        else if (XDP_IS_AST_EXPRESSION(stmt))
+        else if (AST_IS_EXPRESSION(stmt))
         {
             ir_stmt =
                 IR_STATMENT(
                   sem_analyze_ast_expression_to_ir(compile_status,
                                                    symbols,
-                                                   XDP_AST_EXPRESSION(stmt)));
+                                                   AST_EXPRESSION(stmt)));
         }
         else
         {
@@ -751,7 +751,7 @@ sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
 static IrFunctionDecl *
 sem_analyze_ast_func_decl_to_ir(AstFunctionDecl *ast_func_decl)
 {
-    assert(XDP_IS_AST_FUNCTION_DECL(ast_func_decl));
+    assert(AST_IS_FUNCTION_DECL(ast_func_decl));
 
     IrFunctionDecl *func_decl;
     char *linkage_type_name;
@@ -850,7 +850,7 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
         IrFunctionDecl *ir_func_decl;
 
         ir_func_decl =
-            sem_analyze_ast_func_decl_to_ir(XDP_AST_FUNCTION_DECL(i->data));
+            sem_analyze_ast_func_decl_to_ir(AST_FUNCTION_DECL(i->data));
         if (!ir_compile_unit_add_function_decl(comp_unit, ir_func_decl))
         {
             compile_error(compile_status,
@@ -871,7 +871,7 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
 
         ir_func_def =
             sem_analyze_ast_func_def_to_ir(compile_status,
-                                           XDP_AST_FUNCTION_DEF(i->data),
+                                           AST_FUNCTION_DEF(i->data),
                                            global_sym_table);
         if (!ir_compile_unit_add_function_def(comp_unit, ir_func_def))
         {

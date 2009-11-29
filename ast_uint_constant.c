@@ -34,7 +34,7 @@ ast_uint_constant_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_CONSTANT,
+      type = g_type_register_static(AST_TYPE_CONSTANT,
                                     "AstUintConstantType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_uint_constant_new(guint32 value)
 {
     AstUintConstant *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_UINT_CONSTANT, NULL);
+    obj = g_object_new(AST_TYPE_UINT_CONSTANT, NULL);
     obj->value = value;
 
     return obj;
@@ -55,7 +55,7 @@ ast_uint_constant_new(guint32 value)
 guint32
 ast_uint_constant_get_value(AstUintConstant *self)
 {
-    assert(XDP_IS_AST_UINT_CONSTANT(self));
+    assert(AST_IS_UINT_CONSTANT(self));
 
     return self->value;
 }
@@ -67,9 +67,9 @@ ast_uint_constant_get_value(AstUintConstant *self)
 static void
 ast_uint_constant_do_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_UINT_CONSTANT(self));
+    assert(AST_IS_UINT_CONSTANT(self));
     assert(out);
-    fprintf(out, "%u", XDP_AST_UINT_CONSTANT(self)->value);
+    fprintf(out, "%u", AST_UINT_CONSTANT(self)->value);
 }
 
 static void

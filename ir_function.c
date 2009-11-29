@@ -1,7 +1,6 @@
 #include <stdbool.h>
 
 #include "ir_function.h"
-#include "ast_node.h"
 
 #include <assert.h>
 
@@ -156,7 +155,7 @@ ir_function_do_print(IrSymbol *self, FILE *out, int indention)
       GSList *i = func->parameters;
       for (;i != NULL; i = g_slist_next(i))
       {
-          ast_node_print(XDP_AST_NODE(i->data), out);
+          ir_symbol_print(IR_SYMBOL(i->data), out, 0);
           fprintf(out, "%s", g_slist_next(i) != NULL ? ", " : "\n");
       }
     }

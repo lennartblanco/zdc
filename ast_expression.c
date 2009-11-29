@@ -18,7 +18,7 @@ ast_expression_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstExpressionType",
                                     &info, 0);
     }

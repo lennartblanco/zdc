@@ -34,7 +34,7 @@ ast_assigment_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstAssigmentType",
                                     &info, 0);
     }
@@ -48,7 +48,7 @@ ast_assigment_new(AstVariableRef *target,
 {
     AstAssigment *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_ASSIGMENT,
+    obj = g_object_new(AST_TYPE_ASSIGMENT,
                        "ast-node-line-number", line_number,
                        NULL);
     obj->target = target;
@@ -60,8 +60,7 @@ ast_assigment_new(AstVariableRef *target,
 AstVariableRef *
 ast_assigment_get_target(AstAssigment *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_ASSIGMENT(self));
+    assert(AST_IS_ASSIGMENT(self));
 
     return self->target;
 }
@@ -69,8 +68,7 @@ ast_assigment_get_target(AstAssigment *self)
 AstExpression *
 ast_assigment_get_value(AstAssigment *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_ASSIGMENT(self));
+    assert(AST_IS_ASSIGMENT(self));
 
     return self->value;
 }
@@ -84,16 +82,15 @@ ast_assigment_get_value(AstAssigment *self)
 static void
 ast_assigment_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(XDP_IS_AST_ASSIGMENT(self));
+    assert(AST_IS_ASSIGMENT(self));
     assert(out);
 
     AstAssigment *obj = (AstAssigment *)self;
 
     fprintf(out, "  ");
-    ast_node_print(XDP_AST_NODE(obj->target), out);
+    ast_node_print(AST_NODE(obj->target), out);
     fprintf(out, " = ");
-    ast_node_print(XDP_AST_NODE(obj->value), out);
+    ast_node_print(AST_NODE(obj->value), out);
     fprintf(out, "\n");
 }
 

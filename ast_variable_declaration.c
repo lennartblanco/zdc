@@ -36,7 +36,7 @@ ast_variable_declaration_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
+      type = g_type_register_static(AST_TYPE_NODE,
                                     "AstVariableDeclarationType",
                                     &info, 0);
     }

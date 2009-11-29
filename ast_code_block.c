@@ -34,7 +34,7 @@ ast_code_block_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstCodeBlockType",
                                     &info, 0);
     }
@@ -46,7 +46,7 @@ ast_code_block_new()
 {
     AstCodeBlock *code_block;
 
-    code_block = g_object_new(XDP_TYPE_AST_CODE_BLOCK, NULL);
+    code_block = g_object_new(AST_TYPE_CODE_BLOCK, NULL);
     code_block->statments = NULL;
 
     return code_block;
@@ -55,8 +55,8 @@ ast_code_block_new()
 void
 ast_code_block_add_statment(AstCodeBlock *self, AstStatment *statment)
 {
-    assert(XDP_IS_AST_CODE_BLOCK(self));
-    assert(XDP_IS_AST_STATMENT(statment));
+    assert(AST_IS_CODE_BLOCK(self));
+    assert(AST_IS_STATMENT(statment));
 
     self->statments = g_slist_append(self->statments, statment);
 }
@@ -64,8 +64,7 @@ ast_code_block_add_statment(AstCodeBlock *self, AstStatment *statment)
 GSList *
 ast_code_block_get_statments(AstCodeBlock *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_CODE_BLOCK(self));
+    assert(AST_IS_CODE_BLOCK(self));
 
     return self->statments;
 }
@@ -78,14 +77,14 @@ ast_code_block_get_statments(AstCodeBlock *self)
 static void
 ast_code_block_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
+    assert(AST_IS_CODE_BLOCK(self));
     assert(out);
-    assert(XDP_IS_AST_CODE_BLOCK(self));
+
     GSList *p = ((AstCodeBlock *)self)->statments;
     fprintf(out, "{\n");
     while (p != NULL)
     {
-        ast_node_print(XDP_AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out);
         p = p->next;
     }
     fprintf(out, "}\n");

@@ -22,7 +22,7 @@ ast_constant_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+      type = g_type_register_static(AST_TYPE_EXPRESSION,
                                     "AstConstantType",
                                     &info, 0);
     }

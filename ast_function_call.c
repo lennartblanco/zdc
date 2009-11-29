@@ -36,7 +36,7 @@ ast_function_call_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_EXPRESSION,
+      type = g_type_register_static(AST_TYPE_EXPRESSION,
                                     "AstFunctionCallType",
                                     &info, 0);
     }
@@ -50,7 +50,7 @@ ast_function_call_new(char *name,
 {
     AstFunctionCall *obj;
 
-    obj = g_object_new(XDP_TYPE_AST_FUNCTION_CALL,
+    obj = g_object_new(AST_TYPE_FUNCTION_CALL,
                        "ast-node-line-number", line_number,
                        NULL);
     obj->name = strdup(name);
@@ -62,8 +62,7 @@ ast_function_call_new(char *name,
 char *
 ast_function_call_get_name(AstFunctionCall *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION_CALL(self));
+    assert(AST_IS_FUNCTION_CALL(self));
 
     return self->name;
 }
@@ -71,8 +70,7 @@ ast_function_call_get_name(AstFunctionCall *self)
 GSList *
 ast_function_call_get_arguments(AstFunctionCall *self)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION_CALL(self));
+    assert(AST_IS_FUNCTION_CALL(self));
 
     return self->arguments;
 }
@@ -84,8 +82,7 @@ ast_function_call_get_arguments(AstFunctionCall *self)
 static void
 ast_function_call_do_print(AstNode *self, FILE *out)
 {
-    assert(self);
-    assert(XDP_IS_AST_FUNCTION_CALL(self));
+    assert(AST_IS_FUNCTION_CALL(self));
     assert(out);
 
     AstFunctionCall *func_call = (AstFunctionCall *)self;
@@ -94,7 +91,7 @@ ast_function_call_do_print(AstNode *self, FILE *out)
     fprintf(out, "%s(", func_call->name);
     while(p != NULL)
     {
-        ast_node_print(XDP_AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out);
         if (p->next != NULL)
         {
             fprintf(out, ", ");

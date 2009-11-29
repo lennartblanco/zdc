@@ -36,7 +36,7 @@ ast_function_def_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_NODE,
+      type = g_type_register_static(AST_TYPE_NODE,
                                     "AstFunctionDefType",
                                     &info, 0);
     }
@@ -52,7 +52,7 @@ ast_function_def_new(char *name,
 {
     AstFunctionDef *func;
 
-    func = g_object_new(XDP_TYPE_AST_FUNCTION_DEF,
+    func = g_object_new(AST_TYPE_FUNCTION_DEF,
                        "ast-node-line-number", line_number,
                         NULL);
     func->name = strdup(name);
@@ -66,7 +66,7 @@ ast_function_def_new(char *name,
 char *
 ast_function_def_get_name(AstFunctionDef *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DEF(self));
+    assert(AST_IS_FUNCTION_DEF(self));
 
     return self->name;
 }
@@ -74,7 +74,7 @@ ast_function_def_get_name(AstFunctionDef *self)
 GSList *
 ast_function_def_get_parameters(AstFunctionDef *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DEF(self));
+    assert(AST_IS_FUNCTION_DEF(self));
 
     return self->parameters;
 }
@@ -82,7 +82,7 @@ ast_function_def_get_parameters(AstFunctionDef *self)
 DtDataType *
 ast_function_def_get_return_type(AstFunctionDef *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DEF(self));
+    assert(AST_IS_FUNCTION_DEF(self));
 
     return self->return_type;
 }
@@ -90,7 +90,7 @@ ast_function_def_get_return_type(AstFunctionDef *self)
 AstCodeBlock *
 ast_function_def_get_body(AstFunctionDef *self)
 {
-    assert(XDP_IS_AST_FUNCTION_DEF(self));
+    assert(AST_IS_FUNCTION_DEF(self));
 
     return self->body;
 }
@@ -103,7 +103,7 @@ ast_function_def_get_body(AstFunctionDef *self)
 static void
 ast_function_def_do_print(AstNode *self, FILE *out)
 {
-    assert(XDP_IS_AST_FUNCTION_DEF(self));
+    assert(AST_IS_FUNCTION_DEF(self));
     assert(out);
 
     AstFunctionDef *func = (AstFunctionDef *)self;
@@ -117,7 +117,7 @@ ast_function_def_do_print(AstNode *self, FILE *out)
     GSList *p = func->parameters;
     while(p != NULL)
     {
-        ast_node_print(XDP_AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out);
         if (p->next != NULL)
         {
             fprintf(out, ", ");
@@ -125,7 +125,7 @@ ast_function_def_do_print(AstNode *self, FILE *out)
         p = p->next;
     }
     fprintf(out, "\n");
-    ast_node_print(XDP_AST_NODE(func->body), out);
+    ast_node_print(AST_NODE(func->body), out);
 }
 
 static void

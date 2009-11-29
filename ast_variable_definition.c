@@ -36,7 +36,7 @@ ast_variable_definition_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(XDP_TYPE_AST_STATMENT,
+      type = g_type_register_static(AST_TYPE_STATMENT,
                                     "AstVariableDefinitionType",
                                     &info, 0);
     }
@@ -104,7 +104,7 @@ ast_variable_definition_do_print(AstNode *self, FILE *out)
     if (obj->initializer != NULL)
     {
         fprintf(out, " = ");
-        ast_node_print(XDP_AST_NODE(obj->initializer), out);
+        ast_node_print(AST_NODE(obj->initializer), out);
     }
     fprintf(out, "\n");
 }

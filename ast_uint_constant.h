@@ -7,22 +7,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define XDP_TYPE_AST_UINT_CONSTANT ast_uint_constant_get_type()
+#define AST_TYPE_UINT_CONSTANT ast_uint_constant_get_type()
 
-#define XDP_AST_UINT_CONSTANT(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), XDP_TYPE_AST_UINT_CONSTANT, AstUintConstant))
+#define AST_UINT_CONSTANT(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_UINT_CONSTANT, AstUintConstant))
 
-#define XDP_AST_UINT_CONSTANT_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), XDP_TYPE_AST_UINT_CONSTANT, AstUintConstantClass))
+#define AST_UINT_CONSTANT_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_UINT_CONSTANT, AstUintConstantClass))
 
-#define XDP_IS_AST_UINT_CONSTANT(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XDP_TYPE_AST_UINT_CONSTANT))
+#define AST_IS_UINT_CONSTANT(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_UINT_CONSTANT))
 
-#define XDP_IS_AST_UINT_CONSTANT_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), XDP_TYPE_AST_UINT_CONSTANT))
+#define AST_IS_UINT_CONSTANT_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_UINT_CONSTANT))
 
-#define XDP_AST_UINT_CONSTANT_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), XDP_TYPE_AST_UINT_CONSTANT, AstUintConstantClass))
+#define AST_UINT_CONSTANT_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_UINT_CONSTANT, AstUintConstantClass))
 
 typedef struct
 {
