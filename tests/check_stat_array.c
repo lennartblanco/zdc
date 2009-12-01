@@ -189,6 +189,18 @@ call_bool_slice_to_slice(bool in)
    return res;
 }
 
+unsigned
+call_uint_slice_to_slice_idx(int in)
+{
+   unsigned res;
+
+   asm ("    call uint_slice_to_slice_idx\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 int
 call_call_sum_stat()
 {
@@ -380,9 +392,21 @@ main()
     check_bool("bool_slice_to_slice(true)",
                call_bool_slice_to_slice(true), true);
 
-    /* bool_slice_to_slice() tests */
     check_bool("bool_slice_to_slice(false)",
                call_bool_slice_to_slice(false), false);
+
+    /* uint_slice_to_slice_idx() tests */
+    check_uint("uint_slice_to_slice_idx(0)",
+               call_uint_slice_to_slice_idx(0), 3 + 1 + 4);
+
+    check_uint("uint_slice_to_slice_idx(1)",
+               call_uint_slice_to_slice_idx(1), 1 + 4 + 1);
+
+    check_uint("uint_slice_to_slice_idx(2)",
+               call_uint_slice_to_slice_idx(2), 4 + 1 + 5);
+
+    check_uint("uint_slice_to_slice_idx(3)",
+               call_uint_slice_to_slice_idx(3), 1 + 5 + 9);
 
     /* call_sum_stat() and sum_stat() test */
     check_int("call_sum_stat()", 

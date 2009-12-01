@@ -148,18 +148,18 @@ bool_slice_to_slice(bool arg)
     return r[0] && r[1] && r[2];
 }
 
-//uint
-//uint_slice_to_slice_idx(int start)
-//{
-//    uint[6] m;
-//    uint[3] r;
+uint
+uint_slice_to_slice_idx(int start)
+{
+    uint[6] m;
+    uint[3] r;
 
-//    m[] = [3, 1, 4, 1, 5, 9];
+    m[] = [3, 1, 4, 1, 5, 9];
 
-//    r[0..3] = m[start..start+3];
+    r[0..3] = m[start..start+3];
 
-//    return r[0] + r[1] + r[2];
-//}
+    return r[0] + r[1] + r[2];
+}
 
 //
 // test static array as a
