@@ -86,16 +86,24 @@ ir_variable_get_location(IrVariable *self)
 DtDataType *
 ir_variable_get_data_type(IrVariable *self)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
 
     return ir_variable_do_get_data_type(IR_EXPRESSION(self));
 }
 
+void
+ir_variable_set_data_type(IrVariable *self, DtDataType *type)
+{
+    assert(IR_IS_VARIABLE(self));
+    assert(DT_IS_DATA_TYPE(type));
+
+    g_object_unref(self->type);
+    self->type = type;
+}
+
 char *
 ir_variable_get_name(IrVariable *self)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
 
     return ir_symbol_get_name(IR_SYMBOL(self));
@@ -104,7 +112,6 @@ ir_variable_get_name(IrVariable *self)
 IrExpression *
 ir_variable_get_initializer(IrVariable *self)
 {
-    assert(self);
     assert(IR_IS_VARIABLE(self));
 
     return self->initializer;

@@ -1,6 +1,7 @@
 #include "x86_code_block.h"
 #include "x86_func_call.h"
 #include "x86_while.h"
+#include "x86_foreach.h"
 #include "x86_if_else.h"
 #include "x86_frame_offset.h"
 #include "types.h"
@@ -11,6 +12,7 @@
 #include "ir_scalar.h"
 #include "ir_array_slice.h"
 #include "ir_uint_constant.h"
+
 
 #include <assert.h>
 
@@ -105,6 +107,12 @@ x86_compile_code_block(x86_comp_params_t *params,
             x86_compile_while(params,
                               IR_WHILE(statment),
                               locals);
+        }
+        else if (IR_IS_FOREACH(statment))
+        {
+            x86_compile_foreach(params,
+                                IR_FOREACH(statment),
+                                locals);
         }
         else
         {
@@ -218,10 +226,10 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
         /*
          * build an lvalue that represent a slice over the whole array
          */
-        start_idx = ir_uint_constant_new(0);
+        start_idx = ir_uint_constant_new(0, 0);
         end_idx =
             ir_uint_constant_new(
-                dt_static_array_type_get_length(var_array_type));
+                dt_static_array_type_get_length(var_array_type), 0);
 
         lval = IR_LVALUE(ir_array_slice_new(ir_variable_get_name(variable),
                                             IR_EXPRESSION(start_idx),

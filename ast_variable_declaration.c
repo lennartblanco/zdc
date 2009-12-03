@@ -44,11 +44,15 @@ ast_variable_declaration_get_type(void)
 }
 
 AstVariableDeclaration *
-ast_variable_declaration_new(DtDataType *type, char *name)
+ast_variable_declaration_new(DtDataType *type,
+                             char *name,
+                             guint line_number)
 {
     AstVariableDeclaration *node;
 
-    node = g_object_new(AST_TYPE_VARIABLE_DECLARATION, NULL);
+    node = g_object_new(AST_TYPE_VARIABLE_DECLARATION,
+                        "ast-node-line-number", line_number,
+                        NULL);
     node->type = type;
     node->name = strdup(name);
 

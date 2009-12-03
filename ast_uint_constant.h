@@ -44,7 +44,7 @@ GType
 ast_uint_constant_get_type(void);
 
 AstUintConstant *
-ast_uint_constant_new(guint32 value);
+ast_uint_constant_new(guint32 value, guint line_number);
 
 guint32
 ast_uint_constant_get_value(AstUintConstant *self);

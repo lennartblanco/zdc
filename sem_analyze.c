@@ -106,6 +106,11 @@ sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
                                     sym_table_t *symbols,
                                     AstArrayLiteral *ast_arry_literal);
 
+static IrExpression *
+sem_analyze_ast_array_slice_to_ir(compilation_status_t *compile_status,
+                                  sym_table_t *symbols,
+                                  AstArraySliceRef *ast_arry_slice);
+
 static void
 sem_analyze_ast_var_def_to_ir(compilation_status_t *compile_status,
                               AstVariableDefinition *var_def,
@@ -213,6 +218,7 @@ sem_analyze_ast_foreach_to_ir(compilation_status_t *compile_status,
     IrForeach *foreach;
     IrVariable *ir_index = NULL;
     IrVariable *ir_value;
+    IrArraySlice *ir_aggregate;
     AstVariableDeclaration *var;
     sym_table_t *loop_symbols;
     IrCodeBlock *body;
@@ -244,13 +250,18 @@ sem_analyze_ast_foreach_to_ir(compilation_status_t *compile_status,
     sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
 
     body = ir_code_block_new(loop_symbols);
-
     sem_analyze_ast_code_block_to_ir(compile_status,
                                      ast_foreach_get_body(ast_foreach),
                                      body);
 
-    foreach = ir_foreach_new(ir_index, ir_value,
-                             ast_foreach_get_aggregate(ast_foreach), body);
+    ir_aggregate =
+        IR_ARRAY_SLICE(
+            sem_analyze_ast_array_slice_to_ir(
+                compile_status,
+                parent_symbols,
+                ast_foreach_get_aggregate(ast_foreach)));
+
+    foreach = ir_foreach_new(ir_index, ir_value, ir_aggregate, body);
 
     return IR_STATMENT(foreach);
 }
@@ -441,6 +452,48 @@ sem_analyze_ast_array_literal_to_ir(compilation_status_t *compile_status,
     return IR_EXPRESSION(ir_arry_literal);
 }
 
+static IrExpression *
+sem_analyze_ast_array_slice_to_ir(compilation_status_t *compile_status,
+                                  sym_table_t *symbols,
+                                  AstArraySliceRef *ast_arry_slice)
+{
+    char *name;
+    AstExpression *ast_start_idx;
+    IrExpression *ir_start_idx = NULL;
+    AstExpression *ast_end_idx;
+    IrExpression *ir_end_idx = NULL;
+    guint line_number;
+
+    name = ast_array_slice_ref_get_name(ast_arry_slice);
+
+
+    /* convert start expression, if any, to IR-form */
+    ast_start_idx = ast_array_slice_ref_get_start(ast_arry_slice);
+    if (ast_start_idx != NULL)
+    {
+        ir_start_idx =
+            sem_analyze_ast_expression_to_ir(compile_status,
+                                             symbols,
+                                             ast_start_idx);
+    }
+
+    /* convert end expression, if any, to IR-form */
+    ast_end_idx = ast_array_slice_ref_get_end(ast_arry_slice);
+    if (ast_end_idx != NULL)
+    {
+        ir_end_idx =
+            sem_analyze_ast_expression_to_ir(compile_status,
+                                             symbols,
+                                             ast_end_idx);
+    }
+
+    line_number = ast_node_get_line_num(ast_arry_slice);
+    return IR_EXPRESSION(ir_array_slice_new(name,
+                                            ir_start_idx,
+                                            ir_end_idx,
+                                            line_number));
+}
+
 /**
  * Convert AST expression to IR form.
  */
@@ -458,14 +511,20 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         gint32 val;
 
         val = ast_int_constant_get_value(AST_INT_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_int_constant_new(val));
+        return
+            IR_EXPRESSION(
+                ir_int_constant_new(
+                    val, ast_node_get_line_num(AST_NODE(ast_expression))));
     }
     else if (AST_IS_UINT_CONSTANT(ast_expression))
     {
         guint32 val;
 
         val = ast_uint_constant_get_value(AST_UINT_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_uint_constant_new(val));
+        return
+            IR_EXPRESSION(
+                ir_uint_constant_new(
+                    val, ast_node_get_line_num(AST_NODE(ast_expression))));
     }
     else if (AST_IS_BOOL_CONSTANT(ast_expression))
     {
@@ -475,43 +534,23 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
             ast_bool_constant_get_value(AST_BOOL_CONSTANT(ast_expression));
         return IR_EXPRESSION(ir_bool_constant_new(val));
     }
+    else if (AST_IS_ARRAY_LITERAL(ast_expression))
+    {
+        AstArrayLiteral *arry_literal;
+
+        arry_literal = AST_ARRAY_LITERAL(ast_expression);
+        return sem_analyze_ast_array_literal_to_ir(compile_status,
+                                                   symbols,
+                                                   arry_literal);
+    }
     else if (AST_IS_ARRAY_SLICE_REF(ast_expression))
     {
         AstArraySliceRef *array_slice;
-        char *name;
-        AstExpression *ast_start_idx;
-        IrExpression *ir_start_idx = NULL;
-        AstExpression *ast_end_idx;
-        IrExpression *ir_end_idx = NULL;
-        guint line_numer = ast_node_get_line_num(ast_expression);
 
         array_slice = AST_ARRAY_SLICE_REF(ast_expression);
-        name = ast_array_slice_ref_get_name(array_slice);
-
-        /* convert start expression, if any, to IR-form */
-        ast_start_idx = ast_array_slice_ref_get_start(array_slice);
-        if (ast_start_idx != NULL)
-        {
-            ir_start_idx =
-                sem_analyze_ast_expression_to_ir(compile_status,
+        return sem_analyze_ast_array_slice_to_ir(compile_status,
                                                  symbols,
-                                                 ast_start_idx);
-        }
-
-        /* convert end expression, if any, to IR-form */
-        ast_end_idx = ast_array_slice_ref_get_end(array_slice);
-        if (ast_end_idx != NULL)
-        {
-            ir_end_idx =
-                sem_analyze_ast_expression_to_ir(compile_status,
-                                                 symbols,
-                                                 ast_end_idx);
-        }
-
-        return IR_EXPRESSION(ir_array_slice_new(name,
-                                                ir_start_idx,
-                                                ir_end_idx,
-                                                line_numer));
+                                                 array_slice);
     }
     else if (AST_IS_VARIABLE_REF(ast_expression))
     {
@@ -579,15 +618,6 @@ sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
         return sem_analyze_ast_func_call_to_ir(compile_status,
                                                symbols,
                                                func_call);
-    }
-    else if (AST_IS_ARRAY_LITERAL(ast_expression))
-    {
-        AstArrayLiteral *arry_literal;
-
-        arry_literal = AST_ARRAY_LITERAL(ast_expression);
-        return sem_analyze_ast_array_literal_to_ir(compile_status,
-                                                   symbols,
-                                                   arry_literal);
     }
 
     /* unexpected expression type */

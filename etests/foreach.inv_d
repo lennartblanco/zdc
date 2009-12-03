@@ -1,0 +1,49 @@
+//err.d:X: error: illegal array slice expression over non-array variable
+void
+inv_aggregate()
+{
+  bool x;
+
+  foreach (i; x[])
+  {
+  
+  }
+}
+
+//err.d:X: error: value variable type does not match aggregate element type
+void missmatch_val_type()
+{
+  uint[16] x;
+
+  foreach ( bool v; x[])
+  {
+  }
+}
+
+//err.d:x: error: invalid index variable 'i' type, expected int or uint
+void invl_idx_var_type()
+{
+  int[2] x;
+  int r = 1;
+
+  foreach (bool i, v; x[])
+  {
+    r = r * v;
+  }
+}
+
+//err.d:x: error: can not convert if condition to bool type
+int
+foreach_err_in_body(int needle, int[6] haystack)
+{
+   int pos = -1;
+
+   foreach (i, int v; haystack[])
+   {
+       if (v + needle)
+       {
+           pos = i;
+       }
+   }
+   return pos;
+}

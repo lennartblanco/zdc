@@ -165,9 +165,9 @@ types_get_default_initializer(basic_data_type_t data_type)
     switch (data_type)
     {
         case int_type:
-            return IR_EXPRESSION(ir_int_constant_new(0));
+            return IR_EXPRESSION(ir_int_constant_new(0, 0));
         case uint_type:
-            return IR_EXPRESSION(ir_uint_constant_new(0));
+            return IR_EXPRESSION(ir_uint_constant_new(0, 0));
         case bool_type:
             return IR_EXPRESSION(ir_bool_constant_new(false));
         default:
@@ -347,6 +347,17 @@ types_is_int(DtDataType *data_type)
     }
 
     return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == int_type;
+}
+
+bool
+types_is_uint(DtDataType *data_type)
+{
+    if (!DT_IS_BASIC_TYPE(data_type))
+    {
+        return false;
+    }
+
+    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == uint_type;
 }
 
 DtDataType *

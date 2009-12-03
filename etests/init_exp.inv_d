@@ -12,6 +12,9 @@ int foa()
 
   bool b = arry[1..4];
 
+  bool bvar1 = 10u;
+  bool bvar2 = 11;
+
   return x;
 }
 

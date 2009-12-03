@@ -80,6 +80,12 @@ ir_variable_get_name(IrVariable *self);
 DtDataType *
 ir_variable_get_data_type(IrVariable *self);
 
+/**
+ * Modify variables data type
+ */
+void
+ir_variable_set_data_type(IrVariable *self, DtDataType *type);
+
 IrExpression *
 ir_variable_get_initializer(IrVariable *self);
 

@@ -49,11 +49,13 @@ ir_int_constant_get_type(void)
 }
 
 IrIntConstant *
-ir_int_constant_new(gint32 value)
+ir_int_constant_new(gint32 value, guint line_number)
 {
     IrIntConstant *obj;
 
-    obj = g_object_new(IR_TYPE_INT_CONSTANT, NULL);
+    obj = g_object_new(IR_TYPE_INT_CONSTANT,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->value = value;
 
     return obj;

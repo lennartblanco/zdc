@@ -25,7 +25,7 @@ int foreach_slice_params(int s, int e)
     return res;
 }
 
-int foreach_whole_arry(int idx, int val)
+int foreach_shorthand_slice(int idx, int val)
 {
     int[8] arr =
         [2, 4, 6, 8, 10, 12, 14, 16];    
@@ -33,10 +33,46 @@ int foreach_whole_arry(int idx, int val)
 
     arr[idx] = val;
 
-    foreach (int v; arr)
+    foreach (int v; arr[])
     {
         r = r * v;
     }
     return r;
+}
+
+bool foreach_value_auto_type(int l)
+{
+   bool res = false;
+   int[5] arr = [3, 4, 15, -3, 4];
+
+   foreach (v; arr[])
+   {
+       res = res || v > l;
+   }
+
+   return res;
+}
+
+//
+// test cases
+//  int[6] arry = [97,3,211,245,128,36];
+// foreach_index_auto_type(97, arry)    = 0
+// foreach_index_auto_type(211, arry[]) = 2
+// foreach_index_auto_type(36, arry[])  = 5
+// foreach_index_auto_type(-15, arry[]) = -1
+// foreach_index_auto_type(4, arry[]) = -1
+
+int foreach_index_auto_type(int needle, int[6] haystack)
+{
+   int pos = -1;
+
+   foreach (i, int v; haystack[])
+   {
+       if (v == needle)
+       {
+           pos = i;
+       }
+   }
+   return pos;
 }
 

@@ -2,7 +2,7 @@
 
 #include "sem_analyze_validate.h"
 #include "types.h"
-#include "ast_array_cell_ref.h"
+#include "dt_auto_type.h"
 #include "ir_scalar.h"
 #include "ir_function.h"
 #include "ir_assigment.h"
@@ -16,6 +16,7 @@
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
+#include "ir_foreach.h"
 #include "ir_array_cell.h"
 
 #include <assert.h>
@@ -696,6 +697,93 @@ validate_while(compilation_status_t *compile_status,
 }
 
 static void
+validate_foreach(compilation_status_t *compile_status,
+                 sym_table_t *sym_table,
+                 IrForeach *foreach)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_FOREACH(foreach));
+
+    IrArraySlice *aggregate;
+    basic_data_type_t aggr_element_type;
+    IrVariable *var;
+    DtDataType *var_type;
+
+    /*
+     * Validate aggregate expression
+     */
+    aggregate =
+        IR_ARRAY_SLICE(validate_array_slice(compile_status,
+                                            sym_table,
+                                            ir_foreach_get_aggregate(foreach)));
+    if (aggregate == NULL)
+    {
+        /* invalid aggregate expression */
+        return;
+    }
+    aggr_element_type =
+        dt_array_type_get_data_type(
+            DT_ARRAY_TYPE(
+                ir_expression_get_data_type(IR_EXPRESSION(aggregate))));
+
+
+    /*
+     * check value variable's type
+     */
+    var = ir_foreach_get_value(foreach);
+    var_type = ir_variable_get_data_type(var);
+    if (DT_IS_AUTO_TYPE(var_type))
+    {
+        ir_variable_set_data_type(
+            var,
+            DT_DATA_TYPE(dt_basic_type_new(aggr_element_type)));
+    }
+    else
+    {
+        /* only foreach over aggregates over basic types is supported */
+        assert(DT_IS_BASIC_TYPE(var_type));
+        if (dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type)) !=
+            aggr_element_type)
+        {
+            compile_error(compile_status,
+                          IR_NODE(var),
+                          "value variable type does not "
+                          "match aggregate element type\n");
+            return;
+        }
+    }
+
+    /*
+     * if present, check index variable's type
+     */
+    var = ir_foreach_get_index(foreach);
+    if (var != NULL)
+    {
+        var_type = ir_variable_get_data_type(var);
+
+        if (DT_IS_AUTO_TYPE(var_type))
+        {
+            ir_variable_set_data_type(var, types_get_uint_type());
+        }
+        else if (!types_is_int(var_type) &&
+                 !types_is_uint(var_type))
+        {
+            compile_error(compile_status,
+                          IR_NODE(var),
+                          "invalid index variable '%s' type,"
+                          " expected int or uint\n",
+                          ir_variable_get_name(var));
+        }
+    }
+
+    /*
+     * validate foreach body code block
+     */
+    validate_code_block(compile_status, ir_foreach_get_body(foreach));  
+}
+
+static void
 validate_statment(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrStatment *statment)
@@ -721,6 +809,10 @@ validate_statment(compilation_status_t *compile_status,
     else if (IR_IS_WHILE(statment))
     {
         validate_while(compile_status, sym_table, IR_WHILE(statment));
+    }
+    else if (IR_IS_FOREACH(statment))
+    {
+        validate_foreach(compile_status, sym_table, IR_FOREACH(statment));
     }
     else if (IR_IS_EXPRESSION(statment))
     {
@@ -938,7 +1030,7 @@ validate_array_slice(compilation_status_t *compile_status,
     exp = ir_array_slice_get_start(array_slice);
     if (exp == NULL)
     {
-        exp = IR_EXPRESSION(ir_uint_constant_new(0));
+        exp = IR_EXPRESSION(ir_uint_constant_new(0, 0));
     }
     else
     {
@@ -970,7 +1062,7 @@ validate_array_slice(compilation_status_t *compile_status,
 
         end_idx =
             dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
-        exp = IR_EXPRESSION(ir_uint_constant_new(end_idx));
+        exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
     }
     else
     {

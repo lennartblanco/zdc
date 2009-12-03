@@ -18,6 +18,9 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_array_slice_do_get_data_type(IrExpression *self);
 
+static void
+ir_array_slice_do_print(IrStatment *self, FILE *out, int indention);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -124,6 +127,7 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_array_slice_do_get_data_type;
+    ((IrStatmentClass *)klass)->do_print = ir_array_slice_do_print;
 }
 
 static DtDataType *
@@ -165,4 +169,30 @@ ir_array_slice_do_get_data_type(IrExpression *self)
     }
  
     return slice->data_type;
+}
+
+static void
+ir_array_slice_do_print(IrStatment *self, FILE *out, int indention)
+{
+    assert(IR_IS_ARRAY_SLICE(self));
+
+    IrArraySlice *slice = IR_ARRAY_SLICE(self);
+    fprintf(out, "(");
+    if (slice->data_type != NULL)
+    {
+        dt_data_type_print(slice->data_type, out);
+    }
+    else
+    {
+        fprintf(out, "?[?]");
+    }
+    fprintf(out, ") %s[", ir_lvalue_get_name(IR_LVALUE(slice)));
+
+    if (slice->start != NULL)
+    {  
+        ir_statment_print(IR_STATMENT(slice->start), out, 0);
+        fprintf(out, "..");
+        ir_statment_print(IR_STATMENT(slice->end), out, 0);
+    }
+    fprintf(out, "]");
 }

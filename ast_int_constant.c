@@ -42,11 +42,13 @@ ast_int_constant_get_type(void)
 }
 
 AstIntConstant *
-ast_int_constant_new(gint32 value)
+ast_int_constant_new(gint32 value, guint line_number)
 {
     AstIntConstant *obj;
 
-    obj = g_object_new(AST_TYPE_INT_CONSTANT, NULL);
+    obj = g_object_new(AST_TYPE_INT_CONSTANT,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->value = value;
 
     return obj;

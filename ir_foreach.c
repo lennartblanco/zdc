@@ -45,7 +45,7 @@ ir_foreach_get_type(void)
 IrForeach *
 ir_foreach_new(IrVariable *index,
                IrVariable *value,
-               AstArraySliceRef *aggregate,
+               IrArraySlice *aggregate,
                IrCodeBlock *body)
 {
     IrForeach *obj;
@@ -63,16 +63,16 @@ ir_foreach_new(IrVariable *index,
 void
 ir_foreach_set_index(IrForeach *self, IrVariable *index)
 {
-   assert(self);
-   assert(index);
+    assert(IR_IS_FOREACH(self));
+    assert(IR_IS_VARIABLE(index));
 
-   self->index = index;
+    self->index = index;
 }
 
 IrVariable *
 ir_foreach_get_index(IrForeach *self)
 {
-    assert(self);
+    assert(IR_IS_FOREACH(self));
 
     return self->index;
 }
@@ -80,15 +80,15 @@ ir_foreach_get_index(IrForeach *self)
 IrVariable *
 ir_foreach_get_value(IrForeach *self)
 {
-   assert(self);
+    assert(IR_IS_FOREACH(self));
 
    return self->value;
 }
 
-AstArraySliceRef *
+IrArraySlice *
 ir_foreach_get_aggregate(IrForeach *self)
 {
-    assert(self);
+    assert(IR_IS_FOREACH(self));
 
     return self->aggregate;
 }
@@ -96,7 +96,7 @@ ir_foreach_get_aggregate(IrForeach *self)
 IrCodeBlock *
 ir_foreach_get_body(IrForeach *self)
 {
-    assert(self);
+    assert(IR_IS_FOREACH(self));
 
     return self->body;
 }
@@ -108,7 +108,6 @@ ir_foreach_get_body(IrForeach *self)
 static void
 ir_foreach_do_print(IrStatment *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_FOREACH(self));
     assert(out);
 
@@ -126,7 +125,7 @@ ir_foreach_do_print(IrStatment *self, FILE *out, int indention)
     fprintf_indent(out, indention, "\n  value: ");
     ir_symbol_print(IR_SYMBOL(foreach->value), out, indention);
     fprintf_indent(out, indention, "\n  aggregate: ");
-    ast_node_print(AST_NODE(foreach->aggregate), out);
+    ir_statment_print(IR_STATMENT(foreach->aggregate), out, indention);
     fprintf_indent(out, indention, "\n");
     ir_statment_print(IR_STATMENT(foreach->body), out, indention + 2);
 }

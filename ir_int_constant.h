@@ -44,7 +44,7 @@ GType
 ir_int_constant_get_type(void);
 
 IrIntConstant *
-ir_int_constant_new(gint32 value);
+ir_int_constant_new(gint32 value, guint line_number);
 
 gint32
 ir_int_constant_get_value(IrIntConstant *self);

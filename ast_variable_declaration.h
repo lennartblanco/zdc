@@ -47,7 +47,9 @@ GType
 ast_variable_declaration_get_type(void);
 
 AstVariableDeclaration *
-ast_variable_declaration_new(DtDataType *type, char *name);
+ast_variable_declaration_new(DtDataType *type,
+                             char *name,
+                             guint line_number);
 
 DtDataType *
 ast_variable_declaration_get_data_type(AstVariableDeclaration *self);

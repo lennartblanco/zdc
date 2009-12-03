@@ -290,10 +290,7 @@ foreach_block<x> :
           val_type.data_type = NULL;
           val_name.text = NULL;
       }
-      (
-        ( type<idx_type> )? 
-        TOK_IDENT<idx_name> ','
-      )? 
+      ( ( type<idx_type> )?  TOK_IDENT<idx_name> ',' )? 
       ( type<val_type> )? TOK_IDENT<val_name> ';' 
       (
         array_slice<aggregate>
@@ -308,7 +305,7 @@ foreach_block<x> :
       ) ')' scope_statment<code>
     {
         AstVariableDeclaration *index = NULL;
-        AstVariableDeclaration *value = NULL;
+        AstVariableDeclaration *value;
 
         /* 
          * build index variable declaration node if specified 
@@ -321,7 +318,8 @@ foreach_block<x> :
                 idx_type.data_type = DT_DATA_TYPE(dt_auto_type_new());
             }
             index = ast_variable_declaration_new(idx_type.data_type,
-                                                 idx_name.text);
+                                                 idx_name.text,
+                                                 yypos);
         }
 
         /* 
@@ -333,7 +331,8 @@ foreach_block<x> :
             val_type.data_type = DT_DATA_TYPE(dt_auto_type_new());
         }
         value = ast_variable_declaration_new(val_type.data_type,
-                                             val_name.text);
+                                             val_name.text,
+                                             yypos);
  
         /* build foreach ast node */
         (*x).statment =
@@ -392,7 +391,7 @@ var_declaration<n> :
    type<t> TOK_IDENT<x> 
    { 
        (*n).variable_declaration = 
-           ast_variable_declaration_new(t.data_type, x.text);
+           ast_variable_declaration_new(t.data_type, x.text, yypos);
        free(x.text);
    }
 ;
@@ -572,12 +571,12 @@ primary<n> :
     TOK_INT_CONST<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_int_constant_new(x.integer));
+            AST_EXPRESSION(ast_int_constant_new(x.integer, yypos));
     }
 |   TOK_UINT_CONST<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_uint_constant_new(x.uinteger));
+            AST_EXPRESSION(ast_uint_constant_new(x.uinteger, yypos));
     }
 |   TOK_TRUE
     {

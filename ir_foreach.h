@@ -4,7 +4,7 @@
 #include "ir_statment.h"
 #include "ir_variable.h"
 #include "ir_code_block.h"
-#include "ast_array_slice_ref.h"
+#include "ir_array_slice.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -34,7 +34,7 @@ typedef struct
     /* private */
     IrVariable         *index;
     IrVariable         *value;
-    AstArraySliceRef   *aggregate;
+    IrArraySlice       *aggregate;
     IrCodeBlock        *body;
 } IrForeach;
 
@@ -53,7 +53,7 @@ ir_foreach_get_type(void);
 IrForeach *
 ir_foreach_new(IrVariable *index,
                IrVariable *value,
-               AstArraySliceRef *aggregate,
+               IrArraySlice *aggregate,
                IrCodeBlock *body);
 
 
@@ -66,7 +66,7 @@ ir_foreach_get_index(IrForeach *self);
 IrVariable *
 ir_foreach_get_value(IrForeach *self);
 
-AstArraySliceRef *
+IrArraySlice *
 ir_foreach_get_aggregate(IrForeach *self);
 
 IrCodeBlock *
