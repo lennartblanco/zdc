@@ -8,8 +8,10 @@ run_checked()
     ($@) || 
     {
         echo "ERROR: '$@' failed"
-        exit 1
+        return 1
     }
+
+    return 0;
 }
 
 run_test_x86()
@@ -20,11 +22,13 @@ run_test_x86()
     test_binary="x86_check_"$test_name
 
     echo -n "Compiling $test_name.d "
-    run_checked $XDC -march=x86 -S $test_name.d
+    (run_checked $XDC -march=x86 -S $test_name.d) || { return 1; }
     echo "[ok]"
-    run_checked gcc -g -m32 -o $test_binary $test_name.s check_"$test_name".c \
-                check_utils.c
-    run_checked ./$test_binary
+    (run_checked gcc -g -m32 -o $test_binary $test_name.s check_"$test_name".c \
+                check_utils.c) || { return 1; }
+    (run_checked ./$test_binary) || { return 1; }
+
+    return 0;
 }
 
 run_test_java()
@@ -45,23 +49,30 @@ run_test_java()
 
 run_all_tests()
 {
-    $RUN_TEST empty
-    $RUN_TEST rets
-    $RUN_TEST only_comments
-    $RUN_TEST comments
-    $RUN_TEST neg
-    $RUN_TEST func_call
-    $RUN_TEST implicit_cast
-    $RUN_TEST bool_op
-    $RUN_TEST uint_op
-    $RUN_TEST nested_blocks
-    $RUN_TEST if_else
-    $RUN_TEST fact
-    $RUN_TEST extern_c
-    $RUN_TEST while_loop
-    $RUN_TEST stat_array
-    $RUN_TEST foreach
-    echo "_all_tests_passed_"
+    local failed=0
+    local passed=0
+
+    local tests="empty rets only_comments comments neg func_call "\
+"implicit_cast bool_op uint_op nested_blocks if_else fact extern_c "\
+"while_loop stat_array foreach"
+
+    for test_name in $tests
+    do
+        $RUN_TEST $test_name
+        if [ "$?" == 0 ]; then
+            passed=$(($passed + 1));
+        else
+            failed=$(($failed + 1));
+        fi
+    done
+
+    echo "$(($passed + $failed)) TEST SUITES RUN, $passed PASSED $failed FAILED"
+
+    if [ $failed != 0 ]; then
+       return 1
+    fi
+
+    return 0
 }
 
 if [ "$1" = "--march=java" ]; then
@@ -79,4 +90,6 @@ if [ "$2" ]; then
     exit 0
 fi
 
+
 run_all_tests
+exit $?
