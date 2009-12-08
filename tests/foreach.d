@@ -76,3 +76,67 @@ int foreach_index_auto_type(int needle, int[6] haystack)
    return pos;
 }
 
+//
+// test cases
+//   uint[4] idxs = [0, 0, 0, 0];
+//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
+//   idxs = [2, 4, 5, 3];
+//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
+//   idxs = [15, 14, 13, 12];
+//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
+//   idxs = [0, 1, 18, 3];
+//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
+//
+int
+foreach_body_loc_vars(uint[4] idxs)
+{
+    int sum;
+    int[16] nums = 
+        [19341, 06612, 48352, 49081, 23112,  28360, 41631, 62064,
+         43166, 41808, 4188, 59660, 37889,  38528, 56732, 41092];
+
+   foreach (nums_idx; idxs[])
+   {
+     int nums_val;
+
+     if (nums_idx > 15) {
+         return -1;
+     }
+     nums_val = nums[nums_idx];
+     sum = sum + nums_val;
+   }
+
+   return sum;
+}
+
+//
+// tests cases:
+//
+// bool[6] ops = [ false, false, false, false, false, false]
+// foreach_bool_arry(ops[]) = 0
+//
+// bool[6] ops = [true, true, true, true, true, true]
+// foreach_bool_arry(ops[]) = 11 + 12 + 13 + 14 + 15 + 16
+//
+// bool[6] ops = [ false, false, true, false, false, true]
+// foreach_bool_arry(ops[]) = 13 + 16
+//
+// bool[6] ops = [ true, false, false, true, false, true]
+// foreach_bool_arry(ops[]) = 11 + 14 + 16
+//
+// bool[6] ops = [true, false, true, false, false, false]
+// foreach_bool_arry(ops[]) = 11 + 13
+
+uint foreach_bool_arry(bool[6] add_op)
+{
+   uint res;
+   uint[6] vals = [11, 12, 13, 14, 15, 16];
+
+   foreach (i, op; add_op[])
+   {
+      if (op) { res = res + vals[i]; }
+   }   
+
+   return res;
+}
+

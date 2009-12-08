@@ -102,7 +102,8 @@ x86_compile_cast_to_int(DtDataType *value_type)
     {
         case bool_type:
         case int_type:
-            /* no need to explicitly convert boolean and integer values */
+        case uint_type:
+            /* no need to generate explicit conversio code */
             break;
         default:
             /* unexpected basic data type */
