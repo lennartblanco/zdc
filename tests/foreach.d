@@ -53,15 +53,6 @@ bool foreach_value_auto_type(int l)
    return res;
 }
 
-//
-// test cases
-//  int[6] arry = [97,3,211,245,128,36];
-// foreach_index_auto_type(97, arry)    = 0
-// foreach_index_auto_type(211, arry[]) = 2
-// foreach_index_auto_type(36, arry[])  = 5
-// foreach_index_auto_type(-15, arry[]) = -1
-// foreach_index_auto_type(4, arry[]) = -1
-
 int foreach_index_auto_type(int needle, int[6] haystack)
 {
    int pos = -1;
@@ -77,16 +68,15 @@ int foreach_index_auto_type(int needle, int[6] haystack)
 }
 
 //
-// test cases
-//   uint[4] idxs = [0, 0, 0, 0];
-//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
-//   idxs = [2, 4, 5, 3];
-//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
-//   idxs = [15, 14, 13, 12];
-//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
-//   idxs = [0, 1, 18, 3];
-//   writefln("foreach_body_loc_vars([%s]) = %s", idxs, foreach_body_loc_vars(idxs));
+// wrapper for calling foreach_index_auto_type()
 //
+int run_foreach_index_auto_type(int needle)
+{
+  int[6] arry = [97,3,211,245,128,36];
+
+  return foreach_index_auto_type(needle, arry[]);
+}
+
 int
 foreach_body_loc_vars(uint[4] idxs)
 {
@@ -108,24 +98,6 @@ foreach_body_loc_vars(uint[4] idxs)
 
    return sum;
 }
-
-//
-// tests cases:
-//
-// bool[6] ops = [ false, false, false, false, false, false]
-// foreach_bool_arry(ops[]) = 0
-//
-// bool[6] ops = [true, true, true, true, true, true]
-// foreach_bool_arry(ops[]) = 11 + 12 + 13 + 14 + 15 + 16
-//
-// bool[6] ops = [ false, false, true, false, false, true]
-// foreach_bool_arry(ops[]) = 13 + 16
-//
-// bool[6] ops = [ true, false, false, true, false, true]
-// foreach_bool_arry(ops[]) = 11 + 14 + 16
-//
-// bool[6] ops = [true, false, true, false, false, false]
-// foreach_bool_arry(ops[]) = 11 + 13
 
 uint foreach_bool_arry(bool[6] add_op)
 {
