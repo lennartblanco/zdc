@@ -45,5 +45,15 @@ x86_compile_while(x86_comp_params_t *params,
             end_label);
 }
 
+int
+x86_while_assign_addrs(x86_comp_params_t *params,
+                       int first_num,
+                       IrWhile *while_statment)
+{
+    return x86_code_block_assign_addrs(params,
+                                       first_num,
+                                       ir_while_get_body(while_statment));
+}
+
 
 

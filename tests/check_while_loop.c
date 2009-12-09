@@ -28,6 +28,20 @@ call_while_tst2(int in)
    return res;
 }
 
+unsigned
+call_while_loc_vars(int arg1, unsigned arg2)
+{
+   unsigned res;
+
+   asm ("    pushl %[arg1]\n"
+        "    call while_loc_vars\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          "a"(arg2));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -46,6 +60,10 @@ main()
     check_int("while_tst2(19)", call_while_tst2(19), 19*2);
     check_int("while_tst2(123)", call_while_tst2(123), 123);
 
+    /* while_loc_vars() tests */
+    check_uint("while_loc_vars(0, 0)", call_while_loc_vars(0, 0), 0);
+    check_uint("while_loc_vars(10, 1)", call_while_loc_vars(10, 1), 10);
+    check_uint("while_loc_vars(15, 6)", call_while_loc_vars(15, 6), 18);
 
     check_exit();
 }

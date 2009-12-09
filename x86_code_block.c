@@ -179,6 +179,10 @@ x86_code_block_assign_addrs(x86_comp_params_t *params,
         {
             vars = x86_foreach_assign_addrs(params, num, j->data);
         }
+        else if (IR_IS_WHILE(j->data))
+        {
+            vars = x86_while_assign_addrs(params, num, j->data);
+        }
 
         /* 
          * keep track of lowers frame offset assigned 
