@@ -38,6 +38,7 @@
 "while"  { return TOK_WHILE; }
 "return" { return TOK_RETURN; }
 "extern" { return TOK_EXTERN; }
+"module" { return TOK_MODULE; }
 "foreach" { return TOK_FOREACH; }
 ("C"|"D") { yylval.text = strdup(yytext); return TOK_LINKAGE_TYPE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }

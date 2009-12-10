@@ -31,7 +31,8 @@ AstModule *module;
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
-       TOK_AUTO, TOK_INT, TOK_UINT, TOK_VOID, TOK_BOOL;
+       TOK_AUTO, TOK_INT, TOK_UINT, TOK_VOID, TOK_BOOL,
+       TOK_MODULE;
        
 
 root :
@@ -48,8 +49,34 @@ comp_unit :
     {
         n.module = module;
     }
+    ( module_declaration<package_names>
+        {
+            ast_module_set_package(n.module, package_names.list);
+        }
+    )?
     ( declaration<n> )*
 | null;
+
+
+module_declaration<package_names> :
+    {
+        (*package_names).list = NULL;
+    }
+    TOK_MODULE
+    ( TOK_IDENT<package> '.'
+        {
+            (*package_names).list =
+                g_slist_prepend((*package_names).list, package.text);
+        }
+    )*
+    TOK_IDENT<name> ';'
+    {
+        (*package_names).list =
+            g_slist_prepend((*package_names).list, name.text);
+        (*package_names).list = g_slist_reverse((*package_names).list);
+    }
+;
+
 
 declaration<n> :
     func_def_list<n>

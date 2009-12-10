@@ -49,8 +49,17 @@ ast_module_new(void)
     node = g_object_new(AST_TYPE_MODULE, NULL);
     node->function_defs = NULL;
     node->function_decls = NULL;
+    node->package = NULL;
 
     return node;
+}
+
+void
+ast_module_set_package(AstModule *self, GSList *package_names)
+{
+    assert(AST_IS_MODULE(self));
+
+    self->package = package_names;
 }
 
 void
@@ -103,6 +112,16 @@ ast_module_do_print(AstNode *self, FILE *out)
     GSList *i;
 
     fprintf(out, "module [%p]\n", module);
+
+    if (module->package != NULL)
+    {
+        fprintf(out, "  package: ");
+        for (i = module->package; i != NULL; i = g_slist_next(i))
+        {
+            fprintf(out, "%s%s", (char *)i->data,
+                    g_slist_next(i) != NULL ? "." : "\n");
+        }
+    }
 
     for (i = module->function_defs; i != NULL; i = g_slist_next(i))
     {
