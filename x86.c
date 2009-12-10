@@ -125,7 +125,7 @@ x86_compile_array_slice(x86_comp_params_t *params,
  *---------------------------------------------------------------------------*/
 
 void
-x86_gen_code(IrCompileUnit *comp_unit,
+x86_gen_code(IrModule *module,
              FILE *out_stream,
              const char *source_file)
 {
@@ -135,11 +135,11 @@ x86_gen_code(IrCompileUnit *comp_unit,
 
     params.out = out_stream;
     label_gen_init(&(params.label_gen));
-    global_sym_table = ir_compile_unit_get_symbols(comp_unit);
+    global_sym_table = ir_module_get_symbols(module);
 
     x86_prelude(&params, source_file, global_sym_table);
 
-    i = ir_compile_unit_get_function_defs(comp_unit);
+    i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_FUNCTION_DEF(i->data));

@@ -1144,17 +1144,17 @@ validate_array_literal(compilation_status_t *compile_status,
 
 static void
 validate_entry_point(compilation_status_t *compile_status,
-                     IrCompileUnit *compile_unit)
+                     IrModule *module)
 {
     assert(compile_status);
-    assert(IR_IS_COMPILE_UNIT(compile_unit));
+    assert(IR_IS_MODULE(module));
 
     sym_table_t *sym_table;
     IrSymbol *main_symb;
     IrFunction *main_func;
     DtDataType *main_ret_type;
 
-    sym_table = ir_compile_unit_get_symbols(compile_unit);
+    sym_table = ir_module_get_symbols(module);
     main_symb = sym_table_get_symbol(sym_table, "main");
 
     if (!IR_IS_FUNCTION(main_symb))
@@ -1189,16 +1189,16 @@ validate_entry_point(compilation_status_t *compile_status,
 
 void
 sem_analyze_validate(compilation_status_t *compile_status,
-                     IrCompileUnit *compile_unit)
+                     IrModule *module)
 {
     assert(compile_status);
-    assert(compile_unit);
+    assert(IR_IS_MODULE(module));
 
     GSList *i;
 
-    validate_entry_point(compile_status, compile_unit);
+    validate_entry_point(compile_status, module);
 
-    i = ir_compile_unit_get_function_defs(compile_unit);
+    i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_FUNCTION_DEF(i->data));

@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-AstCompileUnit *compile_unit;
+AstModule *module;
 }
 
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_IDENT, TOK_TRUE, TOK_FALSE,
@@ -36,7 +36,7 @@ AstCompileUnit *compile_unit;
 
 root :
     {
-        compile_unit = ast_compile_unit_new();
+        module = ast_module_new();
     }
     comp_unit
 ;
@@ -46,7 +46,7 @@ null :
 
 comp_unit :
     {
-        n.compile_unit = compile_unit;
+        n.module = module;
     }
     ( declaration<n> )*
 | null;
@@ -56,14 +56,14 @@ declaration<n> :
 |   declaration_blocks<n>
 ;
 
-declaration_blocks<unit> :
+declaration_blocks<module> :
     {
         linkage.text = NULL;
     }
-    declaration_block<unit, linkage>
+    declaration_block<module, linkage>
 ;
 
-declaration_block<unit, linkage> :
+declaration_block<module, linkage> :
     {
         char *l = (*linkage).text;
     }
@@ -74,11 +74,11 @@ declaration_block<unit, linkage> :
     )?
     func_declaration<func>
     {
-        ast_compile_unit_add_function_decl((*unit).compile_unit,
-                                           func.function_decl);
+        ast_module_add_function_decl((*module).module,
+                                     func.function_decl);
         ast_function_decl_set_linkage(func.function_decl, l);
     }
-|   linkage_attribute<l> '{' ( declaration_block<unit, l> )* '}'
+|   linkage_attribute<l> '{' ( declaration_block<module, l> )* '}'
 ;
 
 func_declaration<func> :
@@ -99,11 +99,11 @@ linkage_attribute<linkage> :
     TOK_EXTERN ( '(' TOK_LINKAGE_TYPE<linkage> ')' )?
 ;
 
-func_def_list<unit> :
-    func_def_list<unit>  func_def<func>
+func_def_list<module> :
+    func_def_list<module>  func_def<func>
     {
-        ast_compile_unit_add_function_def((*unit).compile_unit,
-                                          func.function_def);
+        ast_module_add_function_def((*module).module,
+                                    func.function_def);
     }
 | null
 ;

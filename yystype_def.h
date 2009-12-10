@@ -1,7 +1,7 @@
 #ifndef YYSTYPE_DEF_H
 #define YYSTYPE_DEF_H
 
-#include "ast_compile_unit.h"
+#include "ast_module.h"
 #include "ast_variable_ref.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
@@ -14,7 +14,7 @@ union yystype_u
     guint32                    uinteger;
     DtDataType                 *data_type;
     basic_data_type_t          basic_data_type;
-    AstCompileUnit             *compile_unit;
+    AstModule                  *module;
     AstCodeBlock               *code_block;
     AstFunctionDecl            *function_decl;
     AstFunctionDef             *function_def;

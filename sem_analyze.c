@@ -49,9 +49,9 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static IrCompileUnit *
-sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
-                                   AstCompileUnit *ast_compile_unit);
+static IrModule *
+sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
+                             AstModule *ast_module);
 
 static void
 sem_analyze_ast_code_block_to_ir(compilation_status_t *compile_status,
@@ -859,29 +859,29 @@ sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
     return ir_func;
 }
 
-static IrCompileUnit *
-sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
-                                   AstCompileUnit *ast_compile_unit)
+static IrModule *
+sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
+                             AstModule *ast_module)
 {
-    IrCompileUnit *comp_unit;
+    IrModule *module;
     GSList *i;
     sym_table_t *global_sym_table;
 
-    comp_unit = ir_compile_unit_new();
+    module = ir_module_new();
 
-    global_sym_table = ir_compile_unit_get_symbols(comp_unit);
+    global_sym_table = ir_module_get_symbols(module);
 
     /*
      * store all function declarations in module's symbol table
      */
-    i = ast_compile_unit_get_function_decls(ast_compile_unit);
+    i = ast_module_get_function_decls(ast_module);
     for (;i != NULL; i = i->next)
     {
         IrFunctionDecl *ir_func_decl;
 
         ir_func_decl =
             sem_analyze_ast_func_decl_to_ir(AST_FUNCTION_DECL(i->data));
-        if (!ir_compile_unit_add_function_decl(comp_unit, ir_func_decl))
+        if (!ir_module_add_function_decl(module, ir_func_decl))
         {
             compile_error(compile_status,
                           IR_NODE(ir_func_decl),
@@ -894,7 +894,7 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
      * convert all function definitions to IR form and store them
      * in module's symbol table
      */
-    i = ast_compile_unit_get_function_defs(ast_compile_unit);
+    i = ast_module_get_function_defs(ast_module);
     for (;i != NULL; i = i->next)
     {
         IrFunctionDef *ir_func_def;
@@ -903,7 +903,7 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
             sem_analyze_ast_func_def_to_ir(compile_status,
                                            AST_FUNCTION_DEF(i->data),
                                            global_sym_table);
-        if (!ir_compile_unit_add_function_def(comp_unit, ir_func_def))
+        if (!ir_module_add_function_def(module, ir_func_def))
         {
             compile_error(compile_status,
                           IR_NODE(ir_func_def),
@@ -912,17 +912,17 @@ sem_analyze_ast_compile_unit_to_ir(compilation_status_t *compile_status,
         }
     }
 
-    return comp_unit;
+    return module;
 }
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-IrCompileUnit *
-semantic_analyze(const char *source_file, AstCompileUnit *ast_compile_unit)
+IrModule *
+semantic_analyze(const char *source_file, AstModule *ast_module)
 {
-    IrCompileUnit *comp_unit;
+    IrModule *module;
 
     compilation_status_t comp_stat;
 
@@ -930,8 +930,7 @@ semantic_analyze(const char *source_file, AstCompileUnit *ast_compile_unit)
     comp_stat.source_file = source_file;
     comp_stat.errors_count = 0;
 
-    comp_unit =
-        sem_analyze_ast_compile_unit_to_ir(&comp_stat, ast_compile_unit);
+    module = sem_analyze_ast_module_to_ir(&comp_stat, ast_module);
 
     /* if there were errors while converting to IR, return failure result */
     if (comp_stat.errors_count > 0)
@@ -940,7 +939,7 @@ semantic_analyze(const char *source_file, AstCompileUnit *ast_compile_unit)
         return NULL;
     }
 
-    sem_analyze_validate(&comp_stat, comp_unit);
+    sem_analyze_validate(&comp_stat, module);
 
     /* if there were errors during analysis, return failure result */
     if (comp_stat.errors_count > 0)
@@ -948,7 +947,7 @@ semantic_analyze(const char *source_file, AstCompileUnit *ast_compile_unit)
         /* @todo: clean-up comp_unit ? */
         return NULL;
     }
-    return comp_unit;
+    return module;
 }
 
 

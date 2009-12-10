@@ -1,5 +1,5 @@
 #include "label_gen.h"
-#include "ir_compile_unit.h"
+#include "ir_module.h"
 #include "ir_while.h"
 #include "ir_assigment.h"
 
@@ -24,7 +24,7 @@ typedef struct x86_comp_params_s
  * generate x86 assembly from IR
  */
 void
-x86_gen_code(IrCompileUnit *comp_unit,
+x86_gen_code(IrModule *module,
              FILE *out_stream,
              const char *source_file);
 

@@ -1,4 +1,4 @@
-#include "ast_compile_unit.h"
+#include "ast_module.h"
 
 #include <assert.h>
 
@@ -7,46 +7,46 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_compile_unit_do_print(AstNode *self, FILE *out);
+ast_module_do_print(AstNode *self, FILE *out);
 
 static void
-ast_compile_unit_class_init(gpointer klass, gpointer unused);
+ast_module_class_init(gpointer klass, gpointer unused);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType 
-ast_compile_unit_get_type(void)
+ast_module_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstCompileUnitClass),
+        sizeof (AstModuleClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_compile_unit_class_init, /* class_init */
+        ast_module_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstCompileUnit),
+        sizeof (AstModule),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(AST_TYPE_NODE,
-                                    "AstCompileUnitType",
+                                    "AstModuleType",
                                     &info, 0);
     }
     return type;
 }
 
-AstCompileUnit*
-ast_compile_unit_new(void)
+AstModule *
+ast_module_new(void)
 {
-    AstCompileUnit *node;
+    AstModule *node;
 
-    node = g_object_new(AST_TYPE_COMPILE_UNIT, NULL);
+    node = g_object_new(AST_TYPE_MODULE, NULL);
     node->function_defs = NULL;
     node->function_decls = NULL;
 
@@ -54,37 +54,37 @@ ast_compile_unit_new(void)
 }
 
 void
-ast_compile_unit_add_function_decl(AstCompileUnit *self,
-                                   AstFunctionDecl *function_decl)
+ast_module_add_function_decl(AstModule *self,
+                             AstFunctionDecl *function_decl)
 {
-    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_MODULE(self));
     assert(AST_IS_FUNCTION_DECL(function_decl));
 
     self->function_decls = g_slist_append(self->function_decls, function_decl);
 }
 
 void
-ast_compile_unit_add_function_def(AstCompileUnit *self,
-                                  AstFunctionDef *function_def)
+ast_module_add_function_def(AstModule *self,
+                            AstFunctionDef *function_def)
 {
-    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_MODULE(self));
     assert(AST_IS_FUNCTION_DEF(function_def));
 
     self->function_defs = g_slist_append(self->function_defs, function_def);
 }
 
 GSList *
-ast_compile_unit_get_function_decls(AstCompileUnit *self)
+ast_module_get_function_decls(AstModule *self)
 {
-    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_MODULE(self));
 
     return self->function_decls;
 }
 
 GSList *
-ast_compile_unit_get_function_defs(AstCompileUnit *self)
+ast_module_get_function_defs(AstModule *self)
 {
-    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_MODULE(self));
 
     return self->function_defs;
 }
@@ -94,29 +94,29 @@ ast_compile_unit_get_function_defs(AstCompileUnit *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_compile_unit_do_print(AstNode *self, FILE *out)
+ast_module_do_print(AstNode *self, FILE *out)
 {
-    assert(AST_IS_COMPILE_UNIT(self));
+    assert(AST_IS_MODULE(self));
     assert(out);
 
-    AstCompileUnit *comp_unit = (AstCompileUnit *)self;
+    AstModule *module = (AstModule *)self;
     GSList *i;
 
-    fprintf(out, "compile unit [%p]\n", comp_unit);
+    fprintf(out, "module [%p]\n", module);
 
-    for (i = comp_unit->function_defs; i != NULL; i = g_slist_next(i))
+    for (i = module->function_defs; i != NULL; i = g_slist_next(i))
     {
         ast_node_print(AST_NODE(i->data), out);
     }
 
-    for (i = comp_unit->function_decls; i != NULL; i = g_slist_next(i))
+    for (i = module->function_decls; i != NULL; i = g_slist_next(i))
     {
         ast_node_print(AST_NODE(i->data), out);
     }
 }
 
 static void
-ast_compile_unit_class_init(gpointer klass, gpointer unused)
+ast_module_class_init(gpointer klass, gpointer unused)
 {
-    ((AstNodeClass *)klass)->do_print = ast_compile_unit_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_module_do_print;
 }

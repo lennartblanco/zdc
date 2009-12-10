@@ -4,7 +4,7 @@
 #include "auxil.h"
 #include "lex.h"
 #include "entire.h"
-#include "ast_compile_unit.h"
+#include "ast_module.h"
 #include "java_trgt.h"
 #include "x86.h"
 #include "sym_table.h"
@@ -14,7 +14,7 @@
 
 static const char *source_file;
 
-extern AstCompileUnit *compile_unit;
+extern AstModule *module;
 extern long yypos;
 
 /*---------------------------------------------------------------------------*
@@ -33,7 +33,7 @@ compile_file(const char* input_file,
     YY_BUFFER_STATE yy_buffer;
     FILE *input_stream;
     FILE *output_stream;
-    IrCompileUnit *ir_compile_unit;
+    IrModule *ir_module;
     int ret = 0;
 
     /* open the input source file */
@@ -56,11 +56,11 @@ compile_file(const char* input_file,
     yyparse();
     if (options.print_ast)
     {
-        ast_node_print(AST_NODE(compile_unit), stdout);
+        ast_node_print(AST_NODE(module), stdout);
     }
 
-    ir_compile_unit = semantic_analyze(input_file, compile_unit);
-    if (ir_compile_unit == NULL)
+    ir_module = semantic_analyze(input_file, module);
+    if (ir_module == NULL)
     {
         /* error during semantic analysis */
         ret = -2;
@@ -69,7 +69,7 @@ compile_file(const char* input_file,
 
     if (options.print_ir)
     {
-        ir_compile_unit_print(ir_compile_unit, stdout, 0);
+        ir_module_print(ir_module, stdout, 0);
     }
 
     /* open the output file */
@@ -90,7 +90,7 @@ compile_file(const char* input_file,
 //            java_trgt_gen_code(ir_compile_unit, output_stream, input_file);
 //            break;
         case arch_x86:
-            x86_gen_code(ir_compile_unit, output_stream, input_file);
+            x86_gen_code(ir_module, output_stream, input_file);
             break;
         default:
             /* unexpected target architecture */

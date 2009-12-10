@@ -1,4 +1,4 @@
-#include "ir_compile_unit.h"
+#include "ir_module.h"
 
 #include <assert.h>
 
@@ -6,36 +6,36 @@
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ir_compile_unit_get_type(void)
+GType ir_module_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (IrCompileUnitClass),
+        sizeof (IrModuleClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         NULL,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (IrCompileUnit),
+        sizeof (IrModule),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(G_TYPE_OBJECT,
-                                    "IrCompileUnitType",
+                                    "IrModuleType",
                                     &info, 0);
     }
     return type;
 }
 
-IrCompileUnit *
-ir_compile_unit_new()
+IrModule *
+ir_module_new()
 {
-    IrCompileUnit *obj;
+    IrModule *obj;
 
-    obj = g_object_new(IR_TYPE_COMPILE_UNIT, NULL);
+    obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
     obj->function_defs = NULL;
 
@@ -43,19 +43,18 @@ ir_compile_unit_new()
 }
 
 sym_table_t *
-ir_compile_unit_get_symbols(IrCompileUnit *self)
+ir_module_get_symbols(IrModule *self)
 {
-    assert(self);
-    assert(IR_IS_COMPILE_UNIT(self));
+    assert(IR_IS_MODULE(self));
 
     return self->symbols;
 }
 
 bool
-ir_compile_unit_add_function_decl(IrCompileUnit *self,
-                                  IrFunctionDecl *function_decl)
+ir_module_add_function_decl(IrModule *self,
+                            IrFunctionDecl *function_decl)
 {
-    assert(IR_IS_COMPILE_UNIT(self));
+    assert(IR_IS_MODULE(self));
     assert(IR_IS_FUNCTION_DECL(function_decl));
 
     if (sym_table_add_symbol(self->symbols, IR_SYMBOL(function_decl)) == -1)
@@ -66,10 +65,10 @@ ir_compile_unit_add_function_decl(IrCompileUnit *self,
 }
 
 bool
-ir_compile_unit_add_function_def(IrCompileUnit *self,
-                                 IrFunctionDef *function_def)
+ir_module_add_function_def(IrModule *self,
+                           IrFunctionDef *function_def)
 {
-    assert(IR_IS_COMPILE_UNIT(self));
+    assert(IR_IS_MODULE(self));
     assert(IR_IS_FUNCTION_DEF(function_def));
 
     if (sym_table_add_symbol(self->symbols, IR_SYMBOL(function_def)) == -1)
@@ -84,18 +83,17 @@ ir_compile_unit_add_function_def(IrCompileUnit *self,
 }
 
 GSList *
-ir_compile_unit_get_function_defs(IrCompileUnit *self)
+ir_module_get_function_defs(IrModule *self)
 {
-    assert(IR_IS_COMPILE_UNIT(self));
+    assert(IR_IS_MODULE(self));
 
     return self->function_defs;
 }
 
 void
-ir_compile_unit_print(IrCompileUnit *self, FILE *out, int indention)
+ir_module_print(IrModule *self, FILE *out, int indention)
 {
-    assert(self);
-    assert(IR_IS_COMPILE_UNIT(self));
+    assert(IR_IS_MODULE(self));
     assert(out);
 
 

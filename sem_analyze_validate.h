@@ -1,7 +1,7 @@
 #ifndef SEM_ANALYZE_VALIDATE_INC_X
 #define SEM_ANALYZE_VALIDATE_INC_X
 
-#include "ir_compile_unit.h"
+#include "ir_module.h"
 #include "utils.h"
 
 /*---------------------------------------------------------------------------*
@@ -14,6 +14,6 @@
  */
 void
 sem_analyze_validate(compilation_status_t *compile_status,
-                     IrCompileUnit *compile_unit);
+                     IrModule *module);
 
 #endif /* SEM_ANALYZE_VALIDATE_INC_X */
