@@ -120,7 +120,7 @@ ir_module_get_mangled_name(IrModule *self)
 
         for (i = self->package_name; i != NULL; i = g_slist_next(i))
         {
-           g_string_append_printf(str, "%u%s", 
+           g_string_append_printf(str, "%zu%s", 
                                   strlen(i->data), (char *)i->data);
         }
         self->mangled_name = g_string_free(str, FALSE);

@@ -123,7 +123,7 @@ ir_function_def_get_mangled_name(IrFunctionDef *self)
           g_string_new(ir_module_get_mangled_name(self->parent_module));
 
         func_name = ir_function_get_name(IR_FUNCTION(self));
-        g_string_append_printf(str, "%d%sF", strlen(func_name), func_name);
+        g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);
 
         i = ir_function_def_get_parameters(self);
         for (; i != NULL; i = g_slist_next(i))
