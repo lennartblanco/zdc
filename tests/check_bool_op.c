@@ -9,7 +9,7 @@ call_return_true()
 {
    bool res;
 
-   asm ("    call return_true\n"
+   asm ("    call _D7bool_op11return_trueFZb\n"
         : "=a"(res)
         : );
 
@@ -21,7 +21,7 @@ call_return_false()
 {
    bool res;
 
-   asm ("    call return_false\n"
+   asm ("    call _D7bool_op12return_falseFZb\n"
         : "=a"(res)
         : );
 
@@ -33,7 +33,7 @@ call_invert(bool in)
 {
    bool res;
 
-   asm ("    call invert\n"
+   asm ("    call _D7bool_op6invertFbZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -47,7 +47,7 @@ call_is_equal(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call is_equal\n"
+        "    call _D7bool_op8is_equalFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -62,7 +62,7 @@ call_not_equal(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call not_equal\n"
+        "    call _D7bool_op9not_equalFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -77,7 +77,7 @@ call_is_less_or_equal(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call is_less_or_equal\n"
+        "    call _D7bool_op16is_less_or_equalFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -92,7 +92,7 @@ call_is_greater_or_equal(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call is_greater_or_equal\n"
+        "    call _D7bool_op19is_greater_or_equalFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -107,7 +107,7 @@ call_is_greater(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call is_greater\n"
+        "    call _D7bool_op10is_greaterFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -122,7 +122,7 @@ call_is_less(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call is_less\n"
+        "    call _D7bool_op7is_lessFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -135,7 +135,7 @@ call_greater_tst1()
 {
    bool res;
 
-   asm ("    call greater_tst1\n"
+   asm ("    call _D7bool_op12greater_tst1FZb\n"
         : "=a"(res)
         : );
 
@@ -147,7 +147,7 @@ call_greater_tst2(int in)
 {
    bool res;
 
-   asm ("    call greater_tst2\n"
+   asm ("    call _D7bool_op12greater_tst2FiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -159,7 +159,7 @@ call_greater_tst3(int in)
 {
    bool res;
 
-   asm ("    call greater_tst3\n"
+   asm ("    call _D7bool_op12greater_tst3FiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -171,7 +171,7 @@ call_less_tst1()
 {
    bool res;
 
-   asm ("    call less_tst1\n"
+   asm ("    call _D7bool_op9less_tst1FZb\n"
         : "=a"(res)
         : );
 
@@ -183,7 +183,7 @@ call_less_tst2(int in)
 {
    bool res;
 
-   asm ("    call less_tst2\n"
+   asm ("    call _D7bool_op9less_tst2FiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -195,7 +195,7 @@ call_less_tst3(int in)
 {
    bool res;
 
-   asm ("    call less_tst3\n"
+   asm ("    call _D7bool_op9less_tst3FiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -209,7 +209,7 @@ call_and_oper(bool arg1, bool arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call and_oper\n"
+        "    call _D7bool_op8and_operFbbZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -224,7 +224,7 @@ call_or_oper(bool arg1, bool arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call or_oper\n"
+        "    call _D7bool_op7or_operFbbZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -240,7 +240,7 @@ call_tripple_and_op(bool arg1, bool arg2, bool arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call tripple_and_op\n"
+        "    call _D7bool_op14tripple_and_opFbbbZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -257,7 +257,7 @@ call_andor_ops(bool arg1, bool arg2, bool arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call andor_ops\n"
+        "    call _D7bool_op9andor_opsFbbbZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -271,7 +271,7 @@ call_nested_eq(int in)
 {
    int res;
 
-   asm ("    call nested_eq\n"
+   asm ("    call _D7bool_op9nested_eqFiZi\n"
         : "=a"(res)
         : "a"(in));
 

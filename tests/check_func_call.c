@@ -9,7 +9,7 @@ call_hej()
 {
    int res;
 
-   asm ("    call hej\n"
+   asm ("    call _D9func_call3hejFZi\n"
         : "=a"(res)
         : );
 
@@ -21,7 +21,7 @@ call_get_13()
 {
    int res;
 
-   asm ("    call get_13\n"
+   asm ("    call _D9func_call6get_13FZi\n"
         : "=a"(res)
         : );
 
@@ -33,7 +33,7 @@ call_foo()
 {
    int res;
 
-   asm ("    call foo\n"
+   asm ("    call _D9func_call3fooFZi\n"
         : "=a"(res)
         : );
 
@@ -47,7 +47,7 @@ call_add(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call add\n"
+        "    call _D9func_call3addFiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -63,7 +63,7 @@ call_sum(int arg1, int arg2, int arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call sum\n"
+        "    call _D9func_call3sumFiiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -77,7 +77,7 @@ call_ind_sum(int in)
 {
    int res;
 
-   asm ("    call ind_sum\n"
+   asm ("    call _D9func_call7ind_sumFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -91,7 +91,7 @@ call_subst3(int arg1, int arg2, int arg3)
 
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
-        "    call subst3\n"
+        "    call _D9func_call6subst3FiiiZi\n"
         : "=a"(res)
         : "a" (arg3),
           [arg1]"m"(arg1),
@@ -108,7 +108,7 @@ call_subst4(int arg1, int arg2, int arg3, int arg4)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    pushl %[arg3]\n"
-        "    call subst4\n"
+        "    call _D9func_call6subst4FiiiiZi\n"
         : "=a"(res)
         : "a" (arg4),
           [arg1]"m"(arg1),
@@ -123,7 +123,7 @@ call_add_13(int in)
 {
    int res;
 
-   asm ("    call add_13\n"
+   asm ("    call _D9func_call6add_13FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -135,7 +135,7 @@ call_invoke_subst3(int in)
 {
    int res;
 
-   asm ("    call invoke_subst3\n"
+   asm ("    call _D9func_call13invoke_subst3FiZi\n"
         : "=a"(res)
         : "a"(in));
 

@@ -9,7 +9,7 @@ call_uint_assig()
 {
    bool res;
 
-   asm ("    call uint_assig\n"
+   asm ("    call _D7uint_op10uint_assigFZb\n"
         : "=a"(res)
         : );
 
@@ -21,7 +21,7 @@ call_uint_arg(unsigned in)
 {
    bool res;
 
-   asm ("    call uint_arg\n"
+   asm ("    call _D7uint_op8uint_argFkZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -33,7 +33,7 @@ call_uint_ret(bool in)
 {
    unsigned res;
 
-   asm ("    call uint_ret\n"
+   asm ("    call _D7uint_op8uint_retFbZk\n"
         : "=a"(res)
         : "a"(in));
 
@@ -45,7 +45,7 @@ call_uint_arrys(unsigned in)
 {
    unsigned res;
 
-   asm ("    call uint_arrys\n"
+   asm ("    call _D7uint_op10uint_arrysFkZk\n"
         : "=a"(res)
         : "a"(in));
 

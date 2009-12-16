@@ -11,7 +11,7 @@ call_nested_blocks1()
 {
    int res;
 
-   asm ("    call nested_blocks1\n"
+   asm ("    call _D13nested_blocks14nested_blocks1FZi\n"
         : "=a"(res)
         : );
 
@@ -23,7 +23,7 @@ call_nested_blocks2(int in)
 {
    int res;
 
-   asm ("    call nested_blocks2\n"
+   asm ("    call _D13nested_blocks14nested_blocks2FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -35,7 +35,7 @@ call_nested_blocks_with_if(bool in)
 {
    int res;
 
-   asm ("    call nested_blocks_with_if\n"
+   asm ("    call _D13nested_blocks21nested_blocks_with_ifFbZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -47,7 +47,7 @@ call_nested_blocks_with_if2(int in)
 {
    int res;
 
-   asm ("    call nested_blocks_with_if2\n"
+   asm ("    call _D13nested_blocks22nested_blocks_with_if2FiZi\n"
         : "=a"(res)
         : "a"(in));
 

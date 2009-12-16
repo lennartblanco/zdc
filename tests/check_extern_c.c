@@ -9,7 +9,7 @@ call_cinv_wrap(int in)
 {
    int res;
 
-   asm ("    call cinv_wrap\n"
+   asm ("    call _D8extern_c9cinv_wrapFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -23,7 +23,7 @@ call_cadd_wrap(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call cadd_wrap\n"
+        "    call _D8extern_c9cadd_wrapFiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -38,7 +38,7 @@ call_csubst3_wrap(int arg1, int arg2, int arg3)
 
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
-        "    call csubst3_wrap\n"
+        "    call _D8extern_c12csubst3_wrapFiiiZi\n"
         : "=a"(res)
         : "a" (arg3),
           [arg1]"m"(arg1),
@@ -55,7 +55,7 @@ call_cexpr_wrap(int arg1, int arg2, int arg3, int arg4)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    pushl %[arg3]\n"
-        "    call cexpr_wrap\n"
+        "    call _D8extern_c10cexpr_wrapFiiiiZi\n"
         : "=a"(res)
         : "a" (arg4),
           [arg1]"m"(arg1),
@@ -70,23 +70,19 @@ call_cget20_wrap()
 {
    int res;
 
-   asm ("    call cget20_wrap\n"
+   asm ("    call _D8extern_c11cget20_wrapFZi\n"
         : "=a"(res)
         : );
 
    return res;
 }
 
-int
+void
 call_c_store_num_wrap(int in)
 {
-   int res;
-
-   asm ("    call c_store_num_wrap\n"
-        : "=a"(res)
+   asm ("    call _D8extern_c16c_store_num_wrapFiZv\n"
+        :
         : "a"(in));
-
-   return res;
 }
 
 int
@@ -94,7 +90,7 @@ call_c_get_num_wrap()
 {
    int res;
 
-   asm ("    call c_get_num_wrap\n"
+   asm ("    call _D8extern_c14c_get_num_wrapFZi\n"
         : "=a"(res)
         : );
 

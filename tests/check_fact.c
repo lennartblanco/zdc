@@ -9,7 +9,7 @@ call_fact_rec(int in)
 {
    int res;
 
-   asm ("    call fact_rec\n"
+   asm ("    call _D4fact8fact_recFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_fact_while(int in)
 {
    int res;
 
-   asm ("    call fact_while\n"
+   asm ("    call _D4fact10fact_whileFiZi\n"
         : "=a"(res)
         : "a"(in));
 

@@ -9,7 +9,7 @@ call_if_isless(int in)
 {
    bool res;
 
-   asm ("    call if_isless\n"
+   asm ("    call _D7if_else9if_islessFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_if_isgreater(int in)
 {
    bool res;
 
-   asm ("    call if_isgreater\n"
+   asm ("    call _D7if_else12if_isgreaterFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -33,7 +33,7 @@ call_if_isless_eq(int in)
 {
    bool res;
 
-   asm ("    call if_isless_eq\n"
+   asm ("    call _D7if_else12if_isless_eqFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -45,7 +45,7 @@ call_if_isgreater_eq(int in)
 {
    bool res;
 
-   asm ("    call if_isgreater_eq\n"
+   asm ("    call _D7if_else15if_isgreater_eqFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -59,7 +59,7 @@ call_if_iseq(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call if_iseq\n"
+        "    call _D7if_else7if_iseqFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -74,7 +74,7 @@ call_if_isnoteq(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call if_isnoteq\n"
+        "    call _D7if_else10if_isnoteqFiiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -87,7 +87,7 @@ call_abs(int in)
 {
    int res;
 
-   asm ("    call abs\n"
+   asm ("    call _D7if_else3absFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -99,7 +99,7 @@ call_if_else_test(int in)
 {
    int res;
 
-   asm ("    call if_else_test\n"
+   asm ("    call _D7if_else12if_else_testFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -111,7 +111,7 @@ call_get_sign(int in)
 {
    int res;
 
-   asm ("    call get_sign\n"
+   asm ("    call _D7if_else8get_signFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -127,7 +127,7 @@ call_iret_n_arg(int arg1, int arg2, int arg3, int arg4)
         "    pushl %[arg2]\n"
         "    pushl %[arg3]\n"
         "    movl %[arg4],%%eax\n"
-        "    call iret_n_arg\n"
+        "    call _D7if_else10iret_n_argFiiiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),

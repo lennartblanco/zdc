@@ -9,7 +9,7 @@ call_neg0(int in)
 {
    int res;
 
-   asm ("    call neg0\n"
+   asm ("    call _D3neg4neg0FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_neg1(int in)
 {
    int res;
 
-   asm ("    call neg1\n"
+   asm ("    call _D3neg4neg1FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -33,7 +33,7 @@ call_neg2(int in)
 {
    int res;
 
-   asm ("    call neg2\n"
+   asm ("    call _D3neg4neg2FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -45,7 +45,7 @@ call_neg3()
 {
    int res;
 
-   asm ("    call neg3\n"
+   asm ("    call _D3neg4neg3FZi\n"
         : "=a"(res)
         : );
 
@@ -57,7 +57,7 @@ call_neg4()
 {
    int res;
 
-   asm ("    call neg4\n"
+   asm ("    call _D3neg4neg4FZi\n"
         : "=a"(res)
         : );
 
@@ -69,7 +69,7 @@ call_neg5(int in)
 {
    int res;
 
-   asm ("    call neg5\n"
+   asm ("    call _D3neg4neg5FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -81,7 +81,7 @@ call_neg51(int in)
 {
    int res;
 
-   asm ("    call neg51\n"
+   asm ("    call _D3neg5neg51FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -93,7 +93,7 @@ call_neg6(int in)
 {
    int res;
 
-   asm ("    call neg6\n"
+   asm ("    call _D3neg4neg6FiZi\n"
         : "=a"(res)
         : "a"(in));
 

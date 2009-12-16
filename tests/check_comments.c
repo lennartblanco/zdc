@@ -9,7 +9,7 @@ call_dummy1(int in)
 {
    bool res;
 
-   asm ("    call dummy1\n"
+   asm ("    call _D8comments6dummy1FbZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_dummy2()
 {
    int res;
 
-   asm ("    call dummy2\n"
+   asm ("    call _D8comments6dummy2FZi\n"
         : "=a"(res)
         : );
 

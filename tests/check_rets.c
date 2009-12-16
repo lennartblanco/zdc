@@ -12,13 +12,13 @@
 void
 call_void_return()
 {
-   asm("call void_return");
+   asm("call _D4rets11void_returnFZv");
 }
 
 void
 call_printNum(int arg)
 {
-   asm("call printNum"
+   asm("call _D4rets8printNumFiZv"
        :
        : "a"(arg));
 }
@@ -28,7 +28,7 @@ call_int_ret()
 {
    int res;
 
-   asm ("    call int_ret\n"
+   asm ("    call _D4rets7int_retFZi\n"
         : "=a"(res)
         : );
 
@@ -40,7 +40,7 @@ call_iret_val(int in)
 {
    int res;
 
-   asm ("    call iret_val\n"
+   asm ("    call _D4rets8iret_valFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -55,7 +55,7 @@ call_iret_arg1(int arg1, int arg2, int arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call iret_arg1\n"
+        "    call _D4rets9iret_arg1FiiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -72,7 +72,7 @@ call_iret_arg1_with_ret_var(int arg1, int arg2, int arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call iret_arg1_with_ret_var\n"
+        "    call _D4rets22iret_arg1_with_ret_varFiiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -90,7 +90,7 @@ call_iret_arg2(int arg1, int arg2, int arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call iret_arg2\n"
+        "    call _D4rets9iret_arg2FiiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -107,7 +107,7 @@ call_iret_arg3(int arg1, int arg2, int arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3],%%eax\n"
-        "    call iret_arg3\n"
+        "    call _D4rets9iret_arg3FiiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -120,7 +120,7 @@ void
 call_no_ret_void(int arg1, int arg2)
 {
    asm ("    pushl %[arg1]\n"
-        "    call no_ret_void\n"
+        "    call _D4rets11no_ret_voidFiiZv\n"
         "    add $4, %%esp\n" // clear call arguments from the stack
         :
         : [arg1]"m"(arg1),
@@ -130,7 +130,7 @@ call_no_ret_void(int arg1, int arg2)
 void
 call_empty_func()
 {
-   asm("call empty_func");
+   asm("call _D4rets10empty_funcFZv");
 }
 
 /*---------------------------------------------------------------------------*

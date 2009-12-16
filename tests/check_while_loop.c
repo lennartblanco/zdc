@@ -9,7 +9,7 @@ call_while_tst1(int in)
 {
    int res;
 
-   asm ("    call while_tst1\n"
+   asm ("    call _D10while_loop10while_tst1FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_while_tst2(int in)
 {
    int res;
 
-   asm ("    call while_tst2\n"
+   asm ("    call _D10while_loop10while_tst2FiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -34,7 +34,7 @@ call_while_loc_vars(int arg1, unsigned arg2)
    unsigned res;
 
    asm ("    pushl %[arg1]\n"
-        "    call while_loc_vars\n"
+        "    call _D10while_loop14while_loc_varsFikZk\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           "a"(arg2));

@@ -9,7 +9,7 @@ call_bool_to_int(bool in)
 {
    int res;
 
-   asm ("    call bool_to_int\n"
+   asm ("    call _D13implicit_cast11bool_to_intFbZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_int0_to_bool()
 {
    bool res;
 
-   asm ("    call int0_to_bool\n"
+   asm ("    call _D13implicit_cast12int0_to_boolFZb\n"
         : "=a"(res)
         : );
 
@@ -33,7 +33,7 @@ call_int1_to_bool()
 {
    bool res;
 
-   asm ("    call int1_to_bool\n"
+   asm ("    call _D13implicit_cast12int1_to_boolFZb\n"
         : "=a"(res)
         : );
 
@@ -47,7 +47,7 @@ call_add_bools(bool arg1, bool arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call add_bools\n"
+        "    call _D13implicit_cast9add_boolsFbbZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
