@@ -59,7 +59,7 @@ run_all_tests()
     for test_name in $tests
     do
         $RUN_TEST $test_name
-        if [ "$?" == 0 ]; then
+        if [ "$?" = 0 ]; then
             passed=$(($passed + 1));
         else
             failed=$(($failed + 1));
@@ -86,7 +86,7 @@ fi
 
 if [ "$2" ]; then
     $RUN_TEST $2
-    if [ "$?" == 0 ]; then
+    if [ "$?" = 0 ]; then
         echo "'$2' test passed"
         exit 0
     else
