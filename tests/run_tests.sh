@@ -54,7 +54,7 @@ run_all_tests()
 
     local tests="empty rets only_comments comments neg func_call "\
 "implicit_cast bool_op uint_op nested_blocks if_else fact extern_c "\
-"while_loop stat_array foreach"
+"while_loop stat_array foreach module_test pkg_name_tst"
 
     for test_name in $tests
     do
@@ -86,8 +86,13 @@ fi
 
 if [ "$2" ]; then
     $RUN_TEST $2
-    echo "'$2' test passed"
-    exit 0
+    if [ "$?" == 0 ]; then
+        echo "'$2' test passed"
+        exit 0
+    else
+        echo "'$2' test failed"
+        exit 1
+    fi
 fi
 
 
