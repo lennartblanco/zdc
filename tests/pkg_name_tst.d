@@ -4,7 +4,7 @@ module a.test.pkg.name;
 
 int first_func()
 {
-  return 0;
+  return 1969;
 }
 
 bool second_func(int b)
