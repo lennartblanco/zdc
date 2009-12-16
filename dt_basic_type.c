@@ -14,6 +14,9 @@ dt_basic_type_do_print(DtDataType *self, FILE *out);
 static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy);
 
+static char *
+dt_basic_type_get_mangled(DtDataType *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -93,9 +96,33 @@ dt_basic_type_do_print(DtDataType *self, FILE *out)
     fprintf(out, "%s", str);
 }
 
+static char *
+dt_basic_type_get_mangled(DtDataType *self)
+{
+    assert(DT_IS_BASIC_TYPE(self));
+
+    switch (DT_BASIC_TYPE(self)->data_type)
+    {
+        case int_type:
+            return "i";
+        case uint_type:
+            return "k";
+        case void_type:
+            return "v";
+        case bool_type:
+            return "b";
+        default:
+            /* unexpected basic data type */
+            assert(false);
+    }
+    
+}
+
 static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy)
 {
+    ((DtDataTypeClass *)klass)->get_mangled = dt_basic_type_get_mangled;
     ((DtDataTypeClass *)klass)->do_print = dt_basic_type_do_print;
+    
 }
 

@@ -1,8 +1,24 @@
+#include <string.h>
+
 #include "ir_function_def.h"
-#include "ast_variable_declaration.h"
 #include "ir_variable.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+struct _IrFunctionDef
+{
+    IrFunction parent;
+    /* private */
+    IrModule *parent_module;
+    sym_table_t  *param_symbols;
+    IrCodeBlock  *body;
+    char *mangled_name;
+};
+
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -47,12 +63,12 @@ IrFunctionDef *
 ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
-                    sym_table_t *parent_scope,
+                    IrModule *parent_module,
                     guint line_number)
 {
     assert(DT_IS_DATA_TYPE(return_type));
     assert(name);
-    assert(parent_scope);
+    assert(IR_IS_MODULE(parent_module));
 
     IrFunctionDef *obj;
     GSList *p;
@@ -62,6 +78,8 @@ ir_function_def_new(DtDataType *return_type,
                        "ir-symbol-name", name,
                        NULL);
 
+    obj->parent_module = parent_module;
+    obj->mangled_name = NULL;
     
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);
     ir_function_set_parameters(IR_FUNCTION(obj), parameters);
@@ -69,7 +87,7 @@ ir_function_def_new(DtDataType *return_type,
     /*
      * set-up the symbol table containing function's parameters
      */
-    obj->param_symbols = sym_table_new(parent_scope);
+    obj->param_symbols = sym_table_new(ir_module_get_symbols(parent_module));
     p = parameters;
     for (; p != NULL; p = g_slist_next(p))
     {        
@@ -90,6 +108,41 @@ ir_function_def_get_name(IrFunctionDef *self)
     assert(IR_IS_FUNCTION_DEF(self));
 
     return ir_function_get_name(IR_FUNCTION(self));
+}
+
+char *
+ir_function_def_get_mangled_name(IrFunctionDef *self)
+{
+    assert(IR_IS_FUNCTION_DEF(self));
+
+    if (self->mangled_name == NULL)
+    {
+        GSList *i;
+        char *func_name;
+        GString *str =
+          g_string_new(ir_module_get_mangled_name(self->parent_module));
+
+        func_name = ir_function_get_name(IR_FUNCTION(self));
+        g_string_append_printf(str, "%d%sF", strlen(func_name), func_name);
+
+        i = ir_function_def_get_parameters(self);
+        for (; i != NULL; i = g_slist_next(i))
+        {
+            DtDataType *var_type;
+
+            var_type = ir_variable_get_data_type(i->data);
+
+            g_string_append(str, dt_data_type_get_mangled(var_type));
+        }
+
+        g_string_append_printf(str, "Z%s", 
+    dt_data_type_get_mangled(ir_function_def_get_return_type(self)));
+
+
+        self->mangled_name = g_string_free(str, FALSE);
+    }
+
+    return self->mangled_name;
 }
 
 GSList *

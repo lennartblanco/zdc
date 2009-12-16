@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "sym_table.h"
+#include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
 
@@ -31,14 +32,6 @@
 
 typedef struct 
 {
-  GObject        parent;
-  /* private */
-  sym_table_t    *symbols;
-  GSList         *function_defs;
-} IrModule;
-
-typedef struct 
-{
   GObjectClass parent_class;
 } IrModuleClass;
 
@@ -49,8 +42,14 @@ typedef struct
 GType 
 ir_module_get_type(void);
 
+/**
+ * Create a IR representation of a module.
+ *
+ * @param package_name module's fully qualified package name, as a list of 
+ *                     strings (char *) for each package name component
+ */
 IrModule *
-ir_module_new();
+ir_module_new(GSList *package_name);
 
 sym_table_t *
 ir_module_get_symbols(IrModule *self);
@@ -76,5 +75,8 @@ ir_module_get_function_defs(IrModule *self);
 
 void
 ir_module_print(IrModule *self, FILE *out, int indention);
+
+char *
+ir_module_get_mangled_name(IrModule *self);
 
 #endif /* IR_MODULE_INC_X */

@@ -1,6 +1,22 @@
+#include <string.h>
+
 #include "ir_module.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+struct _IrModule
+{
+  GObject        parent;
+  /* private */
+  GSList         *package_name;
+  sym_table_t    *symbols;
+  GSList         *function_defs;
+  char *mangled_name;
+};
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -31,13 +47,15 @@ GType ir_module_get_type(void)
 }
 
 IrModule *
-ir_module_new()
+ir_module_new(GSList *package_name)
 {
     IrModule *obj;
 
     obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
     obj->function_defs = NULL;
+    obj->package_name = package_name;
+    obj->mangled_name = NULL;
 
     return obj;
 }
@@ -88,6 +106,28 @@ ir_module_get_function_defs(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->function_defs;
+}
+
+char *
+ir_module_get_mangled_name(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    if (self->mangled_name == NULL)
+    {
+        GSList *i;
+        GString *str = g_string_new("_D");
+
+        for (i = self->package_name; i != NULL; i = g_slist_next(i))
+        {
+           g_string_append_printf(str, "%u%s", 
+                                  strlen(i->data), (char *)i->data);
+        }
+        self->mangled_name = g_string_free(str, FALSE);
+    }
+
+
+    return self->mangled_name;
 }
 
 void

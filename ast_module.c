@@ -62,6 +62,14 @@ ast_module_set_package(AstModule *self, GSList *package_names)
     self->package = package_names;
 }
 
+GSList *
+ast_module_get_package(AstModule *self)
+{
+    assert(AST_IS_MODULE(self));
+
+    return self->package;
+}
+
 void
 ast_module_add_function_decl(AstModule *self,
                              AstFunctionDecl *function_decl)

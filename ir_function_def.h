@@ -2,6 +2,7 @@
 #define IR_FUNCTION_DEF_INC_X
 
 #include "ir_function.h"
+#include "ir_module.h"
 #include "ir_code_block.h"
 
 /*---------------------------------------------------------------------------*
@@ -24,14 +25,6 @@
 
 #define IR_FUNCTION_DEF_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_FUNCTION_DEF, IrFunctionDefClass))
-
-typedef struct
-{
-    IrFunction parent;
-    /* private */
-    sym_table_t  *param_symbols;
-    IrCodeBlock  *body;
-} IrFunctionDef;
 
 typedef struct
 {
@@ -62,11 +55,14 @@ IrFunctionDef *
 ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
-                    sym_table_t *parent_scope,
+                    IrModule *parent_module,
                     guint line_number);
 
 char *
 ir_function_def_get_name(IrFunctionDef *self);
+
+char *
+ir_function_def_get_mangled_name(IrFunctionDef *self);
 
 /**
  * Get the function formal parameters.

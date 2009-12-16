@@ -30,9 +30,9 @@ typedef struct compilation_status_s
  */
 void
 compile_error(compilation_status_t *compile_status,
-                  IrNode *error_node,
-                  const char *errmsg,
-                  ...);
+              IrNode *error_node,
+              const char *errmsg,
+              ...);
 
 /**
  * Print the formatted string with indention to the file stream.

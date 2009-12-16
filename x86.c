@@ -342,30 +342,31 @@ x86_prelude(x86_comp_params_t *params,
      * after main() have returned
      */
     main_symb = sym_table_get_symbol(sym_table, "main");
-    if (IR_IS_FUNCTION(main_symb))
+    if (IR_IS_FUNCTION_DEF(main_symb))
     {
-      IrFunction *main_func;
+      IrFunctionDef *main_func;
       bool exit_code_returned;
 
-      main_func = IR_FUNCTION(main_symb);
+      main_func = IR_FUNCTION_DEF(main_symb);
       
       /* only entry point without arguments supported */
-      assert(ir_function_get_parameters(main_func) == NULL);
+      assert(ir_function_def_get_parameters(main_func) == NULL);
 
       /*
        * if main() returns a value, use it as exit code,
        * otherwise exit with code 0
        */
       exit_code_returned = 
-        types_is_int(ir_function_get_return_type(main_func));
+        types_is_int(ir_function_def_get_return_type(main_func));
 
       fprintf(params->out,
               ".globl _start\n"
               "_start:\n"
-              "    call main\n"
+              "    call %s\n"
               "    movl %s, %%ebx\n"
               "    movl $1, %%eax\n"
               "    int $0x80\n",
+              ir_function_def_get_mangled_name(main_func),
               exit_code_returned ? "%eax" : "$0");
     }
 }
@@ -470,7 +471,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     int stack_size;
     bool push_last_arg;
 
-    func_name = ir_function_def_get_name(func_def);
+    func_name = ir_function_def_get_mangled_name(func_def);
     /* generate function symbol declaration and function entry point label */
     fprintf(params->out,
             ".globl %s\n"

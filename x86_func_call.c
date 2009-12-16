@@ -129,7 +129,7 @@ compile_d_func_call(x86_comp_params_t *params,
     fprintf(params->out,
             "# invoke function\n"
             "    call %s\n",
-            ir_function_call_get_name(func_call));
+            ir_function_def_get_mangled_name(callee_def));
 
     if (args_size_on_stack > 0)
     {

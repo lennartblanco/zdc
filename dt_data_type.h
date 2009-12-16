@@ -35,6 +35,7 @@ typedef struct
     GObjectClass parent_class;
     /* public virtual methods */
     void (*do_print) (DtDataType *self, FILE *out);
+    char * (*get_mangled) (DtDataType *self);
 } DtDataTypeClass;
 
 typedef enum basic_data_type_e
@@ -54,5 +55,11 @@ dt_data_type_get_type(void);
 
 void
 dt_data_type_print(DtDataType *self, FILE *out);
+
+/**
+ * Return the mangle string representation of this data type.
+ */
+char *
+dt_data_type_get_mangled(DtDataType *self);
 
 #endif /* DT_DATA_TYPE_INC_X */

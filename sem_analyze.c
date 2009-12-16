@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 
 #include "sem_analyze.h"
@@ -84,7 +85,7 @@ sem_analyze_ast_func_decl_to_ir(AstFunctionDecl *ast_func_decl);
 static IrFunctionDef *
 sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
                                AstFunctionDef *ast_func_def,
-                               sym_table_t *global_sym_table);
+                               IrModule *parent_module);
 
 static IrExpression *
 sem_analyze_ast_expression_to_ir(compilation_status_t *compile_status,
@@ -819,7 +820,7 @@ sem_analyze_ast_func_decl_to_ir(AstFunctionDecl *ast_func_decl)
 static IrFunctionDef *
 sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
                                AstFunctionDef *ast_func_def,
-                               sym_table_t *global_sym_table)
+                               IrModule *parent_module)
 {
     IrFunctionDef *ir_func;
     GSList *parameters = NULL;
@@ -847,7 +848,7 @@ sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
         ir_function_def_new(ast_function_def_get_return_type(ast_func_def),
                             ast_function_def_get_name(ast_func_def),
                             parameters,
-                            global_sym_table,
+                            parent_module,
                             ast_node_get_line_num(ast_func_def));
 
 
@@ -859,17 +860,63 @@ sem_analyze_ast_func_def_to_ir(compilation_status_t *compile_status,
     return ir_func;
 }
 
+/**
+ * Generate module's implicit name from it's source file name.
+ *
+ * @return module name, as newly allocated string
+ */
+char *
+sem_analyze_src_filename_to_package(const char *source_filename)
+{
+   char *name;
+   const char *p;
+   size_t name_len;
+
+   assert(g_str_has_suffix(source_filename, ".d"));
+
+   /* find the end of path */
+   p = g_strrstr(source_filename, "/");
+   if (p == NULL)
+   {
+       p = source_filename;
+   }
+   else
+   {
+       p += 1;
+   }
+       /* 'file_name' - '.d' + '\0' */
+   name_len = strlen(p) - 2 + 1;
+   name = g_strndup(p, name_len);
+   name[name_len - 1] = '\0';
+
+   return name;  
+}
+
 static IrModule *
 sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
                              AstModule *ast_module)
 {
     IrModule *module;
     GSList *i;
-    sym_table_t *global_sym_table;
+    GSList *ast_package_name;
 
-    module = ir_module_new();
+    ast_package_name = ast_module_get_package(ast_module);
+    if (ast_package_name == NULL)
+    {
+        /*
+         * module name not explicitly specified,
+         * generate it from source file name
+         */
 
-    global_sym_table = ir_module_get_symbols(module);
+        char *pkg_name;
+
+        pkg_name =
+            sem_analyze_src_filename_to_package(compile_status->source_file);
+        ast_package_name = g_slist_append(ast_package_name, pkg_name);
+          
+    }
+    module = ir_module_new(ast_package_name);
+
 
     /*
      * store all function declarations in module's symbol table
@@ -902,7 +949,7 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
         ir_func_def =
             sem_analyze_ast_func_def_to_ir(compile_status,
                                            AST_FUNCTION_DEF(i->data),
-                                           global_sym_table);
+                                           module);
         if (!ir_module_add_function_def(module, ir_func_def))
         {
             compile_error(compile_status,
