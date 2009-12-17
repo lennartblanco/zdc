@@ -14,6 +14,9 @@ dt_static_array_type_do_print(DtDataType *self, FILE *out);
 static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy);
 
+static char *
+dt_static_array_type_get_mangled(DtDataType *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -102,9 +105,19 @@ dt_static_array_type_do_print(DtDataType *self, FILE *out)
     fprintf(out, "%s[%d]", str, obj->length);
 }
 
+static char *
+dt_static_array_type_get_mangled(DtDataType *self)
+{
+    assert(DT_IS_STATIC_ARRAY_TYPE(self));
+    /* not implemented */
+    assert(false);
+}
+
 static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy)
 {
+    ((DtDataTypeClass *)klass)->get_mangled =
+        dt_static_array_type_get_mangled;
     ((DtDataTypeClass *)klass)->do_print = dt_static_array_type_do_print;
 }
 
