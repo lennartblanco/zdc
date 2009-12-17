@@ -236,10 +236,10 @@ expression_statment<stmt> :
 ;
 
 type<x> :
-    basic_type<t> '[' TOK_INT_CONST<num> ']'
+    type<t> '[' TOK_INT_CONST<num> ']'
     {
         (*x).data_type =
-            DT_DATA_TYPE(dt_static_array_type_new(t.basic_data_type,
+            DT_DATA_TYPE(dt_static_array_type_new(t.data_type,
                                                   num.integer));
     }
 |   basic_type<t>

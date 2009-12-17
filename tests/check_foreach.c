@@ -9,7 +9,7 @@ call_foreach_slice()
 {
    int res;
 
-   asm ("    call foreach_slice\n"
+   asm ("    call _D7foreach13foreach_sliceFZi\n"
         : "=a"(res)
         : );
 
@@ -23,7 +23,7 @@ call_foreach_slice_params(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call foreach_slice_params\n"
+        "    call _D7foreach20foreach_slice_paramsFiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -38,7 +38,7 @@ call_foreach_shorthand_slice(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call foreach_shorthand_slice\n"
+        "    call _D7foreach23foreach_shorthand_sliceFiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -51,7 +51,7 @@ call_foreach_value_auto_type(int in)
 {
    bool res;
 
-   asm ("    call foreach_value_auto_type\n"
+   asm ("    call _D7foreach23foreach_value_auto_typeFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -63,7 +63,7 @@ call_run_foreach_index_auto_type(int in)
 {
    int res;
 
-   asm ("    call run_foreach_index_auto_type\n"
+   asm ("    call _D7foreach27run_foreach_index_auto_typeFiZi\n"
         : "=a"(res)
         : "a"(in));
    
@@ -146,7 +146,7 @@ main()
          "    pushl $0\n"
          "    pushl $0\n"
          "    pushl $0\n"
-         "    call foreach_body_loc_vars\n"
+         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
          : "=a"(res));
     check_int("foreach_body_loc_vars([0 0 0 0])",
               res, 19341 + 19341 + 19341 + 19341);
@@ -155,7 +155,7 @@ main()
          "    pushl $5\n"
          "    pushl $4\n"
          "    pushl $2\n"
-         "    call foreach_body_loc_vars\n"
+         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
          : "=a"(res));
     check_int("foreach_body_loc_vars([2 4 5 3])",
               res, 48352 + 49081 + 23112 + 28360);
@@ -164,7 +164,7 @@ main()
          "    pushl $13\n"
          "    pushl $14\n"
          "    pushl $15\n"
-         "    call foreach_body_loc_vars\n"
+         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
          : "=a"(res));
     check_int("foreach_body_loc_vars([15 14 13 12])",
               res, 41092 + 56732 + 38528 + 37889);
@@ -173,7 +173,7 @@ main()
          "    pushl $18\n"
          "    pushl $1\n"
          "    pushl $0\n"
-         "    call foreach_body_loc_vars\n"
+         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
          : "=a"(res));
     check_int("foreach_body_loc_vars([0 1 18 3])",
               res, -1);
@@ -186,7 +186,7 @@ main()
          "    movb $0, 3(%%esp)\n"
          "    movb $0, 4(%%esp)\n"
          "    movb $0, 5(%%esp)\n"
-         "    call foreach_bool_arry\n"
+         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
          : "=a"(res));
     check_int("foreach_bool_arry([false, false, false, false, false, false])",
               res, 0);
@@ -198,7 +198,7 @@ main()
          "    movb $1, 3(%%esp)\n"
          "    movb $1, 4(%%esp)\n"
          "    movb $1, 5(%%esp)\n"
-         "    call foreach_bool_arry\n"
+         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
          : "=a"(res));
     check_int("foreach_bool_arry([true, true, true, true, true, true])",
               res, 11 + 12 + 13 + 14 + 15 + 16);
@@ -210,7 +210,7 @@ main()
          "    movb $0, 3(%%esp)\n"
          "    movb $0, 4(%%esp)\n"
          "    movb $1, 5(%%esp)\n"
-         "    call foreach_bool_arry\n"
+         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
          : "=a"(res));
     check_int("foreach_bool_arry([false, false, true, false, false, true])",
               res, 13 + 16);
@@ -222,7 +222,7 @@ main()
          "    movb $1, 3(%%esp)\n"
          "    movb $0, 4(%%esp)\n"
          "    movb $1, 5(%%esp)\n"
-         "    call foreach_bool_arry\n"
+         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
          : "=a"(res));
     check_int("foreach_bool_arry([true, false, false, true, false, true])",
               res, 11 + 14 + 16);
@@ -234,7 +234,7 @@ main()
          "    movb $0, 3(%%esp)\n"
          "    movb $0, 4(%%esp)\n"
          "    movb $0, 5(%%esp)\n"
-         "    call foreach_bool_arry\n"
+         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
          : "=a"(res));
     check_int("foreach_bool_arry([true, false, true, false, false, false])",
               res, 11 + 13);

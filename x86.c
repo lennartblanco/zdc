@@ -266,14 +266,16 @@ x86_get_expression_storage_size(IrExpression *expression)
     else if (DT_IS_STATIC_ARRAY_TYPE(data_type))
     {
         DtStaticArrayType *array_type;
+        basic_data_type_t bdt;
         int len;
 
         array_type = DT_STATIC_ARRAY_TYPE(data_type);
         len = dt_static_array_type_get_length(array_type);
+        bdt =
+            dt_basic_type_get_data_type(
+                DT_BASIC_TYPE(dt_static_array_type_get_data_type(array_type)));
 
-        return 
-            len * types_get_storage_size(
-                      dt_static_array_type_get_data_type(array_type));
+        return len * types_get_storage_size(bdt);
     }
     else
     {
@@ -589,7 +591,10 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
     /* fetch array element storage size */
     storage_size =
       types_get_storage_size(
-          dt_static_array_type_get_data_type(DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array))));
+          dt_basic_type_get_data_type(
+              DT_BASIC_TYPE(
+                  dt_static_array_type_get_data_type(
+                    DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array))))));
 
     /*
      * evaluate array slice start and stop index expressions
@@ -682,9 +687,11 @@ x86_compile_array_slice(x86_comp_params_t *params,
      */
     storage_size =
       types_get_storage_size(
-          dt_array_type_get_data_type(
-              DT_ARRAY_TYPE(ir_expression_get_data_type(
-                  IR_EXPRESSION(array_slice)))));
+          dt_basic_type_get_data_type(
+              DT_BASIC_TYPE(
+                dt_array_type_get_data_type(
+                    DT_ARRAY_TYPE(ir_expression_get_data_type(
+                        IR_EXPRESSION(array_slice)))))));
 
     /*
      * we use left shift to operation to multiply index of element 
@@ -797,9 +804,12 @@ x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
      */
     storage_size =
       types_get_storage_size(
-          dt_array_type_get_data_type(
-              DT_ARRAY_TYPE(ir_expression_get_data_type(
-                  IR_EXPRESSION(src_slice)))));
+          dt_basic_type_get_data_type(
+              DT_BASIC_TYPE(
+                  dt_array_type_get_data_type(
+                      DT_ARRAY_TYPE(
+                          ir_expression_get_data_type(
+                              IR_EXPRESSION(src_slice)))))));
 
     /*
      * we use left shift to operation to multiply index of element 
@@ -942,9 +952,12 @@ x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
      */
     storage_size =
       types_get_storage_size(
-          dt_array_type_get_data_type(
-              DT_ARRAY_TYPE(ir_expression_get_data_type(
-                  IR_EXPRESSION(array_slice)))));
+          dt_basic_type_get_data_type(
+              DT_BASIC_TYPE(
+                  dt_array_type_get_data_type(
+                      DT_ARRAY_TYPE(
+                          ir_expression_get_data_type(
+                              IR_EXPRESSION(array_slice)))))));
 
     fprintf(params->out,
             "# assign basic type expression to an array slice\n"
@@ -1013,10 +1026,10 @@ x86_compile_cast_to_array_slice_assigment(x86_comp_params_t *params,
     src_type = DT_ARRAY_TYPE(ir_expression_get_data_type(value));
 
     /* only casting between uint[] and int[] arrays implemented */
-    assert((dt_array_type_get_data_type(trgt_type) == int_type ||
-            dt_array_type_get_data_type(trgt_type) == uint_type) &&
-           (dt_array_type_get_data_type(src_type) == int_type ||
-            dt_array_type_get_data_type(src_type) == uint_type));
+    assert((types_is_int(dt_array_type_get_data_type(trgt_type)) ||
+            types_is_uint(dt_array_type_get_data_type(trgt_type))) &&
+           (types_is_int(dt_array_type_get_data_type(src_type)) ||
+            types_is_uint(dt_array_type_get_data_type(src_type))));
  
     /*
      * no need to generate explicit casting code when going between
@@ -1096,7 +1109,9 @@ x86_compile_array_cell(x86_comp_params_t *params,
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
     storage_size = 
-      types_get_storage_size(dt_static_array_type_get_data_type(array_type));
+      types_get_storage_size(
+        dt_basic_type_get_data_type(
+          DT_BASIC_TYPE(dt_static_array_type_get_data_type(array_type))));
 
     fprintf(params->out,
             "    popl %%eax # store array index in eax\n");

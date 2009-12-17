@@ -46,19 +46,11 @@ implicit_conv_bt_to_array_type(DtArrayType *target_type,
 
     DtDataType *source_type;
     DtDataType *element_type;
-    basic_data_type_t bdt;
-    IrExpression *res_expression;
 
     source_type = ir_expression_get_data_type(expression);
+    element_type = dt_array_type_get_data_type(target_type);
 
-    bdt = dt_array_type_get_data_type(target_type);
-    element_type = DT_DATA_TYPE(dt_basic_type_new(bdt));
-
-    res_expression = types_implicit_conv(element_type, expression);
-
-    g_object_unref(element_type);
-
-    return res_expression;
+    return types_implicit_conv(element_type, expression);
 }
 
 static IrExpression *
@@ -69,11 +61,15 @@ implicit_conv_to_int_array_type(DtArrayType *target_type,
     assert(IR_IS_ARRAY_LITERAL(expression) ||
            IR_IS_ARRAY_SLICE(expression));
 
-    DtArrayType *arry_type;
+    DtBasicType *src_type;
 
-    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    /* only arrays over basic types as source expression are supported */
+    src_type = 
+        DT_BASIC_TYPE(
+            dt_array_type_get_data_type(
+                DT_ARRAY_TYPE(ir_expression_get_data_type(expression))));
 
-    switch (dt_array_type_get_data_type(arry_type))
+    switch (dt_basic_type_get_data_type(src_type))
     {
         case int_type:
             return expression;
@@ -95,11 +91,15 @@ implicit_conv_to_uint_array_type(DtArrayType *target_type,
     assert(IR_IS_ARRAY_LITERAL(expression) ||
            IR_IS_ARRAY_SLICE(expression));
 
-    DtArrayType *arry_type;
+    DtBasicType *src_type;
 
-    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
+    /* only arrays over basic types as source expression are supported */
+    src_type = 
+        DT_BASIC_TYPE(
+            dt_array_type_get_data_type(
+                DT_ARRAY_TYPE(ir_expression_get_data_type(expression))));
 
-    switch (dt_array_type_get_data_type(arry_type))
+    switch (dt_basic_type_get_data_type(src_type))
     {
         case uint_type:
             return expression;
@@ -121,12 +121,17 @@ implicit_conv_to_bool_array_type(DtArrayType *target_type,
     assert(IR_IS_ARRAY_LITERAL(expression) ||
            IR_IS_ARRAY_SLICE(expression));
 
-    DtArrayType *arry_type;
+/*@ todo: implement and test int[] and uint[] to  bool[] cases */
 
-/* todo: implement and test int[] and uint[] to  bool[] cases */
+    DtBasicType *src_type;
 
-    arry_type = DT_ARRAY_TYPE(ir_expression_get_data_type(expression));
-    switch (dt_array_type_get_data_type(arry_type))
+    /* only arrays over basic types as source expression are supported */
+    src_type = 
+        DT_BASIC_TYPE(
+            dt_array_type_get_data_type(
+                DT_ARRAY_TYPE(ir_expression_get_data_type(expression))));
+
+    switch (dt_basic_type_get_data_type(src_type))
     {
         case bool_type:
             return expression;
@@ -151,6 +156,7 @@ types_arrays_implicit_conv(DtArrayType *target_type,
     assert(IR_IS_EXPRESSION(expression));
 
     DtDataType *source_type;
+    basic_data_type_t bdt;
 
     source_type = ir_expression_get_data_type(expression);
 
@@ -193,8 +199,10 @@ types_arrays_implicit_conv(DtArrayType *target_type,
        }
     }
 
-
-    switch (dt_array_type_get_data_type(trg_arry_type))
+    bdt =
+        dt_basic_type_get_data_type(
+            DT_BASIC_TYPE(dt_array_type_get_data_type(trg_arry_type)));
+    switch (bdt)
     {
         case int_type:
             return implicit_conv_to_int_array_type(trg_arry_type, expression);

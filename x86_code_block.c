@@ -216,10 +216,7 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
         if (var_init == NULL)
         {
             /* construct default initializer value for the type */
-            basic_data_type_t data_type;
-
-            data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type));
-            var_init = types_get_default_initializer(data_type);
+            var_init = types_get_default_initializer(DT_BASIC_TYPE(var_type));
         }
 
         lval = IR_LVALUE(ir_scalar_new(ir_variable_get_name(variable), 0));
@@ -251,10 +248,11 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
              * construct default initializer value for 
              * the arrays element type
              */
-            basic_data_type_t data_type;
-
-            data_type = dt_static_array_type_get_data_type(var_array_type);
-            var_init = types_get_default_initializer(data_type);
+            /* only static arrays over basic types are supported */
+            var_init =
+                types_get_default_initializer(
+                    DT_BASIC_TYPE(
+                        dt_static_array_type_get_data_type(var_array_type)));
         }
     }
     else

@@ -706,7 +706,7 @@ validate_foreach(compilation_status_t *compile_status,
     assert(IR_IS_FOREACH(foreach));
 
     IrArraySlice *aggregate;
-    basic_data_type_t aggr_element_type;
+    DtDataType *aggr_element_type;
     IrVariable *var;
     DtDataType *var_type;
 
@@ -726,6 +726,9 @@ validate_foreach(compilation_status_t *compile_status,
         dt_array_type_get_data_type(
             DT_ARRAY_TYPE(
                 ir_expression_get_data_type(IR_EXPRESSION(aggregate))));
+    /* only foreach over aggregates over basic types is supported */
+    assert(DT_IS_BASIC_TYPE(aggr_element_type));
+
 
 
     /*
@@ -735,16 +738,14 @@ validate_foreach(compilation_status_t *compile_status,
     var_type = ir_variable_get_data_type(var);
     if (DT_IS_AUTO_TYPE(var_type))
     {
-        ir_variable_set_data_type(
-            var,
-            DT_DATA_TYPE(dt_basic_type_new(aggr_element_type)));
+        ir_variable_set_data_type(var, aggr_element_type);
     }
     else
     {
         /* only foreach over aggregates over basic types is supported */
         assert(DT_IS_BASIC_TYPE(var_type));
         if (dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type)) !=
-            aggr_element_type)
+            dt_basic_type_get_data_type(DT_BASIC_TYPE(aggr_element_type)))
         {
             compile_error(compile_status,
                           IR_NODE(var),

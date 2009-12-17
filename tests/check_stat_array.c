@@ -9,7 +9,7 @@ call_init_int_array(int in)
 {
    int res;
 
-   asm ("    call init_int_array\n"
+   asm ("    call _D10stat_array14init_int_arrayFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -21,7 +21,7 @@ call_init_bool_array(int in)
 {
    bool res;
 
-   asm ("    call init_bool_array\n"
+   asm ("    call _D10stat_array15init_bool_arrayFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -33,7 +33,7 @@ call_def_init_int_array(int in)
 {
    int res;
 
-   asm ("    call def_init_int_array\n"
+   asm ("    call _D10stat_array18def_init_int_arrayFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -45,7 +45,7 @@ call_def_init_bool_array(int in)
 {
    bool res;
 
-   asm ("    call def_init_bool_array\n"
+   asm ("    call _D10stat_array19def_init_bool_arrayFiZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -57,7 +57,7 @@ call_init_exp_tst(int in)
 {
    int res;
 
-   asm ("    call init_exp_tst\n"
+   asm ("    call _D10stat_array12init_exp_tstFiZi\n"
         : "=a"(res)
         : "a"(in));
 
@@ -71,7 +71,7 @@ call_intops(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call intops\n"
+        "    call _D10stat_array6intopsFiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -88,7 +88,7 @@ call_boolops(bool arg1, bool arg2, bool arg3, int arg4)
         "    pushl %[arg2]\n"
         "    pushl %[arg3]\n"
         "    movl %[arg4], %%eax\n"
-        "    call boolops\n"
+        "    call _D10stat_array7boolopsFbbbiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -107,7 +107,7 @@ call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
         "    pushl %[arg2]\n"
         "    pushl %[arg3]\n"
         "    movl %[arg4], %%eax\n"
-        "    call boolops2\n"
+        "    call _D10stat_array8boolops2FbbbiZb\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -122,7 +122,7 @@ call_slice_assig_sum()
 {
    int res;
 
-   asm ("    call slice_assig_sum\n"
+   asm ("    call _D10stat_array15slice_assig_sumFZi\n"
         : "=a"(res)
         : );
 
@@ -134,7 +134,7 @@ call_bslice_assig(int arg)
 {
    bool res;
 
-   asm ("    call bslice_assig\n"
+   asm ("    call _D10stat_array12bslice_assigFiZb\n"
         : "=a"(res)
         : "a"(arg));
 
@@ -146,7 +146,7 @@ call_slices_ops(int arg)
 {
    int res;
 
-   asm ("    call slices_ops\n"
+   asm ("    call _D10stat_array10slices_opsFiZi\n"
         : "=a"(res)
         : "a"(arg));
 
@@ -158,7 +158,7 @@ call_int_slice_to_shorthand_slice(int arg)
 {
    int res;
 
-   asm ("    call int_slice_to_shorthand_slice\n"
+   asm ("    call _D10stat_array28int_slice_to_shorthand_sliceFiZi\n"
         : "=a"(res)
         : "a"(arg));
 
@@ -170,7 +170,7 @@ call_int_slice_to_slice(int arg)
 {
    int res;
 
-   asm ("    call int_slice_to_slice\n"
+   asm ("    call _D10stat_array18int_slice_to_sliceFiZi\n"
         : "=a"(res)
         : "a"(arg));
 
@@ -182,7 +182,7 @@ call_bool_slice_to_slice(bool in)
 {
    bool res;
 
-   asm ("    call bool_slice_to_slice\n"
+   asm ("    call _D10stat_array19bool_slice_to_sliceFbZb\n"
         : "=a"(res)
         : "a"(in));
 
@@ -194,7 +194,7 @@ call_uint_slice_to_slice_idx(int in)
 {
    unsigned res;
 
-   asm ("    call uint_slice_to_slice_idx\n"
+   asm ("    call _D10stat_array23uint_slice_to_slice_idxFiZk\n"
         : "=a"(res)
         : "a"(in));
 
@@ -206,7 +206,7 @@ call_call_sum_stat()
 {
    int res;
 
-   asm ("    call call_sum_stat\n"
+   asm ("    call _D10stat_array13call_sum_statFZi\n"
         : "=a"(res)
         : );
 
@@ -218,7 +218,7 @@ call_run_stat_array_last_arg()
 {
    int res;
 
-   asm ("    call run_stat_array_last_arg\n"
+   asm ("    call _D10stat_array23run_stat_array_last_argFZi\n"
         : "=a"(res)
         : );
 
@@ -230,7 +230,7 @@ call_run_stat_array_first_arg()
 {
    int res;
 
-   asm ("    call run_stat_array_first_arg\n"
+   asm ("    call _D10stat_array24run_stat_array_first_argFZi\n"
         : "=a"(res)
         : );
 
@@ -242,7 +242,7 @@ call_run_stat_array_bool(bool arg)
 {
    int res;
 
-   asm ("    call run_stat_array_bool\n"
+   asm ("    call _D10stat_array19run_stat_array_boolFbZi\n"
         : "=a"(res)
         : "a" (arg));
 
@@ -256,7 +256,7 @@ call_scalar_to_arry_slice_assig(int arg1, int arg2)
 
    asm ("    pushl %[arg1]\n"
         "    movl %[arg2],%%eax\n"
-        "    call scalar_to_arry_slice_assig\n"
+        "    call _D10stat_array26scalar_to_arry_slice_assigFiiZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2));
@@ -272,7 +272,7 @@ call_stat_array_bool_var_init(int arg1, int arg2, bool arg3)
    asm ("    pushl %[arg1]\n"
         "    pushl %[arg2]\n"
         "    movl %[arg3], %%eax\n"
-        "    call stat_array_bool_var_init\n"
+        "    call _D10stat_array24stat_array_bool_var_initFiibZi\n"
         : "=a"(res)
         : [arg1]"m"(arg1),
           [arg2]"m"(arg2),
@@ -286,7 +286,7 @@ call_implicit_arry_lit_casts(int arg)
 {
    int res;
 
-   asm ("    call implicit_arry_lit_casts\n"
+   asm ("    call _D10stat_array23implicit_arry_lit_castsFiZi\n"
         : "=a"(res)
         : "a"(arg));
 

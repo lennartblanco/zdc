@@ -47,18 +47,19 @@ dt_static_array_type_get_type(void)
 }
 
 DtStaticArrayType *
-dt_static_array_type_new(basic_data_type_t data_type, guint32 length)
+dt_static_array_type_new(DtDataType *data_type, guint32 length)
 {
     DtStaticArrayType *obj;
 
     obj = g_object_new(DT_TYPE_STATIC_ARRAY_TYPE, NULL);
     DT_ARRAY_TYPE(obj)->data_type = data_type;
     obj->length = length;
+    obj->mangled_name = NULL;
 
     return obj;
 }
 
-basic_data_type_t
+DtDataType *
 dt_static_array_type_get_data_type(DtStaticArrayType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
@@ -84,33 +85,31 @@ dt_static_array_type_do_print(DtDataType *self, FILE *out)
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
     assert(out);
 
-    char *str;
-    DtStaticArrayType *obj = DT_STATIC_ARRAY_TYPE(self);
-
-    switch (dt_static_array_type_get_data_type(obj))
-    {
-        case int_type:
-            str = "int";
-            break;
-        case void_type:
-            str = "void";
-            break;
-        case bool_type:
-            str = "bool";
-            break;
-        default:
-            /* unexpected basic data type */
-            assert(false);
-    }
-    fprintf(out, "%s[%d]", str, obj->length);
+    dt_data_type_print(DT_ARRAY_TYPE(self)->data_type, out);
+    fprintf(out, "[%d]", DT_STATIC_ARRAY_TYPE(self)->length);
 }
 
 static char *
 dt_static_array_type_get_mangled(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
-    /* not implemented */
-    assert(false);
+
+    DtStaticArrayType *stat_arry = DT_STATIC_ARRAY_TYPE(self);
+
+    if (stat_arry->mangled_name == NULL)
+    {
+        GString *str = g_string_new("G");
+
+        g_string_append_printf(
+            str, "%u%s",
+            stat_arry->length,
+            dt_data_type_get_mangled(
+                dt_static_array_type_get_data_type(stat_arry)));
+
+        stat_arry->mangled_name = g_string_free(str, FALSE);
+    }
+
+    return stat_arry->mangled_name;
 }
 
 static void

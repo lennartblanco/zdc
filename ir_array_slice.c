@@ -141,13 +141,14 @@ ir_array_slice_do_get_data_type(IrExpression *self)
     {
         IrVariable *array_variable;
         DtStaticArrayType *array_data_type;
-        basic_data_type_t array_basic_type;
+        DtDataType *array_element_type;
 
 
         array_variable = ir_lvalue_get_variable(IR_LVALUE(slice));
         array_data_type =
             DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array_variable));
-        array_basic_type = dt_static_array_type_get_data_type(array_data_type);
+        array_element_type =
+            dt_static_array_type_get_data_type(array_data_type);
 
         if (IR_IS_UINT_CONSTANT(slice->start) &&
             IR_IS_UINT_CONSTANT(slice->end))
@@ -158,13 +159,13 @@ ir_array_slice_do_get_data_type(IrExpression *self)
                 ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->end)) -
                 ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->start));
             slice->data_type =
-                DT_DATA_TYPE(dt_static_array_type_new(array_basic_type,
+                DT_DATA_TYPE(dt_static_array_type_new(array_element_type,
                                                       slice_len));
         }
         else
         {
             slice->data_type =
-                DT_DATA_TYPE(dt_array_type_new(array_basic_type));
+                DT_DATA_TYPE(dt_array_type_new(array_element_type));
         }
     }
  

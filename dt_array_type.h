@@ -28,7 +28,7 @@ typedef struct
 {
     DtDataType parent;
     /* private */
-    basic_data_type_t data_type;
+    DtDataType *data_type; /* @todo: rename to element_type ? */
 } DtArrayType;
 
 typedef struct
@@ -44,12 +44,12 @@ GType
 dt_array_type_get_type(void);
 
 DtArrayType *
-dt_array_type_new(basic_data_type_t data_type);
+dt_array_type_new(DtDataType *data_type);
 
 /**
  * Get element data type
  */
-basic_data_type_t
+DtDataType *
 dt_array_type_get_data_type(DtArrayType *self);
 
 guint32

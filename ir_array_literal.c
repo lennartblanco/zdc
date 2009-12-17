@@ -106,7 +106,6 @@ ir_array_literal_do_get_data_type(IrExpression *self)
     {
         IrExpression *first_val;
         DtDataType *first_val_type;
-        basic_data_type_t first_val_basic_data_type;
 
         first_val = g_slist_nth_data(arr_literal->values, 0);
         assert(IR_IS_EXPRESSION(first_val));
@@ -117,11 +116,9 @@ ir_array_literal_do_get_data_type(IrExpression *self)
             /* array literals of non-basic types not implemented */
             assert(false);
         }
-        first_val_basic_data_type =
-            dt_basic_type_get_data_type(DT_BASIC_TYPE(first_val_type));
 
         arr_literal->data_type =
-            dt_static_array_type_new(first_val_basic_data_type,
+            dt_static_array_type_new(first_val_type,
                                      g_slist_length(arr_literal->values));
     }
     return DT_DATA_TYPE(arr_literal->data_type);

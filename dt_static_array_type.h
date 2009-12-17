@@ -29,6 +29,7 @@ typedef struct
     DtArrayType parent;
     /* private */
     guint32 length;
+    char *mangled_name;
 } DtStaticArrayType;
 
 typedef struct
@@ -44,9 +45,9 @@ GType
 dt_static_array_type_get_type(void);
 
 DtStaticArrayType *
-dt_static_array_type_new(basic_data_type_t data_type, guint32 length);
+dt_static_array_type_new(DtDataType *data_type, guint32 length);
 
-basic_data_type_t
+DtDataType *
 dt_static_array_type_get_data_type(DtStaticArrayType *self);
 
 guint32

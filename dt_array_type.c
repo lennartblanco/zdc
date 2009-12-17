@@ -44,7 +44,7 @@ dt_array_type_get_type(void)
 }
 
 DtArrayType *
-dt_array_type_new(basic_data_type_t data_type)
+dt_array_type_new(DtDataType *data_type)
 {
     DtArrayType *obj;
 
@@ -54,7 +54,7 @@ dt_array_type_new(basic_data_type_t data_type)
     return obj;
 }
 
-basic_data_type_t
+DtDataType *
 dt_array_type_get_data_type(DtArrayType *self)
 {
     assert(DT_IS_ARRAY_TYPE(self));
@@ -72,25 +72,8 @@ dt_array_type_do_print(DtDataType *self, FILE *out)
     assert(DT_IS_ARRAY_TYPE(self));
     assert(out);
 
-    char *str;
-    DtArrayType *obj = DT_ARRAY_TYPE(self);
-
-    switch(obj->data_type)
-    {
-        case int_type:
-            str = "int";
-            break;
-        case void_type:
-            str = "void";
-            break;
-        case bool_type:
-            str = "bool";
-            break;
-        default:
-            /* unexpected basic data type */
-            assert(false);
-    }
-    fprintf(out, "%s[]", str);
+    dt_data_type_print(DT_ARRAY_TYPE(self)->data_type, out);
+    fprintf(out, "[]");
 }
 
 static void

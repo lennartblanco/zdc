@@ -92,9 +92,11 @@ x86_compile_foreach(x86_comp_params_t *params,
                    ir_lvalue_get_variable(IR_LVALUE(aggregate)))));
     storage_size =
       types_get_storage_size(
-          dt_array_type_get_data_type(
-              DT_ARRAY_TYPE(ir_variable_get_data_type(
-                  ir_lvalue_get_variable(IR_LVALUE(aggregate))))));
+          dt_basic_type_get_data_type(
+              DT_BASIC_TYPE(
+                  dt_array_type_get_data_type(
+                      DT_ARRAY_TYPE(ir_variable_get_data_type(
+                          ir_lvalue_get_variable(IR_LVALUE(aggregate))))))));
 
     /* generate labels */
     label_gen_next(&(params->label_gen), loop_itr);

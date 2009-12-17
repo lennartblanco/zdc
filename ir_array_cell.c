@@ -114,14 +114,11 @@ ir_array_cell_do_get_data_type(IrExpression *self)
     {
         IrVariable *array_symbol;
         DtStaticArrayType *array_data_type;
-        basic_data_type_t array_basic_type;
 
         array_symbol = ir_lvalue_get_variable(IR_LVALUE(cell));
         array_data_type =
             DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array_symbol));
-        array_basic_type = dt_static_array_type_get_data_type(array_data_type);
-
-        cell->data_type = DT_DATA_TYPE(dt_basic_type_new(array_basic_type));
+        cell->data_type = dt_static_array_type_get_data_type(array_data_type);
     }
  
     return cell->data_type;

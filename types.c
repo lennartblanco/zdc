@@ -160,9 +160,11 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
  *---------------------------------------------------------------------------*/
 
 IrExpression *
-types_get_default_initializer(basic_data_type_t data_type)
+types_get_default_initializer(DtBasicType *data_type)
 {
-    switch (data_type)
+    assert(DT_IS_BASIC_TYPE(data_type));
+
+    switch (dt_basic_type_get_data_type(data_type))
     {
         case int_type:
             return IR_EXPRESSION(ir_int_constant_new(0, 0));
