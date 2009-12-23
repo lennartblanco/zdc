@@ -1,3 +1,6 @@
+#ifndef AUXIL_INC_X
+#define AUXIL_INC_X
+
 #include <stdbool.h>
 
 /*---------------------------------------------------------------------------*
@@ -22,11 +25,12 @@ typedef struct compile_options_s
  *---------------------------------------------------------------------------*/
 
 /**
- * Compile the D source file and write generated java assembly 
+ * Compile the D source file and write generated target assembly 
  * to provided output file.
  *
  * @param input_file the file name of the D source file to compile
  * @param output_file the file name where to write generated java assmebly
+ * @param options requested compilation options
  *
  * @return 0 if the file was succcessfully compile, -1 on errors
  */
@@ -40,3 +44,5 @@ yyerror(char *msg);
 
 int
 yywrap(void);
+
+#endif /* AUXIL_INC_X */
