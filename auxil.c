@@ -111,7 +111,7 @@ clean_and_exit:
 void
 yyerror(char *msg)
 {
-   printf("%s:%ld: %s\n", source_file, yypos, msg);
+   fprintf(stderr, "%s:%ld: %s\n", source_file, yypos, msg);
    exit(1);
 }
 
