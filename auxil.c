@@ -22,6 +22,10 @@ compile_file(const char* input_file,
     AstModule *ast_module;
     IrModule *ir_module;
 
+    /*
+     * Parse the input source file
+     */
+
     ast_module = parse_file(input_file);
     if (ast_module == NULL)
     {
@@ -34,6 +38,9 @@ compile_file(const char* input_file,
         ast_node_print(AST_NODE(ast_module), stdout);
     }
 
+    /*
+     * Perform semantic analysis of the code
+     */
     ir_module = semantic_analyze(input_file, ast_module);
     if (ir_module == NULL)
     {
@@ -45,6 +52,10 @@ compile_file(const char* input_file,
     {
         ir_module_print(ir_module, stdout, 0);
     }
+
+    /*
+     * Generate target assembly file
+     */
 
     /* open the output file */
     output_stream = fopen(output_file, "w");
