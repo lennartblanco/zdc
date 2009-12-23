@@ -29,6 +29,7 @@ typedef struct
 {
   AstNode parent;
   /* private */
+  char *source_file;
   GSList *package;
   GSList *imports;
   GSList *function_defs;
@@ -49,6 +50,12 @@ ast_module_get_type(void);
 
 AstModule *
 ast_module_new(void);
+
+/**
+ * Set the source file name from which this module was parsed.
+ */
+void
+ast_module_set_source_file(AstModule *self, const char *source_file);
 
 void
 ast_module_set_package(AstModule *self, GSList *package_names);

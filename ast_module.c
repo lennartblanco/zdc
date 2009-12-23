@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "ast_module.h"
 
 #include <assert.h>
@@ -47,12 +49,23 @@ ast_module_new(void)
     AstModule *node;
 
     node = g_object_new(AST_TYPE_MODULE, NULL);
+    node->source_file = NULL;
     node->function_defs = NULL;
     node->function_decls = NULL;
     node->package = NULL;
     node->imports = NULL;
 
     return node;
+}
+
+void
+ast_module_set_source_file(AstModule *self, const char *source_file)
+{
+    assert(AST_IS_MODULE(self));
+    assert(self->source_file == NULL);
+    assert(source_file);
+
+    self->source_file = strdup(source_file);
 }
 
 void
@@ -67,6 +80,18 @@ GSList *
 ast_module_get_package(AstModule *self)
 {
     assert(AST_IS_MODULE(self));
+    if (self->package == NULL)
+    {
+        char *module_name;
+        /*
+         * module name not explicitly specified,
+         * generate it from source file name
+         */
+        module_name = g_strndup(self->source_file,
+                                /* 'file_name' - '.d' */
+                                strlen(self->source_file) - 2);
+        self->package = g_slist_append(self->package, module_name);
+    }
 
     return self->package;
 }
@@ -128,7 +153,8 @@ ast_module_do_print(AstNode *self, FILE *out)
     AstModule *module = (AstModule *)self;
     GSList *i;
 
-    fprintf(out, "module [%p]\n", module);
+    fprintf(out, "module [%p]\n  source file: '%s'\n", 
+            module, module->source_file);
 
     if (module->package != NULL)
     {

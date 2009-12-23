@@ -4,6 +4,8 @@
 #include "lex.h"
 #include "entire.h"
 
+#include <assert.h>
+
 static const char *current_source_file;
 
 extern AstModule *module;
@@ -18,6 +20,7 @@ parse_file(const char* source_file)
 {
     YY_BUFFER_STATE yy_buffer;
     FILE *input_stream;
+    const char *path_end;
 
     /* open the input source file */
     input_stream = fopen(source_file, "r");
@@ -39,6 +42,24 @@ parse_file(const char* source_file)
     yyparse();
     yy_delete_buffer(yy_buffer);
     fclose(input_stream);
+
+    /*
+     * store the source file in created ast node
+     */
+    assert(g_str_has_suffix(source_file, ".d"));
+
+    /* find the end of path */
+    path_end = g_strrstr(source_file, "/");
+    if (path_end == NULL)
+    {
+        path_end = source_file;
+    }
+    else
+    {
+        path_end += 1;
+    }
+
+    ast_module_set_source_file(module, path_end);
 
     return module;
 }
