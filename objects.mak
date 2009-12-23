@@ -4,7 +4,7 @@ X86_TRGT_OBJS := x86.o x86_cast.o x86_reg_location.o x86_frame_offset.o       \
         x86_if_else.o x86_func_call.o x86_code_block.o x86_while.o            \
         x86_foreach.o
 
-OBJS := auxil.o entire.o lex.o yygrammar.o sym_table.o utils.o                \
+OBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o       \
         types.o types_arrays.o                                                \
         sem_analyze.o sem_analyze_validate.o label_gen.o                      \
         ast_array_literal.o ast_while.o ast_code_block.o ast_statment.o       \
