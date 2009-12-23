@@ -1,0 +1,15 @@
+int fuzz()
+{
+  return 0;
+}
+//
+// module declaration at the wrong place in the source file
+//
+
+module moin;
+
+void buzz()
+{
+  int x = fuzz();
+}
+

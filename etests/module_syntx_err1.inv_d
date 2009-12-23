@@ -1,0 +1,7 @@
+module ;
+
+int fuzz()
+{
+  return 0;
+}
+
