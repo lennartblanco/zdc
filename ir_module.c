@@ -135,10 +135,20 @@ ir_module_print(IrModule *self, FILE *out, int indention)
 {
     assert(IR_IS_MODULE(self));
     assert(out);
+    assert(self->package_name);
 
+    GList *p;
+    GSList *i;
 
-    fprintf_indent(out, indention, "compile unit [%p]:\n", self);
-    GList *p = sym_table_get_all_symbols(self->symbols);
+    fprintf_indent(out, indention, "module [%p]:\n  package: ", self);
+
+    for (i = self->package_name; i != NULL; i = g_slist_next(i))
+    {
+       fprintf(out, "%s%s",
+               (char*)i->data, g_slist_next(i) != NULL ? "." : "\n");
+    }
+
+    p = sym_table_get_all_symbols(self->symbols);
     for (; p != NULL; p = g_list_next(p))
     {
         ir_symbol_print(IR_SYMBOL(p->data), out, indention + 2);
