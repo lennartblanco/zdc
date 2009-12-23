@@ -39,6 +39,7 @@
 "return" { return TOK_RETURN; }
 "extern" { return TOK_EXTERN; }
 "module" { return TOK_MODULE; }
+"import" { return TOK_IMPORT; }
 "foreach" { return TOK_FOREACH; }
 ("C"|"D") { yylval.text = strdup(yytext); return TOK_LINKAGE_TYPE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }

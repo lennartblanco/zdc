@@ -50,6 +50,7 @@ ast_module_new(void)
     node->function_defs = NULL;
     node->function_decls = NULL;
     node->package = NULL;
+    node->imports = NULL;
 
     return node;
 }
@@ -68,6 +69,14 @@ ast_module_get_package(AstModule *self)
     assert(AST_IS_MODULE(self));
 
     return self->package;
+}
+
+void
+ast_module_add_import(AstModule *self, GSList *imported_module)
+{
+    assert(AST_IS_MODULE(self));
+
+    self->imports = g_slist_prepend(self->imports, imported_module);
 }
 
 void
@@ -128,6 +137,20 @@ ast_module_do_print(AstNode *self, FILE *out)
         {
             fprintf(out, "%s%s", (char *)i->data,
                     g_slist_next(i) != NULL ? "." : "\n");
+        }
+    }
+
+    if (module->imports != NULL)
+    {
+        for (i = module->imports; i != NULL; i = g_slist_next(i))
+        {
+            GSList *j;
+            fprintf(out, "  import: ");
+            for (j = i->data; j != NULL; j = g_slist_next(j))
+            {
+                fprintf(out, "%s%s", (char*)j->data,
+                        g_slist_next(j) != NULL ? "." : "\n");
+            }
         }
     }
 

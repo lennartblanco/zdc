@@ -30,6 +30,7 @@ typedef struct
   AstNode parent;
   /* private */
   GSList *package;
+  GSList *imports;
   GSList *function_defs;
   GSList *function_decls;
 } AstModule;
@@ -54,6 +55,9 @@ ast_module_set_package(AstModule *self, GSList *package_names);
 
 GSList *
 ast_module_get_package(AstModule *self);
+
+void
+ast_module_add_import(AstModule *self, GSList *imported_module);
 
 void
 ast_module_add_function_decl(AstModule *self,

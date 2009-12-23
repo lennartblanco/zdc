@@ -32,7 +32,7 @@ AstModule *module;
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
        TOK_AUTO, TOK_INT, TOK_UINT, TOK_VOID, TOK_BOOL,
-       TOK_MODULE;
+       TOK_IMPORT, TOK_MODULE;
        
 
 root :
@@ -59,28 +59,29 @@ comp_unit :
 
 
 module_declaration<package_names> :
+    TOK_MODULE module_name<fq_name> ';'
     {
-        (*package_names).list = NULL;
-    }
-    TOK_MODULE
-    ( TOK_IDENT<package> '.'
-        {
-            (*package_names).list =
-                g_slist_prepend((*package_names).list, package.text);
-        }
-    )*
-    TOK_IDENT<name> ';'
-    {
-        (*package_names).list =
-            g_slist_prepend((*package_names).list, name.text);
-        (*package_names).list = g_slist_reverse((*package_names).list);
+        (*package_names).list = fq_name.list;
     }
 ;
 
+declaration<module> :
+    import_declaration<module>
+|   func_def_list<module>
+|   declaration_blocks<module>
+;
 
-declaration<n> :
-    func_def_list<n>
-|   declaration_blocks<n>
+import_declaration<module> :
+    TOK_IMPORT module_name<fq_name>
+    {
+        ast_module_add_import((*module).module, fq_name.list);
+    }
+    ( ',' module_name<fq_name>
+        {
+            ast_module_add_import((*module).module, fq_name.list);
+        }
+    )*
+    ';'
 ;
 
 declaration_blocks<module> :
@@ -124,6 +125,26 @@ linkage_attribute<linkage> :
         (*linkage).text = NULL;
     }
     TOK_EXTERN ( '(' TOK_LINKAGE_TYPE<linkage> ')' )?
+;
+
+/**
+ * Module's fully qualified name
+ */
+module_name<fq_name> :
+    {
+        (*fq_name).list = NULL;
+    }
+    ( TOK_IDENT<package> '.'
+        {
+            (*fq_name).list =
+                g_slist_prepend((*fq_name).list, package.text);
+        }
+    )*
+    TOK_IDENT<name>
+    {
+        (*fq_name).list = g_slist_prepend((*fq_name).list, name.text);
+        (*fq_name).list = g_slist_reverse((*fq_name).list);
+    }
 ;
 
 func_def_list<module> :
