@@ -393,7 +393,6 @@ PRIVATE void syntaxerror()
 {
    yypos = posforerrormsg;
    yyerror("syntax error");
-   exit(1);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1230,7 +1229,7 @@ PRIVATE void next_itemlist()
 
 /*----------------------------------------------------------------------------*/
 
-PRIVATE void itemlist_sequence()
+PRIVATE int itemlist_sequence()
 /*
  * compute the sequence of item lists:
  * initial_itemlist
@@ -1302,9 +1301,9 @@ PRIVATE void itemlist_sequence()
          sym = saved_saved_sym;
          next_itemlist();
          if (itemlist_empty) {
-            printf("-1-\n");
             posforerrormsg = p_saved_saved_yypos;
             syntaxerror();
+            return -1;
          }
       }
 
@@ -1316,6 +1315,7 @@ PRIVATE void itemlist_sequence()
          */
          posforerrormsg = p_saved_saved_yypos;
          syntaxerror();
+         return -1;
       }
 
       sym = lookaheadsym;
@@ -1326,13 +1326,16 @@ PRIVATE void itemlist_sequence()
          */
          posforerrormsg = p_saved_yypos;
          syntaxerror();
+         return -1;
       }
 
       Abort("PROGRAM ERROR");
 #else
       syntaxerror();
+      return -1;
 #endif
    }
+   return 0;
 }
 
 /*============================================================================*/
@@ -1455,7 +1458,10 @@ PUBLIC int yyparse()
    lookaheadsym = yylex()+term_base;
    lookaheadpos = yypos;
    first_lexval();
-   itemlist_sequence();
+
+   if (itemlist_sequence() != 0) {
+      return -1;      
+   }
 
 #if DYNAMICITEMS
    free(back);
