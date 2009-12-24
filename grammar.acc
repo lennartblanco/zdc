@@ -74,11 +74,13 @@ declaration<module> :
 import_declaration<module> :
     TOK_IMPORT module_name<fq_name>
     {
-        ast_module_add_import((*module).module, fq_name.list);
+        ast_module_add_import((*module).module,
+                              ast_import_new(fq_name.list, yypos));
     }
     ( ',' module_name<fq_name>
         {
-            ast_module_add_import((*module).module, fq_name.list);
+            ast_module_add_import((*module).module,
+                                  ast_import_new(fq_name.list, yypos));
         }
     )*
     ';'

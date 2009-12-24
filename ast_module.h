@@ -3,6 +3,7 @@
 
 #include "ast_function_decl.h"
 #include "ast_function_def.h"
+#include "ast_import.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -64,7 +65,10 @@ GSList *
 ast_module_get_package(AstModule *self);
 
 void
-ast_module_add_import(AstModule *self, GSList *imported_module);
+ast_module_add_import(AstModule *self, AstImport *imported_module);
+
+GSList *
+ast_module_get_imports(AstModule *self);
 
 void
 ast_module_add_function_decl(AstModule *self,

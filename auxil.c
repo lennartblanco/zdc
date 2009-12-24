@@ -13,6 +13,29 @@
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
 
+static int
+parse_import(AstImport *import, GError **error)
+{
+   char *path;
+   AstModule *module;
+   GError *loc_err = NULL;
+   int ret = 0;
+
+   path = ast_import_get_path(import);
+   module = parse_file(path, &loc_err);
+   if (module == NULL)
+   {
+       g_propagate_error(error, loc_err);
+       ret = -1;
+       goto exit_parse_import;
+   }
+   ast_node_print(AST_NODE(module), stdout);
+
+exit_parse_import:
+   g_free(path);
+   return ret;
+}
+
 int
 compile_file(const char* input_file, 
              const char* output_file,
@@ -20,17 +43,57 @@ compile_file(const char* input_file,
 {
     FILE *output_stream;
     AstModule *ast_module;
+    GError *error = NULL;
     IrModule *ir_module;
+    GSList *i;
 
     /*
      * Parse the input source file
      */
-
-    ast_module = parse_file(input_file);
+    ast_module = parse_file(input_file, &error);
     if (ast_module == NULL)
     {
         /* error while parsing source file */
+        if (error->code == PARSER_FILE_READ_ERROR)
+        {
+            fprintf(stderr, "cannot read source file '%s': %s\n",
+                    input_file, error->message);
+        }
+        g_error_free(error);
         return -1;
+    }
+
+    /*
+     * Parse module's imports
+     */
+    i = ast_module_get_imports(ast_module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        if (parse_import(i->data, &error) != 0)
+        {
+            char *path = ast_import_get_path(i->data);
+            switch (error->code)
+            {
+                case PARSER_FILE_READ_ERROR:
+                    fprintf(stderr, "%s:%u: cannot import module '%s': %s\n",
+                            input_file,
+                            ast_node_get_line_num(i->data),
+                            path,
+                            error->message);
+                    break;
+                case PARSER_SYNTAX_ERROR:
+                    fprintf(stderr, "%s:%u: failed to import module '%s'\n",
+                            input_file, ast_node_get_line_num(i->data), path);
+                    break;
+                default:
+                    /* unexpected error code */
+                    assert(false);
+            }
+            g_free(path);
+            g_error_free(error);
+            /* failed to import module */
+            return -1;
+       }
     }
 
     if (options.print_ast)

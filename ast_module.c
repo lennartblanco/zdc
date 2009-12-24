@@ -97,11 +97,20 @@ ast_module_get_package(AstModule *self)
 }
 
 void
-ast_module_add_import(AstModule *self, GSList *imported_module)
+ast_module_add_import(AstModule *self, AstImport *imported_module)
+{
+    assert(AST_IS_MODULE(self));
+    assert(AST_IS_IMPORT(imported_module));
+
+    self->imports = g_slist_prepend(self->imports, imported_module);
+}
+
+GSList *
+ast_module_get_imports(AstModule *self)
 {
     assert(AST_IS_MODULE(self));
 
-    self->imports = g_slist_prepend(self->imports, imported_module);
+    return self->imports;
 }
 
 void
@@ -170,13 +179,7 @@ ast_module_do_print(AstNode *self, FILE *out)
     {
         for (i = module->imports; i != NULL; i = g_slist_next(i))
         {
-            GSList *j;
-            fprintf(out, "  import: ");
-            for (j = i->data; j != NULL; j = g_slist_next(j))
-            {
-                fprintf(out, "%s%s", (char*)j->data,
-                        g_slist_next(j) != NULL ? "." : "\n");
-            }
+            ast_node_print(i->data, out);
         }
     }
 
