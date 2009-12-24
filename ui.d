@@ -199,7 +199,8 @@ main(char[][] args)
         }
 
         /* should be an option */ 
-        if (arg[0..2] == "--" || arg[0..1] == "-")
+        if (arg.length >= 2 &&
+            (arg[0..2] == "--" || arg[0..1] == "-"))
         {
             if (arg == "--help" ||
                 arg == "-?"     ||
@@ -247,7 +248,7 @@ main(char[][] args)
             continue;
         }
         /* should be a D source file name, which ends with '.d' */
-        else if (arg[arg.length-2..$] != ".d")
+        else if (arg.length < 2 || arg[arg.length-2..$] != ".d")
         {
             writefln("%s: error: '%s' not a d source file.", args[0], arg);
             return -1;
