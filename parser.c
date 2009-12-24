@@ -12,11 +12,18 @@ extern AstModule *module;
 extern long yypos;
 
 /*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static GQuark
+parser_error_quark(void);
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 AstModule *
-parse_file(const char* source_file)
+parse_file(const char* source_file, GError **error)
 {
     YY_BUFFER_STATE yy_buffer;
     FILE *input_stream;
@@ -26,9 +33,10 @@ parse_file(const char* source_file)
     input_stream = fopen(source_file, "r");
     if (input_stream == NULL)
     {
-        fprintf(stderr, 
-                "error opening file '%s' for reading: %m\n",
-                source_file);
+        g_set_error(error,
+                    PARSER_ERROR,
+                    PARSER_FILE_READ_ERROR,
+                    "%s", strerror(errno));
         return NULL;
     }
 
@@ -37,11 +45,17 @@ parse_file(const char* source_file)
     yypos = 1;
     yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
     yy_switch_to_buffer(yy_buffer);
- 
+
     /* parse the source file */
-    yyparse();
-    yy_delete_buffer(yy_buffer);
-    fclose(input_stream);
+    if (yyparse() != 0)
+    {
+        g_set_error(error,
+                    PARSER_ERROR,
+                    PARSER_SYNTAX_ERROR,
+                    "syntax error");
+        module = NULL;
+        goto exit_parse_file;
+    }
 
     /*
      * store the source file in created ast node
@@ -61,14 +75,24 @@ parse_file(const char* source_file)
 
     ast_module_set_source_file(module, path_end);
 
+exit_parse_file:
+    yy_delete_buffer(yy_buffer);
+    fclose(input_stream);
+
     return module;
 }
+
+static GQuark
+parser_error_quark(void)
+{
+    return g_quark_from_static_string ("xdc-parser-error-quark");
+}
+
 
 void
 yyerror(char *msg)
 {
-   fprintf(stderr, "%s:%ld: %s\n", current_source_file, yypos, msg);
-   exit(1);
+     fprintf(stderr, "%s:%ld: %s\n", current_source_file, yypos, msg);
 }
 
 int
