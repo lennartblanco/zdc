@@ -65,16 +65,6 @@ ast_node_get_type(void)
     return type;
 }
 
-AstNode*
-ast_node_new(void)
-{
-    AstNode *obj;
-
-    obj = g_object_new(AST_TYPE_NODE, NULL);
-
-    return obj;
-}
-
 guint
 ast_node_get_line_num(void *self)
 {

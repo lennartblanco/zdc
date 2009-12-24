@@ -47,16 +47,6 @@ GType
 ast_node_get_type(void);
 
 /**
- * ast_node_new:
- *
- * asdf sd
- *
- * Returns: new object
- */ 
-AstNode*
-ast_node_new(void);
-
-/**
  * Get source file line number where this node is defined.
  */
 guint
