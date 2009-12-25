@@ -1,0 +1,6 @@
+// a syntax error
+int buzz(int x)
+{
+  iuy
+  return x - 1;
+}

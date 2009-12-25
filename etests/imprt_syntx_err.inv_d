@@ -1,0 +1,7 @@
+//importing a module with syntax errors
+import syntx_err;
+
+void func()
+{
+  /* nop */
+}

@@ -40,6 +40,7 @@ run_test()
 }
 
 # TODO make a loop over all *.inv_d files instead
+run_test "syntx_err" && echo "        ok" || echo "FAILED"
 run_test "array_slice" && echo "      ok" || echo "FAILED"
 run_test "assigment" && echo "        ok" || echo "FAILED"
 run_test "sym_clash" && echo "        ok" || echo "FAILED"
@@ -54,3 +55,7 @@ run_test "exprs" && echo "            ok" || echo "FAILED"
 run_test "foreach" && echo "          ok" || echo "FAILED"
 run_test "module_syntx_err1" && echo "ok" || echo "FAILED"
 run_test "module_syntx_err2" && echo "ok" || echo "FAILED"
+run_test "imprt_not_found" && echo "  ok" || echo "FAILED"
+# this test must be run after syntx_err is run
+# TODO make it possible to run imprt_syntx_err independently of syntx_err
+run_test "imprt_syntx_err" && echo "  ok" || echo "FAILED"

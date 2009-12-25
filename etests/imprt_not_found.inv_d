@@ -1,0 +1,8 @@
+// import an non-existing module
+import no.such.mod;
+
+int fuzz()
+{
+  return 0;
+}
+

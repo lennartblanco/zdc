@@ -1,0 +1,2 @@
+syntx_err.d:5: syntax error
+imprt_syntx_err.d:2: failed to import module 'syntx_err.d'
