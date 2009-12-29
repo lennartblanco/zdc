@@ -118,12 +118,43 @@ if_else_to_ir(compilation_status_t *compile_status,
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
+
+static void
+import_module(compilation_status_t *compile_status,
+              sym_table_t *sym_table,
+              AstModule *ast_module)
+{
+    sym_table_t *imports;
+    GSList *i;
+
+    imports = sym_table_new(NULL);
+
+    /* add imported function declarations to sym table */
+    i = ast_module_get_function_decls(ast_module);
+    for (;i != NULL; i = i->next)
+    {
+        IrFunctionDecl *ir_func_decl;
+
+        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data));
+        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_decl)) != 0)
+        {
+            compile_error(compile_status,
+                          IR_NODE(ir_func_decl),
+                          "redeclaration of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+        }
+    }
+sym_table_print(imports, stdout);
+}
+
+
 IrModule *
 sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
                              AstModule *ast_module)
 {
     IrModule *module;
     GSList *i;
+    sym_table_t *module_sym_table;
 
     module = ir_module_new(ast_module_get_package(ast_module));
 
@@ -144,7 +175,7 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
                           ir_function_get_name(IR_FUNCTION(ir_func_decl)));
         }
     }
-    
+
     /*
      * convert all function definitions to IR form and store them
      * in module's symbol table
@@ -164,6 +195,19 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
                           "redifinition of function '%s'\n",
                           ir_function_get_name(IR_FUNCTION(ir_func_def)));
         }
+    }
+
+    /*
+     * Handle imports
+     */
+    i = ast_module_get_imports(ast_module);
+    module_sym_table = ir_module_get_symbols(module);
+
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        import_module(compile_status,
+                      module_sym_table,
+                      ast_import_get_module(i->data));
     }
 
     return module;

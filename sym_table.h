@@ -22,6 +22,10 @@ sym_table_new(sym_table_t* parent);
 void
 sym_table_delete(sym_table_t* table);
 
+void
+sym_table_add_import(sym_table_t* table,
+                     sym_table_t* imported_symbols);
+
 /**
  * @return 0 - successfully added
  *         -1 - symbol already present in the table

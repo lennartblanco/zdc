@@ -1,6 +1,7 @@
 #ifndef AST_MODULE_INC_X
 #define AST_MODULE_INC_X
 
+#include "ast_types.h"
 #include "ast_function_decl.h"
 #include "ast_function_def.h"
 #include "ast_import.h"
@@ -25,17 +26,6 @@
 
 #define AST_MODULE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_MODULE, AstModuleClass))
-
-typedef struct 
-{
-  AstNode parent;
-  /* private */
-  char *source_file;
-  GSList *package;
-  GSList *imports;
-  GSList *function_defs;
-  GSList *function_decls;
-} AstModule;
 
 typedef struct 
 {

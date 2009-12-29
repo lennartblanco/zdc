@@ -10,31 +10,15 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                           exported functions                              *
- *---------------------------------------------------------------------------*/ 
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
 
 static int
-parse_import(AstImport *import, GError **error)
-{
-   char *path;
-   AstModule *module;
-   GError *loc_err = NULL;
-   int ret = 0;
+parse_import(AstImport *import, GError **error);
 
-   path = ast_import_get_path(import);
-   module = parse_file(path, &loc_err);
-   if (module == NULL)
-   {
-       g_propagate_error(error, loc_err);
-       ret = -1;
-       goto exit_parse_import;
-   }
-   ast_node_print(AST_NODE(module), stdout);
-
-exit_parse_import:
-   g_free(path);
-   return ret;
-}
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/ 
 
 int
 compile_file(const char* input_file, 
@@ -95,7 +79,6 @@ compile_file(const char* input_file,
             return -1;
        }
     }
-
     if (options.print_ast)
     {
         ast_node_print(AST_NODE(ast_module), stdout);
@@ -151,4 +134,30 @@ compile_file(const char* input_file,
    return 0;
 }
 
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static int
+parse_import(AstImport *import, GError **error)
+{
+   char *path;
+   AstModule *module;
+   GError *loc_err = NULL;
+   int ret = 0;
+
+   path = ast_import_get_path(import);
+   module = parse_file(path, &loc_err);
+   if (module == NULL)
+   {
+       g_propagate_error(error, loc_err);
+       ret = -1;
+       goto exit_parse_import;
+   }
+   ast_import_set_module(import, module);
+
+exit_parse_import:
+   g_free(path);
+   return ret;
+}
 

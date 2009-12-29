@@ -5,6 +5,22 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+struct _AstModule
+{
+    AstNode parent;
+
+    /* private */
+    char *source_file;
+    GSList *package;
+    GSList *imports;
+    GSList *function_defs;
+    GSList *function_decls;
+};
+
+/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 

@@ -1,6 +1,21 @@
 #include "ast_import.h"
+#include "ast_module.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+struct _AstImport
+{
+    AstNode    parent;
+
+    /* private */
+    GSList  *module_name;
+    /** the module ast that is imported */
+    AstModule *module;
+};
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -76,6 +91,24 @@ ast_import_get_path(AstImport *self)
     }
 
     return g_string_free(path, FALSE);
+}
+
+void
+ast_import_set_module(AstImport *self, AstModule *parsed_module)
+{
+    assert(AST_IS_IMPORT(self));
+    assert(AST_IS_MODULE(parsed_module));
+
+    self->module = parsed_module;
+}
+
+AstModule *
+ast_import_get_module(AstImport *self)
+{
+    assert(AST_IS_IMPORT(self));
+    assert(AST_IS_MODULE(self->module));
+
+    return self->module;
 }
 
 /*---------------------------------------------------------------------------*

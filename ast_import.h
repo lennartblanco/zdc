@@ -1,6 +1,7 @@
 #ifndef AST_IMPORT_INC_X
 #define AST_IMPORT_INC_X
 
+#include "ast_types.h"
 #include "ast_node.h"
 
 /*---------------------------------------------------------------------------*
@@ -23,14 +24,6 @@
 
 #define AST_IMPORT_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_IMPORT, AstImportClass))
-
-typedef struct
-{
-    AstNode    parent;
-
-    /* private */
-    GSList  *module_name;
-} AstImport;
 
 typedef struct
 {
@@ -59,5 +52,14 @@ ast_import_new(GSList *module_name, guint line_number);
  */
 char *
 ast_import_get_path(AstImport *self);
+
+void
+ast_import_set_module(AstImport *self, AstModule *parsed_module);
+
+/**
+ * Get the imported module's AST.
+ */
+AstModule *
+ast_import_get_module(AstImport *self);
 
 #endif /* AST_IMPORT_INC_X */
