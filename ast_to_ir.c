@@ -114,6 +114,16 @@ if_else_to_ir(compilation_status_t *compile_status,
               IrCodeBlock *parent_block,
               AstIfElse *ast_if_else);
 
+/**
+ * convert function parameters to IR form
+ *
+ * @param ast_func_params function parameters in ast-form to convert,
+ *                        as a list of AstVariableDeclaration objects
+ * @return function parameters in ir-form, as a list of IrVariable objects
+ */
+static GSList *
+func_params_to_ir(GSList *ast_func_params);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -217,6 +227,30 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static GSList *
+func_params_to_ir(GSList *ast_func_params)
+{
+    GSList *parameters = NULL;
+    GSList *i;
+
+    for (i = ast_func_params; i != NULL; i = g_slist_next(i))
+    {
+        AstVariableDeclaration *ast_var;
+        IrVariable *ir_var;
+
+        ast_var = AST_VARIABLE_DECLARATION(i->data);
+
+        ir_var = 
+            ir_variable_new(ast_variable_declaration_get_data_type(ast_var),
+                            ast_variable_declaration_get_name(ast_var),
+                            NULL,
+                            ast_node_get_line_num(ast_var));
+        parameters = g_slist_prepend(parameters, ir_var);
+    }
+
+    return g_slist_reverse(parameters);
+}
+
 static IrFunctionDecl *
 func_decl_to_ir(AstFunctionDecl *ast_func_decl)
 {
@@ -225,6 +259,7 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl)
     IrFunctionDecl *func_decl;
     char *linkage_type_name;
     ir_linkage_type_t linkage_type;
+    GSList *parameters;
 
 
     linkage_type_name = ast_function_decl_get_linkage(ast_func_decl);
@@ -242,10 +277,13 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl)
         assert(false);
     }
 
+    parameters = 
+        func_params_to_ir(ast_function_decl_get_parameters(ast_func_decl));
+
     func_decl = 
         ir_function_decl_new(ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
-                             ast_function_decl_get_parameters(ast_func_decl),
+                             parameters,
                              linkage_type,
                              ast_node_get_line_num(ast_func_decl));
 
@@ -258,26 +296,9 @@ func_def_to_ir(compilation_status_t *compile_status,
                IrModule *parent_module)
 {
     IrFunctionDef *ir_func;
-    GSList *parameters = NULL;
-    GSList *i;
-
-    /* convert function parameters to IR form */
-    i = ast_function_def_get_parameters(ast_func_def);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        AstVariableDeclaration *ast_var;
-        IrVariable *ir_var;
-
-        ast_var = AST_VARIABLE_DECLARATION(i->data);
-
-        ir_var = 
-            ir_variable_new(ast_variable_declaration_get_data_type(ast_var),
-                            ast_variable_declaration_get_name(ast_var),
-                            NULL,
-                            ast_node_get_line_num(ast_var));
-        parameters = g_slist_prepend(parameters, ir_var);
-    }
-    parameters = g_slist_reverse(parameters);
+    GSList *parameters;
+    parameters = 
+        func_params_to_ir(ast_function_def_get_parameters(ast_func_def));
 
     ir_func = 
         ir_function_def_new(ast_function_def_get_return_type(ast_func_def),
@@ -285,7 +306,6 @@ func_def_to_ir(compilation_status_t *compile_status,
                             parameters,
                             parent_module,
                             ast_node_get_line_num(ast_func_def));
-
 
     /* convert function body to ir format */
     code_block_to_ir(compile_status,
