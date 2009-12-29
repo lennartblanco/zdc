@@ -12,6 +12,7 @@
 struct sym_table_s
 {
     sym_table_t *parent;
+    GSList *imports;
     GHashTable *table;  
 };
 
@@ -27,6 +28,7 @@ sym_table_new(sym_table_t* parent)
     tbl = g_malloc(sizeof(*tbl));
 
     tbl->parent = parent;
+    tbl->imports = NULL;
     tbl->table = g_hash_table_new(g_str_hash, g_str_equal);
 
     return tbl;
@@ -38,6 +40,13 @@ sym_table_delete(sym_table_t* self)
     g_hash_table_unref(self->table);
     self->table = NULL;
     g_free(self);
+}
+
+void
+sym_table_add_import(sym_table_t* table,
+                     sym_table_t* imported_symbols)
+{
+    table->imports = g_slist_prepend(table->imports, imported_symbols);
 }
 
 int 
@@ -66,11 +75,22 @@ sym_table_get_symbol(sym_table_t *table, char *name)
     assert(table);
     assert(name);
 
-    gpointer p;
+    gpointer p = NULL;
+    GSList *i;
 
     p = g_hash_table_lookup(table->table, name);
+
     if (p == NULL)
     {
+        for (i = table->imports; i != NULL && p == NULL; i = g_slist_next(i))
+        {
+            p = sym_table_get_symbol(i->data, name);
+        }
+    }
+
+    if (p == NULL)
+    {
+
         if (table->parent == NULL) {
             return NULL;
         }

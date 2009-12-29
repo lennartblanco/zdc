@@ -42,11 +42,16 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl);
 
 /**
  * convert AST representation of a function definition to IR form.
+ *
+ * @param convert convert_body if true, the function body will be converted
+ *                             if false, the body will not be converted, only
+ *                             function signature
  */
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
                AstFunctionDef *ast_func_def,
-               IrModule *parent_module);
+               IrModule *parent_module,
+               bool convert_body);
 
 /**
  * convert AST code block representation to IR form.
@@ -136,8 +141,10 @@ import_module(compilation_status_t *compile_status,
 {
     sym_table_t *imports;
     GSList *i;
+    IrModule *module;
 
-    imports = sym_table_new(NULL);
+    module = ir_module_new(ast_module_get_package(ast_module));
+    imports = ir_module_get_symbols(module);
 
     /* add imported function declarations to sym table */
     i = ast_module_get_function_decls(ast_module);
@@ -154,9 +161,28 @@ import_module(compilation_status_t *compile_status,
                           ir_function_get_name(IR_FUNCTION(ir_func_decl)));
         }
     }
-sym_table_print(imports, stdout);
-}
 
+    /* add imported function definitions to sym table */
+    i = ast_module_get_function_defs(ast_module);
+    for (;i != NULL; i = i->next)
+    {
+        IrFunctionDef *ir_func_def;
+
+        ir_func_def = func_def_to_ir(compile_status,
+                                     AST_FUNCTION_DEF(i->data),
+                                     module,
+                                     false);
+        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_def)) != 0)
+        {
+            compile_error(compile_status,
+                          IR_NODE(ir_func_def),
+                          "redifinition of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+        }
+    }
+
+    sym_table_add_import(sym_table, imports);
+}
 
 IrModule *
 sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
@@ -197,7 +223,8 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
 
         ir_func_def = func_def_to_ir(compile_status,
                                      AST_FUNCTION_DEF(i->data),
-                                     module);
+                                     module,
+                                     true);
         if (!ir_module_add_function_def(module, ir_func_def))
         {
             compile_error(compile_status,
@@ -293,7 +320,8 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl)
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
                AstFunctionDef *ast_func_def,
-               IrModule *parent_module)
+               IrModule *parent_module,
+               bool convert_body)
 {
     IrFunctionDef *ir_func;
     GSList *parameters;
@@ -307,10 +335,13 @@ func_def_to_ir(compilation_status_t *compile_status,
                             parent_module,
                             ast_node_get_line_num(ast_func_def));
 
-    /* convert function body to ir format */
-    code_block_to_ir(compile_status,
-                     ast_function_def_get_body(ast_func_def),
-                     ir_function_def_get_body(ir_func));
+    if (convert_body)
+    {
+        /* convert function body to ir format */
+        code_block_to_ir(compile_status,
+                         ast_function_def_get_body(ast_func_def),
+                         ir_function_def_get_body(ir_func));
+    }
 
     return ir_func;
 }
