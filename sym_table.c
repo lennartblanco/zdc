@@ -17,6 +17,13 @@ struct sym_table_s
 };
 
 /*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static GQuark
+sym_table_error_quark(void);
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/ 
 
@@ -70,7 +77,7 @@ sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol)
 }
 
 IrSymbol *
-sym_table_get_symbol(sym_table_t *table, char *name)
+sym_table_get_symbol(sym_table_t *table, char *name, GError **error)
 {
     assert(table);
     assert(name);
@@ -78,23 +85,75 @@ sym_table_get_symbol(sym_table_t *table, char *name)
     gpointer p = NULL;
     GSList *i;
 
+    /* look for the symbol in local scope */
     p = g_hash_table_lookup(table->table, name);
 
-    if (p == NULL)
+    /* if not found, look in parent scope(s) */
+    if (p == NULL && table->parent != NULL)
     {
-        for (i = table->imports; i != NULL && p == NULL; i = g_slist_next(i))
+        GError *loc_err = NULL;
+        p = sym_table_get_symbol(table->parent, name, &loc_err);
+        if (p == NULL)
         {
-            p = sym_table_get_symbol(i->data, name);
+            if (loc_err->code != SYM_TABLE_SYMBOL_NOT_FOUND_ERROR)
+            {
+                g_propagate_error(error, loc_err);
+                return NULL;
+            }
+            g_error_free(loc_err);
         }
     }
 
+    /* if not found, look in imported scopes */
     if (p == NULL)
     {
+        GSList *syms_found = NULL;
+        guint syms_found_cntr = 0;
+        gpointer sym;
 
-        if (table->parent == NULL) {
-            return NULL;
+        for (i = table->imports; i != NULL; i = g_slist_next(i))
+        {
+            sym = sym_table_get_symbol(i->data, name, NULL);
+            if (sym != NULL)
+            {
+                syms_found = g_slist_append(syms_found, sym);
+                syms_found_cntr += 1;
+            }
         }
-        return sym_table_get_symbol(table->parent, name);
+
+        if (syms_found_cntr == 1)
+        {
+            p = syms_found->data;
+        }
+        else if (syms_found_cntr > 1)
+        {
+            GSList *i;
+            GString *msg = g_string_new(NULL);
+            
+
+            for (i = syms_found; i != NULL; i = g_slist_next(i))
+            {
+                g_string_append_printf(msg, "%s%s",
+                                       ir_symbol_get_fqname(i->data),
+                                       g_slist_next(i) ? ", " : "");
+            }
+
+            g_set_error(error,
+                        SYM_TABLE_ERROR,
+                        SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR,
+                        "%s", msg->str);
+            g_string_free(msg, TRUE);
+
+        }
+        else
+        {
+            g_set_error(error,
+                        SYM_TABLE_ERROR,
+                        SYM_TABLE_SYMBOL_NOT_FOUND_ERROR,
+                        NULL);
+
+        }
+        g_slist_free(syms_found);
     }
 
     return p;
@@ -128,4 +187,15 @@ sym_table_print(sym_table_t *table, FILE *out)
     }
     g_list_free(symbols);
 }
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static GQuark
+sym_table_error_quark(void)
+{
+    return g_quark_from_static_string ("xdc-sym-table-error-quark");
+}
+
 

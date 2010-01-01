@@ -2,6 +2,7 @@
 #include <strings.h>
 
 #include "ir_symbol.h"
+#include "ir_module.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -11,12 +12,16 @@
 
 enum
 {
-    IR_SYMBOL_NAME = 1
+    IR_SYMBOL_NAME = 1,
+    IR_SYMBOL_PARENT_MODULE
 };
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
+
+static void
+ir_symbol_init(IrSymbol *self, gpointer klass);
 
 static void
 ir_symbol_class_init(gpointer klass, gpointer foo);
@@ -56,7 +61,7 @@ ir_symbol_get_type(void)
         NULL,   /* class_data */
         sizeof (IrSymbol),
         0,      /* n_preallocs */
-        NULL    /* instance_init */
+        (GInstanceInitFunc) ir_symbol_init    /* instance_init */
       };
       type = g_type_register_static(IR_TYPE_EXPRESSION,
                                     "IrSymbolType",
@@ -68,10 +73,37 @@ ir_symbol_get_type(void)
 char *
 ir_symbol_get_name(IrSymbol *self)
 {
-    assert(self);
     assert(IR_IS_SYMBOL(self));
 
     return self->name;
+}
+
+char *
+ir_symbol_get_fqname(IrSymbol *self)
+{
+    assert(IR_IS_SYMBOL(self));
+    assert(IR_IS_MODULE(self->parent_module));
+
+    if (self->fq_name == NULL)
+    {
+        GString *str =
+            g_string_new(ir_module_get_fqname(self->parent_module));
+        g_string_append(str, ".");
+        g_string_append(str, self->name);
+
+        self->fq_name = g_string_free(str, false);
+    }
+
+    return self->fq_name;
+}
+
+IrModule *
+ir_symbol_get_parent_module(IrSymbol *self)
+{
+    assert(IR_IS_SYMBOL(self));
+    assert(IR_IS_MODULE(self->parent_module));
+
+    return self->parent_module;
 }
 
 void
@@ -85,16 +117,31 @@ ir_symbol_print(IrSymbol *self, FILE *out, int indention)
  *---------------------------------------------------------------------------*/
 
 static void
+ir_symbol_init(IrSymbol *self, gpointer klass)
+{
+    self->fq_name = NULL;
+}
+
+static void
 ir_symbol_set_property(GObject *object,
                        guint property_id,
                        const GValue *value,
                        GParamSpec *pspec)
 {
-    /* we only have one property */
-    assert(property_id == IR_SYMBOL_NAME);
     IrSymbol *sym = IR_SYMBOL(object);
 
-    sym->name = g_value_dup_string(value);
+    switch (property_id)
+    {
+        case IR_SYMBOL_NAME:
+            sym->name = g_value_dup_string(value);
+            break;
+        case IR_SYMBOL_PARENT_MODULE:
+            sym->parent_module = g_value_get_object(value);
+            break;
+        default:
+            /* unexpected property id */
+            assert(false);
+    }
 }
 
 static void
@@ -130,6 +177,19 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
 
     g_object_class_install_property(gobject_class,
                                     IR_SYMBOL_NAME,
+                                    pspec);
+
+    /*
+     * install 'parent module' property 
+     */
+    pspec = g_param_spec_object("ir-symbol-parent-module",
+                                "ir symbol parent module",
+                                "the parent module of the symbol",
+                                IR_TYPE_MODULE,
+                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+    g_object_class_install_property(gobject_class,
+                                    IR_SYMBOL_PARENT_MODULE,
                                     pspec);
 
     /*

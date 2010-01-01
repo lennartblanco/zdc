@@ -15,6 +15,7 @@ struct _IrModule
   GSList         *package_name;
   sym_table_t    *symbols;
   GSList         *function_defs;
+  char *fq_name;
   char *mangled_name;
 };
 
@@ -55,6 +56,7 @@ ir_module_new(GSList *package_name)
     obj->symbols = sym_table_new(NULL);
     obj->function_defs = NULL;
     obj->package_name = package_name;
+    obj->fq_name = NULL;
     obj->mangled_name = NULL;
 
     return obj;
@@ -106,6 +108,28 @@ ir_module_get_function_defs(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->function_defs;
+}
+
+char *
+ir_module_get_fqname(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    if (self->fq_name == NULL)
+    {
+        GSList *i;
+        GString *str = g_string_new(NULL);
+
+        for (i = self->package_name; i != NULL; i = g_slist_next(i))
+        {
+           g_string_append_printf(str, "%s%s", 
+                                  (char *)i->data,
+                                  g_slist_next(i) != NULL ? "." : "");
+        }
+        self->fq_name = g_string_free(str, FALSE);
+    }
+
+    return self->fq_name;
 }
 
 char *

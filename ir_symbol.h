@@ -4,6 +4,7 @@
 #include <glib-object.h>
 #include <stdio.h>
 
+#include "ir_types.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,12 +28,14 @@
 #define IR_SYMBOL_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_SYMBOL, IrSymbolClass))
 
-typedef struct 
+struct _IrSymbol
 {
   IrExpression parent;
   /* private */
   char    *name;
-} IrSymbol;
+  char    *fq_name;
+  IrModule *parent_module;
+};
 
 typedef struct 
 {
@@ -48,8 +51,20 @@ typedef struct
 GType 
 ir_symbol_get_type(void);
 
+/**
+ * Get symbol's local name
+ */
 char *
 ir_symbol_get_name(IrSymbol *self);
+
+/**
+ * Get symbol's fully qualified name
+ */
+char *
+ir_symbol_get_fqname(IrSymbol *self);
+
+IrModule *
+ir_symbol_get_parent_module(IrSymbol *self);
 
 void
 ir_symbol_print(IrSymbol *self, FILE *out, int indention);

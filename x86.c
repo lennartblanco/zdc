@@ -343,7 +343,7 @@ x86_prelude(x86_comp_params_t *params,
      * generate code to call it and to terminate the application
      * after main() have returned
      */
-    main_symb = sym_table_get_symbol(sym_table, "main");
+    main_symb = sym_table_get_symbol(sym_table, "main", NULL);
     if (IR_IS_FUNCTION_DEF(main_symb))
     {
       IrFunctionDef *main_func;

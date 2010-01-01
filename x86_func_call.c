@@ -81,7 +81,7 @@ compile_d_func_call(x86_comp_params_t *params,
     callee_def =
         IR_FUNCTION_DEF(
              sym_table_get_symbol(sym_table,
-                                  ir_function_call_get_name(func_call)));
+                                  ir_function_call_get_name(func_call), NULL));
 
     /*
      * generate code that evaluates all function call arguments expression

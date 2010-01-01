@@ -76,6 +76,12 @@ ir_module_get_function_defs(IrModule *self);
 void
 ir_module_print(IrModule *self, FILE *out, int indention);
 
+/**
+ * Get module's fully qualified name.
+ */
+char *
+ir_module_get_fqname(IrModule *self);
+
 char *
 ir_module_get_mangled_name(IrModule *self);
 

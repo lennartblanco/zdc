@@ -13,7 +13,6 @@ struct _IrFunctionDef
 {
     IrFunction parent;
     /* private */
-    IrModule *parent_module;
     sym_table_t  *param_symbols;
     IrCodeBlock  *body;
     char *mangled_name;
@@ -76,9 +75,9 @@ ir_function_def_new(DtDataType *return_type,
     obj = g_object_new(IR_TYPE_FUNCTION_DEF,
                        "ir-node-line-number", line_number,
                        "ir-symbol-name", name,
+                       "ir-symbol-parent-module", parent_module,
                        NULL);
 
-    obj->parent_module = parent_module;
     obj->mangled_name = NULL;
     
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);
@@ -119,8 +118,11 @@ ir_function_def_get_mangled_name(IrFunctionDef *self)
     {
         GSList *i;
         char *func_name;
+
         GString *str =
-          g_string_new(ir_module_get_mangled_name(self->parent_module));
+            g_string_new(
+                ir_module_get_mangled_name(
+                    ir_symbol_get_parent_module(IR_SYMBOL(self))));
 
         func_name = ir_function_get_name(IR_FUNCTION(self));
         g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);
@@ -135,8 +137,9 @@ ir_function_def_get_mangled_name(IrFunctionDef *self)
             g_string_append(str, dt_data_type_get_mangled(var_type));
         }
 
-        g_string_append_printf(str, "Z%s", 
-    dt_data_type_get_mangled(ir_function_def_get_return_type(self)));
+        g_string_append_printf(
+            str, "Z%s",
+            dt_data_type_get_mangled(ir_function_def_get_return_type(self)));
 
 
         self->mangled_name = g_string_free(str, FALSE);

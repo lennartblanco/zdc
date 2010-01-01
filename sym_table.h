@@ -4,6 +4,23 @@
 #include "ir_symbol.h"
 #include "sym_table_types.h"
 
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+/** parser errors domain */
+#define SYM_TABLE_ERROR sym_table_error_quark()
+
+typedef enum
+{
+    SYM_TABLE_SYMBOL_NOT_FOUND_ERROR,
+    SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR
+} sym_table_error_t;
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
 /**
  * Create a new symbol table.
  *
@@ -43,7 +60,7 @@ sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol);
  * @return The symbol of NULL of not such symbol is found.
  */
 IrSymbol *
-sym_table_get_symbol(sym_table_t *table, char *name);
+sym_table_get_symbol(sym_table_t *table, char *name, GError **error);
 
 /**
  * @return all symbols in this table as a list of IrSymbol pointers,

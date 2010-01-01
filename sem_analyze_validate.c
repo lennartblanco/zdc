@@ -135,18 +135,38 @@ validate_function_call(compilation_status_t *compile_status,
     GSList *func_call_args;
     GSList *validated_args = NULL;
     GSList *i;
+    GError *error = NULL;
 
 
     func_name = ir_function_call_get_name(func_call);
 
     /* look-up function in the symbol table */
-    func_symb = sym_table_get_symbol(sym_table, func_name);
+    func_symb = sym_table_get_symbol(sym_table, func_name, &error);
     if (func_symb == NULL)
     {
+        GString *err_msg = g_string_new(NULL);
+        switch (error->code)
+        {
+            case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
+                g_string_append_printf(err_msg,
+                                       "reference to unknow function '%s'",
+                                       func_name);
+                break;
+            case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
+                g_string_append_printf(
+                    err_msg, "ambiguous function call '%s', matches: %s",
+                    func_name, error->message);
+                break;
+            default:
+                /* unexpected error code */
+                assert(false);
+        }
         compile_error(compile_status,
                       IR_NODE(func_call),
-                      "reference to unknow function '%s'\n",
-                      func_name);
+                      "%s\n",
+                      err_msg->str);
+        g_string_free(err_msg, TRUE);
+        g_error_free(error);
         return NULL;
     }
     if (!IR_IS_FUNCTION(func_symb))
@@ -429,7 +449,8 @@ validate_array_cell(compilation_status_t *compile_status,
      * look-up the array in the symbol table
      */
     array_symb = sym_table_get_symbol(sym_table,
-                                      ir_array_cell_get_name(cell));
+                                      ir_array_cell_get_name(cell),
+                                      NULL);
     if (array_symb == NULL) 
     {
         compile_error(compile_status,
@@ -953,7 +974,8 @@ validate_lvalue(compilation_status_t *compile_status,
      * look-up the variable in the symbol table
      */
     symb = sym_table_get_symbol(sym_table,
-                                ir_lvalue_get_name(lvalue));
+                                ir_lvalue_get_name(lvalue),
+                                NULL);
     if (symb == NULL) 
     {
         compile_error(compile_status,
@@ -1156,7 +1178,7 @@ validate_entry_point(compilation_status_t *compile_status,
     DtDataType *main_ret_type;
 
     sym_table = ir_module_get_symbols(module);
-    main_symb = sym_table_get_symbol(sym_table, "main");
+    main_symb = sym_table_get_symbol(sym_table, "main", NULL);
 
     if (!IR_IS_FUNCTION(main_symb))
     {
