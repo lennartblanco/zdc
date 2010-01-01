@@ -82,13 +82,6 @@ exit_parse_file:
     return module;
 }
 
-static GQuark
-parser_error_quark(void)
-{
-    return g_quark_from_static_string ("xdc-parser-error-quark");
-}
-
-
 void
 yyerror(char *msg)
 {
@@ -100,5 +93,15 @@ yywrap(void)
 {
    /* stop token parser when EOF is reached */
    return 1;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static GQuark
+parser_error_quark(void)
+{
+    return g_quark_from_static_string ("xdc-parser-error-quark");
 }
 
