@@ -277,6 +277,11 @@ x86_get_expression_storage_size(IrExpression *expression)
 
         return len * types_get_storage_size(bdt);
     }
+    else if (DT_IS_ARRAY_TYPE(data_type))
+    {
+        /* 4 bytes for array length + 4 bytes for array data pointer */
+        return 8;
+    }
     else
     {
         /* unexpected data type */

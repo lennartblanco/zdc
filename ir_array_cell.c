@@ -113,12 +113,12 @@ ir_array_cell_do_get_data_type(IrExpression *self)
     if (cell->data_type == NULL)
     {
         IrVariable *array_symbol;
-        DtStaticArrayType *array_data_type;
+        DtArrayType *array_data_type;
 
         array_symbol = ir_lvalue_get_variable(IR_LVALUE(cell));
         array_data_type =
-            DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array_symbol));
-        cell->data_type = dt_static_array_type_get_data_type(array_data_type);
+            DT_ARRAY_TYPE(ir_variable_get_data_type(array_symbol));
+        cell->data_type = dt_array_type_get_data_type(array_data_type);
     }
  
     return cell->data_type;

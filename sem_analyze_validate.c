@@ -471,7 +471,7 @@ validate_array_cell(compilation_status_t *compile_status,
      * check that referenced symbol is an static array variable
      */
     symb_type = ir_variable_get_data_type(IR_VARIABLE(array_symb));
-    if (!DT_IS_STATIC_ARRAY_TYPE(symb_type))
+    if (!DT_IS_ARRAY_TYPE(symb_type))
     {
         compile_error(compile_status,
                       IR_NODE(cell),

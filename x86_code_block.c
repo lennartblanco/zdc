@@ -222,7 +222,7 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
         lval = IR_LVALUE(ir_scalar_new(ir_variable_get_name(variable), 0));
         ir_lvalue_set_variable(lval, variable);
     }
-    else if (DT_STATIC_ARRAY_TYPE(var_type))
+    else if (DT_IS_STATIC_ARRAY_TYPE(var_type))
     {
         DtStaticArrayType *var_array_type = DT_STATIC_ARRAY_TYPE(var_type);
         IrUintConstant *start_idx;
