@@ -20,7 +20,7 @@ run_test()
 
   echo -n "[$test_name] "
 
-  cp $test_file $test_source_file || return 1;
+  make $test_name > /dev/null
 
   $XDC $test_source_file 2> "errors_log" && 
   {
@@ -39,7 +39,6 @@ run_test()
   return 0
 }
 
-# TODO make a loop over all *.inv_d files instead
 run_test "syntx_err" && echo "        ok" || echo "FAILED"
 run_test "array_slice" && echo "      ok" || echo "FAILED"
 run_test "assigment" && echo "        ok" || echo "FAILED"
@@ -56,6 +55,5 @@ run_test "foreach" && echo "          ok" || echo "FAILED"
 run_test "module_syntx_err1" && echo "ok" || echo "FAILED"
 run_test "module_syntx_err2" && echo "ok" || echo "FAILED"
 run_test "imprt_not_found" && echo "  ok" || echo "FAILED"
-# this test must be run after syntx_err is run
-# TODO make it possible to run imprt_syntx_err independently of syntx_err
 run_test "imprt_syntx_err" && echo "  ok" || echo "FAILED"
+run_test "ambig_imprt" && echo "      ok" || echo "FAILED"

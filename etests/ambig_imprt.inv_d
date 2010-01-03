@@ -1,0 +1,19 @@
+//
+// Test error handling of ambigious imports 
+//
+import imp_mod_a;
+import imp_mod_b;
+
+void loc_func()
+{
+
+}
+
+void
+main()
+{
+  loc_func(); // unambigiously resolves to ambig_imprt.loc_func();
+  func_a();   // unambigiously resolves to imp_mod_a.func_a()
+  func_b();   // unambigiously resolves to imp_mod_b.func_b()
+  func_x();   // imp_mod_a.func_x() or imp_mod_b.func_x() ?
+}

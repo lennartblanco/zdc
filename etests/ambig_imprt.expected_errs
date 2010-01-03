@@ -1,0 +1,1 @@
+ambig_imprt.d:18: error: ambiguous function call 'func_x', matches: imp_mod_a.func_x, imp_mod_b.func_x

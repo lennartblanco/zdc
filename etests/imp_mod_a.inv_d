@@ -1,0 +1,8 @@
+int func_a()
+{
+  return 0;
+}
+
+void func_x()
+{
+}
