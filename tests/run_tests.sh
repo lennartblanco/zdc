@@ -1,8 +1,5 @@
 #!/bin/sh
 
-XDC="../xdc"
-
-
 run_checked()
 {
     ($@) || 
@@ -19,13 +16,11 @@ run_test_x86()
     local test_name
 
     test_name=$1
-    test_binary="x86_check_"$test_name
+    test_binary="check_"$test_name
 
-    echo -n "Compiling $test_name.d "
-    (run_checked $XDC -march=x86 -S $test_name.d) || { return 1; }
+    echo -n "Compiling $test_name "
+    (make DFLAGS="-g -m32" DFLAGS=--march=x86 $test_binary > /dev/null) || { return 1; }
     echo "[ok]"
-    (run_checked gcc -g -m32 -o $test_binary $test_name.s check_"$test_name".c \
-                check_utils.c) || { return 1; }
     (run_checked ./$test_binary) || { return 1; }
 
     return 0;
@@ -54,7 +49,7 @@ run_all_tests()
 
     local tests="empty rets only_comments comments neg func_call "\
 "implicit_cast bool_op uint_op nested_blocks if_else fact extern_c "\
-"while_loop stat_array foreach module_test pkg_name_tst"
+"while_loop stat_array foreach module_test pkg_name_tst imports"
 
     for test_name in $tests
     do
