@@ -265,6 +265,10 @@ type<x> :
             DT_DATA_TYPE(dt_static_array_type_new(t.data_type,
                                                   num.integer));
     }
+|   type<t> '[' ']'
+    {
+        (*x).data_type = DT_DATA_TYPE(dt_array_type_new(t.data_type));
+    }
 |   basic_type<t>
     {
         (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(t.basic_data_type));
