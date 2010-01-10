@@ -19,7 +19,7 @@ run_test_x86()
     test_binary="check_"$test_name
 
     echo -n "Compiling $test_name "
-    (make DFLAGS="-g -m32" DFLAGS=--march=x86 $test_binary > /dev/null) || { return 1; }
+    (make CFLAGS="-g -m32" DFLAGS=--march=x86 $test_binary > /dev/null) || { return 1; }
     echo "[ok]"
     (run_checked ./$test_binary) || { return 1; }
 
