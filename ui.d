@@ -129,7 +129,7 @@ assemble_file(string assembly_file)
 
     object_file_name = assembly_file[0..$-2] ~ ".o";
 
-    command = "as -g -o " ~ object_file_name ~ " " ~ assembly_file;
+    command = "as --32 -g -o " ~ object_file_name ~ " " ~ assembly_file;
 
     if (system(std.string.toStringz(command)) != 0)
     {
