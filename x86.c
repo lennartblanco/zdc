@@ -370,9 +370,8 @@ x86_prelude(x86_comp_params_t *params,
               ".globl _start\n"
               "_start:\n"
               "    call %s\n"
-              "    movl %s, %%ebx\n"
-              "    movl $1, %%eax\n"
-              "    int $0x80\n",
+              "    pushl %s\n"
+              "    call exit\n",
               ir_function_def_get_mangled_name(main_func),
               exit_code_returned ? "%eax" : "$0");
     }
