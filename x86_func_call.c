@@ -179,6 +179,7 @@ compile_c_func_call(x86_comp_params_t *params,
 
     GSList *i;
     DtDataType *func_data_type;
+    int args_size_on_stack = 0;
 
     i = ir_function_call_get_arguments(func_call);
 
@@ -192,12 +193,23 @@ compile_c_func_call(x86_comp_params_t *params,
     for (; i != NULL; i = g_slist_next(i))
     {
         x86_compile_expression(params, i->data, sym_table);
+        args_size_on_stack +=
+            x86_get_expression_storage_size(IR_EXPRESSION(i->data));
     }
+    g_slist_free(i);
 
     fprintf(params->out,
             "# invoke function\n"
             "    call %s\n",
             ir_function_call_get_name(func_call));
+
+    if (args_size_on_stack > 0)
+    {
+        fprintf(params->out,
+                "# remove function call arguments from the stack\n"
+                "    addl $%d, %%esp\n",
+                args_size_on_stack);    
+    }
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
 
