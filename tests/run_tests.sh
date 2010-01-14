@@ -49,7 +49,7 @@ run_all_tests()
 
     local tests="empty rets only_comments comments neg func_call "\
 "implicit_cast bool_op uint_op nested_blocks if_else fact extern_c "\
-"while_loop stat_array foreach module_test pkg_name_tst imports"
+"while_loop stat_array foreach module_test pkg_name_tst imports eels"
 
     for test_name in $tests
     do

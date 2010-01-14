@@ -57,6 +57,11 @@ check_pkg_name_tst: pkg_name_tst.o check_utils.o check_pkg_name_tst.c
 check_imports: imports.o fact.o rets.o neg.o check_utils.o check_imports.c
 	gcc $(CFLAGS) -o $@ $^
 
+check_eels: eels
+
+eels: eels.d
+	$(XDC) $(DFLAGS) $?
+
 %.o: %.d
 	$(XDC) $(DFLAGS) -c $?
 
@@ -68,4 +73,4 @@ clean:
 check_only_comments check_comments check_neg check_func_call check_imports \
 check_bool_op check_extern_c check_fact check_foreach check_if_else \
 check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
-check_stat_array check_uint_op check_while_loop
+check_stat_array check_uint_op check_while_loop eels

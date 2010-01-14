@@ -1,0 +1,36 @@
+extern (C) int putchar(int x);
+
+void main()
+{
+    putchar(77);  // 'M'
+    putchar(121); // 'y'
+    putchar(32);  // ' '
+    putchar(104); // 'h'
+    putchar(111); // 'o'
+    putchar(118); // 'v'
+    putchar(101); // 'e'
+    putchar(114); // 'r'
+    putchar(99);  // 'c'
+    putchar(114); // 'r'
+    putchar(97);  // 'a'
+    putchar(102); // 'f'
+    putchar(116); // 't'
+    putchar(32);  // ' '
+    putchar(105); // 'i'
+    putchar(115); // 's'
+    putchar(32);  // ' '
+    putchar(102); // 'f'
+    putchar(117); // 'u'
+    putchar(108); // 'l'
+    putchar(108); // 'l'
+    putchar(32);  // ' '
+    putchar(111); // 'o'
+    putchar(102); // 'f'
+    putchar(32);  // ' '
+    putchar(101); // 'e'
+    putchar(101); // 'e'
+    putchar(108); // 'l'
+    putchar(115); // 's'
+    putchar(46);  // '.'
+    putchar(10);
+}
