@@ -367,8 +367,11 @@ x86_prelude(x86_comp_params_t *params,
         types_is_int(ir_function_def_get_return_type(main_func));
 
       fprintf(params->out,
-              ".globl _start\n"
-              "_start:\n"
+              ".globl _init\n"
+              "_init:\n"
+              "    ret\n"
+              ".globl main\n"
+              "main:\n"
               "    call %s\n"
               "    pushl %s\n"
               "    call exit\n",
