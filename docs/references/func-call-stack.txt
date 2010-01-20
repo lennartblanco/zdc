@@ -60,3 +60,14 @@ int foo(int a, int b, int[4] c);
 20  c[3]
 24  b
 28  a
+
+void foo()
+{
+  int[] x;
+}
+
+-8 x.length
+-4 x.ptr
+ 0 old_ebp   <-- ebp
+ 4 ret_addr
+}

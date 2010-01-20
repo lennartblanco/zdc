@@ -255,6 +255,23 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
                         dt_static_array_type_get_data_type(var_array_type)));
         }
     }
+    else if (DT_IS_ARRAY_TYPE(var_type))
+    {
+         int offset;
+
+         /* init expressions for dynamic arrays not supported for now */
+         assert(var_init == NULL);
+         offset =
+             x86_frame_offset_get_offset(
+                 X86_FRAME_OFFSET(ir_variable_get_location(variable)));
+
+         fprintf(params->out,
+                 "    # initilize dynamic array to to length 0\n"
+                 "    movl $0, %d(%%ebp)\n"
+                 "    movl $0, %d(%%ebp)\n",
+                 offset, offset + 4);
+         return;
+    }
     else
     {
         /* unexpected data type */
