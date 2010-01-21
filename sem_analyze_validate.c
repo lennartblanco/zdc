@@ -4,6 +4,7 @@
 #include "types.h"
 #include "dt_auto_type.h"
 #include "ir_scalar.h"
+#include "ir_array.h"
 #include "ir_function.h"
 #include "ir_assigment.h"
 #include "ir_function_call.h"
@@ -585,22 +586,33 @@ validate_assigment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
                    IrAssigment *assigment)
 {
-    IrExpression *lvalue;
+    IrLvalue *lvalue;
     IrExpression *value;
+    DtDataType *lvalue_type;
     DtDataType *target_type;
 
     /*
      * validate assigment lvalue
      */
-    lvalue = IR_EXPRESSION(ir_assigment_get_lvalue(assigment));
-    lvalue = validate_expression(compile_status,
-                                 sym_table,
-                                 lvalue);
-    if (!IR_LVALUE(lvalue))
+    lvalue = ir_assigment_get_lvalue(assigment);
+    lvalue = IR_LVALUE(validate_expression(compile_status,
+                                           sym_table,
+                                           IR_EXPRESSION(lvalue)));
+    if (!IR_IS_LVALUE(lvalue))
     {
         return;
     }
-    ir_assigment_set_lvalue(assigment, IR_LVALUE(lvalue));
+
+    lvalue_type =
+        ir_variable_get_data_type(ir_lvalue_get_variable(lvalue));
+    if (DT_IS_ARRAY_TYPE(lvalue_type) && IR_IS_SCALAR(lvalue))
+    {
+        /* replace lvalue with array handle object */
+        IrVariable *var = ir_lvalue_get_variable(lvalue);
+        lvalue = IR_LVALUE(ir_array_new(var));
+
+    }
+    ir_assigment_set_lvalue(assigment, lvalue);
 
     /*
      * validate assigment right value

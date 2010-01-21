@@ -158,7 +158,7 @@ link_files(string output_file, string[] object_files)
         ofile = object_files[0][0..$-2];
     }
 
-    command = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 /usr/lib/crt1.o -o " ~ ofile ~ " -lc";
+    command = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 /usr/lib32/crt1.o -o " ~ ofile ~ " -lc";
     foreach (file; object_files)
     {
       command ~= " " ~ file;

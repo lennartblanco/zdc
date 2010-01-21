@@ -32,6 +32,9 @@ ir_lvalue_get_property(GObject *object,
                        GValue *value,
                        GParamSpec *pspec);
 
+static DtDataType *
+ir_lvalue_do_get_data_type(IrExpression *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -115,6 +118,10 @@ ir_lvalue_class_init(gpointer klass, gpointer foo)
     g_object_class_install_property(gobject_class,
                                     IR_LVALUE_SYMBOL_NAME,
                                     pspec);
+
+    /* virtual method */
+    ((IrExpressionClass *)klass)->do_get_data_type =
+        ir_lvalue_do_get_data_type;
 }
 
 static void
@@ -140,3 +147,14 @@ ir_lvalue_get_property(GObject *object,
     assert(false);
 }
 
+static DtDataType *
+ir_lvalue_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_LVALUE(self));
+
+    IrLvalue *lvalue = IR_LVALUE(self);
+
+    assert(lvalue->variable != NULL);
+
+    return ir_expression_get_data_type(IR_EXPRESSION(lvalue->variable));
+}

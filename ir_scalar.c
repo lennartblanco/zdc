@@ -6,16 +6,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_scalar_class_init(gpointer klass, gpointer dummy);
-
-static DtDataType *
-ir_scalar_do_get_data_type(IrExpression *self);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -30,7 +20,7 @@ ir_scalar_get_type(void)
         sizeof (IrScalarClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_scalar_class_init, /* class_init */
+        NULL, //ir_scalar_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrScalar),
@@ -74,26 +64,3 @@ ir_scalar_get_variable_name(IrScalar *self)
     return ir_lvalue_get_name(IR_LVALUE(self));
 }
 
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_scalar_class_init(gpointer klass, gpointer dummy)
-{
-    ((IrExpressionClass *)klass)->do_get_data_type =
-        ir_scalar_do_get_data_type;
-}
-
-static DtDataType *
-ir_scalar_do_get_data_type(IrExpression *self)
-{
-    assert(IR_IS_SCALAR(self));
-
-    IrScalar *scalar = IR_SCALAR(self);
-    IrVariable *variable = ir_lvalue_get_variable(IR_LVALUE(scalar));
-
-    assert(variable != NULL);
-
-    return ir_expression_get_data_type(IR_EXPRESSION(variable));
-}
