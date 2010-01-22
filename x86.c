@@ -12,6 +12,7 @@
 #include "x86_reg_location.h"
 #include "dt_static_array_type.h"
 #include "ast_variable_declaration.h"
+#include "ir_array.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell.h"
 #include "ir_array_slice.h"
@@ -53,10 +54,15 @@ x86_compile_unary_op(x86_comp_params_t *params,
                      sym_table_t *sym_table);
 
 static void
-x86_gen_variable_assigment(x86_comp_params_t *params,
-                           IrVariable *variable,
-                           IrExpression *expression,
-                           sym_table_t *sym_table);
+x86_gen_scalar_assigment(x86_comp_params_t *params,
+                         IrVariable *variable,
+                         IrExpression *expression,
+                         sym_table_t *sym_table);
+
+static void
+x86_gen_array_handle_assigment(x86_comp_params_t *params,
+                               IrAssigment *assigment,
+                               sym_table_t *sym_table);
 static void
 x86_compile_array_cell(x86_comp_params_t *params,
                        IrArrayCell *array_cell,
@@ -292,6 +298,22 @@ x86_get_expression_storage_size(IrExpression *expression)
     return 0;
 }
 
+/**
+ * @return False if this type of parameter is passed via stack, when
+ *         used as last argument in function call.
+ *         True if it is passed via eax register.
+ */ 
+bool
+x86_in_reg_as_last_func_arg(IrExpression *parameter)
+{
+    /*
+     * @todo: here we need to take into account 3 byte structs and
+     * floating point variables
+     */
+    return
+        x86_get_expression_storage_size(parameter) <= 4;
+}
+
 void
 x86_compile_assigment(x86_comp_params_t *params,
                       IrAssigment *assigment,
@@ -307,10 +329,14 @@ x86_compile_assigment(x86_comp_params_t *params,
 
     if (IR_IS_SCALAR(lvalue))
     {
-        x86_gen_variable_assigment(params,
-                                   ir_lvalue_get_variable(lvalue),
-                                   ir_assigment_get_value(assigment),
-                                   sym_table);
+        x86_gen_scalar_assigment(params,
+                                 ir_lvalue_get_variable(lvalue),
+                                 ir_assigment_get_value(assigment),
+                                 sym_table);
+    }
+    else if (IR_IS_ARRAY(lvalue))
+    {
+        x86_gen_array_handle_assigment(params, assigment, sym_table);
     }
     else if (IR_IS_ARRAY_CELL(lvalue))
     {
@@ -378,22 +404,6 @@ x86_prelude(x86_comp_params_t *params,
               ir_function_def_get_mangled_name(main_func),
               exit_code_returned ? "%eax" : "$0");
     }
-}
-
-/**
- * @return False if this type of parameter is passed via stack, when
- *         used as last argument in function call.
- *         True if it is passed via eax register.
- */ 
-bool
-x86_in_reg_as_last_func_arg(IrExpression *parameter)
-{
-    /*
-     * @todo: here we need to take into account 3 byte structs and
-     * floating point variables
-     */
-    return
-        x86_get_expression_storage_size(parameter) <= 4;
 }
 
 static void
@@ -547,10 +557,10 @@ x86_gen_store_value(x86_comp_params_t *params,
 }
 
 static void
-x86_gen_variable_assigment(x86_comp_params_t *params,
-                           IrVariable *variable,
-                           IrExpression *expression,
-                           sym_table_t *sym_table)
+x86_gen_scalar_assigment(x86_comp_params_t *params,
+                         IrVariable *variable,
+                         IrExpression *expression,
+                         sym_table_t *sym_table)
 {
     X86FrameOffset *addr;
 
@@ -1144,6 +1154,86 @@ x86_compile_array_cell(x86_comp_params_t *params,
             /* unexpected storage size */
             assert(false);
     }              
+}
+
+static void
+x86_gen_array_handle_assigment(x86_comp_params_t *params,
+                               IrAssigment *assigment,
+                               sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ASSIGMENT(assigment));
+    assert(sym_table);
+    assert(IR_IS_ARRAY(ir_assigment_get_lvalue(assigment)));
+
+    /* we only support assigment of array literals to array handles for now */
+    assert(IR_IS_ARRAY_LITERAL(ir_assigment_get_value(assigment)));
+
+    IrLvalue *lvalue;
+    IrArrayLiteral *value;
+    GSList *literal_values;
+    GSList *i;
+    guint cntr;
+    guint literal_length;
+    IrVariable *variable;
+    int offset;
+    int storage_size;
+
+    lvalue = ir_assigment_get_lvalue(assigment);
+    variable = ir_lvalue_get_variable(lvalue);
+    value = IR_ARRAY_LITERAL(ir_assigment_get_value(assigment));
+    literal_values = ir_array_literal_get_values(value);
+    literal_length = g_slist_length(literal_values);
+
+    offset =
+        x86_frame_offset_get_offset(
+            X86_FRAME_OFFSET(ir_variable_get_location(variable)));
+
+    storage_size = 
+      types_get_storage_size(
+        dt_basic_type_get_data_type(
+          DT_BASIC_TYPE(
+            dt_array_type_get_data_type(
+              DT_ARRAY_TYPE(ir_variable_get_data_type(variable))))));
+
+    fprintf(params->out,
+            "# array literal to array handle assigment\n"
+            "    pushl $%d\n"
+            "    call GC_malloc\n"
+            "    movl %%eax, (%%esp)\n",
+            literal_length);
+
+    for (i = literal_values, cntr = 0; i != NULL; i = g_slist_next(i), cntr++)
+    {
+        fprintf(params->out, "  # evaluate array literal value %u\n", cntr);
+        x86_compile_expression(params, i->data, sym_table);
+        fprintf(params->out,
+                "  # store array literal value %u\n"
+                "    pop %%eax\n"
+                "    movl (%%esp), %%ebx\n"
+                "    movl $%u, %%ecx\n",
+                cntr, cntr);
+        switch (storage_size)
+        {
+            case 4:
+                fprintf(params->out, "    movl %%eax, (%%ebx, %%ecx, 4)\n");
+                break;
+            case 1:
+                fprintf(params->out, "    movb %%al, (%%ebx, %%ecx, 1)\n");
+                break;
+            default:
+                /* unexpected storage size */
+                assert(false);
+        }
+    }
+
+    fprintf(params->out,
+            "  # assign length and pointer of array literal to array handle\n"
+            "    movl $%u, %d(%%esp) # store length\n"
+            "    popl %%eax          # store pointer\n"
+            "    movl %%eax, %d(%%esp)\n",
+            literal_length, offset, offset + 4);
+ 
 }
 
 static void

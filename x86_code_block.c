@@ -266,7 +266,7 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
                  X86_FRAME_OFFSET(ir_variable_get_location(variable)));
 
          fprintf(params->out,
-                 "    # initilize dynamic array to to length 0\n"
+                 "    # initilize dynamic array to length 0\n"
                  "    movl $0, %d(%%ebp)\n"
                  "    movl $0, %d(%%ebp)\n",
                  offset, offset + 4);
