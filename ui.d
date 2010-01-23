@@ -152,13 +152,24 @@ link_files(string output_file, string[] object_files)
 {
     string ofile = output_file;
     string command;
+    string crt1_path;
 
     if (ofile == null)
     {
         ofile = object_files[0][0..$-2];
     }
 
-    command = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 /usr/lib/crt1.o -o " ~ ofile ~ " -lc -lgc";
+    version (X86_64)
+    {
+        crt1_path = "/usr/lib32/";
+    }
+    version (X86)
+    {
+        crt1_path = "/usr/lib/";
+    }
+
+    command = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 " ~ 
+               crt1_path ~ "crt1.o -o " ~ ofile ~ " -lc -lgc";
     foreach (file; object_files)
     {
       command ~= " " ~ file;
