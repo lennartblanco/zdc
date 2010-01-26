@@ -1104,41 +1104,77 @@ x86_compile_array_cell(x86_comp_params_t *params,
     X86FrameOffset *array_loc;
     IrVariable *variable;
     guint storage_size;
-    DtStaticArrayType *array_type;
+    DtArrayType *array_type;
 
 
     variable = ir_lvalue_get_variable(IR_LVALUE(array_cell));
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
-    array_type = DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(variable));
+    array_type = DT_ARRAY_TYPE(ir_variable_get_data_type(variable));
     storage_size = 
       types_get_storage_size(
         dt_basic_type_get_data_type(
-          DT_BASIC_TYPE(dt_static_array_type_get_data_type(array_type))));
+          DT_BASIC_TYPE(dt_array_type_get_data_type(array_type))));
 
     fprintf(params->out,
             "    popl %%eax # store array index in eax\n");
 
-    switch (storage_size)
+    if (DT_IS_STATIC_ARRAY_TYPE(array_type))
     {
-        case 4:
-            fprintf(params->out,
-                    "   # fetch 32-bit array element\n"
-                    "    movl %d(%%ebp, %%eax, 4), %%eax\n"
-                    "    pushl %%eax\n",
-                    x86_frame_offset_get_offset(array_loc));
-            break;
-        case 1:
-            fprintf(params->out,
-                    "   # fetch 8-bit array element\n"
-                    "    xor %%ebx, %%ebx\n"
-                    "    movb %d(%%ebp, %%eax, 1), %%bl\n"
-                    "    pushl %%ebx\n",
-                    x86_frame_offset_get_offset(array_loc));
-            break;
-        default:
-            /* unexpected storage size */
-            assert(false);
-    }              
+        /* fetch array cell value from a static array */
+        switch (storage_size)
+        {
+            case 4:
+                fprintf(params->out,
+                        "   # fetch 32-bit array element\n"
+                        "    movl %d(%%ebp, %%eax, 4), %%eax\n"
+                        "    pushl %%eax\n",
+                        x86_frame_offset_get_offset(array_loc));
+                break;
+            case 1:
+                fprintf(params->out,
+                        "   # fetch 8-bit array element\n"
+                        "    xor %%ebx, %%ebx\n"
+                        "    movb %d(%%ebp, %%eax, 1), %%bl\n"
+                        "    pushl %%ebx\n",
+                        x86_frame_offset_get_offset(array_loc));
+                break;
+            default:
+                /* unexpected storage size */
+                assert(false);
+        }
+    }
+    else if (DT_IS_ARRAY_TYPE(array_type))
+    {
+        fprintf(params->out,
+                "# fetch array element\n"
+                "    movl %d(%%ebp), %%ebx # store array pointer in register\n",
+                x86_frame_offset_get_offset(array_loc) + 4);
+ 
+
+        /* fetch array cell value from a dynamic array */
+        switch (storage_size)
+        {
+            case 4:
+                fprintf(params->out,
+                        "    movl (%%ebx, %%eax, 4), %%eax # 32-bit element\n"
+                        "    pushl %%eax\n");
+                break;
+            case 1:
+                fprintf(params->out,
+                        "    xor %%ecx, %%ecx    # 8-bit element\n"
+                        "    movb (%%ebx, %%eax, 1), %%cl\n"
+                        "    pushl %%ecx\n");
+                break;
+            default:
+                /* unexpected storage size */
+                assert(false);
+        }
+    }
+    else
+    {
+        /* unexpected array type */
+        assert(FALSE);
+    }
 }
 
 static void
@@ -1208,9 +1244,9 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
 
     fprintf(params->out,
             "  # assign length and pointer of array literal to array handle\n"
-            "    movl $%u, %d(%%esp) # store length\n"
+            "    movl $%u, %d(%%ebp) # store length\n"
             "    popl %%eax          # store pointer\n"
-            "    movl %%eax, %d(%%esp)\n",
+            "    movl %%eax, %d(%%ebp)\n",
             literal_length, offset, offset + 4);
  
 }
