@@ -46,13 +46,19 @@ dt_array_type_get_type(void);
 DtArrayType *
 dt_array_type_new(DtDataType *data_type);
 
+guint32
+dt_array_type_get_length(DtArrayType *self);
+
 /**
  * Get element data type
  */
 DtDataType *
 dt_array_type_get_data_type(DtArrayType *self);
 
-guint32
-dt_array_type_get_length(DtArrayType *self);
+/**
+ * @return element's storage size in bytes
+ */
+guint
+dt_array_get_element_size(DtArrayType *self);
 
 #endif /* DT_ARRAY_TYPE_INC_X */

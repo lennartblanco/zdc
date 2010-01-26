@@ -90,6 +90,15 @@ ir_lvalue_get_variable(IrLvalue *self)
     return self->variable;
 }
 
+GObject *
+ir_lvalue_get_location(IrLvalue *self)
+{
+    assert(IR_IS_LVALUE(self));
+    assert(IR_IS_VARIABLE(self->variable));
+
+    return ir_variable_get_location(self->variable);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

@@ -591,7 +591,7 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
     IrVariable *array;
     X86FrameOffset *array_loc;
     int array_offset;
-    int storage_size;
+    guint storage_size;
     guint array_literal_len;
     GSList *i;
     char loop_label[LABEL_MAX_LEN];
@@ -607,11 +607,8 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
 
     /* fetch array element storage size */
     storage_size =
-      types_get_storage_size(
-          dt_basic_type_get_data_type(
-              DT_BASIC_TYPE(
-                  dt_static_array_type_get_data_type(
-                    DT_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array))))));
+        dt_array_get_element_size(
+            DT_ARRAY_TYPE(ir_variable_get_data_type(array)));
 
     /*
      * evaluate array slice start and stop index expressions
@@ -703,12 +700,9 @@ x86_compile_array_slice(x86_comp_params_t *params,
      * get array elements storage size
      */
     storage_size =
-      types_get_storage_size(
-          dt_basic_type_get_data_type(
-              DT_BASIC_TYPE(
-                dt_array_type_get_data_type(
-                    DT_ARRAY_TYPE(ir_expression_get_data_type(
-                        IR_EXPRESSION(array_slice)))))));
+        dt_array_get_element_size(
+            DT_ARRAY_TYPE(
+                ir_expression_get_data_type(IR_EXPRESSION(array_slice))));
 
     /*
      * we use left shift to operation to multiply index of element 
@@ -793,7 +787,7 @@ x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
     IrVariable *var;
     int src_offset;
     int dst_offset;
-    int storage_size;
+    guint storage_size;
     guint index_shift_steps;
 
     src_slice = IR_ARRAY_SLICE(ir_assigment_get_value(assigment));
@@ -820,14 +814,9 @@ x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
      * get array elements storage size
      */
     storage_size =
-      types_get_storage_size(
-          dt_basic_type_get_data_type(
-              DT_BASIC_TYPE(
-                  dt_array_type_get_data_type(
-                      DT_ARRAY_TYPE(
-                          ir_expression_get_data_type(
-                              IR_EXPRESSION(src_slice)))))));
-
+        dt_array_get_element_size(
+            DT_ARRAY_TYPE(
+                ir_expression_get_data_type(IR_EXPRESSION(src_slice))));
     /*
      * we use left shift to operation to multiply index of element 
      * with arrays storage size, figure out how many bits should be shifted
@@ -914,13 +903,13 @@ x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
     fprintf(params->out,
             "# memcpy src argument -> ebx\n"
             "    movl 4(%%esp), %%ebx\n"
-            "    lea %d(%%ebp, %%ebx, %d), %%ebx\n",
+            "    lea %d(%%ebp, %%ebx, %u), %%ebx\n",
             src_offset, storage_size);
 
     fprintf(params->out,
             "# memcpy dest argument -> ecx\n"
             "    movl 12(%%esp), %%ecx\n"
-            "    lea %d(%%ebp, %%ecx, %d), %%ecx\n",
+            "    lea %d(%%ebp, %%ecx, %u), %%ecx\n",
             dst_offset, storage_size);
 
     fprintf(params->out,
@@ -946,7 +935,7 @@ x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
     IrArraySlice *array_slice;
     IrVariable *var;
     int array_offset;
-    int storage_size;
+    guint storage_size;
     char loop_label[LABEL_MAX_LEN];
 
 
@@ -968,13 +957,9 @@ x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
      * get array elements storage size
      */
     storage_size =
-      types_get_storage_size(
-          dt_basic_type_get_data_type(
-              DT_BASIC_TYPE(
-                  dt_array_type_get_data_type(
-                      DT_ARRAY_TYPE(
-                          ir_expression_get_data_type(
-                              IR_EXPRESSION(array_slice)))))));
+        dt_array_get_element_size(
+            DT_ARRAY_TYPE(
+                ir_expression_get_data_type(IR_EXPRESSION(array_slice))));
 
     fprintf(params->out,
             "# assign basic type expression to an array slice\n"
@@ -996,7 +981,7 @@ x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
             "    popl %%ecx   # calc array slice length\n"
             "    subl (%%esp), %%ecx\n"
             "    pop %%eax\n"
-            "    lea %d(%%ebp, %%eax, %d), %%eax\n"
+            "    lea %d(%%ebp, %%eax, %u), %%eax\n"
             "    pop %%edx\n"
             "%s:\n",
             array_offset, storage_size, loop_label);
@@ -1017,7 +1002,7 @@ x86_compile_basic_type_to_slice_assigment(x86_comp_params_t *params,
     }
 
     fprintf(params->out,
-            "    addl $%d, %%eax\n"
+            "    addl $%u, %%eax\n"
             "    loop %s\n",
             storage_size, loop_label);
 }
@@ -1118,7 +1103,7 @@ x86_compile_array_cell(x86_comp_params_t *params,
 
     X86FrameOffset *array_loc;
     IrVariable *variable;
-    int storage_size;
+    guint storage_size;
     DtStaticArrayType *array_type;
 
 
@@ -1175,26 +1160,20 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
     GSList *i;
     guint cntr;
     guint literal_length;
-    IrVariable *variable;
     int offset;
-    int storage_size;
+    guint storage_size;
 
     lvalue = ir_assigment_get_lvalue(assigment);
-    variable = ir_lvalue_get_variable(lvalue);
     value = IR_ARRAY_LITERAL(ir_assigment_get_value(assigment));
     literal_values = ir_array_literal_get_values(value);
     literal_length = g_slist_length(literal_values);
 
     offset =
         x86_frame_offset_get_offset(
-            X86_FRAME_OFFSET(ir_variable_get_location(variable)));
-
-    storage_size = 
-      types_get_storage_size(
-        dt_basic_type_get_data_type(
-          DT_BASIC_TYPE(
-            dt_array_type_get_data_type(
-              DT_ARRAY_TYPE(ir_variable_get_data_type(variable))))));
+            X86_FRAME_OFFSET(ir_lvalue_get_location(lvalue)));
+    storage_size =
+        dt_array_get_element_size(
+            DT_ARRAY_TYPE(ir_expression_get_data_type(IR_EXPRESSION(lvalue))));
 
     fprintf(params->out,
             "# array literal to array handle assigment\n"

@@ -11,7 +11,7 @@
 /**
  * Get storage size in bytes of an basic data type.
  */
-int
+guint
 types_get_storage_size(basic_data_type_t data_type);
 
 /**

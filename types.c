@@ -177,7 +177,7 @@ types_get_default_initializer(DtBasicType *data_type)
     }
 }
 
-int
+guint
 types_get_storage_size(basic_data_type_t data_type)
 {
     switch (data_type)
