@@ -45,6 +45,9 @@ check_while_loop: while_loop.o check_utils.o check_while_loop.c
 check_stat_array: stat_array.o check_utils.o check_stat_array.c
 	gcc $(CFLAGS) -o $@ $^
 
+check_dyn_array: dyn_array.o check_utils.o check_dyn_array.c
+	gcc $(CFLAGS) -lgc -o $@ $^
+
 check_foreach: foreach.o check_utils.o check_foreach.c
 	gcc $(CFLAGS) -o $@ $^
 
@@ -73,4 +76,4 @@ clean:
 check_only_comments check_comments check_neg check_func_call check_imports \
 check_bool_op check_extern_c check_fact check_foreach check_if_else \
 check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
-check_stat_array check_uint_op check_while_loop eels
+check_stat_array check_dyn_array check_uint_op check_while_loop eels
