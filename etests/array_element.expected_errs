@@ -1,3 +1,4 @@
+array_element.d:45: error: reference to unknow symbol 'bar'
 array_element.d:36: error: illegal index expression type
 array_element.d:28: error: array element expression over non array
 array_element.d:28: error: invalid assigment expression

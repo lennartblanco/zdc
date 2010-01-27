@@ -488,6 +488,11 @@ validate_array_cell(compilation_status_t *compile_status,
     idx_exp = validate_expression(compile_status,
                                   sym_table,
                                   idx_exp);
+    if (idx_exp == NULL)
+    {
+        /* invalid index expression, bail out */
+        return NULL;
+    }
 
     /*
      * implicitly convert index expression to uint type
