@@ -8,6 +8,7 @@
 #include "ir_return.h"
 #include "ir_assigment.h"
 #include "ir_if_else.h"
+#include "ir_array.h"
 #include "ir_array_literal.h"
 #include "ir_scalar.h"
 #include "ir_array_slice.h"
@@ -259,18 +260,20 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
     {
          int offset;
 
-         /* init expressions for dynamic arrays not supported for now */
-         assert(var_init == NULL);
-         offset =
-             x86_frame_offset_get_offset(
-                 X86_FRAME_OFFSET(ir_variable_get_location(variable)));
+         if (var_init == NULL)
+         {
+             offset =
+                 x86_frame_offset_get_offset(
+                     X86_FRAME_OFFSET(ir_variable_get_location(variable)));
 
-         fprintf(params->out,
-                 "    # initilize dynamic array to length 0\n"
-                 "    movl $0, %d(%%ebp)\n"
-                 "    movl $0, %d(%%ebp)\n",
-                 offset, offset + 4);
-         return;
+             fprintf(params->out,
+                     "    # initilize dynamic array to length 0\n"
+                     "    movl $0, %d(%%ebp)\n"
+                     "    movl $0, %d(%%ebp)\n",
+                     offset, offset + 4);
+             return;
+         }
+         lval = IR_LVALUE(ir_array_new(variable));
     }
     else
     {
