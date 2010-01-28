@@ -121,6 +121,10 @@ static void
 x86_compile_array_slice_to_slice_assigment(x86_comp_params_t *params,
                                              IrAssigment *assigment,
                                              sym_table_t *sym_table);
+
+/**
+ * Generate code to push an array slice onto the stack.
+ */
 static void
 x86_compile_array_slice(x86_comp_params_t *params,
                         IrArraySlice *array_slice,
@@ -1261,8 +1265,9 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
     assert(sym_table);
 
     IrArrayCell *array_cell;
+    DtArrayType *array_type;
     DtDataType *cell_type;
-    int storage_size;
+    guint storage_size;
     X86FrameOffset *array_loc;
     IrVariable *variable;
 
@@ -1288,33 +1293,62 @@ x86_gen_array_cell_assigment(x86_comp_params_t *params,
 
     variable = ir_lvalue_get_variable(IR_LVALUE(array_cell));
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
+    array_type = DT_ARRAY_TYPE(ir_variable_get_data_type(variable));
 
-    storage_size =
-       types_get_storage_size(
-            dt_basic_type_get_data_type(DT_BASIC_TYPE(cell_type)));
+    storage_size = dt_array_get_element_size(array_type);
 
     fprintf(params->out,
             "    popl %%eax # store array index in eax\n"
             "    popl %%ebx # store right value in ebx\n");
 
-    switch (storage_size)
+    if (DT_IS_STATIC_ARRAY_TYPE(array_type))
     {
-        case 4:
-            fprintf(params->out,
-                    "   # store 32-bit array element\n"
-                    "    movl %%ebx, %d(%%ebp, %%eax, 4)\n",
-                    x86_frame_offset_get_offset(array_loc));
-            break;
-        case 1:
-            fprintf(params->out,
-                    "   # store 8-bit array element\n"
-                    "    movb  %%bl, %d(%%ebp, %%eax, 1)\n",
-                    x86_frame_offset_get_offset(array_loc));
-            break;
-        default:
-            /* unexpected storage size */
-            assert(false);
-    }    
+        switch (storage_size)
+        {
+            case 4:
+                fprintf(params->out,
+                        "   # store 32-bit array element\n"
+                        "    movl %%ebx, %d(%%ebp, %%eax, 4)\n",
+                        x86_frame_offset_get_offset(array_loc));
+                break;
+            case 1:
+                fprintf(params->out,
+                        "   # store 8-bit array element\n"
+                        "    movb  %%bl, %d(%%ebp, %%eax, 1)\n",
+                        x86_frame_offset_get_offset(array_loc));
+                break;
+            default:
+                /* unexpected storage size */
+                assert(false);
+        }
+    }
+    else if (DT_IS_ARRAY_TYPE(array_type))
+    {
+        fprintf(params->out,
+                "    movl %d(%%ebp), %%ecx # store array pointer in register\n",
+                x86_frame_offset_get_offset(array_loc) + 4);
+
+        switch (storage_size)
+        {
+            case 4:
+                fprintf(params->out,
+                        "    movl %%ebx, (%%ecx, %%eax, 4) # 32-bit element\n");
+                break;
+            case 1:
+                fprintf(params->out,
+                        "    movb %%bl, (%%ecx, %%eax, 1) # 8-bit element\n");
+                break;
+            default:
+                /* unexpected storage size */
+                assert(false);
+        }
+    }
+    else
+    {
+        /* unexpected array type */
+        assert(FALSE);
+    }
+
 }
 
 static void
