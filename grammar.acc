@@ -618,6 +618,16 @@ mult_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
+|   postfix_expression<n>
+;
+
+postfix_expression<n> :
+    postfix_expression<exp> '.' TOK_IDENT<name>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_property_new(exp, name.text));
+        free(name.text);
+    }
 |   primary<n>
 ;
 

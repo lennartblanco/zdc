@@ -13,6 +13,7 @@
 #include "ast_bool_constant.h"
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
+#include "ast_property.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
@@ -105,6 +106,10 @@ static IrExpression *
 array_slice_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstArraySliceRef *ast_arry_slice);
+static IrExpression *
+property_to_ir(compilation_status_t *compile_status,
+               sym_table_t *symbols,
+               AstProperty *ast_property);
 
 static void
 var_def_to_ir(compilation_status_t *compile_status,
@@ -787,6 +792,21 @@ array_slice_to_ir(compilation_status_t *compile_status,
                                             line_number));
 }
 
+static IrExpression *
+property_to_ir(compilation_status_t *compile_status,
+               sym_table_t *symbols,
+               AstProperty *ast_property)
+{
+    assert(compile_status);
+    assert(symbols);
+    assert(AST_IS_PROPERTY(ast_property));
+
+printf("prop to IR!\n");
+/* not implemented */
+assert(FALSE);
+    return NULL;
+}
+
 /**
  * Convert AST expression to IR form.
  */
@@ -902,6 +922,12 @@ expression_to_ir(compilation_status_t *compile_status,
 
         func_call = AST_FUNCTION_CALL(ast_expression);
         return func_call_to_ir(compile_status, symbols, func_call);
+    }
+    else if (AST_IS_PROPERTY(ast_expression))
+    {
+        return property_to_ir(compile_status,
+                              symbols,
+                              AST_PROPERTY(ast_expression));
     }
 
     /* unexpected expression type */
