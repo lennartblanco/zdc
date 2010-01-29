@@ -38,6 +38,7 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType ast_statment_get_type(void);
+GType
+ast_statment_get_type(void);
 
 #endif /* AST_STATMENT_INC_X */
