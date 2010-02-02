@@ -24,4 +24,5 @@ OBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o       \
         ir_expression.o ir_return.o ir_function_call.o ir_assigment.o         \
         ir_array_literal.o ir_lvalue.o ir_array.o ir_array_slice.o            \
         ir_array_cell.o ir_scalar.o ir_function_def.o ir_function_decl.o      \
+        ir_property.o                                                         \
         $(X86_TRGT_OBJS) #$(JAVA_TRGT_OBJS)

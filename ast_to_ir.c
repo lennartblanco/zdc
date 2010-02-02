@@ -31,6 +31,7 @@
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_property.h"
 
 #include <assert.h>
 
@@ -801,10 +802,25 @@ property_to_ir(compilation_status_t *compile_status,
     assert(symbols);
     assert(AST_IS_PROPERTY(ast_property));
 
-printf("prop to IR!\n");
-/* not implemented */
-assert(FALSE);
-    return NULL;
+    IrExpression *exp;
+    IrProperty *prop;
+
+    exp = expression_to_ir(compile_status,
+                           symbols,
+                           ast_property_get_expression(ast_property));
+
+    prop = ir_property_new(exp, ast_property_get_name(ast_property));
+
+    if (prop == NULL)
+    {
+        compile_error(compile_status,
+                      IR_NODE(exp),
+                      "unknown property '%s'\n",
+                      ast_property_get_name(ast_property));
+       return NULL;
+    }
+
+    return IR_EXPRESSION(prop);
 }
 
 /**

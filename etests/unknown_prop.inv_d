@@ -1,0 +1,7 @@
+void illegal_int_prop()
+{
+  int x;
+
+  x = x.foobar;
+}
+

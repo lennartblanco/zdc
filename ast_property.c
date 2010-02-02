@@ -46,3 +46,19 @@ ast_property_new(AstExpression *exp,
 
     return obj;
 }
+
+AstExpression *
+ast_property_get_expression(AstProperty *self)
+{
+    assert(AST_IS_PROPERTY(self));
+
+    return self->exp;
+}
+
+const char *
+ast_property_get_name(AstProperty *self)
+{
+    assert(AST_IS_PROPERTY(self));
+
+    return self->name;
+}

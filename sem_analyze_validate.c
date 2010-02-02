@@ -19,6 +19,7 @@
 #include "ir_while.h"
 #include "ir_foreach.h"
 #include "ir_array_cell.h"
+#include "ir_property.h"
 
 #include <assert.h>
 
@@ -56,6 +57,15 @@ validate_unary_op(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrUnaryOperation *operation);
 
+static IrExpression *
+validate_sizeof_property(compilation_status_t *compile_status,
+                         sym_table_t *sym_table,
+                         IrProperty *prop);
+
+static IrExpression *
+validate_property(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrProperty *prop);
 static void
 validate_function_def(compilation_status_t *compile_status,
                       IrFunctionDef *func_def);
@@ -512,6 +522,81 @@ validate_array_cell(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+validate_sizeof_property(compilation_status_t *compile_status,
+                         sym_table_t *sym_table,
+                         IrProperty *prop)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_PROPERTY(prop));
+    assert(ir_property_get_id(prop) == ir_prop_sizeof);
+
+    IrExpression *exp;
+    DtDataType *exp_type;
+
+    exp = ir_property_get_expression(prop);
+    exp_type = ir_expression_get_data_type(exp);
+
+    if (DT_IS_BASIC_TYPE(exp_type))
+    {
+        IrUintConstant *size_exp;
+        guint32 size;
+
+        size =
+            types_get_storage_size(
+                dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_type)));
+
+        size_exp = ir_uint_constant_new(size, ir_node_get_line_num(prop));
+
+        return IR_EXPRESSION(size_exp);
+    }
+    g_assert_not_reached();
+}
+
+static IrExpression *
+validate_property(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrProperty *prop)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_PROPERTY(prop));
+
+    IrExpression *exp;
+
+    exp = validate_expression(compile_status,
+                              sym_table,
+                              ir_property_get_expression(prop));
+
+    if (exp == NULL) {
+        /* invalid expression, bail-out */
+        return NULL;
+    }
+
+    ir_property_set_expression(prop, exp);            
+
+    switch (ir_property_get_id(prop))
+    {
+        case ir_prop_init:
+            /* not implemented yet */
+            assert(false);
+        case ir_prop_sizeof:
+            return
+                validate_sizeof_property(compile_status,
+                                         sym_table,
+                                         prop);
+        case ir_prop_length:
+            /* not implemented yet */
+            assert(false);
+        default:
+            /* unexpected property id */
+            assert(false);
+    }
+
+    g_assert_not_reached();
+}
+
+static IrExpression *
 validate_expression(compilation_status_t *compile_status,
                     sym_table_t *sym_table,
                     IrExpression *expression)
@@ -564,6 +649,13 @@ validate_expression(compilation_status_t *compile_status,
            validate_array_slice(compile_status,
                                 sym_table,
                                 IR_ARRAY_SLICE(expression));
+    }
+    else if (IR_IS_PROPERTY(expression))
+    {
+        expression =
+            validate_property(compile_status,
+                              sym_table,
+                              IR_PROPERTY(expression));
     }
 
     return expression;

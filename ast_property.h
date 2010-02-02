@@ -52,4 +52,10 @@ AstProperty *
 ast_property_new(AstExpression *exp,
                  const char *name);
 
+AstExpression *
+ast_property_get_expression(AstProperty *self);
+
+const char *
+ast_property_get_name(AstProperty *self);
+
 #endif /* AST_PROPERTY_INC_X */
