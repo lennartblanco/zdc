@@ -148,6 +148,18 @@ call_stat_int_arry_length()
    return res;
 }
 
+unsigned
+call_stat_bool_arry_length()
+{
+   unsigned res;
+
+   asm ("    call _D10properties21stat_bool_arry_lengthFZk\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -191,8 +203,10 @@ main()
     check_bool("bool_var_init()", call_bool_var_init(), false);
 
     /* stat_int_arry_length() test */
-    check_uint("stat_int_arry_length()",
-               call_stat_int_arry_length(), 4);
+    check_uint("stat_int_arry_length()", call_stat_int_arry_length(), 4);
+
+    /* stat_bool_arry_length() test */
+    check_uint("stat_bool_arry_length()", call_stat_bool_arry_length(), 12);
 
     check_exit();
 }

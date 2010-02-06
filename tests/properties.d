@@ -94,4 +94,12 @@ uint stat_int_arry_length()
     return x.length;
 }
 
+uint stat_bool_arry_length()
+{
+    bool[12] x;
+
+    return x.length;
+}
+
+
 
