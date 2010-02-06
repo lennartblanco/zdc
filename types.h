@@ -1,6 +1,8 @@
 #ifndef TYPES_INC_X
 #define TYPES_INC_X
 
+#include <stdbool.h>
+
 #include "dt_basic_type.h"
 #include "ir_expression.h"
 

@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "ir_property.h"
+#include "types.h"
 
 #include <assert.h>
 
@@ -8,11 +9,11 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-//static void
-//ir_cast_class_init(gpointer klass, gpointer dummy);
+static void
+ir_property_class_init(gpointer klass, gpointer dummy);
 
-//static DtDataType *
-//ir_cast_do_get_data_type(IrExpression *self);
+static DtDataType *
+ir_property_do_get_data_type(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -29,7 +30,7 @@ ir_property_get_type(void)
         sizeof (IrPropertyClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL, //ir_cast_class_init, /* class_init */
+        ir_property_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrProperty),
@@ -108,14 +109,21 @@ ir_property_get_id(IrProperty *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-//static void
-//ir_cast_class_init(gpointer klass, gpointer dummy)
-//{
-//    ((IrExpressionClass *)klass)->do_get_data_type = ir_cast_do_get_data_type;
-//}
+static void
+ir_property_class_init(gpointer klass, gpointer dummy)
+{
+    ((IrExpressionClass *)klass)->do_get_data_type =
+                                             ir_property_do_get_data_type;
+}
 
-//static DtDataType *
-//ir_cast_do_get_data_type(IrExpression *self)
-//{
-//    return IR_CAST(self)->target_type;
-//}
+static DtDataType *
+ir_property_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_PROPERTY(self));
+    /*
+     * only length properties so far are run-time,
+     * it's an error to try to fetch type
+     */
+    assert(IR_PROPERTY(self)->id == ir_prop_length);
+    return types_get_uint_type();
+}

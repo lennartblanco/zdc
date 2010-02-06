@@ -598,8 +598,8 @@ validate_length_property(compilation_status_t *compile_status,
     }
     else if (DT_IS_ARRAY_TYPE(exp_type))
     {
-        /* not implemented */
-        assert(false);
+        /* run-time expression */
+        return IR_EXPRESSION(prop);
     }
     else
     {

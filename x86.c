@@ -17,6 +17,7 @@
 #include "ir_array_cell.h"
 #include "ir_array_slice.h"
 #include "ir_cast.h"
+#include "ir_property.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
@@ -130,6 +131,12 @@ x86_compile_array_slice(x86_comp_params_t *params,
                         IrArraySlice *array_slice,
                         sym_table_t *sym_table);
 
+static void
+x86_compile_property(x86_comp_params_t *params,
+                     IrProperty *property,
+                     sym_table_t *sym_table);
+
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -229,6 +236,10 @@ x86_compile_expression(x86_comp_params_t *params,
         x86_compile_cast(params,
                          IR_CAST(expression),
                          sym_table);
+    }
+    else if (IR_IS_PROPERTY(expression))
+    {
+        x86_compile_property(params, IR_PROPERTY(expression), sym_table);
     }
     else
     {
@@ -1566,3 +1577,31 @@ x86_compile_scalar(x86_comp_params_t *params,
     }
 }
 
+static void
+x86_compile_property(x86_comp_params_t *params,
+                     IrProperty *property,
+                     sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_PROPERTY(property));
+    assert(sym_table);
+
+    /* only .length property implemented */
+    assert(ir_property_get_id(property) == ir_prop_length);
+
+    /* only .length property on lvalues implemented */
+    assert(IR_IS_LVALUE(ir_property_get_expression(property)));
+
+    X86FrameOffset *array_loc;
+
+    array_loc =
+        X86_FRAME_OFFSET(
+            ir_lvalue_get_location(
+                IR_LVALUE(ir_property_get_expression(property))));
+
+    fprintf(params->out,
+            "# get dynamic array length property\n"
+            "    movl %d(%%ebp), %%eax\n"
+            "    pushl %%eax\n",
+            x86_frame_offset_get_offset(array_loc));
+}
