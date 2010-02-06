@@ -31,21 +31,23 @@ dt_data_type_get_type(void)
     return type;
 }
 
-void
-dt_data_type_print(DtDataType *self, FILE *out)
-{
-    assert(DT_IS_DATA_TYPE(self));
-    assert(out);
-
-    DT_DATA_TYPE_GET_CLASS(self)->do_print(self, out);
-}
-
 guint
 dt_data_type_get_size(DtDataType *self)
 {
     assert(DT_IS_DATA_TYPE(self));
 
     return DT_DATA_TYPE_GET_CLASS(self)->get_size(self);
+}
+
+/**
+ * @return the source string representation of this data type.
+ */
+char *
+dt_data_type_get_string(DtDataType *self)
+{
+    assert(DT_IS_DATA_TYPE(self));
+
+    return DT_DATA_TYPE_GET_CLASS(self)->get_string(self);
 }
 
 char *

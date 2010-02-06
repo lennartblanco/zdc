@@ -9,11 +9,11 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static void
-dt_array_type_do_print(DtDataType *self, FILE *out);
-
 static guint
 dt_array_type_get_size(DtDataType *self);
+
+static char *
+dt_array_type_get_string(DtDataType *self);
 
 static void
 dt_array_type_class_init(gpointer klass, gpointer dummy);
@@ -78,14 +78,13 @@ dt_array_get_element_size(DtArrayType *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-dt_array_type_do_print(DtDataType *self, FILE *out)
+static char *
+dt_array_type_get_string(DtDataType *self)
 {
     assert(DT_IS_ARRAY_TYPE(self));
-    assert(out);
 
-    dt_data_type_print(DT_ARRAY_TYPE(self)->data_type, out);
-    fprintf(out, "[]");
+    /* not implemented */
+    assert(false);
 }
 
 static guint
@@ -100,6 +99,6 @@ static void
 dt_array_type_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_array_type_get_size;
-    ((DtDataTypeClass *)klass)->do_print = dt_array_type_do_print;
+    ((DtDataTypeClass *)klass)->get_string = dt_array_type_get_string;
 }
 

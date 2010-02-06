@@ -108,11 +108,11 @@ ast_function_def_do_print(AstNode *self, FILE *out)
 
     AstFunctionDef *func = (AstFunctionDef *)self;
     fprintf(out, "function definition [%p]\n" \
-                 "  name: %s return type:",
-                 self, func->name);
+                 "  name: %s return type: %s\n",
+                 self, func->name,
+                 dt_data_type_get_string(func->return_type));
 
-    dt_data_type_print(func->return_type, out);
-    fprintf(out, "\n  params: ");
+    fprintf(out, "  params: ");
 
     GSList *p = func->parameters;
     while(p != NULL)

@@ -35,8 +35,8 @@ typedef struct
     GObjectClass parent_class;
 
     /* public virtual methods */
-    void (*do_print) (DtDataType *self, FILE *out);
     char * (*get_mangled) (DtDataType *self);
+    char * (*get_string) (DtDataType *self);
     guint (*get_size) (DtDataType *self);
 } DtDataTypeClass;
 
@@ -55,14 +55,17 @@ typedef enum basic_data_type_e
 GType
 dt_data_type_get_type(void);
 
-void
-dt_data_type_print(DtDataType *self, FILE *out);
-
 /**
  * @return datatype's size in bytes
  */
 guint
 dt_data_type_get_size(DtDataType *self);
+
+/**
+ * @return the source string representation of this data type.
+ */
+char *
+dt_data_type_get_string(DtDataType *self);
 
 /**
  * Return the mangle string representation of this data type.

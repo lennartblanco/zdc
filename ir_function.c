@@ -143,12 +143,11 @@ ir_function_do_print(IrSymbol *self, FILE *out, int indention)
     fprintf_indent(out, indention,
             "function [%p]\n"
             "  name: '%s'\n"
-            "  return_type: ",
+            "  return_type: %s\n"
+            "  parameters: ",
             self,
-            ir_symbol_get_name(self));
-
-    dt_data_type_print(func->return_type, out);
-    fprintf_indent(out, indention, "\n  parameters: ");
+            ir_symbol_get_name(self),
+            dt_data_type_get_string(func->return_type));
 
     if (func->parameters)
     {

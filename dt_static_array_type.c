@@ -9,10 +9,10 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_static_array_type_do_print(DtDataType *self, FILE *out);
-
-static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy);
+
+static char *
+dt_static_array_type_get_string(DtDataType *self);
 
 static char *
 dt_static_array_type_get_mangled(DtDataType *self);
@@ -82,14 +82,12 @@ dt_static_array_type_get_length(DtStaticArrayType *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-dt_static_array_type_do_print(DtDataType *self, FILE *out)
+static char *
+dt_static_array_type_get_string(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
-    assert(out);
-
-    dt_data_type_print(DT_ARRAY_TYPE(self)->data_type, out);
-    fprintf(out, "[%d]", DT_STATIC_ARRAY_TYPE(self)->length);
+    /* not implemented */
+    assert(false);
 }
 
 static guint
@@ -128,8 +126,8 @@ static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_static_array_type_get_size;
+    ((DtDataTypeClass *)klass)->get_string = dt_static_array_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled =
         dt_static_array_type_get_mangled;
-    ((DtDataTypeClass *)klass)->do_print = dt_static_array_type_do_print;
 }
 

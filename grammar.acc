@@ -625,7 +625,7 @@ postfix_expression<n> :
     postfix_expression<exp> '.' TOK_IDENT<name>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_property_new(exp, name.text));
+            AST_EXPRESSION(ast_property_new(exp, name.text, yypos));
         free(name.text);
     }
 |   primary<n>

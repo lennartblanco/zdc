@@ -9,13 +9,13 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_basic_type_do_print(DtDataType *self, FILE *out);
-
-static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy);
 
 static guint
 dt_basic_type_get_size(DtDataType *self);
+
+static char *
+dt_basic_type_get_string(DtDataType *self);
 
 static char *
 dt_basic_type_get_mangled(DtDataType *self);
@@ -72,8 +72,8 @@ dt_basic_type_get_data_type(DtBasicType *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-dt_basic_type_do_print(DtDataType *self, FILE *out)
+static char *
+dt_basic_type_get_string(DtDataType *self)
 {
     assert(DT_IS_BASIC_TYPE(self));
 
@@ -96,7 +96,7 @@ dt_basic_type_do_print(DtDataType *self, FILE *out)
             /* unexpected basic data type */
             assert(false);
     }
-    fprintf(out, "%s", str);
+    return str;
 }
 
 static guint
@@ -143,7 +143,7 @@ static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_basic_type_get_size;
+    ((DtDataTypeClass *)klass)->get_string = dt_basic_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled = dt_basic_type_get_mangled;
-    ((DtDataTypeClass *)klass)->do_print = dt_basic_type_do_print;  
 }
 

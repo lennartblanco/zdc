@@ -1,0 +1,2 @@
+invalid_prop.d:12: error: no property 'length' for type 'bool'
+invalid_prop.d:5: error: no property 'length' for type 'int'

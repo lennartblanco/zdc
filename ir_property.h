@@ -60,7 +60,7 @@ ir_property_get_type(void);
  * @return NULL if specified property name is illegal
  */
 IrProperty *
-ir_property_new(IrExpression *exp, const char *name);
+ir_property_new(IrExpression *exp, const char *name, guint line_number);
 
 void
 ir_property_set_expression(IrProperty *self, IrExpression *exp);

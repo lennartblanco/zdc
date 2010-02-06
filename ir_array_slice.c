@@ -181,7 +181,7 @@ ir_array_slice_do_print(IrStatment *self, FILE *out, int indention)
     fprintf(out, "(");
     if (slice->data_type != NULL)
     {
-        dt_data_type_print(slice->data_type, out);
+        fprintf(out, "%s", dt_data_type_get_string(slice->data_type));
     }
     else
     {

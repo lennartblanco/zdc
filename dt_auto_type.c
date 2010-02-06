@@ -3,16 +3,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-dt_auto_type_do_print(DtDataType *self, FILE *out);
-
-static void
-dt_auto_type_class_init(gpointer klass, gpointer dummy);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -27,7 +17,7 @@ dt_auto_type_get_type(void)
         sizeof (DtAutoTypeClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        dt_auto_type_class_init,   /* class_init */
+        NULL,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (DtAutoType),
@@ -51,21 +41,4 @@ dt_auto_type_new()
     return obj;
 }
 
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-dt_auto_type_do_print(DtDataType *self, FILE *out)
-{
-    assert(DT_IS_AUTO_TYPE(self));
-
-    fprintf(out, "auto");
-}
-
-static void
-dt_auto_type_class_init(gpointer klass, gpointer dummy)
-{
-    ((DtDataTypeClass *)klass)->do_print = dt_auto_type_do_print;
-}
 

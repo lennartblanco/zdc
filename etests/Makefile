@@ -20,6 +20,7 @@ imprt_not_found: imprt_not_found.d
 imprt_syntx_err: imprt_syntx_err.d syntx_err.d
 ambig_imprt: ambig_imprt.d imp_mod_a.d imp_mod_b.d
 unknown_prop: unknown_prop.d
+invalid_prop: invalid_prop.d
 
 %.d: %.inv_d
 	cp $? $@

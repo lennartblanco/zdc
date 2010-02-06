@@ -44,7 +44,7 @@ ir_property_get_type(void)
 }
 
 IrProperty *
-ir_property_new(IrExpression *exp, const char *name)
+ir_property_new(IrExpression *exp, const char *name, guint line_number)
 {
     assert(IR_IS_EXPRESSION(exp));
     assert(name);
@@ -70,7 +70,9 @@ ir_property_new(IrExpression *exp, const char *name)
         return NULL;
     }
 
-    obj = g_object_new(IR_TYPE_PROPERTY, NULL);
+    obj = g_object_new(IR_TYPE_PROPERTY,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->exp = exp;
     obj->id = prop_id;
 

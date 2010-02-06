@@ -809,7 +809,9 @@ property_to_ir(compilation_status_t *compile_status,
                            symbols,
                            ast_property_get_expression(ast_property));
 
-    prop = ir_property_new(exp, ast_property_get_name(ast_property));
+    prop = ir_property_new(exp,
+                           ast_property_get_name(ast_property),
+                           ast_node_get_line_num(ast_property));
 
     if (prop == NULL)
     {

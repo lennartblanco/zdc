@@ -1,0 +1,15 @@
+uint length_on_int()
+{
+  int x;
+
+  return x.length;
+}
+
+uint length_on_bool()
+{
+  bool x;
+
+  return x.length;
+}
+
+

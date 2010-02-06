@@ -98,9 +98,10 @@ ast_variable_definition_do_print(AstNode *self, FILE *out)
 
     AstVariableDefinition *obj = (AstVariableDefinition *)self;
 
-    fprintf(out, "  ");
-    dt_data_type_print(obj->type, out);
-    fprintf(out, " %s", obj->name);
+    fprintf(out, "  %s %s",
+            dt_data_type_get_string(obj->type),
+            obj->name);
+
     if (obj->initializer != NULL)
     {
         fprintf(out, " = ");

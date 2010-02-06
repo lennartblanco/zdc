@@ -69,6 +69,11 @@ validate_init_property(compilation_status_t *compile_status,
                        IrProperty *prop);
 
 static IrExpression *
+validate_length_property(compilation_status_t *compile_status,
+                         sym_table_t *sym_table,
+                         IrProperty *prop);
+
+static IrExpression *
 validate_property(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrProperty *prop);
@@ -568,6 +573,42 @@ validate_init_property(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+validate_length_property(compilation_status_t *compile_status,
+                         sym_table_t *sym_table,
+                         IrProperty *prop)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_PROPERTY(prop));
+    assert(ir_property_get_id(prop) == ir_prop_length);
+
+    DtDataType *exp_type;
+
+    exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
+
+    if (DT_IS_STATIC_ARRAY_TYPE(exp_type))
+    {
+        /* not implemented */
+        assert(false);
+    }
+    else if (DT_IS_ARRAY_TYPE(exp_type))
+    {
+        /* not implemented */
+        assert(false);
+    }
+    else
+    {
+        compile_error(compile_status,
+                      IR_NODE(prop),
+                      "no property 'length' for type '%s'\n",
+                      dt_data_type_get_string(exp_type));
+        return NULL;
+    }
+    /* we should not reach here */
+    assert(false);
+}
+
+static IrExpression *
 validate_property(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrProperty *prop)
@@ -602,8 +643,10 @@ validate_property(compilation_status_t *compile_status,
                                          sym_table,
                                          prop);
         case ir_prop_length:
-            /* not implemented yet */
-            assert(false);
+            return
+                validate_length_property(compile_status,
+                                         sym_table,
+                                         prop);
         default:
             /* unexpected property id */
             assert(false);

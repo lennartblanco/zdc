@@ -135,8 +135,9 @@ ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
     assert(IR_IS_VARIABLE(self));
 
     IrVariable *var = IR_VARIABLE(self);
-    dt_data_type_print(var->type, out);
-    fprintf(out, " %s", ir_symbol_get_name(self));
+    fprintf(out, "%s %s",
+            dt_data_type_get_string(var->type),
+            ir_symbol_get_name(self));
 
     if (var->initializer != NULL)
     {

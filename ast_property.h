@@ -50,7 +50,8 @@ ast_property_get_type(void);
  */
 AstProperty *
 ast_property_new(AstExpression *exp,
-                 const char *name);
+                 const char *name,
+                 guint line_number);
 
 AstExpression *
 ast_property_get_expression(AstProperty *self);

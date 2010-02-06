@@ -88,8 +88,9 @@ ast_variable_declaration_do_print(AstNode *self, FILE *out)
 
     AstVariableDeclaration *var_dec = (AstVariableDeclaration *)self;
 
-    dt_data_type_print(var_dec->type, out);
-    fprintf(out, " %s", var_dec->name);
+    fprintf(out, "%s %s",
+            dt_data_type_get_string(var_dec->type),
+            var_dec->name);
 }
 
 static void

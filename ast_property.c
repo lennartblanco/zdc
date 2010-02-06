@@ -33,14 +33,17 @@ ast_property_get_type(void)
 
 AstProperty *
 ast_property_new(AstExpression *exp,
-                 const char *name)
+                 const char *name,
+                 guint line_number)
 {
     assert(AST_IS_EXPRESSION(exp));
     assert(name);
 
     AstProperty *obj;
 
-    obj = g_object_new(AST_TYPE_PROPERTY, NULL);
+    obj = g_object_new(AST_TYPE_PROPERTY,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->exp = exp;
     obj->name = g_strdup(name);
 
