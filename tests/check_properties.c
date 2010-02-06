@@ -100,6 +100,42 @@ call_dyn_int_arry_var_sizeof()
    return res;
 }
 
+int
+call_int_var_init()
+{
+   int res;
+
+   asm ("    call _D10properties12int_var_initFZi\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+unsigned
+call_uint_var_init()
+{
+   unsigned res;
+
+   asm ("    call _D10properties13uint_var_initFZk\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+bool
+call_bool_var_init()
+{
+   bool res;
+
+   asm ("    call _D10properties13bool_var_initFZb\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -132,6 +168,15 @@ main()
     /* dyn_int_arry_var_sizeof() test */
     check_uint("dyn_int_arry_var_sizeof()",
                call_dyn_int_arry_var_sizeof(), 8);
+
+    /* int_var_init() */
+    check_int("int_var_init()", call_int_var_init(), 0);
+
+    /* uint_var_init() */
+    check_uint("uint_var_init()", call_uint_var_init(), 0);
+
+    /* bool_var_init() */
+    check_bool("bool_var_init()", call_bool_var_init(), false);
 
     check_exit();
 }

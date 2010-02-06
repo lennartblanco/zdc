@@ -64,6 +64,11 @@ validate_sizeof_property(compilation_status_t *compile_status,
                          IrProperty *prop);
 
 static IrExpression *
+validate_init_property(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrProperty *prop);
+
+static IrExpression *
 validate_property(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrProperty *prop);
@@ -532,17 +537,34 @@ validate_sizeof_property(compilation_status_t *compile_status,
     assert(IR_IS_PROPERTY(prop));
     assert(ir_property_get_id(prop) == ir_prop_sizeof);
 
-    IrExpression *exp;
     DtDataType *exp_type;
     IrUintConstant *size_exp;
 
-    exp = ir_property_get_expression(prop);
-    exp_type = ir_expression_get_data_type(exp);
+    exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
 
     size_exp = ir_uint_constant_new(dt_data_type_get_size(exp_type),
                                     ir_node_get_line_num(prop));
 
     return IR_EXPRESSION(size_exp);
+}
+
+static IrExpression *
+validate_init_property(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrProperty *prop)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_PROPERTY(prop));
+    assert(ir_property_get_id(prop) == ir_prop_init);
+
+    DtDataType *exp_type;
+
+    exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
+
+    /* only .init property on basic type implemented so far */
+    assert(DT_IS_BASIC_TYPE(exp_type));
+    return types_get_default_initializer(DT_BASIC_TYPE(exp_type));
 }
 
 static IrExpression *
@@ -570,8 +592,10 @@ validate_property(compilation_status_t *compile_status,
     switch (ir_property_get_id(prop))
     {
         case ir_prop_init:
-            /* not implemented yet */
-            assert(false);
+            return
+                validate_init_property(compile_status,
+                                       sym_table,
+                                       prop);
         case ir_prop_sizeof:
             return
                 validate_sizeof_property(compile_status,

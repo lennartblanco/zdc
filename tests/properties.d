@@ -60,4 +60,28 @@ uint bool_exp_sizeof()
    return (x && false).sizeof;
 }
 
+/**
+ * Test init property on variables
+ */
+int int_var_init()
+{
+    int x;
+
+    return x.init;
+}
+
+uint uint_var_init()
+{
+  uint x;
+
+  return x.init;
+}
+
+bool bool_var_init()
+{
+   bool x;
+
+   return x.init;
+}
+
 
