@@ -84,4 +84,14 @@ bool bool_var_init()
    return x.init;
 }
 
+/**
+ * Test length property on variables
+ */
+uint stat_int_arry_length()
+{
+    int[4] x;
+
+    return x.length;
+}
+
 

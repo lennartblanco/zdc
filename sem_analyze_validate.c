@@ -588,8 +588,13 @@ validate_length_property(compilation_status_t *compile_status,
 
     if (DT_IS_STATIC_ARRAY_TYPE(exp_type))
     {
-        /* not implemented */
-        assert(false);
+        guint32 length;
+
+        length = 
+            dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(exp_type));
+
+        return IR_EXPRESSION(ir_uint_constant_new(length,
+                                                  ir_node_get_line_num(prop)));
     }
     else if (DT_IS_ARRAY_TYPE(exp_type))
     {

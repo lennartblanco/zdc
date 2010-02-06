@@ -136,6 +136,18 @@ call_bool_var_init()
    return res;
 }
 
+unsigned
+call_stat_int_arry_length()
+{
+   unsigned res;
+
+   asm ("    call _D10properties20stat_int_arry_lengthFZk\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -169,14 +181,18 @@ main()
     check_uint("dyn_int_arry_var_sizeof()",
                call_dyn_int_arry_var_sizeof(), 8);
 
-    /* int_var_init() */
+    /* int_var_init() test */
     check_int("int_var_init()", call_int_var_init(), 0);
 
-    /* uint_var_init() */
+    /* uint_var_init() test */
     check_uint("uint_var_init()", call_uint_var_init(), 0);
 
-    /* bool_var_init() */
+    /* bool_var_init() test */
     check_bool("bool_var_init()", call_bool_var_init(), false);
+
+    /* stat_int_arry_length() test */
+    check_uint("stat_int_arry_length()",
+               call_stat_int_arry_length(), 4);
 
     check_exit();
 }
