@@ -267,25 +267,9 @@ x86_get_expression_storage_size(IrExpression *expression)
     DtDataType *data_type;
     data_type = ir_expression_get_data_type(expression);
 
-    if (DT_IS_BASIC_TYPE(data_type))
+    if (DT_IS_BASIC_TYPE(data_type) || DT_IS_STATIC_ARRAY_TYPE(data_type))
     {
-        DtBasicType *basic_type = DT_BASIC_TYPE(data_type);
-
-        return types_get_storage_size(dt_basic_type_get_data_type(basic_type));
-    }
-    else if (DT_IS_STATIC_ARRAY_TYPE(data_type))
-    {
-        DtStaticArrayType *array_type;
-        basic_data_type_t bdt;
-        int len;
-
-        array_type = DT_STATIC_ARRAY_TYPE(data_type);
-        len = dt_static_array_type_get_length(array_type);
-        bdt =
-            dt_basic_type_get_data_type(
-                DT_BASIC_TYPE(dt_static_array_type_get_data_type(array_type)));
-
-        return len * types_get_storage_size(bdt);
+        return dt_data_type_get_size(data_type);
     }
     else if (DT_IS_ARRAY_TYPE(data_type))
     {
@@ -1114,10 +1098,8 @@ x86_compile_array_cell(x86_comp_params_t *params,
     variable = ir_lvalue_get_variable(IR_LVALUE(array_cell));
     array_loc = X86_FRAME_OFFSET(ir_variable_get_location(variable));
     array_type = DT_ARRAY_TYPE(ir_variable_get_data_type(variable));
-    storage_size = 
-      types_get_storage_size(
-        dt_basic_type_get_data_type(
-          DT_BASIC_TYPE(dt_array_type_get_data_type(array_type))));
+    storage_size =
+        dt_data_type_get_size(dt_array_type_get_data_type(array_type));
 
     fprintf(params->out,
             "    popl %%eax # store array index in eax\n");

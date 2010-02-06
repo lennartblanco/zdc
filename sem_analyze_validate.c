@@ -3,6 +3,7 @@
 #include "sem_analyze_validate.h"
 #include "types.h"
 #include "dt_auto_type.h"
+#include "dt_static_array_type.h"
 #include "ir_scalar.h"
 #include "ir_array.h"
 #include "ir_function.h"
@@ -537,16 +538,13 @@ validate_sizeof_property(compilation_status_t *compile_status,
     exp = ir_property_get_expression(prop);
     exp_type = ir_expression_get_data_type(exp);
 
-    if (DT_IS_BASIC_TYPE(exp_type))
+    if (DT_IS_BASIC_TYPE(exp_type) ||
+        DT_IS_STATIC_ARRAY_TYPE(exp_type))
     {
         IrUintConstant *size_exp;
-        guint32 size;
 
-        size =
-            types_get_storage_size(
-                dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_type)));
-
-        size_exp = ir_uint_constant_new(size, ir_node_get_line_num(prop));
+        size_exp = ir_uint_constant_new(dt_data_type_get_size(exp_type),
+                                         ir_node_get_line_num(prop));
 
         return IR_EXPRESSION(size_exp);
     }

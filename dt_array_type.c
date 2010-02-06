@@ -67,11 +67,8 @@ guint
 dt_array_get_element_size(DtArrayType *self)
 {
     assert(DT_IS_ARRAY_TYPE(self));
-    /* only arrays over basic types are supported for now */
-    assert(DT_IS_BASIC_TYPE(self->data_type));
 
-    return types_get_storage_size(
-               dt_basic_type_get_data_type(DT_BASIC_TYPE(self->data_type)));
+    return dt_data_type_get_size(self->data_type);
 }
 
 /*---------------------------------------------------------------------------*

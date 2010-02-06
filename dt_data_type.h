@@ -33,9 +33,11 @@ typedef struct
 typedef struct
 {
     GObjectClass parent_class;
+
     /* public virtual methods */
     void (*do_print) (DtDataType *self, FILE *out);
     char * (*get_mangled) (DtDataType *self);
+    guint (*get_size) (DtDataType *self);
 } DtDataTypeClass;
 
 typedef enum basic_data_type_e
@@ -55,6 +57,12 @@ dt_data_type_get_type(void);
 
 void
 dt_data_type_print(DtDataType *self, FILE *out);
+
+/**
+ * @return datatype's size in bytes
+ */
+guint
+dt_data_type_get_size(DtDataType *self);
 
 /**
  * Return the mangle string representation of this data type.

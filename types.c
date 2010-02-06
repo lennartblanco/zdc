@@ -177,22 +177,6 @@ types_get_default_initializer(DtBasicType *data_type)
     }
 }
 
-guint
-types_get_storage_size(basic_data_type_t data_type)
-{
-    switch (data_type)
-    {
-        case int_type:
-        case uint_type:
-            return 4;
-        case bool_type:
-            return 1;
-        default:
-            /* unexpected basic data type */
-            assert(false);
-    }
-}
-
 IrExpression *
 types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)

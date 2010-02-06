@@ -40,6 +40,14 @@ dt_data_type_print(DtDataType *self, FILE *out)
     DT_DATA_TYPE_GET_CLASS(self)->do_print(self, out);
 }
 
+guint
+dt_data_type_get_size(DtDataType *self)
+{
+    assert(DT_IS_DATA_TYPE(self));
+
+    return DT_DATA_TYPE_GET_CLASS(self)->get_size(self);
+}
+
 char *
 dt_data_type_get_mangled(DtDataType *self)
 {

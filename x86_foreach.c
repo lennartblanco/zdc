@@ -53,7 +53,7 @@ x86_compile_foreach(x86_comp_params_t *params,
     int idx_offset;
     int val_offset;
     int aggregate_offset;
-    int storage_size;
+    guint storage_size;
     char loop_itr[LABEL_MAX_LEN];
     char loop_end[LABEL_MAX_LEN];
 
@@ -91,12 +91,9 @@ x86_compile_foreach(x86_comp_params_t *params,
                ir_variable_get_location(
                    ir_lvalue_get_variable(IR_LVALUE(aggregate)))));
     storage_size =
-      types_get_storage_size(
-          dt_basic_type_get_data_type(
-              DT_BASIC_TYPE(
-                  dt_array_type_get_data_type(
-                      DT_ARRAY_TYPE(ir_variable_get_data_type(
-                          ir_lvalue_get_variable(IR_LVALUE(aggregate))))))));
+      dt_array_get_element_size(
+          DT_ARRAY_TYPE(ir_variable_get_data_type(
+              ir_lvalue_get_variable(IR_LVALUE(aggregate)))));
 
     /* generate labels */
     label_gen_next(&(params->label_gen), loop_itr);
