@@ -534,21 +534,15 @@ validate_sizeof_property(compilation_status_t *compile_status,
 
     IrExpression *exp;
     DtDataType *exp_type;
+    IrUintConstant *size_exp;
 
     exp = ir_property_get_expression(prop);
     exp_type = ir_expression_get_data_type(exp);
 
-    if (DT_IS_BASIC_TYPE(exp_type) ||
-        DT_IS_STATIC_ARRAY_TYPE(exp_type))
-    {
-        IrUintConstant *size_exp;
+    size_exp = ir_uint_constant_new(dt_data_type_get_size(exp_type),
+                                    ir_node_get_line_num(prop));
 
-        size_exp = ir_uint_constant_new(dt_data_type_get_size(exp_type),
-                                         ir_node_get_line_num(prop));
-
-        return IR_EXPRESSION(size_exp);
-    }
-    g_assert_not_reached();
+    return IR_EXPRESSION(size_exp);
 }
 
 static IrExpression *

@@ -36,6 +36,13 @@ uint stat_bool_arry_var_sizeof()
     return x.sizeof;
 }
 
+uint dyn_int_arry_var_sizeof()
+{
+   int[] x;
+
+   return x.sizeof;
+}
+
 /**
  * Test sizeof property on expressions
  */

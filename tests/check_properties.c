@@ -88,6 +88,18 @@ call_stat_bool_arry_var_sizeof()
    return res;
 }
 
+unsigned
+call_dyn_int_arry_var_sizeof()
+{
+   unsigned res;
+
+   asm ("    call _D10properties23dyn_int_arry_var_sizeofFZk\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -116,6 +128,10 @@ main()
     /* stat_bool_arry_var_sizeof() test */
     check_uint("stat_bool_arry_var_sizeof()",
                call_stat_bool_arry_var_sizeof(), 7);
+
+    /* dyn_int_arry_var_sizeof() test */
+    check_uint("dyn_int_arry_var_sizeof()",
+               call_dyn_int_arry_var_sizeof(), 8);
 
     check_exit();
 }
