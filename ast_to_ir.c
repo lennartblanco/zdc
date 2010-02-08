@@ -687,9 +687,9 @@ binary_op_to_ir(compilation_status_t *compile_status,
  * Convert AST unary operation to IR form.
  */
 static IrExpression *
-sem_analyze_ast_unary_op_to_ir(compilation_status_t *compile_status,
-                               sym_table_t *symbols,
-                               AstUnaryOperation *ast_operation)
+ast_unary_op_to_ir(compilation_status_t *compile_status,
+                   sym_table_t *symbols,
+                   AstUnaryOperation *ast_operation)
 {
     IrExpression *operand;
     ast_unary_op_type_t op_type;
@@ -923,8 +923,7 @@ expression_to_ir(compilation_status_t *compile_status,
 
         op = AST_UNARY_OPERATION(ast_expression);
 
-        return sem_analyze_ast_unary_op_to_ir(compile_status, 
-                                              symbols, op);
+        return ast_unary_op_to_ir(compile_status, symbols, op);
     }
     else if (AST_IS_BINARY_OPERATION(ast_expression))
     {
