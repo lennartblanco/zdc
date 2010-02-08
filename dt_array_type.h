@@ -29,6 +29,8 @@ typedef struct
     DtDataType parent;
     /* private */
     DtDataType *data_type; /* @todo: rename to element_type ? */
+    char *string_of;
+    char *mangled_name;
 } DtArrayType;
 
 typedef struct

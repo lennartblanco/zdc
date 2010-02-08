@@ -15,6 +15,9 @@ dt_array_type_get_size(DtDataType *self);
 static char *
 dt_array_type_get_string(DtDataType *self);
 
+static char *
+dt_array_type_get_mangled(DtDataType *self);
+
 static void
 dt_array_type_class_init(gpointer klass, gpointer dummy);
 
@@ -54,6 +57,8 @@ dt_array_type_new(DtDataType *data_type)
 
     obj = g_object_new(DT_TYPE_ARRAY_TYPE, NULL);
     obj->data_type = data_type;
+    obj->string_of = NULL;
+    obj->mangled_name = NULL;
 
     return obj;
 }
@@ -83,8 +88,35 @@ dt_array_type_get_string(DtDataType *self)
 {
     assert(DT_IS_ARRAY_TYPE(self));
 
-    /* not implemented */
-    assert(false);
+    DtArrayType *arry = DT_ARRAY_TYPE(self);
+
+    if (arry->string_of == NULL)
+    {
+        arry->string_of =
+            g_strdup_printf("%s[]", 
+                dt_data_type_get_string(dt_array_type_get_data_type(arry)));
+
+    }
+
+    return arry->string_of;
+}
+
+static char *
+dt_array_type_get_mangled(DtDataType *self)
+{
+    assert(DT_IS_ARRAY_TYPE(self));
+
+    DtArrayType *arry = DT_ARRAY_TYPE(self);
+
+    if (arry->mangled_name == NULL)
+    {
+        arry->mangled_name =
+            g_strdup_printf("A%s", 
+                dt_data_type_get_mangled(dt_array_type_get_data_type(arry)));
+
+    }
+
+    return arry->mangled_name;
 }
 
 static guint
@@ -100,5 +132,7 @@ dt_array_type_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_array_type_get_size;
     ((DtDataTypeClass *)klass)->get_string = dt_array_type_get_string;
+    ((DtDataTypeClass *)klass)->get_mangled = dt_array_type_get_mangled;
+
 }
 
