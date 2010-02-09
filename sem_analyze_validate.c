@@ -749,7 +749,6 @@ validate_assigment(compilation_status_t *compile_status,
 {
     IrLvalue *lvalue;
     IrExpression *value;
-    DtDataType *lvalue_type;
     DtDataType *target_type;
 
     /*
@@ -762,16 +761,6 @@ validate_assigment(compilation_status_t *compile_status,
     if (!IR_IS_LVALUE(lvalue))
     {
         return;
-    }
-
-    lvalue_type =
-        ir_variable_get_data_type(ir_lvalue_get_variable(lvalue));
-    if (DT_IS_ARRAY_TYPE(lvalue_type) && IR_IS_SCALAR(lvalue))
-    {
-        /* replace lvalue with array handle object */
-        IrVariable *var = ir_lvalue_get_variable(lvalue);
-        lvalue = IR_LVALUE(ir_array_new(var));
-
     }
     ir_assigment_set_lvalue(assigment, lvalue);
 

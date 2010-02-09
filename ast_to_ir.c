@@ -14,6 +14,7 @@
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
 #include "ast_property.h"
+#include "ir_array.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
@@ -825,6 +826,28 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+variable_ref_to_ir(compilation_status_t *compile_status,
+                   sym_table_t *symbols,
+                   AstVariableRef *var_ref)
+{
+    char *var_name;
+    IrSymbol *var_symb;
+
+    var_name = ast_variable_ref_get_name(var_ref);
+    var_symb = sym_table_get_symbol(symbols, var_name, NULL);
+
+    if (IR_IS_VARIABLE(var_symb) &&
+        DT_IS_ARRAY_TYPE(ir_variable_get_data_type(IR_VARIABLE(var_symb))))
+    {
+        /* this is an array handle expression */
+        return IR_EXPRESSION(ir_array_new(IR_VARIABLE(var_symb)));
+    }
+
+    return
+        IR_EXPRESSION(ir_scalar_new(var_name, ast_node_get_line_num(var_ref)));
+}
+
+static IrExpression *
 property_to_ir(compilation_status_t *compile_status,
                sym_table_t *symbols,
                AstProperty *ast_property)
@@ -920,16 +943,9 @@ expression_to_ir(compilation_status_t *compile_status,
     else if (AST_IS_VARIABLE_REF(ast_expression))
     {
         AstVariableRef *var_ref;
-        IrExpression *ir_expression;
-        char *var_name;
 
         var_ref = AST_VARIABLE_REF(ast_expression);
-        var_name = ast_variable_ref_get_name(var_ref);
-
-        ir_expression =
-            IR_EXPRESSION(ir_scalar_new(var_name,
-                                        ast_node_get_line_num(var_ref)));
-        return ir_expression;
+        return variable_ref_to_ir(compile_status, symbols, var_ref);
     }
     else if (AST_IS_UNARY_OPERATION(ast_expression))
     {
