@@ -107,6 +107,12 @@ static IrExpression *
 array_slice_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstArraySliceRef *ast_arry_slice);
+
+static IrExpression *
+array_cell_ref_to_ir(compilation_status_t *compile_status,
+                     sym_table_t *symbols,
+                     AstArrayCellRef *array_cell_ref);
+
 static IrExpression *
 property_to_ir(compilation_status_t *compile_status,
                sym_table_t *symbols,
@@ -794,6 +800,31 @@ array_slice_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+array_cell_ref_to_ir(compilation_status_t *compile_status,
+                     sym_table_t *symbols,
+                     AstArrayCellRef *array_cell_ref)
+{
+    assert(compile_status);
+    assert(symbols);
+    assert(AST_IS_ARRAY_CELL_REF(array_cell_ref));
+
+    AstExpression *ast_index_exp;
+    IrExpression *ir_index_exp;
+
+    /*
+     * convert array index expression to IR form
+     */
+    ast_index_exp = ast_array_cell_ref_get_index(array_cell_ref);
+    ir_index_exp = expression_to_ir(compile_status, symbols, ast_index_exp);
+            /* create IR array cell ref */
+    return
+        IR_EXPRESSION(
+            ir_array_cell_new(ast_array_cell_ref_get_name(array_cell_ref),
+                              ir_index_exp,
+                              ast_node_get_line_num(array_cell_ref)));
+}
+
+static IrExpression *
 property_to_ir(compilation_status_t *compile_status,
                sym_table_t *symbols,
                AstProperty *ast_property)
@@ -879,6 +910,13 @@ expression_to_ir(compilation_status_t *compile_status,
         array_slice = AST_ARRAY_SLICE_REF(ast_expression);
         return array_slice_to_ir(compile_status, symbols, array_slice);
     }
+    else if (AST_IS_ARRAY_CELL_REF(ast_expression))
+    {
+        AstArrayCellRef *array_cell_ref;
+
+        array_cell_ref = AST_ARRAY_CELL_REF(ast_expression);
+        return array_cell_ref_to_ir(compile_status, symbols, array_cell_ref);
+    }
     else if (AST_IS_VARIABLE_REF(ast_expression))
     {
         AstVariableRef *var_ref;
@@ -888,33 +926,9 @@ expression_to_ir(compilation_status_t *compile_status,
         var_ref = AST_VARIABLE_REF(ast_expression);
         var_name = ast_variable_ref_get_name(var_ref);
 
-        if (AST_IS_ARRAY_CELL_REF(var_ref))
-        {
-            AstArrayCellRef *array_cell_ref;
-            AstExpression *ast_index_exp;
-            IrExpression *ir_index_exp;
-
-            /*
-             * convert array index expression to IR form
-             */
-            array_cell_ref = AST_ARRAY_CELL_REF(var_ref);
-            ast_index_exp = ast_array_cell_ref_get_index(array_cell_ref);
-            ir_index_exp =
-                expression_to_ir(compile_status, symbols, ast_index_exp);
-            /* create IR array cell ref */
-            ir_expression =
-                IR_EXPRESSION(ir_array_cell_new(var_name,
-                                                ir_index_exp,
-                                                ast_node_get_line_num(var_ref)));
-                                              
-        }
-        else if (AST_IS_VARIABLE_REF(var_ref))
-        {
-            ir_expression =
-                IR_EXPRESSION(ir_scalar_new(var_name,
-                                            ast_node_get_line_num(var_ref)));
-        }
-
+        ir_expression =
+            IR_EXPRESSION(ir_scalar_new(var_name,
+                                        ast_node_get_line_num(var_ref)));
         return ir_expression;
     }
     else if (AST_IS_UNARY_OPERATION(ast_expression))

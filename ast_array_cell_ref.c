@@ -57,6 +57,14 @@ ast_array_cell_ref_new(char *name,
     return obj;
 }
 
+char *
+ast_array_cell_ref_get_name(AstArrayCellRef *self)
+{
+    assert(AST_IS_ARRAY_CELL_REF(self));
+
+    return ast_variable_ref_get_name(AST_VARIABLE_REF(self));
+}
+
 AstExpression *
 ast_array_cell_ref_get_index(AstArrayCellRef *self)
 {
