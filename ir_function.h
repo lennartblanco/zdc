@@ -60,7 +60,7 @@ ir_function_set_parameters(IrFunction *self, GSList *parameters);
 /**
  * Get the function formal parameters.
  *
- * @return formal parameters as a list of AstVariableDeclaration pointer
+ * @return formal parameters as a list of IrVariable objects
  */
 GSList *
 ir_function_get_parameters(IrFunction *self);
