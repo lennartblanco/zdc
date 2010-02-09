@@ -23,3 +23,10 @@ void func3()
 {
   callee(1);
 }
+
+void void_func() { }
+void int_arg_func(int a) { }
+void func4()
+{
+  int_arg_func(void_func());
+}

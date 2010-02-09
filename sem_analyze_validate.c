@@ -157,6 +157,8 @@ validate_function_call(compilation_status_t *compile_status,
     GSList *func_call_args;
     GSList *validated_args = NULL;
     GSList *i;
+    GSList *j;
+    guint counter;
     GError *error = NULL;
 
 
@@ -214,7 +216,7 @@ validate_function_call(compilation_status_t *compile_status,
    {
        compile_error(compile_status,
                      IR_NODE(func_call),
-                     "invalid call to function '%s', expected %d "
+                     "invalid call to function '%s()', expected %d "
                      "arguments, got %d\n",
                      func_name,
                      g_slist_length(formal_args),
@@ -225,13 +227,44 @@ validate_function_call(compilation_status_t *compile_status,
    /*
     * validate function call arguments
     */
-   for (i = func_call_args; i != NULL; i = g_slist_next(i))
+   for (i = func_call_args, j = formal_args, counter = 0;
+        i != NULL;
+        i = g_slist_next(i), j = g_slist_next(j), counter += 1)
    {
+       IrExpression *arg_exp;
        IrExpression *exp;
+       DtDataType *formal_arg_type;
 
-       exp = validate_expression(compile_status,
-                                 sym_table,
-                                 IR_EXPRESSION(i->data));
+       assert(j != NULL);
+
+       /* validate expression */
+       arg_exp = validate_expression(compile_status,
+                                     sym_table,
+                                     IR_EXPRESSION(i->data));
+       if (arg_exp == NULL)
+       {
+           /* invalid argument expression, bail out */
+           return NULL;
+       }
+
+       /* check if the type is compatible */
+       formal_arg_type = ir_variable_get_data_type(j->data);
+       exp = types_implicit_conv(formal_arg_type, arg_exp);
+       if (exp == NULL)
+       {
+           compile_error(compile_status,
+                         IR_NODE(arg_exp),
+                         "in function call to '%s()', argument %d of invalid type\n",
+                         func_name, counter);
+           compile_error(compile_status,
+                         IR_NODE(arg_exp),
+                         "argument's type is '%s' got '%s'\n",
+                         dt_data_type_get_string(formal_arg_type),
+                         dt_data_type_get_string(ir_expression_get_data_type(arg_exp)));
+           return NULL;
+       }
+
+       /* valid expression */
        validated_args = g_slist_prepend(validated_args, exp);
    }
    /* store validated call arguments */
