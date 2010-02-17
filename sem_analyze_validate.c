@@ -227,7 +227,7 @@ validate_function_call(compilation_status_t *compile_status,
    /*
     * validate function call arguments
     */
-   for (i = func_call_args, j = formal_args, counter = 0;
+   for (i = func_call_args, j = formal_args, counter = 1;
         i != NULL;
         i = g_slist_next(i), j = g_slist_next(j), counter += 1)
    {
