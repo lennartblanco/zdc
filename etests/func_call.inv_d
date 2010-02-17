@@ -30,3 +30,21 @@ void func4()
 {
   int_arg_func(void_func());
 }
+
+int int_stat_arry(int first, int[5] s, int last)
+{
+    return s[0] + s[1] + s[2] - first - last;
+}
+
+bool bool_stat_arry(bool[3] s)
+{
+    return s[0] && s[1] && s[2];
+}
+
+void inv_stat_arry_calls()
+{
+  int t;
+
+  bool_stat_arry(false);
+  int_stat_arry(10, t, 20);
+}
