@@ -44,7 +44,7 @@ GType
 ir_bool_constant_get_type(void);
 
 IrBoolConstant *
-ir_bool_constant_new(gboolean value);
+ir_bool_constant_new(gboolean value, guint line_number);
 
 gboolean
 ir_bool_constant_get_value(IrBoolConstant *self);

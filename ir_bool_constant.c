@@ -45,11 +45,13 @@ ir_bool_constant_get_type(void)
 }
 
 IrBoolConstant *
-ir_bool_constant_new(gint32 value)
+ir_bool_constant_new(gboolean value, guint line_number)
 {
     IrBoolConstant *obj;
 
-    obj = g_object_new(IR_TYPE_BOOL_CONSTANT, NULL);
+    obj = g_object_new(IR_TYPE_BOOL_CONSTANT,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->value = value;
 
     return obj;

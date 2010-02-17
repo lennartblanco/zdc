@@ -645,12 +645,12 @@ primary<n> :
 |   TOK_TRUE
     {
         (*n).expression =
-            AST_EXPRESSION(ast_bool_constant_new(true));
+            AST_EXPRESSION(ast_bool_constant_new(true, yypos));
     }
 |   TOK_FALSE
     {
         (*n).expression =
-            AST_EXPRESSION(ast_bool_constant_new(false));
+            AST_EXPRESSION(ast_bool_constant_new(false, yypos));
     }
 |   TOK_IDENT<x>
     {

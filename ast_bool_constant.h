@@ -45,7 +45,7 @@ GType
 ast_bool_constant_get_type(void);
 
 AstBoolConstant *
-ast_bool_constant_new(bool value);
+ast_bool_constant_new(bool value, guint line_number);
 
 bool
 ast_bool_constant_get_value(AstBoolConstant *self);

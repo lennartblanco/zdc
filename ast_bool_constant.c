@@ -42,11 +42,13 @@ ast_bool_constant_get_type(void)
 }
 
 AstBoolConstant *
-ast_bool_constant_new(bool value)
+ast_bool_constant_new(bool value, guint line_number)
 {
     AstBoolConstant *obj;
 
-    obj = g_object_new(AST_TYPE_BOOL_CONSTANT, NULL);
+    obj = g_object_new(AST_TYPE_BOOL_CONSTANT,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->value = value;
 
     return obj;

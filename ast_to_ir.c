@@ -914,10 +914,13 @@ expression_to_ir(compilation_status_t *compile_status,
     else if (AST_IS_BOOL_CONSTANT(ast_expression))
     {
         gboolean val;
+        guint line_num;
 
         val = 
             ast_bool_constant_get_value(AST_BOOL_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_bool_constant_new(val));
+        line_num = ast_node_get_line_num(AST_NODE(ast_expression));
+
+        return IR_EXPRESSION(ir_bool_constant_new(val, line_num));
     }
     else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {
