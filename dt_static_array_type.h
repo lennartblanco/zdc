@@ -29,6 +29,7 @@ typedef struct
     DtArrayType parent;
     /* private */
     guint32 length;
+    char *string_of;
     char *mangled_name;
 } DtStaticArrayType;
 

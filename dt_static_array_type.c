@@ -57,6 +57,7 @@ dt_static_array_type_new(DtDataType *data_type, guint32 length)
     obj = g_object_new(DT_TYPE_STATIC_ARRAY_TYPE, NULL);
     DT_ARRAY_TYPE(obj)->data_type = data_type;
     obj->length = length;
+    obj->string_of = NULL;
     obj->mangled_name = NULL;
 
     return obj;
@@ -86,8 +87,19 @@ static char *
 dt_static_array_type_get_string(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
-    /* not implemented */
-    assert(false);
+
+    DtStaticArrayType *arry = DT_STATIC_ARRAY_TYPE(self);
+
+    if (arry->string_of == NULL)
+    {
+        arry->string_of =
+            g_strdup_printf("%s[%uu]",
+                dt_data_type_get_string(
+                    dt_static_array_type_get_data_type(arry)),
+                arry->length);
+    }
+
+    return arry->string_of;
 }
 
 static guint
