@@ -782,6 +782,7 @@ validate_assigment(compilation_status_t *compile_status,
 {
     IrLvalue *lvalue;
     IrExpression *value;
+    IrExpression *converted_value;
     DtDataType *target_type;
 
     /*
@@ -815,8 +816,21 @@ validate_assigment(compilation_status_t *compile_status,
      */
     target_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
 
-    value = types_implicit_conv(target_type, value);
-    if (value == NULL)
+    converted_value = types_implicit_conv(target_type, value);
+    if (converted_value == NULL && DT_IS_ARRAY_TYPE(target_type))
+    {
+        /*
+         * Handle the special case of array assigments from a scalar,
+         * check if scalar can be implicitly converted to array's 
+         * element data type
+         */
+        DtDataType *array_element_type;
+
+        array_element_type =
+            dt_array_type_get_data_type(DT_ARRAY_TYPE(target_type));
+        converted_value = types_implicit_conv(array_element_type, value);
+    }
+    if (converted_value == NULL)
     {
         compile_error(compile_status,
                       IR_NODE(assigment),
@@ -825,7 +839,7 @@ validate_assigment(compilation_status_t *compile_status,
         return;
     }
 
-    ir_assigment_set_value(assigment, value);
+    ir_assigment_set_value(assigment, converted_value);
 }
 
 static void
@@ -1059,6 +1073,8 @@ validate_code_block(compilation_status_t *compile_status,
     {
         IrVariable *var;
         IrExpression *initializer;
+        IrExpression *conv_initializer;
+        DtDataType *var_type;
 
         /* skip if not a variable */
         if (!IR_IS_VARIABLE(p->data))
@@ -1086,13 +1102,27 @@ validate_code_block(compilation_status_t *compile_status,
             continue;
         }
 
-        initializer =
-            types_implicit_conv(ir_variable_get_data_type(var), initializer);
+        var_type = ir_variable_get_data_type(var);
+        conv_initializer = types_implicit_conv(var_type, initializer);
 
-        if (initializer == NULL)
+        if (conv_initializer == NULL && DT_IS_ARRAY_TYPE(var_type))
+        {
+            /*
+             * Handle the special case of array initialization from a scalar,
+             * check if scalar can be implicitly converted to array's 
+             * element data type
+             */
+            DtDataType *array_element_type;
+
+            array_element_type =
+                dt_array_type_get_data_type(DT_ARRAY_TYPE(var_type));
+            conv_initializer =
+                types_implicit_conv(array_element_type, initializer);
+        }
+        if (conv_initializer == NULL)
         {
             compile_error(compile_status,
-                          IR_NODE(ir_variable_get_initializer(var)),
+                          IR_NODE(initializer),
                           "illegal type in initializer assigment\n");
             continue;
         }

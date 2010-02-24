@@ -13,14 +13,6 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-/**
- * Convert a basic Data Type to a array. That is typecast
- * the expression to element type of the array if possible.
- */
-static IrExpression *
-implicit_conv_bt_to_array_type(DtArrayType *target_type,
-                               IrExpression *expression);
-
 static IrExpression *
 implicit_conv_to_int_array_type(DtArrayType *target_type,
                                 IrExpression *expression);
@@ -36,22 +28,6 @@ implicit_conv_to_bool_array_type(DtArrayType *target_type,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
-
-static IrExpression *
-implicit_conv_bt_to_array_type(DtArrayType *target_type,
-                               IrExpression *expression)
-{
-    assert(DT_IS_ARRAY_TYPE(target_type));
-    assert(IR_IS_EXPRESSION(expression));
-
-    DtDataType *source_type;
-    DtDataType *element_type;
-
-    source_type = ir_expression_get_data_type(expression);
-    element_type = dt_array_type_get_data_type(target_type);
-
-    return types_implicit_conv(element_type, expression);
-}
 
 static IrExpression *
 implicit_conv_to_int_array_type(DtArrayType *target_type,
@@ -159,12 +135,6 @@ types_arrays_implicit_conv(DtArrayType *target_type,
     basic_data_type_t bdt;
 
     source_type = ir_expression_get_data_type(expression);
-
-    /* basic type to array assigment */
-    if (DT_IS_BASIC_TYPE(source_type))
-    {
-        return implicit_conv_bt_to_array_type(target_type, expression);
-    }
 
     if (!DT_IS_ARRAY_TYPE(source_type) &&
         !DT_IS_STATIC_ARRAY_TYPE(source_type))
