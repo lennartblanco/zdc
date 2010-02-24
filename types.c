@@ -171,7 +171,7 @@ types_get_default_initializer(DtBasicType *data_type)
         case uint_type:
             return IR_EXPRESSION(ir_uint_constant_new(0, 0));
         case bool_type:
-            return IR_EXPRESSION(ir_bool_constant_new(false));
+            return IR_EXPRESSION(ir_bool_constant_new(false, 0));
         default:
             assert(false);
     }
