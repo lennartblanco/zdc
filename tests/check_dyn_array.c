@@ -82,6 +82,18 @@ call_boolops(int arg1, int arg2)
    return res;
 }
 
+int
+call_invoke_dyn_array_sum(int in)
+{
+   int res;
+
+   asm ("    call _D9dyn_array20invoke_dyn_array_sumFkZi\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -133,6 +145,19 @@ main()
     check_bool("boolops(0, -1)", call_boolops(0, -1), false);
     check_bool("boolops(1, 10)", call_boolops(1, 10), true);
     check_bool("boolops(2, 0)", call_boolops(2, 0), false);
+
+    /* dyn_array_sum() tests */
+    check_int("invoke_dyn_array_sum(0)",
+              call_invoke_dyn_array_sum(0), 1 + 10 + 15 + 0 + 5);
+
+    check_int("invoke_dyn_array_sum(1)",
+              call_invoke_dyn_array_sum(1), 5 -12);
+
+    check_int("invoke_dyn_array_sum(2)",
+              call_invoke_dyn_array_sum(2), 0);
+
+    check_int("invoke_dyn_array_sum(3)",
+              call_invoke_dyn_array_sum(3), -1);
 
     check_exit();
 }
