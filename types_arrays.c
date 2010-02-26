@@ -3,11 +3,22 @@
 #include "types.h"
 #include "types_arrays.h"
 #include "dt_array_type.h"
+#include "ir_array.h"
 #include "ir_array_literal.h"
 #include "ir_array_slice.h"
 #include "ir_cast.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+#define ASSERT_ARRAY_LVALUE(x)               \
+            assert(IR_IS_ARRAY_LITERAL(x) || \
+                   IR_IS_ARRAY_SLICE(x)   || \
+                   IR_IS_ARRAY(x))
+
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -34,8 +45,7 @@ implicit_conv_to_int_array_type(DtArrayType *target_type,
                                 IrExpression *expression)
 {
     assert(DT_IS_ARRAY_TYPE(target_type));
-    assert(IR_IS_ARRAY_LITERAL(expression) ||
-           IR_IS_ARRAY_SLICE(expression));
+    ASSERT_ARRAY_LVALUE(expression);
 
     DtBasicType *src_type;
 
@@ -64,8 +74,7 @@ implicit_conv_to_uint_array_type(DtArrayType *target_type,
                                  IrExpression *expression)
 {
     assert(DT_IS_ARRAY_TYPE(target_type));
-    assert(IR_IS_ARRAY_LITERAL(expression) ||
-           IR_IS_ARRAY_SLICE(expression));
+    ASSERT_ARRAY_LVALUE(expression);
 
     DtBasicType *src_type;
 
@@ -94,8 +103,7 @@ implicit_conv_to_bool_array_type(DtArrayType *target_type,
                                  IrExpression *expression)
 {
     assert(DT_IS_ARRAY_TYPE(target_type));
-    assert(IR_IS_ARRAY_LITERAL(expression) ||
-           IR_IS_ARRAY_SLICE(expression));
+    ASSERT_ARRAY_LVALUE(expression);
 
 /*@ todo: implement and test int[] and uint[] to  bool[] cases */
 

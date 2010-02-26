@@ -64,6 +64,12 @@ static void
 x86_gen_array_handle_assigment(x86_comp_params_t *params,
                                IrAssigment *assigment,
                                sym_table_t *sym_table);
+
+static void
+x86_compile_array(x86_comp_params_t *params,
+                  IrArray *array,
+                  sym_table_t *sym_table);
+
 static void
 x86_compile_array_cell(x86_comp_params_t *params,
                        IrArrayCell *array_cell,
@@ -206,6 +212,10 @@ x86_compile_expression(x86_comp_params_t *params,
         x86_compile_binary_op(params,
                               IR_BINARY_OPERATION(expression),
                               sym_table);
+    }
+    else if (IR_IS_ARRAY(expression))
+    {
+        x86_compile_array(params, IR_ARRAY(expression), sym_table);
     }
     else if (IR_IS_ARRAY_CELL(expression))
     {
@@ -1081,6 +1091,29 @@ x86_compile_array_slice_assigment(x86_comp_params_t *params,
     }
 }
 
+static void
+x86_compile_array(x86_comp_params_t *params,
+                  IrArray *array,
+                  sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ARRAY(array));
+    assert(sym_table);
+
+    int offset;
+
+    offset =
+        x86_frame_offset_get_offset(
+            X86_FRAME_OFFSET(ir_lvalue_get_location(IR_LVALUE(array))));
+
+
+    fprintf(params->out,
+            "# copy array handle to the stack\n"
+            "    pushl %d(%%ebp)\n"
+            "    pushl %d(%%ebp)\n",
+            offset + 4, offset);
+
+}
 
 static void
 x86_compile_array_cell(x86_comp_params_t *params,
