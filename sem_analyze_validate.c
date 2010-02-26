@@ -907,6 +907,11 @@ validate_while(compilation_status_t *compile_status,
     /* validate if condition expression */
     condition = ir_while_get_loop_condition(while_statment);
     condition = validate_expression(compile_status, sym_table, condition);
+    if (condition == NULL)
+    {
+      /* condition expression was invalid, bail out */
+      return;
+    }
 
     /* insert implicit conversion to boolean type */
     condition = types_implicit_conv(types_get_bool_type(),

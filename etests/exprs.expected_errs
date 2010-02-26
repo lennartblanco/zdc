@@ -1,3 +1,4 @@
+exprs.d:25: error: reference to unknow symbol 'foo'
 exprs.d:20: error: expression have no effect
 exprs.d:14: error: can not convert while loop condition to bool type
 exprs.d:6: error: can not convert if condition to bool type
