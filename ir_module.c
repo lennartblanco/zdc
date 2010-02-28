@@ -97,7 +97,7 @@ ir_module_add_function_def(IrModule *self,
     }
 
     self->function_defs =
-      g_slist_prepend(self->function_defs, function_def);
+      g_slist_append(self->function_defs, function_def);
 
    return true;
 }

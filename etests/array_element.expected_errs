@@ -1,9 +1,9 @@
-array_element.d:45: error: reference to unknow symbol 'bar'
-array_element.d:36: error: illegal index expression type
-array_element.d:28: error: array element expression over non array
-array_element.d:28: error: invalid assigment expression
-array_element.d:20: error: unexpected reference to non variable
-array_element.d:20: error: invalid assigment expression
+array_element.d:4: error: reference to unknow array symbol 'a'
 array_element.d:12: error: reference to unknow array symbol 'lst'
 array_element.d:12: error: invalid assigment expression
-array_element.d:4: error: reference to unknow array symbol 'a'
+array_element.d:20: error: unexpected reference to non variable
+array_element.d:20: error: invalid assigment expression
+array_element.d:28: error: array element expression over non array
+array_element.d:28: error: invalid assigment expression
+array_element.d:36: error: illegal index expression type
+array_element.d:45: error: reference to unknow symbol 'bar'

@@ -1,9 +1,9 @@
+func_call.d:3: error: reference to unknow function 'no_exist_func'
+func_call.d:8: error: called object 'x' is not a function
+func_call.d:24: error: invalid call to function 'callee()', expected 2 arguments, got 1
+func_call.d:31: error: in function call to 'int_arg_func()', argument 1 of invalid type
+func_call.d:31: error: argument's type is 'int' got 'void'
 func_call.d:48: error: in function call to 'bool_stat_arry()', argument 1 of invalid type
 func_call.d:48: error: argument's type is 'bool[3u]' got 'bool'
 func_call.d:49: error: in function call to 'int_stat_arry()', argument 2 of invalid type
 func_call.d:49: error: argument's type is 'int[5u]' got 'int'
-func_call.d:31: error: in function call to 'int_arg_func()', argument 1 of invalid type
-func_call.d:31: error: argument's type is 'int' got 'void'
-func_call.d:24: error: invalid call to function 'callee()', expected 2 arguments, got 1
-func_call.d:8: error: called object 'x' is not a function
-func_call.d:3: error: reference to unknow function 'no_exist_func'

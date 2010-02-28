@@ -1,6 +1,6 @@
-assigment.d:28: error: incompatible types in assigment to 'x'
+assigment.d:4: error: reference to unknow symbol 'non_exist'
+assigment.d:9: error: reference to unknow symbol 'x'
+assigment.d:14: error: can not assign value to 'func1', not a variable
 assigment.d:21: error: reference to unknow symbol 'asd'
 assigment.d:21: error: invalid assigment expression
-assigment.d:14: error: can not assign value to 'func1', not a variable
-assigment.d:9: error: reference to unknow symbol 'x'
-assigment.d:4: error: reference to unknow symbol 'non_exist'
+assigment.d:28: error: incompatible types in assigment to 'x'
