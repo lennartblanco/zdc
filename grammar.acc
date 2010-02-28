@@ -17,6 +17,7 @@
 #include "ast_array_slice_ref.h"
 #include "ast_function_decl.h"
 #include "ast_assigment.h"
+#include "ast_property.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_literal.h"
@@ -625,7 +626,7 @@ postfix_expression<n> :
     postfix_expression<exp> '.' TOK_IDENT<name>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_property_new(exp, name.text, yypos));
+            AST_EXPRESSION(ast_property_new(exp.expression, name.text, yypos));
         free(name.text);
     }
 |   primary<n>
