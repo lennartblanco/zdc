@@ -68,9 +68,9 @@ int dyn_array_sum(int[] array)
 }
 
 /*
- * Wrapper function to test dyn_array_sum()
+ * Wrapper function to test calling dyn_array_sum() with dynamic array handle
  */
-int invoke_dyn_array_sum(uint test_num)
+int invoke_dyn_array_sum_handle(uint test_num)
 {
   int[] array;
 
@@ -92,4 +92,24 @@ int invoke_dyn_array_sum(uint test_num)
   }
 
   return dyn_array_sum(array);
+}
+
+/*
+ * Wrapper function to test calling dyn_array_sum() with array literal
+ */
+int invoke_dyn_array_sum_lit(uint test_num)
+{
+  if (test_num == 0)
+  {
+    return dyn_array_sum([3, 1, 4, 1, 5]);
+  }
+  else if (test_num == 1)
+  {
+    return dyn_array_sum([50, 23]);
+  }
+  else if (test_num == 2)
+  {
+    return dyn_array_sum([0, 0, 0, 0]);
+  }
+  return -1;
 }

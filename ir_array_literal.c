@@ -85,6 +85,17 @@ ir_array_literal_get_values(IrArrayLiteral *self)
     return self->values;
 }
 
+guint
+ir_array_literal_get_size(IrArrayLiteral *self)
+{
+    assert(IR_IS_ARRAY_LITERAL(self));
+
+    return 
+      dt_array_get_element_size(DT_ARRAY_TYPE(self->data_type)) *
+                                           g_slist_length(self->values);
+           
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

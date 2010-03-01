@@ -71,6 +71,11 @@ x86_compile_array(x86_comp_params_t *params,
                   sym_table_t *sym_table);
 
 static void
+x86_compile_array_literal(x86_comp_params_t *params,
+                          IrArrayLiteral *array_lit,
+                          sym_table_t *sym_table);
+
+static void
 x86_compile_array_cell(x86_comp_params_t *params,
                        IrArrayCell *array_cell,
                        sym_table_t *sym_table);
@@ -222,6 +227,12 @@ x86_compile_expression(x86_comp_params_t *params,
         x86_compile_array_cell(params,
                                IR_ARRAY_CELL(expression),
                                sym_table);
+    }
+    else if (IR_IS_ARRAY_LITERAL(expression))
+    {
+        x86_compile_array_literal(params,
+                                  IR_ARRAY_LITERAL(expression),
+                                  sym_table);
     }
     else if (IR_IS_SCALAR(expression))
     {
@@ -1113,6 +1124,63 @@ x86_compile_array(x86_comp_params_t *params,
             "    pushl %d(%%ebp)\n",
             offset + 4, offset);
 
+}
+
+static void
+x86_compile_array_literal(x86_comp_params_t *params,
+                          IrArrayLiteral *array_lit,
+                          sym_table_t *sym_table)
+{
+    assert(params);
+    assert(IR_IS_ARRAY_LITERAL(array_lit));
+    assert(sym_table);
+
+    GSList *literal_values;
+    GSList *i;
+    guint cntr;
+    guint storage_size;
+
+    literal_values = ir_array_literal_get_values(array_lit);
+
+    storage_size =
+        dt_array_get_element_size(
+            DT_ARRAY_TYPE(
+                ir_expression_get_data_type(IR_EXPRESSION(array_lit))));
+
+    fprintf(params->out,
+            "# evaluate array literal\n"
+            "    pushl $%u    #allocate memory for array literal\n"
+            "    call GC_malloc\n"
+            "    pushl %%eax\n",
+            ir_array_literal_get_size(array_lit));
+
+    for (i = literal_values, cntr = 0; i != NULL; i = g_slist_next(i), cntr++) {
+        x86_compile_expression(params, i->data, sym_table);
+        fprintf(params->out,
+                "    popl %%eax\n"
+                "    movl (%%esp), %%ebx\n"
+                "    movl $%u, %%ecx\n",
+                cntr);
+
+        switch (storage_size)
+        {
+            case 4:
+                fprintf(params->out,
+                        "    movl %%eax, (%%ebx, %%ecx, 4)\n");
+                break;
+            case 1:
+                fprintf(params->out,
+                        "    movb %%al, (%%ebx, %%ecx, 1)\n");
+                break;
+            default:
+                /* unexpected storage size */
+                assert(false);          
+        }
+    }
+
+    fprintf(params->out,
+            "    pushl $%u\n",
+            g_slist_length(literal_values));
 }
 
 static void

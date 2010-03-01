@@ -58,4 +58,10 @@ ir_array_literal_set_values(IrArrayLiteral *self, GSList *values);
 GSList *
 ir_array_literal_get_values(IrArrayLiteral *self);
 
+/**
+ * @return get storage size in bytes for this array literal
+ */
+guint
+ir_array_literal_get_size(IrArrayLiteral *self);
+
 #endif /* IR_ARRAY_LITERAL_INC_X */
