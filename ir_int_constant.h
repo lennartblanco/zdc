@@ -40,7 +40,7 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType 
+GType
 ir_int_constant_get_type(void);
 
 IrIntConstant *
