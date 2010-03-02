@@ -62,6 +62,9 @@ check_pkg_name_tst: pkg_name_tst.o check_utils.o check_pkg_name_tst.c
 check_imports: imports.o fact.o rets.o neg.o check_utils.o check_imports.c
 	gcc $(CFLAGS) -o $@ $^
 
+check_uninit_vars: uninit_vars.o check_utils.o check_uninit_vars.c
+	gcc $(CFLAGS) -o $@ $^
+
 check_properties: properties.o check_utils.o check_properties.c
 	gcc $(CFLAGS) -lgc -o $@ $^
 
@@ -82,4 +85,4 @@ check_only_comments check_comments check_neg check_func_call check_imports \
 check_bool_op check_extern_c check_fact check_foreach check_if_else \
 check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
 check_stat_array check_dyn_array check_uint_op check_while_loop eels \
-check_properties
+check_properties check_uninit_vars
