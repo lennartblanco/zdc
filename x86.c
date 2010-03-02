@@ -22,6 +22,7 @@
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
+#include "ir_char_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_scalar.h"
 #include "ir_variable.h"
@@ -205,6 +206,12 @@ x86_compile_expression(x86_comp_params_t *params,
                "# push boolean constant onto stack\n"
                "    pushl $%d\n",
                val ? 1 : 0);
+    }
+    else if (IR_IS_CHAR_CONSTANT(expression))
+    {
+        fprintf(params->out,
+                "    pushl $%u     # push char constant onto stack\n", 
+                ir_char_constant_get_value(IR_CHAR_CONSTANT(expression)));
     }
     else if (IR_IS_UNARY_OPERATION(expression))
     {

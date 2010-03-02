@@ -38,6 +38,15 @@ void
 check_bool(char *function_called, bool res, bool expected_res);
 
 /**
+ * Check if functions with boolean return value have returned expected result.
+ */
+void
+check_char(char *function_called,
+           unsigned char res,
+           unsigned char expected_res);
+
+
+/**
  * Exit function test program, printing test result summary
  * and returning success code (0) if all tests passed or 
  * fail code (-1) if any test have failed.

@@ -7,6 +7,7 @@
 #include "ir_cast.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
+#include "ir_char_constant.h"
 #include "ir_bool_constant.h"
 
 #include <assert.h>
@@ -172,6 +173,8 @@ types_get_default_initializer(DtBasicType *data_type)
             return IR_EXPRESSION(ir_uint_constant_new(0, 0));
         case bool_type:
             return IR_EXPRESSION(ir_bool_constant_new(false, 0));
+        case char_type:
+            return IR_EXPRESSION(ir_char_constant_new(255, 0));
         default:
             assert(false);
     }
@@ -371,6 +374,20 @@ types_get_uint_type()
 
    return uint_data_type;
 }
+
+DtDataType *
+types_get_char_type()
+{
+   static DtDataType *char_data_type = NULL;
+
+   if (char_data_type == NULL)
+   {
+      char_data_type = DT_DATA_TYPE(dt_basic_type_new(char_type));
+   }
+
+   return char_data_type;
+}
+
 
 DtDataType *
 types_get_bool_type()

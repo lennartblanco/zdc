@@ -109,6 +109,7 @@ dt_basic_type_get_size(DtDataType *self)
         case int_type:
         case uint_type:
             return 4;
+        case char_type:
         case bool_type:
             return 1;
         default:
@@ -132,6 +133,8 @@ dt_basic_type_get_mangled(DtDataType *self)
             return "v";
         case bool_type:
             return "b";
+        case char_type:
+            return "a";
         default:
             /* unexpected basic data type */
             assert(false);

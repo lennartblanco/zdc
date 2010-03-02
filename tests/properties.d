@@ -22,6 +22,13 @@ uint bool_var_sizeof()
     return x.sizeof;
 }
 
+uint char_var_sizeof()
+{
+    char x;
+
+    return x.sizeof;
+}
+
 uint stat_int_arry_var_sizeof()
 {
     int[4] x;
@@ -80,6 +87,13 @@ uint uint_var_init()
 bool bool_var_init()
 {
    bool x;
+
+   return x.init;
+}
+
+char char_var_init()
+{
+   char x;
 
    return x.init;
 }

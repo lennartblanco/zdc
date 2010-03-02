@@ -1,5 +1,7 @@
 XDC=../xdc
 
+CFLAGS += $(shell  pkg-config --cflags glib-2.0)
+
 check_empty: empty.o check_utils.o check_empty.c
 	gcc $(CFLAGS) -o $@ $^
 

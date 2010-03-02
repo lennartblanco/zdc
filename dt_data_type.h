@@ -42,7 +42,8 @@ typedef struct
 
 typedef enum basic_data_type_e
 {
-    void_type, 
+    void_type,
+    char_type,               /* 8-bit character */ 
     bool_type,               /* boolean */
     int_type,                /* int 32-bit signed */
     uint_type                /* int 32-bit unsigned */

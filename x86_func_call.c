@@ -154,6 +154,7 @@ compile_d_func_call(x86_comp_params_t *params,
                /* nop */
                break;
            case bool_type:
+           case char_type:
            case int_type:
            case uint_type:
                fprintf(params->out,

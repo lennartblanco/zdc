@@ -95,6 +95,12 @@ DtDataType *
 types_get_uint_type();
 
 /**
+ * Get singelton instance of object representing char type.
+ */
+DtDataType *
+types_get_char_type();
+
+/**
  * Get singelton instance of object representing bool type.
  */
 DtDataType *

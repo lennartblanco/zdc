@@ -41,6 +41,18 @@ call_bool_var_sizeof()
 }
 
 unsigned
+call_char_var_sizeof()
+{
+   unsigned res;
+
+   asm ("    call _D10properties15char_var_sizeofFZk\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
+unsigned
 call_int_exp_sizeof()
 {
    unsigned res;
@@ -136,6 +148,18 @@ call_bool_var_init()
    return res;
 }
 
+unsigned char
+call_char_var_init()
+{
+   unsigned char res;
+
+   asm ("    call _D10properties13char_var_initFZa\n"
+        : "=a"(res)
+        : );
+
+   return res;
+}
+
 unsigned
 call_stat_int_arry_length()
 {
@@ -187,6 +211,9 @@ main()
     /* bool_var_sizeof() test */
     check_uint("bool_var_sizeof()", call_bool_var_sizeof(), 1);
 
+    /* char_var_sizeof() test */
+    check_uint("char_var_sizeof()", call_char_var_sizeof(), 1);
+
     /* int_exp_sizeof() test */
     check_uint("int_exp_sizeof()", call_int_exp_sizeof(), 4);
 
@@ -213,6 +240,9 @@ main()
 
     /* bool_var_init() test */
     check_bool("bool_var_init()", call_bool_var_init(), false);
+
+    /* char_var_init() test */
+    check_char("char_var_init()", call_char_var_init(), 255);
 
     /* stat_int_arry_length() test */
     check_uint("stat_int_arry_length()", call_stat_int_arry_length(), 4);

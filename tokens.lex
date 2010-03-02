@@ -28,6 +28,7 @@
 "&"      { return '&'; }
 "if"     { return TOK_IF; }
 "int"    { return TOK_INT; }
+"char"   { return TOK_CHAR; }
 "uint"   { return TOK_UINT; }
 "auto"   { return TOK_AUTO; }
 "else"   { return TOK_ELSE; }

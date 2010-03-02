@@ -32,7 +32,7 @@ AstModule *module;
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
-       TOK_AUTO, TOK_INT, TOK_UINT, TOK_VOID, TOK_BOOL,
+       TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL,
        TOK_IMPORT, TOK_MODULE;
        
 
@@ -292,6 +292,10 @@ basic_type<x> :
 |   TOK_INT
     {
         (*x).basic_data_type = int_type;
+    }
+|   TOK_CHAR
+    {
+        (*x).basic_data_type = char_type;
     }
 |   TOK_BOOL
     { 

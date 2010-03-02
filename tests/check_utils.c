@@ -73,6 +73,24 @@ check_bool(char *function_called, bool res, bool expected_res)
     }
 }
 
+void
+check_char(char *function_called,
+           unsigned char res,
+           unsigned char expected_res)
+{
+    printf("%s = %u", function_called, res);
+    if (res == expected_res) 
+    {
+        printf(" [ok]\n");
+        passed += 1;
+    }
+    else
+    {
+        printf(" unexpected result!\n");
+        failed += 1;
+    }
+}
+
 
 void
 check_exit()
