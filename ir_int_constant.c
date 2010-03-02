@@ -84,6 +84,8 @@ ir_int_constant_class_init(gpointer klass, gpointer dummy)
 static DtDataType *
 ir_int_constant_do_get_data_type(IrExpression *self)
 {
+    assert(IR_IS_INT_CONSTANT(self));
+
     return types_get_int_type();
 }
 

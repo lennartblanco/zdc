@@ -60,7 +60,6 @@ ir_bool_constant_new(gboolean value, guint line_number)
 gboolean
 ir_bool_constant_get_value(IrBoolConstant *self)
 {
-    assert(self);
     assert(IR_IS_BOOL_CONSTANT(self));
 
     return self->value;
@@ -80,5 +79,7 @@ ir_bool_constant_class_init(gpointer klass, gpointer dummy)
 static DtDataType *
 ir_bool_constant_do_get_data_type(IrExpression *self)
 {
-  return types_get_bool_type();
+    assert(IR_IS_BOOL_CONSTANT(self));
+
+    return types_get_bool_type();
 }
