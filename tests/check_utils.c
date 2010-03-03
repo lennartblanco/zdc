@@ -78,7 +78,18 @@ check_char(char *function_called,
            unsigned char res,
            unsigned char expected_res)
 {
-    printf("%s = %u", function_called, res);
+    printf("%s = ", function_called);
+
+    if (isascii(res) != 0)
+    {
+      printf("'%c'", res);
+    }
+    else
+    {
+      /* for non-ascii characters, print the decimal value instead */
+      printf("%u", res);
+    }
+
     if (res == expected_res) 
     {
         printf(" [ok]\n");

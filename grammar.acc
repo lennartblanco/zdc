@@ -13,6 +13,7 @@
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
 #include "ast_bool_constant.h"
+#include "ast_char_constant.h"
 #include "ast_array_cell_ref.h"
 #include "ast_array_slice_ref.h"
 #include "ast_function_decl.h"
@@ -29,7 +30,8 @@
 AstModule *module;
 }
 
-%token TOK_INT_CONST, TOK_UINT_CONST, TOK_IDENT, TOK_TRUE, TOK_FALSE,
+%token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, 
+       TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL,
@@ -646,6 +648,11 @@ primary<n> :
     {
         (*n).expression =
             AST_EXPRESSION(ast_uint_constant_new(x.uinteger, yypos));
+    }
+|   TOK_CHAR_CONST<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_char_constant_new(x.character, yypos));
     }
 |   TOK_TRUE
     {

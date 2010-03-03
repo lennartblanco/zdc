@@ -26,6 +26,9 @@ static IrExpression *
 implicit_conv_to_bool(IrExpression *expression);
 
 static IrExpression *
+implicit_conv_to_char(IrExpression *expression);
+
+static IrExpression *
 implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression);
 
 /*---------------------------------------------------------------------------*
@@ -35,6 +38,8 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression);
 static IrExpression *
 implicit_conv_to_int(IrExpression *expression)
 {
+    assert(IR_IS_EXPRESSION(expression));
+
     IrExpression *res_exp = NULL;
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
@@ -65,6 +70,8 @@ implicit_conv_to_int(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_uint(IrExpression *expression)
 {
+    assert(IR_IS_EXPRESSION(expression));
+
     IrExpression *res_exp = NULL;
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
@@ -95,6 +102,8 @@ implicit_conv_to_uint(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_bool(IrExpression *expression)
 {
+    assert(IR_IS_EXPRESSION(expression));
+
     IrExpression *res_exp = NULL;
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
@@ -126,6 +135,39 @@ implicit_conv_to_bool(IrExpression *expression)
 }
 
 static IrExpression *
+implicit_conv_to_char(IrExpression *expression)
+{
+    assert(IR_IS_EXPRESSION(expression));
+
+    IrExpression *res_exp = NULL;
+    DtDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!DT_IS_BASIC_TYPE(exp_data_type))
+    {
+        return NULL;
+    }
+
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
+    {
+        case int_type:
+        case uint_type:
+        case bool_type:
+            assert(false); /* not implemented */
+            break;
+        case char_type:
+            res_exp = expression;
+            break;
+        default:
+            /* invalid implicit conversion, return NULL */
+            break;
+    }
+
+    return res_exp;
+
+}
+
+static IrExpression *
 implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
 {
     assert(DT_IS_BASIC_TYPE(target_type));
@@ -139,8 +181,10 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
             /* not implemented */
             assert(false);
         case bool_type:
-            /* not implemented */
             res_exp = implicit_conv_to_bool(expression);
+            break;
+        case char_type:
+            res_exp = implicit_conv_to_char(expression);
             break;
         case int_type:
             res_exp = implicit_conv_to_int(expression);

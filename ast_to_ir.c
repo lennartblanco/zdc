@@ -11,6 +11,7 @@
 #include "ast_array_literal.h"
 #include "ast_array_cell_ref.h"
 #include "ast_bool_constant.h"
+#include "ast_char_constant.h"
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
 #include "ast_property.h"
@@ -32,6 +33,7 @@
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_char_constant.h"
 #include "ir_property.h"
 
 #include <assert.h>
@@ -921,6 +923,16 @@ expression_to_ir(compilation_status_t *compile_status,
         line_num = ast_node_get_line_num(AST_NODE(ast_expression));
 
         return IR_EXPRESSION(ir_bool_constant_new(val, line_num));
+    }
+    else if (AST_IS_CHAR_CONSTANT(ast_expression))
+    {
+        guint8 val;
+        guint line_num;
+
+        val = ast_char_constant_get_value(AST_CHAR_CONSTANT(ast_expression));
+        line_num = ast_node_get_line_num(AST_NODE(ast_expression));
+
+        return IR_EXPRESSION(ir_char_constant_new(val, line_num));
     }
     else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {
