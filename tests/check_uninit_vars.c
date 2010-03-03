@@ -7,7 +7,7 @@
 bool
 call_uninit_bool()
 {
-   int res;
+   bool res;
 
    asm ("    call _D11uninit_vars11uninit_boolFZb\n"
         : "=a"(res)
@@ -19,7 +19,7 @@ call_uninit_bool()
 unsigned char
 call_uninit_char()
 {
-   int res;
+   unsigned char res;
 
    asm ("    call _D11uninit_vars11uninit_charFZa\n"
         : "=a"(res)
@@ -31,7 +31,7 @@ call_uninit_char()
 unsigned char
 call_uninit_int()
 {
-   int res;
+   unsigned char res;
 
    asm ("    call _D11uninit_vars10uninit_intFZi\n"
         : "=a"(res)
@@ -43,7 +43,7 @@ call_uninit_int()
 unsigned char
 call_uninit_uint()
 {
-   int res;
+   unsigned char res;
 
    asm ("    call _D11uninit_vars11uninit_uintFZk\n"
         : "=a"(res)
