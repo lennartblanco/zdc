@@ -55,6 +55,7 @@ implicit_conv_to_int(IrExpression *expression)
             res_exp = expression;
             break;
         case uint_type:
+        case char_type:
         case bool_type:
             res_exp =
               IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));

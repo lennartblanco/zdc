@@ -66,7 +66,7 @@ check_uninit_vars: uninit_vars.o check_utils.o check_uninit_vars.c
 	gcc $(CFLAGS) -o $@ $^
 
 check_char_literals: char_literals.o check_utils.o check_char_literals.c
-	gcc $(CFLAGS) -o $@ $^
+	gcc $(CFLAGS) -lgc -o $@ $^
 
 check_properties: properties.o check_utils.o check_properties.c
 	gcc $(CFLAGS) -lgc -o $@ $^

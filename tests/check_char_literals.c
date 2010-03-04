@@ -4,11 +4,6 @@
  *          wrappers to call test function with D calling convention         *
  *---------------------------------------------------------------------------*/
 
-/*00000000 T _D13char_literals11char_returnFZa*/
-/*00000000 D _D13char_literals12__ModuleInfoZ*/
-/*00000000 T _D13char_literals14char_assigmentFZa*/
-/*00000000 T _D13char_literals9char_initFZa*/
-
 unsigned char
 call_char_assigment()
 {
@@ -45,6 +40,19 @@ call_char_return()
    return res;
 }
 
+unsigned char
+call_char_array_literal(unsigned in)
+{
+   unsigned char res;
+
+   asm ("    call _D13char_literals18char_array_literalFkZa\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -59,6 +67,20 @@ main()
 
     /* char_return() */
     check_char("char_return()", call_char_return(), (unsigned char)'r');
+
+    /* char_array_literal() tests */
+    check_char("char_array_literal()",
+               call_char_array_literal(10),
+               (unsigned char)' ');
+    check_char("char_array_literal()",
+               call_char_array_literal(0),
+               (unsigned char)'T');
+    check_char("char_array_literal()",
+               call_char_array_literal(12),
+               (unsigned char)'o');
+    check_char("char_array_literal()",
+               call_char_array_literal(22),
+               (unsigned char)'?');
 
     check_exit();
 }

@@ -36,6 +36,10 @@ static IrExpression *
 implicit_conv_to_bool_array_type(DtArrayType *target_type,
                                  IrExpression *expression);
 
+static IrExpression *
+implicit_conv_to_char_array_type(DtArrayType *target_type,
+                                 IrExpression *expression);
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -128,6 +132,36 @@ implicit_conv_to_bool_array_type(DtArrayType *target_type,
     }
 }
 
+static IrExpression *
+implicit_conv_to_char_array_type(DtArrayType *target_type,
+                                 IrExpression *expression)
+{
+    assert(DT_IS_ARRAY_TYPE(target_type));
+    ASSERT_ARRAY_LVALUE(expression);
+
+    DtBasicType *src_type;
+
+    /* only arrays over basic types as source expression are supported */
+    src_type = 
+        DT_BASIC_TYPE(
+            dt_array_type_get_data_type(
+                DT_ARRAY_TYPE(ir_expression_get_data_type(expression))));
+
+    switch (dt_basic_type_get_data_type(src_type))
+    {
+        case char_type:
+            return expression;
+        case bool_type:
+        case int_type:
+        case uint_type:
+            /* not implemented */
+            assert(false);
+        default:
+            /* unexpected element basic data type */
+            assert(false);
+    }
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -188,6 +222,8 @@ types_arrays_implicit_conv(DtArrayType *target_type,
             return implicit_conv_to_uint_array_type(trg_arry_type, expression);
         case bool_type:
             return implicit_conv_to_bool_array_type(trg_arry_type, expression);
+        case char_type:
+            return implicit_conv_to_char_array_type(trg_arry_type, expression);
         default:
             /* unexpected element type */
             assert(false);
