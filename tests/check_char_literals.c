@@ -52,6 +52,30 @@ call_char_array_literal(unsigned in)
    return res;
 }
 
+int
+call_invoke_array_var_find(unsigned char in)
+{
+   int res;
+
+   asm ("    call _D13char_literals21invoke_array_var_findFaZi\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+int
+call_invoke_array_lit_find(unsigned char in)
+{
+   int res;
+
+   asm ("    call _D13char_literals21invoke_array_lit_findFaZi\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -81,6 +105,24 @@ main()
     check_char("char_array_literal()",
                call_char_array_literal(22),
                (unsigned char)'?');
+
+    /* test my_find() via invoke_array_var_find() */
+    check_int("invoke_array_var_find('a')", 
+              call_invoke_array_var_find('a'), -1);
+    check_int("invoke_array_var_find('l')",
+              call_invoke_array_var_find('l'), 2);
+    check_int("invoke_array_var_find('w')",
+              call_invoke_array_var_find('w'), 6);
+    check_int("invoke_array_var_find('h')", 
+              call_invoke_array_var_find('h'), 0);
+
+    /* test my_find() via invoke_array_lit_find() */
+    check_int("invoke_array_lit_find('q')", 
+              call_invoke_array_lit_find('q'), -1);
+    check_int("invoke_array_lit_find('x')", 
+              call_invoke_array_lit_find('x'), 1);
+    check_int("invoke_array_lit_find('s')", 
+              call_invoke_array_lit_find('s'), 5);
 
     check_exit();
 }

@@ -260,6 +260,7 @@ types_integer_promotion(IrExpression *expression)
     exp_data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_type));
 
     switch (exp_data_type) {
+        case char_type:
         case bool_type:
             res_exp =
                 IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));
@@ -307,6 +308,7 @@ types_usual_arithm_conv(IrExpression *left,
     }
     assert(left_data_type == int_type  ||
            left_data_type == uint_type ||
+           left_data_type == char_type ||
            left_data_type == bool_type);
 
     /* 
@@ -326,6 +328,7 @@ types_usual_arithm_conv(IrExpression *left,
     }
     assert(right_data_type == int_type  ||
            right_data_type == uint_type ||
+           right_data_type == char_type ||
            right_data_type == bool_type);
 
 
