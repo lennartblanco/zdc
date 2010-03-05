@@ -5,7 +5,13 @@
 #include "yygrammar.h"
 #include "auxil.h"
 
+guint8
+get_escape_code(char c);
+
 %}
+
+ESCAPE_CHAR    ("'"|"\""|\?|\\|a|b|f|n|r|t|v)
+
 %%
 "!"      { return '!'; }
 "+"      { return '+'; }
@@ -47,6 +53,11 @@
 [0-9]+   { yylval.integer = atoi(yytext); return TOK_INT_CONST; }
 [0-9]+("u"|"U") {  yylval.uinteger = atoi(yytext); return TOK_UINT_CONST; }
 "'"."'"  { yylval.character = (guint8)yytext[1]; return TOK_CHAR_CONST; }
+"'"\\{ESCAPE_CHAR}"'" {
+
+    yylval.character = get_escape_code(yytext[2]);
+    return TOK_CHAR_CONST; 
+}
 " "      { /* skip blank */ }
 "//".*   { /* consume comment */ }
 "/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {
@@ -65,3 +76,37 @@
          }
 \n       { yypos++; /* adjust linenumber and skip newline */ }
 .        { yyerror("illegal token"); }
+
+%%
+
+guint8
+get_escape_code(char c)
+{
+  switch (c) {
+    case '\'':
+      return 39;
+    case '"':
+      return 34;
+    case '\?':
+      return 63;
+    case '\\':
+      return 92;
+    case 'a':
+      return 7;
+    case 'b':
+      return 8;
+    case 'f':
+      return 12;
+    case 'n':
+      return 10;
+    case 'r':
+      return 13;
+    case 't':
+      return 9;
+    case 'v':
+      return 11;
+  }
+
+  /* unexpected escape character */
+  g_assert_not_reached();
+}
