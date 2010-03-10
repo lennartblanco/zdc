@@ -80,7 +80,7 @@ check_char(char *function_called,
 {
     printf("%s = ", function_called);
 
-    if (isascii(res) != 0)
+    if (isascii(res) != 0 && iscntrl(res) == 0)
     {
       printf("'%c'", res);
     }
