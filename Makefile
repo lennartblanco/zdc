@@ -4,7 +4,6 @@ ACCENT := tools/bin/accent
 PROG := xdc
 #CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
-LDFLAGS += $(shell  pkg-config --libs glib-2.0 gobject-2.0)
 
 .PHONY: docs
 
@@ -16,7 +15,7 @@ lex.h lex.c: tokens.lex yygrammar.h
 auxil.o: lex.h auxil.c
 
 ui.o: ui.d
-	gdc -g -c ui.d
+	dmd -g -c ui.d
 
 yygrammar.c yygrammar.h: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
@@ -39,7 +38,7 @@ lex.o: lex.c lex.h
 	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
 
 $(PROG): $(OBJS) ui.o
-	gdc -g -o $(PROG) $(LDFLAGS) $(OBJS) ui.o
+	dmd -g -of$(PROG) $(OBJS) ui.o -L-lgobject-2.0 -L-lglib-2.0
 
 # rules to run tests
 unit_tests: lex.h lex.c

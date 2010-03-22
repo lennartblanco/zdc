@@ -27,10 +27,10 @@ struct compile_options_s
 };
 
 extern (C) void g_type_init();
-extern (C) int compile_file(char* input_file,
-                            char* output_file,
+extern (C) int compile_file(const char* input_file,
+                            const char* output_file,
                             compile_options_s options);
-extern (C) uint system(char *command);
+extern (C) uint system(const char *command);
 
 /**
  * Print the usage help message for xdc to stdout.
@@ -38,7 +38,7 @@ extern (C) uint system(char *command);
  * @param progname the command issued to invoke xdc binary
  */
 void
-print_usage_message(char[] progname)
+print_usage_message(string progname)
 {
     writefln("usage: %s [OPTION]... [SOURCE_FILES]...\n", progname);
     writefln("Compile specified D source file(s).\n"
@@ -61,11 +61,11 @@ print_usage_message(char[] progname)
 }
 
 arch_types_e
-parse_march_option(char[] option)
+parse_march_option(string option)
 {
-    char[] arch;
+    string arch;
 
-    int eqsign = find(option, "=");
+    int eqsign = indexOf(option, '=');
 
     if (eqsign > -1)
     {
@@ -93,10 +93,10 @@ parse_march_option(char[] option)
     assert(false);
 }
 
-char[]
-get_target_file_name(char[] source_file, arch_types_e arch)
+string
+get_target_file_name(string source_file, arch_types_e arch)
 {
-    char[] file_ext;
+    string file_ext;
     switch (arch)
     {
         case arch_types_e.arch_java:
@@ -183,10 +183,10 @@ link_files(string output_file, string[] object_files)
 }
 
 int 
-main(char[][] args)
+main(string[] args)
 {
-    char[][] source_files;
-    char[][] object_files;
+    string[] source_files;
+    string[] object_files;
     string output_file;
 
     compile_options_s options;
