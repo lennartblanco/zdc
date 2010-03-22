@@ -97,6 +97,20 @@ call_c_get_num_wrap()
    return res;
 }
 
+bool
+call_c_is_equal_wrap(int arg1, int arg2)
+{
+   bool res;
+
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D8extern_c15c_is_equal_wrapFiiZb\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
 
 /*---------------------------------------------------------------------------*
  *               extern (C) functions called from tests                      *
@@ -146,6 +160,12 @@ c_get_num()
     return stored_num;
 }
 
+bool
+c_is_equal(int left, int right)
+{
+    return left == right;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -192,6 +212,21 @@ main()
     call_c_store_num_wrap(20);
     check("c_store_num_wrap(20)");
     check_int("c_get_num_wrap()", call_c_get_num_wrap(), 20);
+
+    /* c_is_equal_wrap() tests */
+    check_bool("c_is_equal_wrap(5, 10)",
+               call_c_is_equal_wrap(5, 10), false);
+
+    check_bool("c_is_equal_wrap(34, 34)",
+               call_c_is_equal_wrap(34, 34), true);
+
+    check_bool("c_is_equal_wrap(0, 0)",
+               call_c_is_equal_wrap(0, 0), true);
+
+
+    check_bool("c_is_equal_wrap(-10, 10)",
+               call_c_is_equal_wrap(-10, 10), false);
+
 
     check_exit();
 }

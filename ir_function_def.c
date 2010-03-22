@@ -89,11 +89,13 @@ ir_function_def_new(DtDataType *return_type,
     obj->param_symbols = sym_table_new(ir_module_get_symbols(parent_module));
     p = parameters;
     for (; p != NULL; p = g_slist_next(p))
-    {        
-        assert(IR_IS_VARIABLE(p->data));
-
-        /* add to parameter to function's symbol table */
-        sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(p->data));
+    {
+        /* check if this is a named parameter */
+        if (IR_IS_VARIABLE(p->data))
+        {
+          /* add it to function's symbol table */
+          sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(p->data));
+        }
     }
 
     obj->body = ir_code_block_new(obj->param_symbols);
@@ -132,7 +134,16 @@ ir_function_def_get_mangled_name(IrFunctionDef *self)
         {
             DtDataType *var_type;
 
-            var_type = ir_variable_get_data_type(i->data);
+            if (IR_IS_VARIABLE(i->data))
+            {
+                var_type = ir_variable_get_data_type(i->data);
+            }
+            else
+            {
+                /* unnamed function parameter, only the type specified */
+                assert(DT_IS_DATA_TYPE(i->data));
+                var_type = i->data;
+            }
 
             g_string_append(str, dt_data_type_get_mangled(var_type));
         }

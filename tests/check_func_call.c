@@ -142,6 +142,69 @@ call_invoke_subst3(int in)
    return res;
 }
 
+int
+call_unnamed_arg1(int arg1, int arg2)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D9func_call12unnamed_arg1FiiZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
+
+int
+call_unnamed_arg2(int arg1, int arg2)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D9func_call12unnamed_arg2FiiZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
+
+int
+call_unnamed_arg3(int arg1, bool arg2, int arg3)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    movl %[arg3],%%eax\n"
+        "    call _D9func_call12unnamed_arg3FibkZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3));
+
+   return res;
+}
+
+int
+call_unnamed_arg4(int arg1, int arg2, int arg3)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    movl %[arg3],%%eax\n"
+        "    call _D9func_call12unnamed_arg4FiiiZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3));
+
+   return res;
+}
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -191,6 +254,26 @@ main()
     /* invoke_subst3() tests */
     check_int("invoke_subst3(5)", call_invoke_subst3(5), 5 - 10 - 20);
     check_int("invoke_subst3(200)", call_invoke_subst3(200), 200 - 10 - 20);
+
+    /* unnamed_arg1() tests */
+    check_int("unnamed_arg1(5, 11)", call_unnamed_arg1(5, 11), 11);
+    check_int("unnamed_arg1(0, -11)", call_unnamed_arg1(0, -11), -11);
+
+    /* unnamed_arg2() tests */
+    check_int("unnamed_arg2(5, 11)", call_unnamed_arg2(5, 11), 5);
+    check_int("unnamed_arg2(0, -11)", call_unnamed_arg2(0, -11), 0);
+
+    /* unnamed_arg3() tests */
+    check_int("unnamed_arg3(10, true, 13)",
+              call_unnamed_arg3(10, true, 13),
+              -10);
+    check_int("unnamed_arg3(12, false, 13)",
+              call_unnamed_arg3(12, false, 13),
+              12);
+
+    /* unnamed_arg4() tests */
+    check_int("unnamed_arg4(1, 2, 3)", call_unnamed_arg4(1, 2, 3), 10);
+    check_int("unnamed_arg4(0, 0, 1)", call_unnamed_arg4(0, 0, 1), 10);
 
     check_exit();
 }

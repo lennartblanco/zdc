@@ -44,6 +44,31 @@ int ind_sum(int l)
     return sum(l, get_13(), 10);
 }
 
+// test function definition with first unnamed parameter
+int unnamed_arg1(int, int x)
+{
+  return x;
+}
+
+// test function definition with second unnamed parameter
+int unnamed_arg2(int x, int)
+{
+  return x;
+}
+
+// test function definition with last unnamed parameter
+int unnamed_arg3(int a, bool b, uint)
+{
+  if (b) { return -a; }
+  return a;
+}
+
+// test function definition with all parameter unnamed
+int unnamed_arg4(int, int, int)
+{
+  return 10;
+}
+
 // function call in variable initilization expression
 int add_13(int i)
 {

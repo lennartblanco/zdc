@@ -100,19 +100,28 @@ compile_d_func_call(x86_comp_params_t *params,
     i = ir_function_def_get_parameters(callee_def);
     for (; i != NULL; i = g_slist_next(i))
     {
-        IrVariable *var = IR_VARIABLE(i->data);
+        DtDataType *param_type;
+
+        if (IR_IS_VARIABLE(i->data)) {
+            param_type = ir_variable_get_data_type(IR_VARIABLE(i->data));
+        }
+        else
+        {
+            /* unnamed parameter */
+            param_type = i->data;
+        }
 
         if (g_slist_next(i) != NULL)
         {
-            args_size_on_stack += x86_get_expression_storage_size(IR_EXPRESSION(var));
+            args_size_on_stack += dt_data_type_get_size(param_type);
         }
         else
         {
             /* last argument */
-            last_param_in_reg = x86_in_reg_as_last_func_arg(IR_EXPRESSION(var));
+            last_param_in_reg = x86_in_reg_as_last_func_arg(param_type);
             if (!last_param_in_reg)
             {
-                args_size_on_stack += x86_get_expression_storage_size(IR_EXPRESSION(var));
+                args_size_on_stack += dt_data_type_get_size(param_type);
             }
         }
         args_size_on_stack = x86_inc_to_word_boundary(args_size_on_stack);

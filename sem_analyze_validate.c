@@ -249,7 +249,17 @@ validate_function_call(compilation_status_t *compile_status,
         }
 
         /* check if the type is compatible */
-        formal_arg_type = ir_variable_get_data_type(j->data);
+        if (IR_IS_VARIABLE(j->data))
+        {
+            formal_arg_type = ir_variable_get_data_type(j->data);
+        }
+        else
+        {
+            /* an unnamed function parameter, where only type is specified */
+            assert(DT_IS_DATA_TYPE(j->data));
+            formal_arg_type = j->data;
+        }
+
         exp = types_implicit_conv(formal_arg_type, arg_exp);
         if (exp == NULL)
         {
@@ -262,7 +272,7 @@ validate_function_call(compilation_status_t *compile_status,
                           "argument's type is '%s' got '%s'\n",
                           dt_data_type_get_string(formal_arg_type),
                           dt_data_type_get_string(ir_expression_get_data_type(arg_exp)));
-           return NULL;
+            return NULL;
         }
 
         /* valid expression */

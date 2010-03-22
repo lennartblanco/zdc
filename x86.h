@@ -42,7 +42,7 @@ x86_compile_assigment(x86_comp_params_t *params,
                       sym_table_t *sym_table);
 
 bool
-x86_in_reg_as_last_func_arg(IrExpression *parameter);
+x86_in_reg_as_last_func_arg(DtDataType *parameter_type);
 
 /**
  * Alligned an address/offset in 32-bit word boundary, 

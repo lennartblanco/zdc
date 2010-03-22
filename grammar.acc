@@ -153,7 +153,7 @@ module_name<fq_name> :
 ;
 
 func_def_list<module> :
-    func_def_list<module>  func_def<func>
+    func_def_list<module> func_def<func>
     {
         ast_module_add_function_def((*module).module,
                                     func.function_def);
@@ -177,11 +177,11 @@ func_def<x> :
 ;
 
 func_params<params> :
-    var_declaration<n> ',' func_params<l>
+    func_param<n> ',' func_params<l>
     {
         (*params).list = g_slist_prepend(l.list, n.variable_declaration);
     }
-|   var_declaration<n>
+|   func_param<n>
     {
         (*params).list = NULL;
         (*params).list = g_slist_prepend((*params).list, n.variable_declaration);
@@ -190,6 +190,11 @@ func_params<params> :
     {
         (*params).list = NULL;
     }
+;
+
+func_param<param> :
+    var_declaration<param>
+|   type<param>
 ;
 
 func_body<code> :

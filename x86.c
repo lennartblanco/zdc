@@ -331,14 +331,13 @@ x86_get_expression_storage_size(IrExpression *expression)
  *         True if it is passed via eax register.
  */ 
 bool
-x86_in_reg_as_last_func_arg(IrExpression *parameter)
+x86_in_reg_as_last_func_arg(DtDataType *parameter_type)
 {
     /*
      * @todo: here we need to take into account 3 byte structs and
      * floating point variables
      */
-    return
-        x86_get_expression_storage_size(parameter) <= 4;
+    return dt_data_type_get_size(parameter_type) <= 4;
 }
 
 void
@@ -441,6 +440,7 @@ x86_func_params_assign_addrs(x86_comp_params_t *params,
     GSList *rev_params;
     GSList *i;
     IrVariable *param;
+    DtDataType *param_type;
     X86FrameOffset* offset;
     int next_offset;
 
@@ -461,8 +461,20 @@ x86_func_params_assign_addrs(x86_comp_params_t *params,
      * Depending on if last argument is passed via stack or eax,
      * assign correct stack frame offset and set next available offset
      */
-    param = IR_VARIABLE(i->data);
-    *last_arg_in_reg = x86_in_reg_as_last_func_arg(IR_EXPRESSION(param));
+    if (IR_IS_VARIABLE(i->data))
+    {
+        param = IR_VARIABLE(i->data);
+        param_type = ir_variable_get_data_type(param);
+    }
+    else
+    {
+        /* unnamed parameter */
+        assert(DT_IS_DATA_TYPE(i->data));
+        param = NULL;
+        param_type = i->data;
+    }
+
+    *last_arg_in_reg =  x86_in_reg_as_last_func_arg(param_type);
     if (*last_arg_in_reg)
     {
         offset = x86_frame_offset_new(-4);
@@ -472,10 +484,12 @@ x86_func_params_assign_addrs(x86_comp_params_t *params,
     {
         offset = x86_frame_offset_new(8);
         next_offset = 
-            x86_inc_to_word_boundary(
-                8 + x86_get_expression_storage_size(IR_EXPRESSION(param)));
+            x86_inc_to_word_boundary(8 + dt_data_type_get_size(param_type));
     }
-    ir_variable_set_location(param, G_OBJECT(offset));
+    if (param != NULL)
+    {
+        ir_variable_set_location(param, G_OBJECT(offset));
+    }
 
     /*
      * assign stack frame offset to the rest of parametrs
@@ -483,10 +497,19 @@ x86_func_params_assign_addrs(x86_comp_params_t *params,
     i = g_slist_next(i);
     for (; i != NULL; i = g_slist_next(i))
     {
-        param = IR_VARIABLE(i->data);
-        offset = x86_frame_offset_new(next_offset);
-        ir_variable_set_location(param, G_OBJECT(offset));
-        next_offset += x86_get_expression_storage_size(IR_EXPRESSION(param));
+        if (IR_IS_VARIABLE(i->data))
+        {
+            param = IR_VARIABLE(i->data);
+            offset = x86_frame_offset_new(next_offset);
+            ir_variable_set_location(param, G_OBJECT(offset));
+            next_offset += x86_get_expression_storage_size(IR_EXPRESSION(param));
+        }
+        else
+        {
+            /* unnamed parameter */
+            assert(DT_IS_DATA_TYPE(i->data));
+            next_offset += dt_data_type_get_size(i->data);
+        }
         next_offset = x86_inc_to_word_boundary(next_offset);
     }
 
@@ -497,12 +520,15 @@ x86_func_params_assign_addrs(x86_comp_params_t *params,
     i = ir_function_def_get_parameters(func_def);
     for (; i != NULL; i = g_slist_next(i))
     {
-        param = IR_VARIABLE(i->data);
-        offset = X86_FRAME_OFFSET(ir_variable_get_location(param));
-        fprintf(params->out,
-                "# variable '%s' location '%d'\n",
-                ir_variable_get_name(param),
-                x86_frame_offset_get_offset(offset));
+        if (IR_IS_VARIABLE(i->data))
+        {
+            param = IR_VARIABLE(i->data);
+            offset = X86_FRAME_OFFSET(ir_variable_get_location(param));
+            fprintf(params->out,
+                    "# variable '%s' location '%d'\n",
+                    ir_variable_get_name(param),
+                    x86_frame_offset_get_offset(offset));
+        }
     }
 
     /* clean-up */

@@ -6,6 +6,7 @@
 // external C function declaration in varius styles
 //
 extern (C) int cinv(int c);
+extern (C) bool c_is_equal(int, int);
 
 extern (C)
 {
@@ -84,6 +85,13 @@ int
 c_get_num_wrap()
 {
     return c_get_num();
+}
+
+// c_is_equal() wrapper
+bool
+c_is_equal_wrap(int left, int right)
+{
+    return c_is_equal(left, right);
 }
 
 
