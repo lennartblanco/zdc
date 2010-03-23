@@ -7,33 +7,6 @@
 
 #include "ir_node.h"
 
-/*---------------------------------------------------------------------------*
- *                             type definitions                              *
- *---------------------------------------------------------------------------*/
-
-
-typedef struct compilation_status_s
-{
-    const char *source_file;
-    guint errors_count;
-} compilation_status_t;
-
-/*---------------------------------------------------------------------------*
- *                           exported functions                              *
- *---------------------------------------------------------------------------*/
-
-/**
- * Report a compile time error.
- *
- * @param filename the name of the source file where error is found.
- * @errmsg error message with printf-style formatting
- */
-void
-compile_error(compilation_status_t *compile_status,
-              IrNode *error_node,
-              const char *errmsg,
-              ...);
-
 /**
  * Print the formatted string with indention to the file stream.
  *

@@ -2,7 +2,7 @@
 #define SEM_ANALYZE_VALIDATE_INC_X
 
 #include "ir_module.h"
-#include "utils.h"
+#include "sem_analyze.h"
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *

@@ -1,9 +1,18 @@
 #ifndef SEM_ANALYZE_INC_X
 #define SEM_ANALYZE_INC_X
 
-#include "sym_table.h"
 #include "ast_module.h"
 #include "ir_module.h"
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+typedef struct compilation_status_s
+{
+    const char *source_file;
+    guint errors_count;
+} compilation_status_t;
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *

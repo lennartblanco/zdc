@@ -3,6 +3,7 @@
 
 #include "ast_module.h"
 #include "ir_module.h"
+#include "sem_analyze.h"
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *

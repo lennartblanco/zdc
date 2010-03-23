@@ -21,6 +21,7 @@
 #include "ir_foreach.h"
 #include "ir_array_cell.h"
 #include "ir_property.h"
+#include "errors.h"
 
 #include <assert.h>
 

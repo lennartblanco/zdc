@@ -35,6 +35,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_property.h"
+#include "errors.h"
 
 #include <assert.h>
 
