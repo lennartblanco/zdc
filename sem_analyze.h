@@ -10,7 +10,8 @@
 
 typedef struct compilation_status_s
 {
-    const char *source_file;
+    IrFunction *function;            /** current function */
+    const char *source_file;         /** current source file name */
     guint errors_count;
 } compilation_status_t;
 

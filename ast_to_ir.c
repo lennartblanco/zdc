@@ -620,7 +620,9 @@ return_to_ir(compilation_status_t *compile_status,
           expression_to_ir(compile_status, symbols, ast_return_value); 
   }
 
-  return IR_STATMENT(ir_return_new(ir_return_value));
+  return
+      IR_STATMENT(ir_return_new(ir_return_value,
+                                ast_node_get_line_num(ast_return)));
 }
 
 static IrStatment *

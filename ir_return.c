@@ -43,11 +43,13 @@ ir_return_get_type(void)
 }
 
 IrReturn *
-ir_return_new(IrExpression *return_value)
+ir_return_new(IrExpression *return_value, guint line_number)
 {
     IrReturn *obj;
 
-    obj = g_object_new(IR_TYPE_RETURN, NULL);
+    obj = g_object_new(IR_TYPE_RETURN,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->return_value = return_value;
 
     return obj;

@@ -1,0 +1,23 @@
+int
+ret_int()
+{
+    // array where integer is expected
+    return [1, 2, 3];
+}
+
+char
+ret_char()
+{
+    return void_func();
+}
+
+void
+void_func()
+{
+}
+
+int
+no_value_return()
+{
+    return;
+}

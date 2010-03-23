@@ -420,11 +420,11 @@ while_block<x> :
 return_stmt<x> :
     TOK_RETURN expression<n> ';'
     { 
-       (*x).statment = AST_STATMENT(ast_return_new(n.expression));
+       (*x).statment = AST_STATMENT(ast_return_new(n.expression, yypos));
     }
 |   TOK_RETURN ';'
     {
-       (*x).statment = AST_STATMENT(ast_return_new(NULL));
+       (*x).statment = AST_STATMENT(ast_return_new(NULL, yypos));
     }
 ;
 

@@ -777,14 +777,46 @@ validate_return(compilation_status_t *compile_status,
                 IrReturn *ret)
 {
     IrExpression *ret_exp;
+    DtDataType *func_return_type;
 
     ret_exp = ir_return_get_return_value(ret);
+    func_return_type = ir_function_get_return_type(compile_status->function);
 
     if (ret_exp != NULL)
     {
         IrExpression *exp;
+        IrExpression *conv_exp;
+
+        /* validate return expression */
         exp = validate_expression(compile_status, sym_table, ret_exp);
-        ir_return_set_return_value(ret, exp);
+        if (exp == NULL)
+        {
+            /* invalid return expression, bail-out */
+            return;
+        }
+
+        /* make implicit conversion */
+        conv_exp = types_implicit_conv(func_return_type, exp);
+        if (conv_exp == NULL)
+        {
+            compile_error(compile_status,
+                          IR_NODE(exp),
+                          "return expression have incompatible type\n");
+            return;
+        }
+        ir_return_set_return_value(ret, conv_exp);
+    }
+    else
+    {
+        /* a return statment without an expression specified */
+        if (!types_is_void(func_return_type))
+        {
+            compile_error(compile_status,
+                          IR_NODE(ret),
+                          "return expression of type %s expected\n",
+                          dt_data_type_get_string(func_return_type));
+            return;
+        }
     }
 }
 
@@ -1181,6 +1213,7 @@ validate_function_def(compilation_status_t *compile_status,
     body = ir_function_def_get_body(func_def);
 
     /* validate function's body */
+    compile_status->function = IR_FUNCTION(func_def);
     validate_code_block(compile_status, body);
 
     /*
@@ -1201,7 +1234,8 @@ validate_function_def(compilation_status_t *compile_status,
         /* if it's not a return, add an implicit return */
         if (!IR_IS_RETURN(last_statment))
         {
-            ir_code_block_add_statment(body, IR_STATMENT(ir_return_new(NULL)));
+            ir_code_block_add_statment(body,
+                                       IR_STATMENT(ir_return_new(NULL, 0)));
         }
     }
 }

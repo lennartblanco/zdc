@@ -46,7 +46,7 @@ GType
 ir_return_get_type(void);
 
 IrReturn *
-ir_return_new(IrExpression *return_value);
+ir_return_new(IrExpression *return_value, guint line_number);
 
 void
 ir_return_set_return_value(IrReturn *self, IrExpression *return_value);

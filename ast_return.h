@@ -46,7 +46,7 @@ GType
 ast_return_get_type(void);
 
 AstReturn * 
-ast_return_new(AstExpression *return_value);
+ast_return_new(AstExpression *return_value, guint line_number);
 
 AstExpression *
 ast_return_get_return_value(AstReturn *self);

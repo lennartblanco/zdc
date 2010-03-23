@@ -42,11 +42,13 @@ ast_return_get_type(void)
 }
 
 AstReturn * 
-ast_return_new(AstExpression *return_value)
+ast_return_new(AstExpression *return_value, guint line_number)
 { 
     AstReturn *ret;
 
-    ret = g_object_new(AST_TYPE_RETURN, NULL);
+    ret = g_object_new(AST_TYPE_RETURN,
+                       "ast-node-line-number", line_number,
+                       NULL);
     ret->return_value = return_value;
 
     return ret;
