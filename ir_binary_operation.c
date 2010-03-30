@@ -66,7 +66,6 @@ ir_binary_operation_new(ast_binary_op_type_t operation,
 ast_binary_op_type_t
 ir_binary_operation_get_operation(IrBinaryOperation *self)
 {
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
 
     return self->operation;
@@ -75,7 +74,6 @@ ir_binary_operation_get_operation(IrBinaryOperation *self)
 IrExpression *
 ir_binary_operation_get_left(IrBinaryOperation *self)
 {
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
 
     return self->left;
@@ -84,7 +82,6 @@ ir_binary_operation_get_left(IrBinaryOperation *self)
 IrExpression *
 ir_binary_operation_get_right(IrBinaryOperation *self)
 {
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
 
     return self->right;
@@ -94,7 +91,6 @@ void
 ir_binary_operation_set_left(IrBinaryOperation *self,
                              IrExpression *left)
 {
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
 
     self->left = left;
@@ -104,7 +100,6 @@ void
 ir_binary_operation_set_right(IrBinaryOperation *self,
                              IrExpression *right)
 {
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
 
     self->right = right;
@@ -113,10 +108,9 @@ ir_binary_operation_set_right(IrBinaryOperation *self,
 bool
 ir_binary_operation_is_arithm(IrBinaryOperation *self)
 {
-    ast_binary_op_type_t op_type;
-
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
+
+    ast_binary_op_type_t op_type;
 
     op_type = ir_binary_operation_get_operation(self);
 
@@ -130,12 +124,11 @@ ir_binary_operation_is_arithm(IrBinaryOperation *self)
 bool
 ir_binary_operation_is_icomp(IrBinaryOperation *self)
 {
+    assert(IR_IS_BINARY_OPERATION(self));
+
     DtDataType *data_type;
     basic_data_type_t bdt;
     ast_binary_op_type_t op_type;
-
-    assert(self);
-    assert(IR_IS_BINARY_OPERATION(self));
 
     data_type = ir_expression_get_data_type(IR_EXPRESSION(self));
     if (!DT_IS_BASIC_TYPE(data_type))
@@ -163,7 +156,6 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
 bool
 ir_binary_operation_is_conditional(IrBinaryOperation *self)
 {
-    assert(self);
     assert(IR_IS_BINARY_OPERATION(self));
 
     ast_binary_op_type_t op_type;
