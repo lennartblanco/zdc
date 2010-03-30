@@ -1,7 +1,7 @@
 #ifndef IR_UINT_CONSTANT_INC_X
 #define IR_UINT_CONSTANT_INC_X
 
-#include "ir_expression.h"
+#include "ir_constant.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,14 +26,14 @@
 
 typedef struct
 {
-    IrExpression parent;
+    IrConstant parent;
     /* private */
     guint32 value;
 } IrUintConstant;
 
 typedef struct
 {
-    IrExpressionClass parent_class;
+    IrConstantClass parent_class;
 } IrUintConstantClass;
 
 /*---------------------------------------------------------------------------*

@@ -21,6 +21,7 @@
 #include "ir_foreach.h"
 #include "ir_array_cell.h"
 #include "ir_property.h"
+#include "const_fold.h"
 #include "errors.h"
 
 #include <assert.h>
@@ -331,7 +332,7 @@ validate_bin_arithm(compilation_status_t *compile_status,
     }
     ir_binary_operation_set_right(bin_op, exp);
 
-    return IR_EXPRESSION(bin_op);
+    return cfold_bin_arithm(bin_op);
 }
 
 /**
@@ -416,10 +417,8 @@ validate_bin_conditional(compilation_status_t *compile_status,
 
     ir_binary_operation_set_left(bin_op, left);
     ir_binary_operation_set_right(bin_op, right);
-
-
     
-    return IR_EXPRESSION(bin_op);
+    return cfold_bin_conditional(bin_op);
 }
 
 static IrExpression *

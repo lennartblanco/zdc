@@ -1,7 +1,7 @@
 #ifndef IR_BOOL_CONSTANT_INC_X
 #define IR_BOOL_CONSTANT_INC_X
 
-#include "ir_expression.h"
+#include "ir_constant.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,14 +26,14 @@
 
 typedef struct
 {
-    IrExpression parent;
+    IrConstant parent;
     /* private */
     gboolean value;
 } IrBoolConstant;
 
 typedef struct
 {
-    IrExpressionClass parent_class;
+    IrConstantClass parent_class;
 } IrBoolConstantClass;
 
 /*---------------------------------------------------------------------------*

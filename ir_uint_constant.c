@@ -41,7 +41,7 @@ ir_uint_constant_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_EXPRESSION,
+      type = g_type_register_static(IR_TYPE_CONSTANT,
                                     "IrUintConstantType",
                                     &info, 0);
     }

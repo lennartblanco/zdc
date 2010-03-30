@@ -2,6 +2,7 @@
 #define IR_EXPRESSION_INC_X
 
 #include <glib-object.h>
+#include <stdbool.h>
 
 #include "ir_statment.h"
 #include "dt_data_type.h"
@@ -37,6 +38,7 @@ typedef struct
   IrStatmentClass parent_class;
   /* public virtual methods */
   DtDataType * (*do_get_data_type) (IrExpression *self);
+  bool (*do_is_constant) (IrExpression *self);
 } IrExpressionClass;
 
 /*---------------------------------------------------------------------------*
@@ -48,5 +50,11 @@ ir_expression_get_type(void);
 
 DtDataType *
 ir_expression_get_data_type(IrExpression *self);
+
+/**
+ * @return true if expression value is know at compile time, false otherwise
+ */
+bool
+ir_expression_is_constant(IrExpression *self);
 
 #endif /* IR_EXPRESSION_INC_X */
