@@ -1,6 +1,7 @@
 #include "const_fold.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
+#include "ir_bool_constant.h"
 #include "types.h"
 
 #include <assert.h>
@@ -10,14 +11,25 @@
  *---------------------------------------------------------------------------*/
 
 static IrExpression *
-fold_int_bin_op(IrIntConstant *left,
-                IrIntConstant *right,
-                ast_binary_op_type_t operation);
+fold_int_arithm_bin_op(IrIntConstant *left,
+                       IrIntConstant *right,
+                       ast_binary_op_type_t operation);
 
 static IrExpression *
-fold_uint_bin_op(IrUintConstant *left,
-                 IrUintConstant *right,
-                 ast_binary_op_type_t operation);
+fold_uint_arithm_bin_op(IrUintConstant *left,
+                        IrUintConstant *right,
+                        ast_binary_op_type_t operation);
+
+static IrExpression *
+fold_int_comp_bin_op(IrIntConstant *left,
+                     IrIntConstant *right,
+                     ast_binary_op_type_t operation);
+
+static IrExpression *
+fold_uint_comp_bin_op(IrUintConstant *left,
+                      IrUintConstant *right,
+                      ast_binary_op_type_t operation);
+
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -42,15 +54,17 @@ cfold_bin_arithm(IrBinaryOperation *bin_op)
 
     if (types_is_int(bin_op_type))
     {
-        return fold_int_bin_op(IR_INT_CONSTANT(left),
-                               IR_INT_CONSTANT(right),
-                               ir_binary_operation_get_operation(bin_op));
+        return
+            fold_int_arithm_bin_op(IR_INT_CONSTANT(left),
+                                   IR_INT_CONSTANT(right),
+                                   ir_binary_operation_get_operation(bin_op));
     }
     else if (types_is_uint(bin_op_type))
     {
-        return fold_uint_bin_op(IR_UINT_CONSTANT(left),
-                                IR_UINT_CONSTANT(right),
-                                ir_binary_operation_get_operation(bin_op));
+        return
+            fold_uint_arithm_bin_op(IR_UINT_CONSTANT(left),
+                                    IR_UINT_CONSTANT(right),
+                                    ir_binary_operation_get_operation(bin_op));
     }
     /* unexpected data type of arithmetic binary operations */
     assert(false);
@@ -63,6 +77,9 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
 
     IrExpression *left = ir_binary_operation_get_left(bin_op);
     IrExpression *right = ir_binary_operation_get_right(bin_op);
+    gboolean left_val;
+    gboolean right_val;
+    gboolean res;
 
     if (!ir_expression_is_constant(left) ||
         !ir_expression_is_constant(right))
@@ -70,10 +87,143 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
         return IR_EXPRESSION(bin_op);
     }
 
-    /* not implemented */
-    assert(false);
+    assert(types_is_bool(ir_expression_get_data_type(IR_EXPRESSION(bin_op))));
 
-    return IR_EXPRESSION(bin_op);
+    left_val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(left));
+    right_val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(right));
+
+    switch (ir_binary_operation_get_operation(bin_op))
+    {
+        case ast_or_op:
+            res = left_val || right_val;
+            break;
+        case ast_and_op:
+            res = left_val && right_val;
+            break;
+        default:
+            /* unexpected binary boolean operation */
+            assert(false);
+    }
+
+    return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+}
+
+IrExpression *
+cfold_bin_icomp(IrBinaryOperation *bin_op)
+{
+    assert(ir_binary_operation_is_icomp(bin_op));
+
+    IrExpression *left = ir_binary_operation_get_left(bin_op);
+    IrExpression *right = ir_binary_operation_get_right(bin_op);
+    DtDataType *left_type;
+
+    if (!ir_expression_is_constant(left) ||
+        !ir_expression_is_constant(right))
+    {
+        return IR_EXPRESSION(bin_op);
+    }
+
+    left_type = ir_expression_get_data_type(left);
+
+    if (types_is_int(left_type))
+    {
+        assert(types_is_int(ir_expression_get_data_type(right)));
+        return 
+           fold_int_comp_bin_op(IR_INT_CONSTANT(left),
+                                IR_INT_CONSTANT(right),
+                                ir_binary_operation_get_operation(bin_op));
+    }
+    else if (types_is_uint(left_type))
+    {
+        assert(types_is_uint(ir_expression_get_data_type(right)));
+        return 
+           fold_uint_comp_bin_op(IR_UINT_CONSTANT(left),
+                                 IR_UINT_CONSTANT(right),
+                                 ir_binary_operation_get_operation(bin_op));
+    }
+    /* unexpected data type of integer comparison operations */
+    assert(false);
+}
+
+IrExpression *
+cfold_cast(IrCast *cast_exp)
+{
+    assert(IR_IS_CAST(cast_exp));
+
+    IrExpression *val = ir_cast_get_value(cast_exp);
+    DtDataType *val_type = ir_expression_get_data_type(val);
+    DtDataType *target_type = ir_cast_get_target_type(cast_exp);
+
+    if (!ir_expression_is_constant(val))
+    {
+        /* no constant folding possible */
+        return IR_EXPRESSION(cast_exp);
+    }
+
+    /*
+     * build a new expression, instead of original cast expression
+     */
+    if (types_is_int(target_type))
+    {
+        gint32 res;
+
+        if (types_is_bool(val_type))
+        {
+            res = (gint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+        }
+        else if (types_is_uint(val_type))
+        {
+            res = (gint32)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_int_constant_new(res, 0));
+    }
+    else if (types_is_uint(target_type))
+    {
+        guint32 res;
+
+        if (types_is_bool(val_type))
+        {
+            res = (guint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+        }
+        else if (types_is_int(val_type))
+        {
+            res = (guint32)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_uint_constant_new(res, 0));
+    }
+    else if (types_is_bool(target_type))
+    {
+        gboolean res;
+
+        if (types_is_int(val_type))
+        {
+            res = (gboolean)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (types_is_uint(val_type))
+        {
+            res = (gboolean)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+
+    }
+
+    /* unexpected target type */
+    assert(false);
 }
 
 /*---------------------------------------------------------------------------*
@@ -81,9 +231,9 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
  *---------------------------------------------------------------------------*/
 
 static IrExpression *
-fold_int_bin_op(IrIntConstant *left,
-                IrIntConstant *right,
-                ast_binary_op_type_t operation)
+fold_int_arithm_bin_op(IrIntConstant *left,
+                       IrIntConstant *right,
+                       ast_binary_op_type_t operation)
 {
     gint32 left_val;
     gint32 right_val;
@@ -114,9 +264,9 @@ fold_int_bin_op(IrIntConstant *left,
 }
 
 static IrExpression *
-fold_uint_bin_op(IrUintConstant *left,
-                 IrUintConstant *right,
-                 ast_binary_op_type_t operation)
+fold_uint_arithm_bin_op(IrUintConstant *left,
+                        IrUintConstant *right,
+                        ast_binary_op_type_t operation)
 {
     guint32 left_val;
     guint32 right_val;
@@ -146,3 +296,80 @@ fold_uint_bin_op(IrUintConstant *left,
     return IR_EXPRESSION(ir_uint_constant_new(res, 0));
 }
 
+static IrExpression *
+fold_int_comp_bin_op(IrIntConstant *left,
+                     IrIntConstant *right,
+                     ast_binary_op_type_t operation)
+{
+    gint32 left_val;
+    gint32 right_val;
+    gboolean res;
+
+    left_val = ir_int_constant_get_value(left);
+    right_val = ir_int_constant_get_value(right);
+
+    switch (operation) {
+        case ast_less_op:           /*  <  */
+            res = left_val < right_val;
+            break;
+        case ast_greater_op:        /*  >  */
+            res = left_val > right_val;
+            break;
+        case ast_less_or_eq_op:     /* <=  */
+            res = left_val <= right_val;
+            break;
+        case ast_greater_or_eq_op:  /* >=  */
+            res = left_val >= right_val;
+            break;
+        case ast_equal_op:          /* ==  */
+            res = left_val == right_val;
+            break;
+        case ast_not_equal_op:      /* !=  */
+            res = left_val != right_val;
+            break;
+        default:
+            /* unexpected int binary operation */
+            assert(false);
+    }
+
+    return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+}
+
+static IrExpression *
+fold_uint_comp_bin_op(IrUintConstant *left,
+                      IrUintConstant *right,
+                      ast_binary_op_type_t operation)
+{
+    guint32 left_val;
+    guint32 right_val;
+    gboolean res;
+
+    left_val = ir_uint_constant_get_value(left);
+    right_val = ir_uint_constant_get_value(right);
+
+    switch (operation) {
+        case ast_less_op:           /*  <  */
+            res = left_val < right_val;
+            break;
+        case ast_greater_op:        /*  >  */
+            res = left_val > right_val;
+            break;
+        case ast_less_or_eq_op:     /* <=  */
+            res = left_val <= right_val;
+            break;
+        case ast_greater_or_eq_op:  /* >=  */
+            res = left_val >= right_val;
+            break;
+        case ast_equal_op:          /* ==  */
+            res = left_val == right_val;
+            break;
+        case ast_not_equal_op:      /* !=  */
+            res = left_val != right_val;
+            break;
+        default:
+            /* unexpected int binary operation */
+            assert(false);
+    }
+
+    return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+}

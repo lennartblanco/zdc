@@ -362,7 +362,7 @@ validate_bin_icomp(compilation_status_t *compile_status,
     ir_binary_operation_set_left(bin_op, converted_left);
     ir_binary_operation_set_right(bin_op, converted_right);
 
-    return IR_EXPRESSION(bin_op);
+    return cfold_bin_icomp(bin_op);
 }
 
 /**
@@ -399,7 +399,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     /* if left operand is not bool, cast to bool */
     if (!types_is_bool(data_type))
     {
-        left = IR_EXPRESSION(ir_cast_new(types_get_bool_type(), left));
+        left = cfold_cast(ir_cast_new(types_get_bool_type(), left));
     }
 
     /*
@@ -412,7 +412,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     if (!types_is_void(data_type) &&
         !types_is_bool(data_type))
     {
-        right = IR_EXPRESSION(ir_cast_new(types_get_bool_type(), right));
+        right = cfold_cast(ir_cast_new(types_get_bool_type(), right));
     }
 
     ir_binary_operation_set_left(bin_op, left);

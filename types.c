@@ -9,6 +9,7 @@
 #include "ir_uint_constant.h"
 #include "ir_char_constant.h"
 #include "ir_bool_constant.h"
+#include "const_fold.h"
 
 #include <assert.h>
 
@@ -58,7 +59,7 @@ implicit_conv_to_int(IrExpression *expression)
         case char_type:
         case bool_type:
             res_exp =
-              IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));
+              cfold_cast(ir_cast_new(types_get_int_type(), expression));
             break;
         default:
             /* invalid implicit conversion, return NULL */
@@ -90,7 +91,7 @@ implicit_conv_to_uint(IrExpression *expression)
         case int_type:
         case bool_type:
             res_exp =
-              IR_EXPRESSION(ir_cast_new(types_get_uint_type(), expression));
+              cfold_cast(ir_cast_new(types_get_uint_type(), expression));
             break;
         default:
             /* invalid implicit conversion, return NULL */
@@ -121,7 +122,7 @@ implicit_conv_to_bool(IrExpression *expression)
             if (types_is_literal_0or1(expression))
             {
                 res_exp =
-                 IR_EXPRESSION(ir_cast_new(types_get_bool_type(), expression));
+                 cfold_cast(ir_cast_new(types_get_bool_type(), expression));
             }
             break;
         case bool_type:
@@ -263,7 +264,7 @@ types_integer_promotion(IrExpression *expression)
         case char_type:
         case bool_type:
             res_exp =
-                IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));
+                cfold_cast(ir_cast_new(types_get_int_type(), expression));
             break;
         case void_type:
             res_exp = NULL;

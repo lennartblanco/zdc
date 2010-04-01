@@ -19,7 +19,10 @@ types_is_literal_0or1(IrExpression *expression);
 /**
  * Perform implicit conversion of an expression to specified
  * data type. The expression is wrapped into cast operation if
- * needed. If the expression is of the target type, no modifications are
+ * needed. If possible, constant folding will be performed on resulting
+ * wrapped expression.
+ *
+ * If the expression is of the target type, no modifications are
  * done.
  *
  * @param target_type the type to convert to
