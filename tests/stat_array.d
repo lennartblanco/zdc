@@ -270,7 +270,7 @@ run_stat_array_bool(bool big_sum)
    }
    else
    {
-       r = stat_array_bool(larray[0..5]);
+       r = stat_array_bool(larray[0..4]);
    }
 
    return r;
