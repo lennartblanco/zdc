@@ -19,6 +19,9 @@ ir_array_literal_do_print(IrStatment *self, FILE *out, int indention);
 static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self);
 
+bool
+ir_array_literal_do_is_constant(IrExpression *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -110,6 +113,8 @@ ir_array_literal_class_init(gpointer klass, gpointer dummy)
     ((IrStatmentClass *)klass)->do_print = ir_array_literal_do_print;
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_array_literal_do_get_data_type;
+    ((IrExpressionClass *)klass)->do_is_constant =
+        ir_array_literal_do_is_constant;
 }
 
 static DtDataType *
@@ -158,4 +163,30 @@ ir_array_literal_do_print(IrStatment *self, FILE *out, int indention)
         }
     }
     fprintf(out, "]\n");
+}
+
+bool
+ir_array_literal_do_is_constant(IrExpression *self)
+{
+    assert(IR_IS_ARRAY_LITERAL(self));
+
+    GSList *i;
+
+    /*
+     * Check all literal value expression if they are compile-time constant
+     */
+    for (i = IR_ARRAY_LITERAL(self)->values; i != NULL; i = g_slist_next(i))
+    {
+        if (!ir_expression_is_constant(IR_EXPRESSION(i->data)))
+        {
+            /*
+             * found an non-constant value expression, this array literal
+             * expression is not compile-time constant
+             */
+            return false;
+        }
+    }
+
+    /* all value expressions are compile-time constant */
+    return true;
 }
