@@ -22,7 +22,7 @@ label_gen_init(label_gen_t *label_gen);
 /**
  * Get next unique label
  *
- * @param label the generated label is into this buffer,
+ * @param label the generated label is written into this buffer,
                 this buffer must be at least LABEL_MAX_LEN bytes long
  */
 void
