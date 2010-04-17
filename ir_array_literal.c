@@ -2,6 +2,7 @@
 
 #include "dt_basic_type.h"
 #include "ir_array_literal.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -11,6 +12,9 @@
 
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy);
+
+static void
+ir_array_literal_do_print(IrStatment *self, FILE *out, int indention);
 
 static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self);
@@ -103,6 +107,7 @@ ir_array_literal_get_size(IrArrayLiteral *self)
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy)
 {
+    ((IrStatmentClass *)klass)->do_print = ir_array_literal_do_print;
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_array_literal_do_get_data_type;
 }
@@ -133,4 +138,24 @@ ir_array_literal_do_get_data_type(IrExpression *self)
                                      g_slist_length(arr_literal->values));
     }
     return DT_DATA_TYPE(arr_literal->data_type);
+}
+
+static void
+ir_array_literal_do_print(IrStatment *self, FILE *out, int indention)
+{
+    assert(IR_IS_ARRAY_LITERAL(self));
+    assert(out);
+
+    GSList *i;
+
+    fprintf_indent(out, indention, "[");
+    for (i = IR_ARRAY_LITERAL(self)->values; i != NULL; i = g_slist_next(i))
+    {
+        ir_statment_print(i->data, out, 0);
+        if (g_slist_next(i) != NULL)
+        {
+            printf(", ");
+        }
+    }
+    fprintf(out, "]\n");
 }

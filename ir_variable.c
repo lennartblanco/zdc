@@ -1,6 +1,7 @@
 #include <strings.h>
 
 #include "ir_variable.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -135,14 +136,18 @@ ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
     assert(IR_IS_VARIABLE(self));
 
     IrVariable *var = IR_VARIABLE(self);
-    fprintf(out, "%s %s",
-            dt_data_type_get_string(var->type),
-            ir_symbol_get_name(self));
+    fprintf_indent(out, indention, "%s %s",
+                   dt_data_type_get_string(var->type),
+                   ir_symbol_get_name(self));
 
     if (var->initializer != NULL)
     {
-        fprintf(out, " = ");
-        ir_statment_print(IR_STATMENT(var->initializer), out, indention);
+        fprintf(out, " =\n");
+        ir_statment_print(IR_STATMENT(var->initializer), out, indention + 2);
+    }
+    else
+    {
+        fprintf(out, "\n");
     }
 }
 

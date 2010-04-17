@@ -103,8 +103,19 @@ ir_code_block_do_print(IrStatment *self, FILE *out, int indention)
 
     code_blk = IR_CODE_BLOCK(self);
     GSList *i = code_blk->statments;
+    GList *p;
 
     fprintf_indent(out, indention, "code block [%p]\n{\n", code_blk);
+
+    /* print local symbols */
+    p = sym_table_get_all_symbols(code_blk->symbols);
+    for (; p != NULL; p = g_list_next(p))
+    {
+        ir_symbol_print(IR_SYMBOL(p->data), out, indention + 2);
+    }
+    g_list_free(p);
+
+    /* print all statments in this code block */
     for (; i != NULL; i = g_slist_next(i))
     {
         ir_statment_print(i->data, out, indention + 2);
