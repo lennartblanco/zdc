@@ -15,6 +15,7 @@ struct _IrModule
   GSList         *package_name;
   sym_table_t    *symbols;
   GSList         *function_defs;
+  GSList         *data_section;  /** compile-time constant expressions */
   char *fq_name;
   char *mangled_name;
 };
@@ -55,6 +56,7 @@ ir_module_new(GSList *package_name)
     obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
     obj->function_defs = NULL;
+    obj->data_section = NULL;
     obj->package_name = package_name;
     obj->fq_name = NULL;
     obj->mangled_name = NULL;
@@ -152,6 +154,24 @@ ir_module_get_mangled_name(IrModule *self)
 
 
     return self->mangled_name;
+}
+
+void
+ir_module_add_array_literal_data(IrModule *self,
+                                 IrArrayLiteral *array_literal)
+{
+    assert(IR_IS_MODULE(self));
+    assert(IR_ARRAY_LITERAL(array_literal));
+
+    self->data_section = g_slist_prepend(self->data_section, array_literal);
+}
+
+GSList *
+ir_module_get_data_section(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->data_section;
 }
 
 void

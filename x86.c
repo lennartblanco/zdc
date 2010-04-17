@@ -4,6 +4,7 @@
 #include "label_gen.h"
 #include "types.h"
 #include "x86.h"
+#include "x86_data.h"
 #include "x86_cast.h"
 #include "x86_if_else.h"
 #include "x86_func_call.h"
@@ -38,9 +39,8 @@
  *---------------------------------------------------------------------------*/
 
 static void
-x86_prelude(x86_comp_params_t *params,
-            const char *source_file,
-            sym_table_t *sym_table);
+x86_text_prelude(x86_comp_params_t *params,
+                 sym_table_t *sym_table);
 
 static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
@@ -148,7 +148,6 @@ x86_compile_property(x86_comp_params_t *params,
                      IrProperty *property,
                      sym_table_t *sym_table);
 
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -166,7 +165,14 @@ x86_gen_code(IrModule *module,
     label_gen_init(&(params.label_gen));
     global_sym_table = ir_module_get_symbols(module);
 
-    x86_prelude(&params, source_file, global_sym_table);
+    fprintf(out_stream,
+            "    .file \"%s\"\n",
+            source_file);
+
+    x86_gen_data_section(&params,
+                         ir_module_get_data_section(module));
+
+    x86_text_prelude(&params, global_sym_table);
 
     i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
@@ -383,17 +389,16 @@ x86_compile_assigment(x86_comp_params_t *params,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+/**
+ * Generate prelude of the .text section for assembly file.
+ */
 static void
-x86_prelude(x86_comp_params_t *params,
-            const char *source_file,
-            sym_table_t *sym_table)
+x86_text_prelude(x86_comp_params_t *params,
+                 sym_table_t *sym_table)
 {
     IrSymbol *main_symb;
 
-    fprintf(params->out,
-            "    .file \"%s\"\n"
-            "    .text\n",
-            source_file);
+    fprintf(params->out, "    .text\n");
 
     /*
      * if entry point function main() is defined,

@@ -1438,6 +1438,16 @@ validate_array_literal(compilation_status_t *compile_status,
 
     ir_array_literal_set_values(array_literal, 
                                 g_slist_reverse(validated_values));
+
+    if (ir_expression_is_constant(IR_EXPRESSION(array_literal)))
+    {
+        /*
+         * a compile-time constant array literal expression, add it
+         * to module's data section
+         */
+        ir_module_add_array_literal_data(compile_status->module,
+                                         array_literal);
+    }
     return IR_EXPRESSION(array_literal);
 }
 
@@ -1494,6 +1504,8 @@ sem_analyze_validate(compilation_status_t *compile_status,
     assert(IR_IS_MODULE(module));
 
     GSList *i;
+
+    compile_status->module = module;
 
     validate_entry_point(compile_status, module);
 

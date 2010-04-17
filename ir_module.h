@@ -8,6 +8,7 @@
 #include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
+#include "ir_array_literal.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -72,6 +73,20 @@ ir_module_add_function_def(IrModule *self,
 
 GSList *
 ir_module_get_function_defs(IrModule *self);
+
+/**
+ * Store a compile-time constant array literal in this modules
+ * data section.
+ */
+void
+ir_module_add_array_literal_data(IrModule *self,
+                                 IrArrayLiteral *array_literal);
+
+/**
+ * Get all expression in this modules data section.
+ */
+GSList *
+ir_module_get_data_section(IrModule *self);
 
 void
 ir_module_print(IrModule *self, FILE *out, int indention);
