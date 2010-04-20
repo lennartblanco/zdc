@@ -12,7 +12,6 @@
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
 #include "dt_static_array_type.h"
-#include "ast_variable_declaration.h"
 #include "ir_array.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell.h"
