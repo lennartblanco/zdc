@@ -46,9 +46,11 @@ gen_array_literal_data(x86_comp_params_t *params,
     basic_data_type_t element_basic_type;
     GSList *i;
 
+    /* generate label for this array literal in data section */
     label_gen_next(&(params->label_gen), label);
+    ir_array_literal_set_data_label(array_literal, label);
 
-    array_type = 
+    array_type =
         DT_STATIC_ARRAY_TYPE(
             ir_expression_get_data_type(IR_EXPRESSION(array_literal)));
     element_type = dt_static_array_type_get_data_type(array_type);
@@ -73,8 +75,10 @@ gen_array_literal_data(x86_comp_params_t *params,
         assert(false);
     }
 
+    /* write label and array data type */
     fprintf(params->out, "%s: .%s ", label, data_type_directive);
 
+    /* write value of each array element */
     for (i = ir_array_literal_get_values(array_literal);
          i != NULL;
          i = g_slist_next(i))

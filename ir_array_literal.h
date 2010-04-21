@@ -32,6 +32,7 @@ typedef struct
     /* private */
     DtStaticArrayType *data_type;
     GSList *values;
+    char *data_label;
 } IrArrayLiteral;
 
 typedef struct
@@ -63,5 +64,18 @@ ir_array_literal_get_values(IrArrayLiteral *self);
  */
 guint
 ir_array_literal_get_size(IrArrayLiteral *self);
+
+/**
+ * assign a label in .data section for this array literal
+ */
+void
+ir_array_literal_set_data_label(IrArrayLiteral *self, char *label);
+
+/**
+ * @return this array literal's label in .data section, or NULL if
+ *         no label have been assigned
+ */
+char *
+ir_array_literal_get_data_label(IrArrayLiteral *self);
 
 #endif /* IR_ARRAY_LITERAL_INC_X */

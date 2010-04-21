@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <string.h>
 
 #include "dt_basic_type.h"
 #include "ir_array_literal.h"
@@ -61,6 +62,7 @@ ir_array_literal_new(guint line_number)
                        NULL);
     obj->values = NULL;
     obj->data_type = NULL;
+    obj->data_label = NULL;
 
     return obj;
 }
@@ -101,6 +103,23 @@ ir_array_literal_get_size(IrArrayLiteral *self)
       dt_array_get_element_size(DT_ARRAY_TYPE(self->data_type)) *
                                            g_slist_length(self->values);
            
+}
+
+void
+ir_array_literal_set_data_label(IrArrayLiteral *self, char *label)
+{
+    assert(IR_IS_ARRAY_LITERAL(self));
+    assert(label || strlen(label) > 0);
+
+    self->data_label = g_strdup(label);
+}
+
+char *
+ir_array_literal_get_data_label(IrArrayLiteral *self)
+{
+    assert(IR_IS_ARRAY_LITERAL(self));
+
+    return self->data_label;
 }
 
 /*---------------------------------------------------------------------------*

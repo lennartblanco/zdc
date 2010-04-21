@@ -48,6 +48,7 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
 
     IrLvalue *lvalue;
     IrArrayLiteral *value;
+    char *value_label;
     GSList *literal_values;
     GSList *i;
     guint cntr;
@@ -57,6 +58,7 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
 
     lvalue = ir_assigment_get_lvalue(assigment);
     value = IR_ARRAY_LITERAL(ir_assigment_get_value(assigment));
+    value_label = ir_array_literal_get_data_label(value);
     literal_values = ir_array_literal_get_values(value);
     literal_length = g_slist_length(literal_values);
 
@@ -74,27 +76,45 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
             "    movl %%eax, (%%esp)\n",
             literal_length);
 
-    for (i = literal_values, cntr = 0; i != NULL; i = g_slist_next(i), cntr++)
+    if (value_label != NULL)
     {
-        fprintf(params->out, "  # evaluate array literal value %u\n", cntr);
-        x86_compile_expression(params, i->data, sym_table);
+        /* this array literal is stored in .data section */
         fprintf(params->out,
-                "  # store array literal value %u\n"
-                "    pop %%eax\n"
-                "    movl (%%esp), %%ebx\n"
-                "    movl $%u, %%ecx\n",
-                cntr, cntr);
-        switch (storage_size)
+                "  # copy array literal from .data section\n"
+                "    pushl $%d\n"
+                "    pushl $%s\n"
+                "    pushl %%eax\n"
+                "    call memcpy\n",
+                literal_length * storage_size, value_label);
+    }
+    else
+    {
+        for (i = literal_values, cntr = 0;
+             i != NULL;
+             i = g_slist_next(i), cntr++)
         {
-            case 4:
-                fprintf(params->out, "    movl %%eax, (%%ebx, %%ecx, 4)\n");
-                break;
-            case 1:
-                fprintf(params->out, "    movb %%al, (%%ebx, %%ecx, 1)\n");
-                break;
-            default:
-                /* unexpected storage size */
-                assert(false);
+            fprintf(params->out,
+                    "  # evaluate array literal value %u\n",
+                    cntr);
+            x86_compile_expression(params, i->data, sym_table);
+            fprintf(params->out,
+                    "  # store array literal value %u\n"
+                    "    pop %%eax\n"
+                    "    movl (%%esp), %%ebx\n"
+                    "    movl $%u, %%ecx\n",
+                    cntr, cntr);
+            switch (storage_size)
+            {
+                case 4:
+                    fprintf(params->out, "    movl %%eax, (%%ebx, %%ecx, 4)\n");
+                    break;
+                case 1:
+                    fprintf(params->out, "    movb %%al, (%%ebx, %%ecx, 1)\n");
+                    break;
+                default:
+                    /* unexpected storage size */
+                    assert(false);
+            }
         }
     }
 
@@ -104,7 +124,6 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
             "    popl %%eax          # store pointer\n"
             "    movl %%eax, %d(%%ebp)\n",
             literal_length, offset, offset + 4);
- 
 }
 
 void
