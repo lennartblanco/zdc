@@ -89,6 +89,7 @@ implicit_conv_to_uint(IrExpression *expression)
             res_exp = expression;
             break;
         case int_type:
+        case char_type:
         case bool_type:
             res_exp =
               cfold_cast(ir_cast_new(types_get_uint_type(), expression));

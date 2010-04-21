@@ -2,6 +2,7 @@
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_char_constant.h"
 #include "types.h"
 
 #include <assert.h>
@@ -175,6 +176,10 @@ cfold_cast(IrCast *cast_exp)
         {
             res = (gint32)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
         }
+        else if (types_is_char(val_type))
+        {
+            res = (gint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
+        }
         else
         {
             /* unexpected value type */
@@ -193,6 +198,10 @@ cfold_cast(IrCast *cast_exp)
         else if (types_is_int(val_type))
         {
             res = (guint32)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (types_is_char(val_type))
+        {
+            res = (guint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
         }
         else
         {
