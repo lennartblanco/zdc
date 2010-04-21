@@ -7,52 +7,52 @@
 int
 call_bool_to_int(bool in)
 {
-   int res;
+    int res;
 
-   asm ("    call _D13implicit_cast11bool_to_intFbZi\n"
-        : "=a"(res)
-        : "a"(in));
+    asm ("    call _D13implicit_cast11bool_to_intFbZi\n"
+         : "=a"(res)
+         : "a"(in));
 
-   return res;
+    return res;
 }
 
 bool
 call_int0_to_bool()
 {
-   bool res;
+    bool res;
 
-   asm ("    call _D13implicit_cast12int0_to_boolFZb\n"
-        : "=a"(res)
-        : );
+    asm ("    call _D13implicit_cast12int0_to_boolFZb\n"
+         : "=a"(res)
+         : );
 
-   return res;
+    return res;
 }
 
 bool
 call_int1_to_bool()
 {
-   bool res;
+    bool res;
 
-   asm ("    call _D13implicit_cast12int1_to_boolFZb\n"
-        : "=a"(res)
-        : );
+    asm ("    call _D13implicit_cast12int1_to_boolFZb\n"
+         : "=a"(res)
+         : );
 
-   return res;
+    return res;
 }
 
 int
 call_add_bools(bool arg1, bool arg2)
 {
-   int res;
+    int res;
 
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D13implicit_cast9add_boolsFbbZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
+    asm ("    pushl %[arg1]\n"
+         "    movl %[arg2],%%eax\n"
+         "    call _D13implicit_cast9add_boolsFbbZi\n"
+         : "=a"(res)
+         : [arg1]"m"(arg1),
+           [arg2]"m"(arg2));
 
-   return res;
+    return res;
 }
 
 int
