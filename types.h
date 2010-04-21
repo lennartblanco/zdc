@@ -64,11 +64,19 @@ bool
 types_is_void(DtDataType *data_type);
 
 /**
- * Returns true if data_type represent basic type void,
+ * Returns true if data_type represent basic type bool,
  * false otherwise.
  */
 bool
 types_is_bool(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type char,
+ * false otherwise.
+ */
+bool
+types_is_char(DtDataType *data_type);
+
 
 /**
  * Returns true if data_type represent basic type int,

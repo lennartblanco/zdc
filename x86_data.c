@@ -4,6 +4,7 @@
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
+#include "ir_char_constant.h"
 
 #include <assert.h>
 
@@ -25,6 +26,10 @@ gen_data_section_string(FILE *out,
         case bool_type:
             fprintf(out, "%d",
                     ir_bool_constant_get_value(IR_BOOL_CONSTANT(exp)));
+            break;
+        case char_type:
+            fprintf(out, "%u",
+                    ir_char_constant_get_value(IR_CHAR_CONSTANT(exp)));
             break;
         default:
             /* unexpected expression data type */
@@ -60,7 +65,8 @@ gen_array_literal_data(x86_comp_params_t *params,
     element_basic_type =
         dt_basic_type_get_data_type(DT_BASIC_TYPE(element_type));
 
-    if (types_is_bool(element_type))
+    if (types_is_bool(element_type) ||
+        types_is_char(element_type))
     {
         data_type_directive = "byte";
     }
