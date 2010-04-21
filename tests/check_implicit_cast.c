@@ -55,6 +55,55 @@ call_add_bools(bool arg1, bool arg2)
    return res;
 }
 
+int
+call_char_to_int(char arg1)
+{
+    int res;
+
+    asm ("    call _D13implicit_cast11char_to_intFaZi\n"
+         : "=a"(res)
+         : "a"(arg1));
+
+    return res;
+}
+
+int
+char_lit_to_int()
+{
+    int res;
+
+    asm ("    call _D13implicit_cast15char_lit_to_intFZi\n"
+         : "=a"(res)
+         : );
+
+    return res;
+}
+
+unsigned
+call_char_to_uint(char arg1)
+{
+    unsigned res;
+
+    asm ("    call _D13implicit_cast12char_to_uintFaZk\n"
+         : "=a"(res)
+         : "a"(arg1));
+
+    return res;
+}
+
+unsigned
+char_lit_to_uint()
+{
+    unsigned res;
+
+    asm ("    call _D13implicit_cast16char_lit_to_uintFZk\n"
+         : "=a"(res)
+         : );
+
+    return res;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -77,6 +126,21 @@ main()
     check_int("add_bools(true, false)", call_add_bools(true, false), 2);
     check_int("add_bools(true, true)", call_add_bools(true, true), 3);
 
+    /* char_to_int() tests */
+    check_int("char_to_int('x')", call_char_to_int('x'), (int)'x');
+    check_int("char_to_int('Q')", call_char_to_int('Q'), (int)'Q');
+    check_int("char_to_int('\\0')", call_char_to_int('\0'), 0);
+
+    /* char_lit_to_int() test */
+    check_int("char_lit_to_int()", char_lit_to_int(), (int)'h');
+
+    /* char_to_uint() tests */
+    check_uint("char_to_uint('M')", call_char_to_uint('M'), (unsigned)'M');
+    check_uint("char_to_uint('l')", call_char_to_uint('l'), (unsigned)'l');
+    check_uint("char_to_uint('\\0')", call_char_to_uint('\0'), 0u);
+
+    /* char_lit_to_uint() test */
+    check_uint("char_lit_to_uint()", char_lit_to_uint(), (unsigned)'Z');
 
     check_exit();
 }
