@@ -28,7 +28,7 @@ char char_array_literal(uint idx)
       ['T', 'o', ' ', 'c', 'o', 'p', 'y', ' ', 'o', 'r', ' ', 'n', 'o', 't',
        ' ', 't', 'o', ' ', 'c', 'o', 'p', 'y', '?',
       // test escpare character expressions
-       '\'', '\"', '\?', '\\', '\a', '\b', '\f', '\n', '\r', '\t', '\v'];
+       '\'', '\"', '\?', '\\', '\a', '\b', '\f', '\n', '\r', '\t', '\v', '\0'];
 
 
   return array[idx];

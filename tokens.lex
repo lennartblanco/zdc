@@ -10,7 +10,7 @@ get_escape_code(char c);
 
 %}
 
-ESCAPE_CHAR    ("'"|"\""|\?|\\|a|b|f|n|r|t|v)
+ESCAPE_CHAR    ("'"|"\""|\?|\\|a|b|f|n|r|t|v|0)
 
 %%
 "!"      { return '!'; }
@@ -105,6 +105,8 @@ get_escape_code(char c)
       return 9;
     case 'v':
       return 11;
+    case '0':
+      return 0;
   }
 
   /* unexpected escape character */

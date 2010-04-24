@@ -138,6 +138,9 @@ main()
     check_char("char_array_literal()",
                call_char_array_literal(33),
                (unsigned char)'\v');
+    check_char("char_array_literal()",
+               call_char_array_literal(34),
+               (unsigned char)'\0');
 
 
     /* test my_find() via invoke_array_var_find() */
