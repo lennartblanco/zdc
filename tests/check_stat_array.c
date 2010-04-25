@@ -293,6 +293,18 @@ call_implicit_arry_lit_casts(int arg)
    return res;
 }
 
+unsigned
+call_stat_array_slice_assigment_length(unsigned arg)
+{
+   unsigned res;
+
+   asm ("    call _D10stat_array33stat_array_slice_assigment_lengthFkZk\n"
+        : "=a"(res)
+        : "a"(arg));
+
+   return res;
+}
+
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -458,6 +470,16 @@ main()
 
     check_int("implicit_arry_lit_casts(3)",
               call_implicit_arry_lit_casts(3), 1);
+
+    /* stat_array_slice_assigment_length() tests */
+    check_uint("stat_array_slice_assigment_length(0)",
+               call_stat_array_slice_assigment_length(0), 0);
+    check_uint("stat_array_slice_assigment_length(1)",
+               call_stat_array_slice_assigment_length(1), 0);
+    check_uint("stat_array_slice_assigment_length(2)",
+               call_stat_array_slice_assigment_length(2), 3);
+    check_uint("stat_array_slice_assigment_length(3)",
+               call_stat_array_slice_assigment_length(3), 4);
 
     check_exit();
 }

@@ -311,3 +311,14 @@ int implicit_arry_lit_casts(int i)
     return arr[i];
 }
 
+//
+// test array slice assigment with length property
+//
+uint stat_array_slice_assigment_length(uint idx)
+{
+  uint[4] arr = [0, 0, 0, 0];
+  arr[2..arr.length] = [3, 4];
+
+  return arr[idx];
+}
+
