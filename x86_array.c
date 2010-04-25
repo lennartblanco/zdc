@@ -597,15 +597,30 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
     }
     g_slist_free(i);
 
+    if (DT_IS_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array)))
+    {
+        /* static array */
+        fprintf(params->out,
+                "  # calculate the start address of the array\n"
+                "    movl %%ebp, %%eax\n"
+                "    addl $%d, %%eax\n",
+                array_offset);
+    }
+    else
+    {
+        /* dynamic array */
+        fprintf(params->out,
+                "  # fetch start address of the array\n"
+                "    movl %d(%%ebp), %%eax\n",
+                array_offset + 4);
+    }
+
     fprintf(params->out,
-            "  # calculate the start address of the array\n"
-            "    movl %%ebp, %%eax\n"
-            "    addl $%d, %%eax\n"
             "    movl %u(%%esp), %%ebx # store start index in edx\n"
             "    movl %u(%%esp), %%ecx # store end index in eax\n"
             "%s:\n"
             "    popl %%edx            # store array literal element in edx\n",
-            array_offset,
+
             (array_literal_len + 1) * 4,
             array_literal_len * 4,
             loop_label);

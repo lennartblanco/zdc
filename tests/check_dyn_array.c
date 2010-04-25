@@ -106,6 +106,32 @@ call_invoke_dyn_array_sum_lit(int in)
    return res;
 }
 
+unsigned
+call_dyn_array_slice_assigment_length(unsigned in)
+{
+   unsigned res;
+
+   asm ("    call _D9dyn_array32dyn_array_slice_assigment_lengthFkZk\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
+int
+call_dyn_array_slice_shorthand(bool arg1, unsigned arg2)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    call _D9dyn_array25dyn_array_slice_shorthandFbkZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          "a"(arg2));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -182,6 +208,39 @@ main()
 
     check_int("invoke_dyn_array_sum_lit(3)",
               call_invoke_dyn_array_sum_lit(3), -1);
+
+    /* dyn_array_slice_assigment_length() tests */
+    check_uint("dyn_array_slice_assigment_length(0)",
+               call_dyn_array_slice_assigment_length(0), 0);
+    check_uint("dyn_array_slice_assigment_length(1)",
+               call_dyn_array_slice_assigment_length(1), 0);
+    check_uint("dyn_array_slice_assigment_length(2)",
+               call_dyn_array_slice_assigment_length(2), 0);
+    check_uint("dyn_array_slice_assigment_length(3)",
+               call_dyn_array_slice_assigment_length(3), 99);
+    check_uint("dyn_array_slice_assigment_length(4)",
+               call_dyn_array_slice_assigment_length(4), 98);
+    check_uint("dyn_array_slice_assigment_length(5)",
+               call_dyn_array_slice_assigment_length(5), 97);
+
+    /* dyn_array_slice_shorthand() tests */
+    unsigned idx;
+    for (idx = 0; idx < 5; idx += 1)
+    {
+      check_int("dyn_array_slice_shorthand(false, idx)",
+                call_dyn_array_slice_shorthand(false, idx), -1);
+    }
+    check_int("dyn_array_slice_shorthand(true, 0)",
+              call_dyn_array_slice_shorthand(true, 0), 11);
+    check_int("dyn_array_slice_shorthand(true, 1)",
+              call_dyn_array_slice_shorthand(true, 1), 22);
+    check_int("dyn_array_slice_shorthand(true, 2)",
+              call_dyn_array_slice_shorthand(true, 2), 33);
+    check_int("dyn_array_slice_shorthand(true, 3)",
+              call_dyn_array_slice_shorthand(true, 3), 44);
+    check_int("dyn_array_slice_shorthand(true, 4)",
+              call_dyn_array_slice_shorthand(true, 4), 55);
+
 
 
     check_exit();

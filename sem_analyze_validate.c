@@ -1314,7 +1314,7 @@ validate_array_slice(compilation_status_t *compile_status,
     var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
     var_dt = ir_variable_get_data_type(var);
 
-    if (!DT_IS_STATIC_ARRAY_TYPE(var_dt))
+    if (!DT_IS_ARRAY_TYPE(var_dt))
     {
         compile_error(compile_status,
                       IR_NODE(array_slice),
@@ -1357,11 +1357,21 @@ validate_array_slice(compilation_status_t *compile_status,
     exp = ir_array_slice_get_end(array_slice);
     if (exp == NULL)
     {
-        guint32 end_idx;
+        if (DT_IS_STATIC_ARRAY_TYPE(var_dt))
+        {
+          /* slice over static array */
+          guint32 end_idx;
 
-        end_idx =
-            dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
-        exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
+          end_idx =
+              dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
+          exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
+        }
+        else
+        {
+           /* slice over dynamic array */
+           exp = IR_EXPRESSION(ir_property_new(IR_EXPRESSION(array_slice),
+                                               IR_PROP_LENGTH, 0));
+        }
     }
     else
     {
