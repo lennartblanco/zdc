@@ -71,7 +71,7 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
 
     fprintf(params->out,
             "# array literal to array handle assigment\n"
-            "    pushl $%d\n"
+            "    pushl $%u\n"
             "    call GC_malloc\n"
             "    movl %%eax, (%%esp)\n",
             literal_length);
@@ -299,9 +299,11 @@ x86_compile_array_literal(x86_comp_params_t *params,
     GSList *i;
     guint cntr;
     guint storage_size;
+    char *data_label;
+    guint literal_length;
 
     literal_values = ir_array_literal_get_values(array_lit);
-
+    literal_length = g_slist_length(literal_values);
     storage_size =
         dt_array_get_element_size(
             DT_ARRAY_TYPE(
@@ -314,33 +316,49 @@ x86_compile_array_literal(x86_comp_params_t *params,
             "    pushl %%eax\n",
             ir_array_literal_get_size(array_lit));
 
-    for (i = literal_values, cntr = 0; i != NULL; i = g_slist_next(i), cntr++) {
-        x86_compile_expression(params, i->data, sym_table);
+    data_label = ir_array_literal_get_data_label(array_lit);
+    if (data_label != NULL)
+    {
+        /* this array literal is stored in .data section */
         fprintf(params->out,
-                "    popl %%eax\n"
-                "    movl (%%esp), %%ebx\n"
-                "    movl $%u, %%ecx\n",
-                cntr);
+                "  # copy array literal from .data section\n"
+                "    pushl $%u\n"
+                "    pushl $%s\n"
+                "    pushl %%eax\n"
+                "    call memcpy\n",
+                literal_length * storage_size, data_label);
+    }
+    else
+    {
+        for (i = literal_values, cntr = 0;
+             i != NULL;
+             i = g_slist_next(i), cntr++) {
+            x86_compile_expression(params, i->data, sym_table);
+            fprintf(params->out,
+                    "    popl %%eax\n"
+                    "    movl (%%esp), %%ebx\n"
+                    "    movl $%u, %%ecx\n",
+                    cntr);
 
-        switch (storage_size)
-        {
-            case 4:
-                fprintf(params->out,
-                        "    movl %%eax, (%%ebx, %%ecx, 4)\n");
-                break;
-            case 1:
-                fprintf(params->out,
-                        "    movb %%al, (%%ebx, %%ecx, 1)\n");
-                break;
-            default:
-                /* unexpected storage size */
-                assert(false);          
+            switch (storage_size)
+            {
+                case 4:
+                    fprintf(params->out,
+                            "    movl %%eax, (%%ebx, %%ecx, 4)\n");
+                    break;
+                case 1:
+                    fprintf(params->out,
+                            "    movb %%al, (%%ebx, %%ecx, 1)\n");
+                    break;
+                default:
+                    /* unexpected storage size */
+                    assert(false);          
+            }
         }
     }
-
     fprintf(params->out,
             "    pushl $%u\n",
-            g_slist_length(literal_values));
+            literal_length);
 }
 
 void
@@ -620,7 +638,6 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
             "    movl %u(%%esp), %%ecx # store end index in eax\n"
             "%s:\n"
             "    popl %%edx            # store array literal element in edx\n",
-
             (array_literal_len + 1) * 4,
             array_literal_len * 4,
             loop_label);
@@ -647,6 +664,7 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
             "    # remove slice start and end values from stack\n"
             "    addl $8, %%esp\n",
             loop_label);
+
 }
 
 /**
