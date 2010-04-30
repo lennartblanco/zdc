@@ -1,7 +1,5 @@
 XDC=../xdc
 
-CFLAGS += $(shell  pkg-config --cflags glib-2.0)
-
 check_empty: empty.o check_utils.o check_empty.c
 	gcc $(CFLAGS) -o $@ $^
 
@@ -48,7 +46,7 @@ check_stat_array: stat_array.o check_utils.o check_stat_array.c
 	gcc $(CFLAGS) -o $@ $^
 
 check_dyn_array: dyn_array.o check_utils.o check_dyn_array.c
-	gcc $(CFLAGS) -lgc -o $@ $^
+	gcc $(CFLAGS) -o $@ $^
 
 check_foreach: foreach.o check_utils.o check_foreach.c
 	gcc $(CFLAGS) -o $@ $^
@@ -66,10 +64,10 @@ check_uninit_vars: uninit_vars.o check_utils.o check_uninit_vars.c
 	gcc $(CFLAGS) -o $@ $^
 
 check_char_literals: char_literals.o check_utils.o check_char_literals.c
-	gcc $(CFLAGS) -lgc -o $@ $^
+	gcc $(CFLAGS) -o $@ $^
 
 check_properties: properties.o check_utils.o check_properties.c
-	gcc $(CFLAGS) -lgc -o $@ $^
+	gcc $(CFLAGS) -o $@ $^
 
 check_eels: eels
 
