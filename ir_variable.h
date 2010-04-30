@@ -89,4 +89,7 @@ ir_variable_set_data_type(IrVariable *self, DtDataType *type);
 IrExpression *
 ir_variable_get_initializer(IrVariable *self);
 
+void
+ir_variable_set_initializer(IrVariable *self, IrExpression *initializer);
+
 #endif /* IR_VARIABLE_INC_X */

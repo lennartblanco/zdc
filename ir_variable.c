@@ -118,6 +118,15 @@ ir_variable_get_initializer(IrVariable *self)
     return self->initializer;
 }
 
+void
+ir_variable_set_initializer(IrVariable *self, IrExpression *initializer)
+{
+    assert(IR_IS_VARIABLE(self));
+    assert(IR_IS_EXPRESSION(initializer));
+
+    self->initializer = initializer;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
