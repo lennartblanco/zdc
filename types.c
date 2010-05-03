@@ -59,7 +59,7 @@ implicit_conv_to_int(IrExpression *expression)
         case char_type:
         case bool_type:
             res_exp =
-              cfold_cast(ir_cast_new(types_get_int_type(), expression));
+              IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));
             break;
         default:
             /* invalid implicit conversion, return NULL */
@@ -92,7 +92,7 @@ implicit_conv_to_uint(IrExpression *expression)
         case char_type:
         case bool_type:
             res_exp =
-              cfold_cast(ir_cast_new(types_get_uint_type(), expression));
+              IR_EXPRESSION(ir_cast_new(types_get_uint_type(), expression));
             break;
         default:
             /* invalid implicit conversion, return NULL */
@@ -123,7 +123,7 @@ implicit_conv_to_bool(IrExpression *expression)
             if (types_is_literal_0or1(expression))
             {
                 res_exp =
-                 cfold_cast(ir_cast_new(types_get_bool_type(), expression));
+                 IR_EXPRESSION(ir_cast_new(types_get_bool_type(), expression));
             }
             break;
         case bool_type:
@@ -231,19 +231,28 @@ IrExpression *
 types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)
 {
-
+    IrExpression *res;
     if (DT_IS_BASIC_TYPE(target_type))
     {
-        return implicit_conv_to_basic_type(target_type, expression);
+        res = implicit_conv_to_basic_type(target_type, expression);
     }
     else if (DT_IS_ARRAY_TYPE(target_type))
     {
-        return types_arrays_implicit_conv(DT_ARRAY_TYPE(target_type),
-                                          expression);
+        res = types_arrays_implicit_conv(DT_ARRAY_TYPE(target_type),
+                                         expression);
+    }
+    else
+    {
+        /* unexpected target type */
+        assert(false);
     }
 
-    /* unexpected target type */
-    assert(false);
+    if (IR_IS_CAST(res))
+    {
+        res = cfold_cast(IR_CAST(res));
+    }
+
+    return res;
 }
 
 IrExpression *
@@ -265,7 +274,7 @@ types_integer_promotion(IrExpression *expression)
         case char_type:
         case bool_type:
             res_exp =
-                cfold_cast(ir_cast_new(types_get_int_type(), expression));
+                IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));
             break;
         case void_type:
             res_exp = NULL;

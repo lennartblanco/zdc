@@ -74,7 +74,7 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
             "    pushl $%u\n"
             "    call GC_malloc\n"
             "    movl %%eax, (%%esp)\n",
-            literal_length);
+            literal_length * storage_size);
 
     if (value_label != NULL)
     {
@@ -84,7 +84,8 @@ x86_gen_array_handle_assigment(x86_comp_params_t *params,
                 "    pushl $%d\n"
                 "    pushl $%s\n"
                 "    pushl %%eax\n"
-                "    call memcpy\n",
+                "    call memcpy\n"
+                "    addl $12, %%esp # remove memcpy arguments from stack\n",
                 literal_length * storage_size, value_label);
     }
     else
@@ -313,8 +314,8 @@ x86_compile_array_literal(x86_comp_params_t *params,
             "# evaluate array literal\n"
             "    pushl $%u    #allocate memory for array literal\n"
             "    call GC_malloc\n"
-            "    pushl %%eax\n",
-            ir_array_literal_get_size(array_lit));
+            "    movl %%eax, (%%esp)\n",
+            literal_length * storage_size);
 
     data_label = ir_array_literal_get_data_label(array_lit);
     if (data_label != NULL)
@@ -325,7 +326,8 @@ x86_compile_array_literal(x86_comp_params_t *params,
                 "    pushl $%u\n"
                 "    pushl $%s\n"
                 "    pushl %%eax\n"
-                "    call memcpy\n",
+                "    call memcpy\n"
+                "    addl $12, %%esp # remove memcpy arguments from stack\n",
                 literal_length * storage_size, data_label);
     }
     else
@@ -566,8 +568,6 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
     X86FrameOffset *array_loc;
     int array_offset;
     guint storage_size;
-    guint array_literal_len;
-    GSList *i;
     char loop_label[LABEL_MAX_LEN];
 
     lvalue = IR_ARRAY_SLICE(ir_assigment_get_lvalue(assigment));
@@ -600,20 +600,35 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
                            ir_array_slice_get_end(lvalue),
                            sym_table);
 
-    /*
-     * evaluate array literal expressions, in reversed order
-     */
-    i = g_slist_copy(ir_array_literal_get_values(rvalue));
-    array_literal_len = g_slist_length(i);
-    i = g_slist_reverse(i);
-    fprintf(params->out, "  #evaluate array literal expressions\n");
-    for (; i != NULL; i = g_slist_next(i))
+
+    x86_compile_array_literal(params, rvalue, sym_table);
+    fprintf(params->out,
+            "  # swap length and array pointer on the stack\n"
+            "    popl %%eax\n");
+    if (storage_size > 1)
     {
-        x86_compile_expression(params,
-                               i->data,
-                               sym_table);
+        int shifter;
+        switch (storage_size)
+        {
+            case 2:
+                shifter = 1;
+                break;
+            case 4:
+                shifter = 2;
+                break;
+            default:
+                 /* unexpected storage size */
+                 assert(false);
+        }
+        fprintf(params->out,
+                "    # calculate array length in bytes\n"
+                "    sall $%d, %%eax\n",
+                shifter);
     }
-    g_slist_free(i);
+    fprintf(params->out,
+            "    xchgl %%eax, (%%esp)\n"
+            "    pushl %%eax\n");
+
 
     if (DT_IS_STATIC_ARRAY_TYPE(ir_variable_get_data_type(array)))
     {
@@ -634,37 +649,13 @@ x86_compile_array_literal_to_slice_assigment(x86_comp_params_t *params,
     }
 
     fprintf(params->out,
-            "    movl %u(%%esp), %%ebx # store start index in edx\n"
-            "    movl %u(%%esp), %%ecx # store end index in eax\n"
-            "%s:\n"
-            "    popl %%edx            # store array literal element in edx\n",
-            (array_literal_len + 1) * 4,
-            array_literal_len * 4,
-            loop_label);
-
-    switch (storage_size)
-    {
-        case 4:
-            fprintf(params->out,
-                    "    movl %%edx, (%%eax, %%ebx, 4)\n");
-            break;
-        case 1:
-            fprintf(params->out,
-                    "    movb %%dl, (%%eax, %%ebx, 1)\n");
-            break;
-        default:
-            /* unexpected storage size */
-            assert(false);
-    }
-
-    fprintf(params->out,
-            "    inc %%ebx\n"
-            "    cmp %%ecx, %%ebx\n"
-            "    jl %s\n"
-            "    # remove slice start and end values from stack\n"
-            "    addl $8, %%esp\n",
-            loop_label);
-
+            "    movl 12(%%esp), %%edi  # fetch slice start index\n"
+            "    leal (%%eax, %%edi, %u), %%eax\n"
+            "    pushl %%eax\n"
+            "    # write array literal to the array slice\n"
+            "    call memcpy\n"
+            "    addl $20, %%esp\n",
+            storage_size);
 }
 
 /**
@@ -834,27 +825,45 @@ x86_compile_cast_to_array_slice_assigment(x86_comp_params_t *params,
     IrCast *cast;
     IrExpression *value;
     DtArrayType *trgt_type;
-    DtArrayType *src_type;
+    DtDataType *src_type;
 
     cast = IR_CAST(ir_assigment_get_value(assigment));
     trgt_type = DT_ARRAY_TYPE(ir_cast_get_target_type(cast));
 
     value = ir_cast_get_value(cast);
-    src_type = DT_ARRAY_TYPE(ir_expression_get_data_type(value));
+    src_type = ir_expression_get_data_type(value);
 
-    /* only casting between uint[] and int[] arrays implemented */
-    assert((types_is_int(dt_array_type_get_data_type(trgt_type)) ||
-            types_is_uint(dt_array_type_get_data_type(trgt_type))) &&
-           (types_is_int(dt_array_type_get_data_type(src_type)) ||
-            types_is_uint(dt_array_type_get_data_type(src_type))));
- 
-    /*
-     * no need to generate explicit casting code when going between
-     * uint[] and int[] arrays, just overwrite the cast expression with
-     * it's value and compile the assigment.
-     */
     ir_assigment_set_value(assigment, value);
-    x86_compile_array_slice_assigment(params, assigment, sym_table);
+
+    if (DT_IS_BASIC_TYPE(src_type))
+    {
+        x86_compile_basic_type_to_slice_assigment(params,
+                                                  assigment,
+                                                  sym_table);
+    }
+    else if (DT_IS_ARRAY_TYPE(src_type))
+    {
+
+      /* only casting between uint[] and int[] arrays implemented */
+      assert((types_is_int(dt_array_type_get_data_type(trgt_type)) ||
+              types_is_uint(dt_array_type_get_data_type(trgt_type))) &&
+             (types_is_int(dt_array_type_get_data_type(
+                                             DT_ARRAY_TYPE(src_type))) ||
+              types_is_uint(dt_array_type_get_data_type(
+                                             DT_ARRAY_TYPE(src_type)))));
+ 
+      /*
+       * no need to generate explicit casting code when going between
+       * uint[] and int[] arrays, just overwrite the cast expression with
+       * it's value and compile the assigment.
+       */
+      x86_compile_array_slice_assigment(params, assigment, sym_table);
+   }
+   else
+   {
+       /* unexpected source value data type */
+       assert(false);
+   }
 }
 
 static void

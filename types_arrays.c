@@ -40,6 +40,10 @@ static IrExpression *
 implicit_conv_to_char_array_type(DtArrayType *target_type,
                                  IrExpression *expression);
 
+static IrExpression *
+conv_basic_to_array(DtArrayType *target_type,
+                    IrExpression *expression);
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -162,6 +166,28 @@ implicit_conv_to_char_array_type(DtArrayType *target_type,
     }
 }
 
+static IrExpression *
+conv_basic_to_array(DtArrayType *target_type,
+                    IrExpression *expression)
+{
+    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *source_type = ir_expression_get_data_type(expression);
+    DtDataType *target_element_type = dt_array_type_get_data_type(target_type);
+
+    assert(DT_IS_BASIC_TYPE(source_type));
+    /* only arrays over basic types implemented */
+    assert(DT_IS_BASIC_TYPE(target_element_type));
+
+    if (types_implicit_conv(target_element_type, expression) == NULL)
+    {
+        return NULL;
+    }
+
+    return IR_EXPRESSION(ir_cast_new(DT_DATA_TYPE(target_type), expression));
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -177,6 +203,11 @@ types_arrays_implicit_conv(DtArrayType *target_type,
     basic_data_type_t bdt;
 
     source_type = ir_expression_get_data_type(expression);
+
+    if (DT_IS_BASIC_TYPE(source_type))
+    {
+        return conv_basic_to_array(target_type, expression);
+    }
 
     if (!DT_IS_ARRAY_TYPE(source_type) &&
         !DT_IS_STATIC_ARRAY_TYPE(source_type))

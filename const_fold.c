@@ -3,6 +3,7 @@
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
+#include "ir_array_literal.h"
 #include "types.h"
 
 #include <assert.h>
@@ -31,6 +32,14 @@ fold_uint_comp_bin_op(IrUintConstant *left,
                       IrUintConstant *right,
                       ast_binary_op_type_t operation);
 
+static IrExpression *
+cfold_cast_basic_type(DtDataType *target_type,
+                      DtDataType *val_type,
+                      IrExpression *val);
+
+static IrExpression *
+cfold_cast_array_literal(DtArrayType *target_type,
+                         IrArrayLiteral *array_lit);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -161,76 +170,15 @@ cfold_cast(IrCast *cast_exp)
         return IR_EXPRESSION(cast_exp);
     }
 
-    /*
-     * build a new expression, instead of original cast expression
-     */
-    if (types_is_int(target_type))
+    if (DT_IS_BASIC_TYPE(val_type))
     {
-        gint32 res;
-
-        if (types_is_bool(val_type))
-        {
-            res = (gint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
-        }
-        else if (types_is_uint(val_type))
-        {
-            res = (gint32)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
-        }
-        else if (types_is_char(val_type))
-        {
-            res = (gint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
-        }
-        else
-        {
-            /* unexpected value type */
-            assert(false);
-        }
-        return IR_EXPRESSION(ir_int_constant_new(res, 0));
+        return cfold_cast_basic_type(target_type, val_type, val);
     }
-    else if (types_is_uint(target_type))
+    else if (IR_IS_ARRAY_LITERAL(val))
     {
-        guint32 res;
-
-        if (types_is_bool(val_type))
-        {
-            res = (guint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
-        }
-        else if (types_is_int(val_type))
-        {
-            res = (guint32)ir_int_constant_get_value(IR_INT_CONSTANT(val));
-        }
-        else if (types_is_char(val_type))
-        {
-            res = (guint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
-        }
-        else
-        {
-            /* unexpected value type */
-            assert(false);
-        }
-        return IR_EXPRESSION(ir_uint_constant_new(res, 0));
+        return cfold_cast_array_literal(DT_ARRAY_TYPE(target_type),
+                                        IR_ARRAY_LITERAL(val));
     }
-    else if (types_is_bool(target_type))
-    {
-        gboolean res;
-
-        if (types_is_int(val_type))
-        {
-            res = (gboolean)ir_int_constant_get_value(IR_INT_CONSTANT(val));
-        }
-        else if (types_is_uint(val_type))
-        {
-            res = (gboolean)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
-        }
-        else
-        {
-            /* unexpected value type */
-            assert(false);
-        }
-        return IR_EXPRESSION(ir_bool_constant_new(res, 0));
-
-    }
-
     /* unexpected target type */
     assert(false);
 }
@@ -381,4 +329,114 @@ fold_uint_comp_bin_op(IrUintConstant *left,
     }
 
     return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+}
+
+static IrExpression *
+cfold_cast_basic_type(DtDataType *target_type,
+                      DtDataType *val_type,
+                      IrExpression *val)
+{
+    /*
+     * build a new expression, instead of original cast expression
+     */
+    if (types_is_int(target_type))
+    {
+        gint32 res;
+
+        if (types_is_bool(val_type))
+        {
+            res = (gint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+        }
+        else if (types_is_uint(val_type))
+        {
+            res = (gint32)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else if (types_is_char(val_type))
+        {
+            res = (gint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_int_constant_new(res, 0));
+    }
+    else if (types_is_uint(target_type))
+    {
+        guint32 res;
+
+        if (types_is_bool(val_type))
+        {
+            res = (guint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+        }
+        else if (types_is_int(val_type))
+        {
+            res = (guint32)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (types_is_char(val_type))
+        {
+            res = (guint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_uint_constant_new(res, 0));
+    }
+    else if (types_is_bool(target_type))
+    {
+        gboolean res;
+
+        if (types_is_int(val_type))
+        {
+            res = (gboolean)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (types_is_uint(val_type))
+        {
+            res = (gboolean)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+
+    }
+    /* unexpected target type */
+    assert(false);
+}
+
+static IrExpression *
+cfold_cast_array_literal(DtArrayType *target_type,
+                         IrArrayLiteral *array_lit)
+{
+    DtDataType *element_target_type;
+    IrArrayLiteral *new_array_lit;
+    GSList *new_array_vals = NULL;
+    GSList *i;
+
+    element_target_type = dt_array_type_get_data_type(target_type);
+    /* only arrays literals of basic types supported */
+    assert(DT_IS_BASIC_TYPE(element_target_type));
+
+    new_array_lit = ir_array_literal_new(0);
+    for (i = ir_array_literal_get_values(array_lit);
+         i != NULL;
+         i = g_slist_next(i))
+    {
+        DtDataType *element_val_type = ir_expression_get_data_type(i->data);
+
+        new_array_vals =
+            g_slist_prepend(new_array_vals, 
+                            cfold_cast_basic_type(element_target_type,
+                                                  element_val_type,
+                                                  i->data));
+    }
+    ir_array_literal_set_values(new_array_lit,
+                                g_slist_reverse(new_array_vals));
+
+    return IR_EXPRESSION(new_array_lit);
 }

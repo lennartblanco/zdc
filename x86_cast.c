@@ -104,7 +104,7 @@ x86_compile_cast_to_int(DtDataType *value_type)
         case char_type:
         case int_type:
         case uint_type:
-            /* no need to generate explicit conversio code */
+            /* no need to generate explicit conversation code */
             break;
         default:
             /* unexpected basic data type */
@@ -124,9 +124,10 @@ x86_compile_cast_to_uint(DtDataType *value_type)
     switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(value_type)))
     {
         case bool_type:
+        case char_type:
         case int_type:
         case uint_type:
-            /* no need to explicitly convert boolean and integer values */
+            /* no need to generate explicit conversation code */
             break;
         default:
             /* unexpected basic data type */

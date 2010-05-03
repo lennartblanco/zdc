@@ -95,5 +95,5 @@ ir_uint_constant_do_print(IrStatment *self, FILE *out, int indention)
     assert(IR_IS_UINT_CONSTANT(self));
     assert(out);
 
-    fprintf_indent(out, indention, "%u", IR_UINT_CONSTANT(self)->value);
+    fprintf_indent(out, indention, "%uu", IR_UINT_CONSTANT(self)->value);
 }

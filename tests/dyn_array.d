@@ -67,6 +67,18 @@ int dyn_array_sum(int[] array)
   return res;
 }
 
+int dyn_array_slice_assigment(bool assign, uint idx)
+{
+  int[] arr = [1, 2, 3, 4, 5];
+
+  if (assign)
+  {
+      arr[2..4] = [11, 22];
+  }
+
+  return arr[idx];
+}
+
 uint dyn_array_slice_assigment_length(uint idx)
 {
   uint[] arr = [0, 0, 0, 0, 0, 0];
@@ -86,7 +98,6 @@ int dyn_array_slice_shorthand(bool assign, uint idx)
 
   return arr[idx];
 }
-
 
 /*
  * Wrapper function to test calling dyn_array_sum() with dynamic array handle
