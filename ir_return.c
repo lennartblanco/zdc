@@ -86,9 +86,11 @@ ir_return_do_print(IrStatment *self, FILE *out, int indention)
     IrReturn *ret = IR_RETURN(self);
 
     fprintf_indent(out, indention, "return [%p]\n", ret);
-    fprintf_indent(out, indention + 2, "return value:\n");
-    ir_statment_print(IR_STATMENT(ret->return_value), out, indention + 4);
-    
+    if (ret->return_value != NULL)
+    {
+        fprintf_indent(out, indention + 2, "return value:\n");
+        ir_statment_print(IR_STATMENT(ret->return_value), out, indention + 4);
+    }    
 }
 
 static void
