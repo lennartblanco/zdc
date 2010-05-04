@@ -48,6 +48,7 @@ ESCAPE_CHAR    ("'"|"\""|\?|\\|a|b|f|n|r|t|v|0)
 "module" { return TOK_MODULE; }
 "import" { return TOK_IMPORT; }
 "foreach" { return TOK_FOREACH; }
+"immutable" { return TOK_IMMUTABLE; }
 ("C"|"D") { yylval.text = strdup(yytext); return TOK_LINKAGE_TYPE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
 [0-9]+   { yylval.integer = atoi(yytext); return TOK_INT_CONST; }

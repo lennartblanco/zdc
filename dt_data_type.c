@@ -31,6 +31,22 @@ dt_data_type_get_type(void)
     return type;
 }
 
+void
+dt_data_type_set_immutable(DtDataType *self, bool is_immutable)
+{
+    assert(DT_IS_DATA_TYPE(self));
+
+    self->immutable = true;
+}
+
+bool
+dt_data_type_is_immutalbe(DtDataType *self)
+{
+    assert(DT_IS_DATA_TYPE(self));
+
+    return self->immutable;
+}
+
 guint
 dt_data_type_get_size(DtDataType *self)
 {
@@ -47,7 +63,15 @@ dt_data_type_get_string(DtDataType *self)
 {
     assert(DT_IS_DATA_TYPE(self));
 
-    return DT_DATA_TYPE_GET_CLASS(self)->get_string(self);
+    char *str = DT_DATA_TYPE_GET_CLASS(self)->get_string(self);
+
+    if (self->immutable)
+    {
+        char *tmp = g_strdup_printf("immutable(%s)", str);
+        str = tmp;
+    }
+
+    return str;
 }
 
 char *

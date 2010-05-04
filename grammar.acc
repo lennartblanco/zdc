@@ -35,7 +35,7 @@ AstModule *module;
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL,
-       TOK_IMPORT, TOK_MODULE;
+       TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
        
 
 root :
@@ -277,36 +277,43 @@ type<x> :
     {
         (*x).data_type = DT_DATA_TYPE(dt_array_type_new(t.data_type));
     }
-|   basic_type<t>
-    {
-        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(t.basic_data_type));
-    }
+|   basic_type<x>
 |   TOK_AUTO
     {
         (*x).data_type = DT_DATA_TYPE(dt_auto_type_new());
+    }
+|   TOK_IMMUTABLE type<t>
+    {
+        dt_data_type_set_immutable(t.data_type, true);
+        (*x).data_type = t.data_type;
+    }
+|   TOK_IMMUTABLE '(' type<t> ')'
+    {
+        dt_data_type_set_immutable(t.data_type, true);
+        (*x).data_type = t.data_type;
     }
 ;
 
 basic_type<x> :
     TOK_VOID
     {
-        (*x).basic_data_type = void_type;
+        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(void_type));
     }
 |   TOK_UINT
     {
-        (*x).basic_data_type = uint_type;
+        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(uint_type));
     }
 |   TOK_INT
     {
-        (*x).basic_data_type = int_type;
+        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(int_type));
     }
 |   TOK_CHAR
     {
-        (*x).basic_data_type = char_type;
+        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(char_type));
     }
 |   TOK_BOOL
     { 
-        (*x).basic_data_type = bool_type; 
+        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(bool_type));
     }
 ;
 
