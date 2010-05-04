@@ -92,6 +92,9 @@ dt_basic_type_get_string(DtDataType *self)
         case bool_type:
             str = "bool";
             break;
+        case char_type:
+            str = "char";
+            break;
         default:
             /* unexpected basic data type */
             assert(false);
