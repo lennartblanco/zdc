@@ -1,0 +1,2 @@
+immutable.d:5: error: can not modify immutable lvalue
+immutable.d:12: error: can not modify immutable lvalue

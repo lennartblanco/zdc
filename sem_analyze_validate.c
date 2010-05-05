@@ -859,6 +859,13 @@ validate_assigment(compilation_status_t *compile_status,
      * check that lvalue and assign expression have compatible data types
      */
     target_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
+    if (dt_data_type_is_immutalbe(target_type))
+    {
+        compile_error(compile_status,
+                      IR_NODE(assigment),
+                      "can not modify immutable lvalue\n");
+        return;
+    }
 
     converted_value = types_implicit_conv(target_type, value);
     if (converted_value == NULL)

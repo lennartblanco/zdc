@@ -1,0 +1,13 @@
+void f1()
+{
+    immutable int x = 1;
+
+    x = 10;
+}
+
+void f2()
+{
+    immutable (int)[] s = [1, 2, 3];
+
+    s[0] = 100;
+}
