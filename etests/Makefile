@@ -22,6 +22,7 @@ ambig_imprt: ambig_imprt.d imp_mod_a.d imp_mod_b.d
 unknown_prop: unknown_prop.d
 invalid_prop: invalid_prop.d
 invalid_returns: invalid_returns.d
+immutable: immutable.d
 
 %.d: %.inv_d
 	cp $? $@
