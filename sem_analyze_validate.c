@@ -861,19 +861,6 @@ validate_assigment(compilation_status_t *compile_status,
     target_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
 
     converted_value = types_implicit_conv(target_type, value);
-    if (converted_value == NULL && DT_IS_ARRAY_TYPE(target_type))
-    {
-        /*
-         * Handle the special case of array assigments from a scalar,
-         * check if scalar can be implicitly converted to array's 
-         * element data type
-         */
-        DtDataType *array_element_type;
-
-        array_element_type =
-            dt_array_type_get_data_type(DT_ARRAY_TYPE(target_type));
-        converted_value = types_implicit_conv(array_element_type, value);
-    }
     if (converted_value == NULL)
     {
         compile_error(compile_status,
