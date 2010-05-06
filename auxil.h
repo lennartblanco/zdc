@@ -39,10 +39,4 @@ compile_file(const char* input_file,
              const char* output_file,
              compile_options_t options);
 
-void
-yyerror(char *msg);
-
-int
-yywrap(void);
-
 #endif /* AUXIL_INC_X */
