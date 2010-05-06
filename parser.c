@@ -83,9 +83,17 @@ exit_parse_file:
 }
 
 void
-yyerror(char *msg)
+yyerror(char *msg, ...)
 {
-     fprintf(stderr, "%s:%ld: %s\n", current_source_file, yypos, msg);
+    va_list argp;
+
+    fprintf(stderr, "%s:%ld: ", current_source_file, yypos);
+
+    va_start(argp, msg);
+    vfprintf(stderr, msg, argp);
+    va_end(argp);
+
+    fprintf(stderr, "\n");
 }
 
 int

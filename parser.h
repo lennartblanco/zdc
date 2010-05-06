@@ -35,7 +35,7 @@ AstModule *
 parse_file(const char* source_file, GError **error);
 
 void
-yyerror(char *msg);
+yyerror(char *msg, ...);
 
 int
 yywrap(void);
