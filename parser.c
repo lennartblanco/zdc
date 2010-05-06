@@ -8,6 +8,8 @@
 
 static const char *current_source_file;
 
+static bool token_errors;
+
 extern AstModule *module;
 extern long yypos;
 
@@ -43,11 +45,12 @@ parse_file(const char* source_file, GError **error)
     /* setup token parser to read the opened file */
     current_source_file = source_file;
     yypos = 1;
+    token_errors = false;
     yy_buffer = yy_create_buffer(input_stream, YY_BUF_SIZE);
     yy_switch_to_buffer(yy_buffer);
 
     /* parse the source file */
-    if (yyparse() != 0)
+    if (yyparse() != 0 || token_errors)
     {
         g_set_error(error,
                     PARSER_ERROR,
@@ -94,6 +97,7 @@ yyerror(char *msg, ...)
     va_end(argp);
 
     fprintf(stderr, "\n");
+    token_errors = true;
 }
 
 int
