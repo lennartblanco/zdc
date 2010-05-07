@@ -1,0 +1,3 @@
+esc_seq.d:4: undefined escape sequence \q
+esc_seq.d:10: undefined escape sequence \c
+esc_seq.d:16: trailing '\' in string literal

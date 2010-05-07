@@ -1,0 +1,18 @@
+void f0()
+{
+  /* undefined escape sequence in character literal expression */
+  char[] y = ['a', 'b', '\q'];
+}
+
+void f1()
+{
+  /* undefined escape sequence in string literal expression */
+  immutable(char)[] x = "asd\c";
+}
+
+void f2()
+{
+  /* invalid escape sequence in string literal expression */
+  immutable(char)[] x = "esc\";
+}
+

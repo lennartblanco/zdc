@@ -23,6 +23,7 @@ unknown_prop: unknown_prop.d
 invalid_prop: invalid_prop.d
 invalid_returns: invalid_returns.d
 immutable: immutable.d
+esc_seq: esc_seq.d
 
 %.d: %.inv_d
 	cp $? $@
