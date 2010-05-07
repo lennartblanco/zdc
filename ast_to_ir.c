@@ -9,6 +9,7 @@
 #include "ast_assigment.h"
 #include "ast_binary_operation.h"
 #include "ast_array_literal.h"
+#include "ast_string_literal.h"
 #include "ast_array_cell_ref.h"
 #include "ast_bool_constant.h"
 #include "ast_char_constant.h"
@@ -106,6 +107,11 @@ static IrExpression *
 array_literal_to_ir(compilation_status_t *compile_status,
                     sym_table_t *symbols,
                     AstArrayLiteral *ast_arry_literal);
+
+static IrExpression *
+string_literal_to_ir(compilation_status_t *compile_status,
+                     sym_table_t *symbols,
+                     AstStringLiteral *ast_str_literal);
 
 static IrExpression *
 array_slice_to_ir(compilation_status_t *compile_status,
@@ -778,6 +784,39 @@ array_literal_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+string_literal_to_ir(compilation_status_t *compile_status,
+                     sym_table_t *symbols,
+                     AstStringLiteral *ast_str_literal)
+{
+    assert(compile_status);
+    assert(symbols);
+    assert(AST_IS_STRING_LITERAL(ast_str_literal));
+
+    IrArrayLiteral *arry_literal;
+    GSList *vals = NULL;
+    gchar *str;
+    gchar c;
+
+    /*
+     * build an IR char array literal from AST string literal
+     */
+
+    /* create a list of char constant for each characted in the string */
+    str = ast_string_literal_get_str(ast_str_literal);
+    while((c = *(str++)) != '\0')
+    {
+        vals = g_slist_prepend(vals,
+                               ir_char_constant_new(c, 0));
+    }
+
+    /* build IR array literal object */
+    arry_literal = ir_array_literal_new(0);
+    ir_array_literal_set_values(arry_literal, g_slist_reverse(vals));
+
+    return IR_EXPRESSION(arry_literal);
+}
+
+static IrExpression *
 array_slice_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstArraySliceRef *ast_arry_slice)
@@ -952,6 +991,13 @@ expression_to_ir(compilation_status_t *compile_status,
 
         arry_literal = AST_ARRAY_LITERAL(ast_expression);
         return array_literal_to_ir(compile_status, symbols, arry_literal);
+    }
+    else if (AST_IS_STRING_LITERAL(ast_expression))
+    {
+        AstStringLiteral *string_literal;
+
+        string_literal = AST_STRING_LITERAL(ast_expression);
+        return string_literal_to_ir(compile_status, symbols, string_literal);
     }
     else if (AST_IS_ARRAY_SLICE_REF(ast_expression))
     {

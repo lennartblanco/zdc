@@ -30,7 +30,7 @@
 AstModule *module;
 }
 
-%token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, 
+%token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
@@ -705,6 +705,12 @@ primary<n> :
     }
 |   array_literal<n>
 |   array_slice<n>
+|   TOK_STRING_LITERAL<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_string_literal_new(x.text,
+                                                  yypos));
+    }
 ;
 
 array_slice<n> :

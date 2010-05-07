@@ -8,9 +8,10 @@
 guint8
 get_escape_code(char c);
 
-%}
+char *
+unescape_char_literal(char *str, int len);
 
-ESCAPE_CHAR    ("'"|"\""|\?|\\|a|b|f|n|r|t|v|0)
+%}
 
 %%
 "!"      { return '!'; }
@@ -54,11 +55,16 @@ ESCAPE_CHAR    ("'"|"\""|\?|\\|a|b|f|n|r|t|v|0)
 [0-9]+   { yylval.integer = atoi(yytext); return TOK_INT_CONST; }
 [0-9]+("u"|"U") {  yylval.uinteger = atoi(yytext); return TOK_UINT_CONST; }
 "'"."'"  { yylval.character = (guint8)yytext[1]; return TOK_CHAR_CONST; }
-"'"\\{ESCAPE_CHAR}"'" {
+"'"\\."'" {
 
     yylval.character = get_escape_code(yytext[2]);
     return TOK_CHAR_CONST; 
 }
+\".*\"   {
+                           /* drop first and last "-character */
+             yylval.text = unescape_char_literal(yytext+1, strlen(yytext)-2);
+             return TOK_STRING_LITERAL;
+         }
 " "      { /* skip blank */ }
 "//".*   { /* consume comment */ }
 "/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {
@@ -111,5 +117,42 @@ get_escape_code(char c)
   }
 
   /* unexpected escape character */
-  g_assert_not_reached();
+  yyerror("undefined escape sequence \\%c", c);
+  return 0;
+}
+
+/**
+ * Process a string literal expression. All escape sequences are replaced
+ * by the intended character.
+ *
+ * @return the newly allocated resulting string
+ */
+char *
+unescape_char_literal(char *str, int len)
+{
+    int i;
+    int p;
+    char *res;
+
+    res = g_malloc0((sizeof(char*) * len) + 0);
+
+    for (i = 0, p = 0; i < len; i += 1, p += 1)
+    {
+        if (str[i] == '\\')
+        {
+            if (i + 1 >= len)
+            {
+                yyerror("trailing '\\' in string literal");
+                break;
+            }
+            i += 1;
+            res[p] = get_escape_code(str[i]);
+        }
+        else
+        {
+            res[p] = str[i];
+        }
+    }
+
+    return res;
 }
