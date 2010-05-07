@@ -75,7 +75,12 @@ check_immutable: immutable.o check_utils.o check_immutable.c
 
 check_eels: eels
 
+check_str_literals: str_literals
+
 eels: eels.d
+	$(XDC) $(DFLAGS) $?
+
+str_literals: str_literals.d
 	$(XDC) $(DFLAGS) $?
 
 %.o: %.d
@@ -90,4 +95,5 @@ check_only_comments check_comments check_neg check_func_call check_imports \
 check_bool_op check_extern_c check_fact check_foreach check_if_else \
 check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
 check_stat_array check_dyn_array check_uint_op check_while_loop eels \
-check_properties check_uninit_vars check_char_literals check_immutable
+check_properties check_uninit_vars check_char_literals check_immutable \
+str_literals
