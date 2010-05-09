@@ -824,11 +824,9 @@ x86_compile_cast_to_array_slice_assigment(x86_comp_params_t *params,
 
     IrCast *cast;
     IrExpression *value;
-    DtArrayType *trgt_type;
     DtDataType *src_type;
 
     cast = IR_CAST(ir_assigment_get_value(assigment));
-    trgt_type = DT_ARRAY_TYPE(ir_cast_get_target_type(cast));
 
     value = ir_cast_get_value(cast);
     src_type = ir_expression_get_data_type(value);
@@ -843,6 +841,7 @@ x86_compile_cast_to_array_slice_assigment(x86_comp_params_t *params,
     }
     else if (DT_IS_ARRAY_TYPE(src_type))
     {
+      DtArrayType *trgt_type = DT_ARRAY_TYPE(ir_cast_get_target_type(cast));
 
       /* only casting between uint[] and int[] arrays implemented */
       assert((types_is_int(dt_array_type_get_data_type(trgt_type)) ||
