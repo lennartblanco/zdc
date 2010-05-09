@@ -89,36 +89,36 @@ unescape_char_literal(char *str, int len);
 guint8
 get_escape_code(char c)
 {
-  switch (c) {
-    case '\'':
-      return 39;
-    case '"':
-      return 34;
-    case '\?':
-      return 63;
-    case '\\':
-      return 92;
-    case 'a':
-      return 7;
-    case 'b':
-      return 8;
-    case 'f':
-      return 12;
-    case 'n':
-      return 10;
-    case 'r':
-      return 13;
-    case 't':
-      return 9;
-    case 'v':
-      return 11;
-    case '0':
-      return 0;
-  }
+    switch (c) {
+      case '\'':
+        return 39;
+      case '"':
+        return 34;
+      case '\?':
+        return 63;
+      case '\\':
+        return 92;
+      case 'a':
+        return 7;
+      case 'b':
+        return 8;
+      case 'f':
+        return 12;
+      case 'n':
+        return 10;
+      case 'r':
+        return 13;
+      case 't':
+        return 9;
+      case 'v':
+        return 11;
+      case '0':
+        return 0;
+    }
 
-  /* unexpected escape character */
-  yyerror("undefined escape sequence \\%c", c);
-  return 0;
+    /* unexpected escape character */
+    yyerror("undefined escape sequence \\%c", c);
+    return 0;
 }
 
 /**

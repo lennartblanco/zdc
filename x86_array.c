@@ -841,28 +841,28 @@ x86_compile_cast_to_array_slice_assigment(x86_comp_params_t *params,
     }
     else if (DT_IS_ARRAY_TYPE(src_type))
     {
-      DtArrayType *trgt_type = DT_ARRAY_TYPE(ir_cast_get_target_type(cast));
+        DtArrayType *trgt_type = DT_ARRAY_TYPE(ir_cast_get_target_type(cast));
 
-      /* only casting between uint[] and int[] arrays implemented */
-      assert((types_is_int(dt_array_type_get_data_type(trgt_type)) ||
-              types_is_uint(dt_array_type_get_data_type(trgt_type))) &&
-             (types_is_int(dt_array_type_get_data_type(
-                                             DT_ARRAY_TYPE(src_type))) ||
-              types_is_uint(dt_array_type_get_data_type(
-                                             DT_ARRAY_TYPE(src_type)))));
+        /* only casting between uint[] and int[] arrays implemented */
+        assert((types_is_int(dt_array_type_get_data_type(trgt_type)) ||
+                types_is_uint(dt_array_type_get_data_type(trgt_type))) &&
+               (types_is_int(dt_array_type_get_data_type(
+                                               DT_ARRAY_TYPE(src_type))) ||
+                types_is_uint(dt_array_type_get_data_type(
+                                               DT_ARRAY_TYPE(src_type)))));
  
-      /*
-       * no need to generate explicit casting code when going between
-       * uint[] and int[] arrays, just overwrite the cast expression with
-       * it's value and compile the assigment.
-       */
-      x86_compile_array_slice_assigment(params, assigment, sym_table);
-   }
-   else
-   {
-       /* unexpected source value data type */
-       assert(false);
-   }
+        /*
+         * no need to generate explicit casting code when going between
+         * uint[] and int[] arrays, just overwrite the cast expression with
+         * it's value and compile the assigment.
+         */
+        x86_compile_array_slice_assigment(params, assigment, sym_table);
+    }
+    else
+    {
+        /* unexpected source value data type */
+        assert(false);
+    }
 }
 
 static void
