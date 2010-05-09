@@ -868,6 +868,19 @@ validate_assigment(compilation_status_t *compile_status,
     }
 
     converted_value = types_implicit_conv(target_type, value);
+    if (converted_value == NULL && DT_IS_ARRAY_TYPE(target_type))
+    {
+        /*
+         * Handle the special case of array assigments from a scalar,
+         * check if scalar can be implicitly converted to array's 
+         * element data type
+         */
+        DtDataType *array_element_type;
+
+        array_element_type =
+            dt_array_type_get_data_type(DT_ARRAY_TYPE(target_type));
+        converted_value = types_implicit_conv(array_element_type, value);
+    }
     if (converted_value == NULL)
     {
         compile_error(compile_status,
@@ -1147,6 +1160,20 @@ validate_code_block(compilation_status_t *compile_status,
 
         var_type = ir_variable_get_data_type(var);
         conv_initializer = types_implicit_conv(var_type, initializer);
+        if (conv_initializer == NULL && DT_IS_ARRAY_TYPE(var_type))
+        {
+            /*
+             * Handle the special case of array initialization from a scalar,
+             * check if scalar can be implicitly converted to array's 
+             * element data type
+             */
+            DtDataType *array_element_type;
+ 
+            array_element_type =
+                dt_array_type_get_data_type(DT_ARRAY_TYPE(var_type));
+            conv_initializer =
+                types_implicit_conv(array_element_type, initializer);
+        }
         if (conv_initializer == NULL)
         {
             compile_error(compile_status,
