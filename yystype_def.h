@@ -14,7 +14,6 @@ union yystype_u
     gint32                     integer;
     guint32                    uinteger;
     DtDataType                 *data_type;
-    basic_data_type_t          basic_data_type;
     AstModule                  *module;
     AstCodeBlock               *code_block;
     AstFunctionDecl            *function_decl;
