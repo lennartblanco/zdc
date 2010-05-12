@@ -23,6 +23,7 @@ unescape_char_literal(char *str, int len);
 "/"      { return '/'; }
 "("      { return '('; }
 ")"      { return ')'; }
+":"      { return ':'; }
 ";"      { return ';'; }
 ","      { return ','; }
 "."      { return '.'; }
@@ -39,6 +40,7 @@ unescape_char_literal(char *str, int len);
 "uint"   { return TOK_UINT; }
 "auto"   { return TOK_AUTO; }
 "else"   { return TOK_ELSE; }
+"enum"   { return TOK_ENUM; }
 "void"   { return TOK_VOID; }
 "bool"   { return TOK_BOOL; }
 "true"   { return TOK_TRUE; }

@@ -18,6 +18,7 @@ struct _AstModule
     GSList *imports;
     GSList *function_defs;
     GSList *function_decls;
+    GSList *enums;
 };
 
 /*---------------------------------------------------------------------------*
@@ -64,12 +65,13 @@ ast_module_new(void)
 {
     AstModule *node;
 
-    node = g_object_new(AST_TYPE_MODULE, NULL);
+    node = g_object_new	(AST_TYPE_MODULE, NULL);
     node->source_file = NULL;
     node->function_defs = NULL;
     node->function_decls = NULL;
     node->package = NULL;
     node->imports = NULL;
+    node->enums = NULL;
 
     return node;
 }
@@ -149,6 +151,16 @@ ast_module_add_function_def(AstModule *self,
     self->function_defs = g_slist_append(self->function_defs, function_def);
 }
 
+void
+ast_module_add_enum_def(AstModule *self, AstEnum *enum_def)
+{
+    assert(AST_IS_MODULE(self));
+    assert(AST_IS_ENUM(enum_def));
+
+    self->enums = g_slist_prepend(self->enums, enum_def);
+}
+
+
 GSList *
 ast_module_get_function_decls(AstModule *self)
 {
@@ -194,6 +206,15 @@ ast_module_do_print(AstNode *self, FILE *out)
     if (module->imports != NULL)
     {
         for (i = module->imports; i != NULL; i = g_slist_next(i))
+        {
+            ast_node_print(i->data, out);
+        }
+    }
+
+    if (module->enums != NULL)
+    {
+        fprintf(out, "enum definitions:\n");
+        for (i = module->enums; i != NULL; i = g_slist_next(i))
         {
             ast_node_print(i->data, out);
         }

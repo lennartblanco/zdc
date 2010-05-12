@@ -2,6 +2,7 @@
 #define YYSTYPE_DEF_H
 
 #include "ast_module.h"
+#include "ast_enum_member.h"
 #include "ast_variable_ref.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
@@ -15,6 +16,7 @@ union yystype_u
     guint32                    uinteger;
     DtDataType                 *data_type;
     AstModule                  *module;
+    AstEnumMember              *enum_member;
     AstCodeBlock               *code_block;
     AstFunctionDecl            *function_decl;
     AstFunctionDef             *function_def;

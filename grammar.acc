@@ -32,7 +32,7 @@ AstModule *module;
 
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
-       TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
+       TOK_ENUM, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
@@ -70,6 +70,7 @@ module_declaration<package_names> :
 
 declaration<module> :
     import_declaration<module>
+|   enum_declaration<module>
 |   func_def_list<module>
 |   declaration_blocks<module>
 ;
@@ -87,6 +88,61 @@ import_declaration<module> :
         }
     )*
     ';'
+;
+
+enum_declaration<module> :
+    {
+        enum_tag.text = NULL;
+        base_type.data_type = NULL;
+    }
+    TOK_ENUM ( TOK_IDENT<enum_tag> )?
+             ( ':' type<base_type> )?
+             '{' enum_members<mbrs> '}'
+    {
+        AstEnum *enum_node;
+
+        enum_node = ast_enum_new(enum_tag.text,
+                                 base_type.data_type,
+                                 mbrs.list);
+        ast_module_add_enum_def((*module).module, enum_node);
+    }
+;
+
+enum_members<l> :
+    {
+        (*l).list = NULL;
+    }
+    enum_member<f> 
+    {
+        (*l).list = g_slist_prepend((*l).list, f.enum_member);
+    } 
+    ( ',' enum_member<n> 
+      {
+          (*l).list = g_slist_prepend((*l).list, n.enum_member);
+      }
+    )*
+    {
+        (*l).list = g_slist_reverse((*l).list);
+    }
+;
+
+enum_member<x> :
+    TOK_IDENT<name>
+    {
+        (*x).enum_member = ast_enum_member_new(NULL, name.text, NULL);
+    }
+|   TOK_IDENT<name> '=' expression<init>
+    {
+        (*x).enum_member = ast_enum_member_new(NULL,
+                                               name.text,
+                                               init.expression);
+    }
+|   type<t> TOK_IDENT<name> '=' expression<init>
+    {
+        (*x).enum_member = ast_enum_member_new(t.data_type,
+                                               name.text,
+                                               init.expression);
+    }
 ;
 
 declaration_blocks<module> :

@@ -4,6 +4,7 @@
 #include "ast_types.h"
 #include "ast_function_decl.h"
 #include "ast_function_def.h"
+#include "ast_enum.h"
 #include "ast_import.h"
 
 /*---------------------------------------------------------------------------*
@@ -67,6 +68,10 @@ ast_module_add_function_decl(AstModule *self,
 void
 ast_module_add_function_def(AstModule *self,
                             AstFunctionDef *function_def);
+
+void
+ast_module_add_enum_def(AstModule *self,
+                        AstEnum *enum_def);
 
 GSList *
 ast_module_get_function_decls(AstModule *self);
