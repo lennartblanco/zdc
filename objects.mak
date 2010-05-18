@@ -15,10 +15,10 @@ OBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o       \
         ast_property.o ast_assigment.o ast_variable_declaration.o             \
         ast_variable_definition.o  ast_if_block.o ast_variable_ref.o          \
         ast_function_call.o ast_if_else.o ast_foreach.o ast_array_cell_ref.o  \
-        ast_array_slice_ref.o ast_string_literal.o ast_enum.o                 \
+        ast_array_slice_ref.o ast_string_literal.o ast_alias.o ast_enum.o     \
         ast_enum_member.o                                                     \
         dt_data_type.o dt_auto_type.o dt_basic_type.o dt_array_type.o         \
-        dt_static_array_type.o                                                \
+        dt_static_array_type.o dt_user_type.o                                 \
         ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_code_block.o     \
         ir_statment.o ir_cast.o ir_constant.o ir_bool_constant.o              \
         ir_int_constant.o ir_uint_constant.o ir_char_constant.o               \

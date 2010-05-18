@@ -44,6 +44,7 @@ unescape_char_literal(char *str, int len);
 "void"   { return TOK_VOID; }
 "bool"   { return TOK_BOOL; }
 "true"   { return TOK_TRUE; }
+"alias"  { return TOK_ALIAS; }
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }
 "return" { return TOK_RETURN; }

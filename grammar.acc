@@ -34,7 +34,7 @@ AstModule *module;
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
        TOK_EXTERN, TOK_LINKAGE_TYPE,
-       TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL,
+       TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
        
 
@@ -70,6 +70,7 @@ module_declaration<package_names> :
 
 declaration<module> :
     import_declaration<module>
+|   alias_declaration<module>
 |   enum_declaration<module>
 |   func_def_list<module>
 |   declaration_blocks<module>
@@ -88,6 +89,14 @@ import_declaration<module> :
         }
     )*
     ';'
+;
+
+alias_declaration<module> :
+    TOK_ALIAS type<t> TOK_IDENT<name> ';'
+    {
+        ast_module_add_alias((*module).module,
+                             ast_alias_new(t.data_type, name.text));
+    }
 ;
 
 enum_declaration<module> :
@@ -347,6 +356,10 @@ type<x> :
     {
         dt_data_type_set_immutable(t.data_type, true);
         (*x).data_type = t.data_type;
+    }
+|   TOK_IDENT<t>
+    {
+        (*x).data_type = DT_DATA_TYPE(dt_user_type_new(t.text));
     }
 ;
 
