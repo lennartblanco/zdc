@@ -78,6 +78,14 @@ void
 ast_module_add_alias(AstModule *self,
                      AstAlias *alias);
 
+/**
+ * Get all alias statments in this module.
+ *
+ * @return a list of AstAlias objects
+ */
+GSList *
+ast_module_get_aliases(AstModule *self);
+
 GSList *
 ast_module_get_function_decls(AstModule *self);
 

@@ -14,25 +14,38 @@
  */
 void
 compile_error(compilation_status_t *compile_status,
-              IrNode *error_node,
+              void *error_node,
               const char *errmsg,
               ...)
 {
     assert(compile_status);
     assert(compile_status->source_file);
-    assert(IR_IS_NODE(error_node));
+    assert(IR_IS_NODE(error_node) || AST_IS_NODE(error_node));
+
+    guint line_num;
+
+    if (IR_IS_NODE(error_node))
+    {
+        line_num = ir_node_get_line_num(error_node);
+    }
+    else
+    {
+        /* this must be an AST node */
+        line_num = ast_node_get_line_num(error_node);
+    }
+
     /*
      * if line number is 0, which is a default value,
      * it have not been set propertly
      */
-    assert(ir_node_get_line_num(error_node) != 0);
+    assert(line_num != 0);
 
     va_list argp;
 
     fprintf(stderr,
             "%s:%u: error: ",
             compile_status->source_file,
-            ir_node_get_line_num(error_node));
+            line_num);
 
     va_start(argp, errmsg);
     vfprintf(stderr, errmsg, argp);

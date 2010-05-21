@@ -24,6 +24,7 @@ invalid_prop: invalid_prop.d
 invalid_returns: invalid_returns.d
 immutable: immutable.d
 esc_seq: esc_seq.d
+alias: alias.d
 
 %.d: %.inv_d
 	cp $? $@

@@ -46,7 +46,13 @@ typedef struct
 GType 
 ast_alias_get_type(void);
 
-AstAlias * 
-ast_alias_new(DtDataType *type, gchar *name);
+AstAlias *
+ast_alias_new(DtDataType *type, gchar *name, guint line_number);
+
+DtDataType *
+ast_alias_get_data_type(AstAlias *self);
+
+gchar *
+ast_alias_get_name(AstAlias *self);
 
 #endif /* AST_ALIAS_INC_X */

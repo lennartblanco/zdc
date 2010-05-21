@@ -19,7 +19,7 @@
  */
 void
 compile_error(compilation_status_t *compile_status,
-              IrNode *error_node,
+              void *error_node,
               const char *errmsg,
               ...);
 

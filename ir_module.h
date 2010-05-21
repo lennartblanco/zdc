@@ -88,6 +88,11 @@ ir_module_add_array_literal_data(IrModule *self,
 GSList *
 ir_module_get_data_section(IrModule *self);
 
+bool
+ir_module_add_type_alias(IrModule *self,
+                         DtDataType *data_type,
+                         gchar *alias_name);
+
 void
 ir_module_print(IrModule *self, FILE *out, int indention);
 

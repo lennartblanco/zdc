@@ -95,7 +95,7 @@ alias_declaration<module> :
     TOK_ALIAS type<t> TOK_IDENT<name> ';'
     {
         ast_module_add_alias((*module).module,
-                             ast_alias_new(t.data_type, name.text));
+                             ast_alias_new(t.data_type, name.text, yypos));
     }
 ;
 

@@ -41,20 +41,38 @@ ast_alias_get_type(void)
     return type;
 }
 
-AstAlias * 
-ast_alias_new(DtDataType *type, gchar *name)
+AstAlias *
+ast_alias_new(DtDataType *type, gchar *name, guint line_number)
 {
     assert(name);
     assert(DT_IS_DATA_TYPE(type));
 
     AstAlias *obj;
 
-    obj = g_object_new(AST_TYPE_ALIAS, NULL);
+    obj = g_object_new(AST_TYPE_ALIAS,
+                       "ast-node-line-number", line_number,
+                       NULL);
 
     obj->type = type;
     obj->name = g_strdup(name);
 
     return obj;
+}
+
+DtDataType *
+ast_alias_get_data_type(AstAlias *self)
+{
+    assert(AST_IS_ALIAS(self));
+
+    return self->type;
+}
+
+gchar *
+ast_alias_get_name(AstAlias *self)
+{
+    assert(AST_IS_ALIAS(self));
+
+    return self->name;
 }
 
 /*---------------------------------------------------------------------------*

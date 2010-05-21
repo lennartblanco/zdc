@@ -14,6 +14,7 @@ struct _IrModule
   /* private */
   GSList         *package_name;
   sym_table_t    *symbols;
+  GHashTable     *user_types;
   GSList         *function_defs;
   GSList         *data_section;  /** compile-time constant expressions */
   char *fq_name;
@@ -55,6 +56,7 @@ ir_module_new(GSList *package_name)
 
     obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
+    obj->user_types = g_hash_table_new(g_str_hash, g_str_equal);
     obj->function_defs = NULL;
     obj->data_section = NULL;
     obj->package_name = package_name;
@@ -172,6 +174,25 @@ ir_module_get_data_section(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->data_section;
+}
+
+bool
+ir_module_add_type_alias(IrModule *self,
+                         DtDataType *data_type,
+                         gchar *alias_name)
+{
+    assert(IR_IS_MODULE(self));
+    assert(DT_IS_DATA_TYPE(data_type));
+    assert(alias_name);
+
+    if (g_hash_table_lookup(self->user_types, alias_name) != NULL)
+    {
+        return false;
+    }
+
+    g_hash_table_insert(self->user_types, alias_name, data_type);
+
+    return true;
 }
 
 void

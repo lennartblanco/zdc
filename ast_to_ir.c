@@ -235,6 +235,24 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
     }
 
     /*
+     * process all alias statments
+     */
+    i = ast_module_get_aliases(ast_module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        DtDataType *alias_type = ast_alias_get_data_type(i->data);
+        gchar *alias_name = ast_alias_get_name(i->data);
+
+        if (!ir_module_add_type_alias(module, alias_type, alias_name)) {
+            compile_error(compile_status,
+                          i->data,
+                          "redefinition of alias type name '%s'\n",
+                          alias_name);
+        }
+    }
+    
+
+    /*
      * convert all function definitions to IR form and store them
      * in module's symbol table
      */

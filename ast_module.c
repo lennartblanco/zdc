@@ -173,6 +173,14 @@ ast_module_add_alias(AstModule *self,
 }
 
 GSList *
+ast_module_get_aliases(AstModule *self)
+{
+    assert(AST_IS_MODULE(self));
+
+    return self->alias;
+}
+
+GSList *
 ast_module_get_function_decls(AstModule *self)
 {
     assert(AST_IS_MODULE(self));
