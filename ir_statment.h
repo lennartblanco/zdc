@@ -1,8 +1,6 @@
 #ifndef IR_STATMENT_INC_X
 #define IR_STATMENT_INC_X
 
-#include <stdio.h>
-
 #include "ir_node.h"
 
 /*---------------------------------------------------------------------------*
