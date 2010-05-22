@@ -255,26 +255,7 @@ x86_get_expression_storage_size(IrExpression *expression)
 {
     assert(IR_IS_EXPRESSION(expression));
 
-    DtDataType *data_type;
-    data_type = ir_expression_get_data_type(expression);
-
-    if (DT_IS_BASIC_TYPE(data_type) || DT_IS_STATIC_ARRAY_TYPE(data_type))
-    {
-        return dt_data_type_get_size(data_type);
-    }
-    else if (DT_IS_ARRAY_TYPE(data_type))
-    {
-        /* 4 bytes for array length + 4 bytes for array data pointer */
-        return 8;
-    }
-    else
-    {
-        /* unexpected data type */
-        assert(false);
-    }
-    /* we should not get here */
-    assert(false);
-    return 0;
+    return dt_data_type_get_size(ir_expression_get_data_type(expression));
 }
 
 /**
