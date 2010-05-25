@@ -53,4 +53,7 @@ dt_user_type_get_type(void);
 DtUserType *
 dt_user_type_new(gchar *name);
 
+gchar *
+dt_user_type_get_name(DtUserType *self);
+
 #endif /* DT_USER_TYPE_INC_X */

@@ -15,6 +15,7 @@ struct _IrModule
   GSList         *package_name;
   sym_table_t    *symbols;
   GHashTable     *user_types;
+  GSList         *enums;
   GSList         *function_defs;
   GSList         *data_section;  /** compile-time constant expressions */
   char *fq_name;
@@ -57,6 +58,7 @@ ir_module_new(GSList *package_name)
     obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
     obj->user_types = g_hash_table_new(g_str_hash, g_str_equal);
+    obj->enums = NULL;
     obj->function_defs = NULL;
     obj->data_section = NULL;
     obj->package_name = package_name;
@@ -193,6 +195,54 @@ ir_module_add_type_alias(IrModule *self,
     g_hash_table_insert(self->user_types, alias_name, data_type);
 
     return true;
+}
+
+bool
+ir_module_add_enum(IrModule *self,
+                   IrEnum *ir_enum)
+{
+    assert(IR_IS_MODULE(self));
+    assert(IR_IS_ENUM(ir_enum));
+
+    gchar *enum_tag = ir_enum_get_tag(ir_enum);
+
+    /*
+     * store enum in the user type table
+     */
+    if (g_hash_table_lookup(self->user_types, enum_tag) != NULL)
+    {
+        return false;
+    }
+    g_hash_table_insert(self->user_types,
+                        enum_tag,
+                        ir_enum_get_data_type(ir_enum));
+
+    /* add it to the module's enum's list */
+    self->enums = g_slist_prepend(self->enums, ir_enum);
+
+    return true;
+}
+
+/**
+ * @return enum declaration in this module, as a list of IrEnum objects
+ */
+GSList *
+ir_module_get_enums(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->enums;
+}
+
+DtDataType *
+ir_module_get_user_type(IrModule *self,
+                        DtUserType *user_type)
+{
+    assert(IR_IS_MODULE(self));
+    assert(DT_IS_USER_TYPE(user_type));
+
+    return g_hash_table_lookup(self->user_types,
+                               dt_user_type_get_name(user_type));
 }
 
 void

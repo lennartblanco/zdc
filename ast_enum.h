@@ -52,7 +52,19 @@ ast_enum_get_type(void);
  * @param base_type enum base type, or NULL if none is specified
  * @param members enum members, as list of AstEnumMember objects
  */
-AstEnum * 
-ast_enum_new(gchar *tag, DtDataType *base_type, GSList *members);
+AstEnum *
+ast_enum_new(gchar *tag,
+             DtDataType *base_type,
+             GSList *members,
+             guint line_number);
+
+gchar *
+ast_enum_get_tag(AstEnum *self);
+
+DtDataType *
+ast_enum_get_base_type(AstEnum *self);
+
+GSList *
+ast_enum_get_members(AstEnum *self);
 
 #endif /* AST_ENUM_INC_X */

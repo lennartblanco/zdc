@@ -112,7 +112,8 @@ enum_declaration<module> :
 
         enum_node = ast_enum_new(enum_tag.text,
                                  base_type.data_type,
-                                 mbrs.list);
+                                 mbrs.list,
+                                 yypos);
         ast_module_add_enum_def((*module).module, enum_node);
     }
 ;

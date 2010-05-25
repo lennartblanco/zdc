@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "sem_analyze_validate.h"
+#include "dt_user_type.h"
 #include "types.h"
 #include "dt_auto_type.h"
 #include "dt_static_array_type.h"
@@ -21,6 +22,7 @@
 #include "ir_foreach.h"
 #include "ir_array_cell.h"
 #include "ir_property.h"
+#include "ir_enum_member.h"
 #include "const_fold.h"
 #include "errors.h"
 
@@ -141,6 +143,11 @@ validate_statment(compilation_status_t *compile_status,
 static void
 validate_code_block(compilation_status_t *compile_status,
                     IrCodeBlock *code_block);
+
+static void
+validate_enum(compilation_status_t *compile_status,
+              IrEnum *enum_def);
+
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -1140,6 +1147,35 @@ validate_code_block(compilation_status_t *compile_status,
         var = IR_VARIABLE(p->data);
         initializer = ir_variable_get_initializer(var);
 
+        var_type = ir_variable_get_data_type(var);
+        if (DT_IS_USER_TYPE(var_type))
+        {
+            /*
+             * the variable is of user defined type,
+             * look-up the data type object with the specified name
+             */
+            DtUserType *user_type = DT_USER_TYPE(var_type);
+
+            var_type =
+                ir_module_get_user_type(compile_status->module, user_type);
+
+            if (var_type == NULL)
+            {
+                /* failed to look-up the data type */
+                compile_error(compile_status,
+                              IR_NODE(var),
+                              "unkown data type '%s'\n",
+                              dt_user_type_get_name(user_type));
+                continue;
+            }
+
+            /*
+             * overwrite the placehold data type object with the
+             * found object
+             */
+            ir_variable_set_data_type(var, var_type);
+        }
+
         /* no initializer expression, skip */
         if (initializer == NULL)
         {
@@ -1158,7 +1194,6 @@ validate_code_block(compilation_status_t *compile_status,
             continue;
         }
 
-        var_type = ir_variable_get_data_type(var);
         conv_initializer = types_implicit_conv(var_type, initializer);
         if (conv_initializer == NULL && DT_IS_ARRAY_TYPE(var_type))
         {
@@ -1469,6 +1504,73 @@ validate_array_literal(compilation_status_t *compile_status,
 }
 
 static void
+validate_enum(compilation_status_t *compile_status,
+              IrEnum *enum_def)
+{
+    assert(IR_IS_ENUM(enum_def));
+
+    GSList *members;
+    GSList *i;
+    sym_table_t *sym_table;
+    DtDataType *base_type;
+
+    sym_table = ir_module_get_symbols(compile_status->module);
+    members = ir_enum_get_members(enum_def);
+
+    /*
+     * validate enum members initialization expressions
+     */
+    for (i = members; i != NULL; i = g_slist_next(i))
+    {
+        IrExpression *var;
+        IrExpression *tmp;
+
+        var = ir_enum_member_get_value(i->data);
+        if (var == NULL)
+        {
+            continue;
+        }
+
+        tmp = validate_expression(compile_status,
+                                  sym_table,
+                                  var);
+        if (tmp == NULL)
+        {
+            compile_error(compile_status,
+                          var,
+                          "invalid enum member initialization expression\n");
+            continue;
+        }
+        ir_enum_member_set_value(i->data, tmp);
+    }
+
+    /*
+     * Figure out enum's base type
+     */
+    base_type = ir_enum_get_base_type(enum_def);
+    if (base_type == NULL)
+    {
+        IrExpression *first_member_init;
+
+        /*
+         * get first member's initialization expression
+         */
+        first_member_init = ir_enum_member_get_value(members->data);
+        if (first_member_init != NULL)
+        {
+            /* enum's base type is derived from first members type */
+            base_type = ir_expression_get_data_type(first_member_init);
+        }
+        else
+        {
+            /* use default int base type */
+            base_type = types_get_int_type();
+        }
+        ir_enum_set_base_type(enum_def, base_type);
+    }
+}
+
+static void
 validate_entry_point(compilation_status_t *compile_status,
                      IrModule *module)
 {
@@ -1525,6 +1627,14 @@ sem_analyze_validate(compilation_status_t *compile_status,
     compile_status->module = module;
 
     validate_entry_point(compile_status, module);
+
+    i = ir_module_get_enums(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_ENUM(i->data));
+        validate_enum(compile_status,
+                      IR_ENUM(i->data));
+    }
 
     i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))

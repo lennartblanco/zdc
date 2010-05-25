@@ -52,6 +52,14 @@ dt_user_type_new(gchar *name)
     return obj;
 }
 
+gchar *
+dt_user_type_get_name(DtUserType *self)
+{
+    assert(DT_IS_USER_TYPE(self));
+
+    return self->name;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

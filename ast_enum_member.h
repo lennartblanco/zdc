@@ -37,7 +37,7 @@ typedef struct
 
 typedef struct
 {
-  AstNodeClass parent_class;
+    AstNodeClass parent_class;
 } AstEnumMemberClass;
 
 /*---------------------------------------------------------------------------*
@@ -49,5 +49,14 @@ ast_enum_member_get_type(void);
 
 AstEnumMember * 
 ast_enum_member_new(DtDataType *type, gchar *name, AstExpression *initializer);
+
+DtDataType *
+ast_enum_member_get_type_decl(AstEnumMember *self);
+
+gchar *
+ast_enum_member_get_name(AstEnumMember *self);
+
+AstExpression *
+ast_enum_member_get_initializer(AstEnumMember *self);
 
 #endif /* AST_ENUM_MEMBER_INC_X */

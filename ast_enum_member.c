@@ -55,6 +55,31 @@ ast_enum_member_new(DtDataType *type, gchar *name, AstExpression *initializer)
     return obj;
 }
 
+DtDataType *
+ast_enum_member_get_type_decl(AstEnumMember *self)
+{
+    assert(AST_IS_ENUM_MEMBER(self));
+
+    return self->type;
+}
+
+gchar *
+ast_enum_member_get_name(AstEnumMember *self)
+{
+    assert(AST_IS_ENUM_MEMBER(self));
+
+    return self->name;
+}
+
+AstExpression *
+ast_enum_member_get_initializer(AstEnumMember *self)
+{
+    assert(AST_IS_ENUM_MEMBER(self));
+
+    return self->initializer;
+}
+
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

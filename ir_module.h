@@ -5,10 +5,12 @@
 #include <stdbool.h>
 
 #include "sym_table.h"
+#include "dt_user_type.h"
 #include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
 #include "ir_array_literal.h"
+#include "ir_enum.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -88,10 +90,35 @@ ir_module_add_array_literal_data(IrModule *self,
 GSList *
 ir_module_get_data_section(IrModule *self);
 
+/**
+ * @return false if this alias definition conflicts with some other user type
+ */
 bool
 ir_module_add_type_alias(IrModule *self,
                          DtDataType *data_type,
                          gchar *alias_name);
+
+/**
+ * @return false if this enum definition conflicts with some other user type
+ */
+bool
+ir_module_add_enum(IrModule *self,
+                   IrEnum *ir_enum);
+
+/**
+ * @return enum declaration in this module, as a list of IrEnum objects
+ */
+GSList *
+ir_module_get_enums(IrModule *self);
+
+/**
+ * Look-up the user defined type by it's name.
+ *
+ * @return the data type or NULL if no user type with provided name is defined.
+ */
+DtDataType *
+ir_module_get_user_type(IrModule *self,
+                        DtUserType *user_type);
 
 void
 ir_module_print(IrModule *self, FILE *out, int indention);

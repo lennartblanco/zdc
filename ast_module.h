@@ -66,13 +66,22 @@ void
 ast_module_add_function_decl(AstModule *self,
                              AstFunctionDecl *function_decl);
 
+GSList *
+ast_module_get_function_decls(AstModule *self);
+
 void
 ast_module_add_function_def(AstModule *self,
                             AstFunctionDef *function_def);
 
+GSList *
+ast_module_get_function_defs(AstModule *self);
+
 void
 ast_module_add_enum_def(AstModule *self,
                         AstEnum *enum_def);
+
+GSList *
+ast_module_get_enum_defs(AstModule *self);
 
 void
 ast_module_add_alias(AstModule *self,
@@ -85,11 +94,5 @@ ast_module_add_alias(AstModule *self,
  */
 GSList *
 ast_module_get_aliases(AstModule *self);
-
-GSList *
-ast_module_get_function_decls(AstModule *self);
-
-GSList *
-ast_module_get_function_defs(AstModule *self);
 
 #endif /* AST_MODULE_INC_X */

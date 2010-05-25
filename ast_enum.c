@@ -41,20 +41,49 @@ ast_enum_get_type(void)
     return type;
 }
 
-AstEnum * 
-ast_enum_new(gchar *tag, DtDataType *base_type, GSList *members)
+AstEnum *
+ast_enum_new(gchar *tag,
+             DtDataType *base_type,
+             GSList *members,
+             guint line_number)
 {
     assert(members != NULL);
 
     AstEnum *obj;
 
-    obj = g_object_new(AST_TYPE_ENUM, NULL);
+    obj = g_object_new(AST_TYPE_ENUM,
+                       "ast-node-line-number", line_number,
+                       NULL);
 
     obj->tag = g_strdup(tag);
     obj->base_type = base_type;
     obj->members = members;
 
     return obj;
+}
+
+gchar *
+ast_enum_get_tag(AstEnum *self)
+{
+    assert(AST_IS_ENUM(self));
+
+    return self->tag;
+}
+
+DtDataType *
+ast_enum_get_base_type(AstEnum *self)
+{
+    assert(AST_IS_ENUM(self));
+
+    return self->base_type;
+}
+
+GSList *
+ast_enum_get_members(AstEnum *self)
+{
+    assert(AST_IS_ENUM(self));
+
+    return self->members;
 }
 
 /*---------------------------------------------------------------------------*

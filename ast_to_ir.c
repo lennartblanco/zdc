@@ -16,6 +16,7 @@
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
 #include "ast_property.h"
+#include "ast_enum_member.h"
 #include "ir_array.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
@@ -36,6 +37,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_property.h"
+#include "ir_enum_member.h"
 #include "errors.h"
 
 #include <assert.h>
@@ -43,6 +45,11 @@
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
+
+static IrEnum *
+enum_to_ir(compilation_status_t *compile_status,
+           sym_table_t *symbols,
+           AstEnum *ast_enum);
 
 static IrFunctionDecl *
 func_decl_to_ir(AstFunctionDecl *ast_func_decl);
@@ -215,6 +222,7 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
     sym_table_t *module_sym_table;
 
     module = ir_module_new(ast_module_get_package(ast_module));
+    module_sym_table = ir_module_get_symbols(module);
 
     /*
      * store all function declarations in module's symbol table
@@ -235,6 +243,27 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
     }
 
     /*
+     * process all enum definitions
+     */
+    i = ast_module_get_enum_defs(ast_module);
+    for (; i != NULL; i = i->next)
+    {
+        IrEnum *ir_enum;
+
+        ir_enum = enum_to_ir(compile_status,
+                             module_sym_table,
+                             AST_ENUM(i->data));
+        if (!ir_module_add_enum(module, ir_enum))
+        {
+            compile_error(compile_status,
+                          IR_NODE(ir_enum),
+                          "enum declaration conflicts with"
+                          " other user type '%s' definition\n",
+                          ast_enum_get_tag(AST_ENUM(i->data)));
+        }
+    }
+
+    /*
      * process all alias statments
      */
     i = ast_module_get_aliases(ast_module);
@@ -246,11 +275,11 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
         if (!ir_module_add_type_alias(module, alias_type, alias_name)) {
             compile_error(compile_status,
                           i->data,
-                          "redefinition of alias type name '%s'\n",
+                          "alias conflicts with"
+                          " other user type '%s' definition\n",
                           alias_name);
         }
     }
-    
 
     /*
      * convert all function definitions to IR form and store them
@@ -278,7 +307,6 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
      * Handle imports
      */
     i = ast_module_get_imports(ast_module);
-    module_sym_table = ir_module_get_symbols(module);
 
     for (; i != NULL; i = g_slist_next(i))
     {
@@ -293,6 +321,59 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static IrEnumMember *
+enum_member_to_ir(compilation_status_t *compile_status,
+                  sym_table_t *symbols,
+                  AstEnumMember *ast_member)
+{
+    IrExpression *member_val = NULL;
+    AstExpression *member_init;
+
+    member_init = ast_enum_member_get_initializer(ast_member);
+    if (member_init != NULL)
+    {
+        member_val = expression_to_ir(compile_status,
+                                      symbols,
+                                      member_init);
+    }
+
+    return ir_enum_member_new(ast_enum_member_get_name(ast_member),
+                              member_val);
+}
+
+static IrEnum *
+enum_to_ir(compilation_status_t *compile_status,
+           sym_table_t *symbols,
+           AstEnum *ast_enum)
+{
+    DtDataType *base_type;
+    gchar *enum_tag;
+    GSList *i;
+    GSList *ir_enum_members = NULL;
+
+    base_type = ast_enum_get_base_type(ast_enum);
+    enum_tag = ast_enum_get_tag(ast_enum);
+    if (enum_tag == NULL)
+    {
+        g_error("anonymous enums not implemented");
+    }
+
+    for (i = ast_enum_get_members(ast_enum); i != NULL; i = g_slist_next(i))
+    {
+        ir_enum_members = g_slist_prepend(ir_enum_members,
+                                          enum_member_to_ir(compile_status,
+                                                            symbols,
+                                                            i->data));
+    }
+    ir_enum_members = g_slist_reverse(ir_enum_members);
+
+
+    return ir_enum_new(enum_tag,
+                       base_type,
+                       ir_enum_members,
+                       ast_node_get_line_num(ast_enum));
+}
 
 static GSList *
 func_params_to_ir(GSList *ast_func_params)

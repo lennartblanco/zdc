@@ -162,6 +162,14 @@ ast_module_add_enum_def(AstModule *self, AstEnum *enum_def)
     self->enums = g_slist_prepend(self->enums, enum_def);
 }
 
+GSList *
+ast_module_get_enum_defs(AstModule *self)
+{
+    assert(AST_IS_MODULE(self));
+
+    return self->enums;
+}
+
 void
 ast_module_add_alias(AstModule *self,
                      AstAlias *alias)

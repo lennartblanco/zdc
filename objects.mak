@@ -18,13 +18,14 @@ OBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o       \
         ast_array_slice_ref.o ast_string_literal.o ast_alias.o ast_enum.o     \
         ast_enum_member.o                                                     \
         dt_data_type.o dt_auto_type.o dt_basic_type.o dt_array_type.o         \
-        dt_static_array_type.o dt_user_type.o                                 \
-        ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_code_block.o     \
-        ir_statment.o ir_cast.o ir_constant.o ir_bool_constant.o              \
-        ir_int_constant.o ir_uint_constant.o ir_char_constant.o               \
-        ir_binary_operation.o ir_unary_operation.o ir_module.o ir_if_else.o   \
-        ir_if_block.o ir_while.o ir_foreach.o ir_expression.o ir_return.o     \
-        ir_function_call.o ir_assigment.o ir_array_literal.o ir_lvalue.o      \
-        ir_array.o ir_array_slice.o ir_array_cell.o ir_scalar.o               \
-        ir_function_def.o ir_function_decl.o ir_property.o                    \
+        dt_static_array_type.o dt_user_type.o dt_enum_type.o                  \
+        ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_enum_member.o    \
+        ir_code_block.o ir_statment.o ir_cast.o ir_constant.o ir_enum.o       \
+        ir_bool_constant.o ir_int_constant.o ir_uint_constant.o               \
+        ir_char_constant.o ir_binary_operation.o ir_unary_operation.o         \
+        ir_module.o ir_if_else.o ir_if_block.o ir_while.o ir_foreach.o        \
+        ir_expression.o ir_return.o ir_function_call.o ir_assigment.o         \
+        ir_array_literal.o ir_lvalue.o ir_array.o ir_array_slice.o            \
+        ir_array_cell.o ir_scalar.o ir_function_def.o ir_function_decl.o      \
+        ir_property.o                                                         \
         $(X86_TRGT_OBJS) #$(JAVA_TRGT_OBJS)
