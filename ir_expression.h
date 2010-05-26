@@ -4,6 +4,8 @@
 #include <glib-object.h>
 #include <stdbool.h>
 
+#include "ir_types.h"
+#include "dt_types.h"
 #include "ir_statment.h"
 #include "dt_data_type.h"
 
@@ -28,10 +30,10 @@
 #define IR_EXPRESSION_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_EXPRESSION, IrExpressionClass))
 
-typedef struct 
+struct _IrExpression
 {
   IrStatment parent;
-} IrExpression;
+};
 
 typedef struct 
 {

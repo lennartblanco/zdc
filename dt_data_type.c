@@ -82,3 +82,11 @@ dt_data_type_get_mangled(DtDataType *self)
     return DT_DATA_TYPE_GET_CLASS(self)->get_mangled(self);
 }
 
+IrExpression *
+dt_data_type_get_init(DtDataType *self)
+{
+    assert(DT_IS_DATA_TYPE(self));
+
+    return DT_DATA_TYPE_GET_CLASS(self)->get_init(self);
+}
+

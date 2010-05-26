@@ -1,9 +1,7 @@
 #ifndef DT_DATA_TYPE_INC_X
 #define DT_DATA_TYPE_INC_X
 
-#include <glib-object.h>
-#include <stdio.h>
-#include <stdbool.h>
+#include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,13 +24,13 @@
 #define DT_DATA_TYPE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_DATA_TYPE, DtDataTypeClass))
 
-typedef struct
+struct _DtDataType
 {
     GObject parent;
 
     /* private */
     bool immutable;
-} DtDataType;
+};
 
 typedef struct
 {
@@ -42,6 +40,7 @@ typedef struct
     char * (*get_mangled) (DtDataType *self);
     char * (*get_string) (DtDataType *self);
     guint (*get_size) (DtDataType *self);
+    IrExpression * (*get_init) (DtDataType *self);
 } DtDataTypeClass;
 
 typedef enum basic_data_type_e
@@ -86,5 +85,11 @@ dt_data_type_get_string(DtDataType *self);
  */
 char *
 dt_data_type_get_mangled(DtDataType *self);
+
+/**
+ * Get default initializer expression for this data type.
+ */
+IrExpression *
+dt_data_type_get_init(DtDataType *self);
 
 #endif /* DT_DATA_TYPE_INC_X */

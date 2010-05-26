@@ -50,11 +50,6 @@ types_usual_arithm_conv(IrExpression *left,
                         IrExpression *right,
                         IrExpression **res_left,
                         IrExpression **res_right);
-/**
- * Get default initializer expression for a basic data type.
- */
-IrExpression *
-types_get_default_initializer(DtBasicType *data_type);
 
 /**
  * Returns true if data_type represent basic type void,

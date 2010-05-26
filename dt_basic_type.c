@@ -1,6 +1,10 @@
 #include <stdbool.h>
 
 #include "dt_basic_type.h"
+#include "ir_int_constant.h"
+#include "ir_uint_constant.h"
+#include "ir_bool_constant.h"
+#include "ir_char_constant.h"
 
 #include <assert.h>
 
@@ -19,6 +23,9 @@ dt_basic_type_get_string(DtDataType *self);
 
 static char *
 dt_basic_type_get_mangled(DtDataType *self);
+
+static IrExpression *
+dt_basic_type_get_init(DtDataType *self);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -145,11 +152,32 @@ dt_basic_type_get_mangled(DtDataType *self)
     
 }
 
+static IrExpression *
+dt_basic_type_get_init(DtDataType *self)
+{
+    assert(DT_IS_BASIC_TYPE(self));
+
+    switch (DT_BASIC_TYPE(self)->data_type)
+    {
+        case int_type:
+            return IR_EXPRESSION(ir_int_constant_new(0, 0));
+        case uint_type:
+            return IR_EXPRESSION(ir_uint_constant_new(0, 0));
+        case bool_type:
+            return IR_EXPRESSION(ir_bool_constant_new(false, 0));
+        case char_type:
+            return IR_EXPRESSION(ir_char_constant_new(255, 0));
+        default:
+            assert(false);
+    }
+}
+
 static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_basic_type_get_size;
     ((DtDataTypeClass *)klass)->get_string = dt_basic_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled = dt_basic_type_get_mangled;
+    ((DtDataTypeClass *)klass)->get_init = dt_basic_type_get_init;
 }
 

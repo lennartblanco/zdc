@@ -619,9 +619,7 @@ validate_init_property(compilation_status_t *compile_status,
 
     exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
 
-    /* only .init property on basic type implemented so far */
-    assert(DT_IS_BASIC_TYPE(exp_type));
-    return types_get_default_initializer(DT_BASIC_TYPE(exp_type));
+    return dt_data_type_get_init(exp_type);
 }
 
 static IrExpression *
@@ -1513,9 +1511,11 @@ validate_enum(compilation_status_t *compile_status,
     GSList *i;
     sym_table_t *sym_table;
     DtDataType *base_type;
+    IrExpression *first_member_init;
 
     sym_table = ir_module_get_symbols(compile_status->module);
     members = ir_enum_get_members(enum_def);
+    first_member_init = ir_enum_member_get_value(members->data);
 
     /*
      * validate enum members initialization expressions
@@ -1550,12 +1550,9 @@ validate_enum(compilation_status_t *compile_status,
     base_type = ir_enum_get_base_type(enum_def);
     if (base_type == NULL)
     {
-        IrExpression *first_member_init;
-
         /*
          * get first member's initialization expression
          */
-        first_member_init = ir_enum_member_get_value(members->data);
         if (first_member_init != NULL)
         {
             /* enum's base type is derived from first members type */
@@ -1568,6 +1565,8 @@ validate_enum(compilation_status_t *compile_status,
         }
         ir_enum_set_base_type(enum_def, base_type);
     }
+
+
 }
 
 static void
