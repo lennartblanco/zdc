@@ -1,6 +1,17 @@
 #include "ir_enum.h"
+#include "utils.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_enum_class_init(gpointer klass, gpointer foo);
+
+static void
+ir_enum_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -17,7 +28,7 @@ ir_enum_get_type(void)
         sizeof (IrEnumClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL,   /* class_init */
+        ir_enum_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrEnum),
@@ -89,5 +100,41 @@ ir_enum_get_data_type(IrEnum *self)
     assert(IR_IS_ENUM(self));
 
     return self->data_type;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_enum_do_print(IrNode *self, FILE *out, int indention)
+{
+    assert(IR_IS_ENUM(self));
+    assert(out);
+
+    IrEnum *e = IR_ENUM(self);
+    DtDataType *base_type;
+    GSList *i;
+
+    base_type = dt_enum_type_get_base_type(e->data_type);
+
+    fprintf_indent(out, indention,
+                   "enum [%p]\n"
+                   "  tag: '%s'\n"
+                   "  base type: '%s'\n"
+                   "  members:\n",
+                   e, e->tag,
+                   base_type ? dt_data_type_get_string(base_type) : "unknow");
+
+    for (i = e->members; i != NULL; i = g_slist_next(i))
+    {
+        ir_node_print(i->data, out, indention + 4);
+    }
+}
+
+static void
+ir_enum_class_init(gpointer klass, gpointer foo)
+{
+    ((IrNodeClass *)klass)->do_print = ir_enum_do_print;
 }
 
