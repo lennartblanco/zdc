@@ -14,7 +14,7 @@ static DtDataType *
 ir_cast_do_get_data_type(IrExpression *self);
 
 static void
-ir_cast_do_print(IrStatment *self, FILE *out, int indention);
+ir_cast_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -83,7 +83,7 @@ static void
 ir_cast_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type = ir_cast_do_get_data_type;
-    ((IrStatmentClass *)klass)->do_print = ir_cast_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_cast_do_print;
 }
 
 static DtDataType *
@@ -93,7 +93,7 @@ ir_cast_do_get_data_type(IrExpression *self)
 }
 
 static void
-ir_cast_do_print(IrStatment *self, FILE *out, int indention)
+ir_cast_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(self);
     assert(IR_IS_CAST(self));
@@ -105,5 +105,5 @@ ir_cast_do_print(IrStatment *self, FILE *out, int indention)
     fprintf_indent(out, indention + 2, "target_type: %s\n",
                    dt_data_type_get_string(cast->target_type));
     fprintf_indent(out, indention + 2, "value: ");
-    ir_statment_print(IR_STATMENT(cast->value), out, 0);
+    ir_node_print(IR_NODE(cast->value), out, 0);
 }

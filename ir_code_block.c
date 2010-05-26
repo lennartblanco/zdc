@@ -14,7 +14,7 @@ static void
 ir_code_block_class_init(gpointer klass, gpointer foo);
 
 static void
-ir_code_block_do_print(IrStatment *self, FILE *out, int indention);
+ir_code_block_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -90,11 +90,11 @@ ir_code_block_get_statments(IrCodeBlock *self)
 static void
 ir_code_block_class_init(gpointer klass, gpointer foo)
 {
-    ((IrStatmentClass *)klass)->do_print = ir_code_block_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_code_block_do_print;
 }
 
 static void
-ir_code_block_do_print(IrStatment *self, FILE *out, int indention)
+ir_code_block_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_CODE_BLOCK(self));
     assert(out);
@@ -118,7 +118,7 @@ ir_code_block_do_print(IrStatment *self, FILE *out, int indention)
     /* print all statments in this code block */
     for (; i != NULL; i = g_slist_next(i))
     {
-        ir_statment_print(i->data, out, indention + 2);
+        ir_node_print(i->data, out, indention + 2);
     }
     fprintf_indent(out, indention, "}\n");
 }

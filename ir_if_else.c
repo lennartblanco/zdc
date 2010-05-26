@@ -8,7 +8,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ir_if_else_do_print(IrStatment *self, FILE *out, int indention);
+ir_if_else_do_print(IrNode *self, FILE *out, int indention);
 
 static void
 ir_if_else_class_init(gpointer klass, gpointer foo);
@@ -100,7 +100,7 @@ ir_if_else_get_else_body(IrIfElse *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_if_else_do_print(IrStatment *self, FILE *out, int indention)
+ir_if_else_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(self);
     assert(IR_IS_IF_ELSE(self));
@@ -119,7 +119,7 @@ ir_if_else_do_print(IrStatment *self, FILE *out, int indention)
     if (ifelse->else_body != NULL)
     {
         fprintf_indent(out, indention, "  else body [%p]:\n", ifelse->else_body);
-        ir_statment_print(IR_STATMENT(ifelse->else_body), out, indention + 2);
+        ir_node_print(IR_NODE(ifelse->else_body), out, indention + 2);
     }
     
     fprintf_indent(out, indention, "}\n");
@@ -128,5 +128,5 @@ ir_if_else_do_print(IrStatment *self, FILE *out, int indention)
 static void
 ir_if_else_class_init(gpointer klass, gpointer foo)
 {
-    ((IrStatmentClass *)klass)->do_print = ir_if_else_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_if_else_do_print;
 }

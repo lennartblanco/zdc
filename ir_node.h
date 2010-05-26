@@ -35,6 +35,8 @@ typedef struct
 typedef struct 
 {
   GObjectClass parent_class;
+  /* public virtual methods */
+  void (*do_print) (IrNode *self, FILE *out, int indention);
 } IrNodeClass;
 
 /*---------------------------------------------------------------------------*
@@ -49,5 +51,15 @@ ir_node_get_type(void);
  */
 guint
 ir_node_get_line_num(void *self);
+
+/**
+ * Pretty print this node.
+ *
+ * @param self      the statment to print
+ * @param out       the stream to print to
+ * @param indention the indention level to use while printing
+ */
+void
+ir_node_print(IrNode *self, FILE *out, int indention);
 
 #endif /* IR_NODE_INC_X */

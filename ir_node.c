@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "ir_node.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -31,6 +32,9 @@ ir_node_get_property(GObject *object,
                      guint property_id,
                      GValue *value,
                      GParamSpec *pspec);
+
+static void
+ir_node_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -69,6 +73,15 @@ ir_node_get_line_num(void *self)
     return (IR_NODE(self)->line_number);
 }
 
+void
+ir_node_print(IrNode *self, FILE *out, int indention)
+{
+    assert(IR_IS_NODE(self));
+    assert(out);
+
+    IR_NODE_GET_CLASS(self)->do_print(self, out, indention);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -100,6 +113,8 @@ ir_node_class_init(gpointer klass, gpointer foo)
                                     IR_NDDE_LINE_NUMBER,
                                     pspec);
 
+    /* install default implementation of print method */
+    ((IrNodeClass *)klass)->do_print = ir_node_do_print;
 }
 
 static void
@@ -114,9 +129,6 @@ ir_node_set_property(GObject *object,
     IrNode *node = IR_NODE(object);
 
     node->line_number = g_value_get_uint(value);
-
-//printf("%s line num %u\n", g_type_name(G_TYPE_FROM_INSTANCE(object)),
-//                     node->line_number);
 }
 
 static void
@@ -127,6 +139,16 @@ ir_node_get_property(GObject *object,
 {
     /* not implemented */
     assert(false);
+}
+
+static void
+ir_node_do_print(IrNode *self, FILE *out, int indention)
+{
+    assert(IR_IS_NODE(self));
+    assert(out);
+
+    fprintf_indent(out, indention, "IrNode %s [%p]\n", 
+                   g_type_name(G_TYPE_FROM_INSTANCE(self)), self);
 }
 
 

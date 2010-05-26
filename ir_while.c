@@ -8,7 +8,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ir_while_do_print(IrStatment *self, FILE *out, int indention);
+ir_while_do_print(IrNode *self, FILE *out, int indention);
 
 static void
 ir_while_class_init(gpointer klass, gpointer foo);
@@ -90,7 +90,7 @@ ir_while_get_body(IrWhile *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_while_do_print(IrStatment *self, FILE *out, int indention)
+ir_while_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(self);
     assert(IR_IS_WHILE(self));
@@ -99,14 +99,14 @@ ir_while_do_print(IrStatment *self, FILE *out, int indention)
     IrWhile *w = IR_WHILE(self);
 
     fprintf_indent(out, indention, "while [%p]\nloop_condition: ", w);
-    ir_statment_print(IR_STATMENT(w->loop_condition), out, indention);
+    ir_node_print(IR_NODE(w->loop_condition), out, indention);
     fprintf_indent(out, indention, "\nbody:\n");
-    ir_statment_print(IR_STATMENT(w->body), out, indention + 2);
+    ir_node_print(IR_NODE(w->body), out, indention + 2);
     
 }
 
 static void
 ir_while_class_init(gpointer klass, gpointer foo)
 {
-    ((IrStatmentClass *)klass)->do_print = ir_while_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_while_do_print;
 }

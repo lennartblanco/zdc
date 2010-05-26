@@ -152,7 +152,7 @@ ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
     if (var->initializer != NULL)
     {
         fprintf(out, " =\n");
-        ir_statment_print(IR_STATMENT(var->initializer), out, indention + 2);
+        ir_node_print(IR_NODE(var->initializer), out, indention + 2);
     }
     else
     {

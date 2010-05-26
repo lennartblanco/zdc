@@ -17,7 +17,7 @@ static DtDataType *
 ir_char_constant_do_get_data_type(IrExpression *self);
 
 static void
-ir_char_constant_do_print(IrStatment *self, FILE *out, int indention);
+ir_char_constant_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -78,7 +78,7 @@ ir_char_constant_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_char_constant_do_get_data_type;
-    ((IrStatmentClass *)klass)->do_print = ir_char_constant_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_char_constant_do_print;
 }
 
 static DtDataType *
@@ -89,7 +89,7 @@ ir_char_constant_do_get_data_type(IrExpression *self)
 }
 
 static void
-ir_char_constant_do_print(IrStatment *self, FILE *out, int indention)
+ir_char_constant_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_CHAR_CONSTANT(self));
     assert(out);

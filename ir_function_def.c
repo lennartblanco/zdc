@@ -213,7 +213,6 @@ ir_function_def_do_print(IrSymbol *self, FILE *out, int indention)
 
     func = IR_FUNCTION_DEF(self);
     fprintf_indent(out, indention + 2, "body:\n");
-    ir_statment_print(IR_STATMENT(func->body), out, indention + 2);
-
+    ir_node_print(IR_NODE(func->body), out, indention + 2);
 }
 

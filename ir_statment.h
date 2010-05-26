@@ -32,8 +32,6 @@ typedef struct
 typedef struct 
 {
   IrNodeClass parent_class;
-  /* public virtual methods */
-  void (*do_print) (IrStatment *self, FILE *out, int indention); /* @todo move this method to IrNode class */
 } IrStatmentClass;
 
 /*---------------------------------------------------------------------------*
@@ -42,15 +40,5 @@ typedef struct
 
 GType
 ir_statment_get_type(void);
-
-/**
- * Pretty print this statment.
- *
- * @param self      the statment to print
- * @param out       the stream to print to
- * @param indention the indention level to use while printing
- */
-void
-ir_statment_print(IrStatment *self, FILE *out, int indention);
 
 #endif /* IR_STATMENT_INC_X */

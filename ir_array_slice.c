@@ -19,7 +19,7 @@ static DtDataType *
 ir_array_slice_do_get_data_type(IrExpression *self);
 
 static void
-ir_array_slice_do_print(IrStatment *self, FILE *out, int indention);
+ir_array_slice_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -127,7 +127,7 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_array_slice_do_get_data_type;
-    ((IrStatmentClass *)klass)->do_print = ir_array_slice_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_array_slice_do_print;
 }
 
 static DtDataType *
@@ -173,7 +173,7 @@ ir_array_slice_do_get_data_type(IrExpression *self)
 }
 
 static void
-ir_array_slice_do_print(IrStatment *self, FILE *out, int indention)
+ir_array_slice_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_ARRAY_SLICE(self));
 
@@ -191,9 +191,9 @@ ir_array_slice_do_print(IrStatment *self, FILE *out, int indention)
 
     if (slice->start != NULL)
     {  
-        ir_statment_print(IR_STATMENT(slice->start), out, 0);
+        ir_node_print(IR_NODE(slice->start), out, 0);
         fprintf(out, "..");
-        ir_statment_print(IR_STATMENT(slice->end), out, 0);
+        ir_node_print(IR_NODE(slice->end), out, 0);
     }
     fprintf(out, "]");
 }

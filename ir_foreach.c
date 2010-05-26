@@ -8,7 +8,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ir_foreach_do_print(IrStatment *self, FILE *out, int indention);
+ir_foreach_do_print(IrNode *self, FILE *out, int indention);
 
 static void
 ir_foreach_class_init(gpointer klass, gpointer foo);
@@ -106,7 +106,7 @@ ir_foreach_get_body(IrForeach *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_foreach_do_print(IrStatment *self, FILE *out, int indention)
+ir_foreach_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_FOREACH(self));
     assert(out);
@@ -125,13 +125,13 @@ ir_foreach_do_print(IrStatment *self, FILE *out, int indention)
     fprintf_indent(out, indention, "\n  value: ");
     ir_symbol_print(IR_SYMBOL(foreach->value), out, indention);
     fprintf_indent(out, indention, "\n  aggregate: ");
-    ir_statment_print(IR_STATMENT(foreach->aggregate), out, indention);
+    ir_node_print(IR_NODE(foreach->aggregate), out, indention);
     fprintf_indent(out, indention, "\n");
-    ir_statment_print(IR_STATMENT(foreach->body), out, indention + 2);
+    ir_node_print(IR_NODE(foreach->body), out, indention + 2);
 }
 
 static void
 ir_foreach_class_init(gpointer klass, gpointer foo)
 {
-    ((IrStatmentClass *)klass)->do_print = ir_foreach_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_foreach_do_print;
 }

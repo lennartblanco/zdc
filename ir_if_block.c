@@ -81,8 +81,8 @@ ir_if_block_print(IrIfBlock *self, FILE *out, int indention)
 
     fprintf_indent(out, indention, 
                    "if-block [%p]:\n condition: ", self);
-    ir_statment_print(IR_STATMENT(self->condition), out, indention + 2);
+    ir_node_print(IR_NODE(self->condition), out, indention + 2);
     fprintf(out, "\n");
     fprintf_indent(out, indention, " body:\n");
-    ir_statment_print(IR_STATMENT(self->body), out, indention + 2);
+    ir_node_print(IR_NODE(self->body), out, indention + 2);
 }

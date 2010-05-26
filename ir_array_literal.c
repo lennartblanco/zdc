@@ -15,7 +15,7 @@ static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy);
 
 static void
-ir_array_literal_do_print(IrStatment *self, FILE *out, int indention);
+ir_array_literal_do_print(IrNode *self, FILE *out, int indention);
 
 static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self);
@@ -129,7 +129,7 @@ ir_array_literal_get_data_label(IrArrayLiteral *self)
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrStatmentClass *)klass)->do_print = ir_array_literal_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_array_literal_do_print;
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_array_literal_do_get_data_type;
     ((IrExpressionClass *)klass)->do_is_constant =
@@ -165,7 +165,7 @@ ir_array_literal_do_get_data_type(IrExpression *self)
 }
 
 static void
-ir_array_literal_do_print(IrStatment *self, FILE *out, int indention)
+ir_array_literal_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_ARRAY_LITERAL(self));
     assert(out);
@@ -175,7 +175,7 @@ ir_array_literal_do_print(IrStatment *self, FILE *out, int indention)
     fprintf_indent(out, indention, "[");
     for (i = IR_ARRAY_LITERAL(self)->values; i != NULL; i = g_slist_next(i))
     {
-        ir_statment_print(i->data, out, 0);
+        ir_node_print(i->data, out, 0);
         if (g_slist_next(i) != NULL)
         {
             printf(", ");

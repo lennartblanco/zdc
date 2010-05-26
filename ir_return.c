@@ -8,7 +8,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ir_return_do_print(IrStatment *self, FILE *out, int indention);
+ir_return_do_print(IrNode *self, FILE *out, int indention);
 
 static void
 ir_return_class_init(gpointer klass, gpointer foo);
@@ -77,7 +77,7 @@ ir_return_get_return_value(IrReturn *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_return_do_print(IrStatment *self, FILE *out, int indention)
+ir_return_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(self);
     assert(IR_IS_RETURN(self));
@@ -89,12 +89,12 @@ ir_return_do_print(IrStatment *self, FILE *out, int indention)
     if (ret->return_value != NULL)
     {
         fprintf_indent(out, indention + 2, "return value:\n");
-        ir_statment_print(IR_STATMENT(ret->return_value), out, indention + 4);
+        ir_node_print(IR_NODE(ret->return_value), out, indention + 4);
     }    
 }
 
 static void
 ir_return_class_init(gpointer klass, gpointer foo)
 {
-    ((IrStatmentClass *)klass)->do_print = ir_return_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_return_do_print;
 }

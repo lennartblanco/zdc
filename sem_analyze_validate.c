@@ -1512,6 +1512,7 @@ validate_enum(compilation_status_t *compile_status,
     sym_table_t *sym_table;
     DtDataType *base_type;
     IrExpression *first_member_init;
+    IrExpression *member_value;
 
     sym_table = ir_module_get_symbols(compile_status->module);
     members = ir_enum_get_members(enum_def);
@@ -1545,7 +1546,7 @@ validate_enum(compilation_status_t *compile_status,
     }
 
     /*
-     * Figure out enum's base type
+     * figure out enum's base type
      */
     base_type = ir_enum_get_base_type(enum_def);
     if (base_type == NULL)
@@ -1566,6 +1567,10 @@ validate_enum(compilation_status_t *compile_status,
         ir_enum_set_base_type(enum_def, base_type);
     }
 
+    /*
+     * figure out enum members values
+     */
+    
 
 }
 
