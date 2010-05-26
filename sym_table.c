@@ -182,7 +182,7 @@ sym_table_print(sym_table_t *table, FILE *out)
     symbols = sym_table_get_all_symbols(table);
     for (i = symbols; i != NULL; i = g_list_next(i))
     {
-        ir_symbol_print(IR_SYMBOL(i->data), out, 0);
+        ir_node_print(IR_NODE(i->data), out, 0);
         fprintf(out, "\n");
     }
     g_list_free(symbols);

@@ -111,7 +111,7 @@ ir_code_block_do_print(IrNode *self, FILE *out, int indention)
     p = sym_table_get_all_symbols(code_blk->symbols);
     for (; p != NULL; p = g_list_next(p))
     {
-        ir_symbol_print(IR_SYMBOL(p->data), out, indention + 2);
+        ir_node_print(IR_NODE(p->data), out, indention + 2);
     }
     g_list_free(p);
 

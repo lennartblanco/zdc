@@ -39,7 +39,7 @@ ir_symbol_get_property(GObject *object,
                        GParamSpec *pspec);
 
 static void
-ir_symbol_do_print(IrSymbol *self, FILE *out, int indention);
+ir_symbol_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -104,12 +104,6 @@ ir_symbol_get_parent_module(IrSymbol *self)
     assert(IR_IS_MODULE(self->parent_module));
 
     return self->parent_module;
-}
-
-void
-ir_symbol_print(IrSymbol *self, FILE *out, int indention)
-{
-    IR_SYMBOL_GET_CLASS(self)->do_print(self, out, indention);
 }
 
 /*---------------------------------------------------------------------------*
@@ -193,14 +187,14 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
                                     pspec);
 
     /*
-     * set default implementation of print() method
+     * set default implementation of print() method for a symbol
      */
-    ((IrSymbolClass *)klass)->do_print = ir_symbol_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_symbol_do_print;
 }
 
 static void
-ir_symbol_do_print(IrSymbol *self, FILE *out, int indention)
+ir_symbol_do_print(IrNode *self, FILE *out, int indention)
 {
     fprintf_indent(out, indention, "symbol [%p] name: '%s'\n",
-                   self, self->name);
+                   self, IR_SYMBOL(self)->name);
 }

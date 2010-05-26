@@ -27,7 +27,7 @@ static void
 ir_function_def_class_init(gpointer klass, gpointer foo);
 
 static void
-ir_function_def_do_print(IrSymbol *self, FILE *out, int indention);
+ir_function_def_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -198,11 +198,11 @@ ir_function_def_get_body(IrFunctionDef *self)
 static void
 ir_function_def_class_init(gpointer klass, gpointer foo)
 {
-    ((IrSymbolClass *)klass)->do_print = ir_function_def_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_function_def_do_print;
 }
 
 static void
-ir_function_def_do_print(IrSymbol *self, FILE *out, int indention)
+ir_function_def_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_FUNCTION_DEF(self));
     assert(out);

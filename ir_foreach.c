@@ -120,10 +120,10 @@ ir_foreach_do_print(IrNode *self, FILE *out, int indention)
     }
     else
     {
-        ir_symbol_print(IR_SYMBOL(foreach->index), out, indention);
+        ir_node_print(IR_NODE(foreach->index), out, indention);
     }
     fprintf_indent(out, indention, "\n  value: ");
-    ir_symbol_print(IR_SYMBOL(foreach->value), out, indention);
+    ir_node_print(IR_NODE(foreach->value), out, indention);
     fprintf_indent(out, indention, "\n  aggregate: ");
     ir_node_print(IR_NODE(foreach->aggregate), out, indention);
     fprintf_indent(out, indention, "\n");

@@ -40,8 +40,6 @@ struct _IrSymbol
 typedef struct 
 {
   IrExpressionClass parent_class;
-  /* public virtual methods */
-  void (*do_print) (IrSymbol *self, FILE *out, int indention);
 } IrSymbolClass;
 
 /*---------------------------------------------------------------------------*
@@ -65,8 +63,5 @@ ir_symbol_get_fqname(IrSymbol *self);
 
 IrModule *
 ir_symbol_get_parent_module(IrSymbol *self);
-
-void
-ir_symbol_print(IrSymbol *self, FILE *out, int indention);
 
 #endif /* IR_SYMBOL_INC_X */

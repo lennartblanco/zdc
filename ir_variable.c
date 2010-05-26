@@ -13,7 +13,7 @@ static void
 ir_variable_class_init(gpointer klass, gpointer foo);
 
 static void
-ir_variable_do_print(IrSymbol *self, FILE *out, int indention);
+ir_variable_do_print(IrNode *self, FILE *out, int indention);
 
 static DtDataType *
 ir_variable_do_get_data_type(IrExpression *self);
@@ -134,20 +134,20 @@ ir_variable_set_initializer(IrVariable *self, IrExpression *initializer)
 static void
 ir_variable_class_init(gpointer klass, gpointer foo)
 {
-    ((IrSymbolClass *)klass)->do_print = ir_variable_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_variable_do_print;
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_variable_do_get_data_type;
 }
 
 static void
-ir_variable_do_print(IrSymbol *self, FILE *out, int indention)
+ir_variable_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_VARIABLE(self));
 
     IrVariable *var = IR_VARIABLE(self);
     fprintf_indent(out, indention, "%s %s",
                    dt_data_type_get_string(var->type),
-                   ir_symbol_get_name(self));
+                   ir_symbol_get_name(IR_SYMBOL(var)));
 
     if (var->initializer != NULL)
     {

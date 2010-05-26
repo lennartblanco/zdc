@@ -13,7 +13,6 @@ enum
     IR_FUNCTION_LINKAGE_TYPE = 1
 };
 
-
 #define IR_TYPE_LINKAGE_ATTR ir_linkage_attr_get_type()
 
 /*---------------------------------------------------------------------------*
@@ -24,7 +23,7 @@ static void
 ir_function_class_init(gpointer klass, gpointer foo);
 
 static void
-ir_function_do_print(IrSymbol *self, FILE *out, int indention);
+ir_function_do_print(IrNode *self, FILE *out, int indention);
 
 static void
 ir_function_set_property(GObject *object,
@@ -125,7 +124,7 @@ ir_function_print(IrFunction *self, FILE *out, int indention)
     assert(IR_IS_FUNCTION(self));
     assert(out);
 
-    ir_function_do_print(IR_SYMBOL(self), out, indention);
+    ir_function_do_print(IR_NODE(self), out, indention);
 }
 
 /*---------------------------------------------------------------------------*
@@ -133,7 +132,7 @@ ir_function_print(IrFunction *self, FILE *out, int indention)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_function_do_print(IrSymbol *self, FILE *out, int indention)
+ir_function_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(self);
     assert(out);
@@ -146,7 +145,7 @@ ir_function_do_print(IrSymbol *self, FILE *out, int indention)
             "  return_type: %s\n"
             "  parameters: ",
             self,
-            ir_symbol_get_name(self),
+            ir_symbol_get_name(IR_SYMBOL(func)),
             dt_data_type_get_string(func->return_type));
 
     if (func->parameters)
@@ -154,7 +153,7 @@ ir_function_do_print(IrSymbol *self, FILE *out, int indention)
       GSList *i = func->parameters;
       for (;i != NULL; i = g_slist_next(i))
       {
-          ir_symbol_print(IR_SYMBOL(i->data), out, 0);
+          ir_node_print(IR_NODE(i->data), out, 0);
           fprintf(out, "%s", g_slist_next(i) != NULL ? ", " : "\n");
       }
     }
@@ -191,7 +190,7 @@ ir_function_class_init(gpointer klass, gpointer foo)
                                     pspec);
 
 
-    ((IrSymbolClass *)klass)->do_print = ir_function_do_print;
+    ((IrNodeClass *)klass)->do_print = ir_function_do_print;
 }
 
 static void
