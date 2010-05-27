@@ -1,6 +1,17 @@
 #include "ir_enum_member.h"
+#include "utils.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_enum_member_class_init(gpointer klass, gpointer dummy);
+
+static void
+ir_enum_member_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -17,7 +28,7 @@ ir_enum_member_get_type(void)
         sizeof (IrEnumMemberClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL, //ir_variable_class_init,   /* class_init */
+        ir_enum_member_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrEnumMember),
@@ -62,3 +73,35 @@ ir_enum_member_set_value(IrEnumMember *self, IrExpression *value)
     self->value = value;
 }
 
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_enum_member_class_init(gpointer klass, gpointer dummy)
+{
+    ((IrNodeClass *)klass)->do_print = ir_enum_member_do_print;
+}
+
+static void
+ir_enum_member_do_print(IrNode *self, FILE *out, int indention)
+{
+    assert(IR_IS_ENUM_MEMBER(self));
+    assert(out);
+
+    IrEnumMember *em = IR_ENUM_MEMBER(self);
+
+    fprintf_indent(out, indention,
+                   "enum member\n"
+                   "  value: ");
+
+    if (em->value == NULL)
+    {
+        fprintf_indent(out, 0, "unknown\n");
+    }
+    else
+    {
+        ir_node_print(IR_NODE(em->value), out, 0);
+        fprintf_indent(out, 0, "\n");
+    }
+}
