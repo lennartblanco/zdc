@@ -1,5 +1,6 @@
 #include "ir_binary_operation.h"
 #include "types.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -13,8 +14,11 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self);
 
-DtDataType *
+static DtDataType *
 ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self);
+
+static void
+ir_binary_operation_do_print(IrNode *self, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -174,6 +178,7 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_binary_operation_do_get_data_type;
+    ((IrNodeClass *)klass)->do_print = ir_binary_operation_do_print;
 }
 
 static DtDataType *
@@ -211,7 +216,7 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
     return data_type;
 }
 
-DtDataType *
+static DtDataType *
 ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self)
 {
     if (types_is_void(ir_expression_get_data_type(self->right)))
@@ -220,4 +225,67 @@ ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self)
     }
 
     return types_get_bool_type();
+}
+
+static void
+ir_binary_operation_do_print(IrNode *self, FILE *out, int indention)
+{
+    assert(IR_IS_BINARY_OPERATION(self));
+    assert(out);
+
+    IrBinaryOperation *bin_op = IR_BINARY_OPERATION(self);
+    char *op_str;
+
+    switch (bin_op->operation) 
+    {
+        case ast_plus_op:
+            op_str = "+";
+            break;
+        case ast_minus_op:
+            op_str = "-";
+            break;
+        case ast_mult_op:
+            op_str = "*";
+            break;
+        case ast_division_op:
+            op_str = "/";
+            break;
+        case ast_less_op:
+            op_str = "<";
+            break;
+        case ast_greater_op:
+            op_str = ">";
+            break;
+        case ast_less_or_eq_op:
+            op_str = "<=";
+            break;
+        case ast_greater_or_eq_op:
+            op_str = ">=";
+            break;
+        case ast_equal_op:
+            op_str = "==";
+            break;
+        case ast_not_equal_op:
+            op_str = "!=";
+            break;
+        case ast_and_op:
+            op_str = "&&";
+            break;
+        case ast_or_op:
+            op_str = "||";
+            break;
+        default:
+            /* unexpected binary operation type */
+            g_assert_not_reached();
+    }
+
+
+    fprintf_indent(out, indention, "binary op\n  operation: %s\n  left:\n",
+                   op_str);
+
+    ir_node_print(IR_NODE(bin_op->left), out, indention + 4);
+    fprintf_indent(out, indention, "\n  right:\n");
+    ir_node_print(IR_NODE(bin_op->right), out, indention + 4);
+    fprintf_indent(out, indention, "\n");
+
 }
