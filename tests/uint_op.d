@@ -45,3 +45,43 @@ uint_arrys(uint idx)
   return a[idx] + b[idx] + c[idx] + d[idx];
 }
 
+uint
+signed_unsigned_const_add()
+{
+  uint res;
+
+  res = 1 + 2u;
+
+  return res;
+}
+
+uint
+unsigned_signed_const_div()
+{
+  uint res;
+
+  res = 15u / 3;
+
+  return res;
+}
+
+
+uint
+signed_unsigned_add(int l, uint r)
+{
+  uint res;
+
+  res = l + r;
+
+  return res;
+}
+
+uint
+unsigned_signed_mult(uint l, int r)
+{
+  uint res;
+
+  res = l * r;
+
+  return res;
+}

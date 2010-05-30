@@ -309,36 +309,26 @@ validate_bin_arithm(compilation_status_t *compile_status,
 {
     assert(ir_binary_operation_is_arithm(bin_op));
 
-    IrExpression *exp;
+    IrExpression *left;
+    IrExpression *right;
 
 
     /*
      * integer promote left operand
      */
-    exp = ir_binary_operation_get_left(bin_op);
-    exp = types_integer_promotion(exp);
-    if (exp == NULL)
-    {
-        compile_error(compile_status,
-                      IR_NODE(ir_binary_operation_get_left(bin_op)),
-                      "left operand of illegal type\n");
-        return NULL;
-    }
-    ir_binary_operation_set_left(bin_op, exp);
+    left = ir_binary_operation_get_left(bin_op);
+    right = ir_binary_operation_get_right(bin_op);
 
-    /*
-     * integer promote right operand
-     */
-    exp = ir_binary_operation_get_right(bin_op);
-    exp = types_integer_promotion(exp);
-    if (exp == NULL)
+    if (!types_usual_arithm_conv(left, right, &left, &right))
     {
         compile_error(compile_status,
-                      IR_NODE(ir_binary_operation_get_right(bin_op)),
-                      "right operand of illegal type\n");
+                      IR_NODE(bin_op),
+                      "illegal types in arithmetic operation\n");
         return NULL;
     }
-    ir_binary_operation_set_right(bin_op, exp);
+
+    ir_binary_operation_set_left(bin_op, left);
+    ir_binary_operation_set_right(bin_op, right);
 
     return cfold_bin_arithm(bin_op);
 }

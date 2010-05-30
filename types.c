@@ -344,17 +344,40 @@ types_usual_arithm_conv(IrExpression *left,
     *res_right = types_integer_promotion(right);
 
     /* fetch data-types of integer promoted operands */
-    data_type = ir_expression_get_data_type(left);
+    data_type = ir_expression_get_data_type(*res_left);
     assert(DT_IS_BASIC_TYPE(data_type)); /* non-basic types not implemened */
     left_data_type =
         dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
+
+    data_type = ir_expression_get_data_type(*res_right);
     assert(DT_IS_BASIC_TYPE(data_type)); /* non-basic types not implemened */
     right_data_type =
         dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
 
-    /* more usual arithmetic conversions rules not implemented */
-    assert(right_data_type == left_data_type);
+    if (right_data_type == left_data_type)
+    {
+        /* operands are of the same type, we are done */
+        return true;
+    }
 
+    if (left_data_type == uint_type && right_data_type == int_type)
+    {
+        /* right operand need to be converted to unsigned */
+        *res_right = 
+            IR_EXPRESSION(ir_cast_new(types_get_uint_type(), *res_right));
+
+    }
+    else if (left_data_type == int_type && right_data_type == uint_type)
+    {
+        /* left operand need to be converted to unsigned */
+        *res_left =
+            IR_EXPRESSION(ir_cast_new(types_get_uint_type(), *res_left));
+    }
+    else
+    {
+        /* unexpected operand types combination */
+        assert(false);
+    }
 
     return true;
 }
