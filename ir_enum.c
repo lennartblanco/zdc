@@ -56,7 +56,7 @@ ir_enum_new(gchar *tag,
 
     obj->tag = g_strdup(tag);
     obj->members = members;
-    obj->data_type = dt_enum_type_new(tag, base_type);
+    obj->data_type = dt_enum_type_new(tag, base_type, members->data);
 
     return obj;
 }

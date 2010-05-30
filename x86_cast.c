@@ -19,6 +19,9 @@ x86_compile_cast_to_int(DtDataType *value_type);
 static void
 x86_compile_cast_to_uint(DtDataType *value_type);
 
+static void
+x86_compile_cast_to_char(DtDataType *value_type);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -53,6 +56,9 @@ x86_compile_cast(x86_comp_params_t *params,
         case uint_type:
             x86_compile_cast_to_uint(ir_expression_get_data_type(value));
             break;
+        case char_type:
+            x86_compile_cast_to_char(ir_expression_get_data_type(value));
+            break;
         default:
             /* unexpected basic data type */
             assert(false);
@@ -69,6 +75,15 @@ x86_compile_cast_to_bool(IrExpression *value)
     DtDataType *value_type;
 
     value_type = ir_expression_get_data_type(value);
+
+    if (DT_IS_ENUM_TYPE(value_type))
+    {
+        assert(
+            types_is_bool(
+                dt_enum_type_get_base_type(DT_ENUM_TYPE(value_type))));
+        /* if enum value of base type bool, no conversion is needed */
+        return;
+    }
 
     if (!DT_IS_BASIC_TYPE(value_type))
     {
@@ -92,13 +107,20 @@ x86_compile_cast_to_bool(IrExpression *value)
 static void
 x86_compile_cast_to_int(DtDataType *value_type)
 {
-    if (!DT_IS_BASIC_TYPE(value_type))
+    DtDataType *src_type = value_type;
+
+    if (DT_IS_ENUM_TYPE(value_type))
+    {
+        src_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(value_type));
+    }
+
+    if (!DT_IS_BASIC_TYPE(src_type))
     {
         /* not implemented */
         assert(false);
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(value_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(src_type)))
     {
         case bool_type:
         case char_type:
@@ -115,19 +137,52 @@ x86_compile_cast_to_int(DtDataType *value_type)
 static void
 x86_compile_cast_to_uint(DtDataType *value_type)
 {
-    if (!DT_IS_BASIC_TYPE(value_type))
+    DtDataType *src_type = value_type;
+
+    if (DT_IS_ENUM_TYPE(value_type))
+    {
+        src_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(value_type));
+    }
+
+    if (!DT_IS_BASIC_TYPE(src_type))
     {
         /* not implemented */
         assert(false);
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(value_type)))
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(src_type)))
     {
         case bool_type:
         case char_type:
         case int_type:
         case uint_type:
             /* no need to generate explicit conversation code */
+            break;
+        default:
+            /* unexpected basic data type */
+            assert(false);
+    }
+}
+
+static void
+x86_compile_cast_to_char(DtDataType *value_type)
+{
+    DtDataType *src_type = value_type;
+
+    if (DT_IS_ENUM_TYPE(value_type))
+    {
+        src_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(value_type));
+    }
+
+    if (!DT_IS_BASIC_TYPE(src_type))
+    {
+        /* not implemented */
+        assert(false);
+    }
+
+    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(src_type)))
+    {
+        case char_type:
             break;
         default:
             /* unexpected basic data type */

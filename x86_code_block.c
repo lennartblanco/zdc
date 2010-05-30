@@ -212,7 +212,7 @@ x86_compile_variable_initializer(x86_comp_params_t *params,
     IrLvalue *lval;
     IrAssigment *assigment;
 
-    if (DT_IS_BASIC_TYPE(var_type))
+    if (DT_IS_BASIC_TYPE(var_type) || DT_IS_ENUM_TYPE(var_type))
     {
         if (var_init == NULL)
         {

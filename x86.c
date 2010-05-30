@@ -221,6 +221,14 @@ x86_compile_expression(x86_comp_params_t *params,
     {
         x86_compile_property(params, IR_PROPERTY(expression), sym_table);
     }
+    else if (IR_IS_ENUM_MEMBER(expression))
+    {
+        IrEnumMember *enum_member = IR_ENUM_MEMBER(expression);
+
+        x86_compile_expression(params,
+                               ir_enum_member_get_value(enum_member),
+                               sym_table);
+    }
     else
     {
         /* unexpected expression type */

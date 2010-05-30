@@ -2,6 +2,7 @@
 #define DT_ENUM_TYPE_INC_X
 
 #include "dt_data_type.h"
+#include "ir_enum_member.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -31,6 +32,7 @@ typedef struct
     /* private */
     gchar *name;
     DtDataType *base_type;
+    IrEnumMember *first_member;
 } DtEnumType;
 
 typedef struct
@@ -46,7 +48,9 @@ GType
 dt_enum_type_get_type(void);
 
 DtEnumType *
-dt_enum_type_new(gchar *name, DtDataType *base_type);
+dt_enum_type_new(gchar *name,
+                 DtDataType *base_type,
+                 IrEnumMember *first_member);
 
 DtDataType *
 dt_enum_type_get_base_type(DtEnumType *self);
