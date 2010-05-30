@@ -15,6 +15,7 @@
 #include "ir_binary_operation.h"
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
+#include "ir_int_constant.h"
 #include "ir_uint_constant.h"
 #include "ir_cast.h"
 #include "ir_if_else.h"
@@ -1570,8 +1571,37 @@ validate_enum(compilation_status_t *compile_status,
     /*
      * figure out enum members values
      */
-    
+    if (first_member_init == NULL)
+    {
+        member_value =
+            cfold_cast(ir_cast_new(base_type,
+                                   IR_EXPRESSION(ir_int_constant_new(0, 0))));
+    }
 
+    for (i = members; i != NULL; i = g_slist_next(i))
+    {
+        IrEnumMember *member = IR_ENUM_MEMBER(i->data);
+        IrExpression *tmp = ir_enum_member_get_value(member);
+
+        if (tmp == NULL)
+        {
+            ir_enum_member_set_value(member, member_value);
+        }
+        else
+        {
+            member_value = tmp;
+        }
+        member_value =
+           validate_binary_op(
+               compile_status,
+               sym_table,
+                 ir_binary_operation_new(
+                    ast_plus_op,
+                    member_value,
+                    IR_EXPRESSION(ir_int_constant_new(1, 0)),
+                    0));
+        member_value = cfold_cast(ir_cast_new(base_type, member_value));
+    }
 }
 
 static void

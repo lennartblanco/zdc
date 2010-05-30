@@ -14,6 +14,12 @@
  *---------------------------------------------------------------------------*/
 
 /**
+ * Perform constant folding on an expression.
+ */
+IrExpression *
+cfold(IrExpression *exp);
+
+/**
  * Perform constant folding on binary integer arithmetic operation.
  */
 IrExpression *

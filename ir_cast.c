@@ -13,6 +13,9 @@ ir_cast_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_cast_do_get_data_type(IrExpression *self);
 
+bool
+ir_cast_do_is_constant(IrExpression *self);
+
 static void
 ir_cast_do_print(IrNode *self, FILE *out, int indention);
 
@@ -83,13 +86,25 @@ static void
 ir_cast_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type = ir_cast_do_get_data_type;
+    ((IrExpressionClass *)klass)->do_is_constant = ir_cast_do_is_constant;
+
     ((IrNodeClass *)klass)->do_print = ir_cast_do_print;
 }
 
 static DtDataType *
 ir_cast_do_get_data_type(IrExpression *self)
 {
+    assert(IR_IS_CAST(self));
+
     return IR_CAST(self)->target_type;
+}
+
+bool
+ir_cast_do_is_constant(IrExpression *self)
+{
+    assert(IR_IS_CAST(self));
+
+    return ir_expression_is_constant(IR_CAST(self)->value);
 }
 
 static void

@@ -46,6 +46,23 @@ cfold_cast_array_literal(DtArrayType *target_type,
  *---------------------------------------------------------------------------*/
 
 IrExpression *
+cfold(IrExpression *exp)
+{
+    assert(IR_IS_EXPRESSION(exp));
+
+    if (IR_IS_CONSTANT(exp))
+    {
+        return exp;
+    }
+    else if (IR_IS_CAST(exp))
+    {
+        return cfold_cast(IR_CAST(exp));
+    }
+    /* unsupported expression type */
+    assert(false);
+}
+
+IrExpression *
 cfold_bin_arithm(IrBinaryOperation *bin_op)
 {
     assert(ir_binary_operation_is_arithm(bin_op));
@@ -59,6 +76,9 @@ cfold_bin_arithm(IrBinaryOperation *bin_op)
     {
         return IR_EXPRESSION(bin_op);
     }
+
+    left = cfold(left);
+    right = cfold(right);
 
     bin_op_type = ir_expression_get_data_type(IR_EXPRESSION(bin_op));
 
@@ -336,6 +356,15 @@ cfold_cast_basic_type(DtDataType *target_type,
                       DtDataType *val_type,
                       IrExpression *val)
 {
+    assert(DT_IS_BASIC_TYPE(target_type));
+    assert(DT_IS_BASIC_TYPE(val_type));
+
+    if (dt_basic_type_get_data_type(DT_BASIC_TYPE(target_type)) ==
+        dt_basic_type_get_data_type(DT_BASIC_TYPE(val_type)))
+    {
+        return val;
+    }
+
     /*
      * build a new expression, instead of original cast expression
      */
@@ -403,6 +432,30 @@ cfold_cast_basic_type(DtDataType *target_type,
             assert(false);
         }
         return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+
+    }
+    else if (types_is_char(target_type))
+    {
+        guint8 res;
+
+        if (types_is_bool(val_type))
+        {
+            res = (guint8)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+        }
+        else if (types_is_int(val_type))
+        {
+            res = (guint8)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (types_is_uint(val_type))
+        {
+            res = (gint8)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else
+        {
+            /* unexpected value type */
+            assert(false);
+        }
+        return IR_EXPRESSION(ir_char_constant_new(res, 0));
 
     }
     /* unexpected target type */

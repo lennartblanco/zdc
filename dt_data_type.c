@@ -90,3 +90,12 @@ dt_data_type_get_init(DtDataType *self)
     return DT_DATA_TYPE_GET_CLASS(self)->get_init(self);
 }
 
+bool
+dt_data_type_is_same(DtDataType *self, DtDataType *type)
+{
+    assert(DT_IS_DATA_TYPE(self));
+    assert(DT_IS_DATA_TYPE(type));
+
+    return DT_DATA_TYPE_GET_CLASS(self)->is_same(self, type);
+}
+

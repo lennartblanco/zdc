@@ -41,6 +41,7 @@ typedef struct
     char * (*get_string) (DtDataType *self);
     guint (*get_size) (DtDataType *self);
     IrExpression * (*get_init) (DtDataType *self);
+    bool (*is_same) (DtDataType *self, DtDataType *type);
 } DtDataTypeClass;
 
 typedef enum basic_data_type_e
@@ -91,5 +92,11 @@ dt_data_type_get_mangled(DtDataType *self);
  */
 IrExpression *
 dt_data_type_get_init(DtDataType *self);
+
+/**
+ *  @return true if self and type are same data type
+ */
+bool
+dt_data_type_is_same(DtDataType *self, DtDataType *type);
 
 #endif /* DT_DATA_TYPE_INC_X */

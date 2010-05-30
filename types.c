@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "types_arrays.h"
+#include "dt_enum_type.h"
 #include "dt_array_type.h"
 #include "dt_static_array_type.h"
 #include "ir_cast.h"
@@ -212,7 +213,22 @@ types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)
 {
     IrExpression *res;
-    if (DT_IS_BASIC_TYPE(target_type))
+    DtDataType *source_type;
+
+    source_type = ir_expression_get_data_type(expression);
+
+    if (DT_IS_ENUM_TYPE(source_type))
+    {
+        DtDataType *base_type;
+
+        base_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(source_type));
+        if (!dt_data_type_is_same(target_type, base_type))
+        {
+            return NULL;
+        }
+        res = IR_EXPRESSION(ir_cast_new(target_type, expression));
+    }
+    else if (DT_IS_BASIC_TYPE(target_type))
     {
         res = implicit_conv_to_basic_type(target_type, expression);
     }

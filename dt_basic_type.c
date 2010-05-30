@@ -27,6 +27,9 @@ dt_basic_type_get_mangled(DtDataType *self);
 static IrExpression *
 dt_basic_type_get_init(DtDataType *self);
 
+static bool
+dt_basic_type_is_same(DtDataType *self, DtDataType *type);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -172,6 +175,21 @@ dt_basic_type_get_init(DtDataType *self)
     }
 }
 
+static bool
+dt_basic_type_is_same(DtDataType *self, DtDataType *type)
+{
+    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_DATA_TYPE(type));
+
+    if (!DT_IS_BASIC_TYPE(type))
+    {
+        return false;
+    }
+
+    return DT_BASIC_TYPE(self)->data_type ==
+           DT_BASIC_TYPE(type)->data_type;
+}
+
 static void
 dt_basic_type_class_init(gpointer klass, gpointer dummy)
 {
@@ -179,5 +197,6 @@ dt_basic_type_class_init(gpointer klass, gpointer dummy)
     ((DtDataTypeClass *)klass)->get_string = dt_basic_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled = dt_basic_type_get_mangled;
     ((DtDataTypeClass *)klass)->get_init = dt_basic_type_get_init;
+    ((DtDataTypeClass *)klass)->is_same = dt_basic_type_is_same;
 }
 

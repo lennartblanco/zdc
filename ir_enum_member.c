@@ -93,15 +93,15 @@ ir_enum_member_do_print(IrNode *self, FILE *out, int indention)
 
     fprintf_indent(out, indention,
                    "enum member\n"
-                   "  value: ");
+                   "  value:\n");
 
     if (em->value == NULL)
     {
-        fprintf_indent(out, 0, "unknown\n");
+        fprintf_indent(out, indention + 4, "unknown\n");
     }
     else
     {
-        ir_node_print(IR_NODE(em->value), out, 0);
+        ir_node_print(IR_NODE(em->value), out, indention + 4);
         fprintf_indent(out, 0, "\n");
     }
 }
