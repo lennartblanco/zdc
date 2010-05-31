@@ -91,7 +91,8 @@ ast_node_do_print(AstNode *self, FILE *out)
 {
     assert(AST_IS_NODE(self));
 
-    fprintf(out, "Some AST node [%p]\n", self);
+    fprintf(out, "AST node %s [%p]\n",
+            g_type_name(G_TYPE_FROM_INSTANCE(self)), self);
 }
 
 static void
