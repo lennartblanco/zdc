@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_code_block_do_print(AstNode *self, FILE *out);
+ast_code_block_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_code_block_class_init(gpointer klass, gpointer dummy);
@@ -75,7 +75,7 @@ ast_code_block_get_statments(AstCodeBlock *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_code_block_do_print(AstNode *self, FILE *out)
+ast_code_block_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_CODE_BLOCK(self));
     assert(out);
@@ -84,7 +84,7 @@ ast_code_block_do_print(AstNode *self, FILE *out)
     fprintf(out, "{\n");
     while (p != NULL)
     {
-        ast_node_print(AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out, indention);
         p = p->next;
     }
     fprintf(out, "}\n");

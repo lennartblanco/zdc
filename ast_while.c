@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_while_do_print(AstNode *self, FILE *out);
+ast_while_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_while_class_init(gpointer klass, gpointer dummy);
@@ -79,7 +79,7 @@ ast_while_get_body(AstWhile *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_while_do_print(AstNode *self, FILE *out)
+ast_while_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(self);
     assert(out);
@@ -88,9 +88,9 @@ ast_while_do_print(AstNode *self, FILE *out)
     AstWhile *while_loop = AST_WHILE(self);
 
     fprintf(out, "  while ( ");
-    ast_node_print(AST_NODE(while_loop->loop_condition), out);
+    ast_node_print(AST_NODE(while_loop->loop_condition), out, indention);
     fprintf(out, " )\n");
-    ast_node_print(AST_NODE(while_loop->body), out);
+    ast_node_print(AST_NODE(while_loop->body), out, indention);
 }
 
 static void

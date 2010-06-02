@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_array_cell_ref_do_print(AstNode *self, FILE *out);
+ast_array_cell_ref_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_array_cell_ref_class_init(gpointer klass, gpointer dummy);
@@ -78,14 +78,14 @@ ast_array_cell_ref_get_index(AstArrayCellRef *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_array_cell_ref_do_print(AstNode *self, FILE *out)
+ast_array_cell_ref_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_ARRAY_CELL_REF(self));
     assert(out);
 
     AstArrayCellRef *ref = AST_ARRAY_CELL_REF(self);
     fprintf(out, "%s[", ast_variable_ref_get_name(AST_VARIABLE_REF(self)));
-    ast_node_print(AST_NODE(ref->index), out);
+    ast_node_print(AST_NODE(ref->index), out, indention);
     fprintf(out, "]");
 }
 

@@ -81,7 +81,7 @@ compile_file(const char* input_file,
     }
     if (options.print_ast)
     {
-        ast_node_print(AST_NODE(ast_module), stdout);
+        ast_node_print(AST_NODE(ast_module), stdout, 0);
     }
 
     /*

@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_if_else_do_print(AstNode *self, FILE *out);
+ast_if_else_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_if_else_class_init(gpointer klass, gpointer dummy);
@@ -92,7 +92,7 @@ ast_if_else_get_else_block(AstIfElse *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_if_else_do_print(AstNode *self, FILE *out)
+ast_if_else_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_IF_ELSE(self));
     assert(out);
@@ -103,12 +103,12 @@ ast_if_else_do_print(AstNode *self, FILE *out)
     GSList *p = ifelse->if_else_blocks;
     for (;p != NULL; p = g_slist_next(p))
     {
-        ast_node_print(AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out, indention);
     }
 
     if (ifelse->else_block != NULL)
     {
-        ast_node_print(AST_NODE(ifelse->else_block), out);
+        ast_node_print(AST_NODE(ifelse->else_block), out, indention);
     }
 
     fprintf(out, "  :)\n");

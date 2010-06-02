@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_definition_do_print(AstNode *self, FILE *out);
+ast_variable_definition_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_variable_definition_class_init(gpointer klass, gpointer dummy);
@@ -91,7 +91,7 @@ ast_variable_definition_get_initializer(AstVariableDefinition *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_definition_do_print(AstNode *self, FILE *out)
+ast_variable_definition_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_VARIABLE_DEFINITION(self));
     assert(out);
@@ -105,7 +105,7 @@ ast_variable_definition_do_print(AstNode *self, FILE *out)
     if (obj->initializer != NULL)
     {
         fprintf(out, " = ");
-        ast_node_print(AST_NODE(obj->initializer), out);
+        ast_node_print(AST_NODE(obj->initializer), out, indention);
     }
     fprintf(out, "\n");
 }

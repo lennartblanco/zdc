@@ -15,7 +15,7 @@
 #include "ast_char_constant.h"
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
-#include "ast_property.h"
+#include "ast_postfix_exp.h"
 #include "ast_enum_member.h"
 #include "ir_array.h"
 #include "ir_function_call.h"
@@ -131,9 +131,9 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
                      AstArrayCellRef *array_cell_ref);
 
 static IrExpression *
-property_to_ir(compilation_status_t *compile_status,
-               sym_table_t *symbols,
-               AstProperty *ast_property);
+postfix_exp_to_ir(compilation_status_t *compile_status,
+                  sym_table_t *symbols,
+                  AstPostfixExp *ast_postfix);
 
 static void
 var_def_to_ir(compilation_status_t *compile_status,
@@ -1000,31 +1000,30 @@ variable_ref_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-property_to_ir(compilation_status_t *compile_status,
-               sym_table_t *symbols,
-               AstProperty *ast_property)
+postfix_exp_to_ir(compilation_status_t *compile_status,
+                  sym_table_t *symbols,
+                  AstPostfixExp *ast_postfix)
 {
     assert(compile_status);
     assert(symbols);
-    assert(AST_IS_PROPERTY(ast_property));
-
+    assert(AST_IS_POSTFIX_EXP(ast_postfix));
     IrExpression *exp;
     IrProperty *prop;
 
     exp = expression_to_ir(compile_status,
                            symbols,
-                           ast_property_get_expression(ast_property));
+                           ast_postfix_exp_get_expression(ast_postfix));
 
     prop = ir_property_new(exp,
-                           ast_property_get_name(ast_property),
-                           ast_node_get_line_num(ast_property));
+                           ast_postfix_exp_get_name(ast_postfix),
+                           ast_node_get_line_num(ast_postfix));
 
     if (prop == NULL)
     {
         compile_error(compile_status,
                       IR_NODE(exp),
                       "unknown property '%s'\n",
-                      ast_property_get_name(ast_property));
+                      ast_postfix_exp_get_name(ast_postfix));
        return NULL;
     }
 
@@ -1142,11 +1141,11 @@ expression_to_ir(compilation_status_t *compile_status,
         func_call = AST_FUNCTION_CALL(ast_expression);
         return func_call_to_ir(compile_status, symbols, func_call);
     }
-    else if (AST_IS_PROPERTY(ast_expression))
+    else if (AST_IS_POSTFIX_EXP(ast_expression))
     {
-        return property_to_ir(compile_status,
-                              symbols,
-                              AST_PROPERTY(ast_expression));
+        return postfix_exp_to_ir(compile_status,
+                                 symbols,
+                                 AST_POSTFIX_EXP(ast_expression));
     }
 
     /* unexpected expression type */

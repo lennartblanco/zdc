@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_function_decl_do_print(AstNode *self, FILE *out);
+ast_function_decl_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_function_decl_class_init(gpointer klass, gpointer dummy);
@@ -108,7 +108,7 @@ ast_function_decl_get_return_type(AstFunctionDecl *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_function_decl_do_print(AstNode *self, FILE *out)
+ast_function_decl_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_FUNCTION_DECL(self));
     assert(out);
@@ -124,7 +124,7 @@ ast_function_decl_do_print(AstNode *self, FILE *out)
     GSList *p = func->parameters;
     while(p != NULL)
     {
-        ast_node_print(AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out, indention);
         if (p->next != NULL)
         {
             fprintf(out, ", ");

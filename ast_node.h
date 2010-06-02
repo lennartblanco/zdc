@@ -36,7 +36,7 @@ typedef struct
 {
   GObjectClass parent_class;
   /* public virtual methods */
-  void (*do_print) (AstNode *self, FILE *out);
+  void (*do_print) (AstNode *self, FILE *out, int indention);
 } AstNodeClass;
 
 /*---------------------------------------------------------------------------*
@@ -53,6 +53,6 @@ guint
 ast_node_get_line_num(void *self);
 
 void
-ast_node_print(AstNode *self, FILE *out);
+ast_node_print(AstNode *self, FILE *out, int indention);
 
 #endif /* AST_NODE_INC_X */

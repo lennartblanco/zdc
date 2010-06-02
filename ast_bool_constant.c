@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_bool_constant_do_print(AstNode *self, FILE *out);
+ast_bool_constant_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_bool_constant_class_init(gpointer klass, gpointer dummy);
@@ -67,7 +67,7 @@ ast_bool_constant_get_value(AstBoolConstant *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_bool_constant_do_print(AstNode *self, FILE *out)
+ast_bool_constant_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_BOOL_CONSTANT(self));
     assert(out);

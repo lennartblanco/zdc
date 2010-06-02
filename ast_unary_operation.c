@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_unary_operation_do_print(AstNode *self, FILE *out);
+ast_unary_operation_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_unary_operation_class_init(gpointer klass, gpointer dummy);
@@ -75,7 +75,7 @@ ast_unary_operation_get_operand(AstUnaryOperation *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_unary_operation_do_print(AstNode *self, FILE *out)
+ast_unary_operation_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_UNARY_OPERATION(self));
     assert(out);
@@ -93,7 +93,7 @@ ast_unary_operation_do_print(AstNode *self, FILE *out)
             break;
     }
     fprintf(out, "%s(", str);
-    ast_node_print(AST_NODE(op->operand), out);
+    ast_node_print(AST_NODE(op->operand), out, indention);
     fprintf(out, ")");
 }
 

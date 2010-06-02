@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_array_literal_do_print(AstNode *self, FILE *out);
+ast_array_literal_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_array_literal_class_init(gpointer klass, gpointer dummy);
@@ -76,7 +76,7 @@ ast_array_literal_get_values(AstArrayLiteral *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_array_literal_do_print(AstNode *self, FILE *out)
+ast_array_literal_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_ARRAY_LITERAL(self));
     assert(out);
@@ -85,7 +85,7 @@ ast_array_literal_do_print(AstNode *self, FILE *out)
     GSList *p = AST_ARRAY_LITERAL(self)->values;
     for (; p != NULL; p = g_slist_next(p))
     {
-        ast_node_print(AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out, indention);
         if (g_slist_next(p) != NULL)
         {
             fprintf(out, ",");

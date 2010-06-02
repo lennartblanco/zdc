@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_binary_operation_do_print(AstNode *self, FILE *out);
+ast_binary_operation_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_binary_operation_class_init(gpointer klass, gpointer dummy);
@@ -90,7 +90,7 @@ ast_binary_operation_get_right(AstBinaryOperation *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_binary_operation_do_print(AstNode *self, FILE *out)
+ast_binary_operation_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_BINARY_OPERATION(self));
     assert(out);
@@ -98,7 +98,7 @@ ast_binary_operation_do_print(AstNode *self, FILE *out)
     AstBinaryOperation *bin_op = (AstBinaryOperation *)self;
 
     char *str;
-    ast_node_print(AST_NODE(bin_op->left), out);
+    ast_node_print(AST_NODE(bin_op->left), out, indention);
     switch (bin_op->operation)
     {
         case ast_less_op:           /*  <  */
@@ -143,7 +143,7 @@ ast_binary_operation_do_print(AstNode *self, FILE *out)
             break;
     }
     fprintf(out, " %s ", str);
-    ast_node_print(AST_NODE(bin_op->right), out);
+    ast_node_print(AST_NODE(bin_op->right), out, indention);
 }
 
 static void

@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_foreach_do_print(AstNode *self, FILE *out);
+ast_foreach_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_foreach_class_init(gpointer klass, gpointer dummy);
@@ -100,7 +100,7 @@ ast_foreach_get_body(AstForeach *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_foreach_do_print(AstNode *self, FILE *out)
+ast_foreach_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_FOREACH(self));
     assert(out);
@@ -110,15 +110,15 @@ ast_foreach_do_print(AstNode *self, FILE *out)
     fprintf(out, "  foreach (");
     if (foreach->index != NULL)
     {
-        ast_node_print(AST_NODE(foreach->index), out);
+        ast_node_print(AST_NODE(foreach->index), out, indention);
         fprintf(out, ", ");
     }
-    ast_node_print(AST_NODE(foreach->value), out);
+    ast_node_print(AST_NODE(foreach->value), out, indention);
     fprintf(out, "; ");
 
-    ast_node_print(AST_NODE(foreach->aggregate), out);
+    ast_node_print(AST_NODE(foreach->aggregate), out, indention);
     fprintf(out, ")\n");
-    ast_node_print(AST_NODE(foreach->body), out);
+    ast_node_print(AST_NODE(foreach->body), out, indention);
     fprintf(out, "\n");
 }
 

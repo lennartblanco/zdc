@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out);
+ast_variable_declaration_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_variable_declaration_class_init(gpointer klass, gpointer dummy);
@@ -81,7 +81,7 @@ ast_variable_declaration_get_name(AstVariableDeclaration *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_variable_declaration_do_print(AstNode *self, FILE *out)
+ast_variable_declaration_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_VARIABLE_DECLARATION(self));
     assert(out);

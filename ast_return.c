@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_return_do_print(AstNode *self, FILE *out);
+ast_return_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_return_class_init(gpointer klass, gpointer dummy);
@@ -67,7 +67,7 @@ ast_return_get_return_value(AstReturn *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_return_do_print(AstNode *self, FILE *out)
+ast_return_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_RETURN(self));
     assert(out);
@@ -76,7 +76,7 @@ ast_return_do_print(AstNode *self, FILE *out)
     AstReturn *ret = (AstReturn *)self;
     if (ret->return_value != NULL)
     {
-        ast_node_print(AST_NODE(ret->return_value), out);
+        ast_node_print(AST_NODE(ret->return_value), out, indention);
     }
     fprintf(out, "\n");
 }

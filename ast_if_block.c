@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_if_block_do_print(AstNode *self, FILE *out);
+ast_if_block_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_if_block_class_init(gpointer klass, gpointer dummy);
@@ -74,7 +74,7 @@ ast_if_block_get_body(AstIfBlock *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_if_block_do_print(AstNode *self, FILE *out)
+ast_if_block_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_IF_BLOCK(self));
     assert(out);
@@ -83,10 +83,10 @@ ast_if_block_do_print(AstNode *self, FILE *out)
 
     fprintf(out, "   if (");
 
-    ast_node_print(AST_NODE(if_block->condition), out);
+    ast_node_print(AST_NODE(if_block->condition), out, indention);
 
     fprintf(out, ")\n");
-    ast_node_print(AST_NODE(if_block->body), out);
+    ast_node_print(AST_NODE(if_block->body), out, indention);
 }
 
 static void

@@ -19,7 +19,7 @@ enum
  *---------------------------------------------------------------------------*/
 
 static void
-ast_node_do_print(AstNode *self, FILE *out);
+ast_node_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_node_class_init(gpointer klass, gpointer foo);
@@ -74,11 +74,11 @@ ast_node_get_line_num(void *self)
 }
 
 void
-ast_node_print(AstNode *self, FILE *out)
+ast_node_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_NODE(self));
 
-    AST_NODE_GET_CLASS(self)->do_print(self, out);
+    AST_NODE_GET_CLASS(self)->do_print(self, out, indention);
 }
 
 /*---------------------------------------------------------------------------*
@@ -87,7 +87,7 @@ ast_node_print(AstNode *self, FILE *out)
 
 
 static void
-ast_node_do_print(AstNode *self, FILE *out)
+ast_node_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_NODE(self));
 

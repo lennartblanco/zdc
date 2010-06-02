@@ -21,7 +21,7 @@ static void
 ast_variable_ref_class_init(gpointer klass, gpointer foo);
 
 static void
-ast_variable_ref_do_print(AstNode *self, FILE *out);
+ast_variable_ref_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_variable_ref_set_property(GObject *object,
@@ -142,7 +142,7 @@ ast_variable_ref_get_property(GObject *object,
 }
 
 static void
-ast_variable_ref_do_print(AstNode *self, FILE *out)
+ast_variable_ref_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_VARIABLE_REF(self));
     assert(out);

@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_int_constant_do_print(AstNode *self, FILE *out);
+ast_int_constant_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_int_constant_class_init(gpointer klass, gpointer dummy);
@@ -67,7 +67,7 @@ ast_int_constant_get_value(AstIntConstant *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_int_constant_do_print(AstNode *self, FILE *out)
+ast_int_constant_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_INT_CONSTANT(self));
     assert(out);

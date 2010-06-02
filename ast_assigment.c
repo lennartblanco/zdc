@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_assigment_do_print(AstNode *self, FILE *out);
+ast_assigment_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_assigment_class_init(gpointer klass, gpointer dummy);
@@ -80,7 +80,7 @@ ast_assigment_get_value(AstAssigment *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_assigment_do_print(AstNode *self, FILE *out)
+ast_assigment_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_ASSIGMENT(self));
     assert(out);
@@ -88,9 +88,9 @@ ast_assigment_do_print(AstNode *self, FILE *out)
     AstAssigment *obj = (AstAssigment *)self;
 
     fprintf(out, "  ");
-    ast_node_print(AST_NODE(obj->target), out);
+    ast_node_print(AST_NODE(obj->target), out, indention);
     fprintf(out, " = ");
-    ast_node_print(AST_NODE(obj->value), out);
+    ast_node_print(AST_NODE(obj->value), out, indention);
     fprintf(out, "\n");
 }
 

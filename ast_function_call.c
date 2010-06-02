@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_function_call_do_print(AstNode *self, FILE *out);
+ast_function_call_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_function_call_class_init(gpointer klass, gpointer dummy);
@@ -80,7 +80,7 @@ ast_function_call_get_arguments(AstFunctionCall *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_function_call_do_print(AstNode *self, FILE *out)
+ast_function_call_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_FUNCTION_CALL(self));
     assert(out);
@@ -91,7 +91,7 @@ ast_function_call_do_print(AstNode *self, FILE *out)
     fprintf(out, "%s(", func_call->name);
     while(p != NULL)
     {
-        ast_node_print(AST_NODE(p->data), out);
+        ast_node_print(AST_NODE(p->data), out, indention);
         if (p->next != NULL)
         {
             fprintf(out, ", ");

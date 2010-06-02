@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_array_slice_ref_do_print(AstNode *self, FILE *out);
+ast_array_slice_ref_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_array_slice_ref_class_init(gpointer klass, gpointer dummy);
@@ -88,7 +88,7 @@ ast_array_slice_ref_get_end(AstArraySliceRef *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_array_slice_ref_do_print(AstNode *self, FILE *out)
+ast_array_slice_ref_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_ARRAY_SLICE_REF(self));
     assert(out);
@@ -97,9 +97,9 @@ ast_array_slice_ref_do_print(AstNode *self, FILE *out)
     fprintf(out, "%s[", ast_variable_ref_get_name(AST_VARIABLE_REF(self)));
     if (ref->start != NULL && ref->end != NULL)
     {
-        ast_node_print(AST_NODE(ref->start), out);
+        ast_node_print(AST_NODE(ref->start), out, indention);
         fprintf(out, "..");
-        ast_node_print(AST_NODE(ref->end), out);
+        ast_node_print(AST_NODE(ref->end), out, indention);
     }
     fprintf(out, "]");
 }

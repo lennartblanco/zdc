@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_enum_member_do_print(AstNode *self, FILE *out);
+ast_enum_member_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_enum_member_class_init(gpointer klass, gpointer dummy);
@@ -85,7 +85,7 @@ ast_enum_member_get_initializer(AstEnumMember *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_enum_member_do_print(AstNode *self, FILE *out)
+ast_enum_member_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_ENUM_MEMBER(self));
     assert(out);
@@ -101,7 +101,7 @@ ast_enum_member_do_print(AstNode *self, FILE *out)
     if (emem->initializer)
     {
         fprintf(out, " = ");
-        ast_node_print(AST_NODE(emem->initializer), out);
+        ast_node_print(AST_NODE(emem->initializer), out, indention);
     }
     fprintf(out, "\n");
 }

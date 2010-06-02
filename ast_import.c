@@ -22,7 +22,7 @@ struct _AstImport
  *---------------------------------------------------------------------------*/
 
 static void
-ast_import_do_print(AstNode *self, FILE *out);
+ast_import_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_import_class_init(gpointer klass, gpointer dummy);
@@ -116,7 +116,7 @@ ast_import_get_module(AstImport *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_import_do_print(AstNode *self, FILE *out)
+ast_import_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_IMPORT(self));
     assert(out);

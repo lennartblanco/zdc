@@ -27,7 +27,7 @@ struct _AstModule
  *---------------------------------------------------------------------------*/
 
 static void
-ast_module_do_print(AstNode *self, FILE *out);
+ast_module_do_print(AstNode *self, FILE *out, int indention);
 
 static void
 ast_module_class_init(gpointer klass, gpointer unused);
@@ -209,7 +209,7 @@ ast_module_get_function_defs(AstModule *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_module_do_print(AstNode *self, FILE *out)
+ast_module_do_print(AstNode *self, FILE *out, int indention)
 {
     assert(AST_IS_MODULE(self));
     assert(out);
@@ -234,7 +234,7 @@ ast_module_do_print(AstNode *self, FILE *out)
     {
         for (i = module->imports; i != NULL; i = g_slist_next(i))
         {
-            ast_node_print(i->data, out);
+            ast_node_print(i->data, out, indention);
         }
     }
 
@@ -242,7 +242,7 @@ ast_module_do_print(AstNode *self, FILE *out)
     {
         for (i = module->alias; i != NULL; i = g_slist_next(i))
         {
-            ast_node_print(i->data, out);
+            ast_node_print(i->data, out, indention);
         }
     }
 
@@ -251,18 +251,18 @@ ast_module_do_print(AstNode *self, FILE *out)
         fprintf(out, "enum definitions:\n");
         for (i = module->enums; i != NULL; i = g_slist_next(i))
         {
-            ast_node_print(i->data, out);
+            ast_node_print(i->data, out, indention);
         }
     }
 
     for (i = module->function_defs; i != NULL; i = g_slist_next(i))
     {
-        ast_node_print(AST_NODE(i->data), out);
+        ast_node_print(AST_NODE(i->data), out, indention);
     }
 
     for (i = module->function_decls; i != NULL; i = g_slist_next(i))
     {
-        ast_node_print(AST_NODE(i->data), out);
+        ast_node_print(AST_NODE(i->data), out, indention);
     }
 }
 
