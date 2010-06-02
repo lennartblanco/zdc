@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "ast_variable_ref.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -147,8 +148,8 @@ ast_variable_ref_do_print(AstNode *self, FILE *out, int indention)
     assert(AST_IS_VARIABLE_REF(self));
     assert(out);
 
-    fprintf(out, "%s",
-            AST_VARIABLE_REF(self)->name);
+    fprintf_indent(out, indention, "variable_ref\n  name: %s",
+                   AST_VARIABLE_REF(self)->name);
 }
 
 

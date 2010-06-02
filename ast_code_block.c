@@ -84,7 +84,7 @@ ast_code_block_do_print(AstNode *self, FILE *out, int indention)
     fprintf(out, "{\n");
     while (p != NULL)
     {
-        ast_node_print(AST_NODE(p->data), out, indention);
+        ast_node_print(AST_NODE(p->data), out, indention + 2);
         p = p->next;
     }
     fprintf(out, "}\n");

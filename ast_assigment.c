@@ -1,4 +1,5 @@
 #include "ast_assigment.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -86,12 +87,10 @@ ast_assigment_do_print(AstNode *self, FILE *out, int indention)
     assert(out);
 
     AstAssigment *obj = (AstAssigment *)self;
-
-    fprintf(out, "  ");
-    ast_node_print(AST_NODE(obj->target), out, indention);
-    fprintf(out, " = ");
-    ast_node_print(AST_NODE(obj->value), out, indention);
-    fprintf(out, "\n");
+    fprintf_indent(out, indention, "assigment\n  target:\n");
+    ast_node_print(AST_NODE(obj->target), out, indention + 4);
+    fprintf_indent(out, indention, "\n  value:\n");
+    ast_node_print(AST_NODE(obj->value), out, indention + 4);
 }
 
 static void

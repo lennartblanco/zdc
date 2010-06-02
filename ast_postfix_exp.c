@@ -1,4 +1,5 @@
 #include "ast_postfix_exp.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -87,10 +88,9 @@ ast_postfix_exp_do_print(AstNode *self, FILE *out, int indention)
 
     AstPostfixExp *postfix = AST_POSTFIX_EXP(self);
 
-    fprintf(out,
-            "postfix expression (");
-    ast_node_print(AST_NODE(postfix->exp), out, indention);
-    fprintf(out, " . %s)", postfix->name);
+    fprintf_indent(out, indention, "postfix_exp\n  exp:\n");
+    ast_node_print(AST_NODE(postfix->exp), out, indention + 4);
+    fprintf_indent(out, indention, "\n  name: %s\n", postfix->name);
 }
 
 static void
