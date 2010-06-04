@@ -10,6 +10,9 @@
 static void
 ir_enum_member_class_init(gpointer klass, gpointer dummy);
 
+static DtDataType *
+ir_enum_member_do_get_data_type(IrExpression *self);
+
 static void
 ir_enum_member_do_print(IrNode *self, FILE *out, int indention);
 
@@ -43,7 +46,7 @@ ir_enum_member_get_type(void)
 }
 
 IrEnumMember *
-ir_enum_member_new(gchar *name, IrExpression *value)
+ir_enum_member_new(IrEnum *enum_def, gchar *name, IrExpression *value)
 {
     IrEnumMember *obj;
 
@@ -51,6 +54,7 @@ ir_enum_member_new(gchar *name, IrExpression *value)
                        "ir-symbol-name", name,
                        NULL);
 
+    obj->enum_def = enum_def;
     obj->value = value;
 
     return obj;
@@ -81,6 +85,17 @@ static void
 ir_enum_member_class_init(gpointer klass, gpointer dummy)
 {
     ((IrNodeClass *)klass)->do_print = ir_enum_member_do_print;
+    ((IrExpressionClass *)klass)->do_get_data_type =
+        ir_enum_member_do_get_data_type;
+
+}
+
+static DtDataType *
+ir_enum_member_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_ENUM_MEMBER(self));
+
+    return DT_DATA_TYPE(ir_enum_get_data_type(IR_ENUM_MEMBER(self)->enum_def));
 }
 
 static void

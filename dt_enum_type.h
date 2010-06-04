@@ -25,7 +25,7 @@
 #define DT_ENUM_TYPE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_ENUM_TYPE, DtEnumTypeClass))
 
-typedef struct
+struct _DtEnumType
 {
     DtDataType parent;
 
@@ -33,7 +33,7 @@ typedef struct
     gchar *name;
     DtDataType *base_type;
     IrEnumMember *first_member;
-} DtEnumType;
+};
 
 typedef struct
 {
@@ -49,8 +49,11 @@ dt_enum_type_get_type(void);
 
 DtEnumType *
 dt_enum_type_new(gchar *name,
-                 DtDataType *base_type,
-                 IrEnumMember *first_member);
+                 DtDataType *base_type);
+
+void
+dt_enum_type_set_first_member(DtEnumType *self,
+                              IrEnumMember *first_member);
 
 DtDataType *
 dt_enum_type_get_base_type(DtEnumType *self);

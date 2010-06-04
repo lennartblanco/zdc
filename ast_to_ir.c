@@ -325,6 +325,7 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
 static IrEnumMember *
 enum_member_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
+                  IrEnum *enum_def,
                   AstEnumMember *ast_member)
 {
     IrExpression *member_val = NULL;
@@ -338,7 +339,8 @@ enum_member_to_ir(compilation_status_t *compile_status,
                                       member_init);
     }
 
-    return ir_enum_member_new(ast_enum_member_get_name(ast_member),
+    return ir_enum_member_new(enum_def,
+                              ast_enum_member_get_name(ast_member),
                               member_val);
 }
 
@@ -347,6 +349,7 @@ enum_to_ir(compilation_status_t *compile_status,
            sym_table_t *symbols,
            AstEnum *ast_enum)
 {
+    IrEnum *enum_def;
     DtDataType *base_type;
     gchar *enum_tag;
     GSList *i;
@@ -359,20 +362,21 @@ enum_to_ir(compilation_status_t *compile_status,
         g_error("anonymous enums not implemented");
     }
 
+    enum_def = ir_enum_new(enum_tag, base_type,
+                           ast_node_get_line_num(ast_enum));
+
     for (i = ast_enum_get_members(ast_enum); i != NULL; i = g_slist_next(i))
     {
         ir_enum_members = g_slist_prepend(ir_enum_members,
                                           enum_member_to_ir(compile_status,
                                                             symbols,
+                                                            enum_def,
                                                             i->data));
     }
-    ir_enum_members = g_slist_reverse(ir_enum_members);
+    ir_enum_set_members(enum_def, g_slist_reverse(ir_enum_members));
 
 
-    return ir_enum_new(enum_tag,
-                       base_type,
-                       ir_enum_members,
-                       ast_node_get_line_num(ast_enum));
+    return enum_def;
 }
 
 static GSList *
@@ -988,7 +992,11 @@ variable_ref_to_ir(compilation_status_t *compile_status,
     var_name = ast_variable_ref_get_name(var_ref);
     var_symb = sym_table_get_symbol(symbols, var_name, NULL);
 
-    if (IR_IS_VARIABLE(var_symb) &&
+    if (IR_IS_ENUM(var_symb))
+    {
+        return IR_EXPRESSION(var_symb);
+    }
+    else if (IR_IS_VARIABLE(var_symb) &&
         DT_IS_ARRAY_TYPE(ir_variable_get_data_type(IR_VARIABLE(var_symb))))
     {
         /* this is an array handle expression */
@@ -1013,6 +1021,18 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     exp = expression_to_ir(compile_status,
                            symbols,
                            ast_postfix_exp_get_expression(ast_postfix));
+
+    if (IR_IS_ENUM(exp))
+    {
+        IrEnumMember *mbr;
+
+        mbr = ir_enum_get_member(IR_ENUM(exp),
+                                 ast_postfix_exp_get_name(ast_postfix));
+        if (mbr != NULL)
+        {
+            return IR_EXPRESSION(mbr);
+        }
+    }
 
     prop = ir_property_new(exp,
                            ast_postfix_exp_get_name(ast_postfix),

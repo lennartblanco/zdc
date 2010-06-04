@@ -207,6 +207,14 @@ ir_module_add_enum(IrModule *self,
     gchar *enum_tag = ir_enum_get_tag(ir_enum);
 
     /*
+     * store enum in symbols table
+     */
+    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(ir_enum)) != 0)
+    {
+        return false;
+    }
+
+    /*
      * store enum in the user type table
      */
     if (g_hash_table_lookup(self->user_types, enum_tag) != NULL)
@@ -219,6 +227,7 @@ ir_module_add_enum(IrModule *self,
 
     /* add it to the module's enum's list */
     self->enums = g_slist_prepend(self->enums, ir_enum);
+
 
     return true;
 }

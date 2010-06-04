@@ -1,6 +1,8 @@
 #ifndef IR_ENUM_MEMBER_INC_X
 #define IR_ENUM_MEMBER_INC_X
 
+#include "ir_types.h"
+#include "ir_enum.h"
 #include "ir_symbol.h"
 
 /*---------------------------------------------------------------------------*
@@ -24,7 +26,7 @@
 #define IR_ENUM_MEMBER_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_ENUM_MEMBER, IrEnumMemberClass))
 
-typedef struct
+struct _IrEnumMember
 {
     IrSymbol       parent;
 
@@ -32,7 +34,8 @@ typedef struct
      * private 
      */
     IrExpression  *value;
-} IrEnumMember;
+    IrEnum *enum_def;
+};
 
 typedef struct
 {
@@ -47,7 +50,7 @@ GType
 ir_enum_member_get_type(void);
 
 IrEnumMember *
-ir_enum_member_new(gchar *name, IrExpression *value);
+ir_enum_member_new(IrEnum *enum_def, gchar *name, IrExpression *value);
 
 IrExpression *
 ir_enum_member_get_value(IrEnumMember *self);

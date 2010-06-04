@@ -178,6 +178,20 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
     assert(IR_IS_EXPRESSION(expression));
 
     IrExpression *res_exp = NULL;
+    DtDataType *source_type;
+
+    source_type = ir_expression_get_data_type(expression);
+    if (DT_IS_ENUM_TYPE(source_type))
+    {
+        DtDataType *base_type;
+
+        base_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(source_type));
+        if (!dt_data_type_is_same(target_type, base_type))
+        {
+            return NULL;
+        }
+        return IR_EXPRESSION(ir_cast_new(target_type, expression));
+    }
 
     switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(target_type)))
     {
@@ -213,22 +227,8 @@ types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)
 {
     IrExpression *res;
-    DtDataType *source_type;
 
-    source_type = ir_expression_get_data_type(expression);
-
-    if (DT_IS_ENUM_TYPE(source_type))
-    {
-        DtDataType *base_type;
-
-        base_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(source_type));
-        if (!dt_data_type_is_same(target_type, base_type))
-        {
-            return NULL;
-        }
-        res = IR_EXPRESSION(ir_cast_new(target_type, expression));
-    }
-    else if (DT_IS_BASIC_TYPE(target_type))
+    if (DT_IS_BASIC_TYPE(target_type))
     {
         res = implicit_conv_to_basic_type(target_type, expression);
     }
@@ -236,6 +236,18 @@ types_implicit_conv(DtDataType *target_type,
     {
         res = types_arrays_implicit_conv(DT_ARRAY_TYPE(target_type),
                                          expression);
+    }
+    else if (DT_IS_ENUM_TYPE(target_type))
+    {
+        if (dt_data_type_is_same(target_type,
+                                 ir_expression_get_data_type(expression)))
+        {
+            res = expression;
+        }
+        else
+        {
+            res = NULL;
+        }
     }
     else
     {

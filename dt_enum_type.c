@@ -18,6 +18,9 @@ dt_enum_type_get_mangled(DtDataType *self);
 static IrExpression *
 dt_enum_type_get_init(DtDataType *self);
 
+static bool
+dt_enum_type_is_same(DtDataType *self, DtDataType *type);
+
 static void
 dt_enum_type_class_init(gpointer klass, gpointer dummy);
 
@@ -52,20 +55,27 @@ dt_enum_type_get_type(void)
 
 DtEnumType *
 dt_enum_type_new(gchar *name,
-                 DtDataType *base_type,
-                 IrEnumMember *first_member)
+                 DtDataType *base_type)
 {
     DtEnumType *obj;
-
-    assert(IR_IS_ENUM_MEMBER(first_member));
 
     obj = g_object_new(DT_TYPE_ENUM_TYPE, NULL);
 
     obj->name = g_strdup(name);
     obj->base_type = base_type;
-    obj->first_member = first_member;
+    obj->first_member = NULL;
 
     return obj;
+}
+
+void
+dt_enum_type_set_first_member(DtEnumType *self,
+                              IrEnumMember *first_member)
+{
+    assert(DT_IS_ENUM_TYPE(self));
+    assert(IR_IS_ENUM_MEMBER(first_member));
+
+    self->first_member = first_member;
 }
 
 DtDataType *
@@ -119,8 +129,25 @@ static IrExpression *
 dt_enum_type_get_init(DtDataType *self)
 {
     assert(DT_IS_ENUM_TYPE(self));
+    assert(IR_IS_EXPRESSION(DT_ENUM_TYPE(self)->first_member));
 
     return IR_EXPRESSION(DT_ENUM_TYPE(self)->first_member);
+}
+
+static bool
+dt_enum_type_is_same(DtDataType *self, DtDataType *type)
+{
+    assert(DT_IS_ENUM_TYPE(self));
+
+    if (!DT_IS_ENUM_TYPE(type))
+    {
+        return false;
+    }
+
+    DtEnumType *l = DT_ENUM_TYPE(self);
+    DtEnumType *r = DT_ENUM_TYPE(type);
+
+    return g_strcmp0(l->name, r->name) == 0;
 }
 
 static void
@@ -130,5 +157,6 @@ dt_enum_type_class_init(gpointer klass, gpointer dummy)
     ((DtDataTypeClass *)klass)->get_string = dt_enum_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled = dt_enum_type_get_mangled;
     ((DtDataTypeClass *)klass)->get_init = dt_enum_type_get_init;
+    ((DtDataTypeClass *)klass)->is_same = dt_enum_type_is_same;
 }
 

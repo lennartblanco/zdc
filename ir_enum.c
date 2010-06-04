@@ -35,7 +35,7 @@ ir_enum_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_NODE,
+      type = g_type_register_static(IR_TYPE_SYMBOL,
                                     "IrEnumType",
                                     &info, 0);
     }
@@ -45,18 +45,17 @@ ir_enum_get_type(void)
 IrEnum *
 ir_enum_new(gchar *tag,
             DtDataType *base_type,
-            GSList *members,
             guint line_number)
 {
     IrEnum *obj;
 
     obj = g_object_new(IR_TYPE_ENUM,
                        "ir-node-line-number", line_number,
+                       "ir-symbol-name", tag,
                        NULL);
 
-    obj->tag = g_strdup(tag);
-    obj->members = members;
-    obj->data_type = dt_enum_type_new(tag, base_type, members->data);
+    obj->members = NULL;
+    obj->data_type = dt_enum_type_new(tag, base_type);
 
     return obj;
 }
@@ -66,7 +65,7 @@ ir_enum_get_tag(IrEnum *self)
 {
     assert(IR_IS_ENUM(self));
 
-    return self->tag;
+    return ir_symbol_get_name(IR_SYMBOL(self));
 }
 
 DtDataType *
@@ -86,12 +85,41 @@ ir_enum_set_base_type(IrEnum *self, DtDataType *base_type)
     dt_enum_type_set_base_type(self->data_type, base_type);
 }
 
+void
+ir_enum_set_members(IrEnum *self, GSList *members)
+{
+    assert(IR_IS_ENUM(self));
+    assert(members);
+
+    self->members = members;
+    dt_enum_type_set_first_member(self->data_type, members->data);
+}
+
 GSList *
 ir_enum_get_members(IrEnum *self)
 {
     assert(IR_IS_ENUM(self));
 
     return self->members;
+}
+
+IrEnumMember *
+ir_enum_get_member(IrEnum *self, const gchar *enum_member_name)
+{
+    assert(IR_IS_ENUM(self));
+    assert(enum_member_name);
+
+    GSList *i;
+
+    for (i = self->members; i != NULL; i = g_slist_next(i))
+    {
+        if (g_strcmp0(ir_symbol_get_name(i->data), enum_member_name) == 0)
+        {
+            return i->data;
+        }
+    }
+
+    return NULL;
 }
 
 DtEnumType *
@@ -123,7 +151,7 @@ ir_enum_do_print(IrNode *self, FILE *out, int indention)
                    "  tag: '%s'\n"
                    "  base type: '%s'\n"
                    "  members:\n",
-                   e, e->tag,
+                   e, ir_enum_get_tag(e),
                    base_type ? dt_data_type_get_string(base_type) : "unknow");
 
     for (i = e->members; i != NULL; i = g_slist_next(i))
