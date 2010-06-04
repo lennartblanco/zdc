@@ -73,7 +73,6 @@ states_get_run_as_int()
    return x;
 }
 
-// ustates_get_def_as_int() = 10
 uint
 ustates_get_def_as_int()
 {
@@ -88,7 +87,6 @@ ustates_get_off_as_int()
     return ustates.off;
 }
 
-//nums_get_def_as_char() = '0'
 char
 nums_get_def_as_char()
 {
@@ -105,7 +103,6 @@ nums_get_SIX_as_char()
    return x;
 }
 
-//nato_get_def_as_char() = 0
 char
 nato_get_def_as_char()
 {
@@ -124,7 +121,6 @@ nato_get_DELTA_as_char()
   return x;
 }
 
-// logic_get_def_as_bool() = true
 bool
 logic_get_def_as_bool()
 {
