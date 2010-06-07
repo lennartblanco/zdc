@@ -1588,6 +1588,7 @@ validate_enum(compilation_status_t *compile_status,
     DtDataType *base_type;
     IrExpression *first_member_init;
     IrExpression *member_value;
+    bool enum_member_errs = false;
 
     sym_table = ir_module_get_symbols(compile_status->module);
     members = ir_enum_get_members(enum_def);
@@ -1615,9 +1616,19 @@ validate_enum(compilation_status_t *compile_status,
             compile_error(compile_status,
                           var,
                           "invalid enum member initialization expression\n");
+            enum_member_errs = true;
             continue;
         }
         ir_enum_member_set_value(i->data, tmp);
+    }
+
+    if (enum_member_errs)
+    {
+        /*
+         * errors detected in enum member value expression,
+         * can not continue validation
+         */
+        return;
     }
 
     /*
@@ -1665,6 +1676,8 @@ validate_enum(compilation_status_t *compile_status,
         {
             member_value = tmp;
         }
+
+        /* calculate next enum member value by increasing previous with 1 */
         member_value =
            validate_binary_op(
                compile_status,
