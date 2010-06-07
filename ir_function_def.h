@@ -44,8 +44,6 @@ ir_function_def_get_type(void);
  *
  * @param return_type  return type of the function
  * @param name         name of the function
- * @param parameter    parameters of the function,
- *                     as a list of AstVariableDeclaration objects
  * @param parent_scope the symbol table of the semantical scope where the
  *                     function is declared
  *
@@ -66,11 +64,13 @@ ir_function_def_get_mangled_name(IrFunctionDef *self);
 
 /**
  * Get the function formal parameters.
- *
- * @return formal parameters as a list of AstVariableDeclaration pointer
+
  */
 GSList *
 ir_function_def_get_parameters(IrFunctionDef *self);
+
+void
+ir_function_def_set_return_type(IrFunctionDef *self, DtDataType *type);
 
 DtDataType *
 ir_function_def_get_return_type(IrFunctionDef *self);

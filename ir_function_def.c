@@ -167,6 +167,15 @@ ir_function_def_get_parameters(IrFunctionDef *self)
     return ir_function_get_parameters(IR_FUNCTION(self));
 }
 
+void
+ir_function_def_set_return_type(IrFunctionDef *self, DtDataType *type)
+{
+    assert(IR_IS_FUNCTION_DEF(self));
+    assert(DT_IS_DATA_TYPE(type));
+
+    ir_function_set_return_type(IR_FUNCTION(self), type);
+}
+
 DtDataType *
 ir_function_def_get_return_type(IrFunctionDef *self)
 {

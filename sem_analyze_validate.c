@@ -149,6 +149,18 @@ static void
 validate_enum(compilation_status_t *compile_status,
               IrEnum *enum_def);
 
+/**
+ * Look-up the user defined data type in current module. If no data type
+ * with provided name is found, a compile error is printed.
+ *
+ * @param compile_status the lexical scope where to look for the type
+ * @param user_type the placeholder object for user defined type
+ *
+ * @return the data type found or NULL if failed to look-up data type
+ */
+static DtDataType *
+resolve_user_type(compilation_status_t *compile_status,
+                  DtUserType *user_type);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -1105,6 +1117,25 @@ validate_statment(compilation_status_t *compile_status,
     }
 }
 
+static DtDataType *
+resolve_user_type(compilation_status_t *compile_status,
+                  DtUserType *user_type)
+{
+    DtDataType *type;
+
+    type = ir_module_get_user_type(compile_status->module, user_type);
+    if (type == NULL)
+    {
+        /* failed to look-up the data type */
+        compile_error(compile_status,
+                      user_type,
+                      "unkown data type '%s'\n",
+                      dt_user_type_get_name(user_type));
+    }
+
+    return type;
+}
+
 static void
 validate_code_block(compilation_status_t *compile_status,
                     IrCodeBlock *code_block)
@@ -1145,16 +1176,10 @@ validate_code_block(compilation_status_t *compile_status,
              */
             DtUserType *user_type = DT_USER_TYPE(var_type);
 
-            var_type =
-                ir_module_get_user_type(compile_status->module, user_type);
-
+            var_type = resolve_user_type(compile_status, user_type);
             if (var_type == NULL)
             {
                 /* failed to look-up the data type */
-                compile_error(compile_status,
-                              IR_NODE(var),
-                              "unkown data type '%s'\n",
-                              dt_user_type_get_name(user_type));
                 continue;
             }
 
@@ -1239,11 +1264,70 @@ validate_function_def(compilation_status_t *compile_status,
     assert(IR_IS_FUNCTION_DEF(func_def));
 
     IrCodeBlock *body;
+    DtDataType *type;
 
-    body = ir_function_def_get_body(func_def);
+    compile_status->function = IR_FUNCTION(func_def);
+
+    /* resolve possible user types in function parameters */
+    GSList *i = ir_function_def_get_parameters(func_def);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+
+        if (IR_IS_VARIABLE(i->data))
+        {
+            type = ir_variable_get_data_type(IR_VARIABLE(i->data));
+        }
+        else if (DT_IS_DATA_TYPE(i->data))
+        {
+            type = i->data;
+        }
+        else
+        {
+            /* unexpected object type in parameters list */
+            assert(false);
+        }
+
+        if (DT_IS_USER_TYPE(type))
+        {
+            /*
+             * the variable is of user defined type,
+             * look-up the data type object with the specified name
+             */
+            type = resolve_user_type(compile_status, DT_USER_TYPE(type));
+            if (type == NULL)
+            {
+                /* failed to look-up the data type */
+                continue;
+            }
+
+            /*
+             * overwrite the placehold data type object with the
+             * found object
+             */
+            if (IR_IS_VARIABLE(i->data))
+            {
+                ir_variable_set_data_type(i->data, type);
+            }
+            else
+            {
+                i->data = type;
+            }
+        }
+    }
+
+    /* resolve possible user types in function return type */
+    type = ir_function_def_get_return_type(func_def);
+    if (DT_IS_USER_TYPE(type))
+    {
+        type = resolve_user_type(compile_status, DT_USER_TYPE(type));
+        if (type != NULL)
+        {
+            ir_function_def_set_return_type(func_def, type);
+        }
+    }
 
     /* validate function's body */
-    compile_status->function = IR_FUNCTION(func_def);
+    body = ir_function_def_get_body(func_def);
     validate_code_block(compile_status, body);
 
     /*
