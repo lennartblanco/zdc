@@ -42,12 +42,13 @@ dt_user_type_get_type(void)
 }
 
 DtUserType *
-dt_user_type_new(gchar *name)
+dt_user_type_new(gchar *name, guint line_number)
 {
     DtUserType *obj;
 
     obj = g_object_new(DT_TYPE_USER_TYPE, NULL);
     obj->name = g_strdup(name);
+    obj->line_number = line_number;
 
     return obj;
 }
@@ -58,6 +59,14 @@ dt_user_type_get_name(DtUserType *self)
     assert(DT_IS_USER_TYPE(self));
 
     return self->name;
+}
+
+guint
+dt_user_type_get_line_num(DtUserType *self)
+{
+    assert(DT_IS_USER_TYPE(self));
+
+    return self->line_number;
 }
 
 /*---------------------------------------------------------------------------*

@@ -36,6 +36,7 @@ typedef struct
 
     /* private */
     gchar *name;
+    guint line_number;
 } DtUserType;
 
 typedef struct
@@ -51,9 +52,12 @@ GType
 dt_user_type_get_type(void);
 
 DtUserType *
-dt_user_type_new(gchar *name);
+dt_user_type_new(gchar *name, guint line_number);
 
 gchar *
 dt_user_type_get_name(DtUserType *self);
+
+guint
+dt_user_type_get_line_num(DtUserType *self);
 
 #endif /* DT_USER_TYPE_INC_X */
