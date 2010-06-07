@@ -14,7 +14,6 @@
 /**
  * Report a compile time error.
  *
- * @param filename the name of the source file where error is found.
  * @errmsg error message with printf-style formatting
  */
 void
