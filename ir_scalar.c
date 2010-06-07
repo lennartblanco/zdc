@@ -2,8 +2,19 @@
 #include <string.h>
 
 #include "ir_scalar.h"
+#include "utils.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_scalar_do_print(IrNode *self, FILE *out, int indention);
+
+static void
+ir_scalar_class_init(gpointer klass, gpointer foo);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -20,7 +31,7 @@ ir_scalar_get_type(void)
         sizeof (IrScalarClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL, //ir_scalar_class_init, /* class_init */
+        ir_scalar_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrScalar),
@@ -63,4 +74,24 @@ ir_scalar_get_variable_name(IrScalar *self)
 
     return ir_lvalue_get_name(IR_LVALUE(self));
 }
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+static void
+ir_scalar_do_print(IrNode *self, FILE *out, int indention)
+{
+    assert(IR_IS_SCALAR(self));
+
+    fprintf_indent(out, indention, "scalar\n  variable:\n");
+    ir_node_print(IR_NODE(ir_lvalue_get_variable(IR_LVALUE(self))),
+                  out, indention + 4);
+}
+
+static void
+ir_scalar_class_init(gpointer klass, gpointer foo)
+{
+    ((IrNodeClass *)klass)->do_print = ir_scalar_do_print;
+}
+
 
