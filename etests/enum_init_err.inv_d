@@ -1,0 +1,8 @@
+void foo() {  }
+
+enum bar
+{
+  a = 1 + foo(), // invalid initialization expression
+  b,
+  c
+}

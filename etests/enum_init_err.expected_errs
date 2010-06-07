@@ -1,0 +1,2 @@
+enum_init_err.d:5: error: illegal types in arithmetic operation
+enum_init_err.d:5: error: invalid enum member initialization expression

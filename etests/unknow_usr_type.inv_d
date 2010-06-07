@@ -1,0 +1,19 @@
+void func1()
+{
+  // unknow user type
+  my_int32 x;
+}
+
+
+void func2(my_type x) // unknow user type in parameter
+{
+
+}
+
+void func3(my_bool, // unknow user type in unnamed parameter
+           int x)
+{
+
+}
+
+

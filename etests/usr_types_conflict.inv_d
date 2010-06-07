@@ -1,0 +1,20 @@
+enum some_enum
+{
+  mbr1, mbr2
+}
+
+enum some_enum
+{
+  A,
+  B,
+  C,
+  D
+}
+
+alias int states;
+
+enum states : uint
+{
+  start, stop, abort
+}
+
