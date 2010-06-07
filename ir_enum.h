@@ -50,6 +50,7 @@ ir_enum_get_type(void);
 IrEnum *
 ir_enum_new(gchar *tag,
             DtDataType *base_type,
+            IrModule *parent_module,
             guint line_number);
 
 gchar *

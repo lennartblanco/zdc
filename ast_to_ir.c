@@ -222,6 +222,7 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
     sym_table_t *module_sym_table;
 
     module = ir_module_new(ast_module_get_package(ast_module));
+    compile_status->module = module;
     module_sym_table = ir_module_get_symbols(module);
 
     /*
@@ -363,6 +364,7 @@ enum_to_ir(compilation_status_t *compile_status,
     }
 
     enum_def = ir_enum_new(enum_tag, base_type,
+                           compile_status->module,
                            ast_node_get_line_num(ast_enum));
 
     for (i = ast_enum_get_members(ast_enum); i != NULL; i = g_slist_next(i))

@@ -45,6 +45,7 @@ ir_enum_get_type(void)
 IrEnum *
 ir_enum_new(gchar *tag,
             DtDataType *base_type,
+            IrModule *parent_module,
             guint line_number)
 {
     IrEnum *obj;
@@ -55,7 +56,7 @@ ir_enum_new(gchar *tag,
                        NULL);
 
     obj->members = NULL;
-    obj->data_type = dt_enum_type_new(tag, base_type);
+    obj->data_type = dt_enum_type_new(tag, base_type, parent_module);
 
     return obj;
 }

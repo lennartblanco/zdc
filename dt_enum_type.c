@@ -1,4 +1,7 @@
+#include <string.h>
+
 #include "dt_enum_type.h"
+#include "ir_module.h"
 
 #include <assert.h>
 
@@ -55,8 +58,11 @@ dt_enum_type_get_type(void)
 
 DtEnumType *
 dt_enum_type_new(gchar *name,
-                 DtDataType *base_type)
+                 DtDataType *base_type,
+                 IrModule *parent_module)
 {
+    assert(IR_IS_MODULE(parent_module));
+
     DtEnumType *obj;
 
     obj = g_object_new(DT_TYPE_ENUM_TYPE, NULL);
@@ -64,6 +70,8 @@ dt_enum_type_new(gchar *name,
     obj->name = g_strdup(name);
     obj->base_type = base_type;
     obj->first_member = NULL;
+    obj->parent_module = parent_module;
+    obj->mangled_name = NULL;
 
     return obj;
 }
@@ -112,8 +120,17 @@ dt_enum_type_get_mangled(DtDataType *self)
 {
     assert(DT_IS_ENUM_TYPE(self));
 
-    /* not implemented */
-    assert(false);
+    DtEnumType *et = DT_ENUM_TYPE(self);
+
+    if (et->mangled_name == NULL)
+    {
+        et->mangled_name =
+            g_strdup_printf("E%s%d%s",
+                            ir_module_get_mangled_name(et->parent_module),
+                            strlen(et->name), et->name);
+    }
+
+    return et->mangled_name;
 }
 
 static guint

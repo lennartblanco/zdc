@@ -33,6 +33,8 @@ struct _DtEnumType
     gchar *name;
     DtDataType *base_type;
     IrEnumMember *first_member;
+    IrModule *parent_module;
+    char *mangled_name;
 };
 
 typedef struct
@@ -49,7 +51,8 @@ dt_enum_type_get_type(void);
 
 DtEnumType *
 dt_enum_type_new(gchar *name,
-                 DtDataType *base_type);
+                 DtDataType *base_type,
+                 IrModule *parent_module);
 
 void
 dt_enum_type_set_first_member(DtEnumType *self,

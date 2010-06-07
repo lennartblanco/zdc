@@ -121,10 +121,11 @@ ir_function_def_get_mangled_name(IrFunctionDef *self)
         GSList *i;
         char *func_name;
 
-        GString *str =
-            g_string_new(
-                ir_module_get_mangled_name(
-                    ir_symbol_get_parent_module(IR_SYMBOL(self))));
+        GString *str = g_string_new("_D");
+
+        g_string_append(str,
+            ir_module_get_mangled_name(
+                ir_symbol_get_parent_module(IR_SYMBOL(self))));
 
         func_name = ir_function_get_name(IR_FUNCTION(self));
         g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);

@@ -40,8 +40,6 @@ enum logic // base type bool
   F = false
 }
 
-// test cases:
-// states_get_def_as_int() = 0
 int
 states_get_def_as_int()
 {
@@ -73,8 +71,23 @@ states_get_run_as_int()
    return x;
 }
 
+states
+get_state(char t)
+{
+    if (t == 'r')
+    {
+        return states.run; 
+    }
+    else if (t == 's')
+    {
+         return states.stop;
+    }
+
+    return states.idle;
+}
+
 uint
-ustates_get_def_as_int()
+ustates_get_def_as_uint()
 {
     ustates x;
 
@@ -82,10 +95,17 @@ ustates_get_def_as_int()
 }
 
 uint
-ustates_get_off_as_int()
+ustates_get_off_as_uint()
 {
     return ustates.off;
 }
+
+uint
+ustates_get_as_uint(ustates x)
+{
+    return x;
+}
+
 
 char
 nums_get_def_as_char()
@@ -121,6 +141,17 @@ nato_get_DELTA_as_char()
   return x;
 }
 
+nato
+get_next_char(nato n)
+{
+    if (n == nato.ALPHA)        { return nato.BRAVO;   }
+    else if (n == nato.BRAVO)   { return nato.CHARLIE; }
+    else if (n == nato.CHARLIE) { return nato.DELTA;   }
+    else if (n == nato.DELTA)   { return nato.ECHO;    }
+
+    return nato.UNKNOW;
+}
+
 bool
 logic_get_def_as_bool()
 {
@@ -133,4 +164,10 @@ bool
 logic_get_F_as_bool()
 {
    return logic.F;
+}
+
+bool
+unnamed_enum_param(bool dummy, nums)
+{
+    return !dummy;
 }

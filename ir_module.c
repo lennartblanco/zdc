@@ -146,7 +146,7 @@ ir_module_get_mangled_name(IrModule *self)
     if (self->mangled_name == NULL)
     {
         GSList *i;
-        GString *str = g_string_new("_D");
+        GString *str = g_string_new(NULL);
 
         for (i = self->package_name; i != NULL; i = g_slist_next(i))
         {

@@ -149,9 +149,18 @@ compile_d_func_call(x86_comp_params_t *params,
 
     func_data_type = ir_expression_get_data_type(IR_EXPRESSION(func_call));
 
+    if (DT_IS_ENUM_TYPE(func_data_type))
+    {
+        func_data_type =
+            dt_enum_type_get_base_type(DT_ENUM_TYPE(func_data_type));
+    }
+
     if (!DT_IS_BASIC_TYPE(func_data_type))
     {
-        /* calling function with non-basic return type is not implemented */
+        /*
+         * only calling function with enum or
+         * basic type return values implemented
+         */
         assert(false);
     }
 
