@@ -272,7 +272,14 @@ types_integer_promotion(IrExpression *expression)
     basic_data_type_t exp_data_type;
 
     exp_type = ir_expression_get_data_type(expression);
-    if (!(DT_IS_BASIC_TYPE(exp_type))) {
+
+    if (DT_IS_ENUM_TYPE(exp_type))
+    {
+        exp_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(exp_type));
+    }
+
+    if (!(DT_IS_BASIC_TYPE(exp_type)))
+    {
         return NULL;
     }
 
@@ -306,80 +313,55 @@ types_usual_arithm_conv(IrExpression *left,
                         IrExpression **res_left,
                         IrExpression **res_right)
 {
-    DtDataType *data_type;
-    basic_data_type_t left_data_type;
-    basic_data_type_t right_data_type;
+    DtDataType *left_type;
+    DtDataType *right_type;
 
     /* 
      * get the data type of left expression
      */
 
-    data_type = ir_expression_get_data_type(left);
+    left_type = ir_expression_get_data_type(left);
     /* only conversions of basic types is implemented */
-    assert(DT_IS_BASIC_TYPE(data_type));
-    left_data_type =
-        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
-
-    if (left_data_type == void_type)
+    if (types_is_void(left_type))
     {
         /* converting void types is illegal */
         return false;
     }
-    assert(left_data_type == int_type  ||
-           left_data_type == uint_type ||
-           left_data_type == char_type ||
-           left_data_type == bool_type);
 
     /* 
      * get the data type of right expression
      */
 
-    data_type = ir_expression_get_data_type(right);
+    right_type = ir_expression_get_data_type(right);
     /* only conversions of basic types is implemented */
-    assert(DT_IS_BASIC_TYPE(data_type));
-    right_data_type =
-        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
-
-    if (right_data_type == void_type)
+    if (types_is_void(right_type))
     {
         /* converting void types is illegal */
         return false;
     }
-    assert(right_data_type == int_type  ||
-           right_data_type == uint_type ||
-           right_data_type == char_type ||
-           right_data_type == bool_type);
-
 
     /* do integer promotions of both operands */
     *res_left = types_integer_promotion(left);
     *res_right = types_integer_promotion(right);
 
     /* fetch data-types of integer promoted operands */
-    data_type = ir_expression_get_data_type(*res_left);
-    assert(DT_IS_BASIC_TYPE(data_type)); /* non-basic types not implemened */
-    left_data_type =
-        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
+    left_type = ir_expression_get_data_type(*res_left);
+    right_type = ir_expression_get_data_type(*res_right);
 
-    data_type = ir_expression_get_data_type(*res_right);
-    assert(DT_IS_BASIC_TYPE(data_type)); /* non-basic types not implemened */
-    right_data_type =
-        dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type));
-
-    if (right_data_type == left_data_type)
+    if (dt_data_type_is_same(left_type, right_type))
     {
         /* operands are of the same type, we are done */
         return true;
     }
 
-    if (left_data_type == uint_type && right_data_type == int_type)
+    if (types_is_uint(left_type) && types_is_int(right_type))
     {
         /* right operand need to be converted to unsigned */
         *res_right = 
             IR_EXPRESSION(ir_cast_new(types_get_uint_type(), *res_right));
 
     }
-    else if (left_data_type == int_type && right_data_type == uint_type)
+    else if (types_is_int(left_type) && types_is_uint(right_type))
     {
         /* left operand need to be converted to unsigned */
         *res_left =
