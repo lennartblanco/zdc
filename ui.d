@@ -8,9 +8,8 @@ import std.string;
 
 enum arch_types_e
 {
-   java = 0,
-   x86  = 1,
-   arm = 2,
+   x86  = 0,
+   arm  = 1
 }
 
 enum compilation_stages_e
@@ -82,8 +81,6 @@ parse_march_option(string option)
             return arch_types_e.x86;
         case "arm":
             return arch_types_e.arm;
-        case "java":
-            return arch_types_e.java;
         default:
             throw new Exception("unsupported target architecture '" ~ arch ~
                                 "' specified");
@@ -91,28 +88,6 @@ parse_march_option(string option)
     }
     /* we should not get here */
     assert(false);
-}
-
-string
-get_target_file_name(string source_file, arch_types_e arch)
-{
-    string file_ext;
-    switch (arch)
-    {
-        case arch_types_e.java:
-            file_ext = ".j";
-            break;
-        case arch_types_e.x86:
-        case arch_types_e.arm:
-            file_ext = ".s";
-            break;
-        default:
-            /* unexpected architecture type */
-            assert(false);
-    }
-
-    /* replace '.d' with target specific file extansion */
-    return source_file[0..source_file.length-2] ~ file_ext;
 }
 
 /**
@@ -282,8 +257,11 @@ main(string[] args)
     {
         string target_file;
 
-        /* get compilation target file from source file name */
-        target_file = get_target_file_name(file, options.target_arch);
+        /*
+         * get compilation target file from source file name
+         * replace '.d' with '.s'
+         */
+        target_file = file[0..file.length-2] ~ ".s"; 
 
         /* invoke compilation */
         int r = compile_file(std.string.toStringz(file), 

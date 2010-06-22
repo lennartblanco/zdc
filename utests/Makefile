@@ -14,12 +14,15 @@ all: $(PROG)
 check: $(PROG)
 	./$(PROG)
 
-$(TEST_OBJS): $(TEST_SRC)
+%.o: ../%.c
 	gcc $(CFLAGS) -DSTATIC= -c -o $@ ../$(subst .o,.c,$@)
+
+%.o: ../%.d
+	dmd -g -c ../$(subst .o,.d,$@)
 
 
 $(PROG): $(OBJS) $(TEST_OBJS)
-	gcc -o $(PROG) $(LDFLAGS) $(OBJS) $(TEST_OBJS) -lcheck
+	dmd -g -of$(PROG) -L-lgobject-2.0 -L-lglib-2.0 $(OBJS) $(TEST_OBJS) -L-lcheck
 
 clean:
 	rm -rf $(PROG) *.o *~

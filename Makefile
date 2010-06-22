@@ -37,8 +37,8 @@ yygrammar.o: yygrammar.c
 lex.o: lex.c lex.h
 	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
 
-$(PROG): $(OBJS) ui.o
-	dmd -g -of$(PROG) $(OBJS) ui.o -L-lgobject-2.0 -L-lglib-2.0
+$(PROG): $(OBJS)
+	dmd -g -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
 
 # rules to run tests
 unit_tests: lex.h lex.c

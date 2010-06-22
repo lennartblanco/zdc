@@ -27,22 +27,6 @@ run_test_x86()
     return 0;
 }
 
-run_test_java()
-{
-    local test_name
-
-    test_name=$1
-
-    rm -f $test_name.j
-    rm -f $test_name.class
-    echo -n "Compiling $test_name.d "
-    run_checked $XDC -march=java $test_name.d
-    echo "[ok]"
-    run_checked jasmin $test_name.j
-    run_checked javac "$test_name"Check.java
-    run_checked java "$test_name"Check
-}
-
 run_all_tests()
 {
     local failed=0
@@ -72,9 +56,7 @@ run_all_tests()
     return 0
 }
 
-if [ "$1" = "--march=java" ]; then
-    RUN_TEST=run_test_java
-elif [ "$1" = "--march=x86" ]; then
+if [ "$1" = "--march=x86" ]; then
     RUN_TEST=run_test_x86
 else
     echo "unsupported target architecture specified with option '$1'"
