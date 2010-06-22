@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "java_trgt.h"
 #include "x86.h"
+#include "arm.h"
 #include "sym_table.h"
 #include "sem_analyze.h"
 
@@ -121,6 +122,9 @@ compile_file(const char* input_file,
 //            break;
         case arch_x86:
             x86_gen_code(ir_module, output_stream, input_file);
+            break;
+        case arch_arm:
+            arm_gen_code(ir_module, output_stream, input_file);
             break;
         default:
             /* unexpected target architecture */

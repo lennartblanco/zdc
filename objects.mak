@@ -4,6 +4,8 @@ X86_TRGT_OBJS := x86.o x86_data.o x86_cast.o x86_reg_location.o               \
         x86_frame_offset.o x86_if_else.o x86_func_call.o x86_code_block.o     \
         x86_while.o x86_foreach.o x86_array.o
 
+ARM_TRGT_OBJS := arm.o
+
 OBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o       \
         errors.o types.o types_arrays.o const_fold.o                          \
         ast_to_ir.o sem_analyze.o sem_analyze_validate.o label_gen.o          \
@@ -28,4 +30,4 @@ OBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o       \
         ir_array_literal.o ir_lvalue.o ir_array.o ir_array_slice.o            \
         ir_array_cell.o ir_scalar.o ir_function_def.o ir_function_decl.o      \
         ir_property.o                                                         \
-        $(X86_TRGT_OBJS) #$(JAVA_TRGT_OBJS)
+        $(X86_TRGT_OBJS) $(ARM_TRGT_OBJS) #$(JAVA_TRGT_OBJS)

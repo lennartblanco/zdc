@@ -8,8 +8,9 @@ import std.string;
 
 enum arch_types_e
 {
-   arch_java = 0,
-   arch_x86  = 1
+   java = 0,
+   x86  = 1,
+   arm = 2,
 }
 
 enum compilation_stages_e
@@ -45,10 +46,7 @@ print_usage_message(string progname)
              "\n"
              "Options:\n"
              "  --march=arch,      Generate code for the specified architecture.\n"
-             "   or -march=arch    The choices for arch are 'java' and 'x86'.\n"
-             "                     If 'java' is specified, compiler will emmit\n"
-             "                     .j java assembly files. If 'x86' is specified,\n"
-             "                     compiler will emmit .s x86 assembly files.\n"
+             "   or -march=arch    The choices for arch are 'arm' or 'x86'.\n"
              "  -o outfile         Place output in file outfile.\n"
              "  -S                 Generate assembly files only.\n"
              "  -c                 Compile only, do not link.\n"
@@ -81,9 +79,11 @@ parse_march_option(string option)
     switch (arch)
     {
         case "x86":
-            return arch_types_e.arch_x86;
+            return arch_types_e.x86;
+        case "arm":
+            return arch_types_e.arm;
         case "java":
-            return arch_types_e.arch_java;
+            return arch_types_e.java;
         default:
             throw new Exception("unsupported target architecture '" ~ arch ~
                                 "' specified");
@@ -99,10 +99,11 @@ get_target_file_name(string source_file, arch_types_e arch)
     string file_ext;
     switch (arch)
     {
-        case arch_types_e.arch_java:
+        case arch_types_e.java:
             file_ext = ".j";
             break;
-        case arch_types_e.arch_x86:
+        case arch_types_e.x86:
+        case arch_types_e.arm:
             file_ext = ".s";
             break;
         default:
@@ -194,7 +195,7 @@ main(string[] args)
 
     /* set default compile options */
     last_compilation_stage = compilation_stages_e.link_stage;
-    options.target_arch = arch_types_e.arch_x86;
+    options.target_arch = arch_types_e.x86;
     options.print_ast = false;
     options.print_ir = false;
 

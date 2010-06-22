@@ -10,7 +10,8 @@
 typedef enum arch_types_e
 {
    arch_java = 0,
-   arch_x86  = 1
+   arch_x86  = 1,
+   arch_arm  = 2
 } arch_types_t;
 
 typedef struct compile_options_s
