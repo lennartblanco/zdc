@@ -343,32 +343,32 @@ x86_text_prelude(x86_comp_params_t *params,
     main_symb = sym_table_get_symbol(sym_table, "main", NULL);
     if (IR_IS_FUNCTION_DEF(main_symb))
     {
-      IrFunctionDef *main_func;
-      bool exit_code_returned;
+        IrFunctionDef *main_func;
+        bool exit_code_returned;
 
-      main_func = IR_FUNCTION_DEF(main_symb);
+        main_func = IR_FUNCTION_DEF(main_symb);
       
-      /* only entry point without arguments supported */
-      assert(ir_function_def_get_parameters(main_func) == NULL);
+        /* only entry point without arguments supported */
+        assert(ir_function_def_get_parameters(main_func) == NULL);
 
-      /*
-       * if main() returns a value, use it as exit code,
-       * otherwise exit with code 0
-       */
-      exit_code_returned = 
-        types_is_int(ir_function_def_get_return_type(main_func));
+        /*
+         * if main() returns a value, use it as exit code,
+         * otherwise exit with code 0
+         */
+        exit_code_returned = 
+            types_is_int(ir_function_def_get_return_type(main_func));
 
-      fprintf(params->out,
-              ".globl _init\n"
-              "_init:\n"
-              "    ret\n"
-              ".globl main\n"
-              "main:\n"
-              "    call %s\n"
-              "    pushl %s\n"
-              "    call exit\n",
-              ir_function_def_get_mangled_name(main_func),
-              exit_code_returned ? "%eax" : "$0");
+        fprintf(params->out,
+                ".globl _init\n"
+                "_init:\n"
+                "    ret\n"
+                ".globl main\n"
+                "main:\n"
+                "    call %s\n"
+                "    pushl %s\n"
+                "    call exit\n",
+                ir_function_def_get_mangled_name(main_func),
+                exit_code_returned ? "%eax" : "$0");
     }
 }
 
