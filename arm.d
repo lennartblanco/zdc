@@ -81,17 +81,17 @@ gen_text_prelude(File asmfile, sym_table_t *sym_table)
         exit_code_returned ? "" : "    mov r0, #0\n");
 }
 
-int dummy;
-
 private void
 compile_function_def(File asmfile, IrFunctionDef *func)
 {
     string mangled_name;
     string name;
+    static int dummy;
 
     name = d_str(ir_function_def_get_name(func));
     mangled_name = d_str(ir_function_def_get_mangled_name(func));
 
+    /* just generate a dummy function code which returns some number */
     asmfile.writefln("    .align 2\n"
                      "    .global %s\n"
                      "    .type %s, %%function\n"
