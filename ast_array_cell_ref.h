@@ -1,7 +1,7 @@
 #ifndef AST_ARRAY_CELL_REF_INC_X
 #define AST_ARRAY_CELL_REF_INC_X
 
-#include "ast_variable_ref.h"
+#include "ast_ident.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    AstVariableRef parent;
+    AstIdent parent;
 
     /* private */
     AstExpression *index;
@@ -34,7 +34,7 @@ typedef struct
 
 typedef struct
 {
-  AstVariableRefClass parent_class;
+  AstIdentClass parent_class;
 } AstArrayCellRefClass;
 
 /*---------------------------------------------------------------------------*

@@ -34,7 +34,7 @@ ast_array_cell_ref_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(AST_TYPE_VARIABLE_REF,
+      type = g_type_register_static(AST_TYPE_IDENT,
                                     "AstArrayCellRefType",
                                     &info, 0);
     }
@@ -50,7 +50,7 @@ ast_array_cell_ref_new(char *name,
 
     obj = g_object_new(AST_TYPE_ARRAY_CELL_REF,
                        "ast-node-line-number", line_number,
-                       "ast-variable-ref-name", name,
+                       "ast-ident-name", name,
                        NULL);
     obj->index = index;
 
@@ -62,7 +62,7 @@ ast_array_cell_ref_get_name(AstArrayCellRef *self)
 {
     assert(AST_IS_ARRAY_CELL_REF(self));
 
-    return ast_variable_ref_get_name(AST_VARIABLE_REF(self));
+    return ast_ident_get_name(AST_IDENT(self));
 }
 
 AstExpression *
@@ -84,7 +84,7 @@ ast_array_cell_ref_do_print(AstNode *self, FILE *out, int indention)
     assert(out);
 
     AstArrayCellRef *ref = AST_ARRAY_CELL_REF(self);
-    fprintf(out, "%s[", ast_variable_ref_get_name(AST_VARIABLE_REF(self)));
+    fprintf(out, "%s[", ast_array_cell_ref_get_name(ref));
     ast_node_print(AST_NODE(ref->index), out, indention);
     fprintf(out, "]");
 }

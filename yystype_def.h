@@ -3,7 +3,7 @@
 
 #include "ast_module.h"
 #include "ast_enum_member.h"
-#include "ast_variable_ref.h"
+#include "ast_ident.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
 #include "ast_if_else.h"
@@ -21,7 +21,7 @@ union yystype_u
     AstFunctionDecl            *function_decl;
     AstFunctionDef             *function_def;
     AstStatment                *statment;
-    AstVariableRef             *variable_ref;
+    AstIdent                   *ident;
     AstExpression              *expression;
     AstVariableDeclaration     *variable_declaration;
     AstVariableDefinition      *variable_definition;

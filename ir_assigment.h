@@ -1,7 +1,6 @@
 #ifndef IR_ASSIGMENT_INC_X
 #define IR_ASSIGMENT_INC_X
 
-#include "ast_variable_ref.h"
 #include "ir_statment.h"
 #include "ir_expression.h"
 #include "ir_lvalue.h"

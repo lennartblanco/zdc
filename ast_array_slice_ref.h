@@ -1,7 +1,7 @@
 #ifndef AST_ARRAY_SLICE_REF_INC_X
 #define AST_ARRAY_SLICE_REF_INC_X
 
-#include "ast_variable_ref.h"
+#include "ast_ident.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    AstVariableRef parent;
+    AstIdent parent;
 
     /* private */
     AstExpression *start;
@@ -35,7 +35,7 @@ typedef struct
 
 typedef struct
 {
-  AstVariableRefClass parent_class;
+  AstIdentClass parent_class;
 } AstArraySliceRefClass;
 
 /*---------------------------------------------------------------------------*

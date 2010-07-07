@@ -564,24 +564,24 @@ var_assigment<n> :
    lvalue<l> '=' expression<y> ';'
    {
        (*n).statment =
-           AST_STATMENT(ast_assigment_new(l.variable_ref, 
-                                           y.expression,
-                                           yypos));
+           AST_STATMENT(ast_assigment_new(l.ident, 
+                                          y.expression,
+                                          yypos));
    }
 ;
 
 lvalue<n> :
     TOK_IDENT<x>
     {
-        (*n).variable_ref = ast_variable_ref_new(x.text, yypos);
+        (*n).ident = ast_ident_new(x.text, yypos);
         free(x.text);
     }
 |   TOK_IDENT<name> '[' expression<exp> ']'
     {
-        (*n).variable_ref =
-            AST_VARIABLE_REF(ast_array_cell_ref_new(name.text,
-                                                    exp.expression,
-                                                    yypos));
+        (*n).ident =
+            AST_IDENT(ast_array_cell_ref_new(name.text,
+                                             exp.expression,
+                                             yypos));
         free(name.text);
     }
 |   array_slice<n>
@@ -751,7 +751,7 @@ primary<n> :
 |   TOK_IDENT<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_variable_ref_new(x.text, yypos));
+            AST_EXPRESSION(ast_ident_new(x.text, yypos));
         free(x.text);
     }
 |   func_call<n>

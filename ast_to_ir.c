@@ -741,7 +741,7 @@ assigment_to_ir(compilation_status_t *compile_status,
                 sym_table_t *symbols,
                 AstAssigment *ast_assigment)
 {
-    AstVariableRef *target;
+    AstIdent *target;
     AstExpression *value;
     IrExpression *ir_target;
     IrExpression *ir_value;
@@ -984,15 +984,15 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-variable_ref_to_ir(compilation_status_t *compile_status,
-                   sym_table_t *symbols,
-                   AstVariableRef *var_ref)
+ident_to_ir(compilation_status_t *compile_status,
+            sym_table_t *symbols,
+            AstIdent *ident)
 {
-    char *var_name;
+    char *ident_name;
     IrSymbol *var_symb;
 
-    var_name = ast_variable_ref_get_name(var_ref);
-    var_symb = sym_table_get_symbol(symbols, var_name, NULL);
+    ident_name = ast_ident_get_name(ident);
+    var_symb = sym_table_get_symbol(symbols, ident_name, NULL);
 
     if (IR_IS_ENUM(var_symb))
     {
@@ -1006,7 +1006,7 @@ variable_ref_to_ir(compilation_status_t *compile_status,
     }
 
     return
-        IR_EXPRESSION(ir_scalar_new(var_name, ast_node_get_line_num(var_ref)));
+        IR_EXPRESSION(ir_scalar_new(ident_name, ast_node_get_line_num(ident)));
 }
 
 static IrExpression *
@@ -1133,12 +1133,12 @@ expression_to_ir(compilation_status_t *compile_status,
         array_cell_ref = AST_ARRAY_CELL_REF(ast_expression);
         return array_cell_ref_to_ir(compile_status, symbols, array_cell_ref);
     }
-    else if (AST_IS_VARIABLE_REF(ast_expression))
+    else if (AST_IS_IDENT(ast_expression))
     {
-        AstVariableRef *var_ref;
+        AstIdent *ident;
 
-        var_ref = AST_VARIABLE_REF(ast_expression);
-        return variable_ref_to_ir(compile_status, symbols, var_ref);
+        ident = AST_IDENT(ast_expression);
+        return ident_to_ir(compile_status, symbols, ident);
     }
     else if (AST_IS_UNARY_OPERATION(ast_expression))
     {

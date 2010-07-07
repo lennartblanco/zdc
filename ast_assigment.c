@@ -43,7 +43,7 @@ ast_assigment_get_type(void)
 }
 
 AstAssigment *
-ast_assigment_new(AstVariableRef *target,
+ast_assigment_new(AstIdent *target,
                   AstExpression *value,
                   guint line_number)
 {
@@ -58,7 +58,7 @@ ast_assigment_new(AstVariableRef *target,
     return obj;
 }
 
-AstVariableRef *
+AstIdent *
 ast_assigment_get_target(AstAssigment *self)
 {
     assert(AST_IS_ASSIGMENT(self));

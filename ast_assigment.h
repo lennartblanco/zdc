@@ -2,7 +2,7 @@
 #define AST_ASSIGMENT_INC_X
 
 #include "ast_statment.h"
-#include "ast_variable_ref.h"
+#include "ast_ident.h"
 #include "ast_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -30,7 +30,7 @@ typedef struct
 {
     AstStatment parent;
     /* private */
-    AstVariableRef *target;
+    AstIdent *target;
     AstExpression  *value;
 } AstAssigment;
 
@@ -47,11 +47,11 @@ GType
 ast_assigment_get_type(void);
 
 AstAssigment *
-ast_assigment_new(AstVariableRef *target,
+ast_assigment_new(AstIdent *target,
                   AstExpression *value,
                   guint line_number);
 
-AstVariableRef *
+AstIdent *
 ast_assigment_get_target(AstAssigment *self);
 
 AstExpression *
