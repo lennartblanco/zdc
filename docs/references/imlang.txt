@@ -1,0 +1,96 @@
+Intermediate language
+=====================
+
+This document describes the intermediate language used in XDC compiler. The front-end converts the source code into an intermediate representation, which is then passed to the assembly generating back-end (x86 or ARM). Each function's body is expressed with assembly-like operations from the intermediate language described below.
+
+Data types
+----------
+
+Variables and constants are typed, follwing types are used:
+
+ 8-bit value
+ 16-bit value
+ 32-bit value
+ pointer
+ array handle
+
+Operations
+----------
+
+copy <source> => <target>
+
+ copy value from <source> to <target>
+  - all operands are of same type
+  - constants are not allowed for <target>
+
+iadd <left>, <right> => <res>
+
+ signed addition
+  - all operands are of same type
+  - constants are not allwed for <res>
+
+isub left, right => res
+
+ signed substraction
+
+imult left, right => res
+ signed muliplication
+
+idiv left, right => res
+ signed division
+
+uadd left, right => res
+
+usub left, right => res
+
+umult left, right => res
+
+udiv left, right => res
+
+iequal left, right => res
+  res = (left == right)
+
+inoteq left, right => res
+
+  res = (left != right)
+
+igreater left, right => res
+   res = (left > right)
+
+iless left, right => res
+   res = (left < right)
+
+iless_or_eq left, right => res
+  res = (left <= right)
+
+igreater_or_eq left, right => res
+  res = (left >= right)
+
+ineg value => res
+ signed arithmetic negation of value
+  - non of the operans can be constants
+
+bneg value => res
+ logical negation
+  - non of the operans can be constants
+
+return value
+  return a value
+
+vreturn
+  void return
+
+jump label
+  unconditional jump
+
+jump_true condition, label
+  jump to label if condition is true
+
+jump_false condition, label
+  jump to label if condition is false
+
+call function_name, arg0, arg1, ...,argN => res
+ call a function that returns a value
+
+vcall function_name, arg0, arg1, ...,argN
+  call void function
