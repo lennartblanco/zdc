@@ -824,6 +824,10 @@ validate_return(compilation_status_t *compile_status,
                           dt_data_type_get_string(func_return_type));
             return;
         }
+
+        /* valid return from void function, add iml-operation */
+        ir_function_add_operation(IR_FUNCTION_DEF(compile_status->function),
+                                  iml_operation_new(iml_vreturn));
     }
 }
 

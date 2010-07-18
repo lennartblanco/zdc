@@ -4,6 +4,7 @@
 #include "ir_function.h"
 #include "ir_module.h"
 #include "ir_code_block.h"
+#include "iml_operation.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -83,5 +84,8 @@ ir_function_def_get_parameter_symbols(IrFunctionDef *self);
 
 IrCodeBlock *
 ir_function_def_get_body(IrFunctionDef *self);
+
+void
+ir_function_add_operation(IrFunctionDef *self, iml_operation_t *operation);
 
 #endif /* IR_FUNCTION_DEF_INC_X */

@@ -28,4 +28,5 @@ OBJS := ui.o auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o  \
         ir_array_literal.o ir_lvalue.o ir_array.o ir_array_slice.o            \
         ir_array_cell.o ir_scalar.o ir_function_def.o ir_function_decl.o      \
         ir_property.o                                                         \
+        iml_operation.o                                                       \
         $(X86_TRGT_OBJS) $(ARM_TRGT_OBJS)
