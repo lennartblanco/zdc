@@ -1,6 +1,8 @@
 #ifndef IML_OPERATION_INC_X
 #define IML_OPERATION_INC_X
 
+#include <stdio.h>
+
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
@@ -23,5 +25,10 @@ typedef struct iml_operation_s iml_operation_t;
 
 iml_operation_t *
 iml_operation_new(iml_opcode_t operation, ...);
+
+void
+iml_operation_print(iml_operation_t *self,
+                    FILE *out,
+                    int indention);
 
 #endif /* IML_OPERATION_INC_X */

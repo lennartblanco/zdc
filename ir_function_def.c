@@ -229,11 +229,16 @@ ir_function_def_do_print(IrNode *self, FILE *out, int indention)
     assert(out);
 
     IrFunctionDef *func;
+    GSList *i;
 
     ir_function_print(IR_FUNCTION(self), out, indention);
 
     func = IR_FUNCTION_DEF(self);
     fprintf_indent(out, indention + 2, "body:\n");
-    ir_node_print(IR_NODE(func->body), out, indention + 2);
+
+    for (i = func->operations; i != NULL; i = g_slist_next(i))
+    {
+        iml_operation_print(i->data, out, indention + 4);
+    }
 }
 

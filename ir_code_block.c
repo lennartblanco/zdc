@@ -7,16 +7,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_code_block_class_init(gpointer klass, gpointer foo);
-
-static void
-ir_code_block_do_print(IrNode *self, FILE *out, int indention);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -31,7 +21,7 @@ ir_code_block_get_type(void)
         sizeof (IrCodeBlockClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_code_block_class_init,  /* class_init */
+        NULL,  /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrCodeBlock),
@@ -83,42 +73,3 @@ ir_code_block_get_statments(IrCodeBlock *self)
     return self->statments;
 }
 
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_code_block_class_init(gpointer klass, gpointer foo)
-{
-    ((IrNodeClass *)klass)->do_print = ir_code_block_do_print;
-}
-
-static void
-ir_code_block_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_CODE_BLOCK(self));
-    assert(out);
-
-    IrCodeBlock *code_blk;
-
-    code_blk = IR_CODE_BLOCK(self);
-    GSList *i = code_blk->statments;
-    GList *p;
-
-    fprintf_indent(out, indention, "code block [%p]\n{\n", code_blk);
-
-    /* print local symbols */
-    p = sym_table_get_all_symbols(code_blk->symbols);
-    for (; p != NULL; p = g_list_next(p))
-    {
-        ir_node_print(IR_NODE(p->data), out, indention + 2);
-    }
-    g_list_free(p);
-
-    /* print all statments in this code block */
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        ir_node_print(i->data, out, indention + 2);
-    }
-    fprintf_indent(out, indention, "}\n");
-}
