@@ -8,11 +8,12 @@ Data types
 
 Variables and constants are typed, follwing types are used:
 
- 8-bit value
- 16-bit value
- 32-bit value
- pointer
- array handle
+ 8-bit value        8b
+ 16-bit value      16b
+ 32-bit value      32b
+ pointer           ptr
+ array handle      arh
+ frame offset      fof
 
 Operations
 ----------
@@ -94,3 +95,22 @@ call function_name, arg0, arg1, ...,argN => res
 
 vcall function_name, arg0, arg1, ...,argN
   call void function
+
+memcpy src, length => dest
+  copy memory <length> bytes from <src> to <dest>.
+   - src is data section label or pointer
+   - length is variable or constant of 32b type
+   - dest is pointer, frame offset or array handle
+
+get_cell array, index => res
+  store array cell array[index] value in <res>
+  - array is an array handle or frame offset
+  - index is variable or constant of 32b type
+  - res must be a variable
+
+set_cell val => array, index
+  set array cell array[index] to val
+  - val is a variable or constant
+  - array is an array handle or frame offset
+  - index is a variable or constant of 32b type
+ 

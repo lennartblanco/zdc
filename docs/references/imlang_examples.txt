@@ -1,0 +1,85 @@
+int init_int_array(int i)
+{
+    int[4] arr = [10, 11, 12, 13];
+
+    return arr[i];
+}
+
+
+data section
+
+.L1: int 10, 11, 12, 13
+
+frame
+
+32b[4] <-- fof arr
+32b i
+32b t0
+
+operations
+
+ memcpy .L1, 4 => arr
+ get_cell arr, i => t0
+ return t0
+
+int init_exp_tst(int l)
+{
+    int m = 15;
+    int r = l;
+    int[4] a = [l,2,3,4];
+
+    return (a[0] + a[1] - m) * l;
+}
+
+frame
+
+32b l
+32b m
+32b r
+32b[4] <--- fof a
+32b t0
+32b t1
+32b t2
+
+operations
+
+  set_cell l => a, 0
+  set_cell 2 => a, 1
+  set_cell 3 => a, 2
+  set_cell 4 => a, 3
+  get_cell a, 0 => t0
+  get_cell a, 1 => t1
+  iadd t0, t1 => t2
+  isub t2, m => t0
+  imult t0, l => t1
+  return t1
+
+int int_array_lit_assigment(int idx)
+{
+  int[] x;
+
+  x = [3, 1, 4];
+
+  return x[0] + x[idx];
+}
+
+data section
+
+.L1 int 3 1 4
+
+frame
+
+arh x
+32b idx
+32b t0
+32b t1
+32b t2
+
+operations
+
+ gcmalloc 3 => x
+ memcpy .L1, 3 => x
+ get_cell x, 0 => t0
+ get_cell x, idx => t1
+ iadd t0, t1 => t2
+ return t2
