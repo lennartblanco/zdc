@@ -5,7 +5,7 @@ X86_TRGT_OBJS := x86.o x86_data.o x86_cast.o x86_reg_location.o               \
 ARM_TRGT_OBJS := arm.o
 
 OBJS := ui.o auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o  \
-        errors.o types.o types_arrays.o const_fold.o                          \
+        errors.o types.o types_arrays.o const_fold.o ir_to_iml.o              \
         ast_to_ir.o sem_analyze.o sem_analyze_validate.o label_gen.o          \
         ast_array_literal.o ast_while.o ast_code_block.o ast_statment.o       \
         ast_node.o ast_module.o ast_function_def.o ast_function_decl.o        \
@@ -28,5 +28,5 @@ OBJS := ui.o auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o  \
         ir_array_literal.o ir_lvalue.o ir_array.o ir_array_slice.o            \
         ir_array_cell.o ir_scalar.o ir_function_def.o ir_function_decl.o      \
         ir_property.o                                                         \
-        iml_operation.o                                                       \
+        iml_operation.o iml_func_frame.o iml_variable.o                       \
         $(X86_TRGT_OBJS) $(ARM_TRGT_OBJS)

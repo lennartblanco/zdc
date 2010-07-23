@@ -14,6 +14,7 @@ struct _IrFunctionDef
     IrFunction parent;
     /* private */
     sym_table_t  *param_symbols;
+    iml_func_frame_t *frame;
     GSList *operations;
     IrCodeBlock  *body;
     char *mangled_name;
@@ -80,6 +81,7 @@ ir_function_def_new(DtDataType *return_type,
                        NULL);
 
     obj->mangled_name = NULL;
+    obj->frame = iml_func_frame_new();
     obj->operations = NULL;
     
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);
@@ -203,6 +205,14 @@ ir_function_def_get_body(IrFunctionDef *self)
     return self->body;
 }
 
+iml_func_frame_t *
+ir_function_def_get_frame(IrFunctionDef *self)
+{
+    assert(IR_IS_FUNCTION_DEF(self));
+
+    return self->frame;
+}
+
 void
 ir_function_add_operation(IrFunctionDef *self, iml_operation_t *operation)
 {
@@ -234,6 +244,10 @@ ir_function_def_do_print(IrNode *self, FILE *out, int indention)
     ir_function_print(IR_FUNCTION(self), out, indention);
 
     func = IR_FUNCTION_DEF(self);
+
+    fprintf_indent(out, indention + 2, "frame:\n");
+    iml_func_frame_print(func->frame, out, indention + 2);
+
     fprintf_indent(out, indention + 2, "body:\n");
 
     for (i = func->operations; i != NULL; i = g_slist_next(i))

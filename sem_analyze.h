@@ -11,7 +11,7 @@
 typedef struct compilation_status_s
 {
     IrModule   *module;              /** current module */
-    IrFunction *function;            /** current function */
+    IrFunctionDef *function;            /** current function */
     const char *source_file;         /** current source file name */
     guint errors_count;
 } compilation_status_t;

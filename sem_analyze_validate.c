@@ -24,6 +24,7 @@
 #include "ir_array_cell.h"
 #include "ir_property.h"
 #include "ir_enum_member.h"
+#include "ir_to_iml.h"
 #include "const_fold.h"
 #include "errors.h"
 
@@ -787,7 +788,8 @@ validate_return(compilation_status_t *compile_status,
     DtDataType *func_return_type;
 
     ret_exp = ir_return_get_return_value(ret);
-    func_return_type = ir_function_get_return_type(compile_status->function);
+    func_return_type =
+        ir_function_get_return_type(IR_FUNCTION(compile_status->function));
 
     if (ret_exp != NULL)
     {
@@ -826,7 +828,7 @@ validate_return(compilation_status_t *compile_status,
         }
 
         /* valid return from void function, add iml-operation */
-        ir_function_add_operation(IR_FUNCTION_DEF(compile_status->function),
+        ir_function_add_operation(compile_status->function,
                                   iml_operation_new(iml_vreturn));
     }
 }
@@ -1235,6 +1237,12 @@ validate_code_block(compilation_status_t *compile_status,
             continue;
         }
         ir_variable_set_initializer(var, conv_initializer);
+
+        /*
+         * now we know that variable and it's initializer expression are valid
+         * add the variable to function's frame and it's initializer to
+         * expression to operations list
+         */
     }
     g_list_free(locals);
 
@@ -1270,9 +1278,12 @@ validate_function_def(compilation_status_t *compile_status,
     IrCodeBlock *body;
     DtDataType *type;
 
-    compile_status->function = IR_FUNCTION(func_def);
+    compile_status->function = func_def;
 
-    /* resolve possible user types in function parameters */
+    /*
+     * resolve possible user types in function parameters
+     * and add parameters to function frame
+     */
     GSList *i = ir_function_def_get_parameters(func_def);
     for (; i != NULL; i = g_slist_next(i))
     {
@@ -1291,6 +1302,7 @@ validate_function_def(compilation_status_t *compile_status,
             assert(false);
         }
 
+        /* resolve user type */
         if (DT_IS_USER_TYPE(type))
         {
             /*
@@ -1316,6 +1328,12 @@ validate_function_def(compilation_status_t *compile_status,
             {
                 i->data = type;
             }
+        }
+
+        /* Add to function frame */
+        if (IR_IS_VARIABLE(i->data))
+        {
+            add_to_func_frame(func_def, IR_VARIABLE(i->data), true);
         }
     }
 
