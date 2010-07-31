@@ -1244,6 +1244,26 @@ validate_code_block(compilation_status_t *compile_status,
          * expression to operations list
          */
     }
+
+    /*
+     * if no errors are detected so far,
+     * add local variables for function frame
+     */
+    if (compile_status->errors_count == 0)
+    {
+        for (p = locals; p != NULL; p = g_list_next(p))
+        {
+            /* skip if not a variable */
+            if (!IR_IS_VARIABLE(p->data))
+            {
+                continue;
+            }
+            add_to_func_frame(compile_status->function,
+                              p->data,
+                              false);
+        }
+    }
+
     g_list_free(locals);
 
     /*
@@ -1334,6 +1354,11 @@ validate_function_def(compilation_status_t *compile_status,
         if (IR_IS_VARIABLE(i->data))
         {
             add_to_func_frame(func_def, IR_VARIABLE(i->data), true);
+        }
+        else if (DT_IS_DATA_TYPE(i->data))
+        {
+            /* @todo: add anonymous parameters to function frame */
+            assert(false); /* not imlemented */
         }
     }
 

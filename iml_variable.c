@@ -29,6 +29,14 @@ iml_variable_new(iml_data_type_t data_type)
   return var;
 }
 
+iml_data_type_t
+iml_variable_get_data_type(iml_variable_t *self)
+{
+    assert(self);
+
+    return self->datatype;
+}
+
 void
 iml_variable_print(iml_variable_t *self, FILE *out, int indention)
 {

@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <stdbool.h>
 
 #include "iml_func_frame.h"
 #include "utils.h"
@@ -11,7 +12,10 @@
 
 struct iml_func_frame_s
 {
-  GSList *parameters;
+    GSList *parameters;
+    GSList *var_32b;
+    GSList *var_16b;
+    GSList *var_8b;
 };
 
 /*---------------------------------------------------------------------------*
@@ -31,8 +35,24 @@ iml_func_frame_new(void)
 void
 iml_func_frame_add_local(iml_func_frame_t *self, iml_variable_t *variable)
 {
-    /* not imlemented */
-    assert(FALSE);
+    assert(self);
+    assert(variable);
+
+    switch (iml_variable_get_data_type(variable))
+    {
+        case iml_8b:
+            self->var_8b = g_slist_prepend(self->var_8b, variable);
+            break;
+        case iml_16b:
+            self->var_16b = g_slist_prepend(self->var_16b, variable);
+            break;
+        case iml_32b:
+            self->var_32b = g_slist_prepend(self->var_32b, variable);
+            break;
+        default:
+            /* unexpected data type */
+            assert(false);
+    }
 }
 
 void
@@ -53,6 +73,26 @@ iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
     {
         fprintf_indent(out, indention + 2, "parameters\n");
         for (i = self->parameters; i != NULL; i = g_slist_next(i))
+        {
+            iml_variable_print(i->data, out, indention + 4);
+        }
+    }
+
+    if (self->var_32b || self->var_16b || self->var_8b)
+    {
+        fprintf_indent(out, indention + 2, "variables\n");
+
+        for (i = self->var_32b; i != NULL; i = g_slist_next(i))
+        {
+            iml_variable_print(i->data, out, indention + 4);
+        }
+
+        for (i = self->var_16b; i != NULL; i = g_slist_next(i))
+        {
+            iml_variable_print(i->data, out, indention + 4);
+        }
+
+        for (i = self->var_8b; i != NULL; i = g_slist_next(i))
         {
             iml_variable_print(i->data, out, indention + 4);
         }

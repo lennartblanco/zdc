@@ -7,6 +7,23 @@
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
+/**
+ * Add operations to provided function to evaluate the expression.
+ *
+ * @return the variable or constant where the result of expression will be 
+ *         stored
+ */
+void *
+iml_add_expression_eval(IrFunctionDef *function,
+                        IrExpression *ir_expression)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_EXPRESSION(ir_expression));
+
+    /* not implemented */
+    assert(false);
+}
+
 void
 add_to_func_frame(IrFunctionDef *parent_function,
                   IrVariable *variable,
@@ -44,4 +61,24 @@ add_to_func_frame(IrFunctionDef *parent_function,
     } else {
         iml_func_frame_add_local(frame, iml_var);
     }
+    ir_variable_set_location(variable, iml_var);
+
+    /* if this is a function parameter, then we are done here */
+    if (is_function_parameter) {
+        return;
+    }
+
+    /* */
+    IrExpression *init_exp = ir_variable_get_initializer(variable);
+
+    if (init_exp == NULL)
+    {
+        init_exp = dt_data_type_get_init(ir_variable_get_data_type(variable));
+    }
+
+printf("init_exp %p ", init_exp);
+ir_node_print(init_exp, stdout, 2);
+printf("\n");
+    iml_add_expression_eval(parent_function, init_exp);
 }
+

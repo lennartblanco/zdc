@@ -4,6 +4,7 @@
 #include "ir_symbol.h"
 #include "ir_expression.h"
 #include "dt_data_type.h"
+#include "iml_variable.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -35,11 +36,11 @@ typedef struct
      */
 
     /* variables data type */
-    DtDataType    *type;
+    DtDataType     *type;
     /* value to assign to variable when created */
-    IrExpression  *initializer;
-    /* backend specific location of this variable */
-    GObject       *location;
+    IrExpression   *initializer;
+    /* function frame location of this variable */
+    iml_variable_t *location;
 } IrVariable;
 
 typedef struct
@@ -68,10 +69,13 @@ ir_variable_new(DtDataType *type,
                 IrExpression *initializer,
                 guint line_number);
 
+/**
+ * store the symbolic description of this variable's function frame location.
+ */
 void
-ir_variable_set_location(IrVariable *self, GObject *location);
+ir_variable_set_location(IrVariable *self, iml_variable_t *location);
 
-GObject *
+iml_variable_t *
 ir_variable_get_location(IrVariable *self);
 
 char *
