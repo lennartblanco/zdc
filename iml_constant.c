@@ -1,6 +1,5 @@
-#include <glib.h>
-
-#include "iml_variable.h"
+#include <stdbool.h>
+#include "iml_constant.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -10,59 +9,70 @@
  *---------------------------------------------------------------------------*/
 
 static void
-iml_variable_do_print(ImlOperand *self, FILE *out, guint indention);
+iml_constant_do_print(ImlOperand *self, FILE *out, guint indention);
 
 static void
-iml_variable_class_init(gpointer klass, gpointer foo);
+iml_constant_class_init(gpointer klass, gpointer foo);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType 
-iml_variable_get_type(void)
+iml_constant_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (ImlVariableClass),
+        sizeof (ImlConstantClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        iml_variable_class_init,   /* class_init */
+        iml_constant_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (ImlVariable),
+        sizeof (ImlConstant),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(IML_TYPE_OPERAND,
-                                    "ImlVariableType",
+                                    "ImlConstantType",
                                     &info, 0);
     }
     return type;
 }
 
-
-ImlVariable *
-iml_variable_new(iml_data_type_t data_type)
+ImlConstant *
+iml_constant_new_8b(guint8 val)
 {
-    ImlVariable *obj;
+    ImlConstant *obj;
 
-    obj = g_object_new(IML_TYPE_VARIABLE, NULL);
+    obj = g_object_new(IML_TYPE_CONSTANT, NULL);
 
-    obj->datatype = data_type;
+    obj->datatype = iml_8b;
+    obj->value.v8 = val;
 
     return obj;
 }
 
-iml_data_type_t
-iml_variable_get_data_type(ImlVariable *self)
+ImlConstant *
+iml_constant_new_16b(guint16 val)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(false); /* not implemented */
+}
 
-    return self->datatype;
+ImlConstant *
+iml_constant_new_32b(guint32 val)
+{
+    ImlConstant *obj;
+
+    obj = g_object_new(IML_TYPE_CONSTANT, NULL);
+
+    obj->datatype = iml_32b;
+    obj->value.v32 = val;
+
+    return obj;
 }
 
 /*---------------------------------------------------------------------------*
@@ -70,39 +80,20 @@ iml_variable_get_data_type(ImlVariable *self)
  *---------------------------------------------------------------------------*/
 
 static void
-iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
+iml_constant_do_print(ImlOperand *self, FILE *out, guint indention)
 {
-    assert(IML_IS_VARIABLE(self));
-    assert(out);
+    assert(IML_IS_CONSTANT(self));
 
-    ImlVariable *var = IML_VARIABLE(self);
+    ImlConstant *constant = IML_CONSTANT(self);
 
-    char *type_str;
-
-    switch (var->datatype)
-    {
-        case iml_8b:
-            type_str = " 8b";
-            break;
-        case iml_16b:
-            type_str = "16b";
-            break;
-        case iml_32b:
-            type_str = "32b";
-            break;
-        default:
-            /* unexpected data type */
-            assert(FALSE);
-    }
-
-    fprintf_indent(out, indention, "%s [%p]", type_str, self);
+    fprintf_indent(out, indention, "%u", constant->value);
 }
 
 static void
-iml_variable_class_init(gpointer klass, gpointer foo)
+iml_constant_class_init(gpointer klass, gpointer foo)
 {
     assert(IML_IS_OPERAND_CLASS(klass));
 
     /* install print method implementation */
-    IML_OPERAND_CLASS(klass)->do_print = iml_variable_do_print;
+    IML_OPERAND_CLASS(klass)->do_print = iml_constant_do_print;
 }

@@ -1,32 +1,54 @@
 #ifndef IML_VARIABLE_INC_X
 #define IML_VARIABLE_INC_X
 
+#include "iml_operand.h"
+
 #include <stdio.h>
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-typedef struct iml_variable_s iml_variable_t;
+#define IML_TYPE_VARIABLE iml_variable_get_type()
 
-typedef enum iml_data_type_e
+#define IML_VARIABLE(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IML_TYPE_VARIABLE, ImlVariable))
+
+#define IML_VARIABLE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), IML_TYPE_VARIABLE, ImlVariableClass))
+
+#define IML_IS_VARIABLE(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IML_TYPE_VARIABLE))
+
+#define IML_IS_VARIABLE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), IML_TYPE_VARIABLE))
+
+#define IML_VARIABLE_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), IML_TYPE_VARIABLE, ImlVariableClass))
+
+typedef struct 
 {
-    iml_8b,
-    iml_16b,
-    iml_32b
-} iml_data_type_t;
+    ImlOperand parent;
+    /* private */
+    iml_data_type_t datatype;
+} ImlVariable;
+
+typedef struct 
+{
+    ImlOperandClass parent_class;
+} ImlVariableClass;
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-iml_variable_t *
+GType
+iml_variable_get_type(void);
+
+ImlVariable *
 iml_variable_new(iml_data_type_t data_type);
 
 iml_data_type_t
-iml_variable_get_data_type(iml_variable_t *self);
-
-void
-iml_variable_print(iml_variable_t *self, FILE *out, int indention);
+iml_variable_get_data_type(ImlVariable *self);
 
 #endif /* IML_VARIABLE_INC_X */

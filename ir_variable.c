@@ -68,7 +68,7 @@ ir_variable_new(DtDataType *type,
 }
 
 void
-ir_variable_set_location(IrVariable *self, iml_variable_t *location)
+ir_variable_set_location(IrVariable *self, ImlVariable *location)
 {
     assert(IR_IS_VARIABLE(self));
     assert(location);
@@ -76,7 +76,7 @@ ir_variable_set_location(IrVariable *self, iml_variable_t *location)
     self->location = location;
 }
 
-iml_variable_t *
+ImlVariable *
 ir_variable_get_location(IrVariable *self)
 {
     assert(IR_IS_VARIABLE(self));

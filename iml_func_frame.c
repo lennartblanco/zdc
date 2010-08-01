@@ -33,7 +33,7 @@ iml_func_frame_new(void)
 }
 
 void
-iml_func_frame_add_local(iml_func_frame_t *self, iml_variable_t *variable)
+iml_func_frame_add_local(iml_func_frame_t *self, ImlVariable *variable)
 {
     assert(self);
     assert(variable);
@@ -56,7 +56,7 @@ iml_func_frame_add_local(iml_func_frame_t *self, iml_variable_t *variable)
 }
 
 void
-iml_func_frame_add_parameter(iml_func_frame_t *self, iml_variable_t *variable)
+iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable)
 {
     assert(self);
     assert(variable);
@@ -74,7 +74,8 @@ iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
         fprintf_indent(out, indention + 2, "parameters\n");
         for (i = self->parameters; i != NULL; i = g_slist_next(i))
         {
-            iml_variable_print(i->data, out, indention + 4);
+            iml_operand_print(i->data, out, indention + 4);
+            fprintf(out, "\n");
         }
     }
 
@@ -84,17 +85,20 @@ iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
 
         for (i = self->var_32b; i != NULL; i = g_slist_next(i))
         {
-            iml_variable_print(i->data, out, indention + 4);
+            iml_operand_print(i->data, out, indention + 4);
+            fprintf(out, "\n");
         }
 
         for (i = self->var_16b; i != NULL; i = g_slist_next(i))
         {
-            iml_variable_print(i->data, out, indention + 4);
+            iml_operand_print(i->data, out, indention + 4);
+            fprintf(out, "\n");
         }
 
         for (i = self->var_8b; i != NULL; i = g_slist_next(i))
         {
-            iml_variable_print(i->data, out, indention + 4);
+            iml_operand_print(i->data, out, indention + 4);
+            fprintf(out, "\n");
         }
     }
 }

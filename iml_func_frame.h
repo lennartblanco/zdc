@@ -23,13 +23,13 @@ iml_func_frame_new(void);
  * add local variable to the frame
  */
 void
-iml_func_frame_add_local(iml_func_frame_t *self, iml_variable_t *variable);
+iml_func_frame_add_local(iml_func_frame_t *self, ImlVariable *variable);
 
 /**
  * add function parameter
  */
 void
-iml_func_frame_add_parameter(iml_func_frame_t *self, iml_variable_t *variable);
+iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable);
 
 /**
  * pretty print this function frame

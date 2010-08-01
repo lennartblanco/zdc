@@ -40,7 +40,7 @@ typedef struct
     /* value to assign to variable when created */
     IrExpression   *initializer;
     /* function frame location of this variable */
-    iml_variable_t *location;
+    ImlVariable    *location;
 } IrVariable;
 
 typedef struct
@@ -73,9 +73,9 @@ ir_variable_new(DtDataType *type,
  * store the symbolic description of this variable's function frame location.
  */
 void
-ir_variable_set_location(IrVariable *self, iml_variable_t *location);
+ir_variable_set_location(IrVariable *self, ImlVariable *location);
 
-iml_variable_t *
+ImlVariable *
 ir_variable_get_location(IrVariable *self);
 
 char *

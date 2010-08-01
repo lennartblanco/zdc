@@ -1,4 +1,9 @@
 #include "ir_to_iml.h"
+#include "ir_int_constant.h"
+#include "ir_uint_constant.h"
+#include "ir_bool_constant.h"
+#include "ir_char_constant.h"
+#include "iml_constant.h"
 #include "iml_variable.h"
 
 #include <assert.h>
@@ -7,20 +12,76 @@
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
+static ImlConstant *
+ir_constant_to_iml(IrFunctionDef *function,
+                   IrConstant *constant)
+{
+    iml_data_type_t type;
+    guint8 v8;
+    guint16 v16 = 0;
+    guint32 v32;
+
+    if (IR_IS_INT_CONSTANT(constant))
+    {
+        type = iml_32b;
+        v32 = ir_int_constant_get_value(IR_INT_CONSTANT(constant));
+    }
+    else if (IR_IS_UINT_CONSTANT(constant))
+    {
+        type = iml_32b;
+        v32 = ir_uint_constant_get_value(IR_UINT_CONSTANT(constant));
+    }
+    else if (IR_IS_BOOL_CONSTANT(constant))
+    {
+        type = iml_8b;
+        v8 = ir_bool_constant_get_value(IR_BOOL_CONSTANT(constant));
+    }
+    else if (IR_IS_CHAR_CONSTANT(constant))
+    {
+        type = iml_8b;
+        v8 = ir_char_constant_get_value(IR_CHAR_CONSTANT(constant));
+    }
+    else
+    {
+        /* unexpected constant type */
+        assert(false);
+    }
+
+    switch (type)
+    {
+        case iml_8b:
+            return iml_constant_new_8b(v8);
+        case iml_16b:
+            return iml_constant_new_16b(v16);
+        case iml_32b:
+            return iml_constant_new_32b(v32);
+        default:
+            /* unexpected type */
+            assert(false);
+    }
+}
+
 /**
  * Add operations to provided function to evaluate the expression.
  *
  * @return the variable or constant where the result of expression will be 
  *         stored
  */
-void *
+ImlOperand *
 iml_add_expression_eval(IrFunctionDef *function,
                         IrExpression *ir_expression)
 {
     assert(IR_IS_FUNCTION_DEF(function));
     assert(IR_IS_EXPRESSION(ir_expression));
 
-    /* not implemented */
+    if (IR_IS_CONSTANT(ir_expression))
+    {
+        return
+            IML_OPERAND(
+                ir_constant_to_iml(function, IR_CONSTANT(ir_expression)));
+    }
+
+    /* unexpected expression type */
     assert(false);
 }
 
@@ -52,7 +113,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
         /* unexpected storage size */
         assert(FALSE);
     }
-    iml_variable_t *iml_var = iml_variable_new(iml_datatype);
+    ImlVariable *iml_var = iml_variable_new(iml_datatype);
 
     /* add IML variable to function frame */
     iml_func_frame_t *frame = ir_function_def_get_frame(parent_function);
@@ -76,9 +137,9 @@ add_to_func_frame(IrFunctionDef *parent_function,
         init_exp = dt_data_type_get_init(ir_variable_get_data_type(variable));
     }
 
-printf("init_exp %p ", init_exp);
-ir_node_print(init_exp, stdout, 2);
-printf("\n");
-    iml_add_expression_eval(parent_function, init_exp);
+    ImlOperand *init_val = iml_add_expression_eval(parent_function, init_exp);
+    ir_function_add_operation(parent_function,
+                              iml_operation_new(iml_copy, init_val, iml_var));
+
 }
 
