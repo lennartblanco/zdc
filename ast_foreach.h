@@ -41,7 +41,7 @@ typedef struct
 
 typedef struct
 {
-  AstStatmentClass parent_class;
+    AstStatmentClass parent_class;
 } AstForeachClass;
 
 /*---------------------------------------------------------------------------*

@@ -34,7 +34,7 @@ typedef struct
 
 typedef struct
 {
-  AstIdentClass parent_class;
+    AstIdentClass parent_class;
 } AstArrayCellRefClass;
 
 /*---------------------------------------------------------------------------*

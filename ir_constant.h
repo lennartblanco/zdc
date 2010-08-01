@@ -26,12 +26,12 @@
 
 typedef struct 
 {
-  IrExpression parent;
+    IrExpression parent;
 } IrConstant;
 
 typedef struct 
 {
-  IrExpressionClass parent_class;
+    IrExpressionClass parent_class;
 } IrConstantClass;
 
 /*---------------------------------------------------------------------------*

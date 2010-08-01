@@ -31,7 +31,7 @@
 
 typedef struct 
 {
-  AstNodeClass parent_class;
+    AstNodeClass parent_class;
 } AstModuleClass;
 
 /*---------------------------------------------------------------------------*
