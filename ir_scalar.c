@@ -67,6 +67,14 @@ ir_scalar_set_variable(IrScalar *self,
     ir_lvalue_set_variable(IR_LVALUE(self), variable);
 }
 
+IrVariable *
+ir_scalar_get_variable(IrScalar *self)
+{
+    assert(IR_IS_SCALAR(self));
+
+    return ir_lvalue_get_variable(IR_LVALUE(self));
+}
+
 char *
 ir_scalar_get_variable_name(IrScalar *self)
 {

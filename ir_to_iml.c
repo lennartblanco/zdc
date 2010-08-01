@@ -3,6 +3,7 @@
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
+#include "ir_scalar.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
 
@@ -13,8 +14,7 @@
  *---------------------------------------------------------------------------*/
 
 static ImlConstant *
-ir_constant_to_iml(IrFunctionDef *function,
-                   IrConstant *constant)
+ir_constant_to_iml(IrConstant *constant)
 {
     iml_data_type_t type;
     guint8 v8;
@@ -77,8 +77,14 @@ iml_add_expression_eval(IrFunctionDef *function,
     if (IR_IS_CONSTANT(ir_expression))
     {
         return
+            IML_OPERAND(ir_constant_to_iml(IR_CONSTANT(ir_expression)));
+    }
+    else if (IR_IS_SCALAR(ir_expression))
+    {
+        return
             IML_OPERAND(
-                ir_constant_to_iml(function, IR_CONSTANT(ir_expression)));
+                ir_variable_get_location(
+                    ir_scalar_get_variable(IR_SCALAR(ir_expression))));
     }
 
     /* unexpected expression type */

@@ -813,7 +813,14 @@ validate_return(compilation_status_t *compile_status,
                           "return expression have incompatible type\n");
             return;
         }
-        ir_return_set_return_value(ret, conv_exp);
+
+        /*
+         * valid return statement, add iml operations
+         */
+        ImlOperand *ret_val = iml_add_expression_eval(compile_status->function,
+                                                      conv_exp);
+        ir_function_add_operation(compile_status->function,
+                                  iml_operation_new(iml_return, ret_val));
     }
     else
     {

@@ -18,4 +18,8 @@ add_to_func_frame(IrFunctionDef *parent_function,
                   IrVariable *variable,
                   bool is_function_parameter);
 
+ImlOperand *
+iml_add_expression_eval(IrFunctionDef *function,
+                        IrExpression *ir_expression);
+
 #endif /* IR_TO_IML_INC_X */

@@ -37,6 +37,9 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_vreturn:
             /* nop */
             break;
+        case iml_return:
+            op->arg1 = va_arg(argp, ImlOperand *);
+            break;
         case iml_copy:
             op->arg1 = va_arg(argp, ImlOperand *);
             op->arg2 = va_arg(argp, ImlOperand *);
@@ -61,6 +64,11 @@ iml_operation_print(iml_operation_t *self,
     {
         case iml_vreturn:
             fprintf_indent(out, indention, "vreturn\n");
+            break;
+        case iml_return:
+            fprintf_indent(out, indention, "return ");
+            iml_operand_print(self->arg1, out, 0);
+            fprintf(out, "\n");
             break;
         case iml_copy:
             fprintf_indent(out, indention, "copy ");
