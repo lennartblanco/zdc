@@ -30,6 +30,7 @@ typedef struct
 {
     ImlOperand parent;
     /* private */
+    gchar *name;
     iml_data_type_t datatype;
 } ImlVariable;
 
@@ -45,8 +46,12 @@ typedef struct
 GType
 iml_variable_get_type(void);
 
+/**
+ * @param name variable name to use when pretty printing,
+ *        should be NULL for temporary variables
+ */
 ImlVariable *
-iml_variable_new(iml_data_type_t data_type);
+iml_variable_new(iml_data_type_t data_type, const gchar *name);
 
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self);

@@ -179,7 +179,8 @@ add_to_func_frame(IrFunctionDef *parent_function,
         /* unexpected storage size */
         assert(FALSE);
     }
-    ImlVariable *iml_var = iml_variable_new(iml_datatype);
+    ImlVariable *iml_var = iml_variable_new(iml_datatype,
+                                            ir_variable_get_name(variable));
 
     /* add IML variable to function frame */
     iml_func_frame_t *frame = ir_function_def_get_frame(parent_function);
