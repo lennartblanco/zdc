@@ -4,6 +4,7 @@ ACCENT := tools/bin/accent
 PROG := xdc
 #CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
+DEPS = $(COBJS:.o=.dep)
 
 .PHONY: docs
 
@@ -23,7 +24,6 @@ yygrammar.c yygrammar.h: grammar.acc $(ACCENT)
 tools/bin/accent:
 	mkdir -p tools/bin
 	cd tools/accent/accent && ./build
-
 #
 # define custom rules to compile auto-generated C files,
 # as we can't compile them, as the rest of the files, with -Werror flag
@@ -37,8 +37,15 @@ yygrammar.o: yygrammar.c
 lex.o: lex.c lex.h
 	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
 
+%.dep : %.c
+	gcc $(CFLAGS) -MF"$@" -MG -MM -MP -MT"$@" -MT"$(<:.c=.o)" "$<"
+
 $(PROG): $(OBJS)
 	dmd -g -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
+
+ifneq "$(MAKECMDGOALS)" "clean"
+-include $(DEPS)
+endif
 
 # rules to run tests
 unit_tests: lex.h lex.c
@@ -66,4 +73,5 @@ clean:
 	make -C etests clean
 	make -C utests clean
 	make -C examples clean
+	rm -f *.dep
 	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~
