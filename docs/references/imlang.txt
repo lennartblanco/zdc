@@ -24,23 +24,21 @@ copy <source> => <target>
   - all operands are of same type
   - constants are not allowed for <target>
 
-iadd <left>, <right> => <res>
+add <left>, <right> => <res>
 
- signed addition
+ addition
   - all operands are of same type
   - constants are not allwed for <res>
 
-isub left, right => res
+sub left, right => res
 
- signed substraction
+ substraction
 
 imult left, right => res
  signed muliplication
 
 idiv left, right => res
  signed division
-
-uadd left, right => res
 
 usub left, right => res
 

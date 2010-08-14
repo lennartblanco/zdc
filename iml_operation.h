@@ -12,6 +12,8 @@
  */
 typedef enum iml_opcode_e
 {
+    iml_add,
+    iml_sub,
     iml_copy,
     iml_return,
     iml_vreturn

@@ -4,6 +4,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
+#include "ir_binary_operation.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
 
@@ -61,6 +62,61 @@ ir_constant_to_iml(IrConstant *constant)
     }
 }
 
+static ImlOperand *
+iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
+{
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *left;
+    ImlOperand *right;
+    ImlVariable *res;
+    iml_opcode_t opcode;
+    DtDataType *dt_type;
+    iml_data_type_t iml_type;
+
+    left = iml_add_expression_eval(function,
+                                   ir_binary_operation_get_left(bin_op));
+    right = iml_add_expression_eval(function,
+                                    ir_binary_operation_get_right(bin_op));
+
+    /* derive iml data type for temp variable */
+    dt_type = ir_expression_get_data_type(IR_EXPRESSION(bin_op));
+    switch (dt_data_type_get_size(dt_type))
+    {
+        case 4:
+            iml_type = iml_32b;
+            break;
+        case 2:
+            iml_type = iml_16b;
+            break;
+        case 1:
+            iml_type = iml_8b;
+            break;
+        default:
+            assert(false);
+    }
+
+    res = iml_func_frame_get_temp(frame, iml_type);
+
+    switch (ir_binary_operation_get_operation(bin_op))
+    {
+        case ast_plus_op:
+            opcode = iml_add;
+            break;
+        case ast_minus_op:
+            opcode = iml_sub;
+            break;
+        default:
+            /* unexpected binary operation type */
+            assert(false);
+    }
+
+    ir_function_add_operation(function,
+                              iml_operation_new(opcode, left, right, res));
+
+    return IML_OPERAND(res);
+}
+
+
 /**
  * Add operations to provided function to evaluate the expression.
  *
@@ -86,7 +142,11 @@ iml_add_expression_eval(IrFunctionDef *function,
                 ir_variable_get_location(
                     ir_scalar_get_variable(IR_SCALAR(ir_expression))));
     }
-
+    else if (IR_IS_BINARY_OPERATION(ir_expression))
+    {
+        return
+            iml_add_binary_op_eval(function, IR_BINARY_OPERATION(ir_expression));
+    }
     /* unexpected expression type */
     assert(false);
 }

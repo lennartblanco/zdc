@@ -64,6 +64,16 @@ iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable)
     self->parameters = g_slist_append(self->parameters, variable);
 }
 
+ImlVariable *
+iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype)
+{
+    ImlVariable *temp_var = iml_variable_new(datatype);
+
+    iml_func_frame_add_local(self, temp_var);
+
+    return temp_var;
+}
+
 void
 iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
 {

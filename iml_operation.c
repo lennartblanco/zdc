@@ -15,6 +15,7 @@ struct iml_operation_s
   iml_opcode_t opcode;
   ImlOperand *arg1;
   ImlOperand *arg2;
+  ImlOperand *arg3;
 };
 
 
@@ -43,6 +44,12 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_copy:
             op->arg1 = va_arg(argp, ImlOperand *);
             op->arg2 = va_arg(argp, ImlOperand *);
+            break;
+        case iml_add:
+        case iml_sub:
+            op->arg1 = va_arg(argp, ImlOperand *);
+            op->arg2 = va_arg(argp, ImlOperand *);
+            op->arg3 = va_arg(argp, ImlOperand *);
             break;
         default:
             /* unexpected opcode */
@@ -75,6 +82,24 @@ iml_operation_print(iml_operation_t *self,
             iml_operand_print(self->arg1, out, 0);
             fprintf(out, " => ");
             iml_operand_print(self->arg2, out, 0);
+            fprintf(out, "\n");
+            break;
+        case iml_add:
+            fprintf_indent(out, indention, "add ");
+            iml_operand_print(self->arg1, out, 0);
+            fprintf(out, ", ");
+            iml_operand_print(self->arg2, out, 0);
+            fprintf(out, " => ");
+            iml_operand_print(self->arg3, out, 0);
+            fprintf(out, "\n");
+            break;
+        case iml_sub:
+            fprintf_indent(out, indention, "sub ");
+            iml_operand_print(self->arg1, out, 0);
+            fprintf(out, ", ");
+            iml_operand_print(self->arg2, out, 0);
+            fprintf(out, " => ");
+            iml_operand_print(self->arg3, out, 0);
             fprintf(out, "\n");
             break;
         default:

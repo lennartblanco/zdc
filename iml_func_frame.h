@@ -31,6 +31,9 @@ iml_func_frame_add_local(iml_func_frame_t *self, ImlVariable *variable);
 void
 iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable);
 
+ImlVariable *
+iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype);
+
 /**
  * pretty print this function frame
  */
