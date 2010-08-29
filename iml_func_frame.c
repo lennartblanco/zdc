@@ -55,6 +55,25 @@ iml_func_frame_add_local(iml_func_frame_t *self, ImlVariable *variable)
     }
 }
 
+GSList *
+iml_func_frame_get_locals(iml_func_frame_t *self,
+                          iml_data_type_t vars_type)
+{
+    assert(self);
+
+    switch (vars_type)
+    {
+        case iml_32b:
+            return self->var_32b;
+        case iml_16b:
+            return self->var_16b;
+        case iml_8b:
+            return self->var_8b;
+    }
+    /* unexpected local variables data type */
+    assert(FALSE);
+}
+
 void
 iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable)
 {

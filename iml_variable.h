@@ -2,6 +2,7 @@
 #define IML_VARIABLE_INC_X
 
 #include "iml_operand.h"
+#include "iml_register.h"
 
 #include <stdio.h>
 
@@ -29,9 +30,16 @@
 typedef struct 
 {
     ImlOperand parent;
+
     /* private */
+
     gchar *name;
     iml_data_type_t datatype;
+    /*
+     * the register allocation, or NULL if no register is allocated
+     * for this variable
+     */
+    iml_register_t *reg;
 } ImlVariable;
 
 typedef struct 
@@ -55,5 +63,8 @@ iml_variable_new(iml_data_type_t data_type, const gchar *name);
 
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self);
+
+void
+iml_variable_set_register(ImlVariable *self, iml_register_t *reg);
 
 #endif /* IML_VARIABLE_INC_X */

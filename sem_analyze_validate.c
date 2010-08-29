@@ -27,6 +27,7 @@
 #include "ir_to_iml.h"
 #include "const_fold.h"
 #include "errors.h"
+#include "iml_register.h"
 
 #include <assert.h>
 
@@ -1786,6 +1787,66 @@ validate_entry_point(compilation_status_t *compile_status,
     }
 }
 
+static void
+assign_registers(iml_func_frame_t *frame)
+{
+    GSList *scratch_regs;
+    GSList *preserved_regs;
+    GSList *regs; /* all available registers */
+    GSList *i;
+    GSList *vars;
+
+    /** @todo: use correctet function depending on backend used */
+    x86_get_registers(&scratch_regs, &preserved_regs);
+
+    regs = g_slist_concat(preserved_regs, scratch_regs);
+    printf("registers\n");
+    for (i = regs; i != NULL; i = g_slist_next(i))
+    {
+        iml_register_print(i->data, stdout, 2);
+        putchar('\n');
+    }
+
+    /* assign registers to 32b variables */
+    vars = iml_func_frame_get_locals(frame, iml_32b);
+    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
+    {
+        iml_register_t *reg = regs->data;
+
+        /* remove register from the list of available */
+        regs = g_slist_remove(regs, reg);
+
+        /* assign the register to the variable */
+        iml_variable_set_register(i->data, reg);
+    }
+
+    /* assign registers to 16b variables */
+    vars = iml_func_frame_get_locals(frame, iml_16b);
+    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
+    {
+        iml_register_t *reg = regs->data;
+
+        /* remove register from the list of available */
+        regs = g_slist_remove(regs, reg);
+
+        /* assign the register to the variable */
+        iml_variable_set_register(i->data, reg);
+    }
+
+    /* assign registers to 8b variables */
+    vars = iml_func_frame_get_locals(frame, iml_8b);
+    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
+    {
+        iml_register_t *reg = regs->data;
+
+        /* remove register from the list of available */
+        regs = g_slist_remove(regs, reg);
+
+        /* assign the register to the variable */
+        iml_variable_set_register(i->data, reg);
+    }
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -1814,8 +1875,12 @@ sem_analyze_validate(compilation_status_t *compile_status,
     i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
     {
-        assert(IR_IS_FUNCTION_DEF(i->data));
-        validate_function_def(compile_status, IR_FUNCTION_DEF(i->data));
+        IrFunctionDef *func_def = IR_FUNCTION_DEF(i->data);
+
+        validate_function_def(compile_status, func_def);
+        if (compile_status->errors_count == 0) {
+            assign_registers(ir_function_def_get_frame(func_def));
+        }
     }
 }
 

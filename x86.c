@@ -25,8 +25,23 @@
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_assigment.h"
+#include "iml_register.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+enum {
+    x86_reg_eax,
+    x86_reg_ebx,
+    x86_reg_ecx,
+    x86_reg_edx,
+    x86_reg_esi,
+    x86_reg_edi,
+    x86_reg_ebp,
+};
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -126,6 +141,30 @@ x86_gen_code(IrModule *module,
         assert(IR_IS_FUNCTION_DEF(i->data));
         x86_compile_function_def(&params, i->data);
     }
+}
+
+void
+x86_get_registers(GSList **scratch,
+                  GSList **preserved)
+{
+    GSList *s_regs = NULL; /* scratch registers */
+    GSList *p_regs = NULL; /* preserved registers */
+
+    s_regs = g_slist_prepend(s_regs,
+                             iml_register_new(x86_reg_ecx, "ecx"));
+    s_regs = g_slist_prepend(s_regs,
+                             iml_register_new(x86_reg_edx, "edx"));
+
+    p_regs = g_slist_prepend(p_regs,
+                             iml_register_new(x86_reg_ebx, "ebx"));
+    p_regs = g_slist_prepend(p_regs,
+                             iml_register_new(x86_reg_esi, "esi"));
+    p_regs = g_slist_prepend(p_regs,
+                             iml_register_new(x86_reg_edi, "edi"));
+
+
+    *scratch = s_regs;
+    *preserved = p_regs;
 }
 
 void

@@ -54,6 +54,7 @@ iml_variable_new(iml_data_type_t data_type, const gchar *name)
     obj = g_object_new(IML_TYPE_VARIABLE, NULL);
 
     obj->datatype = data_type;
+    obj->reg = NULL;
     if (name == NULL)
     {
         obj->name = g_strdup_printf("[temp%u]", temp_var_names_cntr++);
@@ -72,6 +73,15 @@ iml_variable_get_data_type(ImlVariable *self)
     assert(IML_IS_VARIABLE(self));
 
     return self->datatype;
+}
+
+void
+iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
+{
+    assert(IML_IS_VARIABLE(self));
+    assert(reg);
+
+    self->reg = reg;
 }
 
 /*---------------------------------------------------------------------------*
@@ -105,6 +115,11 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
     }
 
     fprintf_indent(out, indention, "%s %s", type_str, var->name);
+    if (var->reg != NULL) {
+        fprintf(out, " (");
+        iml_register_print(var->reg, out, 0);
+        fprintf(out, ")");
+    }
 }
 
 static void
