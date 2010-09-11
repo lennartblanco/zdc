@@ -10,7 +10,9 @@
  *---------------------------------------------------------------------------*/
 
 IrModule *
-semantic_analyze(const char *source_file, AstModule *ast_module)
+semantic_analyze(const char *source_file,
+                 get_registers_func_t get_registers,
+                 AstModule *ast_module)
 {
     IrModule *module;
 
@@ -29,7 +31,7 @@ semantic_analyze(const char *source_file, AstModule *ast_module)
         return NULL;
     }
 
-    sem_analyze_validate(&comp_stat, module);
+    sem_analyze_validate(&comp_stat, get_registers, module);
 
     /* if there were errors during analysis, return failure result */
     if (comp_stat.errors_count > 0)

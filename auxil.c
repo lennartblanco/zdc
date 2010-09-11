@@ -87,7 +87,9 @@ compile_file(const char* input_file,
     /*
      * Perform semantic analysis of the code
      */
-    ir_module = semantic_analyze(input_file, ast_module);
+    ir_module = semantic_analyze(input_file,
+                                 options.backend.get_registers,
+                                 ast_module);
     if (ir_module == NULL)
     {
         /* error during semantic analysis */
@@ -113,24 +115,12 @@ compile_file(const char* input_file,
         return -1;        
     }
 
-    switch (options.target_arch)
-    {
-        case arch_x86:
-            x86_gen_code(ir_module, output_stream, input_file);
-            break;
-        case arch_arm:
-            arm_gen_code(ir_module, output_stream, input_file);
-            break;
-        default:
-            /* unexpected target architecture */
-            assert(false);
-    }
+    options.backend.gen_code(ir_module, output_stream, input_file);
 
+    /* clean up */
+    fclose(output_stream);
 
-   /* clean up */
-   fclose(output_stream);
-
-   return 0;
+    return 0;
 }
 
 /*---------------------------------------------------------------------------*

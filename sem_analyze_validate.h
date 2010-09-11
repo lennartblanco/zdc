@@ -1,6 +1,7 @@
 #ifndef SEM_ANALYZE_VALIDATE_INC_X
 #define SEM_ANALYZE_VALIDATE_INC_X
 
+#include "auxil.h"
 #include "ir_module.h"
 #include "sem_analyze.h"
 
@@ -14,6 +15,7 @@
  */
 void
 sem_analyze_validate(compilation_status_t *compile_status,
+                     get_registers_func_t get_registers,
                      IrModule *module);
 
 #endif /* SEM_ANALYZE_VALIDATE_INC_X */

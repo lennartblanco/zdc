@@ -2,20 +2,32 @@
 #define AUXIL_INC_X
 
 #include <stdbool.h>
+#include <glib.h>
+
+#include "ir_module.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-typedef enum arch_types_e
+typedef void (*get_registers_func_t) (GSList **scratch, GSList **preserved);
+
+typedef void (*gen_code_func_t) (IrModule *module,
+                                 FILE *out_stream,
+                                 const char *source_file);
+/**
+ * Contains pointers to back-end hooks needed at
+ * different stages of compilation.
+ */
+typedef struct arch_backend_e
 {
-   arch_x86  = 0,
-   arch_arm  = 1
-} arch_types_t;
+    get_registers_func_t get_registers;
+    gen_code_func_t gen_code;
+} arch_backend_t;
 
 typedef struct compile_options_s
 {
-    arch_types_t target_arch;
+    arch_backend_t backend;
     bool print_ast;
     bool print_ir;
 } compile_options_t;

@@ -33,7 +33,6 @@
 #include <stdio.h>
 
 #include "entire.h"
-#include "auxil.h"
 #include "lex.h"
 
 #define PRIVATE static

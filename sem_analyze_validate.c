@@ -1788,7 +1788,8 @@ validate_entry_point(compilation_status_t *compile_status,
 }
 
 static void
-assign_registers(iml_func_frame_t *frame)
+assign_registers(iml_func_frame_t *frame,
+                 get_registers_func_t get_registers)
 {
     GSList *scratch_regs;
     GSList *preserved_regs;
@@ -1796,16 +1797,9 @@ assign_registers(iml_func_frame_t *frame)
     GSList *i;
     GSList *vars;
 
-    /** @todo: use correctet function depending on backend used */
-    x86_get_registers(&scratch_regs, &preserved_regs);
+    get_registers(&scratch_regs, &preserved_regs);
 
     regs = g_slist_concat(preserved_regs, scratch_regs);
-    printf("registers\n");
-    for (i = regs; i != NULL; i = g_slist_next(i))
-    {
-        iml_register_print(i->data, stdout, 2);
-        putchar('\n');
-    }
 
     /* assign registers to 32b variables */
     vars = iml_func_frame_get_locals(frame, iml_32b);
@@ -1853,6 +1847,7 @@ assign_registers(iml_func_frame_t *frame)
 
 void
 sem_analyze_validate(compilation_status_t *compile_status,
+                     get_registers_func_t get_registers,
                      IrModule *module)
 {
     assert(compile_status);
@@ -1879,7 +1874,8 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
         validate_function_def(compile_status, func_def);
         if (compile_status->errors_count == 0) {
-            assign_registers(ir_function_def_get_frame(func_def));
+            assign_registers(ir_function_def_get_frame(func_def),
+                             get_registers);
         }
     }
 }

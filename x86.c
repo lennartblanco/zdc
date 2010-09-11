@@ -109,62 +109,37 @@ x86_compile_property(x86_comp_params_t *params,
                      IrProperty *property,
                      sym_table_t *sym_table);
 
+/**
+ * Get the set of available registers on x86 platform.
+ *
+ * The registers of different categories are returns as list of
+ * iml_register_t objects.
+ *
+ * @param scratch the list of scratch registers
+ * @param preserved the list of registers that are preserved across
+ *                  function calls
+ */
+static void
+x86_get_registers(GSList **scratch,
+                  GSList **preserved);
+
+/**
+ * generate x86 assembly from IR
+ */
+static void
+x86_gen_code(IrModule *module,
+             FILE *out_stream,
+             const char *source_file);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 void
-x86_gen_code(IrModule *module,
-             FILE *out_stream,
-             const char *source_file)
+x86_init(arch_backend_t *backend)
 {
-    x86_comp_params_t params;
-    sym_table_t *global_sym_table;
-    GSList *i;
-
-    params.out = out_stream;
-    label_gen_init(&(params.label_gen));
-    global_sym_table = ir_module_get_symbols(module);
-
-    fprintf(out_stream,
-            "    .file \"%s\"\n",
-            source_file);
-
-    x86_gen_data_section(&params,
-                         ir_module_get_data_section(module));
-
-    x86_text_prelude(&params, global_sym_table);
-
-    i = ir_module_get_function_defs(module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        assert(IR_IS_FUNCTION_DEF(i->data));
-        x86_compile_function_def(&params, i->data);
-    }
-}
-
-void
-x86_get_registers(GSList **scratch,
-                  GSList **preserved)
-{
-    GSList *s_regs = NULL; /* scratch registers */
-    GSList *p_regs = NULL; /* preserved registers */
-
-    s_regs = g_slist_prepend(s_regs,
-                             iml_register_new(x86_reg_ecx, "ecx"));
-    s_regs = g_slist_prepend(s_regs,
-                             iml_register_new(x86_reg_edx, "edx"));
-
-    p_regs = g_slist_prepend(p_regs,
-                             iml_register_new(x86_reg_ebx, "ebx"));
-    p_regs = g_slist_prepend(p_regs,
-                             iml_register_new(x86_reg_esi, "esi"));
-    p_regs = g_slist_prepend(p_regs,
-                             iml_register_new(x86_reg_edi, "edi"));
-
-
-    *scratch = s_regs;
-    *preserved = p_regs;
+    backend->get_registers = x86_get_registers;
+    backend->gen_code = x86_gen_code;
 }
 
 void
@@ -362,6 +337,60 @@ x86_compile_assigment(x86_comp_params_t *params,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static void
+x86_get_registers(GSList **scratch,
+                  GSList **preserved)
+{
+    GSList *s_regs = NULL; /* scratch registers */
+    GSList *p_regs = NULL; /* preserved registers */
+
+    s_regs = g_slist_prepend(s_regs,
+                             iml_register_new(x86_reg_ecx, "ecx"));
+    s_regs = g_slist_prepend(s_regs,
+                             iml_register_new(x86_reg_edx, "edx"));
+
+    p_regs = g_slist_prepend(p_regs,
+                             iml_register_new(x86_reg_ebx, "ebx"));
+    p_regs = g_slist_prepend(p_regs,
+                             iml_register_new(x86_reg_esi, "esi"));
+    p_regs = g_slist_prepend(p_regs,
+                             iml_register_new(x86_reg_edi, "edi"));
+
+
+    *scratch = s_regs;
+    *preserved = p_regs;
+}
+
+static void
+x86_gen_code(IrModule *module,
+             FILE *out_stream,
+             const char *source_file)
+{
+    x86_comp_params_t params;
+    sym_table_t *global_sym_table;
+    GSList *i;
+
+    params.out = out_stream;
+    label_gen_init(&(params.label_gen));
+    global_sym_table = ir_module_get_symbols(module);
+
+    fprintf(out_stream,
+            "    .file \"%s\"\n",
+            source_file);
+
+    x86_gen_data_section(&params,
+                         ir_module_get_data_section(module));
+
+    x86_text_prelude(&params, global_sym_table);
+
+    i = ir_module_get_function_defs(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_FUNCTION_DEF(i->data));
+        x86_compile_function_def(&params, i->data);
+    }
+}
 
 /**
  * Generate prelude of the .text section for assembly file.

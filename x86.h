@@ -2,6 +2,7 @@
 #include "ir_module.h"
 #include "ir_while.h"
 #include "ir_assigment.h"
+#include "auxil.h"
 
 #ifndef X86_INC_X
 #define X86_INC_X
@@ -20,27 +21,8 @@ typedef struct x86_comp_params_s
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-/**
- * generate x86 assembly from IR
- */
 void
-x86_gen_code(IrModule *module,
-             FILE *out_stream,
-             const char *source_file);
-
-/**
- * Get the set of available registers on x86 platform.
- *
- * The registers of different categories are returns as list of
- * iml_register_t objects.
- *
- * @param scratch the list of scratch registers
- * @param preserved the list of registers that are preserved across
- *                  function calls
- */
-void
-x86_get_registers(GSList **scratch,
-                  GSList **preserved);
+x86_init(arch_backend_t *backend);
 
 void
 x86_compile_expression(x86_comp_params_t *params,

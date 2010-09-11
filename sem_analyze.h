@@ -1,6 +1,7 @@
 #ifndef SEM_ANALYZE_INC_X
 #define SEM_ANALYZE_INC_X
 
+#include "auxil.h"
 #include "ast_module.h"
 #include "ir_module.h"
 
@@ -26,12 +27,16 @@ typedef struct compilation_status_s
  *
  * @param source_file      The source file name to use in error and warning 
  *                         messages.
+ * @param get_registers    Function to use for fetching the lists of
+ *                         available registers in the target architecture
  * @param ast_module       The AST module to analyze.
  *
  * @return                 module in IR form, or NULL if there were fatal
  *                         errors found during analysis.
  */
 IrModule *
-semantic_analyze(const char *source_file, AstModule *ast_module);
+semantic_analyze(const char *source_file,
+                 get_registers_func_t get_registers,
+                 AstModule *ast_module);
 
 #endif /* SEM_ANALYZE_INC_X */

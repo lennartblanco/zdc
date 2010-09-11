@@ -5,23 +5,25 @@
  */
 import std.stdio;
 import std.string;
+import dbind.GSList;
 
-enum arch_types_e
-{
-   x86  = 0,
-   arm  = 1
-}
 
 enum compilation_stages_e
 {
-  compile_stage,             /* generate assembly file (.s) */
-  assemble_stage,            /* genarate object file   (.o) */
-  link_stage                 /* build elf binary            */
+    compile_stage,             /* generate assembly file (.s) */
+    assemble_stage,            /* genarate object file   (.o) */
+    link_stage                 /* build elf binary            */
 }
+
+struct arch_backend_s
+{
+    void *get_registers;
+    void *gen_code;
+};
 
 struct compile_options_s
 {
-    arch_types_e         target_arch;
+    arch_backend_s       backend;
     bool                 print_ast;
     bool                 print_ir;
 };
@@ -31,6 +33,8 @@ extern (C) int compile_file(const char* input_file,
                             const char* output_file,
                             compile_options_s options);
 extern (C) uint system(const char *command);
+
+extern (C) void x86_init(arch_backend_s *backend);
 
 /**
  * Print the usage help message for xdc to stdout.
@@ -57,8 +61,8 @@ print_usage_message(string progname)
              );
 }
 
-arch_types_e
-parse_march_option(string option)
+void
+parse_march_option(string option, compile_options_s *compile_options)
 {
     string arch;
 
@@ -78,16 +82,15 @@ parse_march_option(string option)
     switch (arch)
     {
         case "x86":
-            return arch_types_e.x86;
+            x86_init(&compile_options.backend);
+            break;
         case "arm":
-            return arch_types_e.arm;
+            assert(false, "not implemented");
         default:
             throw new Exception("unsupported target architecture '" ~ arch ~
                                 "' specified");
             break;
     }
-    /* we should not get here */
-    assert(false);
 }
 
 /**
@@ -164,13 +167,13 @@ main(string[] args)
     string[] source_files;
     string[] object_files;
     string output_file;
+    bool arch_specified = false;
 
     compile_options_s options;
     compilation_stages_e last_compilation_stage;
 
     /* set default compile options */
     last_compilation_stage = compilation_stages_e.link_stage;
-    options.target_arch = arch_types_e.x86;
     options.print_ast = false;
     options.print_ir = false;
 
@@ -200,7 +203,7 @@ main(string[] args)
             {
                 if (i + 1 >= args.length)
                 {
-                    writefln("bork");
+                    writefln("argument to -o is missing");
                     return -1;
                 }
                 output_file = args[i+1];
@@ -225,7 +228,8 @@ main(string[] args)
             else if ((arg.length >=6 && arg[0..6] == "-march") ||
                      (arg.length >=7 && arg[0..7] == "--march"))
             {
-                options.target_arch = parse_march_option(arg);
+                parse_march_option(arg, &options);
+                arch_specified = true;
             }
             else
             {
@@ -249,6 +253,12 @@ main(string[] args)
     {
         writefln("%s: no input files", args[0]);
         return -1;
+    }
+
+    if (!arch_specified)
+    {
+        /* no architecure specified assume x86 */
+        x86_init(&options.backend);
     }
 
     /* compile and assemble all specified source files */
