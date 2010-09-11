@@ -67,7 +67,7 @@ unescape_char_literal(char *str, int len);
              yylval.text = unescape_char_literal(yytext+1, strlen(yytext)-2);
              return TOK_STRING_LITERAL;
          }
-" "      { /* skip blank */ }
+" "|\t   { /* skip blank */ }
 "//".*   { /* consume comment */ }
 "/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {
            /* consume C-style comments */
