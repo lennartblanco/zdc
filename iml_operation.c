@@ -60,6 +60,33 @@ iml_operation_new(iml_opcode_t operation, ...)
     return op;
 }
 
+iml_opcode_t
+iml_operation_get_opcode(iml_operation_t *self)
+{
+	assert(self);
+
+	return self->opcode;
+}
+
+ImlOperand *
+iml_operation_get_operand(iml_operation_t *self,
+		                  guint operand_num)
+{
+    assert(self);
+
+    switch (operand_num)
+    {
+        case 1:
+            return self->arg1;
+        case 2:
+            return self->arg2;
+        case 3:
+            return self->arg3;
+    }
+    /* unexpected operand number */
+    assert(false);
+}
+
 void
 iml_operation_print(iml_operation_t *self,
                     FILE *out,

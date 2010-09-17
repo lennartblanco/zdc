@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "iml_operand.h"
+
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
@@ -19,7 +21,6 @@ typedef enum iml_opcode_e
     iml_vreturn
 } iml_opcode_t;
 
-
 typedef struct iml_operation_s iml_operation_t;
 
 /*---------------------------------------------------------------------------*
@@ -28,6 +29,18 @@ typedef struct iml_operation_s iml_operation_t;
 
 iml_operation_t *
 iml_operation_new(iml_opcode_t operation, ...);
+
+iml_opcode_t
+iml_operation_get_opcode(iml_operation_t *self);
+
+/**
+ * Get this operations n-th operand.
+ *
+ * @param operand_num operands number, first operand is 1
+ */
+ImlOperand *
+iml_operation_get_operand(iml_operation_t *self,
+		                  guint operand_num);
 
 void
 iml_operation_print(iml_operation_t *self,

@@ -75,6 +75,14 @@ iml_constant_new_32b(guint32 val)
     return obj;
 }
 
+guint32
+iml_constant_get_val_32b(ImlConstant *self)
+{
+	assert(IML_IS_CONSTANT(self));
+
+	return self->value.v32;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

@@ -222,6 +222,14 @@ ir_function_add_operation(IrFunctionDef *self, iml_operation_t *operation)
     self->operations = g_slist_append(self->operations, operation);
 }
 
+GSList *
+ir_function_get_operations(IrFunctionDef *self)
+{
+	assert(IR_IS_FUNCTION_DEF(self));
+
+	return self->operations;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

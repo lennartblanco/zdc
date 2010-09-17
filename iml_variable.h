@@ -73,6 +73,13 @@ iml_variable_get_data_type(ImlVariable *self);
 void
 iml_variable_set_register(ImlVariable *self, iml_register_t *reg);
 
+/**
+ *  Get the register this variable is assigned to. Returns NULL if
+ *  no register was assigned.
+ */
+iml_register_t *
+iml_variable_get_register(ImlVariable *self);
+
 void
 iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset);
 

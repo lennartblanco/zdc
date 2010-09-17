@@ -26,6 +26,7 @@
 #include "ir_if_else.h"
 #include "ir_assigment.h"
 #include "iml_register.h"
+#include "iml_constant.h"
 
 #include <assert.h>
 
@@ -373,8 +374,8 @@ x86_assign_var_locations(iml_func_frame_t *frame)
     GSList *i;
     gint offset;
 
+    /* assign locations to parameters */
     params = iml_func_frame_get_parameters(frame);
-
     if (params != NULL)
     {
         params = g_slist_reverse(g_slist_copy(params));
@@ -393,6 +394,51 @@ x86_assign_var_locations(iml_func_frame_t *frame)
         /* clean-up */
         g_slist_free(params);
     }
+
+    /*
+     * assign offset location to local variables that
+     * have not been assigned a register
+     */
+    offset = -4;
+
+    i = iml_func_frame_get_locals(frame, iml_32b);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        ImlVariable *var = IML_VARIABLE(i->data);
+
+        if (iml_variable_get_register(var) == NULL)
+        {
+            iml_variable_set_frame_offset(var, offset);
+            offset -= 4;
+        }
+    }
+
+    i = iml_func_frame_get_locals(frame, iml_16b);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        ImlVariable *var = IML_VARIABLE(i->data);
+
+        if (iml_variable_get_register(var) == NULL)
+        {
+            iml_variable_set_frame_offset(var, offset);
+            offset -= 4;
+        }
+    }
+
+    i = iml_func_frame_get_locals(frame, iml_8b);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        ImlVariable *var = IML_VARIABLE(i->data);
+
+        if (iml_variable_get_register(var) == NULL)
+        {
+            iml_variable_set_frame_offset(var, offset);
+            offset -= 4;
+        }
+    }
+
+    iml_func_frame_set_size(frame, (guint)(-(offset + 4)));
+
 }
 
 static void
@@ -474,117 +520,48 @@ x86_text_prelude(x86_comp_params_t *params,
 }
 
 static void
-x86_func_params_assign_addrs(x86_comp_params_t *params,
-                             IrFunctionDef *func_def,
-                             bool *last_arg_in_reg)
+x86_compile_return(FILE *out, iml_operation_t *op)
 {
-    GSList *rev_params;
-    GSList *i;
-    IrVariable *param;
-    DtDataType *param_type;
-    X86FrameOffset* offset;
-    int next_offset;
+	ImlOperand *val;
 
-    *last_arg_in_reg = false;
+	val = iml_operation_get_operand(op, 1);
 
-    i = ir_function_def_get_parameters(func_def);
-    if (i == NULL)
-    {
-      /* function without any in-parameters, we are done here */
-      return;
-    }
+	if (IML_IS_CONSTANT(val))
+	{
+		ImlConstant *const_val = IML_CONSTANT(val);
 
-    /* we want to proccess function parameters in reversed order */     
-    rev_params = g_slist_reverse(g_slist_copy(i));
-    i = rev_params;
+		fprintf(out,
+				"    movl $%d, %%eax\n",
+				iml_constant_get_val_32b(const_val));
+	}
+	else
+	{
+		/* unexpected operand type */
+		assert(false);
+	}
 
-    /*
-     * Depending on if last argument is passed via stack or eax,
-     * assign correct stack frame offset and set next available offset
-     */
-    if (IR_IS_VARIABLE(i->data))
-    {
-        param = IR_VARIABLE(i->data);
-        param_type = ir_variable_get_data_type(param);
-    }
-    else
-    {
-        /* unnamed parameter */
-        assert(DT_IS_DATA_TYPE(i->data));
-        param = NULL;
-        param_type = i->data;
-    }
+	fprintf(out,
+			"    leave\n"
+			"    ret\n");
+}
 
-    *last_arg_in_reg =  x86_in_reg_as_last_func_arg(param_type);
-    if (*last_arg_in_reg)
-    {
-        offset = x86_frame_offset_new(-4);
-        next_offset = 8;
-    }
-    else
-    {
-        offset = x86_frame_offset_new(8);
-        next_offset = 
-            x86_inc_to_word_boundary(8 + dt_data_type_get_size(param_type));
-    }
-    if (param != NULL)
-    {
-        ir_variable_set_location(param, G_OBJECT(offset));
-    }
-
-    /*
-     * assign stack frame offset to the rest of parametrs
-     */
-    i = g_slist_next(i);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        if (IR_IS_VARIABLE(i->data))
-        {
-            param = IR_VARIABLE(i->data);
-            offset = x86_frame_offset_new(next_offset);
-            ir_variable_set_location(param, G_OBJECT(offset));
-            next_offset += x86_get_expression_storage_size(IR_EXPRESSION(param));
-        }
-        else
-        {
-            /* unnamed parameter */
-            assert(DT_IS_DATA_TYPE(i->data));
-            next_offset += dt_data_type_get_size(i->data);
-        }
-        next_offset = x86_inc_to_word_boundary(next_offset);
-    }
-
-    /*
-     * dump offset allocations into generated file for
-     * for ease of debugging of generated assembly
-     */
-    i = ir_function_def_get_parameters(func_def);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        if (IR_IS_VARIABLE(i->data))
-        {
-            param = IR_VARIABLE(i->data);
-            offset = X86_FRAME_OFFSET(ir_variable_get_location(param));
-            fprintf(params->out,
-                    "# variable '%s' location '%d'\n",
-                    ir_variable_get_name(param),
-                    x86_frame_offset_get_offset(offset));
-        }
-    }
-
-    /* clean-up */
-    g_slist_free(rev_params);
+static void
+x86_compile_copy(FILE *out, iml_operation_t *op)
+{
+	/* not implemented */
+	assert(false);
 }
 
 static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 {
     char *func_name;
-    int stack_start;
-    int stack_size;
-    bool push_last_arg;
+    iml_func_frame_t *frame;
+    GSList *i;
 
     func_name = ir_function_def_get_mangled_name(func_def);
+    frame = ir_function_def_get_frame(func_def);
+
     /* generate function symbol declaration and function entry point label */
     fprintf(params->out,
             ".globl %s\n"
@@ -592,36 +569,30 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             "%s:\n",
             func_name, func_name, func_name);
 
-    x86_func_params_assign_addrs(params, func_def, &push_last_arg);
-
-    stack_start = push_last_arg ? -4 : 0;    
-
-    /* assign stack offset to local variables in function body */
-    stack_size = 
-        x86_code_block_assign_addrs(params,
-                                    stack_start,
-                                    ir_function_def_get_body(func_def));
-
-    /* pad stack to allign it on 4-byte boundary */
-    if ((stack_size % 4) != 0)
-    {
-        stack_size -= 4 + stack_size % 4;
-    }
-
     /* generate code to allocate function frame on the stack */
     fprintf(params->out,
             "    enter $%d, $0\n",
-            -stack_size);
+            iml_func_frame_get_size(frame));
 
-    /* generate code to store last function argument on the stack */
-    if (push_last_arg)
+    /* generate code for all operations in this function */
+    for (i = ir_function_get_operations(func_def);
+         i != NULL;
+         i = g_slist_next(i))
     {
-        fprintf(params->out, "    movl %%eax, -4(%%ebp)\n");
+        iml_operation_t *op = (iml_operation_t*) i->data;
+        switch (iml_operation_get_opcode(op))
+        {
+            case iml_return:
+                x86_compile_return(params->out, op);
+                break;
+            case iml_copy:
+                x86_compile_copy(params->out, op);
+                break;
+            default:
+                /* unexpected opcode */
+                assert(false);
+        }
     }
-
-    /* generate code for function body */
-    x86_compile_code_block(params,
-                           ir_function_def_get_body(func_def));
 }
 
 static void

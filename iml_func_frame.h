@@ -45,6 +45,16 @@ ImlVariable *
 iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype);
 
 /**
+ * Size in bytes that this function frames need to store all
+ * it's variables.
+ */
+void
+iml_func_frame_set_size(iml_func_frame_t *self, guint stack_size);
+
+guint
+iml_func_frame_get_size(iml_func_frame_t *self);
+
+/**
  * pretty print this function frame
  */
 void

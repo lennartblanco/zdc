@@ -16,6 +16,7 @@ struct iml_func_frame_s
     GSList *var_32b;
     GSList *var_16b;
     GSList *var_8b;
+    guint stack_size;
 };
 
 /*---------------------------------------------------------------------------*
@@ -102,9 +103,28 @@ iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype)
 }
 
 void
+iml_func_frame_set_size(iml_func_frame_t *self, guint stack_size)
+{
+	assert(self);
+
+	self->stack_size = stack_size;
+}
+
+guint
+iml_func_frame_get_size(iml_func_frame_t *self)
+{
+	assert(self);
+
+	return self->stack_size;
+}
+
+
+void
 iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
 {
     GSList *i;
+
+    fprintf_indent(out, indention + 2, "stack size %u\n", self->stack_size);
 
     if (self->parameters != NULL)
     {

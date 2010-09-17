@@ -84,6 +84,14 @@ iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
     self->reg = reg;
 }
 
+iml_register_t *
+iml_variable_get_register(ImlVariable *self)
+{
+    assert(IML_IS_VARIABLE(self));
+
+    return self->reg;
+}
+
 void
 iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset)
 {
