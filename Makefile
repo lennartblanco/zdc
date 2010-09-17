@@ -5,10 +5,14 @@ PROG := xdc
 #CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 DEPS = $(COBJS:.o=.dep)
+DEP_DIR := .depend
+CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os,%.dep,$(@:.o=.dep)))) -MT $@
 
 .PHONY: docs
 
-all: $(PROG)
+all: $(DEP_DIR) $(PROG)
+
+-include $(DEP_DIR)/*.dep
 
 lex.h lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
@@ -21,9 +25,12 @@ auxil.o: lex.h auxil.c
 yygrammar.c yygrammar.h: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
 
-tools/bin/accent:
+$(ACCENT):
 	mkdir -p tools/bin
 	cd tools/accent/accent && ./build
+
+$(DEP_DIR):
+	mkdir -p $(DEP_DIR)
 #
 # define custom rules to compile auto-generated C files,
 # as we can't compile them, as the rest of the files, with -Werror flag
@@ -37,15 +44,8 @@ yygrammar.o: yygrammar.c
 lex.o: lex.c lex.h
 	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
 
-%.dep : %.c
-	gcc $(CFLAGS) -MF"$@" -MG -MM -MP -MT"$@" -MT"$(<:.c=.o)" "$<"
-
 $(PROG): $(OBJS)
 	dmd -g -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
-
-ifneq "$(MAKECMDGOALS)" "clean"
--include $(DEPS)
-endif
 
 # rules to run tests
 unit_tests: lex.h lex.c
@@ -73,5 +73,5 @@ clean:
 	make -C etests clean
 	make -C utests clean
 	make -C examples clean
-	rm -f *.dep
+	rm -rf $(DEP_DIR)
 	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~
