@@ -14,6 +14,7 @@ typedef struct compilation_status_s
     IrModule   *module;              /** current module */
     IrFunctionDef *function;         /** current function */
     const char *source_file;         /** current source file name */
+    arch_backend_t *backend;         /** backend hooks */
     guint errors_count;
 } compilation_status_t;
 
@@ -36,7 +37,7 @@ typedef struct compilation_status_s
  */
 IrModule *
 semantic_analyze(const char *source_file,
-                 get_registers_func_t get_registers,
+                 arch_backend_t *backend,
                  AstModule *ast_module);
 
 #endif /* SEM_ANALYZE_INC_X */

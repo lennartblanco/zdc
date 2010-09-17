@@ -84,6 +84,15 @@ iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
     self->reg = reg;
 }
 
+void
+iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset)
+{
+    assert(IML_IS_VARIABLE(self));
+    assert(self->reg == NULL);
+
+    self->frame_offset = frame_offset;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -119,6 +128,10 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
         fprintf(out, " (");
         iml_register_print(var->reg, out, 0);
         fprintf(out, ")");
+    }
+    else
+    {
+       fprintf(out, " [%04d]", var->frame_offset);
     }
 }
 

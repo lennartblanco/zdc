@@ -40,6 +40,12 @@ typedef struct
      * for this variable
      */
     iml_register_t *reg;
+
+    /*
+     * variables frame offset location,
+     * only valid if register is not assigned
+     */
+    gint frame_offset;
 } ImlVariable;
 
 typedef struct 
@@ -66,5 +72,8 @@ iml_variable_get_data_type(ImlVariable *self);
 
 void
 iml_variable_set_register(ImlVariable *self, iml_register_t *reg);
+
+void
+iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset);
 
 #endif /* IML_VARIABLE_INC_X */

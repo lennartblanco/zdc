@@ -18,6 +18,7 @@ enum compilation_stages_e
 struct arch_backend_s
 {
     void *get_registers;
+    void *assign_var_locations;
     void *gen_code;
 };
 

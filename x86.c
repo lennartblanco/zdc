@@ -131,6 +131,9 @@ x86_gen_code(IrModule *module,
              FILE *out_stream,
              const char *source_file);
 
+static void
+x86_assign_var_locations(iml_func_frame_t *frame);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -139,6 +142,7 @@ void
 x86_init(arch_backend_t *backend)
 {
     backend->get_registers = x86_get_registers;
+    backend->assign_var_locations = x86_assign_var_locations;
     backend->gen_code = x86_gen_code;
 }
 
@@ -360,6 +364,35 @@ x86_get_registers(GSList **scratch,
 
     *scratch = s_regs;
     *preserved = p_regs;
+}
+
+static void
+x86_assign_var_locations(iml_func_frame_t *frame)
+{
+    GSList *params;
+    GSList *i;
+    gint offset;
+
+    params = iml_func_frame_get_parameters(frame);
+
+    if (params != NULL)
+    {
+        params = g_slist_reverse(g_slist_copy(params));
+
+        /* last parameter is passed via eax register */
+        iml_variable_set_register(IML_VARIABLE(params->data),
+                                  iml_register_new(x86_reg_eax, "eax"));
+
+        for (i = g_slist_next(params), offset = 8;
+             i != NULL;
+             i = g_slist_next(i), offset += 4)
+        {
+            iml_variable_set_frame_offset(IML_VARIABLE(i->data), offset);
+        }
+
+        /* clean-up */
+        g_slist_free(params);
+    }
 }
 
 static void

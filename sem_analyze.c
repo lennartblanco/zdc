@@ -11,7 +11,7 @@
 
 IrModule *
 semantic_analyze(const char *source_file,
-                 get_registers_func_t get_registers,
+                 arch_backend_t *backend,
                  AstModule *ast_module)
 {
     IrModule *module;
@@ -20,6 +20,7 @@ semantic_analyze(const char *source_file,
 
     /* set-up compilation status struct */
     comp_stat.source_file = source_file;
+    comp_stat.backend = backend;
     comp_stat.errors_count = 0;
 
     module = sem_analyze_ast_module_to_ir(&comp_stat, ast_module);
@@ -31,7 +32,7 @@ semantic_analyze(const char *source_file,
         return NULL;
     }
 
-    sem_analyze_validate(&comp_stat, get_registers, module);
+    sem_analyze_validate(&comp_stat, module);
 
     /* if there were errors during analysis, return failure result */
     if (comp_stat.errors_count > 0)

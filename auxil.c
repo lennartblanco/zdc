@@ -87,9 +87,7 @@ compile_file(const char* input_file,
     /*
      * Perform semantic analysis of the code
      */
-    ir_module = semantic_analyze(input_file,
-                                 options.backend.get_registers,
-                                 ast_module);
+    ir_module = semantic_analyze(input_file, &(options.backend), ast_module);
     if (ir_module == NULL)
     {
         /* error during semantic analysis */

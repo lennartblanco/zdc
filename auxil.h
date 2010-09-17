@@ -12,6 +12,8 @@
 
 typedef void (*get_registers_func_t) (GSList **scratch, GSList **preserved);
 
+typedef void (*assign_var_locations_func_t) (iml_func_frame_t *frame);
+
 typedef void (*gen_code_func_t) (IrModule *module,
                                  FILE *out_stream,
                                  const char *source_file);
@@ -21,7 +23,15 @@ typedef void (*gen_code_func_t) (IrModule *module,
  */
 typedef struct arch_backend_e
 {
+    /** hook to fetch the list of available registers */
     get_registers_func_t get_registers;
+    /**
+     * hook which is called after register allocation for each frame
+     * is finished. allows the backend to assign registers/offsets for
+     * parameter variables and variables that did not get register allocations
+     */
+    assign_var_locations_func_t assign_var_locations;
+    /** function invoked to generate assembly code for a module */
     gen_code_func_t gen_code;
 } arch_backend_t;
 

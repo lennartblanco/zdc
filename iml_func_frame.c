@@ -83,6 +83,14 @@ iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable)
     self->parameters = g_slist_append(self->parameters, variable);
 }
 
+GSList *
+iml_func_frame_get_parameters(iml_func_frame_t *self)
+{
+  assert(self);
+
+  return self->parameters;
+}
+
 ImlVariable *
 iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype)
 {

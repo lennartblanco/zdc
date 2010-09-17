@@ -15,7 +15,6 @@
  */
 void
 sem_analyze_validate(compilation_status_t *compile_status,
-                     get_registers_func_t get_registers,
                      IrModule *module);
 
 #endif /* SEM_ANALYZE_VALIDATE_INC_X */
