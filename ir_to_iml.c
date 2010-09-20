@@ -207,6 +207,5 @@ add_to_func_frame(IrFunctionDef *parent_function,
     ImlOperand *init_val = iml_add_expression_eval(parent_function, init_exp);
     ir_function_add_operation(parent_function,
                               iml_operation_new(iml_copy, init_val, iml_var));
-
 }
 

@@ -548,8 +548,20 @@ x86_compile_return(FILE *out, iml_operation_t *op)
 static void
 x86_compile_copy(FILE *out, iml_operation_t *op)
 {
-	/* not implemented */
-	assert(false);
+    ImlOperand *src;
+    ImlOperand *dst;
+
+    src = iml_operation_get_operand(op, 1);
+    dst = iml_operation_get_operand(op, 2);
+
+    if (IML_IS_CONSTANT(src))
+    {
+        printf("from constant\n");
+    }
+    else if (IML_IS_VARIABLE(src))
+    {
+        printf("from variable\n");
+    }
 }
 
 static void
