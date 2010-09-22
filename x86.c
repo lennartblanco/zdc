@@ -566,17 +566,18 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
 {
     ImlOperand *src;
     ImlVariable *dst;
+    iml_register_t *dst_reg;
+
 
     src = iml_operation_get_operand(op, 1);
     dst = IML_VARIABLE(iml_operation_get_operand(op, 2));
+    dst_reg = iml_variable_get_register(dst);
 
     if (IML_IS_CONSTANT(src))
     {
         ImlConstant *const_src = IML_CONSTANT(src);
-        iml_register_t *reg;
 
-        reg = iml_variable_get_register(dst);
-        if (reg == NULL)
+        if (dst_reg == NULL)
         {
             /* use a temporary register  */
             fprintf(out,
@@ -590,14 +591,53 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
             fprintf(out,
                     "    movl $%d, %%%s\n",
                     iml_constant_get_val_32b(const_src),
-                    iml_register_get_name(reg));
+                    iml_register_get_name(dst_reg));
         }
     }
     else if (IML_IS_VARIABLE(src))
     {
-        printf("from variable\n");
-        /* not implemened */
-        assert(false);
+        iml_register_t *src_reg;
+
+        src_reg = iml_variable_get_register(IML_VARIABLE(src));
+        if (src_reg == NULL)
+        {
+            if (dst_reg == NULL)
+            {
+                /* offset to offset copy, use temporary register */
+                fprintf(out,
+                        "    movl %d(%%ebp), %%ecx\n"
+                        "    movl %%ecx, %d(%%ebp)\n",
+                        iml_variable_get_frame_offset(IML_VARIABLE(src)),
+                        iml_variable_get_frame_offset(dst));
+            }
+            else
+            {
+                /* offset to register copy */
+                fprintf(out,
+                        "    movl %d(%%ebp), %%%s\n",
+                        iml_variable_get_frame_offset(IML_VARIABLE(src)),
+                        iml_register_get_name(dst_reg));
+            }
+        }
+        else
+        {
+            if (dst_reg == NULL)
+            {
+                /* register to offset copy */
+                fprintf(out,
+                        "    movl %%%s, %d(%%ebp)\n",
+                        iml_register_get_name(src_reg),
+                        iml_variable_get_frame_offset(dst));
+            }
+            else
+            {
+                /* register to register copy */
+                fprintf(out,
+                        "    movl %%%s, %%%s\n",
+                        iml_register_get_name(src_reg),
+                        iml_register_get_name(dst_reg));
+            }
+        }
     }
 }
 

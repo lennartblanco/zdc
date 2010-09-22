@@ -852,7 +852,7 @@ validate_assigment(compilation_status_t *compile_status,
     DtDataType *target_type;
 
     /*
-     * validate assigment lvalue
+     * validate assignment lvalue
      */
     lvalue = ir_assigment_get_lvalue(assigment);
     lvalue = IR_LVALUE(validate_expression(compile_status,
@@ -912,7 +912,16 @@ validate_assigment(compilation_status_t *compile_status,
         return;
     }
 
-    ir_assigment_set_value(assigment, converted_value);
+    /*
+     * valid assignment, add iml operations
+     */
+    ImlOperand *res_val = iml_add_expression_eval(compile_status->function,
+                                                  converted_value);
+    ImlVariable *dest =
+            ir_variable_get_location(ir_lvalue_get_variable(lvalue));
+
+    ir_function_add_operation(compile_status->function,
+                              iml_operation_new(iml_copy, res_val, dest));
 }
 
 static void
