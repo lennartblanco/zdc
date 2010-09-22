@@ -101,6 +101,14 @@ iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset)
     self->frame_offset = frame_offset;
 }
 
+gint
+iml_variable_get_frame_offset(ImlVariable *self)
+{
+    assert(IML_IS_VARIABLE(self));
+
+    return self->frame_offset;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

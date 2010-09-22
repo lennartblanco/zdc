@@ -83,4 +83,7 @@ iml_variable_get_register(ImlVariable *self);
 void
 iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset);
 
+gint
+iml_variable_get_frame_offset(ImlVariable *self);
+
 #endif /* IML_VARIABLE_INC_X */

@@ -351,8 +351,6 @@ x86_get_registers(GSList **scratch,
     GSList *p_regs = NULL; /* preserved registers */
 
     s_regs = g_slist_prepend(s_regs,
-                             iml_register_new(x86_reg_ecx, "ecx"));
-    s_regs = g_slist_prepend(s_regs,
                              iml_register_new(x86_reg_edx, "edx"));
 
     p_regs = g_slist_prepend(p_regs,
@@ -522,45 +520,84 @@ x86_text_prelude(x86_comp_params_t *params,
 static void
 x86_compile_return(FILE *out, iml_operation_t *op)
 {
-	ImlOperand *val;
+    ImlOperand *val;
 
-	val = iml_operation_get_operand(op, 1);
+    val = iml_operation_get_operand(op, 1);
 
-	if (IML_IS_CONSTANT(val))
-	{
-		ImlConstant *const_val = IML_CONSTANT(val);
+    if (IML_IS_CONSTANT(val))
+    {
+        ImlConstant *const_val = IML_CONSTANT(val);
 
-		fprintf(out,
-				"    movl $%d, %%eax\n",
-				iml_constant_get_val_32b(const_val));
-	}
-	else
-	{
-		/* unexpected operand type */
-		assert(false);
-	}
+        fprintf(out,
+                "    movl $%d, %%eax\n",
+                iml_constant_get_val_32b(const_val));
+    }
+    else if (IML_IS_VARIABLE(val))
+    {
+        ImlVariable *var_val = IML_VARIABLE(val);
+        iml_register_t *reg;
 
-	fprintf(out,
-			"    leave\n"
-			"    ret\n");
+        reg = iml_variable_get_register(var_val);
+        if (reg == NULL) {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%eax\n",
+                    iml_variable_get_frame_offset(var_val));
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl %%%s, %%eax\n",
+                    iml_register_get_name(reg));
+        }
+    }
+    else
+    {
+        /* unexpected operand type */
+        assert(false);
+    }
+
+    fprintf(out,
+            "    leave\n"
+            "    ret\n");
 }
 
 static void
 x86_compile_copy(FILE *out, iml_operation_t *op)
 {
     ImlOperand *src;
-    ImlOperand *dst;
+    ImlVariable *dst;
 
     src = iml_operation_get_operand(op, 1);
-    dst = iml_operation_get_operand(op, 2);
+    dst = IML_VARIABLE(iml_operation_get_operand(op, 2));
 
     if (IML_IS_CONSTANT(src))
     {
-        printf("from constant\n");
+        ImlConstant *const_src = IML_CONSTANT(src);
+        iml_register_t *reg;
+
+        reg = iml_variable_get_register(dst);
+        if (reg == NULL)
+        {
+            /* use a temporary register  */
+            fprintf(out,
+                    "    movl $%d, %%ecx\n"
+                    "    movl %%ecx, %d(%%ebp)\n",
+                    iml_constant_get_val_32b(const_src),
+                    iml_variable_get_frame_offset(dst));
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl $%d, %%%s\n",
+                    iml_constant_get_val_32b(const_src),
+                    iml_register_get_name(reg));
+        }
     }
     else if (IML_IS_VARIABLE(src))
     {
         printf("from variable\n");
+        /* not implemened */
+        assert(false);
     }
 }
 
