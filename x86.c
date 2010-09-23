@@ -44,6 +44,8 @@ enum {
     x86_reg_ebp,
 };
 
+#define TEMP_REG_NAME "ecx"
+
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -581,8 +583,8 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
         {
             /* use a temporary register  */
             fprintf(out,
-                    "    movl $%d, %%ecx\n"
-                    "    movl %%ecx, %d(%%ebp)\n",
+                    "    movl $%d, %%"TEMP_REG_NAME"\n"
+                    "    movl %%"TEMP_REG_NAME", %d(%%ebp)\n",
                     iml_constant_get_val_32b(const_src),
                     iml_variable_get_frame_offset(dst));
         }
@@ -605,8 +607,8 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
             {
                 /* offset to offset copy, use temporary register */
                 fprintf(out,
-                        "    movl %d(%%ebp), %%ecx\n"
-                        "    movl %%ecx, %d(%%ebp)\n",
+                        "    movl %d(%%ebp), %%"TEMP_REG_NAME"\n"
+                        "    movl %%"TEMP_REG_NAME", %d(%%ebp)\n",
                         iml_variable_get_frame_offset(IML_VARIABLE(src)),
                         iml_variable_get_frame_offset(dst));
             }
@@ -638,6 +640,118 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
                         iml_register_get_name(dst_reg));
             }
         }
+    }
+}
+
+static void
+x86_compile_binop(FILE *out, iml_operation_t *op)
+{
+    ImlOperand *left;
+    ImlOperand *right;
+    ImlVariable *res;
+    iml_register_t *res_reg;
+    const gchar *res_reg_name;
+    const gchar *op_name;
+
+    left = iml_operation_get_operand(op, 1);
+    right = iml_operation_get_operand(op, 2);
+    res =  IML_VARIABLE(iml_operation_get_operand(op, 3));
+    res_reg = iml_variable_get_register(res);
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_add:
+            op_name = "addl";
+            break;
+        case iml_sub:
+            op_name = "subl";
+            break;
+        default:
+            /* unexpeted opcode */
+            assert(false);
+    }
+
+    if (res_reg == NULL)
+    {
+        res_reg_name = TEMP_REG_NAME;
+    }
+    else
+    {
+        res_reg_name = iml_register_get_name(res_reg);
+    }
+
+    /* store left operand in result register */
+    if (IML_IS_CONSTANT(left))
+    {
+        fprintf(out,
+                "    movl $%d, %%%s\n",
+                iml_constant_get_val_32b(IML_CONSTANT(left)),
+                res_reg_name);
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(left));
+
+        ImlVariable *var = IML_VARIABLE(left);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == NULL)
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%%s\n",
+                    iml_variable_get_frame_offset(var),
+                    res_reg_name);
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl %%%s, %%%s\n",
+                    iml_register_get_name(reg),
+                    res_reg_name);
+        }
+    }
+
+    /* perform the binary operation */
+    if (IML_IS_CONSTANT(right))
+    {
+        fprintf(out,
+                "    %s $%d, %%%s\n",
+                op_name,
+                iml_constant_get_val_32b(IML_CONSTANT(right)),
+                res_reg_name);
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(right));
+
+        ImlVariable *var = IML_VARIABLE(right);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == NULL)
+        {
+            fprintf(out,
+                    "    %s %d(%%ebp), %%%s\n",
+                    op_name,
+                    iml_variable_get_frame_offset(var),
+                    res_reg_name);
+        }
+        else
+        {
+            fprintf(out,
+                    "    %s %%%s, %%%s\n",
+                    op_name,
+                    iml_register_get_name(reg),
+                    res_reg_name);
+        }
+    }
+
+    /* move operation result from temp register to destination if needed */
+    if (res_reg == NULL)
+    {
+        fprintf(out,
+                "    movl %%%s, %d(%%ebp)\n",
+                res_reg_name,
+                iml_variable_get_frame_offset(res));
     }
 }
 
@@ -676,6 +790,10 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_copy:
                 x86_compile_copy(params->out, op);
+                break;
+            case iml_add:
+            case iml_sub:
+                x86_compile_binop(params->out, op);
                 break;
             default:
                 /* unexpected opcode */
