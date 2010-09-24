@@ -18,6 +18,12 @@ struct iml_operation_s
   ImlOperand *arg3;
 };
 
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+print_call_op(iml_operation_t *op, FILE *out, int indention);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -47,6 +53,7 @@ iml_operation_new(iml_opcode_t operation, ...)
             break;
         case iml_add:
         case iml_sub:
+        case iml_call:
             op->arg1 = va_arg(argp, ImlOperand *);
             op->arg2 = va_arg(argp, ImlOperand *);
             op->arg3 = va_arg(argp, ImlOperand *);
@@ -129,8 +136,38 @@ iml_operation_print(iml_operation_t *self,
             iml_operand_print(self->arg3, out, 0);
             fprintf(out, "\n");
             break;
+        case iml_call:
+            print_call_op(self, out, indention);
+            break;
         default:
             /* unexpected opcode */
             assert(false);
     }
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+print_call_op(iml_operation_t *op, FILE *out, int indention)
+{
+    GSList *i;
+    assert(op);
+    assert(op->opcode == iml_call);
+
+    fprintf_indent(out, indention, "call %s [",
+                   op->arg1);
+
+    for (i = (GSList *)op->arg2; i != NULL; i = g_slist_next(i))
+    {
+        iml_operand_print(i->data, out, 0);
+        if (g_slist_next(i) != NULL)
+        {
+            fprintf(out, ", ");
+        }
+    }
+    fprintf(out, "] => ");
+    iml_operand_print(op->arg3, out, 0);
+    fprintf(out, "\n");
 }

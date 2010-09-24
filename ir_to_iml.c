@@ -5,6 +5,7 @@
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
 #include "ir_binary_operation.h"
+#include "ir_function_call.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
 
@@ -116,6 +117,50 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
     return IML_OPERAND(res);
 }
 
+static ImlOperand *
+iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
+{
+    GSList *iml_args = NULL;
+    GSList *ir_args;
+    GSList *i;
+    ImlVariable *res_var;
+    iml_func_frame_t *frame;
+    iml_operation_t *call_op;
+    IrFunctionDef *callee_def;
+    IrCodeBlock *body;
+
+    /* only calling D function supported at the moment */
+    assert(ir_function_call_get_linkage(func_call) == ir_d_linkage);
+
+    frame = ir_function_def_get_frame(function);
+
+    /* generate iml code for eveluation of call parameters */
+    ir_args = ir_function_call_get_arguments(func_call);
+    for (i = ir_args; i != NULL; i = g_slist_next(i))
+    {
+        iml_args = g_slist_prepend(iml_args,
+                                   iml_add_expression_eval(function,
+                                                           i->data));
+    }
+    iml_args = g_slist_reverse(iml_args);
+
+    body = ir_function_def_get_body(function);
+    callee_def =
+        IR_FUNCTION_DEF(
+             sym_table_get_symbol(ir_code_block_get_symbols(body),
+                                  ir_function_call_get_name(func_call), NULL));
+
+    res_var = iml_func_frame_get_temp(frame, iml_32b);
+
+    call_op = iml_operation_new(iml_call,
+                                ir_function_def_get_mangled_name(callee_def),
+                                iml_args,
+                                res_var);
+    ir_function_add_operation(function, call_op);
+
+    return IML_OPERAND(res_var);
+
+}
 
 /**
  * Add operations to provided function to evaluate the expression.
@@ -146,6 +191,11 @@ iml_add_expression_eval(IrFunctionDef *function,
     {
         return
             iml_add_binary_op_eval(function, IR_BINARY_OPERATION(ir_expression));
+    }
+    else if (IR_IS_FUNCTION_CALL(ir_expression))
+    {
+        return iml_add_func_call_eval(function,
+                                      IR_FUNCTION_CALL(ir_expression));
     }
     /* unexpected expression type */
     assert(false);
