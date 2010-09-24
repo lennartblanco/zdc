@@ -151,12 +151,8 @@ ir_variable_do_print(IrNode *self, FILE *out, int indention)
 
     if (var->initializer != NULL)
     {
-        fprintf(out, " =\n");
+        fprintf(out, " = ");
         ir_node_print(IR_NODE(var->initializer), out, indention + 2);
-    }
-    else
-    {
-        fprintf(out, "\n");
     }
 }
 
