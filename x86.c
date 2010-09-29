@@ -622,42 +622,8 @@ x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
 static void
 x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 {
-    ImlOperand *val;
-
-    val = iml_operation_get_operand(op, 1);
-
-    if (IML_IS_CONSTANT(val))
-    {
-        ImlConstant *const_val = IML_CONSTANT(val);
-
-        fprintf(out,
-                "    movl $%d, %%eax\n",
-                iml_constant_get_val_32b(const_val));
-    }
-    else if (IML_IS_VARIABLE(val))
-    {
-        ImlVariable *var_val = IML_VARIABLE(val);
-        iml_register_t *reg;
-
-        reg = iml_variable_get_register(var_val);
-        if (reg == NULL) {
-            fprintf(out,
-                    "    movl %d(%%ebp), %%eax\n",
-                    iml_variable_get_frame_offset(var_val));
-        }
-        else
-        {
-            fprintf(out,
-                    "    movl %%%s, %%eax\n",
-                    iml_register_get_name(reg));
-        }
-    }
-    else
-    {
-        /* unexpected operand type */
-        assert(false);
-    }
-
+    x86_move_to_reg(out, "eax",
+                    iml_operation_get_operand(op, 1));
     fprintf(out, "    jmp %s\n", return_label);
 }
 
@@ -721,22 +687,9 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
         }
         else
         {
-            if (dst_reg == NULL)
-            {
-                /* register to offset copy */
-                fprintf(out,
-                        "    movl %%%s, %d(%%ebp)\n",
-                        iml_register_get_name(src_reg),
-                        iml_variable_get_frame_offset(dst));
-            }
-            else
-            {
-                /* register to register copy */
-                fprintf(out,
-                        "    movl %%%s, %%%s\n",
-                        iml_register_get_name(src_reg),
-                        iml_register_get_name(dst_reg));
-            }
+            x86_move_from_reg(out,
+                              iml_register_get_name(src_reg),
+                              dst);
         }
     }
 }
