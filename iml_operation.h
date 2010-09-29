@@ -39,7 +39,7 @@ iml_operation_get_opcode(iml_operation_t *self);
  *
  * @param operand_num operands number, first operand is 1
  */
-ImlOperand *
+void *
 iml_operation_get_operand(iml_operation_t *self,
 		                  guint operand_num);
 

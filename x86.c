@@ -519,6 +519,106 @@ x86_text_prelude(x86_comp_params_t *params,
     }
 }
 
+/**
+ * Generate assembly that will push the operand on the top of the stack.
+ */
+static void
+x86_push_operand(FILE *out, ImlOperand *oper)
+{
+    assert(IML_IS_OPERAND(oper));
+
+    if (IML_IS_CONSTANT(oper))
+    {
+        fprintf(out,
+                "    pushl $%d\n",
+                iml_constant_get_val_32b(IML_CONSTANT(oper)));
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(oper));
+        ImlVariable *var = IML_VARIABLE(oper);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == NULL)
+        {
+            fprintf(out,
+                    "    pushl %d(%%ebp)\n",
+                    iml_variable_get_frame_offset(var));
+        }
+        else
+        {
+            fprintf(out,
+                    "    pushl %%%s\n",
+                    iml_register_get_name(reg));
+        }
+    }
+}
+
+/**
+ * Generate assembly that will move the operand to a register.
+ */
+static void
+x86_move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
+{
+    assert(IML_IS_OPERAND(oper));
+
+    if (IML_IS_CONSTANT(oper))
+    {
+        fprintf(out,
+                "    movl $%d, %%%s\n",
+                iml_constant_get_val_32b(IML_CONSTANT(oper)),
+                dest_reg);
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(oper));
+        ImlVariable *var = IML_VARIABLE(oper);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == NULL)
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%%s\n",
+                    iml_variable_get_frame_offset(var),
+                    dest_reg);
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl %%%s, %%%s\n",
+                    iml_register_get_name(reg),
+                    dest_reg);
+        }
+    }
+}
+
+/**
+ * Generate assembly that will move value in the register
+ * to specified variable.
+ */
+static void
+x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
+{
+    assert(IML_VARIABLE(var));
+
+    iml_register_t *var_reg = iml_variable_get_register(var);
+
+    if (var_reg == NULL)
+    {
+        fprintf(out,
+                "    movl %%%s, %d(%%ebp)\n",
+                src_reg,
+                iml_variable_get_frame_offset(var));
+    }
+    else
+    {
+        fprintf(out,
+                "    movl %%%s, %%%s\n",
+                src_reg,
+                iml_register_get_name(var_reg));
+    }
+}
+
 static void
 x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 {
@@ -754,6 +854,35 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
 }
 
 static void
+x86_compile_call(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+
+    GSList *i;
+    GSList *args = iml_operation_get_operand(op, 2);
+
+    for (i = args; i != NULL; i = g_slist_next(i))
+    {
+        if (g_slist_next(i) != NULL)
+        {
+            x86_push_operand(out, IML_OPERAND(i->data));
+        }
+        else
+        {
+            /* store last argument in eax */
+            x86_move_to_reg(out, "eax", IML_OPERAND(i->data));
+        }
+
+    }
+
+    fprintf(out,
+            "    call %s\n",
+            (char*)iml_operation_get_operand(op, 1));
+
+    x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
+}
+
+static void
 x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 {
     char *func_name;
@@ -808,6 +937,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_add:
             case iml_sub:
                 x86_compile_binop(params->out, op);
+                break;
+            case iml_call:
+                x86_compile_call(params->out, op);
                 break;
             default:
                 /* unexpected opcode */

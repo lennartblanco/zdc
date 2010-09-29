@@ -75,7 +75,7 @@ iml_operation_get_opcode(iml_operation_t *self)
 	return self->opcode;
 }
 
-ImlOperand *
+void *
 iml_operation_get_operand(iml_operation_t *self,
 		                  guint operand_num)
 {
