@@ -55,6 +55,20 @@ guint
 iml_func_frame_get_size(iml_func_frame_t *self);
 
 /**
+ * Stores the list of used preserved registers.
+ */
+void
+iml_func_frame_set_used_regs(iml_func_frame_t *self,
+                             GSList *preserved_regs);
+
+/**
+ * Get the list of used preserved register, registers
+ * which must be preserved across function calls.
+ */
+GSList *
+iml_func_frame_get_used_regs(iml_func_frame_t *self);
+
+/**
  * pretty print this function frame
  */
 void

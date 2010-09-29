@@ -16,6 +16,7 @@ struct iml_func_frame_s
     GSList *var_32b;
     GSList *var_16b;
     GSList *var_8b;
+    GSList *used_regs;
     guint stack_size;
 };
 
@@ -118,6 +119,22 @@ iml_func_frame_get_size(iml_func_frame_t *self)
 	return self->stack_size;
 }
 
+void
+iml_func_frame_set_used_regs(iml_func_frame_t *self,
+                             GSList *preserved_regs)
+{
+    assert(self);
+
+    self->used_regs = preserved_regs;
+}
+
+GSList *
+iml_func_frame_get_used_regs(iml_func_frame_t *self)
+{
+    assert(self);
+
+    return self->used_regs;
+}
 
 void
 iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)

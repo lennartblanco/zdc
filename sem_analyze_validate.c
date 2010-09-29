@@ -1804,10 +1804,12 @@ assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
     GSList *regs; /* all available registers */
     GSList *i;
     GSList *vars;
+    GSList *used_regs = NULL;
 
     backend->get_registers(&scratch_regs, &preserved_regs);
 
-    regs = g_slist_concat(preserved_regs, scratch_regs);
+    /* only use preserved register for now */
+    regs = preserved_regs;
 
     /* assign registers to 32b variables */
     vars = iml_func_frame_get_locals(frame, iml_32b);
@@ -1820,6 +1822,7 @@ assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
+        used_regs = g_slist_prepend(used_regs, reg);
     }
 
     /* assign registers to 16b variables */
@@ -1833,6 +1836,7 @@ assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
+        used_regs = g_slist_prepend(used_regs, reg);
     }
 
     /* assign registers to 8b variables */
@@ -1846,7 +1850,11 @@ assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
+        used_regs = g_slist_prepend(used_regs, reg);
     }
+
+    /* store the list of used preserved registers */
+    iml_func_frame_set_used_regs(frame, used_regs);
 
     /*
      * call the backend hook for

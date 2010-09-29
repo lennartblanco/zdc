@@ -520,7 +520,7 @@ x86_text_prelude(x86_comp_params_t *params,
 }
 
 static void
-x86_compile_return(FILE *out, iml_operation_t *op)
+x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 {
     ImlOperand *val;
 
@@ -558,9 +558,7 @@ x86_compile_return(FILE *out, iml_operation_t *op)
         assert(false);
     }
 
-    fprintf(out,
-            "    leave\n"
-            "    ret\n");
+    fprintf(out, "    jmp %s\n", return_label);
 }
 
 static void
@@ -761,6 +759,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     char *func_name;
     iml_func_frame_t *frame;
     GSList *i;
+    GSList *regs;
+    char return_label[LABEL_MAX_LEN];
+
 
     func_name = ir_function_def_get_mangled_name(func_def);
     frame = ir_function_def_get_frame(func_def);
@@ -777,6 +778,19 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             "    enter $%d, $0\n",
             iml_func_frame_get_size(frame));
 
+    /* store preserved registers value on the stack */
+    regs = iml_func_frame_get_used_regs(frame);
+    for (i = regs; i != NULL; i = g_slist_next(i))
+    {
+        fprintf(params->out,
+                "    pushl %%%s\n",
+                iml_register_get_name(i->data));
+    }
+
+
+    /* generate this function's return label */
+    label_gen_next(&(params->label_gen), return_label);
+
     /* generate code for all operations in this function */
     for (i = ir_function_get_operations(func_def);
          i != NULL;
@@ -786,7 +800,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
         switch (iml_operation_get_opcode(op))
         {
             case iml_return:
-                x86_compile_return(params->out, op);
+                x86_compile_return(params->out, return_label, op);
                 break;
             case iml_copy:
                 x86_compile_copy(params->out, op);
@@ -800,6 +814,25 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 assert(false);
         }
     }
+
+    /*
+     * generate code for returning from this function
+     */
+
+    /* add return label */
+    fprintf(params->out, "%s:\n", return_label);
+
+    /* restore values of preserved registers */
+    regs = g_slist_reverse(regs);
+    for (i = regs; i != NULL; i = g_slist_next(i))
+    {
+        fprintf(params->out,
+                "    popl %%%s\n",
+                iml_register_get_name(i->data));
+    }
+    fprintf(params->out,
+            "    leave\n"
+            "    ret\n");
 }
 
 static void
