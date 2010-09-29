@@ -73,11 +73,10 @@ bneg value => res
  logical negation
   - non of the operans can be constants
 
-return value
-  return a value
-
-vreturn
-  void return
+return [value]
+  return from function
+   - if value operand specified, return with value
+   - if value operand is not specified, void return
 
 jump label
   unconditional jump

@@ -837,7 +837,7 @@ validate_return(compilation_status_t *compile_status,
 
         /* valid return from void function, add iml-operation */
         ir_function_add_operation(compile_status->function,
-                                  iml_operation_new(iml_vreturn));
+                                  iml_operation_new(iml_return, NULL));
     }
 }
 

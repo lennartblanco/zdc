@@ -19,7 +19,6 @@ typedef enum iml_opcode_e
     iml_copy,
     iml_call,
     iml_return,
-    iml_vreturn
 } iml_opcode_t;
 
 typedef struct iml_operation_s iml_operation_t;

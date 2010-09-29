@@ -25,6 +25,9 @@ struct iml_operation_s
 static void
 print_call_op(iml_operation_t *op, FILE *out, int indention);
 
+static void
+print_return_op(iml_operation_t *op, FILE *out, int indention);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -41,8 +44,6 @@ iml_operation_new(iml_opcode_t operation, ...)
     va_start(argp, operation);
     switch (operation)
     {
-        case iml_vreturn:
-            /* nop */
             break;
         case iml_return:
             op->arg1 = va_arg(argp, ImlOperand *);
@@ -103,13 +104,8 @@ iml_operation_print(iml_operation_t *self,
 
     switch (self->opcode)
     {
-        case iml_vreturn:
-            fprintf_indent(out, indention, "vreturn\n");
-            break;
         case iml_return:
-            fprintf_indent(out, indention, "return ");
-            iml_operand_print(self->arg1, out, 0);
-            fprintf(out, "\n");
+            print_return_op(self, out, indention);
             break;
         case iml_copy:
             fprintf_indent(out, indention, "copy ");
@@ -148,6 +144,20 @@ iml_operation_print(iml_operation_t *self,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static void
+print_return_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_return);
+
+    fprintf_indent(out, indention, "return ");
+    if (op->arg1 != NULL)
+    {
+        iml_operand_print(op->arg1, out, 0);
+    }
+    fprintf(out, "\n");
+}
 
 static void
 print_call_op(iml_operation_t *op, FILE *out, int indention)

@@ -622,8 +622,12 @@ x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
 static void
 x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 {
-    x86_move_to_reg(out, "eax",
-                    iml_operation_get_operand(op, 1));
+    ImlOperand *ret_value = iml_operation_get_operand(op, 1);
+
+    if (ret_value != NULL)
+    {
+        x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
+    }
     fprintf(out, "    jmp %s\n", return_label);
 }
 
