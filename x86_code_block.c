@@ -1,5 +1,4 @@
 #include "x86_code_block.h"
-#include "x86_func_call.h"
 #include "x86_while.h"
 #include "x86_foreach.h"
 #include "x86_if_else.h"
@@ -79,13 +78,6 @@ x86_compile_code_block(x86_comp_params_t *params,
             fprintf(params->out,
                     "    leave\n"
                     "    ret\n");
-        }
-        else if (IR_IS_FUNCTION_CALL(statment))
-        {
-            x86_compile_func_call(params, 
-                                  IR_FUNCTION_CALL(statment),
-                                  locals,
-                                  false);
         }
         else if (IR_IS_ASSIGMENT(statment))
         {

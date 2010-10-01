@@ -8,7 +8,6 @@
 #include "x86_cast.h"
 #include "x86_array.h"
 #include "x86_if_else.h"
-#include "x86_func_call.h"
 #include "x86_code_block.h"
 #include "x86_frame_offset.h"
 #include "x86_reg_location.h"
@@ -217,13 +216,6 @@ x86_compile_expression(x86_comp_params_t *params,
     else if (IR_IS_SCALAR(expression))
     {
         x86_compile_scalar(params, IR_SCALAR(expression));
-    }
-    else if (IR_IS_FUNCTION_CALL(expression))
-    {
-        x86_compile_func_call(params,
-                              IR_FUNCTION_CALL(expression),
-                              sym_table,
-                              true);
     }
     else if (IR_IS_ARRAY_SLICE(expression))
     {
