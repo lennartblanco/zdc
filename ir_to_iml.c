@@ -5,9 +5,9 @@
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
 #include "ir_binary_operation.h"
-#include "ir_function_call.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
+#include "types.h"
 
 #include <assert.h>
 
@@ -20,9 +20,6 @@ ir_constant_to_iml(IrConstant *constant);
 
 static ImlOperand *
 iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op);
-
-static ImlOperand *
-iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -123,6 +120,54 @@ add_to_func_frame(IrFunctionDef *parent_function,
     ImlOperand *init_val = iml_add_expression_eval(parent_function, init_exp);
     ir_function_add_operation(parent_function,
                               iml_operation_new(iml_copy, init_val, iml_var));
+}
+
+ImlOperand *
+iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
+{
+    GSList *iml_args = NULL;
+    GSList *ir_args;
+    GSList *i;
+    ImlVariable *res_var = NULL;
+    iml_func_frame_t *frame;
+    iml_operation_t *call_op;
+    IrFunctionDef *callee_def;
+    IrCodeBlock *body;
+
+    /* only calling D function supported at the moment */
+    assert(ir_function_call_get_linkage(func_call) == ir_d_linkage);
+
+    frame = ir_function_def_get_frame(function);
+
+    /* generate iml code for eveluation of call parameters */
+    ir_args = ir_function_call_get_arguments(func_call);
+    for (i = ir_args; i != NULL; i = g_slist_next(i))
+    {
+        iml_args = g_slist_prepend(iml_args,
+                                   iml_add_expression_eval(function,
+                                                           i->data));
+    }
+    iml_args = g_slist_reverse(iml_args);
+
+    body = ir_function_def_get_body(function);
+    callee_def =
+        IR_FUNCTION_DEF(
+             sym_table_get_symbol(ir_code_block_get_symbols(body),
+                                  ir_function_call_get_name(func_call), NULL));
+
+    if (!types_is_void(ir_expression_get_data_type(IR_EXPRESSION(func_call))))
+    {
+        res_var = iml_func_frame_get_temp(frame, iml_32b);
+    }
+
+    call_op = iml_operation_new(iml_call,
+                                ir_function_def_get_mangled_name(callee_def),
+                                iml_args,
+                                res_var);
+    ir_function_add_operation(function, call_op);
+
+    return IML_OPERAND(res_var);
+
 }
 
 /*---------------------------------------------------------------------------*
@@ -229,49 +274,4 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
                               iml_operation_new(opcode, left, right, res));
 
     return IML_OPERAND(res);
-}
-
-static ImlOperand *
-iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
-{
-    GSList *iml_args = NULL;
-    GSList *ir_args;
-    GSList *i;
-    ImlVariable *res_var;
-    iml_func_frame_t *frame;
-    iml_operation_t *call_op;
-    IrFunctionDef *callee_def;
-    IrCodeBlock *body;
-
-    /* only calling D function supported at the moment */
-    assert(ir_function_call_get_linkage(func_call) == ir_d_linkage);
-
-    frame = ir_function_def_get_frame(function);
-
-    /* generate iml code for eveluation of call parameters */
-    ir_args = ir_function_call_get_arguments(func_call);
-    for (i = ir_args; i != NULL; i = g_slist_next(i))
-    {
-        iml_args = g_slist_prepend(iml_args,
-                                   iml_add_expression_eval(function,
-                                                           i->data));
-    }
-    iml_args = g_slist_reverse(iml_args);
-
-    body = ir_function_def_get_body(function);
-    callee_def =
-        IR_FUNCTION_DEF(
-             sym_table_get_symbol(ir_code_block_get_symbols(body),
-                                  ir_function_call_get_name(func_call), NULL));
-
-    res_var = iml_func_frame_get_temp(frame, iml_32b);
-
-    call_op = iml_operation_new(iml_call,
-                                ir_function_def_get_mangled_name(callee_def),
-                                iml_args,
-                                res_var);
-    ir_function_add_operation(function, call_op);
-
-    return IML_OPERAND(res_var);
-
 }

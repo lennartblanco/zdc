@@ -185,7 +185,6 @@ validate_function_call(compilation_status_t *compile_status,
     guint counter;
     GError *error = NULL;
 
-
     func_name = ir_function_call_get_name(func_call);
 
     /* look-up function in the symbol table */
@@ -1110,6 +1109,8 @@ validate_statment(compilation_status_t *compile_status,
     {
          validate_function_call(compile_status,
                                 sym_table,
+                                IR_FUNCTION_CALL(statment));
+         iml_add_func_call_eval(compile_status->function,
                                 IR_FUNCTION_CALL(statment));
     }
     else if (IR_IS_ASSIGMENT(statment))

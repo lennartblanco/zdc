@@ -87,11 +87,9 @@ jump_true condition, label
 jump_false condition, label
   jump to label if condition is false
 
-call function_name, arg0, arg1, ...,argN => res
- call a function that returns a value
-
-vcall function_name, arg0, arg1, ...,argN
-  call void function
+call function_name, (arg0, arg1, ...,argN) [ => res ]
+ call a function
+   - if no res variable is specified, then this is a call to void function
 
 memcpy src, length => dest
   copy memory <length> bytes from <src> to <dest>.

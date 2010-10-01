@@ -817,6 +817,7 @@ x86_compile_call(FILE *out, iml_operation_t *op)
 
     GSList *i;
     GSList *args = iml_operation_get_operand(op, 2);
+    ImlVariable *res;
 
     for (i = args; i != NULL; i = g_slist_next(i))
     {
@@ -836,7 +837,11 @@ x86_compile_call(FILE *out, iml_operation_t *op)
             "    call %s\n",
             (char*)iml_operation_get_operand(op, 1));
 
-    x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
+    res = iml_operation_get_operand(op, 3);
+    if (res != NULL)
+    {
+        x86_move_from_reg(out, "eax", res);
+    }
 }
 
 static void

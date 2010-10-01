@@ -166,7 +166,7 @@ print_call_op(iml_operation_t *op, FILE *out, int indention)
     assert(op);
     assert(op->opcode == iml_call);
 
-    fprintf_indent(out, indention, "call %s [",
+    fprintf_indent(out, indention, "call %s (",
                    op->arg1);
 
     for (i = (GSList *)op->arg2; i != NULL; i = g_slist_next(i))
@@ -177,7 +177,13 @@ print_call_op(iml_operation_t *op, FILE *out, int indention)
             fprintf(out, ", ");
         }
     }
-    fprintf(out, "] => ");
-    iml_operand_print(op->arg3, out, 0);
+    fprintf(out, ") ");
+
+    if (op->arg3 != NULL)
+    {
+        fprintf(out, "=> ");
+        iml_operand_print(op->arg3, out, 0);
+    }
+
     fprintf(out, "\n");
 }
