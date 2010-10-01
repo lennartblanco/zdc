@@ -1,5 +1,31 @@
 #!/bin/sh
 
+tests="empty "\
+"only_comments "\
+"rets "\
+"comments "\
+"uninit_vars "
+#"neg func_call "\
+#"implicit_cast "\
+#"bool_op "\
+#"uint_op "\
+#"nested_blocks "\
+#"if_else "\
+#"fact "\
+#"extern_c "\
+#"while_loop "\
+#"stat_array "\
+#"dyn_array "\
+#"foreach "\
+#"module_test "\
+#"pkg_name_tst "\
+#"imports "\
+#"properties "\
+#"char_literals "\
+#"immutable "\
+#"enums eels "\
+#"str_literals "
+
 run_checked()
 {
     ($@) || 
@@ -31,11 +57,6 @@ run_all_tests()
 {
     local failed=0
     local passed=0
-
-    local tests="empty rets only_comments comments neg func_call "\
-"implicit_cast bool_op uint_op nested_blocks if_else fact extern_c "\
-"while_loop stat_array dyn_array foreach module_test pkg_name_tst imports "\
-"properties uninit_vars char_literals immutable enums eels str_literals"
 
     for test_name in $tests
     do
