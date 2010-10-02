@@ -4,7 +4,9 @@ tests="empty "\
 "only_comments "\
 "rets "\
 "comments "\
-"uninit_vars "
+"uninit_vars "\
+"extern_c "\
+"eels"
 #"neg func_call "\
 #"implicit_cast "\
 #"bool_op "\
@@ -12,7 +14,6 @@ tests="empty "\
 #"nested_blocks "\
 #"if_else "\
 #"fact "\
-#"extern_c "\
 #"while_loop "\
 #"stat_array "\
 #"dyn_array "\
@@ -23,7 +24,7 @@ tests="empty "\
 #"properties "\
 #"char_literals "\
 #"immutable "\
-#"enums eels "\
+#"enums "\
 #"str_literals "
 
 run_checked()

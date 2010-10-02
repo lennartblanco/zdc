@@ -55,6 +55,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_add:
         case iml_sub:
         case iml_call:
+        case iml_call_c:
             op->arg1 = va_arg(argp, ImlOperand *);
             op->arg2 = va_arg(argp, ImlOperand *);
             op->arg3 = va_arg(argp, ImlOperand *);
@@ -133,6 +134,7 @@ iml_operation_print(iml_operation_t *self,
             fprintf(out, "\n");
             break;
         case iml_call:
+        case iml_call_c:
             print_call_op(self, out, indention);
             break;
         default:
@@ -164,9 +166,10 @@ print_call_op(iml_operation_t *op, FILE *out, int indention)
 {
     GSList *i;
     assert(op);
-    assert(op->opcode == iml_call);
+    assert(op->opcode == iml_call || op->opcode == iml_call_c);
 
-    fprintf_indent(out, indention, "call %s (",
+    fprintf_indent(out, indention, "call%s %s (",
+                   op->opcode == iml_call ? "" : "_c",
                    op->arg1);
 
     for (i = (GSList *)op->arg2; i != NULL; i = g_slist_next(i))

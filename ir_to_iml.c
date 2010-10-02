@@ -131,11 +131,22 @@ iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
     ImlVariable *res_var = NULL;
     iml_func_frame_t *frame;
     iml_operation_t *call_op;
-    IrFunctionDef *callee_def;
+    IrFunction *callee;
     IrCodeBlock *body;
+    iml_opcode_t opcode;
 
-    /* only calling D function supported at the moment */
-    assert(ir_function_call_get_linkage(func_call) == ir_d_linkage);
+    switch (ir_function_call_get_linkage(func_call))
+    {
+        case ir_d_linkage:
+            opcode = iml_call;
+            break;
+        case ir_c_linkage:
+            opcode = iml_call_c;
+            break;
+        default:
+            /* unexpected linkage */
+            assert(false);
+    }
 
     frame = ir_function_def_get_frame(function);
 
@@ -150,18 +161,19 @@ iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
     iml_args = g_slist_reverse(iml_args);
 
     body = ir_function_def_get_body(function);
-    callee_def =
-        IR_FUNCTION_DEF(
+    callee =
+        IR_FUNCTION(
              sym_table_get_symbol(ir_code_block_get_symbols(body),
                                   ir_function_call_get_name(func_call), NULL));
+
 
     if (!types_is_void(ir_expression_get_data_type(IR_EXPRESSION(func_call))))
     {
         res_var = iml_func_frame_get_temp(frame, iml_32b);
     }
 
-    call_op = iml_operation_new(iml_call,
-                                ir_function_def_get_mangled_name(callee_def),
+    call_op = iml_operation_new(opcode,
+                                ir_function_get_mangled_name(callee),
                                 iml_args,
                                 res_var);
     ir_function_add_operation(function, call_op);

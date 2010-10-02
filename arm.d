@@ -3,6 +3,7 @@ import std.string;
 import std.c.stdio;
 import std.c.string;
 import dbind.ir_module;
+import dbind.ir_function;
 import dbind.ir_function_def;
 import dbind.types;
 
@@ -66,7 +67,7 @@ gen_text_prelude(File asmfile, sym_table_t *sym_table)
         types_is_int(ir_function_def_get_return_type(main_func));
 
     string main_mangled_name =
-        d_str(ir_function_def_get_mangled_name(main_func));
+        d_str(ir_function_get_mangled_name(cast(IrFunction *) main_func));
     asmfile.writefln(
         "    .text\n"
         "    .align 2\n"
@@ -89,7 +90,8 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     static int dummy;
 
     name = d_str(ir_function_def_get_name(func));
-    mangled_name = d_str(ir_function_def_get_mangled_name(func));
+    mangled_name =
+        d_str(ir_function_get_mangled_name(cast(IrFunction *) func));
 
     /* just generate a dummy function code which returns some number */
     asmfile.writefln("    .align 2\n"

@@ -61,9 +61,6 @@ ir_function_def_new(DtDataType *return_type,
 char *
 ir_function_def_get_name(IrFunctionDef *self);
 
-char *
-ir_function_def_get_mangled_name(IrFunctionDef *self);
-
 /**
  * Get the function formal parameters.
 

@@ -17,7 +17,6 @@ struct _IrFunctionDef
     iml_func_frame_t *frame;
     GSList *operations;
     IrCodeBlock  *body;
-    char *mangled_name;
 };
 
 
@@ -80,7 +79,6 @@ ir_function_def_new(DtDataType *return_type,
                        "ir-symbol-parent-module", parent_module,
                        NULL);
 
-    obj->mangled_name = NULL;
     obj->frame = iml_func_frame_new();
     obj->operations = NULL;
     
@@ -113,55 +111,6 @@ ir_function_def_get_name(IrFunctionDef *self)
     assert(IR_IS_FUNCTION_DEF(self));
 
     return ir_function_get_name(IR_FUNCTION(self));
-}
-
-char *
-ir_function_def_get_mangled_name(IrFunctionDef *self)
-{
-    assert(IR_IS_FUNCTION_DEF(self));
-
-    if (self->mangled_name == NULL)
-    {
-        GSList *i;
-        char *func_name;
-
-        GString *str = g_string_new("_D");
-
-        g_string_append(str,
-            ir_module_get_mangled_name(
-                ir_symbol_get_parent_module(IR_SYMBOL(self))));
-
-        func_name = ir_function_get_name(IR_FUNCTION(self));
-        g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);
-
-        i = ir_function_def_get_parameters(self);
-        for (; i != NULL; i = g_slist_next(i))
-        {
-            DtDataType *var_type;
-
-            if (IR_IS_VARIABLE(i->data))
-            {
-                var_type = ir_variable_get_data_type(i->data);
-            }
-            else
-            {
-                /* unnamed function parameter, only the type specified */
-                assert(DT_IS_DATA_TYPE(i->data));
-                var_type = i->data;
-            }
-
-            g_string_append(str, dt_data_type_get_mangled(var_type));
-        }
-
-        g_string_append_printf(
-            str, "Z%s",
-            dt_data_type_get_mangled(ir_function_def_get_return_type(self)));
-
-
-        self->mangled_name = g_string_free(str, FALSE);
-    }
-
-    return self->mangled_name;
 }
 
 GSList *

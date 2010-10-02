@@ -482,20 +482,20 @@ x86_text_prelude(x86_comp_params_t *params,
     main_symb = sym_table_get_symbol(sym_table, "main", NULL);
     if (IR_IS_FUNCTION_DEF(main_symb))
     {
-        IrFunctionDef *main_func;
+        IrFunction *main_func;
         bool exit_code_returned;
 
-        main_func = IR_FUNCTION_DEF(main_symb);
+        main_func = IR_FUNCTION(main_symb);
       
         /* only entry point without arguments supported */
-        assert(ir_function_def_get_parameters(main_func) == NULL);
+        assert(ir_function_get_parameters(main_func) == NULL);
 
         /*
          * if main() returns a value, use it as exit code,
          * otherwise exit with code 0
          */
         exit_code_returned = 
-            types_is_int(ir_function_def_get_return_type(main_func));
+            types_is_int(ir_function_get_return_type(main_func));
 
         fprintf(params->out,
                 ".globl _init\n"
@@ -506,7 +506,7 @@ x86_text_prelude(x86_comp_params_t *params,
                 "    call %s\n"
                 "    pushl %s\n"
                 "    call exit\n",
-                ir_function_def_get_mangled_name(main_func),
+                ir_function_get_mangled_name(main_func),
                 exit_code_returned ? "%eax" : "$0");
     }
 }
@@ -802,16 +802,15 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
     }
 }
 
+/**
+ * Generate assembly for passing arguments to a D function.
+ */
 static void
-x86_compile_call(FILE *out, iml_operation_t *op)
+x86_compile_dcall_args(FILE *out, GSList *arguments)
 {
-    assert(op);
-
     GSList *i;
-    GSList *args = iml_operation_get_operand(op, 2);
-    ImlVariable *res;
 
-    for (i = args; i != NULL; i = g_slist_next(i))
+    for (i = arguments; i != NULL; i = g_slist_next(i))
     {
         if (g_slist_next(i) != NULL)
         {
@@ -822,7 +821,58 @@ x86_compile_call(FILE *out, iml_operation_t *op)
             /* store last argument in eax */
             x86_move_to_reg(out, "eax", IML_OPERAND(i->data));
         }
+    }
+}
 
+/**
+ * Generate assembly for passing arguments to a C function.
+ */
+static void
+x86_compile_ccall_args(FILE *out, GSList *arguments)
+{
+    GSList *args;
+    GSList *i;
+
+    /*
+     * in x86 c calling convention, function arguments are
+     * pushed in reversed order, so we need to make copy of
+     * arguments list and reverse it
+     */
+    args = g_slist_copy(arguments);
+    args = g_slist_reverse(arguments);
+
+    for (i = args; i != NULL; i = g_slist_next(i))
+    {
+      x86_push_operand(out, IML_OPERAND(i->data));
+    }
+    g_slist_free(args);
+}
+
+static void
+x86_compile_call(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_call ||
+            iml_operation_get_opcode(op) == iml_call_c);
+
+    GSList *args = iml_operation_get_operand(op, 2);
+    ImlVariable *res;
+
+    /*
+     * generate assembly for passing arguments according
+     * to calling convention
+     */
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_call:
+            x86_compile_dcall_args(out, args);
+            break;
+        case iml_call_c:
+            x86_compile_ccall_args(out, args);
+            break;
+        default:
+            /* unexpected operand */
+            assert(false);
     }
 
     fprintf(out,
@@ -846,7 +896,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     char return_label[LABEL_MAX_LEN];
 
 
-    func_name = ir_function_def_get_mangled_name(func_def);
+    func_name = ir_function_get_mangled_name(IR_FUNCTION(func_def));
     frame = ir_function_def_get_frame(func_def);
 
     /* generate function symbol declaration and function entry point label */
@@ -893,6 +943,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 x86_compile_binop(params->out, op);
                 break;
             case iml_call:
+            case iml_call_c:
                 x86_compile_call(params->out, op);
                 break;
             default:

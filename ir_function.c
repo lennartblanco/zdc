@@ -1,6 +1,9 @@
 #include <stdbool.h>
+#include <string.h>
 
 #include "ir_function.h"
+#include "ir_variable.h"
+#include "ir_module.h"
 
 #include <assert.h>
 
@@ -36,6 +39,12 @@ ir_function_get_property(GObject *object,
                          guint property_id,
                          GValue *value,
                          GParamSpec *pspec);
+
+/**
+ * Generate mangled name for function with D linkage.
+ */
+static char *
+get_d_mangled_name(IrFunction *self);
 
 static GType
 ir_linkage_attr_get_type(void);
@@ -76,6 +85,33 @@ ir_function_get_name(IrFunction *self)
 
     return ir_symbol_get_name(IR_SYMBOL(self));
 }
+
+char *
+ir_function_get_mangled_name(IrFunction *self)
+{
+    assert(IR_IS_FUNCTION(self));
+
+    if (self->mangled_name == NULL)
+    {
+        switch (self->linkage_type)
+        {
+            case ir_d_linkage:
+                self->mangled_name = get_d_mangled_name(self);
+                break;
+            case ir_c_linkage:
+                /* C functions names are not mangled */
+                self->mangled_name = ir_function_get_name(self);
+                break;
+            default:
+                /* unexpected linkage type */
+                assert(false);
+        }
+    }
+
+    return self->mangled_name;
+}
+
+
 
 ir_linkage_type_t
 ir_function_get_linkage(IrFunction *self)
@@ -219,6 +255,49 @@ ir_function_get_property(GObject *object,
     assert(false);
 }
 
+static char *
+get_d_mangled_name(IrFunction *self)
+{
+    assert(IR_IS_FUNCTION(self));
+    assert(self->linkage_type == ir_d_linkage);
+
+    GSList *i;
+    char *func_name;
+
+    GString *str = g_string_new("_D");
+
+    g_string_append(str,
+        ir_module_get_mangled_name(
+            ir_symbol_get_parent_module(IR_SYMBOL(self))));
+
+    func_name = ir_function_get_name(IR_FUNCTION(self));
+    g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);
+
+    i = ir_function_get_parameters(self);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        DtDataType *var_type;
+
+        if (IR_IS_VARIABLE(i->data))
+        {
+            var_type = ir_variable_get_data_type(i->data);
+        }
+        else
+        {
+            /* unnamed function parameter, only the type specified */
+            assert(DT_IS_DATA_TYPE(i->data));
+            var_type = i->data;
+        }
+
+        g_string_append(str, dt_data_type_get_mangled(var_type));
+    }
+
+    g_string_append_printf(
+        str, "Z%s",
+        dt_data_type_get_mangled(ir_function_get_return_type(self)));
+
+    return g_string_free(str, FALSE);
+}
 
 static GType
 ir_linkage_attr_get_type(void)

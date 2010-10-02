@@ -40,6 +40,7 @@ typedef struct
     GSList            *parameters;
     DtDataType        *return_type;
     ir_linkage_type_t linkage_type;
+    char *mangled_name;
 } IrFunction;
 
 typedef struct
@@ -73,6 +74,9 @@ ir_function_get_return_type(IrFunction *self);
 
 char *
 ir_function_get_name(IrFunction *self);
+
+char *
+ir_function_get_mangled_name(IrFunction *self);
 
 ir_linkage_type_t
 ir_function_get_linkage(IrFunction *self);

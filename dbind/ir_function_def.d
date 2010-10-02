@@ -10,9 +10,6 @@ extern (C)
   char *
   ir_function_def_get_name(IrFunctionDef *self);
 
-  char *
-  ir_function_def_get_mangled_name(IrFunctionDef *self);
-
   GSList *
   ir_function_def_get_parameters(IrFunctionDef *self);
 
