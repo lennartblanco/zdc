@@ -21,23 +21,22 @@ Operations
 cast <src> => <target>
 
 copy <source> => <target>
-
  copy value from <source> to <target>
   - all operands are of same type
   - constants are not allowed for <target>
 
 add <left>, <right> => <res>
-
  addition
   - all operands are of same type
-  - constants are not allwed for <res>
+  - constants are not allowed for <res>
 
 sub left, right => res
-
- substraction
+ subtraction
+   - all operands are of same type
+  - constants are not allowed for <res>
 
 imult left, right => res
- signed muliplication
+ signed multiplication
 
 idiv left, right => res
  signed division
@@ -48,24 +47,43 @@ umult left, right => res
 
 udiv left, right => res
 
-iequal left, right => res
-  res = (left == right)
+equal left, right => res
+  signed/unsigned equal comparison, res = (left == right)
+   - res must be 8b variable
+   - left and right must be of same data type
 
-inoteq left, right => res
+nequal left, right => res
+  signed/unsigned not equal comparison, res = (left != right)
+   - res must be 8b variable
+   - left and right must be of same data type
 
-  res = (left != right)
+sless left, right => res
+uless left, right => res
+  signed/unsigned less then comparison, res = (left < right)
+   - sless denotes signed operation, uless unsigned
+   - res must be 8b variable
+   - left and right must be of same data type
 
-igreater left, right => res
-   res = (left > right)
+sgreater left, right => res
+ugreater left, right => res
+  signed/unsigned greater that comparison, res = (left > right)
+   - sgreater denotes signed operation, ugreater unsigned
+   - res must be 8b variable
+   - left and right must be of same data type
 
-iless left, right => res
-   res = (left < right)
+slesseq left, right => res
+ulesseq left, right => res
+  signed/unsigned less or equal comparison, res = (left <= right)
+   - slesseq denotes signed operation, ulesseq unsigned
+   - res must be 8b variable
+   - left and right must be of same data type
 
-iless_or_eq left, right => res
-  res = (left <= right)
-
-igreater_or_eq left, right => res
-  res = (left >= right)
+sgreatereq left, right => res
+ugreatereq left, right => res
+  signed/unsigned greater or equal comparison, res = (left >= right)
+   - sgreatereq denotes signed operation, ugreatereq unsigned
+   - res must be 8b variable
+   - left and right must be of same data type
 
 ineg value => res
  signed arithmetic negation of value
