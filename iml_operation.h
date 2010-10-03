@@ -20,6 +20,7 @@ typedef enum iml_opcode_e
     iml_call,
     iml_call_c,
     iml_return,
+    iml_cast,
 } iml_opcode_t;
 
 typedef struct iml_operation_s iml_operation_t;

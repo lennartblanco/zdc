@@ -938,6 +938,14 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_copy:
                 x86_compile_copy(params->out, op);
                 break;
+            case iml_cast:
+                /*
+                 * currently variables of all supported iml types are
+                 * stored as 32-bit integers,
+                 * thus iml_cast is equivalent to iml_copy operation
+                 */
+                x86_compile_copy(params->out, op);
+                break;
             case iml_add:
             case iml_sub:
                 x86_compile_binop(params->out, op);

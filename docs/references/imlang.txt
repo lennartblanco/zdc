@@ -6,7 +6,7 @@ This document describes the intermediate language used in XDC compiler. The fron
 Data types
 ----------
 
-Variables and constants are typed, follwing types are used:
+Variables and constants are typed, following types are used:
 
  8-bit value        8b
  16-bit value      16b
@@ -17,6 +17,8 @@ Variables and constants are typed, follwing types are used:
 
 Operations
 ----------
+
+cast <src> => <target>
 
 copy <source> => <target>
 

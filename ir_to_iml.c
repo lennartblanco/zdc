@@ -5,6 +5,7 @@
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
 #include "ir_binary_operation.h"
+#include "ir_cast.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
 #include "types.h"
@@ -20,6 +21,10 @@ ir_constant_to_iml(IrConstant *constant);
 
 static ImlOperand *
 iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op);
+
+static ImlOperand *
+iml_add_cast_eval(IrFunctionDef *function, IrCast *cast);
+
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -59,6 +64,11 @@ iml_add_expression_eval(IrFunctionDef *function,
     {
         return iml_add_func_call_eval(function,
                                       IR_FUNCTION_CALL(ir_expression));
+    }
+    else if (IR_IS_CAST(ir_expression))
+    {
+        return iml_add_cast_eval(function,
+                                 IR_CAST(ir_expression));
     }
     /* unexpected expression type */
     assert(false);
@@ -186,6 +196,29 @@ iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static iml_data_type_t
+dt_to_iml_type(DtDataType *dt_type)
+{
+    iml_data_type_t iml_type;
+
+    switch (dt_data_type_get_size(dt_type))
+    {
+        case 4:
+            iml_type = iml_32b;
+            break;
+        case 2:
+            iml_type = iml_16b;
+            break;
+        case 1:
+            iml_type = iml_8b;
+            break;
+        default:
+            assert(false);
+    }
+
+    return iml_type;
+}
+
 static ImlConstant *
 ir_constant_to_iml(IrConstant *constant)
 {
@@ -242,7 +275,6 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
     ImlOperand *right;
     ImlVariable *res;
     iml_opcode_t opcode;
-    DtDataType *dt_type;
     iml_data_type_t iml_type;
 
     left = iml_add_expression_eval(function,
@@ -251,21 +283,8 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
                                     ir_binary_operation_get_right(bin_op));
 
     /* derive iml data type for temp variable */
-    dt_type = ir_expression_get_data_type(IR_EXPRESSION(bin_op));
-    switch (dt_data_type_get_size(dt_type))
-    {
-        case 4:
-            iml_type = iml_32b;
-            break;
-        case 2:
-            iml_type = iml_16b;
-            break;
-        case 1:
-            iml_type = iml_8b;
-            break;
-        default:
-            assert(false);
-    }
+    iml_type =
+        dt_to_iml_type(ir_expression_get_data_type(IR_EXPRESSION(bin_op)));
 
     res = iml_func_frame_get_temp(frame, iml_type);
 
@@ -286,4 +305,23 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
                               iml_operation_new(opcode, left, right, res));
 
     return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_cast_eval(IrFunctionDef *function, IrCast *cast)
+{
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    iml_data_type_t iml_type;
+    ImlOperand *src;
+    ImlVariable *dest;
+
+    src = iml_add_expression_eval(function, ir_cast_get_value(cast));
+
+    iml_type = dt_to_iml_type(ir_cast_get_target_type(cast));
+    dest = iml_func_frame_get_temp(frame, iml_type);
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_cast, src, dest));
+
+    return IML_OPERAND(dest);
 }

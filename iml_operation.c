@@ -49,6 +49,7 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg1 = va_arg(argp, ImlOperand *);
             break;
         case iml_copy:
+        case iml_cast:
             op->arg1 = va_arg(argp, ImlOperand *);
             op->arg2 = va_arg(argp, ImlOperand *);
             break;
@@ -110,6 +111,13 @@ iml_operation_print(iml_operation_t *self,
             break;
         case iml_copy:
             fprintf_indent(out, indention, "copy ");
+            iml_operand_print(self->arg1, out, 0);
+            fprintf(out, " => ");
+            iml_operand_print(self->arg2, out, 0);
+            fprintf(out, "\n");
+            break;
+        case iml_cast:
+            fprintf_indent(out, indention, "cast ");
             iml_operand_print(self->arg1, out, 0);
             fprintf(out, " => ");
             iml_operand_print(self->arg2, out, 0);
