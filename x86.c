@@ -803,6 +803,26 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
 }
 
 /**
+ * Generate assembly for integer comparison operations
+ * (iml_equal and iml_nequal)
+ */
+static void
+x86_compile_icmp(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_equal ||
+           iml_operation_get_opcode(op) == iml_nequal);
+
+//    Syntax
+//    cmpl <reg>,<reg>
+//    cmpl <reg>,<mem>
+//    cmpl <mem>,<reg>
+//    cmpl <reg>,<con>
+    /* not implemented */
+    assert(false);
+}
+
+/**
  * Generate assembly for passing arguments to a D function.
  */
 static void
@@ -949,6 +969,10 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_add:
             case iml_sub:
                 x86_compile_binop(params->out, op);
+                break;
+            case iml_equal:
+            case iml_nequal:
+                x86_compile_icmp(params->out, op);
                 break;
             case iml_call:
             case iml_call_c:

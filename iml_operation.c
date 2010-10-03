@@ -23,6 +23,12 @@ struct iml_operation_s
  *---------------------------------------------------------------------------*/
 
 static void
+print_binary_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
+print_ternary_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
 print_call_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
@@ -44,7 +50,6 @@ iml_operation_new(iml_opcode_t operation, ...)
     va_start(argp, operation);
     switch (operation)
     {
-            break;
         case iml_return:
             op->arg1 = va_arg(argp, ImlOperand *);
             break;
@@ -55,6 +60,8 @@ iml_operation_new(iml_opcode_t operation, ...)
             break;
         case iml_add:
         case iml_sub:
+        case iml_equal:
+        case iml_nequal:
         case iml_call:
         case iml_call_c:
             op->arg1 = va_arg(argp, ImlOperand *);
@@ -110,36 +117,14 @@ iml_operation_print(iml_operation_t *self,
             print_return_op(self, out, indention);
             break;
         case iml_copy:
-            fprintf_indent(out, indention, "copy ");
-            iml_operand_print(self->arg1, out, 0);
-            fprintf(out, " => ");
-            iml_operand_print(self->arg2, out, 0);
-            fprintf(out, "\n");
-            break;
         case iml_cast:
-            fprintf_indent(out, indention, "cast ");
-            iml_operand_print(self->arg1, out, 0);
-            fprintf(out, " => ");
-            iml_operand_print(self->arg2, out, 0);
-            fprintf(out, "\n");
+            print_binary_op(self, out, indention);
             break;
         case iml_add:
-            fprintf_indent(out, indention, "add ");
-            iml_operand_print(self->arg1, out, 0);
-            fprintf(out, ", ");
-            iml_operand_print(self->arg2, out, 0);
-            fprintf(out, " => ");
-            iml_operand_print(self->arg3, out, 0);
-            fprintf(out, "\n");
-            break;
         case iml_sub:
-            fprintf_indent(out, indention, "sub ");
-            iml_operand_print(self->arg1, out, 0);
-            fprintf(out, ", ");
-            iml_operand_print(self->arg2, out, 0);
-            fprintf(out, " => ");
-            iml_operand_print(self->arg3, out, 0);
-            fprintf(out, "\n");
+        case iml_equal:
+        case iml_nequal:
+            print_ternary_op(self, out, indention);
             break;
         case iml_call:
         case iml_call_c:
@@ -154,6 +139,68 @@ iml_operation_print(iml_operation_t *self,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static void
+print_binary_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+
+    gchar *op_name;
+
+    switch (op->opcode)
+    {
+        case iml_copy:
+            op_name = "copy";
+            break;
+        case iml_cast:
+            op_name = "cast";
+            break;
+        default:
+            /* unexpected opcode */
+            assert(false);
+    }
+
+    fprintf_indent(out, indention, "%s ", op_name);
+    iml_operand_print(op->arg1, out, 0);
+    fprintf(out, " => ");
+    iml_operand_print(op->arg2, out, 0);
+    fprintf(out, "\n");
+}
+
+static void
+print_ternary_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+
+    gchar *op_name;
+
+    switch (op->opcode)
+    {
+        case iml_add:
+            op_name = "add";
+            break;
+        case iml_sub:
+            op_name = "sub";
+            break;
+        case iml_equal:
+            op_name = "equal";
+            break;
+        case iml_nequal:
+            op_name = "nequal";
+            break;
+        default:
+            /* unexpected opcode */
+            assert(false);
+    }
+
+    fprintf_indent(out, indention, "%s ", op_name);
+    iml_operand_print(op->arg1, out, 0);
+    fprintf(out, ", ");
+    iml_operand_print(op->arg2, out, 0);
+    fprintf(out, " => ");
+    iml_operand_print(op->arg3, out, 0);
+    fprintf(out, "\n");
+}
 
 static void
 print_return_op(iml_operation_t *op, FILE *out, int indention)

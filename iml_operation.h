@@ -16,6 +16,8 @@ typedef enum iml_opcode_e
 {
     iml_add,
     iml_sub,
+    iml_equal,
+    iml_nequal,
     iml_copy,
     iml_call,
     iml_call_c,

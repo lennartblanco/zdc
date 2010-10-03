@@ -296,6 +296,12 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
         case ast_minus_op:
             opcode = iml_sub;
             break;
+        case ast_equal_op:
+            opcode = iml_equal;
+            break;
+        case ast_not_equal_op:
+            opcode = iml_nequal;
+            break;
         default:
             /* unexpected binary operation type */
             assert(false);
