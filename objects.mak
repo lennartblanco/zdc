@@ -1,6 +1,4 @@
-X86_TRGT_OBJS := x86.o x86_data.o x86_cast.o x86_reg_location.o  x86_array.o  \
-        x86_frame_offset.o x86_if_else.o x86_code_block.o x86_while.o         \
-        x86_foreach.o
+X86_TRGT_OBJS := x86.o x86_data.o
 
 ARM_TRGT_OBJS := arm.o
 
