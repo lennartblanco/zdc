@@ -573,13 +573,160 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
     assert(iml_operation_get_opcode(op) == iml_equal ||
            iml_operation_get_opcode(op) == iml_nequal);
 
-//    Syntax
-//    cmpl <reg>,<reg>
-//    cmpl <reg>,<mem>
-//    cmpl <mem>,<reg>
-//    cmpl <reg>,<con>
-    /* not implemented */
-    assert(false);
+    ImlOperand *left = iml_operation_get_operand(op, 1);
+    ImlOperand *right = iml_operation_get_operand(op, 2);
+    ImlVariable *res = iml_operation_get_operand(op, 3);
+    const char *left_reg = NULL;
+    const char *right_reg = NULL;
+    iml_register_t *res_reg;
+    const char *set_suffix;
+
+/*
+ * Possible operands combinations.
+ *
+ *    r register
+ *    m memory
+ *    c constant
+ *
+ *      |  r   m   c
+ *    ---------------
+ *    r | r-r r-m r-c
+ *      |
+ *    m | m-r m-m m-c
+ *      |
+ *    c | c-r c-m n/a
+ *
+ * Usage of temporary register for right operand.
+ *
+ *    r-r
+ *    r-m
+ *    r-c - move right to temp reg => r-r
+ *    m-r
+ *    m-m - move right to temp reg => m-r
+ *    m-c - move right to temp reg => m-r
+ *    c-r
+ *    c-m - move right to temp reg => c-r
+ */
+
+
+    /*
+     * figure out if left operand is stored in register and
+     * which one if it is
+     */
+    if (IML_IS_VARIABLE(left))
+    {
+        iml_register_t *reg;
+
+        reg = iml_variable_get_register(IML_VARIABLE(left));
+        if (reg != NULL)
+        {
+            left_reg = iml_register_get_name(reg);
+        }
+    }
+
+    /*
+     * Store right operand in temporary register if needed.
+     * Save the name of the register where right operand is stored, if any.
+     */
+    if (IML_IS_CONSTANT(right))
+    {
+        fprintf(out,
+                "    movl $%d, %%" TEMP_REG_NAME "\n",
+                iml_constant_get_val_32b(IML_CONSTANT(right)));
+        right_reg = TEMP_REG_NAME;
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(right));
+        iml_register_t *reg;
+
+        reg = iml_variable_get_register(IML_VARIABLE(right));
+        if (reg != NULL)
+        {
+            right_reg = iml_register_get_name(reg);
+        }
+        else if (left_reg == NULL)
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%" TEMP_REG_NAME "\n",
+                    iml_variable_get_frame_offset(IML_VARIABLE(right)));
+            right_reg = TEMP_REG_NAME;
+        }
+    }
+
+    /*
+     * Compare left and right operands.
+     * Generate appropriate assembly depending on how
+     * left and right operands are stored.
+     */
+    if (left_reg != NULL && right_reg != NULL)
+    {
+        fprintf(out,
+                "    cmpl %%%s, %%%s\n",
+                left_reg, right_reg);
+    }
+    else if (left_reg != NULL)
+    {
+        assert(right_reg == NULL);
+        fprintf(out,
+                "    cmpl %%%s, %d(%%ebp)\n",
+                left_reg,
+                iml_variable_get_frame_offset(IML_VARIABLE(right)));
+    }
+    else if (IML_IS_CONSTANT(left))
+    {
+        assert(right_reg != NULL);
+        fprintf(out,
+                "    cmpl $%d, %%%s\n",
+                iml_constant_get_val_32b(IML_CONSTANT(left)),
+                right_reg);
+    }
+    else
+    {
+        assert(left_reg == NULL);
+        assert(right_reg != NULL);
+        fprintf(out,
+                "    cmpl %d(%%ebp), %%%s\n",
+                iml_variable_get_frame_offset(IML_VARIABLE(left)),
+                right_reg);
+    }
+
+    /* pick set assembly operation suffix depending on iml operation */
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_equal:
+            set_suffix = "e";
+            break;
+        case iml_nequal:
+            set_suffix = "ne";
+            break;
+        default:
+            /* unexpected opcode */
+            assert(false);
+    }
+
+    /* set cl register depending on the results of cmp operation */
+    fprintf(out,
+            "    set%s %%cl\n",
+            set_suffix);
+
+    /*
+     * move result to destination variable
+     */
+    res_reg = iml_variable_get_register(res);
+    if (res_reg != NULL)
+    {
+        fprintf(out,
+                "    movsx %%cl, %%%s\n",
+                iml_register_get_name(res_reg));
+    }
+    else
+    {
+        fprintf(out,
+                "    movsx %%cl, %%ecx\n"
+                "    movl %%ecx, %d(%%ebp)\n",
+                iml_variable_get_frame_offset(res));
+    }
 }
 
 /**
