@@ -54,7 +54,7 @@ unescape_char_literal(char *str, int len);
 "foreach" { return TOK_FOREACH; }
 "immutable" { return TOK_IMMUTABLE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
-[0-9]+   { yylval.integer = atoi(yytext); return TOK_INT_CONST; }
+(\+|-)*[0-9]+   { yylval.integer = atoi(yytext); return TOK_INT_CONST; }
 [0-9]+("u"|"U") {  yylval.uinteger = atoi(yytext); return TOK_UINT_CONST; }
 "'"."'"  { yylval.character = (guint8)yytext[1]; return TOK_CHAR_CONST; }
 "'"\\."'" {
