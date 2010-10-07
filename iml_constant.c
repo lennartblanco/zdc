@@ -94,7 +94,7 @@ iml_constant_do_print(ImlOperand *self, FILE *out, guint indention)
 
     ImlConstant *constant = IML_CONSTANT(self);
 
-    fprintf_indent(out, indention, "%u", constant->value);
+    fprintf_indent(out, indention, "0x%x", constant->value);
 }
 
 static void
