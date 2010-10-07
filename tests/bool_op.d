@@ -1,3 +1,5 @@
+//todo: add tests on unsiged <, >, <=, >=, == and != operations
+
 bool
 return_true()
 {

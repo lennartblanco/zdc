@@ -219,6 +219,66 @@ dt_to_iml_type(DtDataType *dt_type)
     return iml_type;
 }
 
+/**
+ * Map IR binary operation to IML opcode
+ */
+static iml_opcode_t
+get_iml_opcode_binop(IrBinaryOperation *op)
+{
+    iml_opcode_t opcode;
+    DtBasicType *operands_type;
+
+    operands_type =
+        DT_BASIC_TYPE(
+                ir_expression_get_data_type(ir_binary_operation_get_left(op)));
+
+    /* right operand must be of same data type */
+    assert(
+        dt_data_type_is_same(DT_DATA_TYPE(operands_type),
+            ir_expression_get_data_type(ir_binary_operation_get_right(op))));
+
+    switch (ir_binary_operation_get_operation(op))
+    {
+        case ast_plus_op:
+            opcode = iml_add;
+            break;
+        case ast_minus_op:
+            opcode = iml_sub;
+            break;
+        case ast_equal_op:
+            opcode = iml_equal;
+            break;
+        case ast_not_equal_op:
+            opcode = iml_nequal;
+            break;
+        case ast_less_op:
+            opcode =
+                dt_basic_type_is_signed(operands_type) ? iml_sless : iml_uless;
+            break;
+        case ast_greater_op:
+            opcode =
+                dt_basic_type_is_signed(operands_type) ? iml_sgreater :
+                                                         iml_ugreater;
+            break;
+        case ast_less_or_eq_op:
+            opcode =
+                dt_basic_type_is_signed(operands_type) ? iml_slesseq :
+                                                         iml_ulesseq;
+            break;
+        case ast_greater_or_eq_op:
+            opcode =
+                dt_basic_type_is_signed(operands_type) ? iml_sgreatereq :
+                                                         iml_ugreatereq;
+            break;
+        default:
+            /* unexpected binary operation type */
+            assert(false);
+    }
+
+
+    return opcode;
+}
+
 static ImlConstant *
 ir_constant_to_iml(IrConstant *constant)
 {
@@ -288,24 +348,7 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op)
 
     res = iml_func_frame_get_temp(frame, iml_type);
 
-    switch (ir_binary_operation_get_operation(bin_op))
-    {
-        case ast_plus_op:
-            opcode = iml_add;
-            break;
-        case ast_minus_op:
-            opcode = iml_sub;
-            break;
-        case ast_equal_op:
-            opcode = iml_equal;
-            break;
-        case ast_not_equal_op:
-            opcode = iml_nequal;
-            break;
-        default:
-            /* unexpected binary operation type */
-            assert(false);
-    }
+    opcode = get_iml_opcode_binop(bin_op);
 
     ir_function_add_operation(function,
                               iml_operation_new(opcode, left, right, res));

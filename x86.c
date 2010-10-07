@@ -571,10 +571,20 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_equal ||
-           iml_operation_get_opcode(op) == iml_nequal);
+           iml_operation_get_opcode(op) == iml_nequal ||
+           iml_operation_get_opcode(op) == iml_sless ||
+           iml_operation_get_opcode(op) == iml_uless ||
+           iml_operation_get_opcode(op) == iml_slesseq ||
+           iml_operation_get_opcode(op) == iml_ulesseq ||
+           iml_operation_get_opcode(op) == iml_sgreater ||
+           iml_operation_get_opcode(op) == iml_ugreater ||
+           iml_operation_get_opcode(op) == iml_sgreatereq ||
+           iml_operation_get_opcode(op) == iml_ugreatereq);
 
-    ImlOperand *left = iml_operation_get_operand(op, 1);
-    ImlOperand *right = iml_operation_get_operand(op, 2);
+
+
+    ImlOperand *left = iml_operation_get_operand(op, 2);
+    ImlOperand *right = iml_operation_get_operand(op, 1);
     ImlVariable *res = iml_operation_get_operand(op, 3);
     const char *left_reg = NULL;
     const char *right_reg = NULL;
@@ -699,6 +709,30 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
             break;
         case iml_nequal:
             set_suffix = "ne";
+            break;
+        case iml_sless:
+            set_suffix = "l";
+            break;
+        case iml_uless:
+            set_suffix = "b";
+            break;
+        case iml_slesseq:
+            set_suffix = "le";
+            break;
+        case iml_ulesseq:
+            set_suffix = "be";
+            break;
+        case iml_sgreater:
+            set_suffix = "g";
+            break;
+        case iml_ugreater:
+            set_suffix = "a";
+            break;
+        case iml_sgreatereq:
+            set_suffix = "ge";
+            break;
+        case iml_ugreatereq:
+            set_suffix = "ae";
             break;
         default:
             /* unexpected opcode */
@@ -879,6 +913,14 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_equal:
             case iml_nequal:
+            case iml_sless:
+            case iml_uless:
+            case iml_sgreater:
+            case iml_ugreater:
+            case iml_slesseq:
+            case iml_ulesseq:
+            case iml_sgreatereq:
+            case iml_ugreatereq:
                 x86_compile_icmp(params->out, op);
                 break;
             case iml_call:

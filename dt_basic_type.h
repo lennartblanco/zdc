@@ -49,4 +49,7 @@ dt_basic_type_new(basic_data_type_t data_type);
 basic_data_type_t
 dt_basic_type_get_data_type(DtBasicType *self);
 
+bool
+dt_basic_type_is_signed(DtBasicType *self);
+
 #endif /* DT_BASIC_TYPE_INC_X */

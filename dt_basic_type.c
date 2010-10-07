@@ -78,6 +78,28 @@ dt_basic_type_get_data_type(DtBasicType *self)
     return self->data_type;
 }
 
+bool
+dt_basic_type_is_signed(DtBasicType *self)
+{
+    bool is_signed;
+
+    switch (self->data_type)
+    {
+        case int_type:
+            is_signed = true;
+            break;
+        case char_type:
+        case uint_type:
+            is_signed = false;
+            break;
+        default:
+            /* signess not defined for this data type */
+            assert(false);
+    }
+
+    return is_signed;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

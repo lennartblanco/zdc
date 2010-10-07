@@ -62,6 +62,14 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_sub:
         case iml_equal:
         case iml_nequal:
+        case iml_sless:
+        case iml_uless:
+        case iml_sgreater:
+        case iml_ugreater:
+        case iml_slesseq:
+        case iml_ulesseq:
+        case iml_sgreatereq:
+        case iml_ugreatereq:
         case iml_call:
         case iml_call_c:
             op->arg1 = va_arg(argp, ImlOperand *);
@@ -124,6 +132,14 @@ iml_operation_print(iml_operation_t *self,
         case iml_sub:
         case iml_equal:
         case iml_nequal:
+        case iml_sless:
+        case iml_uless:
+        case iml_sgreater:
+        case iml_ugreater:
+        case iml_slesseq:
+        case iml_ulesseq:
+        case iml_sgreatereq:
+        case iml_ugreatereq:
             print_ternary_op(self, out, indention);
             break;
         case iml_call:
@@ -187,6 +203,30 @@ print_ternary_op(iml_operation_t *op, FILE *out, int indention)
             break;
         case iml_nequal:
             op_name = "nequal";
+            break;
+        case iml_sless:
+            op_name = "sless";
+            break;
+        case iml_uless:
+            op_name = "uless";
+            break;
+        case iml_sgreater:
+            op_name = "sgreater";
+            break;
+        case iml_ugreater:
+            op_name = "ugreater";
+            break;
+        case iml_slesseq:
+            op_name = "slesseq";
+            break;
+        case iml_ulesseq:
+            op_name = "ulesseq";
+            break;
+        case iml_sgreatereq:
+            op_name = "sgreatereq";
+            break;
+        case iml_ugreatereq:
+            op_name = "ugreatereq";
             break;
         default:
             /* unexpected opcode */
