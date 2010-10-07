@@ -583,122 +583,126 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
 
 
 
-    ImlOperand *left = iml_operation_get_operand(op, 2);
-    ImlOperand *right = iml_operation_get_operand(op, 1);
+    ImlOperand *arg2 = iml_operation_get_operand(op, 1);
+    ImlOperand *arg1 = iml_operation_get_operand(op, 2);
     ImlVariable *res = iml_operation_get_operand(op, 3);
-    const char *left_reg = NULL;
-    const char *right_reg = NULL;
+    const char *arg1_reg = NULL;
+    const char *arg2_reg = NULL;
     iml_register_t *res_reg;
     const char *set_suffix;
 
 /*
+ * cmpl operations syntax is:
+ *
+ * cmpl arg2, arg1
+ *
+ * cmpl will perform "arg1 - arg2" and set EFLAGS
+ *
  * Possible operands combinations.
  *
  *    r register
  *    m memory
  *    c constant
  *
- *      |  r   m   c
- *    ---------------
- *    r | r-r r-m r-c
- *      |
- *    m | m-r m-m m-c
- *      |
- *    c | c-r c-m n/a
+ *            arg1
+ *       |  r   m   c
+ *     ---------------
+ * a   r | r r r m r c
+ * r     |
+ * g   m | m r m m m c
+ * 2     |
+ *     c | c r c m n/a
  *
- * Usage of temporary register for right operand.
+ * Usage of temporary register for arg1 operand.
  *
- *    r-r
- *    r-m
- *    r-c - move right to temp reg => r-r
- *    m-r
- *    m-m - move right to temp reg => m-r
- *    m-c - move right to temp reg => m-r
- *    c-r
- *    c-m - move right to temp reg => c-r
+ *    r r
+ *    r m
+ *    r c - move arg1 to temp reg => r r
+ *    m r
+ *    m m - move arg1 to temp reg => m r
+ *    m c - move arg1 to temp reg => m r
+ *    c r
  */
 
-
     /*
-     * figure out if left operand is stored in register and
+     * figure out if arg1 operand is stored in register and
      * which one if it is
      */
-    if (IML_IS_VARIABLE(left))
+    if (IML_IS_VARIABLE(arg1))
     {
         iml_register_t *reg;
 
-        reg = iml_variable_get_register(IML_VARIABLE(left));
+        reg = iml_variable_get_register(IML_VARIABLE(arg1));
         if (reg != NULL)
         {
-            left_reg = iml_register_get_name(reg);
+            arg1_reg = iml_register_get_name(reg);
         }
     }
 
     /*
-     * Store right operand in temporary register if needed.
-     * Save the name of the register where right operand is stored, if any.
+     * Store arg2 operand in temporary register if needed.
+     * Save the name of the register where arg2 operand is stored, if any.
      */
-    if (IML_IS_CONSTANT(right))
+    if (IML_IS_CONSTANT(arg2))
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG_NAME "\n",
-                iml_constant_get_val_32b(IML_CONSTANT(right)));
-        right_reg = TEMP_REG_NAME;
+                iml_constant_get_val_32b(IML_CONSTANT(arg2)));
+        arg2_reg = TEMP_REG_NAME;
     }
     else
     {
-        assert(IML_IS_VARIABLE(right));
+        assert(IML_IS_VARIABLE(arg2));
         iml_register_t *reg;
 
-        reg = iml_variable_get_register(IML_VARIABLE(right));
+        reg = iml_variable_get_register(IML_VARIABLE(arg2));
         if (reg != NULL)
         {
-            right_reg = iml_register_get_name(reg);
+            arg2_reg = iml_register_get_name(reg);
         }
-        else if (left_reg == NULL)
+        else if (arg1_reg == NULL)
         {
             fprintf(out,
                     "    movl %d(%%ebp), %%" TEMP_REG_NAME "\n",
-                    iml_variable_get_frame_offset(IML_VARIABLE(right)));
-            right_reg = TEMP_REG_NAME;
+                    iml_variable_get_frame_offset(IML_VARIABLE(arg2)));
+            arg2_reg = TEMP_REG_NAME;
         }
     }
 
     /*
-     * Compare left and right operands.
-     * Generate appropriate assembly depending on how
-     * left and right operands are stored.
+     * Compare arg2 and arg1 operands.
+     * Generate appropriate assembly depending on how operands are stored.
      */
-    if (left_reg != NULL && right_reg != NULL)
+    if (arg1_reg != NULL && arg2_reg != NULL)
     {
         fprintf(out,
                 "    cmpl %%%s, %%%s\n",
-                left_reg, right_reg);
+                arg1_reg, arg2_reg);
     }
-    else if (left_reg != NULL)
+    else if (arg1_reg != NULL)
     {
-        assert(right_reg == NULL);
+        assert(arg2_reg == NULL);
         fprintf(out,
                 "    cmpl %%%s, %d(%%ebp)\n",
-                left_reg,
-                iml_variable_get_frame_offset(IML_VARIABLE(right)));
+                arg1_reg,
+                iml_variable_get_frame_offset(IML_VARIABLE(arg2)));
     }
-    else if (IML_IS_CONSTANT(left))
+    else if (IML_IS_CONSTANT(arg1))
     {
-        assert(right_reg != NULL);
+        assert(arg2_reg != NULL);
         fprintf(out,
                 "    cmpl $%d, %%%s\n",
-                iml_constant_get_val_32b(IML_CONSTANT(left)),
-                right_reg);
+                iml_constant_get_val_32b(IML_CONSTANT(arg1)),
+                arg2_reg);
     }
     else
     {
-        assert(left_reg == NULL);
-        assert(right_reg != NULL);
+        assert(arg1_reg == NULL);
+        assert(arg2_reg != NULL);
         fprintf(out,
                 "    cmpl %d(%%ebp), %%%s\n",
-                iml_variable_get_frame_offset(IML_VARIABLE(left)),
-                right_reg);
+                iml_variable_get_frame_offset(IML_VARIABLE(arg1)),
+                arg2_reg);
     }
 
     /* pick set assembly operation suffix depending on iml operation */
