@@ -708,8 +708,24 @@ mult_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
+|   unary_expression<n>
+;
+
+unary_expression<n> :
+   '!' primary<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op, x.expression)); 
+    }
+|   '-' primary<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
+                                                   x.expression));
+    }
 |   postfix_expression<n>
 ;
+
 
 postfix_expression<n> :
     postfix_expression<exp> '.' TOK_IDENT<name>
@@ -728,10 +744,15 @@ primary<n> :
         (*n).expression =
             AST_EXPRESSION(ast_int_constant_new(x.integer, yypos));
     }
+|   '-' TOK_INT_CONST<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_int_constant_new(-x.integer, yypos));
+    }
 |   TOK_UINT_CONST<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_uint_constant_new(x.uinteger, yypos));
+            AST_EXPRESSION(ast_uint_constant_new(x.integer, yypos));
     }
 |   TOK_CHAR_CONST<x>
     {
@@ -756,17 +777,6 @@ primary<n> :
     }
 |   func_call<n>
 |   '(' expression<n> ')'
-|   '!' primary<x>
-    {
-        (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op, x.expression)); 
-    }
-|   '-' primary<x> 
-    {
-        (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
-                                                   x.expression)); 
-    }
 |   TOK_IDENT<name> '[' expression<i> ']'
     {
         (*n).expression =

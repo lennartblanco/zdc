@@ -12,8 +12,7 @@ union yystype_u
 {
     char                       *text;
     guint8                     character;
-    gint32                     integer;
-    guint32                    uinteger;
+    guint64                    integer;
     DtDataType                 *data_type;
     AstModule                  *module;
     AstEnumMember              *enum_member;
