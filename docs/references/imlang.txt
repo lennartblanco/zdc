@@ -101,10 +101,10 @@ return [value]
 jump label
   unconditional jump
 
-jump_true condition, label
+jumpt condition, label
   jump to label if condition is true
 
-jump_false condition, label
+jumpf condition, label
   jump to label if condition is false
 
 call function_name, (arg0, arg1, ..., argN) [ => res ]
