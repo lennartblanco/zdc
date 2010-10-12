@@ -35,17 +35,13 @@ sub left, right => res
    - all operands are of same type
   - constants are not allowed for <res>
 
-imult left, right => res
- signed multiplication
-
-idiv left, right => res
- signed division
-
-usub left, right => res
-
+smult left, right => res
 umult left, right => res
+ signed/unsigned multiplication
 
+sdiv left, right => res
 udiv left, right => res
+  signed/unsigned division
 
 equal left, right => res
   signed/unsigned equal comparison, res = (left == right)

@@ -562,6 +562,20 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
     }
 }
 
+static void
+x86_compile_mult(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_smult ||
+           iml_operation_get_opcode(op) == iml_umult);
+    x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
+    x86_move_to_reg(out, TEMP_REG_NAME, iml_operation_get_operand(op, 2));
+    fprintf(out,
+            "    %smul %%" TEMP_REG_NAME "\n",
+            iml_operation_get_opcode(op) == iml_smult ? "i" : "");
+    x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
+}
+
 /**
  * Generate assembly for integer comparison operations
  * (iml_equal and iml_nequal)
@@ -914,6 +928,10 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_add:
             case iml_sub:
                 x86_compile_binop(params->out, op);
+                break;
+            case iml_umult:
+            case iml_smult:
+                x86_compile_mult(params->out, op);
                 break;
             case iml_equal:
             case iml_nequal:

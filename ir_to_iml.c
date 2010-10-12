@@ -245,6 +245,11 @@ get_iml_opcode_binop(IrBinaryOperation *op)
         case ast_minus_op:
             opcode = iml_sub;
             break;
+        case ast_mult_op:
+            opcode =
+                dt_basic_type_is_signed(operands_type) ? iml_smult :
+                                                         iml_umult;
+            break;
         case ast_equal_op:
             opcode = iml_equal;
             break;
