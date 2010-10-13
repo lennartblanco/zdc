@@ -4,6 +4,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
+#include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_cast.h"
 #include "iml_constant.h"
@@ -18,6 +19,9 @@
 
 static ImlConstant *
 ir_constant_to_iml(IrConstant *constant);
+
+static ImlOperand *
+iml_add_unary_op_eval(IrFunctionDef *function, IrUnaryOperation *op);
 
 static ImlOperand *
 iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op);
@@ -54,6 +58,11 @@ iml_add_expression_eval(IrFunctionDef *function,
             IML_OPERAND(
                 ir_variable_get_location(
                     ir_scalar_get_variable(IR_SCALAR(ir_expression))));
+    }
+    else if (IR_IS_UNARY_OPERATION(ir_expression))
+    {
+        return
+            iml_add_unary_op_eval(function, IR_UNARY_OPERATION(ir_expression));
     }
     else if (IR_IS_BINARY_OPERATION(ir_expression))
     {
@@ -330,6 +339,34 @@ ir_constant_to_iml(IrConstant *constant)
             /* unexpected type */
             assert(false);
     }
+}
+
+static ImlOperand *
+iml_add_unary_op_eval(IrFunctionDef *function, IrUnaryOperation *op)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_UNARY_OPERATION(op));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *operand;
+    ImlVariable *res;
+    iml_data_type_t iml_type;
+
+    /* only arithmetic negation implemented */
+    assert(ir_unary_operation_get_operation(op) == ast_arithm_neg_op);
+
+    operand = iml_add_expression_eval(function,
+                                      ir_unary_operation_get_operand(op));
+
+    /* derive iml data type for temp variable */
+    iml_type =
+        dt_to_iml_type(ir_expression_get_data_type(IR_EXPRESSION(op)));
+
+    res = iml_func_frame_get_temp(frame, iml_type);
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_ineg, operand, res));
+    return IML_OPERAND(res);
 }
 
 static ImlOperand *

@@ -371,6 +371,44 @@ x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
     }
 }
 
+/**
+ * Generate assembly that will move operand value to an frame offset.
+ */
+static void
+x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
+{
+    assert(IML_IS_OPERAND(oper));
+
+    if (IML_IS_CONSTANT(oper))
+    {
+        /* not imlemented */
+        assert(false);
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(oper));
+        ImlVariable *var = IML_VARIABLE(oper);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == NULL)
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%" TEMP_REG_NAME "\n"
+                    "    movl %%" TEMP_REG_NAME ", %d(%%ebp)\n",
+                    iml_variable_get_frame_offset(var),
+                    frame_offset);
+        }
+        else
+        {
+            assert(false); /* code below not tested */
+            fprintf(out,
+                    "    movl %%%s, %d(%%ebp)\n",
+                    iml_register_get_name(reg), frame_offset);
+
+        }
+    }
+}
+
 static void
 x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 {
@@ -574,6 +612,35 @@ x86_compile_mult(FILE *out, iml_operation_t *op)
             "    %smul %%" TEMP_REG_NAME "\n",
             iml_operation_get_opcode(op) == iml_smult ? "i" : "");
     x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
+}
+
+static void
+x86_compile_ineg(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_ineg);
+
+    ImlOperand *oper;
+    ImlVariable *res;
+    iml_register_t *res_reg;
+
+    oper = IML_OPERAND(iml_operation_get_operand(op, 1));
+    res = IML_VARIABLE(iml_operation_get_operand(op, 2));
+
+    res_reg = iml_variable_get_register(res);
+    if (res_reg == NULL) {
+        x86_move_to_offset(out,
+                           iml_variable_get_frame_offset(res),
+                           oper);
+        fprintf(out,
+                "    negl %d(%%ebp)\n",
+                iml_variable_get_frame_offset(res));
+    }
+    else
+    {
+        x86_move_to_reg(out, iml_register_get_name(res_reg), oper);
+        fprintf(out, "    negl %%%s\n", iml_register_get_name(res_reg));
+    }
 }
 
 /**
@@ -932,6 +999,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_umult:
             case iml_smult:
                 x86_compile_mult(params->out, op);
+                break;
+            case iml_ineg:
+                x86_compile_ineg(params->out, op);
                 break;
             case iml_equal:
             case iml_nequal:

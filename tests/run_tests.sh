@@ -6,8 +6,9 @@ tests="empty "\
 "comments "\
 "uninit_vars "\
 "extern_c "\
-"eels"
-#"neg func_call "\
+"eels "\
+"neg"
+# func_call "\
 #"implicit_cast "\
 #"bool_op "\
 #"uint_op "\
