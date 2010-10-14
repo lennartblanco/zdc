@@ -58,6 +58,9 @@ iml_constant_new_16b(guint16 val);
 ImlConstant *
 iml_constant_new_32b(guint32 val);
 
+guint8
+iml_constant_get_val_8b(ImlConstant *self);
+
 guint32
 iml_constant_get_val_32b(ImlConstant *self);
 

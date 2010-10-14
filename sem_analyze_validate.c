@@ -27,6 +27,7 @@
 #include "ir_to_iml.h"
 #include "const_fold.h"
 #include "errors.h"
+#include "iml_constant.h"
 #include "iml_register.h"
 
 #include <assert.h>
@@ -126,7 +127,8 @@ validate_assigment(compilation_status_t *compile_status,
 static void
 validate_if_block(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
-                  IrIfBlock *if_block);
+                  IrIfBlock *if_block,
+                  iml_operation_t *end_label);
 
 static void
 validate_if_else(compilation_status_t *compile_status,
@@ -923,13 +925,20 @@ validate_assigment(compilation_status_t *compile_status,
                               iml_operation_new(iml_copy, res_val, dest));
 }
 
+/**
+ * @param end_label if not NULL, inserts a jump operation as the
+ *                  last statment of the if-blocks body
+ */
 static void
 validate_if_block(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
-                  IrIfBlock *if_block)
+                  IrIfBlock *if_block,
+                  iml_operation_t *end_label)
 {
     IrExpression *condition;
     IrCodeBlock *body;
+    ImlOperand *condition_eval_res;
+    iml_operation_t *skip_label;
 
     /* validate if condition expression */
     condition = ir_if_block_get_condition(if_block);
@@ -948,9 +957,37 @@ validate_if_block(compilation_status_t *compile_status,
     }
     ir_if_block_set_condition(if_block, condition);
 
+    /* generate iml operation for validation of condition expression */
+    condition_eval_res = iml_add_expression_eval(compile_status->function,
+                                                 condition);
+
+    /*
+     * add conditional jump operation if
+     * the condition expression evaluates for false
+     */
+    skip_label = iml_operation_new(iml_label);
+    ir_function_add_operation(
+            compile_status->function,
+            iml_operation_new(iml_jmpneq,
+                              condition_eval_res,
+                              iml_constant_new_8b(1),
+                              iml_operation_get_operand(skip_label, 1)));
+
     /* validate if body */
     body = ir_if_block_get_body(if_block);
     validate_code_block(compile_status, body);
+
+    /* add jump operation past the rest of if-else bodies if needed */
+    if (end_label != NULL)
+    {
+        ir_function_add_operation(
+                compile_status->function,
+                iml_operation_new(iml_jmp,
+                                  iml_operation_get_operand(end_label, 1)));
+    }
+
+    /* insert the skip label */
+    ir_function_add_operation(compile_status->function, skip_label);
 }
 
 static void
@@ -960,20 +997,36 @@ validate_if_else(compilation_status_t *compile_status,
 {
    GSList *i;
    IrCodeBlock *else_body;
-   
+   iml_operation_t *end_label = NULL;
+
+   i = ir_if_else_get_if_else_blocks(if_else);
+   else_body = ir_if_else_get_else_body(if_else);
+
+   /* if there is any 'else-if' or 'else' statments, generate an end label */
+   if (g_slist_next(i) != NULL || else_body != NULL)
+   {
+     end_label = iml_operation_new(iml_label);
+   }
 
    /* validate if-blocks */
-   i = ir_if_else_get_if_else_blocks(if_else);
    for (; i != NULL; i = g_slist_next(i))
    {
-       validate_if_block(compile_status, sym_table, IR_IF_BLOCK(i->data));
+       validate_if_block(compile_status,
+                         sym_table,
+                         IR_IF_BLOCK(i->data),
+                         end_label);
    }
 
    /* validate else-body */
-   else_body = ir_if_else_get_else_body(if_else);
    if (else_body != NULL)
    {
        validate_code_block(compile_status, else_body);
+   }
+
+   /* insert end label if needed */
+   if (end_label != NULL)
+   {
+       ir_function_add_operation(compile_status->function, end_label);
    }
 }
 

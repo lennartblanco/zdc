@@ -22,11 +22,17 @@ struct iml_operation_s
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
+static gchar *
+gen_label();
+
 static void
 print_binary_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
 print_ternary_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
+print_jmpcond_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
 print_call_op(iml_operation_t *op, FILE *out, int indention);
@@ -50,7 +56,11 @@ iml_operation_new(iml_opcode_t operation, ...)
     va_start(argp, operation);
     switch (operation)
     {
+        case iml_label:
+            op->arg1 = gen_label();
+            break;
         case iml_return:
+        case iml_jmp:
             op->arg1 = va_arg(argp, ImlOperand *);
             break;
         case iml_copy:
@@ -73,6 +83,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_ulesseq:
         case iml_sgreatereq:
         case iml_ugreatereq:
+        case iml_jmpneq:
         case iml_call:
         case iml_call_c:
             op->arg1 = va_arg(argp, ImlOperand *);
@@ -148,9 +159,18 @@ iml_operation_print(iml_operation_t *self,
         case iml_ugreatereq:
             print_ternary_op(self, out, indention);
             break;
+        case iml_jmp:
+            fprintf_indent(out, indention, "jmp %s\n", self->arg1);
+            break;
+        case iml_jmpneq:
+            print_jmpcond_op(self, out, indention);
+            break;
         case iml_call:
         case iml_call_c:
             print_call_op(self, out, indention);
+            break;
+        case iml_label:
+            fprintf_indent(out, indention-1, "%s:\n", self->arg1);
             break;
         default:
             /* unexpected opcode */
@@ -161,6 +181,14 @@ iml_operation_print(iml_operation_t *self,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static gchar *
+gen_label()
+{
+    static guint cntr = 0;
+
+    return g_strdup_printf(".LIML%u", cntr++);
+}
 
 static void
 print_binary_op(iml_operation_t *op, FILE *out, int indention)
@@ -269,6 +297,19 @@ print_return_op(iml_operation_t *op, FILE *out, int indention)
         iml_operand_print(op->arg1, out, 0);
     }
     fprintf(out, "\n");
+}
+
+static void
+print_jmpcond_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_jmpneq);
+
+    fprintf_indent(out, indention, "jmpneq ");
+    iml_operand_print(op->arg1, out, 0);
+    fprintf(out, ",");
+    iml_operand_print(op->arg2, out, 0);
+    fprintf(out, " => %s\n", (char*)op->arg3);
 }
 
 static void

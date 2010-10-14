@@ -849,6 +849,44 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
     }
 }
 
+static void
+x86_compile_jmpcond(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_jmpneq);
+
+    ImlConstant *arg1 = iml_operation_get_operand(op, 2);
+    ImlVariable *arg2 = iml_operation_get_operand(op, 1);
+    const gchar *label = iml_operation_get_operand(op, 3);
+    iml_register_t *reg;
+
+    /*
+     * only variables as left operand and constant as right operand
+     * are supported at the moment
+     */
+    assert(IML_IS_CONSTANT(arg1));
+    assert(IML_IS_VARIABLE(arg2));
+
+
+    reg = iml_variable_get_register(arg2);
+    if (reg == NULL)
+    {
+        fprintf(out,
+                "    cmpl $%u, %d(%%ebp)\n",
+                iml_constant_get_val_8b(arg1),
+                iml_variable_get_frame_offset(arg2));
+    }
+    else
+    {
+        fprintf(out,
+                "    cmpl $%u, %%%s\n",
+                iml_constant_get_val_8b(arg1),
+                iml_register_get_name(reg));
+    }
+
+    fprintf(out, "    jne %s\n", label);
+}
+
 /**
  * Generate assembly for passing arguments to a D function.
  */
@@ -1016,9 +1054,22 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_ugreatereq:
                 x86_compile_icmp(params->out, op);
                 break;
+            case iml_jmp:
+                fprintf(params->out,
+                        "    jmp %s\n",
+                        (char*)iml_operation_get_operand(op, 1));
+                break;
+            case iml_jmpneq:
+                x86_compile_jmpcond(params->out, op);
+                break;
             case iml_call:
             case iml_call_c:
                 x86_compile_call(params->out, op);
+                break;
+            case iml_label:
+                fprintf(params->out,
+                        "%s:\n",
+                        (char*)iml_operation_get_operand(op, 1));
                 break;
             default:
                 /* unexpected opcode */

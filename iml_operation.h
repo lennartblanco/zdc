@@ -30,10 +30,13 @@ typedef enum iml_opcode_e
     iml_sgreatereq,
     iml_ugreatereq,
     iml_copy,
+    iml_jmp,
+    iml_jmpneq,
     iml_call,
     iml_call_c,
     iml_return,
     iml_cast,
+    iml_label
 } iml_opcode_t;
 
 typedef struct iml_operation_s iml_operation_t;

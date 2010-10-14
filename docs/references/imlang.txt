@@ -94,14 +94,14 @@ return [value]
    - if value operand specified, return with value
    - if value operand is not specified, void return
 
-jump label
-  unconditional jump
+jmp label
+  unconditional jump to specified label
 
-jumpt condition, label
-  jump to label if condition is true
+jmpeq left, right, label
+  jump to label if left == right
 
-jumpf condition, label
-  jump to label if condition is false
+jmpneq left, right, label
+  jumo to label if left != right
 
 call function_name, (arg0, arg1, ..., argN) [ => res ]
  call a function
