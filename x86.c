@@ -675,9 +675,9 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
 /*
  * cmpl operations syntax is:
  *
- * cmpl arg2, arg1
+ * cmpl arg1, arg2
  *
- * cmpl will perform "arg1 - arg2" and set EFLAGS
+ * cmpl will perform "arg2 - arg1" and set EFLAGS
  *
  * Possible operands combinations.
  *
@@ -685,24 +685,25 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
  *    m memory
  *    c constant
  *
- *            arg1
+ *            arg2
  *       |  r   m   c
  *     ---------------
  * a   r | r r r m r c
  * r     |
  * g   m | m r m m m c
- * 2     |
+ * 1     |
  *     c | c r c m n/a
  *
  * Usage of temporary register for arg1 operand.
  *
  *    r r
  *    r m
- *    r c - move arg1 to temp reg => r r
+ *    r c - move arg2 to temp reg => r r
  *    m r
- *    m m - move arg1 to temp reg => m r
- *    m c - move arg1 to temp reg => m r
+ *    m m - move arg2 to temp reg => m r
+ *    m c - move arg2 to temp reg => m r
  *    c r
+ *    c m
  */
 
     /*
