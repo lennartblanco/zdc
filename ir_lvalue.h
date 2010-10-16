@@ -65,7 +65,7 @@ ir_lvalue_get_variable(IrLvalue *self);
  * see ir_variable_get_location(). This function is not defined until
  * an variable was assigned to this lvalue with ir_lvalue_set_variable().
  */
-GObject *
+ImlVariable *
 ir_lvalue_get_location(IrLvalue *self);
 
 #endif /* IR_LVALUE_INC_X */

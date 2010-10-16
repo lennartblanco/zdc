@@ -90,7 +90,7 @@ ir_lvalue_get_variable(IrLvalue *self)
     return self->variable;
 }
 
-GObject *
+ImlVariable *
 ir_lvalue_get_location(IrLvalue *self)
 {
     assert(IR_IS_LVALUE(self));
