@@ -173,7 +173,7 @@ call_unnamed_arg2(int arg1, int arg2)
 }
 
 int
-call_unnamed_arg3(int arg1, bool arg2, int arg3)
+call_unnamed_arg3(int arg1, int arg2, int arg3)
 {
    int res;
 
