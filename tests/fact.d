@@ -14,11 +14,6 @@ fact_rec(int i)
 int
 fact_while(int i)
 {
-    if (i <= 0)
-    {
-        return 1;
-    }
-
     int res = 1;
     while (i > 1)
     {

@@ -9,6 +9,7 @@ tests="empty "\
 "eels "\
 "neg "\
 "if_else "\
+"fact "\
 "func_call "
 #"implicit_cast "\
 #"bool_op "\

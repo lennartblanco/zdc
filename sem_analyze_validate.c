@@ -1036,7 +1036,9 @@ validate_while(compilation_status_t *compile_status,
                IrWhile *while_statment)
 {
     IrExpression *condition;
-    IrCodeBlock *body;
+    ImlOperand *condition_eval_res;
+    iml_operation_t *loop_start;
+    iml_operation_t *loop_end;
 
     /* validate if condition expression */
     condition = ir_while_get_loop_condition(while_statment);
@@ -1060,9 +1062,35 @@ validate_while(compilation_status_t *compile_status,
     }
     ir_while_set_loop_condition(while_statment, condition);
 
-    /* validate if body */
-    body = ir_while_get_body(while_statment);
-    validate_code_block(compile_status, body);
+    /* generate iml labels for start and end of the loop operations */
+    loop_start = iml_operation_new(iml_label);
+    loop_end = iml_operation_new(iml_label);
+
+    /* label the start of loop */
+    ir_function_add_operation(compile_status->function, loop_start);
+    /* insert iml operation for validation of loop condition */
+    condition_eval_res = iml_add_expression_eval(compile_status->function,
+                                                 condition);
+
+    /* jump over loop body unless condition evaluates to true */
+    ir_function_add_operation(
+            compile_status->function,
+            iml_operation_new(iml_jmpneq,
+                              condition_eval_res,
+                              iml_constant_new_8b(1),
+                              iml_operation_get_operand(loop_end, 1)));
+
+    /* validate while body, and all iml operations */
+    validate_code_block(compile_status, ir_while_get_body(while_statment));
+
+    /* jump to loop start */
+    ir_function_add_operation(
+            compile_status->function,
+            iml_operation_new(iml_jmp,
+                              iml_operation_get_operand(loop_start, 1)));
+
+    /* and loop end label */
+    ir_function_add_operation(compile_status->function, loop_end);
 }
 
 static void
