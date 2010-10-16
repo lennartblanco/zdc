@@ -119,6 +119,7 @@ x86_assign_var_locations(iml_func_frame_t *frame)
     GSList *params;
     GSList *i;
     gint offset;
+    ImlVariable *last_param = NULL;
 
     /* assign locations to parameters */
     params = iml_func_frame_get_parameters(frame);
@@ -126,9 +127,8 @@ x86_assign_var_locations(iml_func_frame_t *frame)
     {
         params = g_slist_reverse(g_slist_copy(params));
 
-        /* last parameter is passed via eax register */
-        iml_variable_set_register(IML_VARIABLE(params->data),
-                                  iml_register_new(x86_reg_eax, "eax"));
+        /* deal with last parameter later */
+        last_param = params->data;
 
         for (i = g_slist_next(params), offset = 8;
              i != NULL;
@@ -141,12 +141,19 @@ x86_assign_var_locations(iml_func_frame_t *frame)
         g_slist_free(params);
     }
 
+    offset = -4;
+
+    /* assign frame offset to last parameter if needed */
+    if (last_param != NULL)
+    {
+        iml_variable_set_frame_offset(last_param, offset);
+        offset -= 4;
+    }
+
     /*
      * assign offset location to local variables that
      * have not been assigned a register
      */
-    offset = -4;
-
     i = iml_func_frame_get_locals(frame, iml_32b);
     for (; i != NULL; i = g_slist_next(i))
     {
@@ -989,6 +996,15 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     fprintf(params->out,
             "    enter $%d, $0\n",
             iml_func_frame_get_size(frame));
+
+    /* generate the code to store last parameter in stack frame if needed */
+    i = g_slist_last(iml_func_frame_get_parameters(frame));
+    if (i != NULL)
+    {
+        fprintf(params->out,
+                "    movl %%eax, %d(%%ebp)\n",
+                iml_variable_get_frame_offset(i->data));
+    }
 
     /* store preserved registers value on the stack */
     regs = iml_func_frame_get_used_regs(frame);
