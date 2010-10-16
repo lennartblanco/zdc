@@ -93,7 +93,7 @@ ir_function_def_new(DtDataType *return_type,
     for (; p != NULL; p = g_slist_next(p))
     {
         /* check if this is a named parameter */
-        if (IR_IS_VARIABLE(p->data))
+        if (ir_variable_get_name(IR_VARIABLE(p->data)) != NULL)
         {
           /* add it to function's symbol table */
           sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(p->data));

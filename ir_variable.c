@@ -54,7 +54,6 @@ ir_variable_new(DtDataType *type,
                 guint line_number)
 {
     assert(type);
-    assert(name);
 
     IrVariable *obj;
 

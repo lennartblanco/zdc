@@ -93,6 +93,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
 
     iml_data_type_t iml_datatype;
     DtDataType *ir_datatype;
+    char *var_name;
 
     /* create IML variable of appropriate type */
     ir_datatype = ir_variable_get_data_type(variable);
@@ -111,8 +112,13 @@ add_to_func_frame(IrFunctionDef *parent_function,
         /* unexpected storage size */
         assert(FALSE);
     }
-    ImlVariable *iml_var = iml_variable_new(iml_datatype,
-                                            ir_variable_get_name(variable));
+
+    var_name = ir_variable_get_name(variable);
+    if (var_name == NULL)
+    {
+        var_name = "(anon)";
+    }
+    ImlVariable *iml_var = iml_variable_new(iml_datatype, var_name);
 
     /* add IML variable to function frame */
     iml_func_frame_t *frame = ir_function_def_get_frame(parent_function);

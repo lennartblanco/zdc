@@ -8,8 +8,8 @@ tests="empty "\
 "extern_c "\
 "eels "\
 "neg "\
-"if_else "
-#"func_call "
+"if_else "\
+"func_call "
 #"implicit_cast "\
 #"bool_op "\
 #"uint_op "\

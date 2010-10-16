@@ -389,26 +389,28 @@ func_params_to_ir(GSList *ast_func_params)
 
     for (i = ast_func_params; i != NULL; i = g_slist_next(i))
     {
-        gpointer ir_param;
+        DtDataType *type;
+        char *name = NULL;
+        guint line_num = 0;
 
         if (AST_IS_VARIABLE_DECLARATION(i->data))
         {
             AstVariableDeclaration *ast_var;
             ast_var = AST_VARIABLE_DECLARATION(i->data);
-
-            ir_param = 
-                ir_variable_new(ast_variable_declaration_get_data_type(ast_var),
-                                ast_variable_declaration_get_name(ast_var),
-                                NULL,
-                                ast_node_get_line_num(ast_var));
+            type = ast_variable_declaration_get_data_type(ast_var);
+            name = ast_variable_declaration_get_name(ast_var);
+            line_num = ast_node_get_line_num(ast_var);
         }
         else
         {
             assert(DT_IS_DATA_TYPE(i->data));
             /* an unnamed function parameter, where only type is specified */
-            ir_param = i->data;
+            type = i->data;
         }
-        parameters = g_slist_prepend(parameters, ir_param);
+
+        parameters =
+            g_slist_prepend(parameters,
+                            ir_variable_new(type, name, NULL, line_num));
     }
 
     return g_slist_reverse(parameters);

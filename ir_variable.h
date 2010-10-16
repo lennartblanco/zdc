@@ -59,7 +59,7 @@ ir_variable_get_type(void);
  * Create new IR variable object.
  *
  * @param type variable's data type
- * @param name variable's name
+ * @param name variable's name, or NULL of anonymous variable
  * @param initializer inital value to assign to variable or NULL
  *        to assign default type value
  */

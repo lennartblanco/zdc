@@ -1379,19 +1379,9 @@ validate_function_def(compilation_status_t *compile_status,
     for (; i != NULL; i = g_slist_next(i))
     {
 
-        if (IR_IS_VARIABLE(i->data))
-        {
-            type = ir_variable_get_data_type(IR_VARIABLE(i->data));
-        }
-        else if (DT_IS_DATA_TYPE(i->data))
-        {
-            type = i->data;
-        }
-        else
-        {
-            /* unexpected object type in parameters list */
-            assert(false);
-        }
+        assert(IR_IS_VARIABLE(i->data));
+
+        type = ir_variable_get_data_type(IR_VARIABLE(i->data));
 
         /* resolve user type */
         if (DT_IS_USER_TYPE(type))
@@ -1411,26 +1401,11 @@ validate_function_def(compilation_status_t *compile_status,
              * overwrite the placehold data type object with the
              * found object
              */
-            if (IR_IS_VARIABLE(i->data))
-            {
-                ir_variable_set_data_type(i->data, type);
-            }
-            else
-            {
-                i->data = type;
-            }
+            ir_variable_set_data_type(i->data, type);
         }
 
         /* Add to function frame */
-        if (IR_IS_VARIABLE(i->data))
-        {
-            add_to_func_frame(func_def, IR_VARIABLE(i->data), true);
-        }
-        else if (DT_IS_DATA_TYPE(i->data))
-        {
-            /* @todo: add anonymous parameters to function frame */
-            assert(false); /* not imlemented */
-        }
+        add_to_func_frame(func_def, IR_VARIABLE(i->data), true);
     }
 
     /* resolve possible user types in function return type */
