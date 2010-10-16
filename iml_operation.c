@@ -13,9 +13,9 @@
 struct iml_operation_s
 {
   iml_opcode_t opcode;
-  ImlOperand *arg1;
-  ImlOperand *arg2;
-  ImlOperand *arg3;
+  void *arg1;
+  void *arg2;
+  void *arg3;
 };
 
 /*---------------------------------------------------------------------------*
@@ -61,13 +61,13 @@ iml_operation_new(iml_opcode_t operation, ...)
             break;
         case iml_return:
         case iml_jmp:
-            op->arg1 = va_arg(argp, ImlOperand *);
+            op->arg1 = va_arg(argp, void *);
             break;
         case iml_copy:
         case iml_cast:
         case iml_ineg:
-            op->arg1 = va_arg(argp, ImlOperand *);
-            op->arg2 = va_arg(argp, ImlOperand *);
+            op->arg1 = va_arg(argp, void *);
+            op->arg2 = va_arg(argp, void *);
             break;
         case iml_add:
         case iml_sub:
@@ -86,9 +86,9 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_jmpneq:
         case iml_call:
         case iml_call_c:
-            op->arg1 = va_arg(argp, ImlOperand *);
-            op->arg2 = va_arg(argp, ImlOperand *);
-            op->arg3 = va_arg(argp, ImlOperand *);
+            op->arg1 = va_arg(argp, void *);
+            op->arg2 = va_arg(argp, void *);
+            op->arg3 = va_arg(argp, void *);
             break;
         default:
             /* unexpected opcode */
