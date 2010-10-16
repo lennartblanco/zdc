@@ -7,13 +7,13 @@ tests="empty "\
 "uninit_vars "\
 "extern_c "\
 "eels "\
-"neg"
-# func_call "\
+"neg "\
+"if_else "
+#"func_call "
 #"implicit_cast "\
 #"bool_op "\
 #"uint_op "\
 #"nested_blocks "\
-#"if_else "\
 #"fact "\
 #"while_loop "\
 #"stat_array "\
