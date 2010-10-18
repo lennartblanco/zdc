@@ -11,8 +11,8 @@ tests="empty "\
 "if_else "\
 "while_loop "\
 "func_call "\
-"fact "
-#"implicit_cast "\
+"fact "\
+"implicit_cast "
 #"bool_op "\
 #"uint_op "\
 #"nested_blocks "\
