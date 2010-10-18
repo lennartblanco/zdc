@@ -66,6 +66,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_copy:
         case iml_cast:
         case iml_ineg:
+        case iml_bneg:
             op->arg1 = va_arg(argp, void *);
             op->arg2 = va_arg(argp, void *);
             break;
@@ -141,6 +142,7 @@ iml_operation_print(iml_operation_t *self,
         case iml_copy:
         case iml_cast:
         case iml_ineg:
+        case iml_bneg:
             print_binary_op(self, out, indention);
             break;
         case iml_add:
@@ -207,6 +209,9 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention)
             break;
         case iml_ineg:
             op_name = "ineg";
+            break;
+        case iml_bneg:
+            op_name = "bneg";
             break;
         default:
             /* unexpected opcode */

@@ -357,9 +357,21 @@ iml_add_unary_op_eval(IrFunctionDef *function, IrUnaryOperation *op)
     ImlOperand *operand;
     ImlVariable *res;
     iml_data_type_t iml_type;
+    iml_opcode_t opcode;
 
     /* only arithmetic negation implemented */
-    assert(ir_unary_operation_get_operation(op) == ast_arithm_neg_op);
+    switch (ir_unary_operation_get_operation(op))
+    {
+        case ast_arithm_neg_op:
+            opcode = iml_ineg;
+            break;
+        case ast_bool_neg_op:
+            opcode = iml_bneg;
+            break;
+        default:
+            /* unexpected unary operation */
+            assert(false);
+    }
 
     operand = iml_add_expression_eval(function,
                                       ir_unary_operation_get_operand(op));
@@ -371,7 +383,7 @@ iml_add_unary_op_eval(IrFunctionDef *function, IrUnaryOperation *op)
     res = iml_func_frame_get_temp(frame, iml_type);
 
     ir_function_add_operation(function,
-                              iml_operation_new(iml_ineg, operand, res));
+                              iml_operation_new(opcode, operand, res));
     return IML_OPERAND(res);
 }
 

@@ -615,15 +615,31 @@ x86_compile_mult(FILE *out, iml_operation_t *op)
     x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
 }
 
+/**
+ * Generate assembly for ineg and bneg operations.
+ */
 static void
-x86_compile_ineg(FILE *out, iml_operation_t *op)
+x86_compile_neg(FILE *out, iml_operation_t *op)
 {
     assert(op);
-    assert(iml_operation_get_opcode(op) == iml_ineg);
 
     ImlOperand *oper;
     ImlVariable *res;
     iml_register_t *res_reg;
+    const char *instr;
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_ineg:
+            instr = "negl ";
+            break;
+        case iml_bneg:
+            instr = "xor $1,";
+            break;
+        default:
+            /* unexpected opcode */
+            assert(false);
+    }
 
     oper = IML_OPERAND(iml_operation_get_operand(op, 1));
     res = IML_VARIABLE(iml_operation_get_operand(op, 2));
@@ -634,13 +650,14 @@ x86_compile_ineg(FILE *out, iml_operation_t *op)
                            iml_variable_get_frame_offset(res),
                            oper);
         fprintf(out,
-                "    negl %d(%%ebp)\n",
+                "    %s %d(%%ebp)\n",
+                instr,
                 iml_variable_get_frame_offset(res));
     }
     else
     {
         x86_move_to_reg(out, iml_register_get_name(res_reg), oper);
-        fprintf(out, "    negl %%%s\n", iml_register_get_name(res_reg));
+        fprintf(out, "    %s %%%s\n", instr, iml_register_get_name(res_reg));
     }
 }
 
@@ -1050,7 +1067,8 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 x86_compile_mult(params->out, op);
                 break;
             case iml_ineg:
-                x86_compile_ineg(params->out, op);
+            case iml_bneg:
+                x86_compile_neg(params->out, op);
                 break;
             case iml_equal:
             case iml_nequal:

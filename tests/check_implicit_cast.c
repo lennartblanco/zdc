@@ -41,7 +41,7 @@ call_int1_to_bool()
 }
 
 int
-call_add_bools(bool arg1, bool arg2)
+call_add_bools(int arg1, int arg2)
 {
     int res;
 
