@@ -295,7 +295,6 @@ get_iml_opcode_binop(IrBinaryOperation *op)
             assert(false);
     }
 
-
     return opcode;
 }
 
