@@ -12,8 +12,8 @@ tests="empty "\
 "while_loop "\
 "func_call "\
 "fact "\
-"implicit_cast "
-#"bool_op "\
+"implicit_cast "\
+"bool_op "
 #"uint_op "\
 #"nested_blocks "\
 #"fact "\

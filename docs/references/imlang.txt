@@ -81,6 +81,20 @@ ugreatereq left, right => res
    - res must be 8b variable
    - left and right must be of same data type
 
+and left, right => res
+  bitwise and between left and right, store the result in res
+   - left, right and res must be of same type
+   - either left or right must be a variable
+     (and between constants not supported)
+   - res must be a variable
+
+or left, right => res
+  bitwise or between left and right, store the result in res
+   - left, right and res must be of same type
+   - either left or right must be a variable
+     (or between constants not supported)
+   - res must be a variable
+
 ineg value => res
  signed arithmetic negation of value
   - non of the operans can be constants

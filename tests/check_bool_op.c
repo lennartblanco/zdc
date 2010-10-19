@@ -29,7 +29,7 @@ call_return_false()
 }
 
 bool
-call_invert(bool in)
+call_invert(int in)
 {
    bool res;
 
@@ -203,7 +203,7 @@ call_less_tst3(int in)
 }
 
 bool
-call_and_oper(bool arg1, bool arg2)
+call_and_oper(int arg1, int arg2)
 {
    int res;
 
@@ -218,7 +218,7 @@ call_and_oper(bool arg1, bool arg2)
 }
 
 bool
-call_or_oper(bool arg1, bool arg2)
+call_or_oper(int arg1, int arg2)
 {
    int res;
 

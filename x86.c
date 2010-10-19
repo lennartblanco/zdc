@@ -512,6 +512,12 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
         case iml_sub:
             op_name = "subl";
             break;
+        case iml_and:
+            op_name = "andl";
+            break;
+        case iml_or:
+            op_name = "orl";
+            break;
         default:
             /* unexpeted opcode */
             assert(false);
@@ -1060,6 +1066,8 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_add:
             case iml_sub:
+            case iml_and:
+            case iml_or:
                 x86_compile_binop(params->out, op);
                 break;
             case iml_umult:

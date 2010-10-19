@@ -74,6 +74,8 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_sub:
         case iml_smult:
         case iml_umult:
+        case iml_and:
+        case iml_or:
         case iml_equal:
         case iml_nequal:
         case iml_sless:
@@ -149,6 +151,8 @@ iml_operation_print(iml_operation_t *self,
         case iml_sub:
         case iml_smult:
         case iml_umult:
+        case iml_and:
+        case iml_or:
         case iml_equal:
         case iml_nequal:
         case iml_sless:
@@ -245,6 +249,12 @@ print_ternary_op(iml_operation_t *op, FILE *out, int indention)
             break;
         case iml_umult:
             op_name = "umult";
+            break;
+        case iml_and:
+            op_name = "and";
+            break;
+        case iml_or:
+            op_name = "or";
             break;
         case iml_equal:
             op_name = "equal";

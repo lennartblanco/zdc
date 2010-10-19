@@ -18,6 +18,8 @@ typedef enum iml_opcode_e
     iml_sub,
     iml_smult,
     iml_umult,
+    iml_and,
+    iml_or,
     iml_ineg,
     iml_bneg,
     iml_equal,
