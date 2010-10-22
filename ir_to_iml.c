@@ -109,8 +109,8 @@ add_to_func_frame(IrFunctionDef *parent_function,
         iml_datatype = iml_8b;
         break;
       default:
-        /* unexpected storage size */
-        assert(FALSE);
+        iml_datatype = iml_blob;
+        break;
     }
 
     var_name = ir_variable_get_name(variable);
@@ -118,7 +118,17 @@ add_to_func_frame(IrFunctionDef *parent_function,
     {
         var_name = "(anon)";
     }
-    ImlVariable *iml_var = iml_variable_new(iml_datatype, var_name);
+    ImlVariable *iml_var;
+
+    if (iml_datatype == iml_blob)
+    {
+        iml_var = iml_variable_blob_new(dt_data_type_get_size(ir_datatype),
+                                        var_name);
+    }
+    else
+    {
+        iml_var = iml_variable_new(iml_datatype, var_name);
+    }
 
     /* add IML variable to function frame */
     iml_func_frame_t *frame = ir_function_def_get_frame(parent_function);
@@ -131,6 +141,12 @@ add_to_func_frame(IrFunctionDef *parent_function,
 
     /* if this is a function parameter, then we are done here */
     if (is_function_parameter) {
+        return;
+    }
+
+    /* skip initialization of blob variables for now */
+    if (iml_datatype == iml_blob)
+    {
         return;
     }
 

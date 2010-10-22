@@ -35,6 +35,9 @@ typedef struct
 
     gchar *name;
     iml_data_type_t datatype;
+
+    /* size on stack, used by blob variables */
+    guint size;
     /*
      * the register allocation, or NULL if no register is allocated
      * for this variable
@@ -66,6 +69,17 @@ iml_variable_get_type(void);
  */
 ImlVariable *
 iml_variable_new(iml_data_type_t data_type, const gchar *name);
+
+/**
+ * create new blob variable
+ *
+ * @param size blob size on the stack
+ * @param name variable name to use when pretty printing,
+ *        should be NULL for temporary variables
+ *
+ */
+ImlVariable *
+iml_variable_blob_new(guint size, const gchar *name);
 
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self);

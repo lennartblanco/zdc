@@ -67,6 +67,17 @@ iml_variable_new(iml_data_type_t data_type, const gchar *name)
     return obj;
 }
 
+ImlVariable *
+iml_variable_blob_new(guint size, const gchar *name)
+{
+    ImlVariable *obj;
+
+    obj = iml_variable_new(iml_blob, name);
+    obj->size = size;
+
+    return obj;
+}
+
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self)
 {
@@ -120,6 +131,7 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
     assert(out);
 
     ImlVariable *var = IML_VARIABLE(self);
+    gchar *blob_size_str = NULL;
 
     char *type_str;
 
@@ -134,21 +146,35 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
         case iml_32b:
             type_str = "32b";
             break;
+        case iml_blob:
+            type_str = "blob";
+            break;
         default:
             /* unexpected data type */
             assert(FALSE);
     }
 
-    fprintf_indent(out, indention, "%s %s", type_str, var->name);
+    if (var->datatype == iml_blob)
+    {
+        blob_size_str = g_strdup_printf("(%u)", var->size);
+    }
+
+    fprintf_indent(out, indention, "%s%s %s",
+                   type_str,
+                   blob_size_str != NULL ? blob_size_str : "",
+                   var->name);
+
     if (var->reg != NULL) {
-        fprintf(out, " (");
+        fprintf(out, " [");
         iml_register_print(var->reg, out, 0);
-        fprintf(out, ")");
+        fprintf(out, "]");
     }
     else
     {
        fprintf(out, " [%04d]", var->frame_offset);
     }
+
+    g_free(blob_size_str);
 }
 
 static void

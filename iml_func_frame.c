@@ -16,6 +16,7 @@ struct iml_func_frame_s
     GSList *var_32b;
     GSList *var_16b;
     GSList *var_8b;
+    GSList *var_blob;
     GSList *used_regs;
     guint stack_size;
 };
@@ -50,6 +51,9 @@ iml_func_frame_add_local(iml_func_frame_t *self, ImlVariable *variable)
             break;
         case iml_32b:
             self->var_32b = g_slist_prepend(self->var_32b, variable);
+            break;
+        case iml_blob:
+            self->var_blob = g_slist_prepend(self->var_blob, variable);
             break;
         default:
             /* unexpected data type */
@@ -153,7 +157,7 @@ iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
         }
     }
 
-    if (self->var_32b || self->var_16b || self->var_8b)
+    if (self->var_32b || self->var_16b || self->var_8b || self->var_blob)
     {
         fprintf_indent(out, indention + 2, "variables\n");
 
@@ -170,6 +174,12 @@ iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
         }
 
         for (i = self->var_8b; i != NULL; i = g_slist_next(i))
+        {
+            iml_operand_print(i->data, out, indention + 4);
+            fprintf(out, "\n");
+        }
+
+        for (i = self->var_blob; i != NULL; i = g_slist_next(i))
         {
             iml_operand_print(i->data, out, indention + 4);
             fprintf(out, "\n");
