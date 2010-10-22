@@ -223,9 +223,9 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention)
     }
 
     fprintf_indent(out, indention, "%s ", op_name);
-    iml_operand_print(op->arg1, out, 0);
+    iml_operand_print_short(op->arg1, out, 0);
     fprintf(out, " => ");
-    iml_operand_print(op->arg2, out, 0);
+    iml_operand_print_short(op->arg2, out, 0);
     fprintf(out, "\n");
 }
 
@@ -292,11 +292,11 @@ print_ternary_op(iml_operation_t *op, FILE *out, int indention)
     }
 
     fprintf_indent(out, indention, "%s ", op_name);
-    iml_operand_print(op->arg1, out, 0);
+    iml_operand_print_short(op->arg1, out, 0);
     fprintf(out, ", ");
-    iml_operand_print(op->arg2, out, 0);
+    iml_operand_print_short(op->arg2, out, 0);
     fprintf(out, " => ");
-    iml_operand_print(op->arg3, out, 0);
+    iml_operand_print_short(op->arg3, out, 0);
     fprintf(out, "\n");
 }
 
@@ -309,7 +309,7 @@ print_return_op(iml_operation_t *op, FILE *out, int indention)
     fprintf_indent(out, indention, "return ");
     if (op->arg1 != NULL)
     {
-        iml_operand_print(op->arg1, out, 0);
+        iml_operand_print_short(op->arg1, out, 0);
     }
     fprintf(out, "\n");
 }
@@ -321,9 +321,9 @@ print_jmpcond_op(iml_operation_t *op, FILE *out, int indention)
     assert(op->opcode == iml_jmpneq);
 
     fprintf_indent(out, indention, "jmpneq ");
-    iml_operand_print(op->arg1, out, 0);
+    iml_operand_print_short(op->arg1, out, 0);
     fprintf(out, ",");
-    iml_operand_print(op->arg2, out, 0);
+    iml_operand_print_short(op->arg2, out, 0);
     fprintf(out, " => %s\n", (char*)op->arg3);
 }
 
@@ -340,7 +340,7 @@ print_call_op(iml_operation_t *op, FILE *out, int indention)
 
     for (i = (GSList *)op->arg2; i != NULL; i = g_slist_next(i))
     {
-        iml_operand_print(i->data, out, 0);
+        iml_operand_print_short(i->data, out, 0);
         if (g_slist_next(i) != NULL)
         {
             fprintf(out, ", ");
@@ -351,7 +351,7 @@ print_call_op(iml_operation_t *op, FILE *out, int indention)
     if (op->arg3 != NULL)
     {
         fprintf(out, "=> ");
-        iml_operand_print(op->arg3, out, 0);
+        iml_operand_print_short(op->arg3, out, 0);
     }
 
     fprintf(out, "\n");

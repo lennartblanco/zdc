@@ -178,10 +178,20 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
 }
 
 static void
+iml_variable_do_print_short(ImlOperand *self, FILE *out, guint indention)
+{
+    assert(IML_IS_VARIABLE(self));
+    assert(out);
+
+    fprintf(out, "%s", IML_VARIABLE(self)->name);
+}
+
+static void
 iml_variable_class_init(gpointer klass, gpointer foo)
 {
     assert(IML_IS_OPERAND_CLASS(klass));
 
-    /* install print method implementation */
+    /* install virtual method implementation */
     IML_OPERAND_CLASS(klass)->do_print = iml_variable_do_print;
+    IML_OPERAND_CLASS(klass)->do_print_short = iml_variable_do_print_short;
 }

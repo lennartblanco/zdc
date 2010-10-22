@@ -9,7 +9,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-iml_constant_do_print(ImlOperand *self, FILE *out, guint indention);
+iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention);
 
 static void
 iml_constant_class_init(gpointer klass, gpointer foo);
@@ -96,7 +96,7 @@ iml_constant_get_val_32b(ImlConstant *self)
  *---------------------------------------------------------------------------*/
 
 static void
-iml_constant_do_print(ImlOperand *self, FILE *out, guint indention)
+iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention)
 {
     assert(IML_IS_CONSTANT(self));
 
@@ -111,5 +111,5 @@ iml_constant_class_init(gpointer klass, gpointer foo)
     assert(IML_IS_OPERAND_CLASS(klass));
 
     /* install print method implementation */
-    IML_OPERAND_CLASS(klass)->do_print = iml_constant_do_print;
+    IML_OPERAND_CLASS(klass)->do_print_short = iml_constant_do_print_short;
 }

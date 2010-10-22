@@ -43,6 +43,7 @@ typedef struct
     GObjectClass parent_class;
     /* virtual methods */
     void (*do_print) (ImlOperand *self, FILE *out, guint indention);
+    void (*do_print_short) (ImlOperand *self, FILE *out, guint indention);
 } ImlOperandClass;
 
 /*---------------------------------------------------------------------------*
@@ -54,5 +55,8 @@ iml_operand_get_type(void);
 
 void
 iml_operand_print(ImlOperand *self, FILE *out, guint indention);
+
+void
+iml_operand_print_short(ImlOperand *self, FILE *out, guint indention);
 
 #endif /* IML_OPERAND_INC_X */

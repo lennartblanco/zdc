@@ -40,3 +40,12 @@ iml_operand_print(ImlOperand *self, FILE *out, guint indention)
     IML_OPERAND_GET_CLASS(self)->do_print(self, out, indention);
 }
 
+void
+iml_operand_print_short(ImlOperand *self, FILE *out, guint indention)
+{
+    assert(IML_IS_OPERAND(self));
+    assert(IML_OPERAND_GET_CLASS(self)->do_print_short);
+
+    IML_OPERAND_GET_CLASS(self)->do_print_short(self, out, indention);
+}
+
