@@ -11,9 +11,8 @@ Variables and constants are typed, following types are used:
  8-bit value        8b
  16-bit value      16b
  32-bit value      32b
+ stack blob       blob
  pointer           ptr
- array handle      arh
- frame offset      fof
 
 Operations
 ----------
@@ -130,6 +129,21 @@ memcpy src, length => dest
    - src is data section label or pointer
    - length is variable or constant of 32b type
    - dest is pointer, frame offset or array handle
+
+setfld src => dest(index*size)
+  set memory field. write src to an dest offset, specified with index*size.
+   - src must be a constant or variable of 8b, 16b, 32b or ptr type.
+   - dest must be a variable of blob or ptr type
+   - index must be a constant or variable
+   - size must be a constant
+
+getfld src(index*size) => dest
+  get memory field. write value at src offset, specified with index*size,
+  to dest
+   - src must be a variable of blob or ptr type
+   - dest must be a variable of 8b, 16b, 32b or ptr type.
+   - index must be a constant or variable
+   - size must be a constant
 
 get_cell array, index => res
   store array cell array[index] value in <res>
