@@ -134,7 +134,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
         return;
     }
 
-    /* */
+    /* generate iml code for default initialization of the variable */
     IrExpression *init_exp = ir_variable_get_initializer(variable);
 
     if (init_exp == NULL)
