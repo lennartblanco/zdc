@@ -8,3 +8,9 @@ struct GSList
   GSList *next;
 }
 
+extern (C)
+{
+    GSList*
+    g_slist_prepend(GSList *list, gpointer data);
+}
+

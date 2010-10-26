@@ -7,6 +7,7 @@ import dbind.ir_module;
 import dbind.ir_function;
 import dbind.ir_function_def;
 import dbind.iml_func_frame;
+import dbind.iml_register;
 import dbind.types;
 
 void arm_init(arch_backend_s *backend)
@@ -19,7 +20,27 @@ void arm_init(arch_backend_s *backend)
 extern (C) void
 get_registers(GSList **scratch, GSList **preserved)
 {
-    assert(false, "not implemented");
+    GSList *p_regs;
+
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(11, "v8"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(10, "v7"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(9, "v6"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(8, "v5"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(7, "v4"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(6, "v3"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(5, "v2"));
+    p_regs = g_slist_prepend(p_regs,
+            iml_register_new(4, "v1"));
+
+    *scratch = null;
+    *preserved = p_regs;
 }
 
 extern (C) void
