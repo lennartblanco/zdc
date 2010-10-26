@@ -2,10 +2,46 @@ import std.stdio;
 import std.string;
 import std.c.stdio;
 import std.c.string;
+import dbind.auxil;
 import dbind.ir_module;
 import dbind.ir_function;
 import dbind.ir_function_def;
+import dbind.iml_func_frame;
 import dbind.types;
+
+void arm_init(arch_backend_s *backend)
+{
+    backend.get_registers = &get_registers;
+    backend.assign_var_locations = &assign_var_locations;
+    backend.gen_code = &gen_code;
+}
+
+extern (C) void
+get_registers(GSList **scratch, GSList **preserved)
+{
+    assert(false, "not implemented");
+}
+
+extern (C) void
+assign_var_locations (iml_func_frame_t *frame)
+{
+    assert(false, "not implemented");
+}
+
+extern (C) void
+gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
+{
+    File f = File.wrapFile(out_stream);
+    f.writefln("    .file \"%s\"\n", d_str(source_file));
+
+    gen_text_prelude(f, ir_module_get_symbols(ir_module));
+
+    GSList *funcs = ir_module_get_function_defs(ir_module);
+    for (GSList *i = funcs; i != null; i = g_slist_next(i))
+    {
+      compile_function_def(f, cast(IrFunctionDef*)i.data);
+    }
+}
 
 string
 d_str(const char *c_str)
@@ -22,21 +58,6 @@ GSList *
 g_slist_next(GSList *l)
 {
   return l.next;
-}
-
-extern (C) void
-arm_gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
-{
-    File f = File.wrapFile(out_stream);
-    f.writefln("    .file \"%s\"\n", d_str(source_file));
-
-    gen_text_prelude(f, ir_module_get_symbols(ir_module));
-
-    GSList *funcs = ir_module_get_function_defs(ir_module);
-    for (GSList *i = funcs; i != null; i = g_slist_next(i))
-    {
-      compile_function_def(f, cast(IrFunctionDef*)i.data);
-    }
 }
 
 private void

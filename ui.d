@@ -6,7 +6,8 @@
 import std.stdio;
 import std.string;
 import dbind.GSList;
-
+import dbind.auxil;
+import arm;
 
 enum compilation_stages_e
 {
@@ -14,13 +15,6 @@ enum compilation_stages_e
     assemble_stage,            /* genarate object file   (.o) */
     link_stage                 /* build elf binary            */
 }
-
-struct arch_backend_s
-{
-    void *get_registers;
-    void *assign_var_locations;
-    void *gen_code;
-};
 
 struct compile_options_s
 {
@@ -86,7 +80,8 @@ parse_march_option(string option, compile_options_s *compile_options)
             x86_init(&compile_options.backend);
             break;
         case "arm":
-            assert(false, "not implemented");
+            arm_init(&compile_options.backend);
+            break;
         default:
             throw new Exception("unsupported target architecture '" ~ arch ~
                                 "' specified");
