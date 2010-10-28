@@ -1,5 +1,6 @@
 import std.stdio;
 import std.string;
+import std.conv;
 import std.c.stdio;
 import std.c.string;
 import dbind.auxil;
@@ -53,7 +54,7 @@ extern (C) void
 gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
 {
     File f = File.wrapFile(out_stream);
-    f.writefln("    .file \"%s\"\n", d_str(source_file));
+    f.writefln("    .file \"%s\"\n", to!string(source_file));
 
     gen_text_prelude(f, ir_module_get_symbols(ir_module));
 
@@ -63,17 +64,6 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
       compile_function_def(f, cast(IrFunctionDef*)i.data);
     }
 }
-
-string
-d_str(const char *c_str)
-{
-    char[] str = new char[strlen(c_str)];
-
-    memcpy(str.ptr, c_str, str.length);
-
-    return cast(string)str;
-}
-
 
 GSList *
 g_slist_next(GSList *l)
@@ -109,7 +99,7 @@ gen_text_prelude(File asmfile, sym_table_t *sym_table)
         types_is_int(ir_function_def_get_return_type(main_func));
 
     string main_mangled_name =
-        d_str(ir_function_get_mangled_name(cast(IrFunction *) main_func));
+        to!string(ir_function_get_mangled_name(cast(IrFunction *) main_func));
     asmfile.writefln(
         "    .text\n"
         "    .align 2\n"
@@ -131,9 +121,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     string name;
     static int dummy;
 
-    name = d_str(ir_function_def_get_name(func));
+    name = to!string(ir_function_def_get_name(func));
     mangled_name =
-        d_str(ir_function_get_mangled_name(cast(IrFunction *) func));
+        to!string(ir_function_get_mangled_name(cast(IrFunction *) func));
 
     /* just generate a dummy function code which returns some number */
     asmfile.writefln("    .align 2\n"
