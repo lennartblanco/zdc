@@ -894,7 +894,7 @@ validate_assigment(compilation_status_t *compile_status,
     if (converted_value == NULL && DT_IS_ARRAY_TYPE(target_type))
     {
         /*
-         * Handle the special case of array assigments from a scalar,
+         * Handle the special case of array assignments from a scalar,
          * check if scalar can be implicitly converted to array's 
          * element data type
          */
