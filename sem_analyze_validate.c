@@ -913,16 +913,8 @@ validate_assigment(compilation_status_t *compile_status,
         return;
     }
 
-    /*
-     * valid assignment, add iml operations
-     */
-    ImlOperand *res_val = iml_add_expression_eval(compile_status->function,
-                                                  converted_value);
-    ImlVariable *dest =
-            ir_variable_get_location(ir_lvalue_get_variable(lvalue));
-
-    ir_function_add_operation(compile_status->function,
-                              iml_operation_new(iml_copy, res_val, dest));
+    /* valid assignment, add iml operations */
+    iml_add_assigment(compile_status->function, lvalue, converted_value);
 }
 
 /**

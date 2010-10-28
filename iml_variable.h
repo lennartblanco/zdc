@@ -84,6 +84,13 @@ iml_variable_blob_new(guint size, const gchar *name);
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self);
 
+/**
+ * Get blob variables size on stack in bytes.
+ * Calls to this function are only valid for variables of blob type.
+ */
+guint
+iml_variable_get_size(ImlVariable *self);
+
 void
 iml_variable_set_register(ImlVariable *self, iml_register_t *reg);
 

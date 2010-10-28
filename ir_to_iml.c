@@ -4,6 +4,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
+#include "ir_array_cell.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_cast.h"
@@ -29,6 +30,18 @@ iml_add_binary_op_eval(IrFunctionDef *function, IrBinaryOperation *bin_op);
 static ImlOperand *
 iml_add_cast_eval(IrFunctionDef *function, IrCast *cast);
 
+static ImlOperand *
+iml_add_array_cell_eval(IrFunctionDef *function, IrArrayCell *cell);
+
+static void
+add_scalar_assigment(IrFunctionDef *function,
+                     IrScalar *lvalue,
+                     IrExpression *value);
+
+static void
+add_array_cell_assigment(IrFunctionDef *function,
+                         IrArrayCell *lvalue,
+                         IrExpression *value);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -78,6 +91,11 @@ iml_add_expression_eval(IrFunctionDef *function,
     {
         return iml_add_cast_eval(function,
                                  IR_CAST(ir_expression));
+    }
+    else if (IR_IS_ARRAY_CELL(ir_expression))
+    {
+        return iml_add_array_cell_eval(function,
+                                       IR_ARRAY_CELL(ir_expression));
     }
     /* unexpected expression type */
     assert(false);
@@ -220,6 +238,27 @@ iml_add_func_call_eval(IrFunctionDef *function, IrFunctionCall *func_call)
     ir_function_add_operation(function, call_op);
 
     return IML_OPERAND(res_var);
+
+}
+
+void
+iml_add_assigment(IrFunctionDef *function,
+                  IrLvalue *lvalue,
+                  IrExpression *value)
+{
+    if (IR_IS_ARRAY_CELL(lvalue))
+    {
+        add_array_cell_assigment(function, IR_ARRAY_CELL(lvalue), value);
+    }
+    else if (IR_IS_SCALAR(lvalue))
+    {
+        add_scalar_assigment(function, IR_SCALAR(lvalue), value);
+    }
+    else
+    {
+        /* unexpected lvalue type */
+        assert(false);
+    }
 
 }
 
@@ -454,4 +493,78 @@ iml_add_cast_eval(IrFunctionDef *function, IrCast *cast)
                               iml_operation_new(iml_cast, src, dest));
 
     return IML_OPERAND(dest);
+}
+
+static ImlOperand *
+iml_add_array_cell_eval(IrFunctionDef *function, IrArrayCell *cell)
+{
+    assert(IR_IS_ARRAY_CELL(cell));
+
+    ImlVariable *res;
+    ImlOperand *index_val;
+    ImlVariable *src;
+    DtDataType *array_type;
+    guint size;
+
+    array_type = ir_expression_get_data_type(IR_EXPRESSION(cell));
+
+    res = iml_func_frame_get_temp(ir_function_def_get_frame(function),
+                                  dt_to_iml_type(array_type));
+
+    src = ir_variable_get_location(ir_lvalue_get_variable(IR_LVALUE(cell)));
+    index_val = iml_add_expression_eval(function,
+                                        ir_array_cell_get_index(cell));
+    size = dt_data_type_get_size(array_type);
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_getfld,
+                                                src,
+                                                index_val,
+                                                size,
+                                                res));
+
+    return IML_OPERAND(res);
+}
+
+static void
+add_scalar_assigment(IrFunctionDef *function,
+                     IrScalar *lvalue,
+                     IrExpression *value)
+{
+    ImlOperand *res_val;
+    ImlVariable *dest;
+
+    res_val = iml_add_expression_eval(function, value);
+    dest = ir_variable_get_location(ir_lvalue_get_variable(IR_LVALUE(lvalue)));
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_copy, res_val, dest));
+
+}
+
+static void
+add_array_cell_assigment(IrFunctionDef *function,
+                         IrArrayCell *lvalue,
+                         IrExpression *value)
+{
+    ImlOperand *res_val;
+    ImlOperand *index_val;
+    ImlVariable *dest;
+    DtDataType *array_type;
+    guint size;
+
+    array_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
+
+    res_val = iml_add_expression_eval(function, value);
+    dest = ir_variable_get_location(ir_lvalue_get_variable(IR_LVALUE(lvalue)));
+    index_val = iml_add_expression_eval(function,
+                                        ir_array_cell_get_index(lvalue));
+    size = dt_data_type_get_size(array_type);
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_setfld,
+                                                res_val,
+                                                dest,
+                                                index_val,
+                                                size));
 }

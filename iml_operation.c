@@ -16,6 +16,7 @@ struct iml_operation_s
   void *arg1;
   void *arg2;
   void *arg3;
+  void *arg4;
 };
 
 /*---------------------------------------------------------------------------*
@@ -30,6 +31,12 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
 print_ternary_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
+print_setfld_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
+print_getfld_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
 print_jmpcond_op(iml_operation_t *op, FILE *out, int indention);
@@ -92,6 +99,18 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg1 = va_arg(argp, void *);
             op->arg2 = va_arg(argp, void *);
             op->arg3 = va_arg(argp, void *);
+            break;
+        case iml_setfld:
+            op->arg1 = va_arg(argp, void *);
+            op->arg2 = va_arg(argp, void *);
+            op->arg3 = va_arg(argp, void *);
+            op->arg4 = GUINT_TO_POINTER(va_arg(argp, guint));
+            break;
+        case iml_getfld:
+            op->arg1 = va_arg(argp, void *);
+            op->arg2 = va_arg(argp, void *);
+            op->arg3 = GUINT_TO_POINTER(va_arg(argp, guint));
+            op->arg4 = va_arg(argp, void *);
             break;
         default:
             /* unexpected opcode */
@@ -164,6 +183,12 @@ iml_operation_print(iml_operation_t *self,
         case iml_sgreatereq:
         case iml_ugreatereq:
             print_ternary_op(self, out, indention);
+            break;
+        case iml_setfld:
+            print_setfld_op(self, out, indention);
+            break;
+        case iml_getfld:
+            print_getfld_op(self, out, indention);
             break;
         case iml_jmp:
             fprintf_indent(out, indention, "jmp %s\n", self->arg1);
@@ -297,6 +322,36 @@ print_ternary_op(iml_operation_t *op, FILE *out, int indention)
     iml_operand_print_short(op->arg2, out, 0);
     fprintf(out, " => ");
     iml_operand_print_short(op->arg3, out, 0);
+    fprintf(out, "\n");
+}
+
+static void
+print_setfld_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_setfld);
+
+    fprintf_indent(out, indention, "setfld ");
+    iml_operand_print_short(op->arg1, out, 0);
+    fprintf(out, " => ");
+    iml_operand_print_short(op->arg2, out, 0);
+    fprintf(out, "(");
+    iml_operand_print_short(op->arg3, out, 0);
+    fprintf(out, "*%u)\n", GPOINTER_TO_UINT(op->arg4));
+}
+
+static void
+print_getfld_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_getfld);
+
+    fprintf_indent(out, indention, "getfld ");
+    iml_operand_print_short(op->arg1, out, 0);
+    fprintf(out, "(");
+    iml_operand_print_short(op->arg2, out, 0);
+    fprintf(out, "*%u) => ", GPOINTER_TO_UINT(op->arg3));
+    iml_operand_print_short(op->arg4, out, 0);
     fprintf(out, "\n");
 }
 

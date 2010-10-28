@@ -75,6 +75,8 @@ iml_func_frame_get_locals(iml_func_frame_t *self,
             return self->var_16b;
         case iml_8b:
             return self->var_8b;
+        case iml_blob:
+            return self->var_blob;
     }
     /* unexpected local variables data type */
     assert(FALSE);

@@ -86,6 +86,15 @@ iml_variable_get_data_type(ImlVariable *self)
     return self->datatype;
 }
 
+guint
+iml_variable_get_size(ImlVariable *self)
+{
+    assert(IML_IS_VARIABLE(self));
+    assert(self->datatype == iml_blob);
+
+    return self->size;
+}
+
 void
 iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
 {
