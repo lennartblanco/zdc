@@ -190,6 +190,19 @@ x86_assign_var_locations(iml_func_frame_t *frame)
         }
     }
 
+    /* assign offset locations to blob variables */
+    i = iml_func_frame_get_locals(frame, iml_blob);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        ImlVariable *var = IML_VARIABLE(i->data);
+
+        if (iml_variable_get_register(var) == NULL)
+        {
+            iml_variable_set_frame_offset(var, offset);
+            offset -= iml_variable_get_size(var);
+        }
+    }
+
     iml_func_frame_set_size(frame, (guint)(-(offset + 4)));
 
 }
