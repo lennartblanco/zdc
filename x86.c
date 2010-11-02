@@ -37,7 +37,8 @@ enum {
     x86_reg_ebp,
 };
 
-#define TEMP_REG_NAME "ecx"
+#define TEMP_REG1_NAME "ecx"
+#define TEMP_REG2_NAME "eax"
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -141,13 +142,13 @@ x86_assign_var_locations(iml_func_frame_t *frame)
         g_slist_free(params);
     }
 
-    offset = -4;
+    offset = 0;
 
     /* assign frame offset to last parameter if needed */
     if (last_param != NULL)
     {
-        iml_variable_set_frame_offset(last_param, offset);
         offset -= 4;
+        iml_variable_set_frame_offset(last_param, offset);
     }
 
     /*
@@ -161,8 +162,8 @@ x86_assign_var_locations(iml_func_frame_t *frame)
 
         if (iml_variable_get_register(var) == NULL)
         {
-            iml_variable_set_frame_offset(var, offset);
             offset -= 4;
+            iml_variable_set_frame_offset(var, offset);
         }
     }
 
@@ -173,8 +174,8 @@ x86_assign_var_locations(iml_func_frame_t *frame)
 
         if (iml_variable_get_register(var) == NULL)
         {
-            iml_variable_set_frame_offset(var, offset);
             offset -= 4;
+            iml_variable_set_frame_offset(var, offset);
         }
     }
 
@@ -185,8 +186,8 @@ x86_assign_var_locations(iml_func_frame_t *frame)
 
         if (iml_variable_get_register(var) == NULL)
         {
-            iml_variable_set_frame_offset(var, offset);
             offset -= 4;
+            iml_variable_set_frame_offset(var, offset);
         }
     }
 
@@ -198,13 +199,12 @@ x86_assign_var_locations(iml_func_frame_t *frame)
 
         if (iml_variable_get_register(var) == NULL)
         {
-            iml_variable_set_frame_offset(var, offset);
             offset -= iml_variable_get_size(var);
+            iml_variable_set_frame_offset(var, offset);
         }
     }
 
-    iml_func_frame_set_size(frame, (guint)(-(offset + 4)));
-
+    iml_func_frame_set_size(frame, (guint)(-(offset)));
 }
 
 static void
@@ -407,8 +407,8 @@ x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
         if (reg == NULL)
         {
             fprintf(out,
-                    "    movl %d(%%ebp), %%" TEMP_REG_NAME "\n"
-                    "    movl %%" TEMP_REG_NAME ", %d(%%ebp)\n",
+                    "    movl %d(%%ebp), %%" TEMP_REG1_NAME "\n"
+                    "    movl %%" TEMP_REG1_NAME ", %d(%%ebp)\n",
                     iml_variable_get_frame_offset(var),
                     frame_offset);
         }
@@ -455,8 +455,8 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
         {
             /* use a temporary register  */
             fprintf(out,
-                    "    movl $%d, %%"TEMP_REG_NAME"\n"
-                    "    movl %%"TEMP_REG_NAME", %d(%%ebp)\n",
+                    "    movl $%d, %%"TEMP_REG1_NAME"\n"
+                    "    movl %%"TEMP_REG1_NAME", %d(%%ebp)\n",
                     iml_constant_get_val_32b(const_src),
                     iml_variable_get_frame_offset(dst));
         }
@@ -479,8 +479,8 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
             {
                 /* offset to offset copy, use temporary register */
                 fprintf(out,
-                        "    movl %d(%%ebp), %%"TEMP_REG_NAME"\n"
-                        "    movl %%"TEMP_REG_NAME", %d(%%ebp)\n",
+                        "    movl %d(%%ebp), %%"TEMP_REG1_NAME"\n"
+                        "    movl %%"TEMP_REG1_NAME", %d(%%ebp)\n",
                         iml_variable_get_frame_offset(IML_VARIABLE(src)),
                         iml_variable_get_frame_offset(dst));
             }
@@ -500,6 +500,152 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
                               dst);
         }
     }
+}
+
+static void
+x86_compile_setfld(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_setfld);
+
+    ImlOperand *src = iml_operation_get_operand(op, 1);
+    ImlVariable *dest = iml_operation_get_operand(op, 2);
+    ImlOperand *index = iml_operation_get_operand(op, 3);
+    guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 4));
+    const char *index_reg;
+
+    /*
+     * Generate code that will store array index into a register,
+     * remember which register it ends up in
+     */
+    if (IML_IS_CONSTANT(index))
+    {
+        fprintf(out,
+                "    movl $%d, %%" TEMP_REG1_NAME "\n",
+                iml_constant_get_val_32b(IML_CONSTANT(index)));
+        index_reg = TEMP_REG1_NAME;
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(index));
+        ImlVariable *var = IML_VARIABLE(index);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg != NULL)
+        {
+            index_reg = iml_register_get_name(reg);
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%" TEMP_REG1_NAME "\n",
+                    iml_variable_get_frame_offset(var));
+            index_reg = TEMP_REG1_NAME;
+        }
+    }
+
+    /*
+     * generate the move to the array cell
+     */
+    if (IML_IS_CONSTANT(src))
+    {
+        fprintf(out,
+                "    movl $%d, %d(%%ebp, %%%s, %u)\n",
+                iml_constant_get_val_32b(IML_CONSTANT(src)),
+                iml_variable_get_frame_offset(dest),
+                index_reg,
+                size);
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(src));
+
+        ImlVariable *var = IML_VARIABLE(src);
+        iml_register_t *reg = iml_variable_get_register(var);
+        const gchar *src_reg;
+
+        if (reg != NULL)
+        {
+            src_reg = iml_register_get_name(reg);
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%" TEMP_REG2_NAME "\n",
+                    iml_variable_get_frame_offset(var));
+            src_reg = TEMP_REG2_NAME;
+        }
+
+        fprintf(out,
+                "    movl %%%s, %d(%%ebp, %%%s, %u)\n",
+                src_reg,
+                iml_variable_get_frame_offset(dest),
+                index_reg,
+                size);
+    }
+}
+
+static void
+x86_compile_getfld(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_getfld);
+
+    ImlVariable *src = iml_operation_get_operand(op, 1);
+    ImlOperand *index = iml_operation_get_operand(op, 2);
+    guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 3));
+    ImlVariable *dest = iml_operation_get_operand(op, 4);
+    const char *index_reg = NULL;
+    iml_register_t *dest_reg = iml_variable_get_register(dest);
+
+    if (IML_IS_CONSTANT(index))
+    {
+        fprintf(out,
+                "    movl $%d, %%" TEMP_REG1_NAME "\n",
+                iml_constant_get_val_32b(IML_CONSTANT(index)));
+        index_reg = TEMP_REG1_NAME;
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(index));
+        ImlVariable *var = IML_VARIABLE(index);
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg != NULL)
+        {
+            index_reg = iml_register_get_name(reg);
+        }
+        else
+        {
+            fprintf(out,
+                    "    movl %d(%%ebp), %%" TEMP_REG1_NAME "\n",
+                    iml_variable_get_frame_offset(var));
+            index_reg = TEMP_REG1_NAME;
+        }
+    }
+
+    assert(index_reg != NULL);
+
+    if (dest_reg != NULL)
+    {
+        fprintf(out,
+                "    movl %d(%%ebp, %%%s, %u), %%%s\n",
+                iml_variable_get_frame_offset(src),
+                index_reg,
+                size,
+                iml_register_get_name(dest_reg));
+    }
+    else
+    {
+        fprintf(out,
+                "    movl %d(%%ebp, %%%s, %u), %%" TEMP_REG1_NAME "\n"
+                "    movl %%" TEMP_REG1_NAME ", %d(%%ebp)\n",
+                iml_variable_get_frame_offset(src),
+                index_reg,
+                size,
+                iml_variable_get_frame_offset(dest));
+    }
+
 }
 
 static void
@@ -538,7 +684,7 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
 
     if (res_reg == NULL)
     {
-        res_reg_name = TEMP_REG_NAME;
+        res_reg_name = TEMP_REG1_NAME;
     }
     else
     {
@@ -627,9 +773,9 @@ x86_compile_mult(FILE *out, iml_operation_t *op)
     assert(iml_operation_get_opcode(op) == iml_smult ||
            iml_operation_get_opcode(op) == iml_umult);
     x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
-    x86_move_to_reg(out, TEMP_REG_NAME, iml_operation_get_operand(op, 2));
+    x86_move_to_reg(out, TEMP_REG1_NAME, iml_operation_get_operand(op, 2));
     fprintf(out,
-            "    %smul %%" TEMP_REG_NAME "\n",
+            "    %smul %%" TEMP_REG1_NAME "\n",
             iml_operation_get_opcode(op) == iml_smult ? "i" : "");
     x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
 }
@@ -765,9 +911,9 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
     if (IML_IS_CONSTANT(arg2))
     {
         fprintf(out,
-                "    movl $%d, %%" TEMP_REG_NAME "\n",
+                "    movl $%d, %%" TEMP_REG1_NAME "\n",
                 iml_constant_get_val_32b(IML_CONSTANT(arg2)));
-        arg2_reg = TEMP_REG_NAME;
+        arg2_reg = TEMP_REG1_NAME;
     }
     else
     {
@@ -782,9 +928,9 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
         else if (arg1_reg == NULL)
         {
             fprintf(out,
-                    "    movl %d(%%ebp), %%" TEMP_REG_NAME "\n",
+                    "    movl %d(%%ebp), %%" TEMP_REG1_NAME "\n",
                     iml_variable_get_frame_offset(IML_VARIABLE(arg2)));
-            arg2_reg = TEMP_REG_NAME;
+            arg2_reg = TEMP_REG1_NAME;
         }
     }
 
@@ -1076,6 +1222,12 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                  * thus iml_cast is equivalent to iml_copy operation
                  */
                 x86_compile_copy(params->out, op);
+                break;
+            case iml_setfld:
+                x86_compile_setfld(params->out, op);
+                break;
+            case iml_getfld:
+                x86_compile_getfld(params->out, op);
                 break;
             case iml_add:
             case iml_sub:

@@ -143,6 +143,8 @@ iml_operation_get_operand(iml_operation_t *self,
             return self->arg2;
         case 3:
             return self->arg3;
+        case 4:
+            return self->arg4;
     }
     /* unexpected operand number */
     assert(false);
