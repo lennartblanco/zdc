@@ -17,9 +17,9 @@ tests="empty "\
 "nested_blocks "\
 "module_test "\
 "imports "\
-"pkg_name_tst "
+"pkg_name_tst "\
+"stat_array "
 #"uint_op "\
-#"stat_array "\
 #"dyn_array "\
 #"foreach "\
 #"properties "\
