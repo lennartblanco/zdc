@@ -43,6 +43,9 @@ add_array_cell_assigment(IrFunctionDef *function,
                          IrArrayCell *lvalue,
                          IrExpression *value);
 
+static iml_data_type_t
+dt_to_iml_type(DtDataType *dt_type);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -115,21 +118,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
 
     /* create IML variable of appropriate type */
     ir_datatype = ir_variable_get_data_type(variable);
-    switch (dt_data_type_get_size(ir_datatype))
-    {
-      case 4:
-        iml_datatype = iml_32b;
-        break;
-      case 2:
-        iml_datatype = iml_16b;
-        break;
-      case 1:
-        iml_datatype = iml_8b;
-        break;
-      default:
-        iml_datatype = iml_blob;
-        break;
-    }
+    iml_datatype = dt_to_iml_type(ir_datatype);
 
     var_name = ir_variable_get_name(variable);
     if (var_name == NULL)
@@ -271,19 +260,31 @@ dt_to_iml_type(DtDataType *dt_type)
 {
     iml_data_type_t iml_type;
 
-    switch (dt_data_type_get_size(dt_type))
+    if (DT_IS_BASIC_TYPE(dt_type))
     {
-        case 4:
-            iml_type = iml_32b;
-            break;
-        case 2:
-            iml_type = iml_16b;
-            break;
-        case 1:
-            iml_type = iml_8b;
-            break;
-        default:
-            assert(false);
+        switch (dt_data_type_get_size(dt_type))
+        {
+           case 4:
+               iml_type = iml_32b;
+               break;
+           case 2:
+              iml_type = iml_16b;
+              break;
+           case 1:
+              iml_type = iml_8b;
+              break;
+          default:
+              assert(false);
+        }
+    }
+    else if (DT_STATIC_ARRAY_TYPE(dt_type))
+    {
+        iml_type = iml_blob;
+    }
+    else
+    {
+        /* unexpected data type */
+        assert(false);
     }
 
     return iml_type;
