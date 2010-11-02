@@ -78,6 +78,7 @@ char *
 dt_data_type_get_mangled(DtDataType *self)
 {
     assert(DT_IS_DATA_TYPE(self));
+    assert(DT_DATA_TYPE_GET_CLASS(self)->get_mangled != NULL);
 
     return DT_DATA_TYPE_GET_CLASS(self)->get_mangled(self);
 }
@@ -86,6 +87,7 @@ IrExpression *
 dt_data_type_get_init(DtDataType *self)
 {
     assert(DT_IS_DATA_TYPE(self));
+    assert(DT_DATA_TYPE_GET_CLASS(self)->get_init != NULL);
 
     return DT_DATA_TYPE_GET_CLASS(self)->get_init(self);
 }
@@ -95,6 +97,7 @@ dt_data_type_is_same(DtDataType *self, DtDataType *type)
 {
     assert(DT_IS_DATA_TYPE(self));
     assert(DT_IS_DATA_TYPE(type));
+    assert(DT_DATA_TYPE_GET_CLASS(self)->is_same != NULL);
 
     return DT_DATA_TYPE_GET_CLASS(self)->is_same(self, type);
 }
