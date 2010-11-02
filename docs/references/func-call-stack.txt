@@ -61,6 +61,21 @@ int foo(int a, int b, int[4] c);
 24  b
 28  a
 
+int foo(uint i)
+{
+    int[4] arr;
+    ....
+}
+
+-20 arr[0]
+-16 arr[1]
+-12 arr[2]
+ -8 arr[3]
+ -4 i
+  0 old_ebp <-- ebp
+  4 ret_addr
+
+
 void foo()
 {
   int[] x;
