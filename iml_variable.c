@@ -9,6 +9,9 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
+static iml_data_type_t
+iml_variable_do_get_data_type(ImlOperand *self);
+
 static void
 iml_variable_do_print(ImlOperand *self, FILE *out, guint indention);
 
@@ -83,7 +86,7 @@ iml_variable_get_data_type(ImlVariable *self)
 {
     assert(IML_IS_VARIABLE(self));
 
-    return self->datatype;
+    return iml_operand_get_data_type(IML_OPERAND(self));
 }
 
 guint
@@ -132,6 +135,14 @@ iml_variable_get_frame_offset(ImlVariable *self)
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static iml_data_type_t
+iml_variable_do_get_data_type(ImlOperand *self)
+{
+    assert(IML_IS_VARIABLE(self));
+
+    return IML_VARIABLE(self)->datatype;
+}
 
 static void
 iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
@@ -200,7 +211,8 @@ iml_variable_class_init(gpointer klass, gpointer foo)
 {
     assert(IML_IS_OPERAND_CLASS(klass));
 
-    /* install virtual method implementation */
+    /* install virtual method implementations */
+    IML_OPERAND_CLASS(klass)->do_get_data_type = iml_variable_do_get_data_type;
     IML_OPERAND_CLASS(klass)->do_print = iml_variable_do_print;
     IML_OPERAND_CLASS(klass)->do_print_short = iml_variable_do_print_short;
 }

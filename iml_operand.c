@@ -31,6 +31,15 @@ iml_operand_get_type(void)
     return type;
 }
 
+iml_data_type_t
+iml_operand_get_data_type(ImlOperand *self)
+{
+    assert(IML_IS_OPERAND(self));
+    assert(IML_OPERAND_GET_CLASS(self)->do_get_data_type);
+
+    return IML_OPERAND_GET_CLASS(self)->do_get_data_type(self);
+}
+
 void
 iml_operand_print(ImlOperand *self, FILE *out, guint indention)
 {

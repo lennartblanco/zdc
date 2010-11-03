@@ -27,7 +27,6 @@ copy <source> => <target>
 mset <source>, <num> => <target>
  fill first <num> fields of <target> with <source> value. the size of the
  write operation is derived from the type of <source>
-  - num must be a constant of type 32b
   - <target> must be a of blob or ptr type
 
 add <left>, <right> => <res>

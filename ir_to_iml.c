@@ -4,6 +4,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_scalar.h"
+#include "ir_array.h"
 #include "ir_array_cell.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
@@ -42,6 +43,11 @@ static void
 add_array_cell_assigment(IrFunctionDef *function,
                          IrArrayCell *lvalue,
                          IrExpression *value);
+
+static void
+add_array_assigment(IrFunctionDef *function,
+                    IrArray *lvalue,
+                    IrExpression *value);
 
 static iml_data_type_t
 dt_to_iml_type(DtDataType *dt_type);
@@ -242,6 +248,10 @@ iml_add_assigment(IrFunctionDef *function,
     else if (IR_IS_SCALAR(lvalue))
     {
         add_scalar_assigment(function, IR_SCALAR(lvalue), value);
+    }
+    else if (IR_IS_ARRAY(lvalue))
+    {
+        add_array_assigment(function, IR_ARRAY(lvalue), value);
     }
     else
     {
@@ -540,6 +550,38 @@ add_scalar_assigment(IrFunctionDef *function,
 
     ir_function_add_operation(function,
                               iml_operation_new(iml_copy, res_val, dest));
+
+}
+
+static void
+add_array_assigment(IrFunctionDef *function,
+                    IrArray *lvalue,
+                    IrExpression *value)
+{
+    ImlOperand *res_val;
+    ImlVariable *dest;
+    DtDataType *array_type;
+    guint32 array_length;
+
+    /* only assigment of basic types to array implemented */
+    assert(DT_IS_BASIC_TYPE(ir_expression_get_data_type(value)));
+
+    array_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
+
+    /* only assigment to static arrays implemened */
+    assert(DT_IS_STATIC_ARRAY_TYPE(array_type));
+
+    array_length =
+        dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(array_type));
+
+    res_val = iml_add_expression_eval(function, value);
+    dest = ir_variable_get_location(ir_lvalue_get_variable(IR_LVALUE(lvalue)));
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_mset,
+                                                res_val,
+                                                array_length,
+                                                dest));
 
 }
 

@@ -42,6 +42,7 @@ typedef struct
 {
     GObjectClass parent_class;
     /* virtual methods */
+    iml_data_type_t (*do_get_data_type) (ImlOperand *self);
     void (*do_print) (ImlOperand *self, FILE *out, guint indention);
     void (*do_print_short) (ImlOperand *self, FILE *out, guint indention);
 } ImlOperandClass;
@@ -52,6 +53,12 @@ typedef struct
 
 GType
 iml_operand_get_type(void);
+
+/**
+ * Get IML data type of this operand
+ */
+iml_data_type_t
+iml_operand_get_data_type(ImlOperand *self);
 
 void
 iml_operand_print(ImlOperand *self, FILE *out, guint indention);

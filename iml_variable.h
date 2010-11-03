@@ -81,6 +81,9 @@ iml_variable_new(iml_data_type_t data_type, const gchar *name);
 ImlVariable *
 iml_variable_blob_new(guint size, const gchar *name);
 
+/**
+ * Convenience wrapper around iml_operand_get_data_type().
+ */
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self);
 

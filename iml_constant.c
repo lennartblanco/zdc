@@ -8,6 +8,9 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
+static iml_data_type_t
+iml_constant_do_get_data_type(ImlOperand *self);
+
 static void
 iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention);
 
@@ -95,6 +98,14 @@ iml_constant_get_val_32b(ImlConstant *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static iml_data_type_t
+iml_constant_do_get_data_type(ImlOperand *self)
+{
+    assert(IML_IS_CONSTANT(self));
+
+    return IML_CONSTANT(self)->datatype;
+}
+
 static void
 iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention)
 {
@@ -110,6 +121,7 @@ iml_constant_class_init(gpointer klass, gpointer foo)
 {
     assert(IML_IS_OPERAND_CLASS(klass));
 
-    /* install print method implementation */
+    /* install virtual methods implementation */
+    IML_OPERAND_CLASS(klass)->do_get_data_type = iml_constant_do_get_data_type;
     IML_OPERAND_CLASS(klass)->do_print_short = iml_constant_do_print_short;
 }

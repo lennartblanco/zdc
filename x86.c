@@ -503,6 +503,50 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
 }
 
 static void
+x86_compile_mset(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_mset);
+
+    ImlOperand *src = iml_operation_get_operand(op, 1);
+    guint num = GPOINTER_TO_UINT(iml_operation_get_operand(op, 2));
+    ImlVariable *dest = iml_operation_get_operand(op, 3);
+    const gchar *op_suffix;
+
+    /* only mset to blob variables implemented so far */
+    assert(iml_variable_get_data_type(dest) == iml_blob);
+
+    switch (iml_operand_get_data_type(src))
+    {
+        case iml_8b:
+            op_suffix = "b";
+            break;
+        case iml_16b:
+            op_suffix = "w";
+            break;
+        case iml_32b:
+            op_suffix = "l";
+            break;
+        default:
+            /* unexpected operand data type */
+            assert(false);
+    }
+
+    x86_move_to_reg(out, "eax", src);
+
+    fprintf(out,
+            "    pushl %%edi\n"
+            "    movl $%d, %%ecx\n"
+            "    leal %d(%%ebp), %%edi\n"
+            "    cld\n"
+            "    rep stos%s\n"
+            "    popl %%edi\n",
+            num,
+            iml_variable_get_frame_offset(dest),
+            op_suffix);
+}
+
+static void
 x86_compile_setfld(FILE *out, iml_operation_t *op)
 {
     assert(op);
@@ -1222,6 +1266,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                  * thus iml_cast is equivalent to iml_copy operation
                  */
                 x86_compile_copy(params->out, op);
+                break;
+            case iml_mset:
+                x86_compile_mset(params->out, op);
                 break;
             case iml_setfld:
                 x86_compile_setfld(params->out, op);

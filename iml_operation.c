@@ -33,6 +33,9 @@ static void
 print_ternary_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
+print_mset_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
 print_setfld_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
@@ -69,6 +72,11 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_return:
         case iml_jmp:
             op->arg1 = va_arg(argp, void *);
+            break;
+        case iml_mset:
+            op->arg1 = va_arg(argp, void *);
+            op->arg2 = GUINT_TO_POINTER(va_arg(argp, guint));
+            op->arg3 = va_arg(argp, void *);
             break;
         case iml_copy:
         case iml_cast:
@@ -185,6 +193,9 @@ iml_operation_print(iml_operation_t *self,
         case iml_sgreatereq:
         case iml_ugreatereq:
             print_ternary_op(self, out, indention);
+            break;
+        case iml_mset:
+            print_mset_op(self, out, indention);
             break;
         case iml_setfld:
             print_setfld_op(self, out, indention);
@@ -323,6 +334,19 @@ print_ternary_op(iml_operation_t *op, FILE *out, int indention)
     fprintf(out, ", ");
     iml_operand_print_short(op->arg2, out, 0);
     fprintf(out, " => ");
+    iml_operand_print_short(op->arg3, out, 0);
+    fprintf(out, "\n");
+}
+
+static void
+print_mset_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_mset);
+
+    fprintf_indent(out, indention, "mset ");
+    iml_operand_print_short(op->arg1, out, 0);
+    fprintf(out, ", %u => ", GPOINTER_TO_UINT(op->arg2));
     iml_operand_print_short(op->arg3, out, 0);
     fprintf(out, "\n");
 }

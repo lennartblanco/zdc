@@ -33,6 +33,7 @@ typedef enum iml_opcode_e
     iml_sgreatereq,
     iml_ugreatereq,
     iml_copy,
+    iml_mset,
     iml_setfld,
     iml_getfld,
     iml_jmp,
