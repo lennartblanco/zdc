@@ -17,6 +17,7 @@ struct _IrModule
   GHashTable     *user_types;
   GSList         *enums;
   GSList         *function_defs;
+  guint           label_counter; /** used to generate module unique labels */
   GSList         *data_section;  /** compile-time constant expressions */
   char *fq_name;
   char *mangled_name;
@@ -60,6 +61,7 @@ ir_module_new(GSList *package_name)
     obj->user_types = g_hash_table_new(g_str_hash, g_str_equal);
     obj->enums = NULL;
     obj->function_defs = NULL;
+    obj->label_counter = 0;
     obj->data_section = NULL;
     obj->package_name = package_name;
     obj->fq_name = NULL;
@@ -158,6 +160,16 @@ ir_module_get_mangled_name(IrModule *self)
 
 
     return self->mangled_name;
+}
+
+char *
+ir_module_gen_label(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+    /* check for label counter overflow */
+    assert(self->label_counter <= G_MAXUINT);
+
+    return g_strdup_printf(".IRL%u", (self->label_counter)++);
 }
 
 void

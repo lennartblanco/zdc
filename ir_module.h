@@ -132,4 +132,10 @@ ir_module_get_fqname(IrModule *self);
 char *
 ir_module_get_mangled_name(IrModule *self);
 
+/**
+ * Generate a unique for this module label.
+ */
+char *
+ir_module_gen_label(IrModule *self);
+
 #endif /* IR_MODULE_INC_X */

@@ -957,7 +957,9 @@ validate_if_block(compilation_status_t *compile_status,
      * add conditional jump operation if
      * the condition expression evaluates for false
      */
-    skip_label = iml_operation_new(iml_label);
+    skip_label =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
     ir_function_add_operation(
             compile_status->function,
             iml_operation_new(iml_jmpneq,
@@ -997,7 +999,9 @@ validate_if_else(compilation_status_t *compile_status,
    /* if there is any 'else-if' or 'else' statments, generate an end label */
    if (g_slist_next(i) != NULL || else_body != NULL)
    {
-     end_label = iml_operation_new(iml_label);
+     end_label =
+         iml_operation_new(iml_label,
+                           ir_module_gen_label(compile_status->module));
    }
 
    /* validate if-blocks */
@@ -1055,8 +1059,12 @@ validate_while(compilation_status_t *compile_status,
     ir_while_set_loop_condition(while_statment, condition);
 
     /* generate iml labels for start and end of the loop operations */
-    loop_start = iml_operation_new(iml_label);
-    loop_end = iml_operation_new(iml_label);
+    loop_start =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    loop_end =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
 
     /* label the start of loop */
     ir_function_add_operation(compile_status->function, loop_start);

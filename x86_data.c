@@ -44,7 +44,7 @@ gen_array_literal_data(x86_comp_params_t *params,
     assert(params);
     assert(IR_IS_ARRAY_LITERAL(array_literal));
 
-    char label[LABEL_MAX_LEN];
+    char *label;
     char *data_type_directive;
     DtStaticArrayType *array_type;
     DtDataType *element_type;
@@ -52,7 +52,7 @@ gen_array_literal_data(x86_comp_params_t *params,
     GSList *i;
 
     /* generate label for this array literal in data section */
-    label_gen_next(&(params->label_gen), label);
+    label = ir_module_gen_label(params->module);
     ir_array_literal_set_data_label(array_literal, label);
 
     array_type =

@@ -23,9 +23,6 @@ struct iml_operation_s
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static gchar *
-gen_label();
-
 static void
 print_binary_op(iml_operation_t *op, FILE *out, int indention);
 
@@ -67,7 +64,7 @@ iml_operation_new(iml_opcode_t operation, ...)
     switch (operation)
     {
         case iml_label:
-            op->arg1 = gen_label();
+            op->arg1 = va_arg(argp, char *);
             break;
         case iml_return:
         case iml_jmp:
@@ -225,14 +222,6 @@ iml_operation_print(iml_operation_t *self,
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
-
-static gchar *
-gen_label()
-{
-    static guint cntr = 0;
-
-    return g_strdup_printf(".LIML%u", cntr++);
-}
 
 static void
 print_binary_op(iml_operation_t *op, FILE *out, int indention)

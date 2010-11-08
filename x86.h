@@ -1,4 +1,3 @@
-#include "label_gen.h"
 #include "ir_module.h"
 #include "ir_while.h"
 #include "ir_assigment.h"
@@ -14,7 +13,7 @@
 typedef struct x86_comp_params_s
 {
     FILE *out;
-    label_gen_t label_gen;
+    IrModule *module;
 } x86_comp_params_t;
 
 /*---------------------------------------------------------------------------*

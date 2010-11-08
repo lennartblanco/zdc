@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "label_gen.h"
 #include "types.h"
 #include "x86.h"
 #include "x86_data.h"
@@ -217,7 +216,7 @@ x86_gen_code(IrModule *module,
     GSList *i;
 
     params.out = out_stream;
-    label_gen_init(&(params.label_gen));
+    params.module = module;
     global_sym_table = ir_module_get_symbols(module);
 
     fprintf(out_stream,
@@ -1205,7 +1204,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     iml_func_frame_t *frame;
     GSList *i;
     GSList *regs;
-    char return_label[LABEL_MAX_LEN];
+    char *return_label;
 
 
     func_name = ir_function_get_mangled_name(IR_FUNCTION(func_def));
@@ -1243,7 +1242,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 
 
     /* generate this function's return label */
-    label_gen_next(&(params->label_gen), return_label);
+    return_label = ir_module_gen_label(params->module);
 
     /* generate code for all operations in this function */
     for (i = ir_function_get_operations(func_def);
