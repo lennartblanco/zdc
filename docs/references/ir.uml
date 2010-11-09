@@ -26,6 +26,7 @@
     <generalization xmi:id="_Xs1PoOsNEd-ZaKkKGgfZ_A" general="_7_WLAOsDEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_aG3CEOsNEd-ZaKkKGgfZ_A" general="_zcbuwOsDEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_adHJcOsOEd-ZaKkKGgfZ_A" general="_6MpW8OsGEd-bW5ouF1iOBA"/>
+    <generalization xmi:id="_UNltcOwREd-68-y7bi9LvQ" general="_P-w8kOwREd-68-y7bi9LvQ"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_VOWxIOsEEd-bW5ouF1iOBA" name="enum_member"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_bYjCgOsEEd-bW5ouF1iOBA" name="enum"/>
@@ -77,4 +78,5 @@
   <packagedElement xmi:type="uml:Class" xmi:id="__lnmwOsGEd-bW5ouF1iOBA" name="unary_operation"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_FlcbMOsHEd-bW5ouF1iOBA" name="variable"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_LOXykOsHEd-bW5ouF1iOBA" name="while"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_P-w8kOwREd-68-y7bi9LvQ" name="null"/>
 </uml:Package>

@@ -7,6 +7,7 @@
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_cast.h"
+#include "ir_null.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
 #include "types.h"
@@ -46,6 +47,11 @@ static void
 add_array_assigment(IrFunctionDef *function,
                     IrVariable *lvalue,
                     IrExpression *value);
+
+static void
+add_static_array_assigment(IrFunctionDef *function,
+                           IrVariable *lvalue,
+                           IrExpression *value);
 
 static iml_data_type_t
 dt_to_iml_type(DtDataType *dt_type);
@@ -250,6 +256,10 @@ iml_add_assigment(IrFunctionDef *function,
         }
         else if (DT_IS_STATIC_ARRAY_TYPE(var_type))
         {
+            add_static_array_assigment(function, IR_VARIABLE(lvalue), value);
+        }
+        else if (DT_IS_ARRAY_TYPE(var_type))
+        {
             add_array_assigment(function, IR_VARIABLE(lvalue), value);
         }
         else
@@ -292,7 +302,7 @@ dt_to_iml_type(DtDataType *dt_type)
               assert(false);
         }
     }
-    else if (DT_STATIC_ARRAY_TYPE(dt_type))
+    else if (DT_IS_ARRAY_TYPE(dt_type))
     {
         iml_type = iml_blob;
     }
@@ -561,6 +571,23 @@ static void
 add_array_assigment(IrFunctionDef *function,
                     IrVariable *lvalue,
                     IrExpression *value)
+{
+    /* only assigment of 'null' supperted for now */
+    assert(IR_IS_NULL(value));
+
+    ImlVariable *dest = ir_variable_get_location(lvalue);
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_mset,
+                                                iml_constant_new_32b(0),
+                                                2,
+                                                dest));
+}
+
+static void
+add_static_array_assigment(IrFunctionDef *function,
+                           IrVariable *lvalue,
+                           IrExpression *value)
 {
     ImlOperand *res_val;
     ImlVariable *dest;

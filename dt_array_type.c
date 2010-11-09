@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "dt_array_type.h"
+#include "ir_null.h"
 #include "types.h"
 
 #include <assert.h>
@@ -127,12 +128,20 @@ dt_array_type_get_size(DtDataType *self)
     return 8;
 }
 
+static IrExpression *
+dt_array_type_get_init(DtDataType *self)
+{
+    assert(DT_IS_ARRAY_TYPE(self));
+
+    return IR_EXPRESSION(ir_null_new());
+}
+
 static void
 dt_array_type_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_array_type_get_size;
     ((DtDataTypeClass *)klass)->get_string = dt_array_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled = dt_array_type_get_mangled;
-
+    ((DtDataTypeClass *)klass)->get_init = dt_array_type_get_init;
 }
 
