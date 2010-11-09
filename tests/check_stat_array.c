@@ -28,29 +28,29 @@
 //   return res;
 //}
 
-//int
-//call_def_init_int_array(int in)
-//{
-//   int res;
+int
+call_def_init_int_array(int in)
+{
+   int res;
 
-//   asm ("    call _D10stat_array18def_init_int_arrayFiZi\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array18def_init_int_arrayFiZi\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
-//bool
-//call_def_init_bool_array(int in)
-//{
-//   bool res;
+bool
+call_def_init_bool_array(int in)
+{
+   bool res;
 
-//   asm ("    call _D10stat_array19def_init_bool_arrayFiZb\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array19def_init_bool_arrayFiZb\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_init_exp_tst(int in)
@@ -326,17 +326,17 @@ main()
 //    check_bool("init_bool_array(2)", call_init_bool_array(2), false);
 //    check_bool("init_bool_array(3)", call_init_bool_array(3), false);
 
-//    /* def_init_int_array() tests */
-//    for (i = 0; i < 6; i++)
-//    {
-//        check_int("def_init_int_array(i)", call_def_init_int_array(i), 0);
-//    }
+    /* def_init_int_array() tests */
+    for (i = 0; i < 6; i++)
+    {
+        check_int("def_init_int_array(i)", call_def_init_int_array(i), 0);
+    }
 
-//    /* def_init_bool_array() tests */
-//    for (i = 0; i < 8; i++)
-//    {
-//        check_bool("def_init_bool_array(i)", call_def_init_bool_array(i), 0);
-//    }
+    /* def_init_bool_array() tests */
+    for (i = 0; i < 8; i++)
+    {
+        check_bool("def_init_bool_array(i)", call_def_init_bool_array(i), 0);
+    }
 
 //    /* init_exp_tst() tests */
 //    check_int("init_exp_tst(2)", call_init_exp_tst(2), (2 + 2 - 15) * 2);

@@ -20,6 +20,9 @@ dt_static_array_type_get_mangled(DtDataType *self);
 static guint
 dt_static_array_type_get_size(DtDataType *self);
 
+static IrExpression *
+dt_static_array_type_get_init(DtDataType *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -134,6 +137,14 @@ dt_static_array_type_get_mangled(DtDataType *self)
     return stat_arry->mangled_name;
 }
 
+static IrExpression *
+dt_static_array_type_get_init(DtDataType *self)
+{
+    assert(DT_IS_STATIC_ARRAY_TYPE(self));
+
+    return dt_data_type_get_init(DT_ARRAY_TYPE(self)->data_type);
+}
+
 static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy)
 {
@@ -141,5 +152,6 @@ dt_static_array_type_class_init(gpointer klass, gpointer dummy)
     ((DtDataTypeClass *)klass)->get_string = dt_static_array_type_get_string;
     ((DtDataTypeClass *)klass)->get_mangled =
         dt_static_array_type_get_mangled;
+    ((DtDataTypeClass *)klass)->get_init = dt_static_array_type_get_init;
 }
 

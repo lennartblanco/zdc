@@ -153,12 +153,6 @@ add_to_func_frame(IrFunctionDef *parent_function,
         return;
     }
 
-    /* skip initialization of blob variables for now */
-    if (iml_datatype == iml_blob)
-    {
-        return;
-    }
-
     /* generate iml code for default initialization of the variable */
     IrExpression *init_exp = ir_variable_get_initializer(variable);
 
@@ -167,9 +161,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
         init_exp = dt_data_type_get_init(ir_variable_get_data_type(variable));
     }
 
-    ImlOperand *init_val = iml_add_expression_eval(parent_function, init_exp);
-    ir_function_add_operation(parent_function,
-                              iml_operation_new(iml_copy, init_val, iml_var));
+    iml_add_assigment(parent_function, IR_EXPRESSION(variable), init_exp);
 }
 
 ImlOperand *
