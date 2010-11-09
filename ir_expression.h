@@ -41,6 +41,7 @@ typedef struct
   /* public virtual methods */
   DtDataType * (*do_get_data_type) (IrExpression *self);
   bool (*do_is_constant) (IrExpression *self);
+  bool (*do_is_lvalue) (IrExpression *self);
 } IrExpressionClass;
 
 /*---------------------------------------------------------------------------*
@@ -58,5 +59,8 @@ ir_expression_get_data_type(IrExpression *self);
  */
 bool
 ir_expression_is_constant(IrExpression *self);
+
+bool
+ir_expression_is_lvalue(IrExpression *self);
 
 #endif /* IR_EXPRESSION_INC_X */

@@ -1,7 +1,6 @@
 #ifndef IR_ARRAY_CELL_INC_X
 #define IR_ARRAY_CELL_INC_X
 
-#include "ir_lvalue.h"
 #include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,16 +26,17 @@
 
 typedef struct
 {
-    IrLvalue parent;
+    IrExpression parent;
 
     /* private */
+    IrVariable   *array;
     IrExpression *index;
     DtDataType   *data_type;
 } IrArrayCell;
 
 typedef struct
 {
-    IrLvalueClass parent_class;
+    IrExpressionClass parent_class;
 } IrArrayCellClass;
 
 /*---------------------------------------------------------------------------*
@@ -47,19 +47,7 @@ GType
 ir_array_cell_get_type(void);
 
 IrArrayCell *
-ir_array_cell_new(char *array_name, IrExpression *index, guint line_number);
-
-/**
- * get array name
- */
-char *
-ir_array_cell_get_name(IrArrayCell *self);
-
-/**
- * set array symbol
- */
-void
-ir_array_cell_set_symbol(IrArrayCell *self, IrVariable *array_symbol);
+ir_array_cell_new(IrVariable *array, IrExpression *index, guint line_number);
 
 /**
  * get array symbol

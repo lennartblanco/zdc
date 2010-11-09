@@ -77,7 +77,7 @@ sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol)
 }
 
 IrSymbol *
-sym_table_get_symbol(sym_table_t *table, char *name, GError **error)
+sym_table_get_symbol(sym_table_t *table, const char *name, GError **error)
 {
     assert(table);
     assert(name);

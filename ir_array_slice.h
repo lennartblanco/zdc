@@ -1,7 +1,6 @@
 #ifndef IR_ARRAY_SLICE_INC_X
 #define IR_ARRAY_SLICE_INC_X
 
-#include "ir_lvalue.h"
 #include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,7 +26,7 @@
 
 typedef struct
 {
-    IrLvalue parent;
+    IrExpression parent;
 
     /* private */
     IrExpression *start;
@@ -37,7 +36,7 @@ typedef struct
 
 typedef struct
 {
-    IrLvalueClass parent_class;
+    IrExpressionClass parent_class;
 } IrArraySliceClass;
 
 /*---------------------------------------------------------------------------*

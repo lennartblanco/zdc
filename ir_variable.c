@@ -18,6 +18,9 @@ ir_variable_do_print(IrNode *self, FILE *out, int indention);
 static DtDataType *
 ir_variable_do_get_data_type(IrExpression *self);
 
+static bool
+ir_variable_do_is_lvalue(IrExpression *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -48,7 +51,7 @@ ir_variable_get_type(void)
 }
 
 IrVariable *
-ir_variable_new(DtDataType *type, 
+ir_variable_new(DtDataType *type,
                 char *name,
                 IrExpression *initializer,
                 guint line_number)
@@ -136,6 +139,8 @@ ir_variable_class_init(gpointer klass, gpointer foo)
     ((IrNodeClass *)klass)->do_print = ir_variable_do_print;
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_variable_do_get_data_type;
+    ((IrExpressionClass *)klass)->do_is_lvalue =
+        ir_variable_do_is_lvalue;
 }
 
 static void
@@ -161,4 +166,12 @@ ir_variable_do_get_data_type(IrExpression *self)
     assert(IR_IS_VARIABLE(self));
 
     return IR_VARIABLE(self)->type;
+}
+
+static bool
+ir_variable_do_is_lvalue(IrExpression *self)
+{
+    assert(IR_IS_VARIABLE(self));
+
+    return true;
 }

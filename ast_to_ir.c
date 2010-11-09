@@ -17,7 +17,6 @@
 #include "ast_uint_constant.h"
 #include "ast_postfix_exp.h"
 #include "ast_enum_member.h"
-#include "ir_array.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
@@ -29,7 +28,6 @@
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell.h"
-#include "ir_scalar.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_int_constant.h"
@@ -38,6 +36,7 @@
 #include "ir_char_constant.h"
 #include "ir_property.h"
 #include "ir_enum_member.h"
+#include "dt_basic_type.h"
 #include "errors.h"
 
 #include <assert.h>
@@ -407,7 +406,6 @@ func_params_to_ir(GSList *ast_func_params)
             /* an unnamed function parameter, where only type is specified */
             type = i->data;
         }
-
         parameters =
             g_slist_prepend(parameters,
                             ir_variable_new(type, name, NULL, line_num));
@@ -667,52 +665,55 @@ foreach_to_ir(compilation_status_t *compile_status,
               sym_table_t *parent_symbols,
               AstForeach *ast_foreach)
 {
-    IrForeach *foreach;
-    IrVariable *ir_index = NULL;
-    IrVariable *ir_value;
-    IrArraySlice *ir_aggregate;
-    AstVariableDeclaration *var;
-    sym_table_t *loop_symbols;
-    IrCodeBlock *body;
+/* needs to be ported */
+assert(false);
 
-    var = ast_foreach_get_index(ast_foreach);
-    if (var != NULL)
-    {
-        ir_index = 
-          ir_variable_new(ast_variable_declaration_get_data_type(var),
-                          ast_variable_declaration_get_name(var),
-                          NULL,
-                          ast_node_get_line_num(var));
-    }
-
-    var = ast_foreach_get_value(ast_foreach);
-    ir_value =
-        ir_variable_new(ast_variable_declaration_get_data_type(var),
-                        ast_variable_declaration_get_name(var),
-                        NULL,
-                        ast_node_get_line_num(var));
-
-    loop_symbols = sym_table_new(parent_symbols);
-
-    if (ir_index != NULL)
-    {
-        sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_index));
-    }
-
-    sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
-
-    body = ir_code_block_new(loop_symbols);
-    code_block_to_ir(compile_status, ast_foreach_get_body(ast_foreach), body);
-
-    ir_aggregate =
-        IR_ARRAY_SLICE(
-            array_slice_to_ir(compile_status,
-                              parent_symbols,
-                              ast_foreach_get_aggregate(ast_foreach)));
-
-    foreach = ir_foreach_new(ir_index, ir_value, ir_aggregate, body);
-
-    return IR_STATMENT(foreach);
+//    IrForeach *foreach;
+//    IrVariable *ir_index = NULL;
+//    IrVariable *ir_value;
+//    IrArraySlice *ir_aggregate;
+//    AstVariableDeclaration *var;
+//    sym_table_t *loop_symbols;
+//    IrCodeBlock *body;
+//
+//    var = ast_foreach_get_index(ast_foreach);
+//    if (var != NULL)
+//    {
+//        ir_index =
+//          ir_variable_new(ast_variable_declaration_get_data_type(var),
+//                          ast_variable_declaration_get_name(var),
+//                          NULL,
+//                          ast_node_get_line_num(var));
+//    }
+//
+//    var = ast_foreach_get_value(ast_foreach);
+//    ir_value =
+//        ir_variable_new(ast_variable_declaration_get_data_type(var),
+//                        ast_variable_declaration_get_name(var),
+//                        NULL,
+//                        ast_node_get_line_num(var));
+//
+//    loop_symbols = sym_table_new(parent_symbols);
+//
+//    if (ir_index != NULL)
+//    {
+//        sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_index));
+//    }
+//
+//    sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
+//
+//    body = ir_code_block_new(loop_symbols);
+//    code_block_to_ir(compile_status, ast_foreach_get_body(ast_foreach), body);
+//
+//    ir_aggregate =
+//        IR_ARRAY_SLICE(
+//            array_slice_to_ir(compile_status,
+//                              parent_symbols,
+//                              ast_foreach_get_aggregate(ast_foreach)));
+//
+//    foreach = ir_foreach_new(ir_index, ir_value, ir_aggregate, body);
+//
+//    return IR_STATMENT(foreach);
 }
 
 /**
@@ -753,12 +754,16 @@ assigment_to_ir(compilation_status_t *compile_status,
 
     ir_target =
         expression_to_ir(compile_status, symbols, AST_EXPRESSION(target));
-    assert(IR_IS_LVALUE(ir_target));
 
     ir_value =
         expression_to_ir(compile_status, symbols, value);
 
-    return IR_STATMENT(ir_assigment_new(IR_LVALUE(ir_target),
+    if (ir_target == NULL && ir_value == NULL)
+    {
+        return NULL;
+    }
+
+    return IR_STATMENT(ir_assigment_new(ir_target,
                                         ir_value,
                                         ast_node_get_line_num(ast_assigment)));
 }
@@ -970,45 +975,41 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
     assert(AST_IS_ARRAY_CELL_REF(array_cell_ref));
 
     AstExpression *ast_index_exp;
+    const char *array_name;
+    IrSymbol *array;
     IrExpression *ir_index_exp;
 
     /*
      * convert array index expression to IR form
      */
+    array_name = ast_array_cell_ref_get_name(array_cell_ref);
     ast_index_exp = ast_array_cell_ref_get_index(array_cell_ref);
     ir_index_exp = expression_to_ir(compile_status, symbols, ast_index_exp);
-            /* create IR array cell ref */
+
+    /* look-up array symbol */
+    array = sym_table_get_symbol(symbols, array_name, NULL);
+    if (array == NULL)
+    {
+        compile_error(compile_status,
+                      array_cell_ref,
+                      "reference to unknown array symbol '%s'\n",
+                      array_name);
+        return NULL;
+    }
+    else if (!IR_IS_VARIABLE(array))
+    {
+        compile_error(compile_status,
+                      array_cell_ref,
+                      "unexpected reference to non variable symbol '%s'\n",
+                      array_name);
+        return NULL;
+    }
+
     return
         IR_EXPRESSION(
-            ir_array_cell_new(ast_array_cell_ref_get_name(array_cell_ref),
+            ir_array_cell_new(IR_VARIABLE(array),
                               ir_index_exp,
                               ast_node_get_line_num(array_cell_ref)));
-}
-
-static IrExpression *
-ident_to_ir(compilation_status_t *compile_status,
-            sym_table_t *symbols,
-            AstIdent *ident)
-{
-    char *ident_name;
-    IrSymbol *var_symb;
-
-    ident_name = ast_ident_get_name(ident);
-    var_symb = sym_table_get_symbol(symbols, ident_name, NULL);
-
-    if (IR_IS_ENUM(var_symb))
-    {
-        return IR_EXPRESSION(var_symb);
-    }
-    else if (IR_IS_VARIABLE(var_symb) &&
-        DT_IS_ARRAY_TYPE(ir_variable_get_data_type(IR_VARIABLE(var_symb))))
-    {
-        /* this is an array handle expression */
-        return IR_EXPRESSION(ir_array_new(IR_VARIABLE(var_symb)));
-    }
-
-    return
-        IR_EXPRESSION(ir_scalar_new(ident_name, ast_node_get_line_num(ident)));
 }
 
 static IrExpression *
@@ -1138,9 +1139,12 @@ expression_to_ir(compilation_status_t *compile_status,
     else if (AST_IS_IDENT(ast_expression))
     {
         AstIdent *ident;
+        IrSymbol *symb;
 
         ident = AST_IDENT(ast_expression);
-        return ident_to_ir(compile_status, symbols, ident);
+        symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), NULL);
+
+        return IR_EXPRESSION(symb);
     }
     else if (AST_IS_UNARY_OPERATION(ast_expression))
     {
@@ -1207,7 +1211,7 @@ var_def_to_ir(compilation_status_t *compile_status,
 
     if (sym_table_add_symbol(sym_table, IR_SYMBOL(sym)) != 0)
     {
-        compile_error(compile_status, 
+        compile_error(compile_status,
                       IR_NODE(sym),
                       "redeclaration of symbol '%s'\n",
                       ir_symbol_get_name(IR_SYMBOL(sym)));

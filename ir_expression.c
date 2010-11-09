@@ -14,8 +14,11 @@ ir_expression_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_expression_do_get_data_type(IrExpression *self);
 
-bool
+static bool
 ir_expression_do_is_constant(IrExpression *self);
+
+static bool
+ir_expression_do_is_lvalue(IrExpression *self);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -62,6 +65,14 @@ ir_expression_is_constant(IrExpression *self)
     return IR_EXPRESSION_GET_CLASS(self)->do_is_constant(self);
 }
 
+bool
+ir_expression_is_lvalue(IrExpression *self)
+{
+    assert(IR_IS_EXPRESSION(self));
+
+    return IR_EXPRESSION_GET_CLASS(self)->do_is_lvalue(self);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -74,6 +85,9 @@ ir_expression_class_init(gpointer klass, gpointer dummy)
 
     ((IrExpressionClass *)klass)->do_is_constant =
         ir_expression_do_is_constant;
+
+    ((IrExpressionClass *)klass)->do_is_lvalue =
+        ir_expression_do_is_lvalue;
 }
 
 static DtDataType *
@@ -87,8 +101,18 @@ ir_expression_do_get_data_type(IrExpression *self)
  * Default implementation of 'is_constant()' method. By default
  * expression is not constant.
  */
-bool
+static bool
 ir_expression_do_is_constant(IrExpression *self)
+{
+    return false;
+}
+
+/**
+ * Default implementation of 'is_lvalue()' method. By default
+ * expression is not a lvalue.
+ */
+static bool
+ir_expression_do_is_lvalue(IrExpression *self)
 {
     return false;
 }

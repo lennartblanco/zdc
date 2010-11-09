@@ -22,7 +22,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
 
 void
 iml_add_assigment(IrFunctionDef *function,
-                  IrLvalue *lvalue,
+                  IrExpression *lvalue,
                   IrExpression *value);
 
 ImlOperand *

@@ -43,7 +43,7 @@ ir_array_slice_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_LVALUE,
+      type = g_type_register_static(IR_TYPE_EXPRESSION,
                                     "IrArraySliceType",
                                     &info, 0);
     }
@@ -108,16 +108,6 @@ ir_array_slice_set_end(IrArraySlice *self,
     self->end = end;
 }
 
-
-
-char *
-ir_array_slice_get_name(IrArraySlice *self)
-{
-    assert(IR_IS_ARRAY_SLICE(self));
-
-    return ir_lvalue_get_name(IR_LVALUE(self));
-}
-
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -133,67 +123,71 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy)
 static DtDataType *
 ir_array_slice_do_get_data_type(IrExpression *self)
 {
-    assert(IR_IS_ARRAY_SLICE(self));
-
-    IrArraySlice *slice = IR_ARRAY_SLICE(self);
-
-    if (slice->data_type == NULL)
-    {
-        IrVariable *array_variable;
-        DtArrayType *array_data_type;
-        DtDataType *array_element_type;
-
-
-        array_variable = ir_lvalue_get_variable(IR_LVALUE(slice));
-        array_data_type =
-            DT_ARRAY_TYPE(ir_variable_get_data_type(array_variable));
-        array_element_type =
-            dt_array_type_get_data_type(array_data_type);
-
-        if (IR_IS_UINT_CONSTANT(slice->start) &&
-            IR_IS_UINT_CONSTANT(slice->end))
-        {
-            guint32 slice_len;
-
-            slice_len =
-                ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->end)) -
-                ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->start));
-            slice->data_type =
-                DT_DATA_TYPE(dt_static_array_type_new(array_element_type,
-                                                      slice_len));
-        }
-        else
-        {
-            slice->data_type =
-                DT_DATA_TYPE(dt_array_type_new(array_element_type));
-        }
-    }
- 
-    return slice->data_type;
+/* needs to be ported */
+assert(false);
+//    assert(IR_IS_ARRAY_SLICE(self));
+//
+//    IrArraySlice *slice = IR_ARRAY_SLICE(self);
+//
+//    if (slice->data_type == NULL)
+//    {
+//        IrVariable *array_variable;
+//        DtArrayType *array_data_type;
+//        DtDataType *array_element_type;
+//
+//
+//        array_variable = ir_lvalue_get_variable(IR_LVALUE(slice));
+//        array_data_type =
+//            DT_ARRAY_TYPE(ir_variable_get_data_type(array_variable));
+//        array_element_type =
+//            dt_array_type_get_data_type(array_data_type);
+//
+//        if (IR_IS_UINT_CONSTANT(slice->start) &&
+//            IR_IS_UINT_CONSTANT(slice->end))
+//        {
+//            guint32 slice_len;
+//
+//            slice_len =
+//                ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->end)) -
+//                ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->start));
+//            slice->data_type =
+//                DT_DATA_TYPE(dt_static_array_type_new(array_element_type,
+//                                                      slice_len));
+//        }
+//        else
+//        {
+//            slice->data_type =
+//                DT_DATA_TYPE(dt_array_type_new(array_element_type));
+//        }
+//    }
+//
+//    return slice->data_type;
 }
 
 static void
 ir_array_slice_do_print(IrNode *self, FILE *out, int indention)
 {
-    assert(IR_IS_ARRAY_SLICE(self));
-
-    IrArraySlice *slice = IR_ARRAY_SLICE(self);
-    fprintf(out, "(");
-    if (slice->data_type != NULL)
-    {
-        fprintf(out, "%s", dt_data_type_get_string(slice->data_type));
-    }
-    else
-    {
-        fprintf(out, "?[?]");
-    }
-    fprintf(out, ") %s[", ir_lvalue_get_name(IR_LVALUE(slice)));
-
-    if (slice->start != NULL)
-    {  
-        ir_node_print(IR_NODE(slice->start), out, 0);
-        fprintf(out, "..");
-        ir_node_print(IR_NODE(slice->end), out, 0);
-    }
-    fprintf(out, "]");
+/* needs to be ported */
+assert(false);
+//    assert(IR_IS_ARRAY_SLICE(self));
+//
+//    IrArraySlice *slice = IR_ARRAY_SLICE(self);
+//    fprintf(out, "(");
+//    if (slice->data_type != NULL)
+//    {
+//        fprintf(out, "%s", dt_data_type_get_string(slice->data_type));
+//    }
+//    else
+//    {
+//        fprintf(out, "?[?]");
+//    }
+//    fprintf(out, ") %s[", ir_lvalue_get_name(IR_LVALUE(slice)));
+//
+//    if (slice->start != NULL)
+//    {
+//        ir_node_print(IR_NODE(slice->start), out, 0);
+//        fprintf(out, "..");
+//        ir_node_print(IR_NODE(slice->end), out, 0);
+//    }
+//    fprintf(out, "]");
 }

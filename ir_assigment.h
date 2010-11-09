@@ -3,7 +3,6 @@
 
 #include "ir_statment.h"
 #include "ir_expression.h"
-#include "ir_lvalue.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -31,7 +30,7 @@ typedef struct
     IrStatment          parent;
 
     /* private */
-    IrLvalue           *lvalue;
+    IrExpression       *lvalue;
     IrExpression       *value;
 } IrAssigment;
 
@@ -48,15 +47,15 @@ GType
 ir_assigment_get_type(void);
 
 IrAssigment *
-ir_assigment_new(IrLvalue *lvalue,
+ir_assigment_new(IrExpression *lvalue,
                  IrExpression *value,
                  guint line_number);
 
-IrLvalue *
+IrExpression *
 ir_assigment_get_lvalue(IrAssigment *self);
 
 void
-ir_assigment_set_lvalue(IrAssigment *self, IrLvalue *lvalue);
+ir_assigment_set_lvalue(IrAssigment *self, IrExpression *lvalue);
 
 IrExpression *
 ir_assigment_get_value(IrAssigment *self);

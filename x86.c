@@ -11,7 +11,6 @@
 #include "ir_uint_constant.h"
 #include "ir_char_constant.h"
 #include "ir_bool_constant.h"
-#include "ir_scalar.h"
 #include "ir_variable.h"
 #include "ir_return.h"
 #include "ir_function_call.h"

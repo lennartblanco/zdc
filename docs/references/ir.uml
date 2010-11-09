@@ -15,7 +15,6 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_L_u64OsDEd-bW5ouF1iOBA" name="array_cell"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_RSAFwOsDEd-bW5ouF1iOBA" name="array_literal"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_deTDgOsDEd-bW5ouF1iOBA" name="array_slice"/>
-  <packagedElement xmi:type="uml:Class" xmi:id="_l_LfcOsDEd-bW5ouF1iOBA" name="array"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_qtSNUOsDEd-bW5ouF1iOBA" name="assigment"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_uERXQOsDEd-bW5ouF1iOBA" name="binary_operation"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_zcbuwOsDEd-bW5ouF1iOBA" name="bool_constant"/>
@@ -32,7 +31,6 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_bYjCgOsEEd-bW5ouF1iOBA" name="enum"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_kFK0YOsEEd-bW5ouF1iOBA" name="expression">
     <generalization xmi:id="_CinmkOsLEd-ZaKkKGgfZ_A" general="_RSAFwOsDEd-bW5ouF1iOBA"/>
-    <generalization xmi:id="_C_AAkOsLEd-ZaKkKGgfZ_A" general="_kTMM0OsFEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_p5cb8OsLEd-ZaKkKGgfZ_A" general="_f0KnUOsGEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_BgsaEOsMEd-ZaKkKGgfZ_A" general="_E-31UOsFEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_kgbd8OsNEd-ZaKkKGgfZ_A" general="_OpEfMOsEEd-bW5ouF1iOBA"/>
@@ -40,6 +38,8 @@
     <generalization xmi:id="_gjMW4OsOEd-ZaKkKGgfZ_A" general="__lnmwOsGEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_1vk1EOsOEd-ZaKkKGgfZ_A" general="_4JdekOsDEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_4fMdAOsOEd-ZaKkKGgfZ_A" general="_uERXQOsDEd-bW5ouF1iOBA"/>
+    <generalization xmi:id="_Ljd9MOslEd-JPfE4KsKRIg" general="_L_u64OsDEd-bW5ouF1iOBA"/>
+    <generalization xmi:id="_MZBFIOslEd-JPfE4KsKRIg" general="_deTDgOsDEd-bW5ouF1iOBA"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_s10xsOsEEd-bW5ouF1iOBA" name="foreach"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_E-31UOsFEd-bW5ouF1iOBA" name="function_call"/>
@@ -52,19 +52,12 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_V7pfgOsFEd-bW5ouF1iOBA" name="if_block"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_YmA0AOsFEd-bW5ouF1iOBA" name="if_else"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_cNGPcOsFEd-bW5ouF1iOBA" name="int_constant"/>
-  <packagedElement xmi:type="uml:Class" xmi:id="_kTMM0OsFEd-bW5ouF1iOBA" name="lvalue">
-    <generalization xmi:id="_F3yyoOsLEd-ZaKkKGgfZ_A" general="_L_u64OsDEd-bW5ouF1iOBA"/>
-    <generalization xmi:id="_V5J2EOsOEd-ZaKkKGgfZ_A" general="_Xqo7cOsGEd-bW5ouF1iOBA"/>
-    <generalization xmi:id="_DZaH0OsPEd-ZaKkKGgfZ_A" general="_l_LfcOsDEd-bW5ouF1iOBA"/>
-    <generalization xmi:id="_Gqv8wOsPEd-ZaKkKGgfZ_A" general="_deTDgOsDEd-bW5ouF1iOBA"/>
-  </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_Fx5YQOsGEd-bW5ouF1iOBA" name="module"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_J86AIOsGEd-bW5ouF1iOBA" name="node">
     <generalization xmi:id="__WY7IOsKEd-ZaKkKGgfZ_A" general="_aw13YOsGEd-bW5ouF1iOBA"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_MtmmIOsGEd-bW5ouF1iOBA" name="property"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_SRV7gOsGEd-bW5ouF1iOBA" name="return"/>
-  <packagedElement xmi:type="uml:Class" xmi:id="_Xqo7cOsGEd-bW5ouF1iOBA" name="scalar"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_aw13YOsGEd-bW5ouF1iOBA" name="statement">
     <generalization xmi:id="_AfyMIOsLEd-ZaKkKGgfZ_A" general="_kFK0YOsEEd-bW5ouF1iOBA"/>
     <generalization xmi:id="_w9UHUOsLEd-ZaKkKGgfZ_A" general="_s10xsOsEEd-bW5ouF1iOBA"/>

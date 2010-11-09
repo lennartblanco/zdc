@@ -5,8 +5,6 @@
 #include "types.h"
 #include "dt_auto_type.h"
 #include "dt_static_array_type.h"
-#include "ir_scalar.h"
-#include "ir_array.h"
 #include "ir_function.h"
 #include "ir_assigment.h"
 #include "ir_function_call.h"
@@ -103,16 +101,6 @@ static IrExpression *
 validate_array_literal(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
                        IrArrayLiteral *array_literal);
-
-static IrExpression *
-validate_scalar(compilation_status_t *compile_status,
-                sym_table_t *sym_table,
-                IrScalar *scalar);
-
-static bool
-validate_lvalue(compilation_status_t *compile_status,
-                sym_table_t *sym_table,
-                IrLvalue *lvalue);
 
 static void
 validate_return(compilation_status_t *compile_status,
@@ -522,43 +510,23 @@ validate_array_cell(compilation_status_t *compile_status,
                     IrArrayCell *cell)
 {
     IrExpression *idx_exp;
-    IrSymbol *array_symb;
+    IrVariable *array_symb;
     DtDataType *symb_type;
 
+    array_symb = ir_array_cell_get_symbol(cell);
     /*
-     * look-up the array in the symbol table
+     * check that referenced symbol is an array variable
      */
-    array_symb = sym_table_get_symbol(sym_table,
-                                      ir_array_cell_get_name(cell),
-                                      NULL);
-    if (array_symb == NULL) 
-    {
-        compile_error(compile_status,
-                      IR_NODE(cell),
-                      "reference to unknow array symbol '%s'\n",
-                      ir_array_cell_get_name(cell));
-        return NULL;
-    }
-    else if (!IR_IS_VARIABLE(array_symb))
-    {
-        compile_error(compile_status,
-                      IR_NODE(cell),
-                      "unexpected reference to non variable\n");
-        return NULL;
-    }
-
-    /* 
-     * check that referenced symbol is an static array variable
-     */
-    symb_type = ir_variable_get_data_type(IR_VARIABLE(array_symb));
+    symb_type = ir_expression_get_data_type(IR_EXPRESSION(array_symb));
     if (!DT_IS_ARRAY_TYPE(symb_type))
     {
         compile_error(compile_status,
                       IR_NODE(cell),
-                      "array element expression over non array\n");
+                      "'%s' must be of array type, not %s\n",
+                      ir_variable_get_name(array_symb),
+                      dt_data_type_get_string(symb_type));
         return NULL;
     }
-    ir_lvalue_set_variable(IR_LVALUE(cell), IR_VARIABLE(array_symb));
 
     /*
      * validate array index expression
@@ -756,13 +724,6 @@ validate_expression(compilation_status_t *compile_status,
                                    sym_table,
                                    IR_ARRAY_LITERAL(expression));
     }
-    else if (IR_IS_SCALAR(expression))
-    {
-        expression =
-            validate_scalar(compile_status,
-                           sym_table,
-                           IR_SCALAR(expression));
-    }
     else if (IR_IS_ARRAY_SLICE(expression))
     {
        expression =
@@ -847,7 +808,7 @@ validate_assigment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
                    IrAssigment *assigment)
 {
-    IrLvalue *lvalue;
+    IrExpression *lvalue;
     IrExpression *value;
     IrExpression *converted_value;
     DtDataType *target_type;
@@ -856,11 +817,17 @@ validate_assigment(compilation_status_t *compile_status,
      * validate assignment lvalue
      */
     lvalue = ir_assigment_get_lvalue(assigment);
-    lvalue = IR_LVALUE(validate_expression(compile_status,
-                                           sym_table,
-                                           IR_EXPRESSION(lvalue)));
-    if (!IR_IS_LVALUE(lvalue))
+    lvalue = validate_expression(compile_status, sym_table, lvalue);
+    if (lvalue == NULL)
     {
+        /* invalid lvalue expression, bail-out */
+        return;
+    }
+    if (!ir_expression_is_lvalue(lvalue))
+    {
+        compile_error(compile_status,
+                      assigment,
+                      "invalid lvalue in assigment\n");
         return;
     }
     ir_assigment_set_lvalue(assigment, lvalue);
@@ -895,7 +862,7 @@ validate_assigment(compilation_status_t *compile_status,
     {
         /*
          * Handle the special case of array assignments from a scalar,
-         * check if scalar can be implicitly converted to array's 
+         * check if scalar can be implicitly converted to array's
          * element data type
          */
         DtDataType *array_element_type;
@@ -908,8 +875,7 @@ validate_assigment(compilation_status_t *compile_status,
     {
         compile_error(compile_status,
                       IR_NODE(assigment),
-                      "incompatible types in assigment to '%s'\n",
-                      ir_lvalue_get_name(IR_LVALUE(lvalue)));
+                      "incompatible types in assigment\n");
         return;
     }
 
@@ -1476,161 +1442,109 @@ validate_function_def(compilation_status_t *compile_status,
     }
 }
 
-static bool
-validate_lvalue(compilation_status_t *compile_status,
-                sym_table_t *sym_table,
-                IrLvalue *lvalue)
-{
-    IrSymbol *symb;
-
-    /*
-     * look-up the variable in the symbol table
-     */
-    symb = sym_table_get_symbol(sym_table,
-                                ir_lvalue_get_name(lvalue),
-                                NULL);
-    if (symb == NULL) 
-    {
-        compile_error(compile_status,
-                      IR_NODE(lvalue),
-                      "reference to unknow symbol '%s'\n",
-                      ir_lvalue_get_name(lvalue));
-        return NULL;
-    }
-    else if (!IR_IS_VARIABLE(symb))
-    {
-        compile_error(compile_status,
-                      IR_NODE(lvalue),
-                      "can not assign value to '%s', not a variable\n",
-                      ir_lvalue_get_name(lvalue));
-
-        return NULL;
-    }
-
-    ir_lvalue_set_variable(lvalue, IR_VARIABLE(symb));
-
-    return IR_EXPRESSION(lvalue);
-}
-
-static IrExpression *
-validate_scalar(compilation_status_t *compile_status,
-                sym_table_t *sym_table,
-                IrScalar *scalar)
-{
-    if (!validate_lvalue(compile_status,
-                         sym_table,
-                         IR_LVALUE(scalar)))
-    {
-       return NULL;
-    }
-
-    return IR_EXPRESSION(scalar);
-}
-
-
-
 static IrExpression *
 validate_array_slice(compilation_status_t *compile_status,
                      sym_table_t *sym_table,
                      IrArraySlice *array_slice)
 {
-    IrVariable *var;
-    DtDataType *var_dt;
-    IrExpression *exp;
-
-    if (!validate_lvalue(compile_status,
-                         sym_table,
-                         IR_LVALUE(array_slice)))
-    {
-        return NULL;
-    }
-
-    /*
-     * check that array slice expression symbol is of array type
-     */
-    var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
-    var_dt = ir_variable_get_data_type(var);
-
-    if (!DT_IS_ARRAY_TYPE(var_dt))
-    {
-        compile_error(compile_status,
-                      IR_NODE(array_slice),
-                      "illegal array slice expression over "
-                      "non-array variable\n");
-        return NULL;
-    }
-
-    /*
-     * validate start expression
-     */
-    exp = ir_array_slice_get_start(array_slice);
-    if (exp == NULL)
-    {
-        exp = IR_EXPRESSION(ir_uint_constant_new(0, 0));
-    }
-    else
-    {
-        exp = validate_expression(compile_status, sym_table, exp);
-        if (exp == NULL)
-        {
-            /* invalid start expression */
-            return false;
-        }
-        exp = types_implicit_conv(types_get_uint_type(), exp);
-        if (exp == NULL)
-        {
-            compile_error(compile_status,
-                          IR_NODE(array_slice),
-                          "cannot implicitly convert array slice start"
-                          " expression to uint type\n");
-            return NULL;
-        }
-    }
-    ir_array_slice_set_start(array_slice, exp);
-
-    /*
-     * validate end expression
-     */
-    exp = ir_array_slice_get_end(array_slice);
-    if (exp == NULL)
-    {
-        if (DT_IS_STATIC_ARRAY_TYPE(var_dt))
-        {
-          /* slice over static array */
-          guint32 end_idx;
-
-          end_idx =
-              dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
-          exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
-        }
-        else
-        {
-           /* slice over dynamic array */
-           exp = IR_EXPRESSION(ir_property_new(IR_EXPRESSION(array_slice),
-                                               IR_PROP_LENGTH, 0));
-        }
-    }
-    else
-    {
-        exp = validate_expression(compile_status, sym_table, exp);
-        if (exp == NULL)
-        {
-            /* invalid end expression */
-            return false;
-        }
-        exp = types_implicit_conv(types_get_uint_type(), exp);
-        if (exp == NULL)
-        {
-            compile_error(compile_status,
-                          IR_NODE(array_slice),
-                          "cannot implicitly convert array slice end"
-                          " expression to uint type\n");
-            return NULL;
-        }
-    }
-    ir_array_slice_set_end(array_slice, exp);
-
-    return IR_EXPRESSION(array_slice);
+    assert(false);
+//    IrVariable *var;
+//    DtDataType *var_dt;
+//    IrExpression *exp;
+//
+//    if (!validate_lvalue(compile_status,
+//                         sym_table,
+//                         IR_LVALUE(array_slice)))
+//    {
+//        return NULL;
+//    }
+//
+//    /*
+//     * check that array slice expression symbol is of array type
+//     */
+//    var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
+//    var_dt = ir_variable_get_data_type(var);
+//
+//    if (!DT_IS_ARRAY_TYPE(var_dt))
+//    {
+//        compile_error(compile_status,
+//                      IR_NODE(array_slice),
+//                      "illegal array slice expression over "
+//                      "non-array variable\n");
+//        return NULL;
+//    }
+//
+//    /*
+//     * validate start expression
+//     */
+//    exp = ir_array_slice_get_start(array_slice);
+//    if (exp == NULL)
+//    {
+//        exp = IR_EXPRESSION(ir_uint_constant_new(0, 0));
+//    }
+//    else
+//    {
+//        exp = validate_expression(compile_status, sym_table, exp);
+//        if (exp == NULL)
+//        {
+//            /* invalid start expression */
+//            return false;
+//        }
+//        exp = types_implicit_conv(types_get_uint_type(), exp);
+//        if (exp == NULL)
+//        {
+//            compile_error(compile_status,
+//                          IR_NODE(array_slice),
+//                          "cannot implicitly convert array slice start"
+//                          " expression to uint type\n");
+//            return NULL;
+//        }
+//    }
+//    ir_array_slice_set_start(array_slice, exp);
+//
+//    /*
+//     * validate end expression
+//     */
+//    exp = ir_array_slice_get_end(array_slice);
+//    if (exp == NULL)
+//    {
+//        if (DT_IS_STATIC_ARRAY_TYPE(var_dt))
+//        {
+//          /* slice over static array */
+//          guint32 end_idx;
+//
+//          end_idx =
+//              dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
+//          exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
+//        }
+//        else
+//        {
+//           /* slice over dynamic array */
+//           exp = IR_EXPRESSION(ir_property_new(IR_EXPRESSION(array_slice),
+//                                               IR_PROP_LENGTH, 0));
+//        }
+//    }
+//    else
+//    {
+//        exp = validate_expression(compile_status, sym_table, exp);
+//        if (exp == NULL)
+//        {
+//            /* invalid end expression */
+//            return false;
+//        }
+//        exp = types_implicit_conv(types_get_uint_type(), exp);
+//        if (exp == NULL)
+//        {
+//            compile_error(compile_status,
+//                          IR_NODE(array_slice),
+//                          "cannot implicitly convert array slice end"
+//                          " expression to uint type\n");
+//            return NULL;
+//        }
+//    }
+//    ir_array_slice_set_end(array_slice, exp);
+//
+//    return IR_EXPRESSION(array_slice);
 }
 
 static IrExpression *

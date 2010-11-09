@@ -60,7 +60,7 @@ sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol);
  * @return The symbol of NULL of not such symbol is found.
  */
 IrSymbol *
-sym_table_get_symbol(sym_table_t *table, char *name, GError **error);
+sym_table_get_symbol(sym_table_t *table, const char *name, GError **error);
 
 /**
  * @return all symbols in this table as a list of IrSymbol pointers,
