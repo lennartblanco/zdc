@@ -71,7 +71,6 @@ clean:
 	make -C docs clean
 	make -C tests clean
 	make -C etests clean
-	make -C utests clean
 	make -C examples clean
 	rm -rf $(DEP_DIR)
 	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~
