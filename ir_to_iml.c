@@ -6,6 +6,7 @@
 #include "ir_array_cell.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_property.h"
 #include "ir_cast.h"
 #include "ir_null.h"
 #include "iml_constant.h"
@@ -32,6 +33,9 @@ iml_add_cast_eval(IrFunctionDef *function, IrCast *cast);
 
 static ImlOperand *
 iml_add_array_cell_eval(IrFunctionDef *function, IrArrayCell *cell);
+
+static ImlOperand *
+iml_add_property_eval(IrFunctionDef *function, IrProperty *prop);
 
 static void
 add_scalar_assigment(IrFunctionDef *function,
@@ -108,6 +112,11 @@ iml_add_expression_eval(IrFunctionDef *function,
         return iml_add_array_cell_eval(function,
                                        IR_ARRAY_CELL(ir_expression));
     }
+    else if (IR_IS_PROPERTY(ir_expression))
+    {
+        return iml_add_property_eval(function, IR_PROPERTY(ir_expression));
+    }
+
     /* unexpected expression type */
     assert(false);
 }
@@ -547,6 +556,37 @@ iml_add_array_cell_eval(IrFunctionDef *function, IrArrayCell *cell)
                                                 src,
                                                 index_val,
                                                 size,
+                                                res));
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_property_eval(IrFunctionDef *function, IrProperty *prop)
+{
+    assert(IR_IS_PROPERTY(prop));
+
+    IrVariable *prop_exp;
+    ImlVariable *src;
+    ImlVariable *res;
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    /* only length property of variables implemented for now */
+    assert(ir_property_get_id(prop) == ir_prop_length);
+    assert(IR_IS_VARIABLE(ir_property_get_expression(prop)));
+
+    prop_exp = IR_VARIABLE(ir_property_get_expression(prop));
+    /* only length of dynamic array implemented for now */
+    assert(DT_IS_ARRAY_TYPE(ir_variable_get_data_type(prop_exp)));
+
+    src = ir_variable_get_location(prop_exp);
+    res = iml_func_frame_get_temp(frame, iml_32b);
+
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_getfld,
+                                                src,
+                                                iml_constant_new_32b(1),
+                                                4,
                                                 res));
 
     return IML_OPERAND(res);
