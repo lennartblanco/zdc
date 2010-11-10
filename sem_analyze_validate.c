@@ -781,7 +781,8 @@ validate_return(compilation_status_t *compile_status,
          * valid return statement, add iml operations
          */
         ImlOperand *ret_val = iml_add_expression_eval(compile_status->function,
-                                                      conv_exp);
+                                                      conv_exp,
+                                                      NULL);
         ir_function_add_operation(compile_status->function,
                                   iml_operation_new(iml_return, ret_val));
     }
@@ -917,7 +918,8 @@ validate_if_block(compilation_status_t *compile_status,
 
     /* generate iml operation for validation of condition expression */
     condition_eval_res = iml_add_expression_eval(compile_status->function,
-                                                 condition);
+                                                 condition,
+                                                 NULL);
 
     /*
      * add conditional jump operation if
@@ -1036,7 +1038,8 @@ validate_while(compilation_status_t *compile_status,
     ir_function_add_operation(compile_status->function, loop_start);
     /* insert iml operation for validation of loop condition */
     condition_eval_res = iml_add_expression_eval(compile_status->function,
-                                                 condition);
+                                                 condition,
+                                                 NULL);
 
     /* jump over loop body unless condition evaluates to true */
     ir_function_add_operation(
@@ -1158,7 +1161,8 @@ validate_statment(compilation_status_t *compile_status,
                                 sym_table,
                                 IR_FUNCTION_CALL(statment));
          iml_add_func_call_eval(compile_status->function,
-                                IR_FUNCTION_CALL(statment));
+                                IR_FUNCTION_CALL(statment),
+                                NULL);
     }
     else if (IR_IS_ASSIGMENT(statment))
     {
