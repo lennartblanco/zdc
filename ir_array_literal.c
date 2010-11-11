@@ -95,6 +95,14 @@ ir_array_literal_get_values(IrArrayLiteral *self)
 }
 
 guint
+ir_array_literal_get_length(IrArrayLiteral *self)
+{
+    assert(IR_IS_ARRAY_LITERAL(self));
+
+    return g_slist_length(self->values);
+}
+
+guint
 ir_array_literal_get_size(IrArrayLiteral *self)
 {
     assert(IR_IS_ARRAY_LITERAL(self));

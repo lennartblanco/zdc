@@ -166,6 +166,9 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
         case iml_32b:
             type_str = "32b";
             break;
+        case iml_ptr:
+            type_str = "ptr";
+            break;
         case iml_blob:
             type_str = "blob";
             break;

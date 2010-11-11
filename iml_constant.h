@@ -34,6 +34,7 @@ typedef struct
       guint8 v8;
       guint16 v16;
       guint32 v32;
+      const gchar *ptr_label;
     } value;
 } ImlConstant;
 
@@ -58,10 +59,16 @@ iml_constant_new_16b(guint16 val);
 ImlConstant *
 iml_constant_new_32b(guint32 val);
 
+ImlConstant *
+iml_constant_new_ptr(const gchar *label);
+
 guint8
 iml_constant_get_val_8b(ImlConstant *self);
 
 guint32
 iml_constant_get_val_32b(ImlConstant *self);
+
+const gchar *
+iml_constant_get_val_ptr(ImlConstant *self);
 
 #endif /* IML_CONSTANT_INC_X */

@@ -1829,6 +1829,20 @@ assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
         used_regs = g_slist_prepend(used_regs, reg);
     }
 
+    /* assign registers to pointer variables */
+    vars = iml_func_frame_get_locals(frame, iml_ptr);
+    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
+    {
+        iml_register_t *reg = regs->data;
+
+        /* remove register from the list of available */
+        regs = g_slist_remove(regs, reg);
+
+        /* assign the register to the variable */
+        iml_variable_set_register(i->data, reg);
+        used_regs = g_slist_prepend(used_regs, reg);
+    }
+
     /* store the list of used preserved registers */
     iml_func_frame_set_used_regs(frame, used_regs);
 

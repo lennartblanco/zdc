@@ -44,16 +44,11 @@ gen_array_literal_data(x86_comp_params_t *params,
     assert(params);
     assert(IR_IS_ARRAY_LITERAL(array_literal));
 
-    char *label;
     char *data_type_directive;
     DtStaticArrayType *array_type;
     DtDataType *element_type;
     basic_data_type_t element_basic_type;
     GSList *i;
-
-    /* generate label for this array literal in data section */
-    label = ir_module_gen_label(params->module);
-    ir_array_literal_set_data_label(array_literal, label);
 
     array_type =
         DT_STATIC_ARRAY_TYPE(
@@ -82,7 +77,9 @@ gen_array_literal_data(x86_comp_params_t *params,
     }
 
     /* write label and array data type */
-    fprintf(params->out, "%s: .%s ", label, data_type_directive);
+    fprintf(params->out, "%s: .%s ",
+            ir_array_literal_get_data_label(array_literal),
+            data_type_directive);
 
     /* write value of each array element */
     for (i = ir_array_literal_get_values(array_literal);

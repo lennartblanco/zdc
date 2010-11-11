@@ -118,11 +118,11 @@ uint stat_bool_arry_length()
 uint dyn_int_arry_length(bool assign)
 {
     int[] x;
-//disable this test until array literal assigment is ported to IML-backend
-//    if (assign)
-//    {
-//        x = [1, 2, 3, 4, 5];
-//    }
+
+    if (assign)
+    {
+        x = [1, 2, 3, 4, 5];
+    }
 
     return x.length;
 }

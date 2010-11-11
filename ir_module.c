@@ -179,6 +179,8 @@ ir_module_add_array_literal_data(IrModule *self,
     assert(IR_IS_MODULE(self));
     assert(IR_ARRAY_LITERAL(array_literal));
 
+    /* assign label and store in data section list */
+    ir_array_literal_set_data_label(array_literal, ir_module_gen_label(self));
     self->data_section = g_slist_prepend(self->data_section, array_literal);
 }
 

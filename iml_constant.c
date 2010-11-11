@@ -78,6 +78,19 @@ iml_constant_new_32b(guint32 val)
     return obj;
 }
 
+ImlConstant *
+iml_constant_new_ptr(const gchar *label)
+{
+    ImlConstant *obj;
+
+    obj = g_object_new(IML_TYPE_CONSTANT, NULL);
+
+    obj->datatype = iml_ptr;
+    obj->value.ptr_label = label;
+
+    return obj;
+}
+
 guint8
 iml_constant_get_val_8b(ImlConstant *self)
 {
@@ -92,6 +105,14 @@ iml_constant_get_val_32b(ImlConstant *self)
 	assert(IML_IS_CONSTANT(self));
 
 	return self->value.v32;
+}
+
+const gchar *
+iml_constant_get_val_ptr(ImlConstant *self)
+{
+    assert(IML_IS_CONSTANT(self));
+
+    return self->value.ptr_label;
 }
 
 /*---------------------------------------------------------------------------*
@@ -113,7 +134,14 @@ iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention)
 
     ImlConstant *constant = IML_CONSTANT(self);
 
-    fprintf_indent(out, indention, "0x%x", constant->value);
+    if (constant->datatype == iml_ptr)
+    {
+        fprintf_indent(out, indention, "'%s'", constant->value);
+    }
+    else
+    {
+        fprintf_indent(out, indention, "0x%x", constant->value);
+    }
 }
 
 static void

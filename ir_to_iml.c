@@ -60,6 +60,11 @@ add_static_array_assigment(IrFunctionDef *function,
                            IrVariable *lvalue,
                            IrExpression *value);
 
+static ImlOperand *
+iml_add_array_literal_eval(IrFunctionDef *function,
+                           IrArrayLiteral *expr,
+                           ImlVariable *res);
+
 static iml_data_type_t
 dt_to_iml_type(DtDataType *dt_type);
 
@@ -125,6 +130,12 @@ iml_add_expression_eval(IrFunctionDef *function,
         res = iml_add_property_eval(function,
                                     IR_PROPERTY(ir_expression),
                                     dest);
+    }
+    else if (IR_IS_ARRAY_LITERAL(ir_expression))
+    {
+        res = iml_add_array_literal_eval(function,
+                                         IR_ARRAY_LITERAL(ir_expression),
+                                         dest);
     }
     else
     {
@@ -646,22 +657,103 @@ iml_add_property_eval(IrFunctionDef *function,
     return IML_OPERAND(res);
 }
 
+static ImlOperand *
+iml_add_array_literal_eval(IrFunctionDef *function,
+                           IrArrayLiteral *expr,
+                           ImlVariable *res)
+{
+    assert(IR_IS_ARRAY_LITERAL(expr));
+    const char *label;
+
+    ImlVariable *ptr;
+    ImlConstant *src;
+    ImlConstant *length;
+    ImlConstant *size;
+    iml_operation_t *op;
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    label = ir_array_literal_get_data_label(expr);
+    /* only array literal stored in data section supported for now */
+    assert(label != NULL);
+
+    /*
+     * generate code to allocate memory for array literal
+     */
+    ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    size = iml_constant_new_32b(ir_array_literal_get_size(expr));
+
+    op = iml_operation_new(iml_call_c,
+                           "GC_malloc",
+                           g_slist_prepend(NULL, IML_OPERAND(size)),
+                           ptr);
+    ir_function_add_operation(function, op);
+
+    /*
+     * generate code to copy literal data from data section to
+     * allocated memory
+     */
+    src = iml_constant_new_ptr(label);
+    op = iml_operation_new(iml_call_c,
+                           "memcpy",
+                           g_slist_append(
+                             g_slist_append(
+                              g_slist_append(NULL, ptr),
+                              src),
+                             IML_OPERAND(size)),
+                           NULL);
+    ir_function_add_operation(function, op);
+
+    if (res == NULL)
+    {
+        res = iml_func_frame_get_temp(frame, iml_blob);
+    }
+
+    /*
+     * store pointer address and length in array handle blob
+     */
+    op = iml_operation_new(iml_setfld,
+                           ptr,
+                           res,
+                           iml_constant_new_32b(0),
+                           4);
+    ir_function_add_operation(function, op);
+
+    length = iml_constant_new_32b(ir_array_literal_get_length(expr));
+    op = iml_operation_new(iml_setfld,
+                           length,
+                           res,
+                           iml_constant_new_32b(1),
+                           4);
+    ir_function_add_operation(function, op);
+
+
+    return IML_OPERAND(res);
+}
+
 static void
 add_array_assigment(IrFunctionDef *function,
                     IrVariable *lvalue,
                     IrExpression *value)
 {
-    /* only assignment of 'null' supported for now */
-    assert(IR_IS_NULL(value));
-
     ImlVariable *dest = ir_variable_get_location(lvalue);
 
-    ir_function_add_operation(function,
-                              iml_operation_new(iml_mset,
-                                                iml_constant_new_32b(0),
-                                                2,
-                                                dest));
+    if (IR_IS_NULL(value))
+    {
+        /* handle the special case of null assignment */
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_mset,
+                                                    iml_constant_new_32b(0),
+                                                    2,
+                                                    dest));
+    }
+    else
+    {
+        iml_add_expression_eval(function, value, dest);
+    }
+
 }
+
+
 
 static void
 add_static_array_assigment(IrFunctionDef *function,

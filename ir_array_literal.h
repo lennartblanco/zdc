@@ -60,6 +60,12 @@ GSList *
 ir_array_literal_get_values(IrArrayLiteral *self);
 
 /**
+ * get number of elements in this array literal expression
+ */
+guint
+ir_array_literal_get_length(IrArrayLiteral *self);
+
+/**
  * @return get storage size in bytes for this array literal
  */
 guint
