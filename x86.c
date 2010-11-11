@@ -1114,17 +1114,21 @@ x86_compile_jmpcond(FILE *out, iml_operation_t *op)
 
 /**
  * Generate assembly for passing arguments to a D function.
+ *
+ * @return number of bytes used by the arguments on the stack
  */
-static void
+static guint
 x86_compile_dcall_args(FILE *out, GSList *arguments)
 {
     GSList *i;
+    guint args_stack_size = 0;
 
     for (i = arguments; i != NULL; i = g_slist_next(i))
     {
         if (g_slist_next(i) != NULL)
         {
             x86_push_operand(out, IML_OPERAND(i->data));
+            args_stack_size += 4;
         }
         else
         {
@@ -1132,16 +1136,21 @@ x86_compile_dcall_args(FILE *out, GSList *arguments)
             x86_move_to_reg(out, "eax", IML_OPERAND(i->data));
         }
     }
+
+    return args_stack_size;
 }
 
 /**
  * Generate assembly for passing arguments to a C function.
+ *
+ * @return number of bytes used by the arguments on the stack
  */
-static void
+static guint
 x86_compile_ccall_args(FILE *out, GSList *arguments)
 {
     GSList *args;
     GSList *i;
+    guint args_stack_size = 0;
 
     /*
      * in x86 c calling convention, function arguments are
@@ -1154,8 +1163,11 @@ x86_compile_ccall_args(FILE *out, GSList *arguments)
     for (i = args; i != NULL; i = g_slist_next(i))
     {
       x86_push_operand(out, IML_OPERAND(i->data));
+      args_stack_size += 4;
     }
     g_slist_free(args);
+
+    return args_stack_size;
 }
 
 static void
@@ -1167,6 +1179,7 @@ x86_compile_call(FILE *out, iml_operation_t *op)
 
     GSList *args = iml_operation_get_operand(op, 2);
     ImlVariable *res;
+    guint args_stack_size = 0;
 
     /*
      * generate assembly for passing arguments according
@@ -1175,10 +1188,10 @@ x86_compile_call(FILE *out, iml_operation_t *op)
     switch (iml_operation_get_opcode(op))
     {
         case iml_call:
-            x86_compile_dcall_args(out, args);
+            args_stack_size = x86_compile_dcall_args(out, args);
             break;
         case iml_call_c:
-            x86_compile_ccall_args(out, args);
+            args_stack_size = x86_compile_ccall_args(out, args);
             break;
         default:
             /* unexpected operand */
@@ -1188,6 +1201,15 @@ x86_compile_call(FILE *out, iml_operation_t *op)
     fprintf(out,
             "    call %s\n",
             (char*)iml_operation_get_operand(op, 1));
+
+    /* generate code to remove call arguments from the stack if needed */
+    if (args_stack_size > 0)
+    {
+        fprintf(out,
+                "    addl $%u, %%esp\n",
+                args_stack_size);
+
+    }
 
     res = iml_operation_get_operand(op, 3);
     if (res != NULL)
