@@ -18,10 +18,10 @@ tests="empty "\
 "module_test "\
 "imports "\
 "pkg_name_tst "\
+"dyn_array "\
 "stat_array "\
 "properties "
 #"uint_op "\
-#"dyn_array "\
 #"foreach "\
 #"char_literals "\
 #"immutable "\

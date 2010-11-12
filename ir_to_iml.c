@@ -592,31 +592,69 @@ iml_add_array_cell_eval(IrFunctionDef *function,
 {
     assert(IR_IS_ARRAY_CELL(cell));
 
+    IrVariable *array_symb;
     ImlOperand *index_val;
     ImlVariable *src;
     DtDataType *array_type;
+    DtDataType *element_type;
     guint size;
 
-    array_type = ir_expression_get_data_type(IR_EXPRESSION(cell));
+    array_symb = ir_array_cell_get_symbol(cell);
+    array_type = ir_expression_get_data_type(IR_EXPRESSION(array_symb));
+    element_type = ir_expression_get_data_type(IR_EXPRESSION(cell));
 
-    src = ir_variable_get_location(ir_array_cell_get_symbol(cell));
+    /* generate code for array index evaluation */
     index_val = iml_add_expression_eval(function,
                                         ir_array_cell_get_index(cell),
                                         NULL);
-    size = dt_data_type_get_size(array_type);
 
+    /* figure out where the array cell value should end up */
     if (res == NULL)
     {
         res = iml_func_frame_get_temp(ir_function_def_get_frame(function),
-                                      dt_to_iml_type(array_type));
+                                      dt_to_iml_type(element_type));
     }
 
-    ir_function_add_operation(function,
-                              iml_operation_new(iml_getfld,
-                                                src,
-                                                index_val,
-                                                size,
-                                                res));
+    src = ir_variable_get_location(array_symb);
+    size = dt_data_type_get_size(element_type);
+
+    if (DT_IS_STATIC_ARRAY_TYPE(array_type))
+    {
+        /* static array cell */
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    src,
+                                                    index_val,
+                                                    size,
+                                                    res));
+    }
+    else
+    {
+        /* dynamic array cell */
+        assert(DT_IS_ARRAY_TYPE(array_type));
+        ImlVariable *ptr;
+        iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+        /* generate code to store array pointer in a temp variable */
+        ptr = iml_func_frame_get_temp(frame, iml_ptr);
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    src,
+                                                    iml_constant_new_32b(0),
+                                                    4,
+                                                    ptr));
+
+        /*
+         * generate code to fetch the array cell value into
+         * the destination variable
+         */
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    ptr,
+                                                    index_val,
+                                                    size,
+                                                    res));
+    }
 
     return IML_OPERAND(res);
 }

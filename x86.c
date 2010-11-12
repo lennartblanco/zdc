@@ -660,6 +660,8 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     ImlOperand *index = iml_operation_get_operand(op, 2);
     guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 3));
     ImlVariable *dest = iml_operation_get_operand(op, 4);
+    const char *base_reg;
+    gint offset;
     const char *index_reg = NULL;
     iml_register_t *dest_reg = iml_variable_get_register(dest);
 
@@ -691,11 +693,47 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
 
     assert(index_reg != NULL);
 
+    /*
+     * figure out base register and offset depending on
+     * the type of source operand
+     */
+    if (iml_operand_get_data_type(IML_OPERAND(src)) == iml_ptr)
+    {
+        /* getfld with pointer source variable */
+        iml_register_t *reg;
+
+
+        /* move the pointer to register if needed, and remember that register */
+        reg = iml_variable_get_register(src);
+        if (reg == NULL)
+        {
+            /* move the pointer to a register */
+            x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+            base_reg = TEMP_REG2_NAME;
+        }
+        else
+        {
+            /* already in register */
+            base_reg = iml_register_get_name(reg);
+        }
+        offset = 0;
+    }
+    else
+    {
+        assert(iml_operand_get_data_type(IML_OPERAND(src)) == iml_blob);
+
+        /* getfld with blob source variable */
+
+        base_reg = "ebp";
+        offset = iml_variable_get_frame_offset(src);
+    }
+
     if (dest_reg != NULL)
     {
         fprintf(out,
-                "    movl %d(%%ebp, %%%s, %u), %%%s\n",
-                iml_variable_get_frame_offset(src),
+                "    movl %d(%%%s, %%%s, %u), %%%s\n",
+                offset,
+                base_reg,
                 index_reg,
                 size,
                 iml_register_get_name(dest_reg));
@@ -703,9 +741,10 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     else
     {
         fprintf(out,
-                "    movl %d(%%ebp, %%%s, %u), %%" TEMP_REG1_NAME "\n"
+                "    movl %d(%%%s, %%%s, %u), %%" TEMP_REG1_NAME "\n"
                 "    movl %%" TEMP_REG1_NAME ", %d(%%ebp)\n",
-                iml_variable_get_frame_offset(src),
+                offset,
+                base_reg,
                 index_reg,
                 size,
                 iml_variable_get_frame_offset(dest));
