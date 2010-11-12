@@ -6,16 +6,13 @@
 extern (C) int getchar();
 extern (C) int putchar(int x);
 
-int
+void
 main()
 {
-  int x = getchar();
+  int x;
 
-  while ( x != -1 )
+  while ((x = getchar()) != -1)
   {
     putchar(x);
-    x = getchar();
   }
-
-  return 0;
 }
