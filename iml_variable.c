@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <stdbool.h>
 
 #include "iml_variable.h"
 #include "utils.h"
@@ -93,9 +94,21 @@ guint
 iml_variable_get_size(ImlVariable *self)
 {
     assert(IML_IS_VARIABLE(self));
-    assert(self->datatype == iml_blob);
 
-    return self->size;
+    switch (self->datatype)
+    {
+        case iml_blob:
+            return self->size;
+        case iml_ptr:
+        case iml_32b:
+        case iml_16b:
+        case iml_8b:
+            /* all variables are store as 32-bit values for now */
+            return 4;
+    }
+
+    /* unexpected variable data type */
+    assert(false);
 }
 
 void

@@ -53,19 +53,19 @@ bool boolops(int idx, int v)
   return x[0] || x[1] || x[2];
 }
 
-//int dyn_array_sum(int[] array)
-//{
-//  uint idx = 0;
-//  int res;
+int dyn_array_sum(int[] array)
+{
+  uint idx = 0;
+  int res;
 
-//  while (idx < array.length)
-//  {
-//    res = res + array[idx];
-//    idx = idx + 1;
-//  }
+  while (idx < array.length)
+  {
+    res = res + array[idx];
+    idx = idx + 1;
+  }
 
-//  return res;
-//}
+  return res;
+}
 
 //int dyn_array_slice_assigment(bool assign, uint idx)
 //{
@@ -99,32 +99,32 @@ bool boolops(int idx, int v)
 //  return arr[idx];
 //}
 
-///*
-// * Wrapper function to test calling dyn_array_sum() with dynamic array handle
-// */
-//int invoke_dyn_array_sum_handle(uint test_num)
-//{
-//  int[] array;
+/*
+ * Wrapper function to test calling dyn_array_sum() with dynamic array handle
+ */
+int invoke_dyn_array_sum_handle(uint test_num)
+{
+  int[] array;
 
-//  if (test_num == 0)
-//  {
-//    array = [1, 10, 15, 0, 5];
-//  }
-//  else if (test_num == 1)
-//  {
-//    array = [5, -12];
-//  }
-//  else if (test_num == 2)
-//  {
-//    array = [0, 0, 0, 0];
-//  }
-//  else
-//  {
-//    return -1;
-//  }
+  if (test_num == 0)
+  {
+    array = [1, 10, 15, 0, 5];
+  }
+  else if (test_num == 1)
+  {
+    array = [5, -12];
+  }
+  else if (test_num == 2)
+  {
+    array = [0, 0, 0, 0];
+  }
+  else
+  {
+    return -1;
+  }
 
-//  return dyn_array_sum(array);
-//}
+  return dyn_array_sum(array);
+}
 
 ///*
 // * Wrapper function to test calling dyn_array_sum() with array literal

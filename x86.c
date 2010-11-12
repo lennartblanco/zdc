@@ -112,41 +112,71 @@ x86_get_registers(GSList **scratch,
     *preserved = p_regs;
 }
 
+/**
+ * @return true if the param should be stored in
+ *         eax register when used as last argument
+ */
+static bool
+x86_param_stored_in_reg(ImlVariable *param)
+{
+    guint size;
+
+    if (iml_operand_get_data_type(IML_OPERAND(param)) != iml_blob)
+    {
+        return true;
+    }
+
+    size = iml_variable_get_size(param);
+
+    return size < 4 && size != 3;
+}
+
 static void
 x86_assign_var_locations(iml_func_frame_t *frame)
 {
-    GSList *params;
+    GSList *parameters;
     GSList *i;
-    gint offset;
-    ImlVariable *last_param = NULL;
+    gint offset = 0;
 
     /* assign locations to parameters */
-    params = iml_func_frame_get_parameters(frame);
-    if (params != NULL)
+    parameters = iml_func_frame_get_parameters(frame);
+    if (parameters != NULL)
     {
-        params = g_slist_reverse(g_slist_copy(params));
+        ImlVariable *param;
+        guint params_offset = 8;
+        parameters = g_slist_reverse(g_slist_copy(parameters));
 
-        /* deal with last parameter later */
-        last_param = params->data;
-
-        for (i = g_slist_next(params), offset = 8;
-             i != NULL;
-             i = g_slist_next(i), offset += 4)
+        /*
+         * deal with last parameter
+         */
+        param = parameters->data;
+        if (x86_param_stored_in_reg(param))
         {
-            iml_variable_set_frame_offset(IML_VARIABLE(i->data), offset);
+            /*
+             * last parameter is passed via eax
+             * and will be stored in the stack frame
+             */
+            offset -= 4;
+            iml_variable_set_frame_offset(param, offset);
+        }
+        else
+        {
+            /* last parameter is passed on stack */
+            iml_variable_set_frame_offset(param, params_offset);
+            params_offset += iml_variable_get_size(param);
+        }
+
+        for (i = g_slist_next(parameters);
+             i != NULL;
+             i = g_slist_next(i))
+        {
+            param = parameters->data;
+            iml_variable_set_frame_offset(IML_VARIABLE(i->data), params_offset);
+            params_offset += iml_variable_get_size(param);
         }
 
         /* clean-up */
-        g_slist_free(params);
-    }
-
-    offset = 0;
-
-    /* assign frame offset to last parameter if needed */
-    if (last_param != NULL)
-    {
-        offset -= 4;
-        iml_variable_set_frame_offset(last_param, offset);
+        g_slist_free(parameters);
     }
 
     /*
@@ -298,11 +328,15 @@ x86_text_prelude(x86_comp_params_t *params,
 
 /**
  * Generate assembly that will push the operand on the top of the stack.
+ *
+ * @return number of bytes pushed on stack
  */
-static void
+static guint
 x86_push_operand(FILE *out, ImlOperand *oper)
 {
     assert(IML_IS_OPERAND(oper));
+
+    guint size = 4;
 
     if (IML_IS_CONSTANT(oper))
     {
@@ -326,7 +360,28 @@ x86_push_operand(FILE *out, ImlOperand *oper)
         ImlVariable *var = IML_VARIABLE(oper);
         iml_register_t *reg = iml_variable_get_register(var);
 
-        if (reg == NULL)
+        size = iml_variable_get_size(var);
+
+        if (size > 4)
+        {
+            /* variables bigger then 4 bytes should not be in a register */
+            assert(reg == NULL);
+
+            /* push blob on stack, 4 bytes at a time, in reversed order */
+
+            gint i;
+            gint offset = iml_variable_get_frame_offset(var);
+
+            i = offset + ((gint)size - 4);
+
+            for (i = offset + ((gint)size - 4); i >= offset; i -= 4)
+            {
+                fprintf(out,
+                        "    pushl %d(%%ebp)\n",
+                        i);
+            }
+        }
+        else if (reg == NULL)
         {
             fprintf(out,
                     "    pushl %d(%%ebp)\n",
@@ -339,6 +394,8 @@ x86_push_operand(FILE *out, ImlOperand *oper)
                     iml_register_get_name(reg));
         }
     }
+
+    return size;
 }
 
 /**
@@ -1279,10 +1336,9 @@ x86_compile_dcall_args(FILE *out, GSList *arguments)
 
     for (i = arguments; i != NULL; i = g_slist_next(i))
     {
-        if (g_slist_next(i) != NULL)
+        if (g_slist_next(i) != NULL || !x86_param_stored_in_reg(i->data))
         {
-            x86_push_operand(out, IML_OPERAND(i->data));
-            args_stack_size += 4;
+            args_stack_size += x86_push_operand(out, IML_OPERAND(i->data));
         }
         else
         {
@@ -1399,7 +1455,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 
     /* generate the code to store last parameter in stack frame if needed */
     i = g_slist_last(iml_func_frame_get_parameters(frame));
-    if (i != NULL)
+    if (i != NULL && x86_param_stored_in_reg(i->data))
     {
         fprintf(params->out,
                 "    movl %%eax, %d(%%ebp)\n",

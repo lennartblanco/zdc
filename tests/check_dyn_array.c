@@ -82,17 +82,17 @@ call_boolops(int arg1, int arg2)
    return res;
 }
 
-//int
-//call_invoke_dyn_array_sum_handle(int in)
-//{
-//   int res;
+int
+call_invoke_dyn_array_sum_handle(int in)
+{
+   int res;
 
-//   asm ("    call _D9dyn_array27invoke_dyn_array_sum_handleFkZi\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D9dyn_array27invoke_dyn_array_sum_handleFkZi\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_invoke_dyn_array_sum_lit(int in)
@@ -207,18 +207,18 @@ main()
     check_bool("boolops(1, 10)", call_boolops(1, 10), true);
     check_bool("boolops(2, 0)", call_boolops(2, 0), false);
 
-//    /* dyn_array_sum() tests */
-//    check_int("invoke_dyn_array_sum_handle(0)",
-//              call_invoke_dyn_array_sum_handle(0), 1 + 10 + 15 + 0 + 5);
+    /* dyn_array_sum() tests */
+    check_int("invoke_dyn_array_sum_handle(0)",
+              call_invoke_dyn_array_sum_handle(0), 1 + 10 + 15 + 0 + 5);
 
-//    check_int("invoke_dyn_array_sum_handle(1)",
-//              call_invoke_dyn_array_sum_handle(1), 5 -12);
+    check_int("invoke_dyn_array_sum_handle(1)",
+              call_invoke_dyn_array_sum_handle(1), 5 -12);
 
-//    check_int("invoke_dyn_array_sum_handle(2)",
-//              call_invoke_dyn_array_sum_handle(2), 0);
+    check_int("invoke_dyn_array_sum_handle(2)",
+              call_invoke_dyn_array_sum_handle(2), 0);
 
-//    check_int("invoke_dyn_array_sum_handle(3)",
-//              call_invoke_dyn_array_sum_handle(3), -1);
+    check_int("invoke_dyn_array_sum_handle(3)",
+              call_invoke_dyn_array_sum_handle(3), -1);
 
 //    check_int("invoke_dyn_array_sum_lit(0)",
 //              call_invoke_dyn_array_sum_lit(0), 3 + 1 + 4 + 1 + 5);

@@ -744,6 +744,7 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     if (res == NULL)
     {
         res = iml_func_frame_get_temp(frame, iml_blob);
+        assert(false); // bug, we must assign res size 8
     }
 
     /*
