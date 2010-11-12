@@ -18,15 +18,15 @@ int int_array_lit_init(int idx)
   return arr[idx];
 }
 
-//int intops(int idx, int v)
-//{
-//  int[] x = [1, 2, 3];
-//  int[10] y;
+int intops(int idx, int v)
+{
+  int[] x = [1, 2, 3];
+  int[10] y;
 
-//  x[idx] = v;
+  x[idx] = v;
 
-//  return x[0] + x[1] + x[2];
-//}
+  return x[0] + x[1] + x[2];
+}
 
 bool bool_array_lit_assigment(int i)
 {
@@ -44,14 +44,14 @@ bool bool_array_lit_assigment(int i)
 //  return x[0] && x[1];
 //}
 
-//bool boolops(int idx, int v)
-//{
-//  bool[] x = [false, false, false];
+bool boolops(int idx, int v)
+{
+  bool[] x = [false, false, false];
 
-//  x[idx] = v > 0;
+  x[idx] = v > 0;
 
-//  return x[0] || x[1] || x[2];
-//}
+  return x[0] || x[1] || x[2];
+}
 
 //int dyn_array_sum(int[] array)
 //{

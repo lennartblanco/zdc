@@ -28,20 +28,20 @@ call_int_array_lit_init(int in)
    return res;
 }
 
-//int
-//call_intops(int arg1, int arg2)
-//{
-//   int res;
+int
+call_intops(int arg1, int arg2)
+{
+   int res;
 
-//   asm ("    pushl %[arg1]\n"
-//        "    movl %[arg2],%%eax\n"
-//        "    call _D9dyn_array6intopsFiiZi\n"
-//        : "=a"(res)
-//        : [arg1]"m"(arg1),
-//          [arg2]"m"(arg2));
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D9dyn_array6intopsFiiZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
 
-//   return res;
-//}
+   return res;
+}
 
 bool
 call_bool_array_lit_assigment(int in)
@@ -67,20 +67,20 @@ call_bool_array_lit_assigment(int in)
 //   return res;
 //}
 
-//bool
-//call_boolops(int arg1, int arg2)
-//{
-//   bool res;
+bool
+call_boolops(int arg1, int arg2)
+{
+   bool res;
 
-//   asm ("    pushl %[arg1]\n"
-//        "    movl %[arg2],%%eax\n"
-//        "    call _D9dyn_array7boolopsFiiZb\n"
-//        : "=a"(res)
-//        : [arg1]"m"(arg1),
-//          [arg2]"m"(arg2));
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D9dyn_array7boolopsFiiZb\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_invoke_dyn_array_sum_handle(int in)
@@ -181,10 +181,10 @@ main()
     check_int("int_array_lit_init(3)",
               call_int_array_lit_init(4), 2);
 
-//    /* intops() tests */
-//    check_int("intops(0, 20)", call_intops(0, 20), 20 + 2 + 3);
-//    check_int("intops(1, 0)", call_intops(1, 0), 1 + 0 + 3);
-//    check_int("intops(2, -20)", call_intops(2, -20), 1 + 2 + (-20));
+    /* intops() tests */
+    check_int("intops(0, 20)", call_intops(0, 20), 20 + 2 + 3);
+    check_int("intops(1, 0)", call_intops(1, 0), 1 + 0 + 3);
+    check_int("intops(2, -20)", call_intops(2, -20), 1 + 2 + (-20));
 
     /* bool_array_lit_assigment() tests */
     check_bool("bool_array_lit_assigment(0)",
@@ -202,10 +202,10 @@ main()
 //    check_bool("bool_array_lit_init(false)",
 //               call_bool_array_lit_init(false), false);
 
-//    /* boolops() tests */
-//    check_bool("boolops(0, -1)", call_boolops(0, -1), false);
-//    check_bool("boolops(1, 10)", call_boolops(1, 10), true);
-//    check_bool("boolops(2, 0)", call_boolops(2, 0), false);
+    /* boolops() tests */
+    check_bool("boolops(0, -1)", call_boolops(0, -1), false);
+    check_bool("boolops(1, 10)", call_boolops(1, 10), true);
+    check_bool("boolops(2, 0)", call_boolops(2, 0), false);
 
 //    /* dyn_array_sum() tests */
 //    check_int("invoke_dyn_array_sum_handle(0)",

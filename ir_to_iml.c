@@ -830,25 +830,59 @@ add_array_cell_assigment(IrFunctionDef *function,
                          IrArrayCell *lvalue,
                          IrExpression *value)
 {
+    IrVariable *array_symb;
+    DtDataType *array_type;
     ImlOperand *res_val;
     ImlOperand *index_val;
     ImlVariable *dest;
-    DtDataType *array_type;
+    DtDataType *element_type;
     guint size;
 
-    array_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
+    array_symb = ir_array_cell_get_symbol(lvalue);
+    array_type = ir_expression_get_data_type(IR_EXPRESSION(array_symb));
+    element_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
 
     res_val = iml_add_expression_eval(function, value, NULL);
-    dest = ir_variable_get_location(ir_array_cell_get_symbol(lvalue));
+    dest = ir_variable_get_location(array_symb);
     index_val = iml_add_expression_eval(function,
                                         ir_array_cell_get_index(lvalue),
                                         NULL);
-    size = dt_data_type_get_size(array_type);
+    size = dt_data_type_get_size(element_type);
 
-    ir_function_add_operation(function,
-                              iml_operation_new(iml_setfld,
-                                                res_val,
-                                                dest,
-                                                index_val,
-                                                size));
+    if (DT_IS_STATIC_ARRAY_TYPE(array_type))
+    {
+        /* static array cell assigment */
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_setfld,
+                                                    res_val,
+                                                    dest,
+                                                    index_val,
+                                                    size));
+    }
+    else
+    {
+        assert(DT_IS_ARRAY_TYPE(array_type));
+
+        /* dynamic array cell assigment */
+
+        ImlVariable *ptr;
+        iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+        /* generate code to store array pointer in a temp variable */
+        ptr = iml_func_frame_get_temp(frame, iml_ptr);
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    dest,
+                                                    iml_constant_new_32b(0),
+                                                    4,
+                                                    ptr));
+
+        /* generate code to store value in the array cell */
+        ir_function_add_operation(function,
+                                  iml_operation_new(iml_setfld,
+                                                    res_val,
+                                                    ptr,
+                                                    index_val,
+                                                    size));
+    }
 }

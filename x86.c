@@ -568,7 +568,7 @@ x86_compile_mset(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_setfld(FILE *out, iml_operation_t *op)
+x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_setfld);
@@ -578,6 +578,8 @@ x86_compile_setfld(FILE *out, iml_operation_t *op)
     ImlOperand *index = iml_operation_get_operand(op, 3);
     guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 4));
     const char *index_reg;
+
+    assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
 
     /*
      * Generate code that will store array index into a register,
@@ -647,6 +649,96 @@ x86_compile_setfld(FILE *out, iml_operation_t *op)
                 iml_variable_get_frame_offset(dest),
                 index_reg,
                 size);
+    }
+}
+
+static void
+x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    assert(iml_operation_get_opcode(op) == iml_setfld);
+
+    ImlOperand *src = iml_operation_get_operand(op, 1);
+    ImlVariable *dest = iml_operation_get_operand(op, 2);
+    ImlOperand *index = iml_operation_get_operand(op, 3);
+    guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 4));
+    iml_register_t *reg;
+
+    assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr);
+
+    /* move index value to a temp register */
+    x86_move_to_reg(out, TEMP_REG1_NAME, index);
+
+    /* multiply array index with element size to get array offset in bytes */
+    if (size > 1)
+    {
+        /* only array element of 1, 2 or 4 bytes supported for now */
+        assert(size == 2 || size == 4);
+        fprintf(out, "    sall $%d, %%%s\n", size / 2, TEMP_REG1_NAME);
+    }
+
+    /* add dest pointer with array offset */
+    reg = iml_variable_get_register(dest);
+    if (reg == NULL)
+    {
+        fprintf(out,
+                "    addl %d(%%ebp), %%" TEMP_REG1_NAME "\n",
+                iml_variable_get_frame_offset(dest));
+    }
+    else
+    {
+        fprintf(out,
+                "    addl %%%s, %%" TEMP_REG1_NAME "\n",
+                iml_register_get_name(reg));
+    }
+
+    /* move src value to calculated address */
+    if (IML_IS_CONSTANT(src))
+    {
+        fprintf(out,
+                "    movl $%d, (%%" TEMP_REG1_NAME ")\n",
+                iml_constant_get_val_32b(IML_CONSTANT(src)));
+    }
+    else
+    {
+        assert(IML_IS_VARIABLE(src));
+
+        const gchar *src_reg_name;
+        reg = iml_variable_get_register(IML_VARIABLE(src));
+
+        if (reg == NULL)
+        {
+            x86_move_to_reg(out, TEMP_REG2_NAME, src);
+            src_reg_name = TEMP_REG2_NAME;
+        }
+        else
+        {
+            src_reg_name = iml_register_get_name(reg);
+        }
+
+        fprintf(out,
+                "    movl %%%s, (%%" TEMP_REG1_NAME ")\n",
+                src_reg_name);
+
+    }
+}
+
+static void
+x86_compile_setfld(FILE *out, iml_operation_t *op)
+{
+    ImlVariable *dest = iml_operation_get_operand(op, 2);
+
+    if (iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr)
+    {
+        /* setfld with pointer destination variable */
+        x86_compile_setfld_ptr(out, op);
+    }
+    else
+    {
+        assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
+
+        /* setfld with blob destination variable */
+        x86_compile_setfld_blob(out, op);
     }
 }
 
