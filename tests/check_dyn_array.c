@@ -94,17 +94,17 @@ call_invoke_dyn_array_sum_handle(int in)
    return res;
 }
 
-//int
-//call_invoke_dyn_array_sum_lit(int in)
-//{
-//   int res;
+int
+call_invoke_dyn_array_sum_lit(int in)
+{
+   int res;
 
-//   asm ("    call _D9dyn_array24invoke_dyn_array_sum_litFkZi\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D9dyn_array24invoke_dyn_array_sum_litFkZi\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_dyn_array_slice_assigment(bool arg1, unsigned arg2)
@@ -220,17 +220,17 @@ main()
     check_int("invoke_dyn_array_sum_handle(3)",
               call_invoke_dyn_array_sum_handle(3), -1);
 
-//    check_int("invoke_dyn_array_sum_lit(0)",
-//              call_invoke_dyn_array_sum_lit(0), 3 + 1 + 4 + 1 + 5);
+    check_int("invoke_dyn_array_sum_lit(0)",
+              call_invoke_dyn_array_sum_lit(0), 3 + 1 + 4 + 1 + 5);
 
-//    check_int("invoke_dyn_array_sum_lit(1)",
-//              call_invoke_dyn_array_sum_lit(1), 50 + 23);
+    check_int("invoke_dyn_array_sum_lit(1)",
+              call_invoke_dyn_array_sum_lit(1), 50 + 23);
 
-//    check_int("invoke_dyn_array_sum_lit(2)",
-//              call_invoke_dyn_array_sum_lit(2), 0);
+    check_int("invoke_dyn_array_sum_lit(2)",
+              call_invoke_dyn_array_sum_lit(2), 0);
 
-//    check_int("invoke_dyn_array_sum_lit(3)",
-//              call_invoke_dyn_array_sum_lit(3), -1);
+    check_int("invoke_dyn_array_sum_lit(3)",
+              call_invoke_dyn_array_sum_lit(3), -1);
 
 //    /* dyn_array_slice_assigment() tests */
 //    for (idx = 0; idx < 5; idx += 1)

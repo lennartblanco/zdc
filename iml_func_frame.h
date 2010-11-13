@@ -41,8 +41,13 @@ iml_func_frame_add_parameter(iml_func_frame_t *self, ImlVariable *variable);
 GSList *
 iml_func_frame_get_parameters(iml_func_frame_t *self);
 
+/**
+ * Get a temporary variable in the function frame.
+ * If datatype is iml_blob, the size of the blob must be specified as an
+ * guint parameter after datatype.
+ */
 ImlVariable *
-iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype);
+iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype, ...);
 
 /**
  * Size in bytes that this function frames need to store all

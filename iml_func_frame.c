@@ -106,9 +106,22 @@ iml_func_frame_get_parameters(iml_func_frame_t *self)
 }
 
 ImlVariable *
-iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype)
+iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype, ...)
 {
-    ImlVariable *temp_var = iml_variable_new(datatype, NULL);
+    ImlVariable *temp_var;
+
+    if (datatype == iml_blob)
+    {
+        va_list argp;
+
+        va_start(argp, datatype);
+        temp_var = iml_variable_blob_new(va_arg(argp, guint), NULL);
+        va_end(argp);
+    }
+    else
+    {
+        temp_var = iml_variable_new(datatype, NULL);
+    }
 
     iml_func_frame_add_local(self, temp_var);
 
