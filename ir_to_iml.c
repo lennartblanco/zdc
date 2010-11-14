@@ -640,7 +640,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
         ir_function_add_operation(function,
                                   iml_operation_new(iml_getfld,
                                                     src,
-                                                    iml_constant_new_32b(0),
+                                                    iml_constant_new_32b(1),
                                                     4,
                                                     ptr));
 
@@ -688,7 +688,7 @@ iml_add_property_eval(IrFunctionDef *function,
     ir_function_add_operation(function,
                               iml_operation_new(iml_getfld,
                                                 src,
-                                                iml_constant_new_32b(1),
+                                                iml_constant_new_32b(0),
                                                 4,
                                                 res));
 
@@ -747,18 +747,18 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     }
 
     /*
-     * store pointer address and length in array handle blob
+     * store length and pointer address in array handle blob
      */
+    length = iml_constant_new_32b(ir_array_literal_get_length(expr));
     op = iml_operation_new(iml_setfld,
-                           ptr,
+                           length,
                            res,
                            iml_constant_new_32b(0),
                            4);
     ir_function_add_operation(function, op);
 
-    length = iml_constant_new_32b(ir_array_literal_get_length(expr));
     op = iml_operation_new(iml_setfld,
-                           length,
+                           ptr,
                            res,
                            iml_constant_new_32b(1),
                            4);
@@ -873,7 +873,7 @@ add_array_cell_assigment(IrFunctionDef *function,
         ir_function_add_operation(function,
                                   iml_operation_new(iml_getfld,
                                                     dest,
-                                                    iml_constant_new_32b(0),
+                                                    iml_constant_new_32b(1),
                                                     4,
                                                     ptr));
 
