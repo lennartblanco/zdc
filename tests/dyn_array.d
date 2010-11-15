@@ -67,6 +67,21 @@ int dyn_array_sum(int[] array)
   return res;
 }
 
+bool find_int(int[] haystack, int needle)
+{
+  while (haystack.length > 0)
+  {
+    if (haystack[0] == needle)
+    {
+       return true;
+    }
+    haystack = haystack[1..haystack.length];
+  }
+
+  return false;
+}
+
+
 //int dyn_array_slice_assigment(bool assign, uint idx)
 //{
 //  int[] arr = [1, 2, 3, 4, 5];
@@ -144,4 +159,33 @@ int invoke_dyn_array_sum_lit(uint test_num)
     return dyn_array_sum([0, 0, 0, 0]);
   }
   return -1;
+}
+
+/*
+ * Wrapper function to test calling find_int()
+ */
+bool invoke_find_int(uint test_num)
+{
+  int[] array = [1, 2, 3, 400, 5, 6];
+
+  if (test_num == 0)
+  {
+     return find_int([3, 1, 4, 7], 4);
+  }
+  else if (test_num == 1)
+  {
+     return find_int([3, 1, 4, 7], 20);
+  }
+  else if (test_num == 2)
+  {
+    return find_int(array, 100);
+  }
+  else if (test_num == 3)
+  {
+    return find_int(array[1..3], 1);
+  }
+  else if (test_num == 4)
+  {
+    return find_int(array[1..4], 400);
+  }
 }

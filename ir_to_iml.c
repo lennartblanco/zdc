@@ -4,6 +4,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_array_cell.h"
+#include "ir_array_slice.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_property.h"
@@ -39,6 +40,11 @@ static ImlOperand *
 iml_add_array_cell_eval(IrFunctionDef *function,
                         IrArrayCell *cell,
                         ImlVariable *res);
+
+static ImlOperand *
+iml_add_array_slice_eval(IrFunctionDef *function,
+                         IrArraySlice *slice,
+                         ImlVariable *res);
 
 static ImlOperand *
 iml_add_property_eval(IrFunctionDef *function,
@@ -136,6 +142,12 @@ iml_add_expression_eval(IrFunctionDef *function,
         res = iml_add_array_literal_eval(function,
                                          IR_ARRAY_LITERAL(ir_expression),
                                          dest);
+    }
+    else if (IR_IS_ARRAY_SLICE(ir_expression))
+    {
+        res = iml_add_array_slice_eval(function,
+                                       IR_ARRAY_SLICE(ir_expression),
+                                       dest);
     }
     else
     {
@@ -763,6 +775,112 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                            iml_constant_new_32b(1),
                            4);
     ir_function_add_operation(function, op);
+
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_array_slice_eval(IrFunctionDef *function,
+                         IrArraySlice *slice,
+                         ImlVariable *res)
+{
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *array;
+    ImlOperand *start;
+    ImlOperand *end;
+    ImlOperand *temp;
+    ImlVariable *start_ptr;
+    DtDataType *array_type;
+    guint element_size;
+
+    if (res == NULL)
+    {
+        res = iml_func_frame_get_temp(frame, iml_blob, 8);
+    }
+
+    /* figure out the element size of sliced array */
+    array_type = ir_expression_get_data_type(IR_EXPRESSION(slice));
+    assert(DT_IS_ARRAY_TYPE(array_type));
+    element_size = dt_array_get_element_size(DT_ARRAY_TYPE(array_type));
+
+    /*
+     * generate code to evaluate array expression,
+     * slice start and end expressions
+     */
+    array = iml_add_expression_eval(function,
+                                    ir_array_slice_get_array(slice),
+                                    NULL);
+
+    start = iml_add_expression_eval(function,
+                                    ir_array_slice_get_start(slice),
+                                    NULL);
+
+    end = iml_add_expression_eval(function,
+                                  ir_array_slice_get_end(slice),
+                                  NULL);
+
+    /*
+     * generate code to calculate length of the slice
+     */
+    /* subsctract end from the start */
+    temp = IML_OPERAND(iml_func_frame_get_temp(frame, iml_32b));
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_sub,
+                                                end,
+                                                start,
+                                                temp));
+    /* store length in the result blob */
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_setfld,
+                                                temp,
+                                                res,
+                                                iml_constant_new_32b(0),
+                                                4));
+
+
+    /*
+     * generate code to calculate pointer to the first element in the slice
+     */
+
+    /* put array start pointer in temp variable */
+    start_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_getfld,
+                                                array,
+                                                iml_constant_new_32b(1),
+                                                4,
+                                                start_ptr));
+
+    /* multiply slice start with element size if needed */
+    if (element_size > 1)
+    {
+        ir_function_add_operation(
+                function,
+                iml_operation_new(iml_umult,
+                                  start,
+                                  iml_constant_new_32b(element_size),
+                                  temp));
+    }
+    else
+    {
+        temp = start;
+    }
+
+    /* move forward the array start pointer to slice start */
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_add,
+                                                start_ptr,
+                                                temp,
+                                                start_ptr));
+
+    /* store slice start pointer in the result blob */
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_setfld,
+                                                start_ptr,
+                                                res,
+                                                iml_constant_new_32b(1),
+                                                4));
 
 
     return IML_OPERAND(res);

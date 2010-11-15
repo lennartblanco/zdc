@@ -153,6 +153,18 @@ call_invoke_dyn_array_sum_lit(int in)
 //   return res;
 //}
 
+int
+call_invoke_find_int(int in)
+{
+   int res;
+
+   asm ("    call _D9dyn_array15invoke_find_intFkZb\n"
+        : "=a"(res)
+        : "a"(in));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -280,7 +292,17 @@ main()
 //    check_int("dyn_array_slice_shorthand(true, 4)",
 //              call_dyn_array_slice_shorthand(true, 4), 55);
 
-
+    /* find_int() tests */
+    check_bool("invoke_find_int(0)",
+               call_invoke_find_int(0), true);
+    check_bool("invoke_find_int(1)",
+               call_invoke_find_int(1), false);
+    check_bool("invoke_find_int(2)",
+               call_invoke_find_int(2), false);
+    check_bool("invoke_find_int(3)",
+               call_invoke_find_int(3), false);
+    check_bool("invoke_find_int(4)",
+               call_invoke_find_int(4), true);
 
     check_exit();
 }

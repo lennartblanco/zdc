@@ -51,25 +51,41 @@ ir_array_slice_get_type(void)
 }
 
 IrArraySlice *
-ir_array_slice_new(char *array_name,
+ir_array_slice_new(IrExpression *array,
                    IrExpression *start,
                    IrExpression *end,
                    guint line_number)
 {
-    assert(array_name);
+    assert(IR_IS_EXPRESSION(array));
 
     IrArraySlice *obj;
 
     obj = g_object_new(IR_TYPE_ARRAY_SLICE,
                        "ir-node-line-number", line_number,
-                       "ir-lvalue-symbol-name", array_name,
                        NULL);
 
+    obj->array = array;
     obj->start = start;
     obj->end = end;
-    obj->data_type = NULL;
 
     return obj;
+}
+
+IrExpression *
+ir_array_slice_get_array(IrArraySlice *self)
+{
+    assert(IR_IS_ARRAY_SLICE(self));
+
+    return self->array;
+}
+
+void
+ir_array_slice_set_array(IrArraySlice *self, IrExpression *array)
+{
+    assert(IR_IS_ARRAY_SLICE(self));
+    assert(IR_IS_EXPRESSION(array));
+
+    self->array = array;
 }
 
 IrExpression *
@@ -123,45 +139,9 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy)
 static DtDataType *
 ir_array_slice_do_get_data_type(IrExpression *self)
 {
-/* needs to be ported */
-assert(false);
-//    assert(IR_IS_ARRAY_SLICE(self));
-//
-//    IrArraySlice *slice = IR_ARRAY_SLICE(self);
-//
-//    if (slice->data_type == NULL)
-//    {
-//        IrVariable *array_variable;
-//        DtArrayType *array_data_type;
-//        DtDataType *array_element_type;
-//
-//
-//        array_variable = ir_lvalue_get_variable(IR_LVALUE(slice));
-//        array_data_type =
-//            DT_ARRAY_TYPE(ir_variable_get_data_type(array_variable));
-//        array_element_type =
-//            dt_array_type_get_data_type(array_data_type);
-//
-//        if (IR_IS_UINT_CONSTANT(slice->start) &&
-//            IR_IS_UINT_CONSTANT(slice->end))
-//        {
-//            guint32 slice_len;
-//
-//            slice_len =
-//                ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->end)) -
-//                ir_uint_constant_get_value(IR_UINT_CONSTANT(slice->start));
-//            slice->data_type =
-//                DT_DATA_TYPE(dt_static_array_type_new(array_element_type,
-//                                                      slice_len));
-//        }
-//        else
-//        {
-//            slice->data_type =
-//                DT_DATA_TYPE(dt_array_type_new(array_element_type));
-//        }
-//    }
-//
-//    return slice->data_type;
+    assert(IR_IS_ARRAY_SLICE(self));
+
+    return ir_expression_get_data_type(IR_ARRAY_SLICE(self)->array);
 }
 
 static void

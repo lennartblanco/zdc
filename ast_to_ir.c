@@ -598,6 +598,11 @@ sem_analyze_ast_if_block_to_ir(compilation_status_t *compile_status,
 
     IrExpression *condition =
         expression_to_ir(compile_status, sym_table, ast_condition);
+    if (condition == NULL)
+    {
+        /* invalid condition expression, bail out */
+        return NULL;
+    }
 
     code_block_to_ir(compile_status,
                      ast_if_block_get_body(ast_if_block),
@@ -624,6 +629,11 @@ if_else_to_ir(compilation_status_t *compile_status,
                sem_analyze_ast_if_block_to_ir(compile_status,
                                               parent_block,
                                               AST_IF_BLOCK(i->data));
+        if (ifblock == NULL)
+        {
+            /* invalid if block, bail out */
+            return NULL;
+        }
         ir_if_else_add_if_else_block(ifelse, ifblock);
     }
 
@@ -758,7 +768,7 @@ assigment_to_ir(compilation_status_t *compile_status,
     ir_value =
         expression_to_ir(compile_status, symbols, value);
 
-    if (ir_target == NULL && ir_value == NULL)
+    if (ir_target == NULL || ir_value == NULL)
     {
         return NULL;
     }
@@ -933,15 +943,20 @@ array_slice_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstArraySliceRef *ast_arry_slice)
 {
-    char *name;
     AstExpression *ast_start_idx;
+    IrExpression *ir_array;
     IrExpression *ir_start_idx = NULL;
     AstExpression *ast_end_idx;
     IrExpression *ir_end_idx = NULL;
     guint line_number;
 
-    name = ast_array_slice_ref_get_name(ast_arry_slice);
-
+    ir_array = expression_to_ir(compile_status,
+                                symbols,
+                                ast_array_slice_ref_get_array(ast_arry_slice));
+    if (ir_array == NULL)
+    {
+        return NULL; /* invalid expression, bail out */
+    }
 
     /* convert start expression, if any, to IR-form */
     ast_start_idx = ast_array_slice_ref_get_start(ast_arry_slice);
@@ -949,6 +964,10 @@ array_slice_to_ir(compilation_status_t *compile_status,
     {
         ir_start_idx =
             expression_to_ir(compile_status, symbols, ast_start_idx);
+        if (ir_start_idx == NULL)
+        {
+            return NULL; /* invalid expression, bail out */
+        }
     }
 
     /* convert end expression, if any, to IR-form */
@@ -956,10 +975,14 @@ array_slice_to_ir(compilation_status_t *compile_status,
     if (ast_end_idx != NULL)
     {
         ir_end_idx = expression_to_ir(compile_status, symbols, ast_end_idx);
+        if (ir_end_idx == NULL)
+        {
+            return NULL; /* invalid expression, bail out */
+        }
     }
 
     line_number = ast_node_get_line_num(ast_arry_slice);
-    return IR_EXPRESSION(ir_array_slice_new(name,
+    return IR_EXPRESSION(ir_array_slice_new(ir_array,
                                             ir_start_idx,
                                             ir_end_idx,
                                             line_number));
@@ -1143,6 +1166,14 @@ expression_to_ir(compilation_status_t *compile_status,
 
         ident = AST_IDENT(ast_expression);
         symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), NULL);
+
+        if (symb == NULL)
+        {
+            compile_error(compile_status,
+                          ident,
+                          "reference to unknown symbol '%s'\n",
+                          ast_ident_get_name(ident));
+        }
 
         return IR_EXPRESSION(symb);
     }

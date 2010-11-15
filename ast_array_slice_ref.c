@@ -42,7 +42,7 @@ ast_array_slice_ref_get_type(void)
 }
 
 AstArraySliceRef *
-ast_array_slice_ref_new(char *name,
+ast_array_slice_ref_new(AstExpression *array,
                         AstExpression *start,
                         AstExpression *end,
                         guint line_number)
@@ -51,19 +51,21 @@ ast_array_slice_ref_new(char *name,
 
     obj = g_object_new(AST_TYPE_ARRAY_SLICE_REF,
                        "ast-node-line-number", line_number,
-                       "ast-ident-name", name,
                        NULL);
 
+    obj->array = array;
     obj->start = start;
     obj->end = end;
 
     return obj;
 }
 
-char *
-ast_array_slice_ref_get_name(AstArraySliceRef *self)
+AstExpression *
+ast_array_slice_ref_get_array(AstArraySliceRef *self)
 {
-   return ast_ident_get_name(AST_IDENT(self));
+   assert(AST_IS_ARRAY_SLICE_REF(self));
+
+   return self->array;
 }
 
 AstExpression *
@@ -94,7 +96,8 @@ ast_array_slice_ref_do_print(AstNode *self, FILE *out, int indention)
     assert(out);
 
     AstArraySliceRef *ref = AST_ARRAY_SLICE_REF(self);
-    fprintf(out, "%s[", ast_array_slice_ref_get_name(ref));
+    ast_node_print(AST_NODE(ref->array), out, indention);
+    fprintf(out, "[");
     if (ref->start != NULL && ref->end != NULL)
     {
         ast_node_print(AST_NODE(ref->start), out, indention);

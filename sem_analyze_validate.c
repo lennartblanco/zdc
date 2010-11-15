@@ -1451,104 +1451,101 @@ validate_array_slice(compilation_status_t *compile_status,
                      sym_table_t *sym_table,
                      IrArraySlice *array_slice)
 {
-    assert(false);
-//    IrVariable *var;
-//    DtDataType *var_dt;
-//    IrExpression *exp;
-//
-//    if (!validate_lvalue(compile_status,
-//                         sym_table,
-//                         IR_LVALUE(array_slice)))
-//    {
-//        return NULL;
-//    }
-//
-//    /*
-//     * check that array slice expression symbol is of array type
-//     */
-//    var = ir_lvalue_get_variable(IR_LVALUE(array_slice));
-//    var_dt = ir_variable_get_data_type(var);
-//
-//    if (!DT_IS_ARRAY_TYPE(var_dt))
-//    {
-//        compile_error(compile_status,
-//                      IR_NODE(array_slice),
-//                      "illegal array slice expression over "
-//                      "non-array variable\n");
-//        return NULL;
-//    }
-//
-//    /*
-//     * validate start expression
-//     */
-//    exp = ir_array_slice_get_start(array_slice);
-//    if (exp == NULL)
-//    {
-//        exp = IR_EXPRESSION(ir_uint_constant_new(0, 0));
-//    }
-//    else
-//    {
-//        exp = validate_expression(compile_status, sym_table, exp);
-//        if (exp == NULL)
-//        {
-//            /* invalid start expression */
-//            return false;
-//        }
-//        exp = types_implicit_conv(types_get_uint_type(), exp);
-//        if (exp == NULL)
-//        {
-//            compile_error(compile_status,
-//                          IR_NODE(array_slice),
-//                          "cannot implicitly convert array slice start"
-//                          " expression to uint type\n");
-//            return NULL;
-//        }
-//    }
-//    ir_array_slice_set_start(array_slice, exp);
-//
-//    /*
-//     * validate end expression
-//     */
-//    exp = ir_array_slice_get_end(array_slice);
-//    if (exp == NULL)
-//    {
-//        if (DT_IS_STATIC_ARRAY_TYPE(var_dt))
-//        {
-//          /* slice over static array */
-//          guint32 end_idx;
-//
-//          end_idx =
-//              dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(var_dt));
-//          exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
-//        }
-//        else
-//        {
-//           /* slice over dynamic array */
-//           exp = IR_EXPRESSION(ir_property_new(IR_EXPRESSION(array_slice),
-//                                               IR_PROP_LENGTH, 0));
-//        }
-//    }
-//    else
-//    {
-//        exp = validate_expression(compile_status, sym_table, exp);
-//        if (exp == NULL)
-//        {
-//            /* invalid end expression */
-//            return false;
-//        }
-//        exp = types_implicit_conv(types_get_uint_type(), exp);
-//        if (exp == NULL)
-//        {
-//            compile_error(compile_status,
-//                          IR_NODE(array_slice),
-//                          "cannot implicitly convert array slice end"
-//                          " expression to uint type\n");
-//            return NULL;
-//        }
-//    }
-//    ir_array_slice_set_end(array_slice, exp);
-//
-//    return IR_EXPRESSION(array_slice);
+    DtDataType *array_type;
+    IrExpression *exp;
+
+    /* validate array expression */
+    exp = ir_array_slice_get_array(array_slice);
+    exp = validate_expression(compile_status, sym_table, exp);
+    if (exp == NULL) {
+        /* invalid array expression, bail out */
+        return NULL;
+    }
+
+    /* make sure array expression is of array type */
+    array_type = ir_expression_get_data_type(exp);
+    if (!DT_IS_ARRAY_TYPE(array_type))
+    {
+        compile_error(compile_status,
+                      array_slice,
+                      "expected array type for slice expression, got %s\n",
+                      dt_data_type_get_string(array_type));
+        return NULL;
+    }
+    ir_array_slice_set_array(array_slice, exp);
+
+
+    /*
+     * validate start expression
+     */
+    exp = ir_array_slice_get_start(array_slice);
+    if (exp == NULL)
+    {
+        exp = IR_EXPRESSION(ir_uint_constant_new(0, 0));
+    }
+    else
+    {
+        exp = validate_expression(compile_status, sym_table, exp);
+        if (exp == NULL)
+        {
+            /* invalid start expression */
+            return false;
+        }
+        exp = types_implicit_conv(types_get_uint_type(), exp);
+        if (exp == NULL)
+        {
+            compile_error(compile_status,
+                          IR_NODE(array_slice),
+                          "cannot implicitly convert array slice start"
+                          " expression to uint type\n");
+            return NULL;
+        }
+    }
+    ir_array_slice_set_start(array_slice, exp);
+
+    /*
+     * validate end expression
+     */
+    exp = ir_array_slice_get_end(array_slice);
+    if (exp == NULL)
+    {
+        if (DT_IS_STATIC_ARRAY_TYPE(array_type))
+        {
+          /* slice over static array */
+          guint32 end_idx;
+
+          end_idx =
+              dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(array_type));
+          exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
+        }
+        else
+        {
+           /* slice over dynamic array */
+           exp = IR_EXPRESSION(ir_property_new(IR_EXPRESSION(array_slice),
+                                               IR_PROP_LENGTH, 0));
+        }
+    }
+    else
+    {
+        exp = validate_expression(compile_status, sym_table, exp);
+        if (exp == NULL)
+        {
+            /* invalid end expression */
+            return false;
+        }
+        exp = types_implicit_conv(types_get_uint_type(), exp);
+        if (exp == NULL)
+        {
+            compile_error(compile_status,
+                          IR_NODE(array_slice),
+                          "cannot implicitly convert array slice end"
+                          " expression to uint type\n");
+            return NULL;
+        }
+    }
+    ir_array_slice_set_end(array_slice, exp);
+
+    return IR_EXPRESSION(array_slice);
 }
 
 static IrExpression *

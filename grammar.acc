@@ -437,15 +437,7 @@ foreach_block<x> :
       ( ( type<idx_type> )?  TOK_IDENT<idx_name> ',' )? 
       ( type<val_type> )? TOK_IDENT<val_name> ';' 
       (
-        array_slice<aggregate>
-        | TOK_IDENT<aggregate> 
-        { 
-            aggregate.expression =
-                AST_EXPRESSION(ast_array_slice_ref_new(aggregate.text,
-                                                       NULL,
-                                                       NULL,
-                                                       yypos));
-        }
+        expression<aggregate>
       ) ')' scope_statment<code>
     {
         AstVariableDeclaration *index = NULL;
@@ -796,7 +788,7 @@ primary<n> :
 ;
 
 array_slice<n> :
-    TOK_IDENT<name>
+    postfix_expression<array>
     {
         start.expression = NULL;
         end.expression = NULL;
@@ -804,11 +796,10 @@ array_slice<n> :
     '[' (expression<start> '.' '.' expression<end>)? ']'
     {
         (*n).expression =
-            AST_EXPRESSION(ast_array_slice_ref_new(name.text,
+            AST_EXPRESSION(ast_array_slice_ref_new(array.expression,
                                                    start.expression,
                                                    end.expression,
                                                    yypos));
-        free(name.text);
     }
 ;
 

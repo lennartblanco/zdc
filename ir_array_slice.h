@@ -29,9 +29,9 @@ typedef struct
     IrExpression parent;
 
     /* private */
+    IrExpression *array;
     IrExpression *start;
     IrExpression *end;
-    DtDataType   *data_type;
 } IrArraySlice;
 
 typedef struct
@@ -47,10 +47,22 @@ GType
 ir_array_slice_get_type(void);
 
 IrArraySlice *
-ir_array_slice_new(char *array_name,
+ir_array_slice_new(IrExpression *array,
                    IrExpression *start,
                    IrExpression *end,
                    guint line_number);
+
+/**
+ * get the array expression for this slice
+ */
+IrExpression *
+ir_array_slice_get_array(IrArraySlice *self);
+
+/**
+ * set the array expression for this slice
+ */
+void
+ir_array_slice_set_array(IrArraySlice *self, IrExpression *array);
 
 IrExpression *
 ir_array_slice_get_start(IrArraySlice *self);

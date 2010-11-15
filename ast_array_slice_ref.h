@@ -26,9 +26,10 @@
 
 typedef struct
 {
-    AstIdent parent;
+    AstExpression parent;
 
     /* private */
+    AstExpression *array;
     AstExpression *start;
     AstExpression *end;
 } AstArraySliceRef;
@@ -46,12 +47,12 @@ GType
 ast_array_slice_ref_get_type(void);
 
 AstArraySliceRef *
-ast_array_slice_ref_new(char *name,
+ast_array_slice_ref_new(AstExpression *array,
                         AstExpression *start,
                         AstExpression *end,
                         guint line_number);
-char *
-ast_array_slice_ref_get_name(AstArraySliceRef *self);
+AstExpression *
+ast_array_slice_ref_get_array(AstArraySliceRef *self);
 
 AstExpression *
 ast_array_slice_ref_get_start(AstArraySliceRef *self);
