@@ -37,12 +37,12 @@ bool bool_array_lit_assigment(int i)
   return x[i];
 }
 
-//bool bool_array_lit_init(bool a)
-//{
-//  bool[] x = [true, a];
+bool bool_array_lit_init(bool a)
+{
+  bool[] x = [true, a];
 
-//  return x[0] && x[1];
-//}
+  return x[0] && x[1];
+}
 
 bool boolops(int idx, int v)
 {

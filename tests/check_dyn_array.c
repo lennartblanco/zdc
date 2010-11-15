@@ -55,17 +55,17 @@ call_bool_array_lit_assigment(int in)
    return res;
 }
 
-//bool
-//call_bool_array_lit_init(bool in)
-//{
-//   bool res;
+bool
+call_bool_array_lit_init(bool in)
+{
+   bool res;
 
-//   asm ("    call _D9dyn_array19bool_array_lit_initFbZb\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D9dyn_array19bool_array_lit_initFbZb\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 bool
 call_boolops(int arg1, int arg2)
@@ -208,11 +208,11 @@ main()
     check_bool("bool_array_lit_assigment(3)",
                call_bool_array_lit_assigment(3), false);
 
-//    /* bool_array_lit_init() tests */
-//    check_bool("bool_array_lit_init(true)",
-//               call_bool_array_lit_init(true), true);
-//    check_bool("bool_array_lit_init(false)",
-//               call_bool_array_lit_init(false), false);
+    /* bool_array_lit_init() tests */
+    check_bool("bool_array_lit_init(true)",
+               call_bool_array_lit_init(true), true);
+    check_bool("bool_array_lit_init(false)",
+               call_bool_array_lit_init(false), false);
 
     /* boolops() tests */
     check_bool("boolops(0, -1)", call_boolops(0, -1), false);

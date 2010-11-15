@@ -713,18 +713,15 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                            ImlVariable *res)
 {
     assert(IR_IS_ARRAY_LITERAL(expr));
-    const char *label;
 
     ImlVariable *ptr;
     ImlConstant *src;
     ImlConstant *length;
     ImlConstant *size;
     iml_operation_t *op;
+    guint element_size;
     iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
-    label = ir_array_literal_get_data_label(expr);
-    /* only array literal stored in data section supported for now */
-    assert(label != NULL);
 
     /*
      * generate code to allocate memory for array literal
@@ -738,20 +735,60 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                            ptr);
     ir_function_add_operation(function, op);
 
-    /*
-     * generate code to copy literal data from data section to
-     * allocated memory
-     */
-    src = iml_constant_new_ptr(label);
-    op = iml_operation_new(iml_call_c,
-                           "memcpy",
-                           g_slist_append(
-                             g_slist_append(
-                              g_slist_append(NULL, ptr),
-                              src),
-                             IML_OPERAND(size)),
-                           NULL);
-    ir_function_add_operation(function, op);
+    if (ir_expression_is_constant(IR_EXPRESSION(expr)))
+    {
+        /*
+         * generate code to copy literal data from data section to
+         * allocated memory
+         */
+
+        const char *label = ir_array_literal_get_data_label(expr);
+        assert(label != NULL); /* should be stored in data section */
+
+        src = iml_constant_new_ptr(label);
+        op = iml_operation_new(iml_call_c,
+                               "memcpy",
+                               g_slist_append(
+                                 g_slist_append(
+                                  g_slist_append(NULL, ptr),
+                                  src),
+                                 IML_OPERAND(size)),
+                               NULL);
+        ir_function_add_operation(function, op);
+    }
+    else
+    {
+        /*
+         * generate code to evaluate each array literal value,
+         * and store the result in the allocated memory chunk
+         */
+        DtDataType *dt;
+        GSList *i;
+        ImlVariable *temp;
+        guint cntr;
+
+        /* figure out array element size */
+        dt = ir_expression_get_data_type(IR_EXPRESSION(expr));
+        assert(DT_IS_ARRAY_TYPE(dt));
+        element_size = dt_array_get_element_size(DT_ARRAY_TYPE(dt));
+
+        temp = iml_func_frame_get_temp(frame, iml_32b);
+
+        i = ir_array_literal_get_values(expr);
+        cntr = 0;
+        for (; i != NULL; i = g_slist_next(i), cntr += 1)
+        {
+            iml_add_expression_eval(function,
+                                    i->data,
+                                    temp);
+            op = iml_operation_new(iml_setfld,
+                                   temp,
+                                   ptr,
+                                   iml_constant_new_32b(cntr),
+                                   element_size);
+            ir_function_add_operation(function, op);
+        }
+    }
 
     if (res == NULL)
     {
