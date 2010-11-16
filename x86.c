@@ -37,6 +37,7 @@ enum {
 
 #define TEMP_REG1_NAME "ecx"
 #define TEMP_REG2_NAME "eax"
+#define TEMP_REG2_BYTE_NAME "al"
 
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
@@ -635,6 +636,7 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
     ImlOperand *index = iml_operation_get_operand(op, 3);
     guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 4));
     const char *index_reg;
+    const gchar *move_suffix;
 
     assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
 
@@ -668,13 +670,28 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
         }
     }
 
+    /* pick appropriate move instruction suffix based in move size */
+    switch (size)
+    {
+        case 4:
+            move_suffix = "l"; /* move 32-bit value */
+            break;
+        case 1:
+            move_suffix = "b"; /* move 8-bit value */
+            break;
+        default:
+            /* unexpected/unsupported size */
+            assert(false);
+    }
+
     /*
      * generate the move to the array cell
      */
     if (IML_IS_CONSTANT(src))
     {
         fprintf(out,
-                "    movl $%d, %d(%%ebp, %%%s, %u)\n",
+                "    mov%s $%d, %d(%%ebp, %%%s, %u)\n",
+                move_suffix,
                 iml_constant_get_val_32b(IML_CONSTANT(src)),
                 iml_variable_get_frame_offset(dest),
                 index_reg,
@@ -684,24 +701,24 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
     {
         assert(IML_IS_VARIABLE(src));
 
-        ImlVariable *var = IML_VARIABLE(src);
-        iml_register_t *reg = iml_variable_get_register(var);
         const gchar *src_reg;
 
-        if (reg != NULL)
+        switch (size)
         {
-            src_reg = iml_register_get_name(reg);
-        }
-        else
-        {
-            fprintf(out,
-                    "    movl %d(%%ebp), %%" TEMP_REG2_NAME "\n",
-                    iml_variable_get_frame_offset(var));
-            src_reg = TEMP_REG2_NAME;
+            case 4:
+                src_reg = TEMP_REG2_NAME;
+                break;
+            case 1:
+                src_reg = TEMP_REG2_BYTE_NAME;
+                break;
+            default:
+                assert(false);
         }
 
+        x86_move_to_reg(out, TEMP_REG2_NAME, src);
         fprintf(out,
-                "    movl %%%s, %d(%%ebp, %%%s, %u)\n",
+                "    mov%s %%%s, %d(%%ebp, %%%s, %u)\n",
+                move_suffix,
                 src_reg,
                 iml_variable_get_frame_offset(dest),
                 index_reg,
@@ -720,6 +737,7 @@ x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
     ImlOperand *index = iml_operation_get_operand(op, 3);
     guint size = GPOINTER_TO_UINT(iml_operation_get_operand(op, 4));
     iml_register_t *reg;
+    const gchar *move_suffix;
 
     assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr);
 
@@ -729,8 +747,8 @@ x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
     /* multiply array index with element size to get array offset in bytes */
     if (size > 1)
     {
-        /* only array element of 1, 2 or 4 bytes supported for now */
-        assert(size == 2 || size == 4);
+        /* only array element of 1 or 4 bytes supported for now */
+        assert(size == 4);
         fprintf(out, "    sall $%d, %%%s\n", size / 2, TEMP_REG1_NAME);
     }
 
@@ -749,34 +767,52 @@ x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
                 iml_register_get_name(reg));
     }
 
-    /* move src value to calculated address */
+    /* pick appropriate move instruction suffix based in move size */
+    switch (size)
+    {
+        case 4:
+            move_suffix = "l"; /* move 32-bit value */
+            break;
+        case 1:
+            move_suffix = "b"; /* move 8-bit value */
+            break;
+        default:
+            /* unexpected/unsupported size */
+            assert(false);
+    }
+
+    /*
+     * move src value to calculated address
+     */
     if (IML_IS_CONSTANT(src))
     {
         fprintf(out,
-                "    movl $%d, (%%" TEMP_REG1_NAME ")\n",
-                iml_constant_get_val_32b(IML_CONSTANT(src)));
+                "    mov%s $%d, (%%" TEMP_REG1_NAME ")\n",
+                move_suffix, iml_constant_get_val_32b(IML_CONSTANT(src)));
     }
     else
     {
         assert(IML_IS_VARIABLE(src));
 
         const gchar *src_reg_name;
-        reg = iml_variable_get_register(IML_VARIABLE(src));
 
-        if (reg == NULL)
+        switch (size)
         {
-            x86_move_to_reg(out, TEMP_REG2_NAME, src);
-            src_reg_name = TEMP_REG2_NAME;
+            case 4:
+                src_reg_name = TEMP_REG2_NAME;
+                break;
+            case 1:
+                src_reg_name = TEMP_REG2_BYTE_NAME;
+                break;
+            default:
+                assert(false);
         }
-        else
-        {
-            src_reg_name = iml_register_get_name(reg);
-        }
+
+        x86_move_to_reg(out, TEMP_REG2_NAME, src);
 
         fprintf(out,
-                "    movl %%%s, (%%" TEMP_REG1_NAME ")\n",
-                src_reg_name);
-
+                "    mov%s %%%s, (%%" TEMP_REG1_NAME ")\n",
+                move_suffix, src_reg_name);
     }
 }
 

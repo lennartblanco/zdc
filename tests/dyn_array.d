@@ -53,6 +53,18 @@ bool boolops(int idx, int v)
   return x[0] || x[1] || x[2];
 }
 
+char char_array(char val, uint indx)
+{
+  /* test reading and writing to array cells with 8-bit elements */
+  char[] arr = ['\0', 'b', '\0', 'd', 'e', '\0'];
+
+  arr[0] = val;
+  arr[2] = 'c';
+  arr[arr.length - 1] = val;
+
+  return arr[indx];
+}
+
 int dyn_array_sum(int[] array)
 {
   uint idx = 0;

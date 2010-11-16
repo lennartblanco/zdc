@@ -64,8 +64,8 @@ bool boolops(bool a, bool b, bool c, int index)
     // operation on boolean array
     bool[4] l;
     l[0] = true;
-    l[1] = a;
     l[2] = b;
+    l[1] = a;
     l[3] = c;
 
     return l[0] && l[index];

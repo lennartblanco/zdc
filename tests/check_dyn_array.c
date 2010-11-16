@@ -82,6 +82,21 @@ call_boolops(int arg1, int arg2)
    return res;
 }
 
+char
+call_char_array(int arg1, int arg2)
+{
+   int res;
+
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D9dyn_array10char_arrayFakZa\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
+
+   return res;
+}
+
 int
 call_invoke_dyn_array_sum_handle(int in)
 {
@@ -218,6 +233,14 @@ main()
     check_bool("boolops(0, -1)", call_boolops(0, -1), false);
     check_bool("boolops(1, 10)", call_boolops(1, 10), true);
     check_bool("boolops(2, 0)", call_boolops(2, 0), false);
+
+    /* char_array() tests */
+    check_char("char_array('X', 0)", call_char_array('X', 0), 'X');
+    check_char("char_array('X', 1)", call_char_array('X', 1), 'b');
+    check_char("char_array('X', 2)", call_char_array('X', 2), 'c');
+    check_char("char_array('X', 3)", call_char_array('X', 3), 'd');
+    check_char("char_array('X', 4)", call_char_array('X', 4), 'e');
+    check_char("char_array('X', 5)", call_char_array('X', 5), 'X');
 
     /* dyn_array_sum() tests */
     check_int("invoke_dyn_array_sum_handle(0)",
