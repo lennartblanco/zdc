@@ -114,17 +114,17 @@ uint dyn_array_slice_assigment_length(uint idx)
   return arr[idx];
 }
 
-//int dyn_array_slice_shorthand(bool assign, uint idx)
-//{
-//  int[] arr = [-1, -1, -1, -1, -1];
+int dyn_array_slice_shorthand(bool assign, uint idx)
+{
+  int[] arr = [-1, -1, -1, -1, -1];
 
-//  if (assign)
-//  {
-//      arr[] = [11, 22, 33, 44, 55];
-//  }
+  if (assign)
+  {
+      arr[] = [11, 22, 33, 44, 55];
+  }
 
-//  return arr[idx];
-//}
+  return arr[idx];
+}
 
 /*
  * Wrapper function to test calling dyn_array_sum() with dynamic array handle

@@ -1521,8 +1521,9 @@ validate_array_slice(compilation_status_t *compile_status,
         else
         {
            /* slice over dynamic array */
-           exp = IR_EXPRESSION(ir_property_new(IR_EXPRESSION(array_slice),
-                                               IR_PROP_LENGTH, 0));
+           exp = IR_EXPRESSION(
+                   ir_property_new(ir_array_slice_get_array(array_slice),
+                                   IR_PROP_LENGTH, 0));
         }
     }
     else
