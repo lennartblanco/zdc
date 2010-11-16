@@ -121,26 +121,26 @@ call_invoke_dyn_array_sum_lit(int in)
    return res;
 }
 
-//int
-//call_dyn_array_slice_assigment(bool arg1, unsigned arg2)
-//{
-//   int res;
+int
+call_dyn_array_slice_assigment(int arg1, unsigned arg2)
+{
+   int res;
 
-//   asm ("    pushl %%esi\n"
-//        "    pushl %%edi\n"
-//        "    pushl %%ebx\n"
-//        "    pushl %[arg1]\n"
-//        "    call _D9dyn_array25dyn_array_slice_assigmentFbkZi\n"
-//        "    addl $4, %%esp\n"
-//        "    pop %%ebx\n"
-//        "    pop %%edi\n"
-//        "    pop %%esi\n"
-//        : "=a"(res)
-//        : [arg1]"m"(arg1),
-//          "a"(arg2));
+   asm ("    pushl %%esi\n"
+        "    pushl %%edi\n"
+        "    pushl %%ebx\n"
+        "    pushl %[arg1]\n"
+        "    call _D9dyn_array25dyn_array_slice_assigmentFbkZi\n"
+        "    addl $4, %%esp\n"
+        "    pop %%ebx\n"
+        "    pop %%edi\n"
+        "    pop %%esi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          "a"(arg2));
 
-//   return res;
-//}
+   return res;
+}
 
 //unsigned
 //call_dyn_array_slice_assigment_length(unsigned in)
@@ -267,22 +267,22 @@ main()
     check_int("invoke_dyn_array_sum_lit(3)",
               call_invoke_dyn_array_sum_lit(3), -1);
 
-//    /* dyn_array_slice_assigment() tests */
-//    for (idx = 0; idx < 5; idx += 1)
-//    {
-//      check_int("dyn_array_slice_assigment(false, idx)",
-//                  call_dyn_array_slice_assigment(false, idx), (int)(idx + 1));
-//    }
-//    check_int("dyn_array_slice_assigment(true, 0)",
-//              call_dyn_array_slice_assigment(true, 0), 1);
-//    check_int("dyn_array_slice_assigment(true, 1)",
-//              call_dyn_array_slice_assigment(true, 1), 2);
-//    check_int("dyn_array_slice_assigment(true, 2)",
-//              call_dyn_array_slice_assigment(true, 2), 11);
-//    check_int("dyn_array_slice_assigment(true, 3)",
-//              call_dyn_array_slice_assigment(true, 3), 22);
-//    check_int("dyn_array_slice_assigment(true, 4)",
-//              call_dyn_array_slice_assigment(true, 4), 5);
+    /* dyn_array_slice_assigment() tests */
+    for (idx = 0; idx < 5; idx += 1)
+    {
+      check_int("dyn_array_slice_assigment(false, idx)",
+                  call_dyn_array_slice_assigment(false, idx), (int)(idx + 1));
+    }
+    check_int("dyn_array_slice_assigment(true, 0)",
+              call_dyn_array_slice_assigment(true, 0), 1);
+    check_int("dyn_array_slice_assigment(true, 1)",
+              call_dyn_array_slice_assigment(true, 1), 2);
+    check_int("dyn_array_slice_assigment(true, 2)",
+              call_dyn_array_slice_assigment(true, 2), 11);
+    check_int("dyn_array_slice_assigment(true, 3)",
+              call_dyn_array_slice_assigment(true, 3), 22);
+    check_int("dyn_array_slice_assigment(true, 4)",
+              call_dyn_array_slice_assigment(true, 4), 5);
 
 //    /* dyn_array_slice_assigment_length() tests */
 //    check_uint("dyn_array_slice_assigment_length(0)",

@@ -94,17 +94,17 @@ bool find_int(int[] haystack, int needle)
 }
 
 
-//int dyn_array_slice_assigment(bool assign, uint idx)
-//{
-//  int[] arr = [1, 2, 3, 4, 5];
+int dyn_array_slice_assigment(bool assign, uint idx)
+{
+  int[] arr = [1, 2, 3, 4, 5];
 
-//  if (assign)
-//  {
-//      arr[2..4] = [11, 22];
-//  }
+  if (assign)
+  {
+      arr[2..4] = [11, 22];
+  }
 
-//  return arr[idx];
-//}
+  return arr[idx];
+}
 
 //uint dyn_array_slice_assigment_length(uint idx)
 //{

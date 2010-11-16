@@ -57,6 +57,11 @@ add_array_cell_assigment(IrFunctionDef *function,
                          IrExpression *value);
 
 static void
+add_array_slice_assigment(IrFunctionDef *function,
+                          IrArraySlice *lvalue,
+                          IrExpression *value);
+
+static void
 add_array_assigment(IrFunctionDef *function,
                     IrVariable *lvalue,
                     IrExpression *value);
@@ -303,6 +308,10 @@ iml_add_assigment(IrFunctionDef *function,
     if (IR_IS_ARRAY_CELL(lvalue))
     {
         add_array_cell_assigment(function, IR_ARRAY_CELL(lvalue), value);
+    }
+    else if (IR_IS_ARRAY_SLICE(lvalue))
+    {
+        add_array_slice_assigment(function, IR_ARRAY_SLICE(lvalue), value);
     }
     else if (IR_IS_VARIABLE(lvalue))
     {
@@ -1040,4 +1049,82 @@ add_array_cell_assigment(IrFunctionDef *function,
                                                     index_val,
                                                     size));
     }
+}
+
+static void
+add_array_slice_assigment(IrFunctionDef *function,
+                          IrArraySlice *lvalue,
+                          IrExpression *value)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_ARRAY_SLICE(lvalue));
+    assert(IR_IS_EXPRESSION(value));
+
+    DtDataType *array_type;
+    guint element_size;
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *src;
+    ImlOperand *dest;
+    ImlVariable *src_ptr;
+    ImlVariable *dest_ptr;
+    ImlVariable *length;
+
+    /* figure out the byte size of array elements */
+    array_type = ir_expression_get_data_type(value);
+    assert(DT_IS_ARRAY_TYPE(array_type));
+    element_size = dt_array_get_element_size(DT_ARRAY_TYPE(array_type));
+
+    /* generate code to evaluate left and right values */
+    src = iml_add_expression_eval(function, IR_EXPRESSION(value), NULL);
+    dest = iml_add_expression_eval(function, IR_EXPRESSION(lvalue), NULL);
+
+    /* store source pointer in temp variable */
+    src_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_getfld,
+                                                src,
+                                                iml_constant_new_32b(1),
+                                                4,
+                                                src_ptr));
+
+    /* generate code to calculate the length in bytes of the array to copy */
+    length = iml_func_frame_get_temp(frame, iml_32b);
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_getfld,
+                                                src,
+                                                iml_constant_new_32b(0),
+                                                4,
+                                                length));
+
+    /* multiply length with element size, if needed */
+    if (element_size > 1)
+    {
+        ir_function_add_operation(
+                function,
+                iml_operation_new(iml_umult,
+                                  length,
+                                  iml_constant_new_32b(element_size),
+                                  length));
+    }
+
+    /* store destination pointer in temp variable */
+    dest_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    ir_function_add_operation(function,
+                              iml_operation_new(iml_getfld,
+                                                dest,
+                                                iml_constant_new_32b(1),
+                                                4,
+                                                dest_ptr));
+
+
+    /* generate code to copy memory from source array to destination */
+    ir_function_add_operation(function,
+            iml_operation_new(iml_call_c,
+                              "memcpy",
+                              g_slist_append(
+                                g_slist_append(
+                                  g_slist_append(NULL, dest_ptr),
+                                  src_ptr),
+                                IML_OPERAND(length)),
+                              NULL));
 }

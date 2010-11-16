@@ -18,6 +18,9 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_array_slice_do_get_data_type(IrExpression *self);
 
+static bool
+ir_array_slice_do_is_lvalue(IrExpression *self);
+
 static void
 ir_array_slice_do_print(IrNode *self, FILE *out, int indention);
 
@@ -134,6 +137,7 @@ ir_array_slice_class_init(gpointer klass, gpointer dummy)
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_array_slice_do_get_data_type;
     ((IrNodeClass *)klass)->do_print = ir_array_slice_do_print;
+    ((IrExpressionClass *)klass)->do_is_lvalue = ir_array_slice_do_is_lvalue;
 }
 
 static DtDataType *
@@ -142,6 +146,14 @@ ir_array_slice_do_get_data_type(IrExpression *self)
     assert(IR_IS_ARRAY_SLICE(self));
 
     return ir_expression_get_data_type(IR_ARRAY_SLICE(self)->array);
+}
+
+static bool
+ir_array_slice_do_is_lvalue(IrExpression *self)
+{
+    assert(IR_IS_ARRAY_SLICE(self));
+
+    return true;
 }
 
 static void
