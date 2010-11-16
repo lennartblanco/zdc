@@ -814,6 +814,9 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     const char *index_reg = NULL;
     iml_register_t *dest_reg = iml_variable_get_register(dest);
 
+    /*
+     * make sure index is stored in a register
+     */
     if (IML_IS_CONSTANT(index))
     {
         fprintf(out,
