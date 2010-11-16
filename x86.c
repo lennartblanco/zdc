@@ -1484,6 +1484,11 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
          i = g_slist_next(i))
     {
         iml_operation_t *op = (iml_operation_t*) i->data;
+
+        /* annotate assembly file with compiled IML operations */
+        fprintf(params->out, "\n    # ");
+        iml_operation_print(op, params->out, 0);
+
         switch (iml_operation_get_opcode(op))
         {
             case iml_return:
