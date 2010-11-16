@@ -106,13 +106,13 @@ int dyn_array_slice_assigment(bool assign, uint idx)
   return arr[idx];
 }
 
-//uint dyn_array_slice_assigment_length(uint idx)
-//{
-//  uint[] arr = [0, 0, 0, 0, 0, 0];
-//  arr[3..arr.length] = [99, 98, 97];
+uint dyn_array_slice_assigment_length(uint idx)
+{
+  uint[] arr = [0, 0, 0, 0, 0, 0];
+  arr[3..arr.length] = [99, 98, 97];
 
-//  return arr[idx];
-//}
+  return arr[idx];
+}
 
 //int dyn_array_slice_shorthand(bool assign, uint idx)
 //{
