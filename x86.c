@@ -813,6 +813,7 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     gint offset;
     const char *index_reg = NULL;
     iml_register_t *dest_reg = iml_variable_get_register(dest);
+    const char *move_inst;
 
     /*
      * make sure index is stored in a register
@@ -880,10 +881,25 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
         offset = iml_variable_get_frame_offset(src);
     }
 
+    /* pick move instruction to use, depending on source size */
+    switch (size)
+    {
+        case 4:
+            move_inst = "movl";   /* 32bit to 32bit move */
+            break;
+        case 1:
+            move_inst = "movzbl"; /* zero extend 8bit to 32bit */
+            break;
+        default:
+            /* unexpected/unsupported move size */
+            assert(false);
+    }
+
     if (dest_reg != NULL)
     {
         fprintf(out,
-                "    movl %d(%%%s, %%%s, %u), %%%s\n",
+                "    %s %d(%%%s, %%%s, %u), %%%s\n",
+                move_inst,
                 offset,
                 base_reg,
                 index_reg,
@@ -893,8 +909,9 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     else
     {
         fprintf(out,
-                "    movl %d(%%%s, %%%s, %u), %%" TEMP_REG1_NAME "\n"
+                "    %s %d(%%%s, %%%s, %u), %%" TEMP_REG1_NAME "\n"
                 "    movl %%" TEMP_REG1_NAME ", %d(%%ebp)\n",
+                move_inst,
                 offset,
                 base_reg,
                 index_reg,
