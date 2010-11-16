@@ -1028,6 +1028,13 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
         return NULL;
     }
 
+    if (ir_index_exp == NULL)
+    {
+        /* invalid index expression, bail out */
+        return NULL;
+    }
+
+
     return
         IR_EXPRESSION(
             ir_array_cell_new(IR_VARIABLE(array),
