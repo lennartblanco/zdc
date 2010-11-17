@@ -4,7 +4,6 @@ ACCENT := tools/bin/accent
 PROG := xdc
 #CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
-DEPS = $(COBJS:.o=.dep)
 DEP_DIR := .depend
 CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os,%.dep,$(@:.o=.dep)))) -MT $@
 
@@ -12,7 +11,7 @@ CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os
 
 all: $(PROG)
 
--include $(DEP_DIR)/*.dep
+-include $(shell mkdir -p $(DEP_DIR)) $(DEP_DIR)/*.dep
 
 lex.h: lex.c
 
@@ -21,20 +20,19 @@ lex.c: tokens.lex yygrammar.h
 
 auxil.o: lex.h auxil.c
 
+parser.o: lex.h parser.c
+
 %-d.o: %.d
 	dmd -debug -gc -of$@ -c $<
 
-yygrammar.c yygrammar.h: grammar.acc $(ACCENT)
+yygrammar.h: yygrammar.c
+
+yygrammar.c: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
 
 $(ACCENT):
 	mkdir -p tools/bin
 	cd tools/accent/accent && ./build
-
-$(DEP_DIR):
-	mkdir -p $(DEP_DIR)
-
-$(COBJS): $(DEP_DIR)
 
 #
 # define custom rules to compile auto-generated C files,
