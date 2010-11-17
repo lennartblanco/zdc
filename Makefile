@@ -19,8 +19,8 @@ lex.h lex.c: tokens.lex yygrammar.h
 
 auxil.o: lex.h auxil.c
 
-%.o: %.d
-	dmd -debug -gc -c $?
+%-d.o: %.d
+	dmd -debug -gc -of$@ -c $<
 
 yygrammar.c yygrammar.h: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
