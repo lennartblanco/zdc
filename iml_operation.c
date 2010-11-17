@@ -230,7 +230,7 @@ iml_operation_print(iml_operation_t *self,
             print_call_op(self, out, indention);
             break;
         case iml_label:
-            fprintf_indent(out, indention-1, "%s:\n", self->arg1);
+            fprintf_indent(out, indention, "%s:\n", self->arg1);
             break;
         default:
             /* unexpected opcode */

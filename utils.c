@@ -21,6 +21,8 @@ fprintf_indent(FILE *stream, int indention, const char *format, ...)
     int i;
     va_list argp;
 
+    assert(indention >= 0);
+
     va_start(argp, format);
     vsnprintf(buf, MAX_INDENTED_STRING_SIZE, format, argp);
     va_end(argp);
