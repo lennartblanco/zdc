@@ -14,7 +14,9 @@ all: $(PROG)
 
 -include $(DEP_DIR)/*.dep
 
-lex.h lex.c: tokens.lex yygrammar.h
+lex.h: lex.c
+
+lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
 
 auxil.o: lex.h auxil.c
