@@ -1,7 +1,5 @@
-module dbind.ir_function_def;
-
-public import dbind.GSList;
-public import dbind.dt_data_type;
+public import GSList;
+public import dt_data_type;
 
 struct IrFunctionDef;
 

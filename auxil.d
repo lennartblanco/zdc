@@ -1,7 +1,7 @@
-import dbind.GSList;
 import std.c.stdio;
-import dbind.ir_module;
-import dbind.iml_func_frame;
+import GSList;
+import ir_module;
+import iml_func_frame;
 
 /** see auxil.h for struct documentation */
 struct arch_backend_s

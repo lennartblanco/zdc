@@ -3,13 +3,13 @@ import std.string;
 import std.conv;
 import std.c.stdio;
 import std.c.string;
-import dbind.auxil;
-import dbind.ir_module;
-import dbind.ir_function;
-import dbind.ir_function_def;
-import dbind.iml_func_frame;
-import dbind.iml_register;
-import dbind.types;
+import auxil;
+import ir_module;
+import ir_function;
+import ir_function_def;
+import iml_func_frame;
+import iml_register;
+import types;
 
 void arm_init(arch_backend_s *backend)
 {

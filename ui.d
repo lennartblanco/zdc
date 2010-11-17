@@ -5,8 +5,8 @@
  */
 import std.stdio;
 import std.string;
-import dbind.GSList;
-import dbind.auxil;
+import GSList;
+import auxil;
 import arm;
 
 enum compilation_stages_e

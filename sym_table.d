@@ -1,7 +1,5 @@
-module dbind.sym_table;
-
-public import dbind.ir_symbol;
-public import dbind.GError;
+public import ir_symbol;
+public import GError;
 
 struct sym_table_t;
 

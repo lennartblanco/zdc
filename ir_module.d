@@ -1,7 +1,5 @@
-module dbind.ir_module;
-
-public import dbind.GSList;
-public import dbind.sym_table;
+public import GSList;
+public import sym_table;
 
 struct IrModule;
 
