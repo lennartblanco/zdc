@@ -47,18 +47,11 @@ lex.o: lex.c lex.h
 $(PROG): $(OBJS)
 	dmd -debug -gc -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
 
-function_tests_java: $(PROG)
-	cd tests; ./run_tests.sh --march=java
-
 function_tests_x86: $(PROG)
 	cd tests; ./run_tests.sh --march=x86
 
 errors_tests: $(PROG)
 	cd etests; ./run_tests.sh
-
-all_tests: unit_tests function_tests_java errors_tests
-	@echo "ALL TESTS PASSED"
-
 
 docs:
 	make -C docs
