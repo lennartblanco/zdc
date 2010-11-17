@@ -32,4 +32,4 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          $(X86_TRGT_OBJS)
 
 # all objects generated both from C and D source files
-OBJS := $(COBJS) $(ARM_TRGT_OBJS) ui-d.o
+OBJS := $(COBJS) $(ARM_TRGT_OBJS) GSList-d.o ui-d.o

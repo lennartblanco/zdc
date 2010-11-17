@@ -9,6 +9,7 @@ import ir_function;
 import ir_function_def;
 import iml_func_frame;
 import iml_register;
+import iml_variable;
 import types;
 
 void arm_init(arch_backend_s *backend)
@@ -45,9 +46,33 @@ get_registers(GSList **scratch, GSList **preserved)
 }
 
 extern (C) void
-assign_var_locations (iml_func_frame_t *frame)
+assign_var_locations(iml_func_frame_t *frame)
 {
-    assert(false, "not implemented");
+    void assign_offset(GSList *variable)
+    {
+        GSList *i;
+
+        for (i = variable; i != null; i = g_slist_next(i))
+        {
+            ImlVariable *var = cast(ImlVariable*)i.data;
+            writefln("variable %s", i.data);
+            if (iml_variable_get_register(var) == null)
+            {
+                iml_variable_set_frame_offset(var, 23);
+            }
+        }
+    }
+
+    assert(iml_func_frame_get_parameters(frame) == null,
+           "function parameters not implemented");
+
+    assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_32b));
+    assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_16b));
+    assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_8b));
+    assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_ptr));
+
+    assert(iml_func_frame_get_locals(frame, iml_data_type_t.iml_blob) == null,
+           "local blob variables not implemented");
 }
 
 extern (C) void
@@ -63,12 +88,6 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
     {
       compile_function_def(f, cast(IrFunctionDef*)i.data);
     }
-}
-
-GSList *
-g_slist_next(GSList *l)
-{
-  return l.next;
 }
 
 private void
