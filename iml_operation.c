@@ -126,6 +126,25 @@ iml_operation_new(iml_opcode_t operation, ...)
     return op;
 }
 
+iml_operation_t *
+iml_operation_new_call_c(gchar *function, ImlVariable *res, ...)
+{
+    GSList *arguments = NULL;
+    void *arg;
+    va_list argp;
+
+    va_start(argp, res);
+    while ((arg = va_arg(argp, void *)) != NULL)
+    {
+        assert(IML_IS_OPERAND(arg));
+        arguments = g_slist_prepend(arguments, arg);
+    }
+    arguments = g_slist_reverse(arguments);
+    va_end(argp);
+
+    return iml_operation_new(iml_call_c, function, arguments, res);
+}
+
 iml_opcode_t
 iml_operation_get_opcode(iml_operation_t *self)
 {

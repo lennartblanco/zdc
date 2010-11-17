@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "iml_operand.h"
+#include "iml_variable.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -53,6 +54,18 @@ typedef struct iml_operation_s iml_operation_t;
 
 iml_operation_t *
 iml_operation_new(iml_opcode_t operation, ...);
+
+/**
+ * utility function for create an iml_call_c operation.
+ *
+ * @param function the name of the function to call
+ * @param res destination for the return value of function,
+ *             or NULL for calls to void function
+ * @param ... the list of arguments to the function, as ImlOperand objects,
+ *            terminated by NULL value
+ */
+iml_operation_t *
+iml_operation_new_call_c(gchar *function, ImlVariable *res, ...);
 
 iml_opcode_t
 iml_operation_get_opcode(iml_operation_t *self);

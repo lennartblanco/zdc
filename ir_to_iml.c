@@ -724,7 +724,6 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     assert(IR_IS_ARRAY_LITERAL(expr));
 
     ImlVariable *ptr;
-    ImlConstant *src;
     ImlConstant *length;
     ImlConstant *size;
     iml_operation_t *op;
@@ -738,11 +737,10 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     ptr = iml_func_frame_get_temp(frame, iml_ptr);
     size = iml_constant_new_32b(ir_array_literal_get_size(expr));
 
-    op = iml_operation_new(iml_call_c,
-                           "GC_malloc",
-                           g_slist_prepend(NULL, IML_OPERAND(size)),
-                           ptr);
-    ir_function_add_operation(function, op);
+    ir_function_add_operation(function,
+                              iml_operation_new_call_c("GC_malloc",
+                                                       ptr,
+                                                       size, NULL));
 
     if (ir_expression_is_constant(IR_EXPRESSION(expr)))
     {
@@ -754,15 +752,12 @@ iml_add_array_literal_eval(IrFunctionDef *function,
         const char *label = ir_array_literal_get_data_label(expr);
         assert(label != NULL); /* should be stored in data section */
 
-        src = iml_constant_new_ptr(label);
-        op = iml_operation_new(iml_call_c,
-                               "memcpy",
-                               g_slist_append(
-                                 g_slist_append(
-                                  g_slist_append(NULL, ptr),
-                                  src),
-                                 IML_OPERAND(size)),
-                               NULL);
+        op = iml_operation_new_call_c("memcpy",
+                                      NULL,
+                                      ptr,
+                                      iml_constant_new_ptr(label),
+                                      size,
+                                      NULL);
         ir_function_add_operation(function, op);
     }
     else
@@ -1118,13 +1113,8 @@ add_array_slice_assigment(IrFunctionDef *function,
 
 
     /* generate code to copy memory from source array to destination */
-    ir_function_add_operation(function,
-            iml_operation_new(iml_call_c,
-                              "memcpy",
-                              g_slist_append(
-                                g_slist_append(
-                                  g_slist_append(NULL, dest_ptr),
-                                  src_ptr),
-                                IML_OPERAND(length)),
-                              NULL));
+    ir_function_add_operation(
+            function,
+            iml_operation_new_call_c("memcpy", NULL,
+                                     dest_ptr, src_ptr, length, NULL));
 }
