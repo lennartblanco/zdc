@@ -10,7 +10,7 @@ CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os
 
 .PHONY: docs
 
-all: $(DEP_DIR) $(PROG)
+all: $(PROG)
 
 -include $(DEP_DIR)/*.dep
 
@@ -31,6 +31,9 @@ $(ACCENT):
 
 $(DEP_DIR):
 	mkdir -p $(DEP_DIR)
+
+$(COBJS): $(DEP_DIR)
+
 #
 # define custom rules to compile auto-generated C files,
 # as we can't compile them, as the rest of the files, with -Werror flag
