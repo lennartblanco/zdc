@@ -47,10 +47,6 @@ lex.o: lex.c lex.h
 $(PROG): $(OBJS)
 	dmd -debug -gc -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
 
-# rules to run tests
-unit_tests: lex.h lex.c
-	make -C utests check
-
 function_tests_java: $(PROG)
 	cd tests; ./run_tests.sh --march=java
 
