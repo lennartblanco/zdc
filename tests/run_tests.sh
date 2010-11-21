@@ -21,12 +21,12 @@ tests="empty "\
 "dyn_array "\
 "stat_array "\
 "char_literals "\
-"properties "
+"properties "\
+"immutable "\
+"str_literals "
 #"uint_op "\
 #"foreach "\
-#"immutable "\
 #"enums "\
-#"str_literals "
 
 run_checked()
 {
