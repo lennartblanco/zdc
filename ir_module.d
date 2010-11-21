@@ -10,5 +10,7 @@ extern (C)
 
   sym_table_t *
   ir_module_get_symbols(IrModule *self);
-}
 
+  char *
+  ir_module_gen_label(IrModule *self);
+}

@@ -71,4 +71,7 @@ iml_constant_get_val_32b(ImlConstant *self);
 const gchar *
 iml_constant_get_val_ptr(ImlConstant *self);
 
+bool
+iml_is_constant(void *self);
+
 #endif /* IML_CONSTANT_INC_X */

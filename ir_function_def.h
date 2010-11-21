@@ -87,9 +87,9 @@ iml_func_frame_t *
 ir_function_def_get_frame(IrFunctionDef *self);
 
 void
-ir_function_add_operation(IrFunctionDef *self, iml_operation_t *operation);
+ir_function_def_add_operation(IrFunctionDef *self, iml_operation_t *operation);
 
 GSList *
-ir_function_get_operations(IrFunctionDef *self);
+ir_function_def_get_operations(IrFunctionDef *self);
 
 #endif /* IR_FUNCTION_DEF_INC_X */

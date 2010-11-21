@@ -783,7 +783,7 @@ validate_return(compilation_status_t *compile_status,
         ImlOperand *ret_val = iml_add_expression_eval(compile_status->function,
                                                       conv_exp,
                                                       NULL);
-        ir_function_add_operation(compile_status->function,
+        ir_function_def_add_operation(compile_status->function,
                                   iml_operation_new(iml_return, ret_val));
     }
     else
@@ -799,7 +799,7 @@ validate_return(compilation_status_t *compile_status,
         }
 
         /* valid return from void function, add iml-operation */
-        ir_function_add_operation(compile_status->function,
+        ir_function_def_add_operation(compile_status->function,
                                   iml_operation_new(iml_return, NULL));
     }
 }
@@ -928,7 +928,7 @@ validate_if_block(compilation_status_t *compile_status,
     skip_label =
         iml_operation_new(iml_label,
                           ir_module_gen_label(compile_status->module));
-    ir_function_add_operation(
+    ir_function_def_add_operation(
             compile_status->function,
             iml_operation_new(iml_jmpneq,
                               condition_eval_res,
@@ -942,14 +942,14 @@ validate_if_block(compilation_status_t *compile_status,
     /* add jump operation past the rest of if-else bodies if needed */
     if (end_label != NULL)
     {
-        ir_function_add_operation(
+        ir_function_def_add_operation(
                 compile_status->function,
                 iml_operation_new(iml_jmp,
                                   iml_operation_get_operand(end_label, 1)));
     }
 
     /* insert the skip label */
-    ir_function_add_operation(compile_status->function, skip_label);
+    ir_function_def_add_operation(compile_status->function, skip_label);
 }
 
 static void
@@ -990,7 +990,7 @@ validate_if_else(compilation_status_t *compile_status,
    /* insert end label if needed */
    if (end_label != NULL)
    {
-       ir_function_add_operation(compile_status->function, end_label);
+       ir_function_def_add_operation(compile_status->function, end_label);
    }
 }
 
@@ -1035,14 +1035,14 @@ validate_while(compilation_status_t *compile_status,
                           ir_module_gen_label(compile_status->module));
 
     /* label the start of loop */
-    ir_function_add_operation(compile_status->function, loop_start);
+    ir_function_def_add_operation(compile_status->function, loop_start);
     /* insert iml operation for validation of loop condition */
     condition_eval_res = iml_add_expression_eval(compile_status->function,
                                                  condition,
                                                  NULL);
 
     /* jump over loop body unless condition evaluates to true */
-    ir_function_add_operation(
+    ir_function_def_add_operation(
             compile_status->function,
             iml_operation_new(iml_jmpneq,
                               condition_eval_res,
@@ -1053,13 +1053,13 @@ validate_while(compilation_status_t *compile_status,
     validate_code_block(compile_status, ir_while_get_body(while_statment));
 
     /* jump to loop start */
-    ir_function_add_operation(
+    ir_function_def_add_operation(
             compile_status->function,
             iml_operation_new(iml_jmp,
                               iml_operation_get_operand(loop_start, 1)));
 
     /* and loop end label */
-    ir_function_add_operation(compile_status->function, loop_end);
+    ir_function_def_add_operation(compile_status->function, loop_end);
 }
 
 static void
@@ -1439,7 +1439,7 @@ validate_function_def(compilation_status_t *compile_status,
         /* if it's not a return, add an implicit return */
         if (!IR_IS_RETURN(last_statment))
         {
-            ir_function_add_operation(compile_status->function,
+            ir_function_def_add_operation(compile_status->function,
                                       iml_operation_new(iml_return, NULL));
 
         }

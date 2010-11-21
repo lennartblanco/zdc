@@ -1,3 +1,5 @@
+struct ImlOperand;
+
 enum iml_data_type_t
 {
     iml_8b,

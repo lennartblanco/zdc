@@ -115,6 +115,12 @@ iml_constant_get_val_ptr(ImlConstant *self)
     return self->value.ptr_label;
 }
 
+bool
+iml_is_constant(void *self)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE((self), IML_TYPE_CONSTANT);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

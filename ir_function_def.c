@@ -163,7 +163,7 @@ ir_function_def_get_frame(IrFunctionDef *self)
 }
 
 void
-ir_function_add_operation(IrFunctionDef *self, iml_operation_t *operation)
+ir_function_def_add_operation(IrFunctionDef *self, iml_operation_t *operation)
 {
     assert(IR_IS_FUNCTION_DEF(self));
     assert(operation);
@@ -172,7 +172,7 @@ ir_function_add_operation(IrFunctionDef *self, iml_operation_t *operation)
 }
 
 GSList *
-ir_function_get_operations(IrFunctionDef *self)
+ir_function_def_get_operations(IrFunctionDef *self)
 {
 	assert(IR_IS_FUNCTION_DEF(self));
 

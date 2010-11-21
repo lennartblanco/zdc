@@ -509,7 +509,7 @@ x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 
     if (ret_value != NULL)
     {
-        x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
+        x86_move_to_reg(out, "eax", ret_value);
     }
     fprintf(out, "    jmp %s\n", return_label);
 }
@@ -1532,7 +1532,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     return_label = ir_module_gen_label(params->module);
 
     /* generate code for all operations in this function */
-    for (i = ir_function_get_operations(func_def);
+    for (i = ir_function_def_get_operations(func_def);
          i != NULL;
          i = g_slist_next(i))
     {
