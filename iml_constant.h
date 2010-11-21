@@ -15,9 +15,6 @@
 #define IML_CONSTANT_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IML_TYPE_CONSTANT, ImlConstantClass))
 
-#define IML_IS_CONSTANT(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IML_TYPE_CONSTANT))
-
 #define IML_IS_CONSTANT_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE ((klass), IML_TYPE_CONSTANT))
 

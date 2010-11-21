@@ -94,7 +94,7 @@ iml_constant_new_ptr(const gchar *label)
 guint8
 iml_constant_get_val_8b(ImlConstant *self)
 {
-    assert(IML_IS_CONSTANT(self));
+    assert(iml_is_constant(self));
 
     return self->value.v8;
 }
@@ -102,7 +102,7 @@ iml_constant_get_val_8b(ImlConstant *self)
 guint32
 iml_constant_get_val_32b(ImlConstant *self)
 {
-	assert(IML_IS_CONSTANT(self));
+	assert(iml_is_constant(self));
 
 	return self->value.v32;
 }
@@ -110,7 +110,7 @@ iml_constant_get_val_32b(ImlConstant *self)
 const gchar *
 iml_constant_get_val_ptr(ImlConstant *self)
 {
-    assert(IML_IS_CONSTANT(self));
+    assert(iml_is_constant(self));
 
     return self->value.ptr_label;
 }
@@ -128,7 +128,7 @@ iml_is_constant(void *self)
 static iml_data_type_t
 iml_constant_do_get_data_type(ImlOperand *self)
 {
-    assert(IML_IS_CONSTANT(self));
+    assert(iml_is_constant(self));
 
     return IML_CONSTANT(self)->datatype;
 }
@@ -136,7 +136,7 @@ iml_constant_do_get_data_type(ImlOperand *self)
 static void
 iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention)
 {
-    assert(IML_IS_CONSTANT(self));
+    assert(iml_is_constant(self));
 
     ImlConstant *constant = IML_CONSTANT(self);
 

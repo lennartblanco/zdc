@@ -339,7 +339,7 @@ x86_push_operand(FILE *out, ImlOperand *oper)
 
     guint size = 4;
 
-    if (IML_IS_CONSTANT(oper))
+    if (iml_is_constant(oper))
     {
         if (iml_operand_get_data_type(oper) == iml_ptr)
         {
@@ -407,7 +407,7 @@ x86_move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
 {
     assert(IML_IS_OPERAND(oper));
 
-    if (IML_IS_CONSTANT(oper))
+    if (iml_is_constant(oper))
     {
         fprintf(out,
                 "    movl $%d, %%%s\n",
@@ -472,7 +472,7 @@ x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
 {
     assert(IML_IS_OPERAND(oper));
 
-    if (IML_IS_CONSTANT(oper))
+    if (iml_is_constant(oper))
     {
         /* not imlemented */
         assert(false);
@@ -526,7 +526,7 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
     dst = IML_VARIABLE(iml_operation_get_operand(op, 2));
     dst_reg = iml_variable_get_register(dst);
 
-    if (IML_IS_CONSTANT(src))
+    if (iml_is_constant(src))
     {
         ImlConstant *const_src = IML_CONSTANT(src);
 
@@ -644,7 +644,7 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
      * Generate code that will store array index into a register,
      * remember which register it ends up in
      */
-    if (IML_IS_CONSTANT(index))
+    if (iml_is_constant(index))
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG1_NAME "\n",
@@ -687,7 +687,7 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
     /*
      * generate the move to the array cell
      */
-    if (IML_IS_CONSTANT(src))
+    if (iml_is_constant(src))
     {
         fprintf(out,
                 "    mov%s $%d, %d(%%ebp, %%%s, %u)\n",
@@ -784,7 +784,7 @@ x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
     /*
      * move src value to calculated address
      */
-    if (IML_IS_CONSTANT(src))
+    if (iml_is_constant(src))
     {
         fprintf(out,
                 "    mov%s $%d, (%%" TEMP_REG1_NAME ")\n",
@@ -854,7 +854,7 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     /*
      * make sure index is stored in a register
      */
-    if (IML_IS_CONSTANT(index))
+    if (iml_is_constant(index))
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG1_NAME "\n",
@@ -1001,7 +1001,7 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
     }
 
     /* store left operand in result register */
-    if (IML_IS_CONSTANT(left))
+    if (iml_is_constant(left))
     {
         fprintf(out,
                 "    movl $%d, %%%s\n",
@@ -1032,7 +1032,7 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
     }
 
     /* perform the binary operation */
-    if (IML_IS_CONSTANT(right))
+    if (iml_is_constant(right))
     {
         fprintf(out,
                 "    %s $%d, %%%s\n",
@@ -1217,7 +1217,7 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
      * Store arg2 operand in temporary register if needed.
      * Save the name of the register where arg2 operand is stored, if any.
      */
-    if (IML_IS_CONSTANT(arg2))
+    if (iml_is_constant(arg2))
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG1_NAME "\n",
@@ -1261,7 +1261,7 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
                 arg1_reg,
                 iml_variable_get_frame_offset(IML_VARIABLE(arg2)));
     }
-    else if (IML_IS_CONSTANT(arg1))
+    else if (iml_is_constant(arg1))
     {
         assert(arg2_reg != NULL);
         fprintf(out,
@@ -1356,7 +1356,7 @@ x86_compile_jmpcond(FILE *out, iml_operation_t *op)
      * only variables as left operand and constant as right operand
      * are supported at the moment
      */
-    assert(IML_IS_CONSTANT(arg1));
+    assert(iml_is_constant(arg1));
     assert(IML_IS_VARIABLE(arg2));
 
 
