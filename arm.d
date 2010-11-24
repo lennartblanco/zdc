@@ -68,7 +68,7 @@ assign_var_locations(iml_func_frame_t *frame)
         for (i = variable; i != null; i = g_slist_next(i))
         {
             ImlVariable *var = cast(ImlVariable*)i.data;
-            writefln("variable %s", i.data);
+
             if (iml_variable_get_register(var) == null)
             {
                 iml_variable_set_frame_offset(var, offset);
