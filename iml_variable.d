@@ -4,6 +4,9 @@ struct ImlVariable;
 
 extern (C)
 {
+    bool
+    iml_is_variable(void *obj);
+
     iml_register_t *
     iml_variable_get_register(ImlVariable *self);
 

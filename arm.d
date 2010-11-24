@@ -243,6 +243,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                             return_label,
                             g_slist_next(i) == null);
                 break;
+            case iml_opcode_t.copy:
+                compile_copy(asmfile, op);
+                break;
             default:
                 assert(false, "unexpected iml opcode");
         }
@@ -263,10 +266,24 @@ compile_function_def(File asmfile, IrFunctionDef *func)
 private void
 gen_move_to_reg(File asmfile, string register, ImlOperand *operand)
 {
-    assert(iml_is_constant(operand), "only constants implemented for now");
-    asmfile.writefln("    mov %s, #%s",
-                     register,
-                     iml_constant_get_val_32b(cast(ImlConstant *)operand));
+    if (iml_is_constant(operand))
+    {
+        asmfile.writefln("    mov %s, #%s",
+                         register,
+                         iml_constant_get_val_32b(cast(ImlConstant *)operand));
+    }
+    else
+    {
+        assert(iml_is_variable(operand));
+
+        ImlVariable *var = cast(ImlVariable *)operand;
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        assert(reg != null, "variables not in register not supported");
+
+        asmfile.writefln("    mov %s, %s",
+                         register, to!string(iml_register_get_name(reg)));
+    }
 }
 
 private void
@@ -286,4 +303,15 @@ compile_ret(File asmfile,
     {
         asmfile.writefln("    b %s", return_label);
     }
+}
+
+private void
+compile_copy(File asmfile, iml_operation_t *op)
+{
+    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    iml_register_t *reg = iml_variable_get_register(dest);
+
+    assert(reg != null, "move to variables not in register not implemented");
+    gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
 }

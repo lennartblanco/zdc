@@ -357,7 +357,7 @@ x86_push_operand(FILE *out, ImlOperand *oper)
     }
     else
     {
-        assert(IML_IS_VARIABLE(oper));
+        assert(iml_is_variable(oper));
         ImlVariable *var = IML_VARIABLE(oper);
         iml_register_t *reg = iml_variable_get_register(var);
 
@@ -416,7 +416,7 @@ x86_move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
     }
     else
     {
-        assert(IML_IS_VARIABLE(oper));
+        assert(iml_is_variable(oper));
         ImlVariable *var = IML_VARIABLE(oper);
         iml_register_t *reg = iml_variable_get_register(var);
 
@@ -479,7 +479,7 @@ x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
     }
     else
     {
-        assert(IML_IS_VARIABLE(oper));
+        assert(iml_is_variable(oper));
         ImlVariable *var = IML_VARIABLE(oper);
         iml_register_t *reg = iml_variable_get_register(var);
 
@@ -547,7 +547,7 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
                     iml_register_get_name(dst_reg));
         }
     }
-    else if (IML_IS_VARIABLE(src))
+    else if (iml_is_variable(src))
     {
         iml_register_t *src_reg;
 
@@ -653,7 +653,7 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(index));
+        assert(iml_is_variable(index));
         ImlVariable *var = IML_VARIABLE(index);
         iml_register_t *reg = iml_variable_get_register(var);
 
@@ -699,7 +699,7 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(src));
+        assert(iml_is_variable(src));
 
         const gchar *src_reg;
 
@@ -792,7 +792,7 @@ x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(src));
+        assert(iml_is_variable(src));
 
         const gchar *src_reg_name;
 
@@ -863,7 +863,7 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(index));
+        assert(iml_is_variable(index));
         ImlVariable *var = IML_VARIABLE(index);
         iml_register_t *reg = iml_variable_get_register(var);
 
@@ -1010,7 +1010,7 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(left));
+        assert(iml_is_variable(left));
 
         ImlVariable *var = IML_VARIABLE(left);
         iml_register_t *reg = iml_variable_get_register(var);
@@ -1042,7 +1042,7 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(right));
+        assert(iml_is_variable(right));
 
         ImlVariable *var = IML_VARIABLE(right);
         iml_register_t *reg = iml_variable_get_register(var);
@@ -1202,7 +1202,7 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
      * figure out if arg1 operand is stored in register and
      * which one if it is
      */
-    if (IML_IS_VARIABLE(arg1))
+    if (iml_is_variable(arg1))
     {
         iml_register_t *reg;
 
@@ -1226,7 +1226,7 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(IML_IS_VARIABLE(arg2));
+        assert(iml_is_variable(arg2));
         iml_register_t *reg;
 
         reg = iml_variable_get_register(IML_VARIABLE(arg2));
@@ -1357,7 +1357,7 @@ x86_compile_jmpcond(FILE *out, iml_operation_t *op)
      * are supported at the moment
      */
     assert(iml_is_constant(arg1));
-    assert(IML_IS_VARIABLE(arg2));
+    assert(iml_is_variable(arg2));
 
 
     reg = iml_variable_get_register(arg2);

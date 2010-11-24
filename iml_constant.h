@@ -47,6 +47,9 @@ typedef struct
 GType
 iml_constant_get_type(void);
 
+bool
+iml_is_constant(void *obj);
+
 ImlConstant *
 iml_constant_new_8b(guint8 val);
 
@@ -67,8 +70,5 @@ iml_constant_get_val_32b(ImlConstant *self);
 
 const gchar *
 iml_constant_get_val_ptr(ImlConstant *self);
-
-bool
-iml_is_constant(void *self);
 
 #endif /* IML_CONSTANT_INC_X */

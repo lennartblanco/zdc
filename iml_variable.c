@@ -48,6 +48,11 @@ iml_variable_get_type(void)
     return type;
 }
 
+bool
+iml_is_variable(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE ((obj), IML_TYPE_VARIABLE);
+}
 
 ImlVariable *
 iml_variable_new(iml_data_type_t data_type, const gchar *name)
@@ -85,7 +90,7 @@ iml_variable_blob_new(guint size, const gchar *name)
 iml_data_type_t
 iml_variable_get_data_type(ImlVariable *self)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
 
     return iml_operand_get_data_type(IML_OPERAND(self));
 }
@@ -93,7 +98,7 @@ iml_variable_get_data_type(ImlVariable *self)
 guint
 iml_variable_get_size(ImlVariable *self)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
 
     switch (self->datatype)
     {
@@ -114,7 +119,7 @@ iml_variable_get_size(ImlVariable *self)
 void
 iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
     assert(reg);
 
     self->reg = reg;
@@ -123,7 +128,7 @@ iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
 iml_register_t *
 iml_variable_get_register(ImlVariable *self)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
 
     return self->reg;
 }
@@ -131,7 +136,7 @@ iml_variable_get_register(ImlVariable *self)
 void
 iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
     assert(self->reg == NULL);
 
     self->frame_offset = frame_offset;
@@ -140,7 +145,7 @@ iml_variable_set_frame_offset(ImlVariable *self, gint frame_offset)
 gint
 iml_variable_get_frame_offset(ImlVariable *self)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
 
     return self->frame_offset;
 }
@@ -152,7 +157,7 @@ iml_variable_get_frame_offset(ImlVariable *self)
 static iml_data_type_t
 iml_variable_do_get_data_type(ImlOperand *self)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
 
     return IML_VARIABLE(self)->datatype;
 }
@@ -160,7 +165,7 @@ iml_variable_do_get_data_type(ImlOperand *self)
 static void
 iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
     assert(out);
 
     ImlVariable *var = IML_VARIABLE(self);
@@ -216,7 +221,7 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
 static void
 iml_variable_do_print_short(ImlOperand *self, FILE *out, guint indention)
 {
-    assert(IML_IS_VARIABLE(self));
+    assert(iml_is_variable(self));
     assert(out);
 
     fprintf(out, "%s", IML_VARIABLE(self)->name);

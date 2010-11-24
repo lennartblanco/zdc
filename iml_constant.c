@@ -46,6 +46,13 @@ iml_constant_get_type(void)
     return type;
 }
 
+
+bool
+iml_is_constant(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE((obj), IML_TYPE_CONSTANT);
+}
+
 ImlConstant *
 iml_constant_new_8b(guint8 val)
 {
@@ -113,12 +120,6 @@ iml_constant_get_val_ptr(ImlConstant *self)
     assert(iml_is_constant(self));
 
     return self->value.ptr_label;
-}
-
-bool
-iml_is_constant(void *self)
-{
-    return G_TYPE_CHECK_INSTANCE_TYPE((self), IML_TYPE_CONSTANT);
 }
 
 /*---------------------------------------------------------------------------*
