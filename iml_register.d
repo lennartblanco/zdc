@@ -1,5 +1,3 @@
-module dbind.iml_register;
-
 struct iml_register_t;
 
 extern (C)

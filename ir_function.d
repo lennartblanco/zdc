@@ -1,5 +1,3 @@
-module dbind.ir_function;
-
 struct IrFunction;
 
 extern (C)

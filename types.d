@@ -1,6 +1,4 @@
-module dbind.types;
-
-public import dbind.dt_data_type;
+public import dt_data_type;
 
 extern (C)
 {
