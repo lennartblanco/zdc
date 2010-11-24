@@ -33,6 +33,14 @@ iml_register_new(guint id, const gchar *name)
     return reg;
 }
 
+guint
+iml_register_get_id(iml_register_t *self)
+{
+    assert(self);
+
+    return self->id;
+}
+
 const gchar *
 iml_register_get_name(iml_register_t *self)
 {

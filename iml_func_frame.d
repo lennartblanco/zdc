@@ -17,4 +17,7 @@ extern (C)
 
     uint
     iml_func_frame_get_size(iml_func_frame_t *self);
+
+    GSList *
+    iml_func_frame_get_used_regs(iml_func_frame_t *self);
 }

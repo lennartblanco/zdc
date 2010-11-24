@@ -10,6 +10,9 @@ extern (C)
 {
     GSList*
     g_slist_prepend(GSList *list, gpointer data);
+
+    uint
+    g_slist_length(GSList *list);
 }
 
 GSList *

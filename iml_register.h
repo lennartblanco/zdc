@@ -20,6 +20,9 @@ typedef struct iml_register_s iml_register_t;
 iml_register_t *
 iml_register_new(guint id, const gchar *name);
 
+guint
+iml_register_get_id(iml_register_t *self);
+
 const gchar *
 iml_register_get_name(iml_register_t *self);
 

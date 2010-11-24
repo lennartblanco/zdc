@@ -50,7 +50,17 @@ get_registers(GSList **scratch, GSList **preserved)
 extern (C) void
 assign_var_locations(iml_func_frame_t *frame)
 {
-    int offset = -12;
+    int start_offset;
+    int offset;
+
+    int get_start_offset()
+    {
+        uint num_of_used_regs;
+
+        num_of_used_regs = g_slist_length(iml_func_frame_get_used_regs(frame));
+        return (num_of_used_regs + 3) * -4;
+    }
+
     void assign_offset(GSList *variable)
     {
         GSList *i;
@@ -67,6 +77,8 @@ assign_var_locations(iml_func_frame_t *frame)
         }
     }
 
+    offset = start_offset = get_start_offset();
+
     assert(iml_func_frame_get_parameters(frame) == null,
            "function parameters not implemented");
 
@@ -78,7 +90,7 @@ assign_var_locations(iml_func_frame_t *frame)
     assert(iml_func_frame_get_locals(frame, iml_data_type_t.iml_blob) == null,
            "local blob variables not implemented");
 
-    iml_func_frame_set_size(frame, -12 - offset);
+    iml_func_frame_set_size(frame, start_offset - offset);
 }
 
 extern (C) void
@@ -139,6 +151,41 @@ gen_text_prelude(File asmfile, sym_table_t *sym_table)
         exit_code_returned ? "" : "    mov r0, #0\n");
 }
 
+/**
+ * generates a string of preserved registers that are used
+ * in a function frame
+ */
+private string
+get_used_preserved_regs(iml_func_frame_t *func_frame)
+{
+    string preserved_regs = "";
+    GSList *sorted_regs = null;
+    string[uint] regs;
+
+    /*
+     * the registers must be specified in accending order,
+     * otherwise assembler will complain
+     */
+
+    for (auto i = iml_func_frame_get_used_regs(func_frame);
+         i != null;
+         i = g_slist_next(i))
+    {
+        iml_register_t *reg = cast(iml_register_t *)i.data;
+        regs[iml_register_get_id(reg)] = to!string(iml_register_get_name(reg));
+    }
+
+    foreach (i; 1..16)
+    {
+        if (i in regs)
+        {
+            preserved_regs ~= regs[i] ~ ", ";
+        }
+    }
+
+    return preserved_regs;
+}
+
 private void
 compile_function_def(File asmfile, IrFunctionDef *func)
 {
@@ -146,7 +193,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     string mangled_name;
     string return_label;
     iml_func_frame_t *frame = ir_function_def_get_frame(func);
+    string preserved_regs;
     uint frame_size;
+
     GSList *i;
 
     mangled_name =
@@ -158,17 +207,27 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     parent_module = ir_symbol_get_parent_module(cast(IrSymbol *)func);
     return_label = to!string(ir_module_gen_label(parent_module));
 
-    /* generate function prelude */
+    /* get the list of regs that must be preserved */
+    preserved_regs = get_used_preserved_regs(frame);
+
+    /*
+     * generate function prelude
+     */
     asmfile.writefln("    .align 2\n"
                      "    .global %s\n"
                      "    .type %s, %%function\n"
                      "%s:\n"
                      "    mov ip, sp\n"
-                     "    stmfd sp!, {fp, ip, lr}\n"
-                     "    sub fp, ip, #4\n"
-                     "    sub sp, sp, #%s",
+                     "    stmfd sp!, {%sfp, ip, lr}\n"
+                     "    sub fp, ip, #4",
                      mangled_name, mangled_name, mangled_name,
-                     frame_size);
+                     preserved_regs);
+
+    if (frame_size > 0)
+    {
+        /* make room for local variables on stack */
+        asmfile.writefln("    sub sp, sp, #%s", frame_size);
+    }
 
     for (i = ir_function_def_get_operations(func);
          i != null;
@@ -189,11 +248,16 @@ compile_function_def(File asmfile, IrFunctionDef *func)
         }
     }
 
-    /* generate function return code */
-    asmfile.writefln("%s:\n"
-                     "    add sp, sp, #%s\n"
-                     "    ldmfd sp, {fp, sp, pc}",
-                     return_label, frame_size);
+    /*
+     * generate function return code
+     */
+    asmfile.writefln("%s:", return_label);
+    if (frame_size > 0)
+    {
+      asmfile.writefln("    add sp, sp, #%s", frame_size);
+    }
+    asmfile.writefln("    ldmfd sp, {%sfp, sp, pc}",
+                     preserved_regs);
 }
 
 private void
