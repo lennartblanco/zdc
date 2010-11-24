@@ -254,7 +254,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     asmfile.writefln("%s:", return_label);
     if (frame_size > 0)
     {
-      asmfile.writefln("    add sp, sp, #%s", frame_size);
+        asmfile.writefln("    add sp, sp, #%s", frame_size);
     }
     asmfile.writefln("    ldmfd sp, {%sfp, sp, pc}",
                      preserved_regs);
