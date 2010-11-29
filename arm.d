@@ -14,7 +14,8 @@ import iml_variable;
 import iml_constant;
 import types;
 
-void arm_init(arch_backend_s *backend)
+extern (C) void
+arm_init(arch_backend_s *backend)
 {
     backend.get_registers = &get_registers;
     backend.assign_var_locations = &assign_var_locations;

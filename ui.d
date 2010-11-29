@@ -3,11 +3,14 @@
  * Handle command line arguments and run compilation
  * with required options on provided source files.
  */
+import config;
 import std.stdio;
 import std.string;
 import GSList;
 import auxil;
 import arm;
+
+alias extern (C) void function (arch_backend_s *backend) init_backend_cb;
 
 enum compilation_stages_e
 {
@@ -56,8 +59,23 @@ print_usage_message(string progname)
              );
 }
 
-void
-parse_march_option(string option, compile_options_s *compile_options)
+init_backend_cb
+get_default_backend()
+{
+    switch (DEFAULT_BACKEND)
+    {
+        case "x86":
+            return &x86_init;
+        case "arm":
+            return &arm_init;
+        default:
+            assert(false, "unexpected default backend '" ~
+                          DEFAULT_BACKEND ~ "'");
+    }
+}
+
+init_backend_cb
+parse_march_option(string option)
 {
     string arch;
 
@@ -77,15 +95,12 @@ parse_march_option(string option, compile_options_s *compile_options)
     switch (arch)
     {
         case "x86":
-            x86_init(&compile_options.backend);
-            break;
+            return &x86_init;
         case "arm":
-            arm_init(&compile_options.backend);
-            break;
+            return &arm_init;
         default:
             throw new Exception("unsupported target architecture '" ~ arch ~
                                 "' specified");
-            break;
     }
 }
 
@@ -163,7 +178,7 @@ main(string[] args)
     string[] source_files;
     string[] object_files;
     string output_file;
-    bool arch_specified = false;
+    init_backend_cb backend_cb;
 
     compile_options_s options;
     compilation_stages_e last_compilation_stage;
@@ -172,6 +187,7 @@ main(string[] args)
     last_compilation_stage = compilation_stages_e.link_stage;
     options.print_ast = false;
     options.print_ir = false;
+    backend_cb = get_default_backend();
 
     /* parse command line options */
     for (int i = 1; i < args.length; i += 1)
@@ -224,8 +240,7 @@ main(string[] args)
             else if ((arg.length >=6 && arg[0..6] == "-march") ||
                      (arg.length >=7 && arg[0..7] == "--march"))
             {
-                parse_march_option(arg, &options);
-                arch_specified = true;
+                backend_cb = parse_march_option(arg);
             }
             else
             {
@@ -251,11 +266,8 @@ main(string[] args)
         return -1;
     }
 
-    if (!arch_specified)
-    {
-        /* no architecure specified assume x86 */
-        x86_init(&options.backend);
-    }
+    /* init arch specific backend */
+    backend_cb(&options.backend);
 
     /* compile and assemble all specified source files */
     g_type_init();

@@ -1,4 +1,6 @@
 include objects.mak
+include config.default
+-include config
 
 ACCENT := tools/bin/accent
 PROG := xdc
@@ -7,7 +9,7 @@ CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 DEP_DIR := .depend
 CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os,%.dep,$(@:.o=.dep)))) -MT $@
 
-.PHONY: docs
+.PHONY: docs config
 
 all: $(PROG)
 
@@ -29,6 +31,11 @@ yygrammar.h: yygrammar.c
 
 yygrammar.c: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
+
+ui-d.o: config.d
+
+config.d: config config.d.in
+	filepp -DCONF_DEF_BACKEND=$(CONF_DEF_BACKEND) config.d.in > $@
 
 $(ACCENT):
 	mkdir -p tools/bin
@@ -65,4 +72,4 @@ clean:
 	make -C etests clean
 	make -C examples clean
 	rm -rf $(DEP_DIR)
-	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~
+	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~ config.d
