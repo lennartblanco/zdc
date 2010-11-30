@@ -62,11 +62,25 @@ assign_var_locations(iml_func_frame_t *frame)
         return (num_of_used_regs + 3) * -4;
     }
 
-    void assign_offset(GSList *variable)
+    void assign_params_offset(GSList *params)
     {
         GSList *i;
+        uint cntr;
 
-        for (i = variable; i != null; i = g_slist_next(i))
+        assert(g_slist_length(params) <= 4,
+               "more then 4 function parameters not supported");
+        for (i = params, cntr = 0;
+             i != null && cntr < 4;
+             i = g_slist_next(i), cntr += 1)
+        {
+            iml_variable_set_frame_offset(cast(ImlVariable*)i.data, offset);
+            offset -= 4;
+        }
+    }
+
+    void assign_offset(GSList *variable)
+    {
+        for (auto i = variable; i != null; i = g_slist_next(i))
         {
             ImlVariable *var = cast(ImlVariable*)i.data;
 
@@ -80,9 +94,7 @@ assign_var_locations(iml_func_frame_t *frame)
 
     offset = start_offset = get_start_offset();
 
-    assert(iml_func_frame_get_parameters(frame) == null,
-           "function parameters not implemented");
-
+    assign_params_offset(iml_func_frame_get_parameters(frame));
     assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_32b));
     assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_16b));
     assign_offset(iml_func_frame_get_locals(frame, iml_data_type_t.iml_8b));
@@ -196,6 +208,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     iml_func_frame_t *frame = ir_function_def_get_frame(func);
     string preserved_regs;
     uint frame_size;
+    uint cntr;
 
     GSList *i;
 
@@ -230,6 +243,17 @@ compile_function_def(File asmfile, IrFunctionDef *func)
         asmfile.writefln("    sub sp, sp, #%s", frame_size);
     }
 
+    /* store parameters in the function's frame */
+    for (i = iml_func_frame_get_parameters(frame), cntr = 0;
+         i != null && cntr < 4;
+         i = g_slist_next(i), cntr += 1)
+    {
+        asmfile.writefln("    str r%s, [fp, #%s]",
+                         cntr,
+                         iml_variable_get_frame_offset(
+                                                  cast(ImlVariable*)i.data));
+    }
+
     for (i = ir_function_def_get_operations(func);
          i != null;
          i = g_slist_next(i))
@@ -247,8 +271,13 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.copy:
                 compile_copy(asmfile, op);
                 break;
+            case iml_opcode_t.call:
+                compile_call(asmfile, op);
+                break;
             default:
-                assert(false, "unexpected iml opcode");
+                assert(false,
+                       "unexpected iml opcode '" ~
+                          to!string(iml_operation_get_opcode(op)) ~ "'");
         }
     }
 
@@ -280,10 +309,33 @@ gen_move_to_reg(File asmfile, string register, ImlOperand *operand)
         ImlVariable *var = cast(ImlVariable *)operand;
         iml_register_t *reg = iml_variable_get_register(var);
 
-        assert(reg != null, "variables not in register not supported");
+        if (reg != null)
+        {
+            asmfile.writefln("    mov %s, %s",
+                             register, to!string(iml_register_get_name(reg)));
+        }
+        else
+        {
+            asmfile.writefln("    ldr %s, [fp, #%s]",
+                             register, iml_variable_get_frame_offset(var));
+        }
+    }
+}
 
+private void
+gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
+{
+    iml_register_t *dest_reg = iml_variable_get_register(destination);
+
+    if (src_reg != null)
+    {
         asmfile.writefln("    mov %s, %s",
-                         register, to!string(iml_register_get_name(reg)));
+                         to!string(iml_register_get_name(dest_reg)),
+                         src_reg);
+    }
+    else
+    {
+        assert(false, "not implemented");
     }
 }
 
@@ -315,4 +367,30 @@ compile_copy(File asmfile, iml_operation_t *op)
 
     assert(reg != null, "move to variables not in register not implemented");
     gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
+}
+
+private void
+compile_call(File asmfile, iml_operation_t *op)
+{
+    string func_name = to!string(cast(char*)iml_operation_get_operand(op, 1));
+    GSList *args = cast(GSList *)iml_operation_get_operand(op, 2);
+    ImlVariable *ret = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+
+    assert(g_slist_length(args) <= 4,
+           "max 4 args in function calls supported");
+
+    GSList *i = args;
+    for (uint cntr = 0; i != null && cntr < 4; i = g_slist_next(i), cntr += 1)
+    {
+        gen_move_to_reg(asmfile,
+                        "r" ~ to!string(cntr),
+                        cast(ImlOperand*)i.data);
+    }
+
+    asmfile.writefln("    bl %s", func_name);
+
+    if (ret != null)
+    {
+        gen_move_from_reg(asmfile, "r0", ret);
+    }
 }
