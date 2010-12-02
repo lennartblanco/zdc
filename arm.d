@@ -14,6 +14,9 @@ import iml_variable;
 import iml_constant;
 import types;
 
+enum TEMP_REG1 = "ip";
+enum TEMP_REG2 = "r0";
+
 extern (C) void
 arm_init(arch_backend_s *backend)
 {
@@ -274,6 +277,10 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.call:
                 compile_call(asmfile, op);
                 break;
+            case iml_opcode_t.add:
+            case iml_opcode_t.sub:
+                compile_binop(asmfile, op);
+                break;
             default:
                 assert(false,
                        "unexpected iml opcode '" ~
@@ -327,7 +334,7 @@ gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
 {
     iml_register_t *dest_reg = iml_variable_get_register(destination);
 
-    if (src_reg != null)
+    if (dest_reg != null)
     {
         asmfile.writefln("    mov %s, %s",
                          to!string(iml_register_get_name(dest_reg)),
@@ -335,7 +342,9 @@ gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
     }
     else
     {
-        assert(false, "not implemented");
+        asmfile.writefln("    str %s, [fp, #%s]",
+                         src_reg,
+                         iml_variable_get_frame_offset(destination));
     }
 }
 
@@ -367,6 +376,122 @@ compile_copy(File asmfile, iml_operation_t *op)
 
     assert(reg != null, "move to variables not in register not implemented");
     gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
+}
+
+private void
+compile_binop(File asmfile, iml_operation_t *op)
+{
+    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
+    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
+    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    iml_register_t *res_reg = iml_variable_get_register(res);
+    string inst;
+    string dest_reg;
+    string left_reg;
+    string right_exp;
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_opcode_t.add:
+            inst = "add";
+            break;
+        case iml_opcode_t.sub:
+            inst = "sub";
+            break;
+        default:
+            assert(false,
+                   "unexpectexted binary opcode '" ~
+                   to!string(iml_operation_get_opcode(op)) ~ "'");
+    }
+
+    /* pick the destination register */
+    if (res_reg == null)
+    {
+        dest_reg = TEMP_REG1;
+    }
+    else
+    {
+        dest_reg = to!string(iml_register_get_name(res_reg));
+    }
+
+    /* make sure left operand is loaded into a register */
+    if (iml_is_constant(left))
+    {
+        asmfile.writefln("    mov %s, #%s",
+                         dest_reg,
+                         iml_constant_get_val_32b(cast(ImlConstant*)left));
+        left_reg = dest_reg;
+    }
+    else
+    {
+        assert(iml_is_variable(left));
+        ImlVariable *var = cast(ImlVariable *)left;
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == null)
+        {
+            asmfile.writefln("    ldr %s, [fp, #%s]",
+                             dest_reg,
+                             iml_variable_get_frame_offset(var));
+            left_reg = dest_reg;
+        }
+        else
+        {
+            left_reg = to!string(iml_register_get_name(reg));
+        }
+    }
+
+    /* figure out right operand expression */
+    if (iml_is_constant(right))
+    {
+        assert(!iml_is_constant(left));
+
+        right_exp =
+            "#" ~ to!string(iml_constant_get_val_32b(cast(ImlConstant*)right));
+    }
+    else
+    {
+        /* right operand is a variable, make sure it's loaded into register */
+        assert(iml_is_variable(right));
+        ImlVariable *var = cast(ImlVariable *)right;
+        iml_register_t *reg = iml_variable_get_register(var);
+
+        if (reg == null)
+        {
+            /* can we use destination register to store right operand ? */
+            if (dest_reg == left_reg)
+            {
+                /*
+                 * no, left operand is already stored there,
+                 * use temporary register
+                 */
+                right_exp = TEMP_REG2;
+            }
+            else
+            {
+                /* yes, we can use destination register for right operand */
+                right_exp = dest_reg;
+            }
+            asmfile.writefln("    ldr %s, [fp, #%s]",
+                             right_exp,
+                             iml_variable_get_frame_offset(var));
+
+        }
+        else
+        {
+            right_exp = to!string(iml_register_get_name(reg));
+        }
+    }
+
+    /* generate the operation */
+    asmfile.writefln("    %s %s, %s, %s",
+                     inst, dest_reg, left_reg, right_exp);
+
+    /* move the result from register to result variable if needed */
+    if (res_reg == null)
+    {
+        gen_move_from_reg(asmfile, dest_reg, res);
+    }
 }
 
 private void
