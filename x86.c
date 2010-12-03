@@ -1137,7 +1137,6 @@ x86_compile_neg(FILE *out, iml_operation_t *op)
 
 /**
  * Generate assembly for integer comparison operations
- * (iml_equal and iml_nequal)
  */
 static void
 x86_compile_icmp(FILE *out, iml_operation_t *op)
