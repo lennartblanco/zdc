@@ -13,7 +13,7 @@ enum iml_opcode_t
     equal,
     nequal,
     sless,
-    iuless,
+    uless,
     sgreater,
     ugreater,
     slesseq,
