@@ -272,6 +272,12 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                             g_slist_next(i) == null);
                 break;
             case iml_opcode_t.copy:
+                /*
+                 * currently variables of all supported iml types are
+                 * stored as 32-bit integers,
+                 * thus iml_cast is equivalent to iml_copy operation
+                 */
+            case iml_opcode_t.cast_op:
                 compile_copy(asmfile, op);
                 break;
             case iml_opcode_t.call:
@@ -280,6 +286,18 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.add:
             case iml_opcode_t.sub:
                 compile_binop(asmfile, op);
+                break;
+            case iml_opcode_t.sless:
+            case iml_opcode_t.uless:
+            case iml_opcode_t.slesseq:
+            case iml_opcode_t.ulesseq:
+            case iml_opcode_t.equal:
+            case iml_opcode_t.nequal:
+            case iml_opcode_t.sgreatereq:
+            case iml_opcode_t.ugreatereq:
+            case iml_opcode_t.sgreater:
+            case iml_opcode_t.ugreater:
+                compile_icmp(asmfile, op);
                 break;
             default:
                 assert(false,
@@ -378,40 +396,42 @@ compile_copy(File asmfile, iml_operation_t *op)
     gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
 }
 
+/**
+ * Analyze the operands for an 3 operands instruction e.g.
+ * 'instruction result, left, right', where result and left must be registres
+ * and right can be either register or constant value.
+ *
+ * Pick registers for operands and generate code to load operands into
+ * registers if needed.
+ *
+ * @param asmfile file where to write generated code
+ * @param left left operand
+ * @param right right operand
+ * @param result operand
+ * @param left_reg register where left operand have been loaded
+ * @param right_exp expression of right operand
+ * @param dest_reg the register where result will be stored
+ * @param store_res if true, code to store instruction result in res operand
+ *                  must be generated
+ */
 private void
-compile_binop(File asmfile, iml_operation_t *op)
+load_to_regs(File asmfile,
+             ImlOperand *left, ImlOperand *right, ImlVariable *res,
+             out string left_reg, out string right_exp, out string dest_reg,
+             out bool store_res)
 {
-    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
-    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
     iml_register_t *res_reg = iml_variable_get_register(res);
-    string inst;
-    string dest_reg;
-    string left_reg;
-    string right_exp;
-
-    switch (iml_operation_get_opcode(op))
-    {
-        case iml_opcode_t.add:
-            inst = "add";
-            break;
-        case iml_opcode_t.sub:
-            inst = "sub";
-            break;
-        default:
-            assert(false,
-                   "unexpectexted binary opcode '" ~
-                   to!string(iml_operation_get_opcode(op)) ~ "'");
-    }
 
     /* pick the destination register */
     if (res_reg == null)
     {
         dest_reg = TEMP_REG1;
+        store_res = true;
     }
     else
     {
         dest_reg = to!string(iml_register_get_name(res_reg));
+        store_res = false;
     }
 
     /* make sure left operand is loaded into a register */
@@ -482,13 +502,128 @@ compile_binop(File asmfile, iml_operation_t *op)
             right_exp = to!string(iml_register_get_name(reg));
         }
     }
+}
+
+private void
+compile_binop(File asmfile, iml_operation_t *op)
+{
+    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
+    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
+    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    string inst;
+    string dest_reg;
+    string left_reg;
+    string right_exp;
+    bool store_res;
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_opcode_t.add:
+            inst = "add";
+            break;
+        case iml_opcode_t.sub:
+            inst = "sub";
+            break;
+        default:
+            assert(false,
+                   "unexpectexted binary opcode '" ~
+                   to!string(iml_operation_get_opcode(op)) ~ "'");
+    }
+
+
+    load_to_regs(asmfile,
+                 left, right, res,
+                 left_reg, right_exp, dest_reg,
+                 store_res);
+
 
     /* generate the operation */
     asmfile.writefln("    %s %s, %s, %s",
                      inst, dest_reg, left_reg, right_exp);
 
     /* move the result from register to result variable if needed */
-    if (res_reg == null)
+    if (store_res)
+    {
+        gen_move_from_reg(asmfile, dest_reg, res);
+    }
+}
+
+private void
+compile_icmp(File asmfile, iml_operation_t *op)
+{
+    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
+    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
+    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    string dest_reg;
+    string left_reg;
+    string right_exp;
+    bool store_res;
+    string true_suffix;
+    string false_suffix;
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_opcode_t.sless:
+            true_suffix = "lt";
+            false_suffix = "ge";
+            break;
+        case iml_opcode_t.uless:
+            true_suffix = "lo";
+            false_suffix = "hs";
+            break;
+        case iml_opcode_t.slesseq:
+            true_suffix = "le";
+            false_suffix = "gt";
+            break;
+        case iml_opcode_t.ulesseq:
+            true_suffix = "ls";
+            false_suffix = "hi";
+            break;
+        case iml_opcode_t.equal:
+            true_suffix = "eq";
+            false_suffix = "ne";
+            break;
+        case iml_opcode_t.nequal:
+            true_suffix = "ne";
+            false_suffix = "eq";
+            break;
+        case iml_opcode_t.sgreatereq:
+            true_suffix = "ge";
+            false_suffix = "lt";
+            break;
+        case iml_opcode_t.ugreatereq:
+            true_suffix = "hs";
+            false_suffix = "lo";
+            break;
+        case iml_opcode_t.sgreater:
+            true_suffix = "gt";
+            false_suffix = "le";
+            break;
+        case iml_opcode_t.ugreater:
+            true_suffix = "hi";
+            false_suffix = "ls";
+            break;
+        default:
+            assert(false,
+                   "unexpectexted opcode '" ~
+                   to!string(iml_operation_get_opcode(op)) ~ "'");
+    }
+
+    load_to_regs(asmfile,
+                 left, right, res,
+                 left_reg, right_exp, dest_reg,
+                 store_res);
+
+
+    /* generate the operation */
+    asmfile.writefln("    cmp %s, %s\n"
+                     "    mov%s %s, #0\n"
+                     "    mov%s %s, #1",
+                     left_reg, right_exp,
+                     false_suffix, dest_reg,
+                     true_suffix, dest_reg);
+
+    if (store_res)
     {
         gen_move_from_reg(asmfile, dest_reg, res);
     }
