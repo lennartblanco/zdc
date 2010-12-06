@@ -299,6 +299,19 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.ugreater:
                 compile_icmp(asmfile, op);
                 break;
+            case iml_opcode_t.jmpneq:
+                compile_jmpcond(asmfile, op);
+                break;
+            case iml_opcode_t.jmp:
+                asmfile.writefln("    b %s",
+                                 to!string(cast(char*)
+                                           iml_operation_get_operand(op, 1)));
+                break;
+            case iml_opcode_t.label:
+                asmfile.writefln("%s:",
+                                 to!string(cast(char*)
+                                           iml_operation_get_operand(op, 1)));
+                break;
             default:
                 assert(false,
                        "unexpected iml opcode '" ~
@@ -627,6 +640,38 @@ compile_icmp(File asmfile, iml_operation_t *op)
     {
         gen_move_from_reg(asmfile, dest_reg, res);
     }
+}
+
+private void
+compile_jmpcond(File asmfile, iml_operation_t *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode_t.jmpneq,
+           "only jmpneq implemented");
+    assert(iml_is_variable(iml_operation_get_operand(op, 1)),
+           "only variable left operand supported");
+    assert(iml_is_constant(iml_operation_get_operand(op, 2)),
+           "only constant right operand supported");
+
+    ImlVariable *left = cast(ImlVariable*)iml_operation_get_operand(op, 1);
+    ImlConstant *right = cast(ImlConstant*)iml_operation_get_operand(op, 2);
+    string label = to!string(cast(char*)iml_operation_get_operand(op, 3));
+    string left_reg_name;
+    iml_register_t *reg = iml_variable_get_register(left);
+
+    if (reg != null)
+    {
+        left_reg_name = to!string(iml_register_get_name(reg));
+    }
+    else
+    {
+        assert(false, "not implemented");
+    }
+
+    asmfile.writefln("    cmp %s, #%s\n"
+                     "    bne %s",
+                     left_reg_name,
+                     iml_constant_get_val_32b(right),
+                     label);
 }
 
 private void
