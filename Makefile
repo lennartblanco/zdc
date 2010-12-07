@@ -9,7 +9,7 @@ CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 DEP_DIR := .depend
 CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os,%.dep,$(@:.o=.dep)))) -MT $@
 
-.PHONY: docs config
+.PHONY: docs
 
 all: $(PROG)
 
@@ -33,6 +33,9 @@ yygrammar.c: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
 
 ui-d.o: config.d
+
+config:
+	touch $@
 
 config.d: config config.d.in
 	filepp -DCONF_DEF_BACKEND=$(CONF_DEF_BACKEND) config.d.in > $@
