@@ -285,6 +285,8 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                 break;
             case iml_opcode_t.add:
             case iml_opcode_t.sub:
+            case iml_opcode_t.smult:
+            case iml_opcode_t.umult:
                 compile_binop(asmfile, op);
                 break;
             case iml_opcode_t.sless:
@@ -411,7 +413,7 @@ compile_copy(File asmfile, iml_operation_t *op)
 
 /**
  * Analyze the operands for an 3 operands instruction e.g.
- * 'instruction result, left, right', where result and left must be registres
+ * 'instruction result, left, right', where result and left must be registers
  * and right can be either register or constant value.
  *
  * Pick registers for operands and generate code to load operands into
@@ -420,7 +422,11 @@ compile_copy(File asmfile, iml_operation_t *op)
  * @param asmfile file where to write generated code
  * @param left left operand
  * @param right right operand
- * @param result operand
+ * @param res result operand
+ * @param mul_style if true,
+ *        operands will be loaded suitable for mul instruction
+ *        (all operand are loaded into registers,
+ *         different register for result and left operand will be used)
  * @param left_reg register where left operand have been loaded
  * @param right_exp expression of right operand
  * @param dest_reg the register where result will be stored
@@ -429,11 +435,54 @@ compile_copy(File asmfile, iml_operation_t *op)
  */
 private void
 load_to_regs(File asmfile,
-             ImlOperand *left, ImlOperand *right, ImlVariable *res,
-             out string left_reg, out string right_exp, out string dest_reg,
+             ImlOperand *left,
+             ImlOperand *right,
+             ImlVariable *res,
+             bool mul_style,
+             out string left_reg,
+             out string right_exp,
+             out string dest_reg,
              out bool store_res)
 {
     iml_register_t *res_reg = iml_variable_get_register(res);
+
+    string pick_left_reg()
+    {
+        if (mul_style)
+        {
+            if (dest_reg != TEMP_REG1)
+            {
+                return TEMP_REG1;
+            }
+            else
+            {
+                return TEMP_REG2;
+            }
+            assert(false);
+        }
+        else
+        {
+            return dest_reg;
+        }
+    }
+
+    string pick_right_reg()
+    {
+        /* can we use destination register to store right operand ? */
+        if (dest_reg == left_reg)
+        {
+            /*
+             * no, left operand is already stored there,
+             * use temporary register
+             */
+            return TEMP_REG2;
+        }
+        else
+        {
+            /* yes, we can use destination register for right operand */
+            return dest_reg;
+        }
+    }
 
     /* pick the destination register */
     if (res_reg == null)
@@ -450,10 +499,10 @@ load_to_regs(File asmfile,
     /* make sure left operand is loaded into a register */
     if (iml_is_constant(left))
     {
+        left_reg = pick_left_reg();
         asmfile.writefln("    mov %s, #%s",
-                         dest_reg,
+                         left_reg,
                          iml_constant_get_val_32b(cast(ImlConstant*)left));
-        left_reg = dest_reg;
     }
     else
     {
@@ -463,10 +512,10 @@ load_to_regs(File asmfile,
 
         if (reg == null)
         {
+            left_reg = pick_left_reg();
             asmfile.writefln("    ldr %s, [fp, #%s]",
-                             dest_reg,
+                             left_reg,
                              iml_variable_get_frame_offset(var));
-            left_reg = dest_reg;
         }
         else
         {
@@ -479,8 +528,20 @@ load_to_regs(File asmfile,
     {
         assert(!iml_is_constant(left));
 
-        right_exp =
-            "#" ~ to!string(iml_constant_get_val_32b(cast(ImlConstant*)right));
+        if (mul_style)
+        {
+            right_exp = pick_right_reg();
+            asmfile.writefln("    mov %s, #%s",
+                             right_exp,
+                             iml_constant_get_val_32b(
+                                     cast(ImlConstant*)right));
+        }
+        else
+        {
+            right_exp =
+                "#" ~ to!string(
+                        iml_constant_get_val_32b(cast(ImlConstant*)right));
+        }
     }
     else
     {
@@ -491,20 +552,7 @@ load_to_regs(File asmfile,
 
         if (reg == null)
         {
-            /* can we use destination register to store right operand ? */
-            if (dest_reg == left_reg)
-            {
-                /*
-                 * no, left operand is already stored there,
-                 * use temporary register
-                 */
-                right_exp = TEMP_REG2;
-            }
-            else
-            {
-                /* yes, we can use destination register for right operand */
-                right_exp = dest_reg;
-            }
+            right_exp = pick_right_reg();
             asmfile.writefln("    ldr %s, [fp, #%s]",
                              right_exp,
                              iml_variable_get_frame_offset(var));
@@ -527,6 +575,7 @@ compile_binop(File asmfile, iml_operation_t *op)
     string dest_reg;
     string left_reg;
     string right_exp;
+    bool mul_style = false;
     bool store_res;
 
     switch (iml_operation_get_opcode(op))
@@ -537,6 +586,11 @@ compile_binop(File asmfile, iml_operation_t *op)
         case iml_opcode_t.sub:
             inst = "sub";
             break;
+        case iml_opcode_t.smult:
+        case iml_opcode_t.umult:
+            inst = "mul";
+            mul_style = true;
+            break;
         default:
             assert(false,
                    "unexpectexted binary opcode '" ~
@@ -545,7 +599,7 @@ compile_binop(File asmfile, iml_operation_t *op)
 
 
     load_to_regs(asmfile,
-                 left, right, res,
+                 left, right, res, mul_style,
                  left_reg, right_exp, dest_reg,
                  store_res);
 
@@ -623,7 +677,7 @@ compile_icmp(File asmfile, iml_operation_t *op)
     }
 
     load_to_regs(asmfile,
-                 left, right, res,
+                 left, right, res, false,
                  left_reg, right_exp, dest_reg,
                  store_res);
 
