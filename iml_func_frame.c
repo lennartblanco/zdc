@@ -165,17 +165,22 @@ iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype, ...)
 }
 
 void
-iml_func_frame_unsed_temp(iml_func_frame_t *self, ImlVariable *temp_var)
+iml_func_frame_unsed_oper(iml_func_frame_t *self, ImlOperand *oper)
 {
     assert(self);
 
     GSList *vars;
     iml_data_type_t var_type;
+    ImlVariable *temp_var;
 
-    if (!iml_variable_is_temp(temp_var))
+    if (!iml_is_variable(oper) ||
+        !iml_variable_is_temp(IML_VARIABLE(oper)))
     {
+        /* not a temporary variable, do nothing */
         return;
     }
+
+    temp_var = IML_VARIABLE(oper);
 
     var_type = iml_variable_get_data_type(temp_var);
     vars = g_hash_table_lookup(self->unused_temp_vars,
