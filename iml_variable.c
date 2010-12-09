@@ -67,10 +67,12 @@ iml_variable_new(iml_data_type_t data_type, const gchar *name)
     if (name == NULL)
     {
         obj->name = g_strdup_printf("[temp%u]", temp_var_names_cntr++);
+        obj->is_temp = true;
     }
     else
     {
         obj->name = g_strdup(name);
+        obj->is_temp = false;
     }
 
     return obj;
@@ -114,6 +116,14 @@ iml_variable_get_size(ImlVariable *self)
 
     /* unexpected variable data type */
     assert(false);
+}
+
+bool
+iml_variable_is_temp(ImlVariable *self)
+{
+    assert(iml_is_variable(self));
+
+    return self->is_temp;
 }
 
 void

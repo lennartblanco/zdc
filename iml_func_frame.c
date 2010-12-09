@@ -18,6 +18,7 @@ struct iml_func_frame_s
     GSList *var_8b;
     GSList *var_ptr;
     GSList *var_blob;
+    GHashTable *unused_temp_vars;
     GSList *used_regs;
     guint stack_size;
 };
@@ -32,6 +33,7 @@ iml_func_frame_new(void)
     iml_func_frame_t *frame;
 
     frame = g_malloc0(sizeof(*frame));
+    frame->unused_temp_vars = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     return frame;
 }
@@ -108,24 +110,80 @@ iml_func_frame_get_parameters(iml_func_frame_t *self)
 ImlVariable *
 iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype, ...)
 {
-    ImlVariable *temp_var;
+    ImlVariable *temp_var = NULL;
+    GSList *vars;
+    guint blob_size;
 
     if (datatype == iml_blob)
     {
         va_list argp;
 
         va_start(argp, datatype);
-        temp_var = iml_variable_blob_new(va_arg(argp, guint), NULL);
+        blob_size = va_arg(argp, guint);
         va_end(argp);
     }
-    else
+
+    /*
+     * check if we can reuse already existing, but currently unused variable
+     */
+    vars = g_hash_table_lookup(self->unused_temp_vars,
+                               GINT_TO_POINTER(datatype));
+    if (vars != NULL)
     {
-        temp_var = iml_variable_new(datatype, NULL);
+        temp_var = vars->data;
+        if (datatype == iml_blob)
+        {
+            /* only temporary blob variables of same size supported for now */
+            assert(iml_variable_get_size(temp_var) == blob_size);
+        }
+
+        /* remove the variable from unused list */
+        vars = g_slist_remove(vars, temp_var);
+        g_hash_table_insert(self->unused_temp_vars,
+                            GINT_TO_POINTER(datatype),
+                            vars);
     }
 
-    iml_func_frame_add_local(self, temp_var);
+    /*
+     * create new temporary variable if needed
+     */
+    if (temp_var == NULL)
+    {
+        if (datatype == iml_blob)
+        {
+            temp_var = iml_variable_blob_new(blob_size, NULL);
+        }
+        else
+        {
+            temp_var = iml_variable_new(datatype, NULL);
+        }
+
+        iml_func_frame_add_local(self, temp_var);
+    }
 
     return temp_var;
+}
+
+void
+iml_func_frame_unsed_temp(iml_func_frame_t *self, ImlVariable *temp_var)
+{
+    assert(self);
+
+    GSList *vars;
+    iml_data_type_t var_type;
+
+    if (!iml_variable_is_temp(temp_var))
+    {
+        return;
+    }
+
+    var_type = iml_variable_get_data_type(temp_var);
+    vars = g_hash_table_lookup(self->unused_temp_vars,
+                               GINT_TO_POINTER(var_type));
+    vars = g_slist_append(vars, temp_var);
+    g_hash_table_insert(self->unused_temp_vars,
+                        GINT_TO_POINTER(var_type),
+                        vars);
 }
 
 void

@@ -32,6 +32,7 @@ typedef struct
 
     gchar *name;
     iml_data_type_t datatype;
+    bool is_temp;
 
     /* size on stack, used by blob variables */
     guint size;
@@ -92,6 +93,12 @@ iml_variable_get_data_type(ImlVariable *self);
  */
 guint
 iml_variable_get_size(ImlVariable *self);
+
+/**
+ * @return true if this is a temporary variable
+ */
+bool
+iml_variable_is_temp(ImlVariable *self);
 
 void
 iml_variable_set_register(ImlVariable *self, iml_register_t *reg);

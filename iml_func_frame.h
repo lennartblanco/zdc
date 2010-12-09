@@ -50,6 +50,16 @@ ImlVariable *
 iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype, ...);
 
 /**
+ * If specified variable is a temporary, it will be marked for later as
+ * not used any more. Unused variables will be later reused by
+ * iml_func_frame_get_temp() if possible.
+ *
+ * If temp_var is not temporary, nothing will be done.
+ */
+void
+iml_func_frame_unsed_temp(iml_func_frame_t *self, ImlVariable *temp_var);
+
+/**
  * Size in bytes that this function frames need to store all
  * it's variables.
  */
