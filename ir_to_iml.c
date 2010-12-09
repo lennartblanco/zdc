@@ -738,9 +738,9 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     size = iml_constant_new_32b(ir_array_literal_get_size(expr));
 
     ir_function_def_add_operation(function,
-                              iml_operation_new_call_c("GC_malloc",
-                                                       ptr,
-                                                       size, NULL));
+                                  iml_operation_new_call_c("GC_malloc",
+                                                           ptr,
+                                                           size, NULL));
 
     if (ir_expression_is_constant(IR_EXPRESSION(expr)))
     {
