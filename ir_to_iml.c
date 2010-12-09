@@ -292,6 +292,12 @@ iml_add_func_call_eval(IrFunctionDef *function,
                                 res);
     ir_function_def_add_operation(function, call_op);
 
+    /* mark any variables used as function arguments as unused */
+    for (i = iml_args; i != NULL; i = g_slist_next(i))
+    {
+        iml_func_frame_unsed_oper(frame, i->data);
+    }
+
     return IML_OPERAND(res);
 }
 
@@ -581,6 +587,10 @@ iml_add_binary_op_eval(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                               iml_operation_new(opcode, left, right, res));
 
+    /* mark any temporary variables used as operands as unused */
+    iml_func_frame_unsed_oper(frame, left);
+    iml_func_frame_unsed_oper(frame, right);
+
     return IML_OPERAND(res);
 }
 
@@ -816,6 +826,9 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                            iml_constant_new_32b(1),
                            4);
     ir_function_def_add_operation(function, op);
+
+    /* temp pointer is no longer used */
+    iml_func_frame_unsed_oper(frame, IML_OPERAND(ptr));
 
 
     return IML_OPERAND(res);

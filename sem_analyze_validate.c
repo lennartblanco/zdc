@@ -935,6 +935,11 @@ validate_if_block(compilation_status_t *compile_status,
                               iml_constant_new_8b(1),
                               iml_operation_get_operand(skip_label, 1)));
 
+    /* mark condition result operand as unused */
+    iml_func_frame_unsed_oper(
+            ir_function_def_get_frame(compile_status->function),
+            condition_eval_res);
+
     /* validate if body */
     body = ir_if_block_get_body(if_block);
     validate_code_block(compile_status, body);
