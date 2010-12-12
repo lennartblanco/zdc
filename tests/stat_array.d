@@ -79,27 +79,27 @@ bool boolops2(bool a, bool b, bool c, int index)
     return l[0] && l[index];
 }
 
-//// test array constant assigment to the shorthand array slice (foo[])
-//int slice_assig_sum()
-//{
-//    int[3] b;
+// test array constant assigment to the shorthand array slice (b[])
+int slice_assig_sum()
+{
+    int[3] b;
 
-//    b[] = [1,2,3];
+    b[] = [1,2,3];
 
-//    return b[0] + b[1] + b[2];
-//}
+    return b[0] + b[1] + b[2];
+}
 
-//// test boolean array literal to shorthand array slice assigment (xs[])
-//bool bslice_assig(int i)
-//{
-//  bool[5] xs;
+// test boolean array literal to shorthand array slice assigment (xs[])
+bool bslice_assig(int i)
+{
+  bool[5] xs;
 
-//  xs[] = [true, false, true, true, false];
+  xs[] = [true, false, true, true, false];
 
-//  return xs[i];
-//}
+  return xs[i];
+}
 
-//// test assigning array literals to array slices with static indexes
+// test assigning array literals to array slices with static indexes
 //int slices_ops(int last_val)
 //{
 //    int[4] m;

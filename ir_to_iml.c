@@ -897,14 +897,26 @@ iml_add_array_slice_eval(IrFunctionDef *function,
      * generate code to calculate pointer to the first element in the slice
      */
 
-    /* put array start pointer in temp variable */
+    /* get sliced array start pointer in */
     start_ptr = iml_func_frame_get_temp(frame, iml_ptr);
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getfld,
-                                                array,
-                                                iml_constant_new_32b(1),
-                                                4,
-                                                start_ptr));
+    if (DT_IS_STATIC_ARRAY_TYPE(array_type))
+    {
+        /* static array sliced */
+        ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_getaddr,
+                                                    array,
+                                                    start_ptr));
+    }
+    else
+    {
+        /* dynamic array sliced */
+        ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    array,
+                                                    iml_constant_new_32b(1),
+                                                    4,
+                                                    start_ptr));
+    }
 
     /* multiply slice start with element size if needed */
     if (element_size > 1)

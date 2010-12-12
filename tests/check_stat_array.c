@@ -117,29 +117,29 @@ call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
    return res;
 }
 
-//int
-//call_slice_assig_sum()
-//{
-//   int res;
+int
+call_slice_assig_sum()
+{
+   int res;
 
-//   asm ("    call _D10stat_array15slice_assig_sumFZi\n"
-//        : "=a"(res)
-//        : );
+   asm ("    call _D10stat_array15slice_assig_sumFZi\n"
+        : "=a"(res)
+        : );
 
-//   return res;
-//}
+   return res;
+}
 
-//bool
-//call_bslice_assig(int arg)
-//{
-//   bool res;
+bool
+call_bslice_assig(int arg)
+{
+   bool res;
 
-//   asm ("    call _D10stat_array12bslice_assigFiZb\n"
-//        : "=a"(res)
-//        : "a"(arg));
+   asm ("    call _D10stat_array12bslice_assigFiZb\n"
+        : "=a"(res)
+        : "a"(arg));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_slices_ops(int arg)
@@ -364,15 +364,15 @@ main()
                call_boolops2(false, true, false, 1),
                true && false);
 
-//    /* slice_assig_sum() test */
-//    check_int("slice_assig_sum()", call_slice_assig_sum(), 6);
+    /* slice_assig_sum() test */
+    check_int("slice_assig_sum()", call_slice_assig_sum(), 6);
 
-//    /* bslice_assig() tests */
-//    check_bool("bslice_assig(0)", call_bslice_assig(0), true);
-//    check_bool("bslice_assig(1)", call_bslice_assig(1), false);
-//    check_bool("bslice_assig(2)", call_bslice_assig(2), true);
-//    check_bool("bslice_assig(3)", call_bslice_assig(3), true);
-//    check_bool("bslice_assig(4)", call_bslice_assig(4), false);
+    /* bslice_assig() tests */
+    check_bool("bslice_assig(0)", call_bslice_assig(0), true);
+    check_bool("bslice_assig(1)", call_bslice_assig(1), false);
+    check_bool("bslice_assig(2)", call_bslice_assig(2), true);
+    check_bool("bslice_assig(3)", call_bslice_assig(3), true);
+    check_bool("bslice_assig(4)", call_bslice_assig(4), false);
 
 //    /* slices_ops() test */
 //    check_int("slices_ops(85)", call_slices_ops(85), -85);
