@@ -57,7 +57,7 @@ iml_func_frame_get_temp(iml_func_frame_t *self, iml_data_type_t datatype, ...);
  * If oper is not a temporary variable, nothing will be done.
  */
 void
-iml_func_frame_unsed_oper(iml_func_frame_t *self, ImlOperand *oper);
+iml_func_frame_unused_oper(iml_func_frame_t *self, ImlOperand *oper);
 
 /**
  * Size in bytes that this function frames need to store all
