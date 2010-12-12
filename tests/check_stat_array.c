@@ -64,20 +64,20 @@ call_def_init_bool_array(int in)
 //   return res;
 //}
 
-//int
-//call_intops(int arg1, int arg2)
-//{
-//   int res;
+int
+call_intops(int arg1, int arg2)
+{
+   int res;
 
-//   asm ("    pushl %[arg1]\n"
-//        "    movl %[arg2],%%eax\n"
-//        "    call _D10stat_array6intopsFiiZi\n"
-//        : "=a"(res)
-//        : [arg1]"m"(arg1),
-//          [arg2]"m"(arg2));
+   asm ("    pushl %[arg1]\n"
+        "    movl %[arg2],%%eax\n"
+        "    call _D10stat_array6intopsFiiZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2));
 
-//   return res;
-//}
+   return res;
+}
 
 bool
 call_boolops(int arg1, int arg2, int arg3, int arg4)
@@ -98,24 +98,24 @@ call_boolops(int arg1, int arg2, int arg3, int arg4)
    return res;
 }
 
-//bool
-//call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
-//{
-//   bool res;
+bool
+call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
+{
+   bool res;
 
-//   asm ("    pushl %[arg1]\n"
-//        "    pushl %[arg2]\n"
-//        "    pushl %[arg3]\n"
-//        "    movl %[arg4], %%eax\n"
-//        "    call _D10stat_array8boolops2FbbbiZb\n"
-//        : "=a"(res)
-//        : [arg1]"m"(arg1),
-//          [arg2]"m"(arg2),
-//          [arg3]"m"(arg3),
-//          [arg4]"m"(arg4));
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    pushl %[arg3]\n"
+        "    movl %[arg4], %%eax\n"
+        "    call _D10stat_array8boolops2FbbbiZb\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3),
+          [arg4]"m"(arg4));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_slice_assig_sum()
@@ -342,9 +342,9 @@ main()
 //    check_int("init_exp_tst(2)", call_init_exp_tst(2), (2 + 2 - 15) * 2);
 //    check_int("init_exp_tst(2)", call_init_exp_tst(100), (100 + 2 - 15) * 100);
 
-//    /* intops() tests */
-//    check_int("intops(3, 1)", call_intops(3, 1), 3 + 20 + 30 + 20);
-//    check_int("intops(-12, 2)", call_intops(-12, 2), -12 + 20 + 30 + 30);
+    /* intops() tests */
+    check_int("intops(3, 1)", call_intops(3, 1), 3 + 20 + 30 + 20);
+    check_int("intops(-12, 2)", call_intops(-12, 2), -12 + 20 + 30 + 30);
 
     /* boolops() tests */
     check_bool("boolops(true, true, false, 2)",
@@ -355,14 +355,14 @@ main()
                call_boolops(false, true, false, 1),
                true && false);
 
-//    /* boolops2() tests */
-//    check_bool("boolops2(true, true, false, 2)",
-//               call_boolops2(true, true, false, 2),
-//               true && true);
+    /* boolops2() tests */
+    check_bool("boolops2(true, true, false, 2)",
+               call_boolops2(true, true, false, 2),
+               true && true);
 
-//    check_bool("boolops2(false, true, false, 1)",
-//               call_boolops2(false, true, false, 1),
-//               true && false);
+    check_bool("boolops2(false, true, false, 1)",
+               call_boolops2(false, true, false, 1),
+               true && false);
 
 //    /* slice_assig_sum() test */
 //    check_int("slice_assig_sum()", call_slice_assig_sum(), 6);

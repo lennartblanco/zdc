@@ -44,20 +44,20 @@ bool def_init_bool_array(int i)
 //    return (a[0] + a[1] - m) * l;
 //}
 
-//int intops(int val, int index)
-//{
-//    // operations on integer array
-//    int[3] arr;
-//    int sum;
+int intops(int val, int index)
+{
+    // operations on integer array
+    int[3] arr;
+    int sum;
 
-//    arr[0] = val;
-//    arr[1] = 20;
-//    arr[2] = 30;
+    arr[0] = val;
+    arr[1] = 20;
+    arr[2] = 30;
 
-//    sum = arr[0] + arr[1] + arr[2];
+    sum = arr[0] + arr[1] + arr[2];
 
-//    return sum + arr[index];
-//}
+    return sum + arr[index];
+}
 
 bool boolops(bool a, bool b, bool c, int index)
 {
@@ -71,13 +71,13 @@ bool boolops(bool a, bool b, bool c, int index)
     return l[0] && l[index];
 }
 
-//// equivalent to boolops() but in different code style
-//bool boolops2(bool a, bool b, bool c, int index)
-//{
-//    bool[4] l = [true, a, b, c];
+// equivalent to boolops() but in different code style
+bool boolops2(bool a, bool b, bool c, int index)
+{
+    bool[4] l = [true, a, b, c];
 
-//    return l[0] && l[index];
-//}
+    return l[0] && l[index];
+}
 
 //// test array constant assigment to the shorthand array slice (foo[])
 //int slice_assig_sum()
