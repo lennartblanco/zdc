@@ -936,6 +936,11 @@ iml_add_array_slice_eval(IrFunctionDef *function,
                                                 iml_constant_new_32b(1),
                                                 4));
 
+    /* mark operands as unused */
+    iml_func_frame_unused_oper(frame, start);
+    iml_func_frame_unused_oper(frame, end);
+    iml_func_frame_unused_oper(frame, length);
+    iml_func_frame_unused_oper(frame, IML_OPERAND(start_ptr));
 
     return IML_OPERAND(res);
 }
