@@ -1,0 +1,9 @@
+void foo();
+
+-24             <- sp
+-20 local var
+-16 local var 
+-12 lr (return address)
+- 8 old_sp 
+- 4 old_fp       <- fp
+  0
