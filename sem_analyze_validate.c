@@ -936,7 +936,7 @@ validate_if_block(compilation_status_t *compile_status,
                               iml_operation_get_operand(skip_label, 1)));
 
     /* mark condition result operand as unused */
-    iml_func_frame_unsed_oper(
+    iml_func_frame_unused_oper(
             ir_function_def_get_frame(compile_status->function),
             condition_eval_res);
 

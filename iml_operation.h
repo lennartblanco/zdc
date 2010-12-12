@@ -37,6 +37,7 @@ typedef enum iml_opcode_e
     iml_mset,
     iml_setfld,
     iml_getfld,
+    iml_getaddr,
     iml_jmp,
     iml_jmpneq,
     iml_call,

@@ -4,29 +4,29 @@
  *          wrappers to call test function with D calling convention         *
  *---------------------------------------------------------------------------*/
 
-//int
-//call_init_int_array(int in)
-//{
-//   int res;
+int
+call_init_int_array(int in)
+{
+   int res;
 
-//   asm ("    call _D10stat_array14init_int_arrayFiZi\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array14init_int_arrayFiZi\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
-//bool
-//call_init_bool_array(int in)
-//{
-//   bool res;
+bool
+call_init_bool_array(int in)
+{
+   bool res;
 
-//   asm ("    call _D10stat_array15init_bool_arrayFiZb\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array15init_bool_arrayFiZb\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 int
 call_def_init_int_array(int in)
@@ -314,17 +314,17 @@ main()
 {
     int i;
 
-//    /* init_int_array() tests */
-//    check_int("init_int_array(0)", call_init_int_array(0), 10);
-//    check_int("init_int_array(1)", call_init_int_array(1), 11);
-//    check_int("init_int_array(2)", call_init_int_array(2), 12);
-//    check_int("init_int_array(3)", call_init_int_array(3), 13);
+    /* init_int_array() tests */
+    check_int("init_int_array(0)", call_init_int_array(0), 10);
+    check_int("init_int_array(1)", call_init_int_array(1), 11);
+    check_int("init_int_array(2)", call_init_int_array(2), 12);
+    check_int("init_int_array(3)", call_init_int_array(3), 13);
 
-//    /* init_bool_array() tests */
-//    check_bool("init_bool_array(0)", call_init_bool_array(0), true);
-//    check_bool("init_bool_array(1)", call_init_bool_array(1), true);
-//    check_bool("init_bool_array(2)", call_init_bool_array(2), false);
-//    check_bool("init_bool_array(3)", call_init_bool_array(3), false);
+    /* init_bool_array() tests */
+    check_bool("init_bool_array(0)", call_init_bool_array(0), true);
+    check_bool("init_bool_array(1)", call_init_bool_array(1), true);
+    check_bool("init_bool_array(2)", call_init_bool_array(2), false);
+    check_bool("init_bool_array(3)", call_init_bool_array(3), false);
 
     /* def_init_int_array() tests */
     for (i = 0; i < 6; i++)

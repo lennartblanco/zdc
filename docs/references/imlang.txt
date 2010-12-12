@@ -135,6 +135,11 @@ memcpy src, length => dest
    - length is variable or constant of 32b type
    - dest is pointer, frame offset or array handle
 
+getaddr blob => addr
+  get the address of the blob variable and store it in a pointer variable
+   - blob is a variable of blob type
+   - add is a variable of pointer type
+
 setfld src => dest(index*size)
   set memory field. write src to an dest offset, specified with index*size.
    - src must be a constant or variable of 8b, 16b, 32b or ptr type.

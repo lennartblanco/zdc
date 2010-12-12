@@ -971,30 +971,78 @@ add_static_array_assigment(IrFunctionDef *function,
                            IrExpression *value)
 {
     ImlOperand *res_val;
-    ImlVariable *dest;
-    DtDataType *array_type;
+    ImlVariable *array_var;
+    DtArrayType *array_type;
     guint32 array_length;
 
-    /* only assigment of basic types to array implemented */
-    assert(DT_IS_BASIC_TYPE(ir_expression_get_data_type(value)));
+    array_type =
+            DT_ARRAY_TYPE(ir_expression_get_data_type(IR_EXPRESSION(lvalue)));
 
-    array_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
-
-    /* only assigment to static arrays implemened */
-    assert(DT_IS_STATIC_ARRAY_TYPE(array_type));
-
+    array_var = ir_variable_get_location(lvalue);
     array_length =
         dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(array_type));
 
-    res_val = iml_add_expression_eval(function, value, NULL);
-    dest = ir_variable_get_location(lvalue);
+    if (DT_IS_BASIC_TYPE(ir_expression_get_data_type(value)))
+    {
+        /* assignment of basic types to static array */
 
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_mset,
-                                                res_val,
-                                                array_length,
-                                                dest));
+        res_val = iml_add_expression_eval(function, value, NULL);
+        ir_function_def_add_operation(function,
+                                      iml_operation_new(iml_mset,
+                                                        res_val,
+                                                        array_length,
+                                                        array_var));
+    }
+    else
+    {
+        /*
+         * assignment of array type to static array
+         */
+        assert(DT_IS_ARRAY_TYPE(ir_expression_get_data_type(value)));
 
+        iml_func_frame_t *frame = ir_function_def_get_frame(function);
+        ImlOperand *rvalue;
+        ImlVariable *dest_ptr;
+        ImlVariable *src_ptr;
+        ImlConstant *memcpy_size;
+
+        /* generate code to evaluate the rvalue */
+        rvalue = iml_add_expression_eval(function, value, NULL);
+
+        /* generate code to get pointer to the array */
+        dest_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+        ir_function_def_add_operation(function,
+                                      iml_operation_new(iml_getaddr,
+                                                        array_var,
+                                                        dest_ptr));
+
+        /* generate code to get pointer to rvalue */
+        src_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+        ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    rvalue,
+                                                    iml_constant_new_32b(1),
+                                                    4,
+                                                    src_ptr));
+
+        /* generate code to copy rvalue to the array */
+        memcpy_size =
+            iml_constant_new_32b(array_length *
+                                 dt_array_get_element_size(array_type));
+        ir_function_def_add_operation(
+                function,
+                iml_operation_new_call_c("memcpy",
+                                         NULL,
+                                         dest_ptr,
+                                         src_ptr,
+                                         memcpy_size,
+                                         NULL));
+
+        /* mark temporaries as unused */
+        iml_func_frame_unused_oper(frame, rvalue);
+        iml_func_frame_unused_oper(frame, IML_OPERAND(dest_ptr));
+        iml_func_frame_unused_oper(frame, IML_OPERAND(src_ptr));
+    }
 }
 
 static void

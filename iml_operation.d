@@ -24,6 +24,7 @@ enum iml_opcode_t
     mset,
     setfld,
     getfld,
+    getaddr,
     jmp,
     jmpneq,
     call,

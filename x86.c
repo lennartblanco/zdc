@@ -958,6 +958,46 @@ x86_compile_getfld(FILE *out, iml_operation_t *op)
 }
 
 static void
+x86_compile_getaddr(FILE *out, iml_operation_t *op)
+{
+    assert(out);
+    assert(iml_operation_get_opcode(op) == iml_getaddr);
+
+    ImlVariable *blob = IML_VARIABLE(iml_operation_get_operand(op, 1));
+    ImlVariable *ptr = IML_VARIABLE(iml_operation_get_operand(op, 2));
+    iml_register_t *reg;
+    const gchar *reg_name;
+
+
+    assert(iml_variable_get_data_type(blob) ==  iml_blob);
+    assert(iml_variable_get_data_type(ptr) ==  iml_ptr);
+
+    /* check if we need to use a temporary register */
+    reg = iml_variable_get_register(ptr);
+    if (reg != NULL)
+    {
+        reg_name = iml_register_get_name(reg);
+    }
+    else
+    {
+        reg_name = TEMP_REG1_NAME;
+    }
+
+
+    /* generate code the code for storing blob address in to a register */
+    fprintf(out,
+            "    lea %d(%%ebp), %%%s\n",
+            iml_variable_get_frame_offset(blob),
+            reg_name);
+
+    /* move address to result pointer variable if needed */
+    if (reg == NULL)
+    {
+        x86_move_from_reg(out, reg_name, ptr);
+    }
+}
+
+static void
 x86_compile_binop(FILE *out, iml_operation_t *op)
 {
     ImlOperand *left;
@@ -1569,6 +1609,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_getfld:
                 x86_compile_getfld(params->out, op);
+                break;
+            case iml_getaddr:
+                x86_compile_getaddr(params->out, op);
                 break;
             case iml_add:
             case iml_sub:
