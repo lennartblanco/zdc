@@ -843,7 +843,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     ImlOperand *array;
     ImlOperand *start;
     ImlOperand *end;
-    ImlOperand *temp;
+    ImlOperand *length;
     ImlVariable *start_ptr;
     DtDataType *array_type;
     guint element_size;
@@ -877,17 +877,17 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     /*
      * generate code to calculate length of the slice
      */
-    /* subsctract end from the start */
-    temp = IML_OPERAND(iml_func_frame_get_temp(frame, iml_32b));
+    /* subtract end from the start */
+    length = IML_OPERAND(iml_func_frame_get_temp(frame, iml_32b));
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_sub,
                                                 end,
                                                 start,
-                                                temp));
+                                                length));
     /* store length in the result blob */
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_setfld,
-                                                temp,
+                                                length,
                                                 res,
                                                 iml_constant_new_32b(0),
                                                 4));
@@ -914,18 +914,18 @@ iml_add_array_slice_eval(IrFunctionDef *function,
                 iml_operation_new(iml_umult,
                                   start,
                                   iml_constant_new_32b(element_size),
-                                  temp));
+                                  length));
     }
     else
     {
-        temp = start;
+        length = start;
     }
 
     /* move forward the array start pointer to slice start */
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_add,
                                                 start_ptr,
-                                                temp,
+                                                length,
                                                 start_ptr));
 
     /* store slice start pointer in the result blob */
