@@ -257,6 +257,7 @@ x86_gen_code(IrModule *module,
     x86_comp_params_t params;
     sym_table_t *global_sym_table;
     GSList *i;
+    GList *data_section;
 
     params.out = out_stream;
     params.module = module;
@@ -266,8 +267,9 @@ x86_gen_code(IrModule *module,
             "    .file \"%s\"\n",
             source_file);
 
-    x86_gen_data_section(&params,
-                         ir_module_get_data_section(module));
+    data_section = ir_module_get_data_section(module);
+    x86_gen_data_section(&params, data_section);
+    g_list_free(data_section);
 
     x86_text_prelude(&params, global_sym_table);
 

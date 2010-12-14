@@ -15,6 +15,6 @@
  */
 void
 x86_gen_data_section(x86_comp_params_t *params,
-                     GSList *data_section_exprs);
+                     GList *data_section_exprs);
 
 #endif /* X86_DATA_INC_X */

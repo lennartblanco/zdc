@@ -103,9 +103,9 @@ gen_array_literal_data(x86_comp_params_t *params,
 
 void
 x86_gen_data_section(x86_comp_params_t *params,
-                     GSList *data_section_exprs)
+                     GList *data_section_exprs)
 {
-    GSList *i;
+    GList *i;
 
     if (data_section_exprs == NULL)
     {
@@ -115,7 +115,7 @@ x86_gen_data_section(x86_comp_params_t *params,
 
     fprintf(params->out, "    .data\n");
 
-    for (i = data_section_exprs; i != NULL; i = g_slist_next(i))
+    for (i = data_section_exprs; i != NULL; i = g_list_next(i))
     {
         /* only array literals in data section supported */
         assert(IR_IS_ARRAY_LITERAL(i->data));

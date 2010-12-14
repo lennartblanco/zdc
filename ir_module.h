@@ -77,17 +77,21 @@ GSList *
 ir_module_get_function_defs(IrModule *self);
 
 /**
- * Store a compile-time constant array literal in this modules
- * data section.
+ * Store a compile-time constant array literal in this module's data section.
+ *
+ * If const_expr is not an array literal or is not constant, nothing will be
+ * added. If an array literal have same data section label as previously stored
+ * array literal, the new expression will replace previously stored.
  */
 void
-ir_module_add_array_literal_data(IrModule *self,
-                                 IrArrayLiteral *array_literal);
+ir_module_add_const_data(IrModule *self, IrExpression *const_expr);
 
 /**
  * Get all expression in this modules data section.
+ *
+ * Returned list must be g_list_free():ed by the caller when no longer used.
  */
-GSList *
+GList *
 ir_module_get_data_section(IrModule *self);
 
 /**

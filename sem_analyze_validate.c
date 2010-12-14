@@ -1311,6 +1311,7 @@ validate_code_block(compilation_status_t *compile_status,
             continue;
         }
         ir_variable_set_initializer(var, conv_initializer);
+        ir_module_add_const_data(compile_status->module, conv_initializer);
 
         /*
          * now we know that variable and it's initializer expression are valid
@@ -1606,16 +1607,9 @@ validate_array_literal(compilation_status_t *compile_status,
 
     ir_array_literal_set_values(array_literal, 
                                 g_slist_reverse(validated_values));
+    ir_module_add_const_data(compile_status->module,
+                             IR_EXPRESSION(array_literal));
 
-    if (ir_expression_is_constant(IR_EXPRESSION(array_literal)))
-    {
-        /*
-         * a compile-time constant array literal expression, add it
-         * to module's data section
-         */
-        ir_module_add_array_literal_data(compile_status->module,
-                                         array_literal);
-    }
     return IR_EXPRESSION(array_literal);
 }
 

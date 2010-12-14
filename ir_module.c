@@ -18,7 +18,7 @@ struct _IrModule
   GSList         *enums;
   GSList         *function_defs;
   guint           label_counter; /** used to generate module unique labels */
-  GSList         *data_section;  /** compile-time constant expressions */
+  GHashTable     *data_section;  /** compile-time constant expressions */
   char *fq_name;
   char *mangled_name;
 };
@@ -62,7 +62,7 @@ ir_module_new(GSList *package_name)
     obj->enums = NULL;
     obj->function_defs = NULL;
     obj->label_counter = 0;
-    obj->data_section = NULL;
+    obj->data_section = g_hash_table_new(g_str_hash, g_str_equal);
     obj->package_name = package_name;
     obj->fq_name = NULL;
     obj->mangled_name = NULL;
@@ -173,23 +173,40 @@ ir_module_gen_label(IrModule *self)
 }
 
 void
-ir_module_add_array_literal_data(IrModule *self,
-                                 IrArrayLiteral *array_literal)
+ir_module_add_const_data(IrModule *self, IrExpression *const_expr)
 {
     assert(IR_IS_MODULE(self));
-    assert(IR_ARRAY_LITERAL(array_literal));
+    assert(IR_IS_EXPRESSION(const_expr));
 
-    /* assign label and store in data section list */
-    ir_array_literal_set_data_label(array_literal, ir_module_gen_label(self));
-    self->data_section = g_slist_prepend(self->data_section, array_literal);
+    IrArrayLiteral *array_literal;
+    char *label;
+
+    if (!IR_IS_ARRAY_LITERAL(const_expr) ||
+        !ir_expression_is_constant(const_expr))
+    {
+        /* only constant array literal expression are stored in data section */
+        return;
+    }
+
+    array_literal = IR_ARRAY_LITERAL(const_expr);
+
+    /* assign data section label if needed */
+    if ((label = ir_array_literal_get_data_label(array_literal)) == NULL)
+    {
+        label = ir_module_gen_label(self);
+        ir_array_literal_set_data_label(array_literal, label);
+    }
+
+    /* store in data section list */
+    g_hash_table_insert(self->data_section, label, array_literal);
 }
 
-GSList *
+GList *
 ir_module_get_data_section(IrModule *self)
 {
     assert(IR_IS_MODULE(self));
 
-    return self->data_section;
+    return g_hash_table_get_values(self->data_section);
 }
 
 bool
