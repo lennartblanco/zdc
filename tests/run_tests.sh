@@ -20,11 +20,11 @@ tests="empty "\
 "pkg_name_tst "\
 "dyn_array "\
 "stat_array "\
+"uint_op "\
 "char_literals "\
 "properties "\
 "immutable "\
 "str_literals "
-#"uint_op "\
 #"foreach "\
 #"enums "\
 
