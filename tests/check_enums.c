@@ -203,7 +203,7 @@ call_logic_get_F_as_bool()
 }
 
 bool
-call_unnamed_enum_param(bool arg1, char arg2)
+call_unnamed_enum_param(int arg1, char arg2)
 {
    int res;
 

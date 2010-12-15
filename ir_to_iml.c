@@ -154,6 +154,13 @@ iml_add_expression_eval(IrFunctionDef *function,
                                        IR_ARRAY_SLICE(ir_expression),
                                        dest);
     }
+    else if (IR_IS_ENUM_MEMBER(ir_expression))
+    {
+        IrExpression *val;
+
+        val = ir_enum_member_get_value(IR_ENUM_MEMBER(ir_expression));
+        res = iml_add_expression_eval(function, val, dest);
+    }
     else
     {
         /* unexpected expression type */
@@ -325,7 +332,7 @@ iml_add_assigment(IrFunctionDef *function,
 
         var_type = ir_expression_get_data_type(lvalue);
 
-        if (DT_IS_BASIC_TYPE(var_type))
+        if (DT_IS_BASIC_TYPE(var_type) || DT_IS_ENUM_TYPE(var_type))
         {
             iml_add_expression_eval(
                     function, value,
@@ -382,6 +389,11 @@ dt_to_iml_type(DtDataType *dt_type)
     else if (DT_IS_ARRAY_TYPE(dt_type))
     {
         iml_type = iml_blob;
+    }
+    else if (DT_IS_ENUM_TYPE(dt_type))
+    {
+        return dt_to_iml_type(
+                  dt_enum_type_get_base_type(DT_ENUM_TYPE(dt_type)));
     }
     else
     {
