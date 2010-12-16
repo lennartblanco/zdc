@@ -1386,38 +1386,86 @@ static void
 x86_compile_jmpcond(FILE *out, iml_operation_t *op)
 {
     assert(op);
-    assert(iml_operation_get_opcode(op) == iml_jmpneq);
 
-    ImlConstant *arg1 = iml_operation_get_operand(op, 2);
+    ImlOperand *arg1 = iml_operation_get_operand(op, 2);
     ImlVariable *arg2 = iml_operation_get_operand(op, 1);
     const gchar *label = iml_operation_get_operand(op, 3);
-    iml_register_t *reg;
+    const gchar *op_cond;
+    iml_register_t *right_reg;
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_jmpneq:
+            op_cond = "ne";
+            break;
+        case iml_jmpuless:
+            op_cond = "b";
+            break;
+        default:
+            /* unexpected opcode */
+            assert(false);
+    }
+
 
     /*
-     * only variables as left operand and constant as right operand
-     * are supported at the moment
+     * only variables as right operand is supported at the moment
      */
-    assert(iml_is_constant(arg1));
     assert(iml_is_variable(arg2));
 
 
-    reg = iml_variable_get_register(arg2);
-    if (reg == NULL)
+    right_reg = iml_variable_get_register(arg2);
+    if (iml_is_constant(arg1))
     {
-        fprintf(out,
-                "    cmpl $%u, %d(%%ebp)\n",
-                iml_constant_get_val_8b(arg1),
-                iml_variable_get_frame_offset(arg2));
+        if (right_reg == NULL)
+        {
+            fprintf(out,
+                    "    cmpl $%u, %d(%%ebp)\n",
+                    iml_constant_get_val_8b(IML_CONSTANT(arg1)),
+                    iml_variable_get_frame_offset(arg2));
+        }
+        else
+        {
+            fprintf(out,
+                    "    cmpl $%u, %%%s\n",
+                    iml_constant_get_val_8b(IML_CONSTANT(arg1)),
+                    iml_register_get_name(right_reg));
+        }
     }
     else
     {
-        fprintf(out,
-                "    cmpl $%u, %%%s\n",
-                iml_constant_get_val_8b(arg1),
-                iml_register_get_name(reg));
+        assert(iml_is_variable(arg1));
+        iml_register_t *left_reg;
+        const gchar *left_reg_name;
+
+        left_reg = iml_variable_get_register(IML_VARIABLE(arg1));
+        if (left_reg != NULL)
+        {
+            left_reg_name = iml_register_get_name(left_reg);
+        }
+        else
+        {
+            left_reg_name = TEMP_REG1_NAME;
+            x86_move_to_reg(out, left_reg_name, arg1);
+        }
+
+        if (right_reg == NULL)
+        {
+            fprintf(out,
+                    "    cmpl %%%s, %d(%%ebp)\n",
+                    left_reg_name,
+                    iml_variable_get_frame_offset(arg2));
+        }
+        else
+        {
+            fprintf(out,
+                    "    cmpl %%%s, %%%s\n",
+                    left_reg_name,
+                    iml_register_get_name(right_reg));
+        }
+
     }
 
-    fprintf(out, "    jne %s\n", label);
+    fprintf(out, "    j%s %s\n", op_cond, label);
 }
 
 /**
@@ -1647,6 +1695,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                         (char*)iml_operation_get_operand(op, 1));
                 break;
             case iml_jmpneq:
+            case iml_jmpuless:
                 x86_compile_jmpcond(params->out, op);
                 break;
             case iml_call:

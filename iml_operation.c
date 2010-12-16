@@ -100,6 +100,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_sgreatereq:
         case iml_ugreatereq:
         case iml_jmpneq:
+        case iml_jmpuless:
         case iml_call:
         case iml_call_c:
             op->arg1 = va_arg(argp, void *);
@@ -225,6 +226,7 @@ iml_operation_print(iml_operation_t *self,
             fprintf_indent(out, indention, "jmp %s\n", self->arg1);
             break;
         case iml_jmpneq:
+        case iml_jmpuless:
             print_jmpcond_op(self, out, indention);
             break;
         case iml_call:
@@ -412,9 +414,23 @@ static void
 print_jmpcond_op(iml_operation_t *op, FILE *out, int indention)
 {
     assert(op);
-    assert(op->opcode == iml_jmpneq);
 
-    fprintf_indent(out, indention, "jmpneq ");
+    gchar *op_name;
+
+    switch (op->opcode)
+    {
+        case iml_jmpneq:
+            op_name = "jmpneq";
+            break;
+        case iml_jmpuless:
+            op_name = "jmpuless";
+            break;
+        default:
+            /* unexpected opcode */
+            assert(false);
+    }
+
+    fprintf_indent(out, indention, "%s ", op_name);
     iml_operand_print_short(op->arg1, out, 0);
     fprintf(out, ",");
     iml_operand_print_short(op->arg2, out, 0);

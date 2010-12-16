@@ -360,6 +360,112 @@ iml_add_assigment(IrFunctionDef *function,
 
 }
 
+void
+iml_add_foreach_head(IrFunctionDef *function,
+                     IrForeach *foreach,
+                     ImlVariable **index,
+                     ImlVariable **length,
+                     iml_operation_t **loop_head)
+{
+    IrExpression *ir_aggregate;
+    DtArrayType *aggregate_type;
+    ImlOperand *aggregate;
+    IrVariable *ir_index;
+    IrVariable *ir_value;
+    ImlVariable *value;
+    ImlVariable *aggr_ptr;
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    /* set-up index variable */
+    ir_index = ir_foreach_get_index(foreach);
+    if (ir_index != NULL)
+    {
+        /* todo: fix so that default initialization expression assignment
+         * is not inserted for this variable */
+        add_to_func_frame(function, ir_index, false);
+        *index = ir_variable_get_location(ir_index);
+    }
+    else
+    {
+        *index = iml_func_frame_get_temp(frame, iml_32b);
+    }
+
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_copy,
+                                                    iml_constant_new_32b(0),
+                                                    *index));
+
+    /* set-up value variable */
+    ir_value = ir_foreach_get_value(foreach);
+    assert(ir_value);
+    /* todo: fix so that default initialization expression assignment
+     * is not inserted for this variable */
+    add_to_func_frame(function, ir_value, false);
+    value = ir_variable_get_location(ir_value);
+
+    /* generate iml to evaluate aggregate expression */
+    ir_aggregate = ir_foreach_get_aggregate(foreach);
+    aggregate_type = DT_ARRAY_TYPE(ir_expression_get_data_type(ir_aggregate));
+    aggregate = iml_add_expression_eval(function, ir_aggregate, NULL);
+
+    /* store length of the aggregate array in a temp variable */
+    *length = iml_func_frame_get_temp(frame, iml_32b);
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    aggregate,
+                                                    iml_constant_new_32b(0),
+                                                    4,
+                                                    *length));
+
+    /* store pointer to the start of aggregate array in a temp variable */
+    aggr_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_getfld,
+                                                    aggregate,
+                                                    iml_constant_new_32b(1),
+                                                    4,
+                                                    aggr_ptr));
+
+    /* insert loop label */
+    *loop_head =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(
+                              ir_symbol_get_parent_module(
+                                  IR_SYMBOL(function))));
+    ir_function_def_add_operation(function, *loop_head);
+
+    /* generate iml for assigning value variable with aggregates element */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_getfld,
+                          aggr_ptr,
+                          *index,
+                          dt_array_get_element_size(aggregate_type),
+                          value));
+}
+
+void
+iml_add_foreach_tail(IrFunctionDef *function,
+                     ImlVariable *index,
+                     ImlVariable *length,
+                     iml_operation_t *loop_label)
+{
+    /* generate iml to advance index */
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_add,
+                                                    index,
+                                                    iml_constant_new_32b(1),
+                                                    index));
+
+    /* generate iml to jump to loop head if index is less then length */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_jmpuless,
+                          index,
+                          length,
+                          iml_operation_get_operand(loop_label, 1)));
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

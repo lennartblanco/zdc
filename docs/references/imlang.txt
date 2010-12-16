@@ -115,11 +115,11 @@ return [value]
 jmp label
   unconditional jump to specified label
 
-jmpeq left, right, label
-  jump to label if left == right
-
 jmpneq left, right, label
-  jumo to label if left != right
+  jump to label if left != right
+
+jmpuless left, right, label
+  jump to label if left < right (unsigned comparison)
 
 call function_name, (arg0, arg1, ..., argN) [ => res ]
  call a function

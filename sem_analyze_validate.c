@@ -1153,10 +1153,25 @@ validate_foreach(compilation_status_t *compile_status,
         }
     }
 
+    ImlVariable *index;
+    ImlVariable *length;
+    iml_operation_t *loop_label;
+
+    iml_add_foreach_head(compile_status->function,
+                         foreach,
+                         &index,
+                         &length,
+                         &loop_label);
+
     /*
      * validate foreach body code block
      */
-    validate_code_block(compile_status, ir_foreach_get_body(foreach));  
+    validate_code_block(compile_status, ir_foreach_get_body(foreach));
+
+    iml_add_foreach_tail(compile_status->function,
+                         index,
+                         length,
+                         loop_label);
 }
 
 static void

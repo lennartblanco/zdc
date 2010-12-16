@@ -4,6 +4,7 @@
 #include "ir_function_def.h"
 #include "ir_assigment.h"
 #include "ir_function_call.h"
+#include "ir_foreach.h"
 #include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
@@ -34,5 +35,18 @@ ImlOperand *
 iml_add_func_call_eval(IrFunctionDef *function,
                        IrFunctionCall *func_call,
                        ImlVariable *res);
+
+void
+iml_add_foreach_head(IrFunctionDef *function,
+                     IrForeach *foreach,
+                     ImlVariable **index,
+                     ImlVariable **length,
+                     iml_operation_t **loop_head);
+
+void
+iml_add_foreach_tail(IrFunctionDef *function,
+                     ImlVariable *index,
+                     ImlVariable *length,
+                     iml_operation_t *loop_label);
 
 #endif /* IR_TO_IML_INC_X */

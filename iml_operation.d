@@ -27,6 +27,7 @@ enum iml_opcode_t
     getaddr,
     jmp,
     jmpneq,
+    jmpuless,
     call,
     call_c,
     ret,
