@@ -42,18 +42,21 @@ ast_foreach_get_type(void)
     return type;
 }
 
-AstForeach * 
+AstForeach *
 ast_foreach_new(AstVariableDeclaration *index,
                 AstVariableDeclaration *value,
-                AstArraySliceRef *aggregate,
-                AstCodeBlock *body)
+                AstExpression *aggregate,
+                AstCodeBlock *body,
+                guint line_number)
 {
-    assert(value);
-    assert(aggregate);
+    assert(AST_IS_VARIABLE_DECLARATION(value));
+    assert(AST_IS_EXPRESSION(aggregate));
 
     AstForeach *obj;
 
-    obj = g_object_new(AST_TYPE_FOREACH, NULL);
+    obj = g_object_new(AST_TYPE_FOREACH,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->index = index;
     obj->value = value;
     obj->aggregate = aggregate;
@@ -78,7 +81,7 @@ ast_foreach_get_value(AstForeach *self)
     return self->value;
 }
 
-AstArraySliceRef *
+AstExpression *
 ast_foreach_get_aggregate(AstForeach *self)
 {
     assert(AST_IS_FOREACH(self));

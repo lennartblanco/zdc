@@ -45,12 +45,15 @@ ir_foreach_get_type(void)
 IrForeach *
 ir_foreach_new(IrVariable *index,
                IrVariable *value,
-               IrArraySlice *aggregate,
-               IrCodeBlock *body)
+               IrExpression *aggregate,
+               IrCodeBlock *body,
+               guint line_number)
 {
     IrForeach *obj;
 
-    obj = g_object_new(IR_TYPE_FOREACH, NULL);
+    obj = g_object_new(IR_TYPE_FOREACH,
+                       "ir-node-line-number", line_number,
+                       NULL);
 
     obj->index = index;
     obj->value = value;
@@ -85,7 +88,7 @@ ir_foreach_get_value(IrForeach *self)
    return self->value;
 }
 
-IrArraySlice *
+IrExpression *
 ir_foreach_get_aggregate(IrForeach *self)
 {
     assert(IR_IS_FOREACH(self));

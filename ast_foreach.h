@@ -34,7 +34,7 @@ typedef struct
     /* private */
     AstVariableDeclaration *index;
     AstVariableDeclaration *value;
-    AstArraySliceRef       *aggregate;
+    AstExpression          *aggregate;
     AstCodeBlock           *body;
 
 } AstForeach;
@@ -60,11 +60,12 @@ ast_foreach_get_type(void);
  * @param aggregate the aggregate expression to iterate over
  * @param body the loop's body node
  */
-AstForeach * 
+AstForeach *
 ast_foreach_new(AstVariableDeclaration *index,
                 AstVariableDeclaration *value,
-                AstArraySliceRef *aggregate,
-                AstCodeBlock *body);
+                AstExpression *aggregate,
+                AstCodeBlock *body,
+                guint line_number);
 
 AstVariableDeclaration *
 ast_foreach_get_index(AstForeach *self);
@@ -72,7 +73,7 @@ ast_foreach_get_index(AstForeach *self);
 AstVariableDeclaration *
 ast_foreach_get_value(AstForeach *self);
 
-AstArraySliceRef *
+AstExpression *
 ast_foreach_get_aggregate(AstForeach *self);
 
 AstCodeBlock *

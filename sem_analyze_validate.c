@@ -1076,7 +1076,8 @@ validate_foreach(compilation_status_t *compile_status,
     assert(sym_table);
     assert(IR_IS_FOREACH(foreach));
 
-    IrArraySlice *aggregate;
+    IrExpression *aggregate;
+    DtDataType *aggr_type;
     DtDataType *aggr_element_type;
     IrVariable *var;
     DtDataType *var_type;
@@ -1084,23 +1085,26 @@ validate_foreach(compilation_status_t *compile_status,
     /*
      * Validate aggregate expression
      */
-    aggregate =
-        IR_ARRAY_SLICE(validate_array_slice(compile_status,
-                                            sym_table,
-                                            ir_foreach_get_aggregate(foreach)));
+    aggregate = validate_expression(compile_status,
+                                    sym_table,
+                                    ir_foreach_get_aggregate(foreach));
     if (aggregate == NULL)
     {
         /* invalid aggregate expression */
         return;
     }
-    aggr_element_type =
-        dt_array_type_get_data_type(
-            DT_ARRAY_TYPE(
-                ir_expression_get_data_type(IR_EXPRESSION(aggregate))));
+    aggr_type = ir_expression_get_data_type(aggregate);
+    if (!DT_IS_ARRAY_TYPE(aggr_type))
+    {
+        compile_error(compile_status,
+                      foreach,
+                      "'%s' is not an aggregate type\n",
+                      dt_data_type_get_string(aggr_type));
+        return;
+    }
+    aggr_element_type = dt_array_type_get_data_type(DT_ARRAY_TYPE(aggr_type));
     /* only foreach over aggregates over basic types is supported */
     assert(DT_IS_BASIC_TYPE(aggr_element_type));
-
-
 
     /*
      * check value variable's type

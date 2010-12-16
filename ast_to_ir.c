@@ -675,55 +675,59 @@ foreach_to_ir(compilation_status_t *compile_status,
               sym_table_t *parent_symbols,
               AstForeach *ast_foreach)
 {
-/* needs to be ported */
-assert(false);
+    IrForeach *foreach;
+    IrVariable *ir_index = NULL;
+    IrVariable *ir_value;
+    IrExpression *ir_aggregate;
+    AstVariableDeclaration *var;
+    sym_table_t *loop_symbols;
+    IrCodeBlock *body;
 
-//    IrForeach *foreach;
-//    IrVariable *ir_index = NULL;
-//    IrVariable *ir_value;
-//    IrArraySlice *ir_aggregate;
-//    AstVariableDeclaration *var;
-//    sym_table_t *loop_symbols;
-//    IrCodeBlock *body;
-//
-//    var = ast_foreach_get_index(ast_foreach);
-//    if (var != NULL)
-//    {
-//        ir_index =
-//          ir_variable_new(ast_variable_declaration_get_data_type(var),
-//                          ast_variable_declaration_get_name(var),
-//                          NULL,
-//                          ast_node_get_line_num(var));
-//    }
-//
-//    var = ast_foreach_get_value(ast_foreach);
-//    ir_value =
-//        ir_variable_new(ast_variable_declaration_get_data_type(var),
-//                        ast_variable_declaration_get_name(var),
-//                        NULL,
-//                        ast_node_get_line_num(var));
-//
-//    loop_symbols = sym_table_new(parent_symbols);
-//
-//    if (ir_index != NULL)
-//    {
-//        sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_index));
-//    }
-//
-//    sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
-//
-//    body = ir_code_block_new(loop_symbols);
-//    code_block_to_ir(compile_status, ast_foreach_get_body(ast_foreach), body);
-//
-//    ir_aggregate =
-//        IR_ARRAY_SLICE(
-//            array_slice_to_ir(compile_status,
-//                              parent_symbols,
-//                              ast_foreach_get_aggregate(ast_foreach)));
-//
-//    foreach = ir_foreach_new(ir_index, ir_value, ir_aggregate, body);
-//
-//    return IR_STATMENT(foreach);
+    /* if index variable specified, convert it to ir */
+    var = ast_foreach_get_index(ast_foreach);
+    if (var != NULL)
+    {
+        ir_index =
+          ir_variable_new(ast_variable_declaration_get_data_type(var),
+                          ast_variable_declaration_get_name(var),
+                          NULL,
+                          ast_node_get_line_num(var));
+    }
+
+    /* convert value variable to ir */
+    var = ast_foreach_get_value(ast_foreach);
+    ir_value =
+        ir_variable_new(ast_variable_declaration_get_data_type(var),
+                        ast_variable_declaration_get_name(var),
+                        NULL,
+                        ast_node_get_line_num(var));
+
+    /* store index and value variables in foreach's local symbols table */
+    loop_symbols = sym_table_new(parent_symbols);
+
+    if (ir_index != NULL)
+    {
+        sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_index));
+    }
+
+    sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
+
+    /* convert foreach body to ir */
+    body = ir_code_block_new(loop_symbols);
+    code_block_to_ir(compile_status, ast_foreach_get_body(ast_foreach), body);
+
+    /* convert aggregate expression to ir form */
+    ir_aggregate = expression_to_ir(compile_status,
+                                    parent_symbols,
+                                    ast_foreach_get_aggregate(ast_foreach));
+
+    foreach = ir_foreach_new(ir_index,
+                             ir_value,
+                             ir_aggregate,
+                             body,
+                             ast_node_get_line_num(ast_foreach));
+
+    return IR_STATMENT(foreach);
 }
 
 /**

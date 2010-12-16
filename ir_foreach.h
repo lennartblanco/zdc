@@ -34,7 +34,7 @@ typedef struct
     /* private */
     IrVariable         *index;
     IrVariable         *value;
-    IrArraySlice       *aggregate;
+    IrExpression       *aggregate;
     IrCodeBlock        *body;
 } IrForeach;
 
@@ -53,8 +53,9 @@ ir_foreach_get_type(void);
 IrForeach *
 ir_foreach_new(IrVariable *index,
                IrVariable *value,
-               IrArraySlice *aggregate,
-               IrCodeBlock *body);
+               IrExpression *aggregate,
+               IrCodeBlock *body,
+               guint line_number);
 
 
 void
@@ -66,7 +67,7 @@ ir_foreach_get_index(IrForeach *self);
 IrVariable *
 ir_foreach_get_value(IrForeach *self);
 
-IrArraySlice *
+IrExpression *
 ir_foreach_get_aggregate(IrForeach *self);
 
 IrCodeBlock *

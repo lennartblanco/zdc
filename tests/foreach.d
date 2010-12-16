@@ -1,3 +1,5 @@
+//todo: add test on foreach with an array variable as aggregate
+
 int foreach_slice()
 {
     int[6] rofl = [0,1,2,3,4,5];

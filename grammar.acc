@@ -474,8 +474,9 @@ foreach_block<x> :
         (*x).statment =
             AST_STATMENT(
                 ast_foreach_new(index, value,
-                                AST_ARRAY_SLICE_REF(aggregate.expression),
-                                code.code_block));
+                                aggregate.expression,
+                                code.code_block,
+                                yypos));
     }
 ;
 

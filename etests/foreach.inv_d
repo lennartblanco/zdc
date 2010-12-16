@@ -1,4 +1,4 @@
-//err.d:X: error: illegal array slice expression over non-array variable
+//err.d:X: error: expected array type for slice expression, got bool
 void
 inv_aggregate()
 {
@@ -46,4 +46,14 @@ foreach_err_in_body(int needle, int[6] haystack)
        }
    }
    return pos;
+}
+
+//err.d:x: error: 'int' is not an aggregate type
+void non_aggr_type()
+{
+  int x;
+
+  foreach (v; x)
+  {
+  }
 }
