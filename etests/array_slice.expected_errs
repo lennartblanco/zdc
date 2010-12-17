@@ -1,3 +1,3 @@
-array_slice.d:5: error: illegal array slice expression over non-array variable
+array_slice.d:5: error: expected array type for slice expression, got int
 array_slice.d:12: error: cannot implicitly convert array slice start expression to uint type
 array_slice.d:19: error: cannot implicitly convert array slice end expression to uint type

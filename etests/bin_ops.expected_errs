@@ -1,5 +1,5 @@
-bin_ops.d:9: error: reference to unknow symbol 'x'
-bin_ops.d:15: error: reference to unknow symbol 'y'
+bin_ops.d:9: error: reference to unknown symbol 'x'
+bin_ops.d:15: error: reference to unknown symbol 'y'
 bin_ops.d:21: error: illegal types in arithmetic operation
 bin_ops.d:21: error: invalid assigment expression
 bin_ops.d:27: error: illegal types in arithmetic operation
