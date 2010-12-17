@@ -1182,9 +1182,13 @@ validate_statment(compilation_status_t *compile_status,
 {
     if (IR_IS_FUNCTION_CALL(statment))
     {
-         validate_function_call(compile_status,
-                                sym_table,
-                                IR_FUNCTION_CALL(statment));
+         if (validate_function_call(compile_status,
+                                    sym_table,
+                                    IR_FUNCTION_CALL(statment)) == NULL)
+         {
+             /* invalid function call, bail out */
+             return;
+         }
          iml_add_func_call_eval(compile_status->function,
                                 IR_FUNCTION_CALL(statment),
                                 NULL);
