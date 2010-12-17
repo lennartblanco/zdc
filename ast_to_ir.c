@@ -1080,7 +1080,7 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     if (prop == NULL)
     {
         compile_error(compile_status,
-                      IR_NODE(exp),
+                      ast_postfix,
                       "unknown property '%s'\n",
                       ast_postfix_exp_get_name(ast_postfix));
        return NULL;
