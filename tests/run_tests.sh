@@ -25,8 +25,8 @@ tests="empty "\
 "properties "\
 "immutable "\
 "enums "\
+"foreach "\
 "str_literals "
-#"foreach "\
 
 run_checked()
 {
