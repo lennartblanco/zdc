@@ -55,7 +55,7 @@ bool foreach_value_auto_type(int l)
    return res;
 }
 
-int foreach_index_auto_type(int needle, int[6] haystack)
+int foreach_index_auto_type(int needle, int[] haystack)
 {
    int pos = -1;
 
