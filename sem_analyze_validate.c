@@ -1081,6 +1081,9 @@ validate_foreach(compilation_status_t *compile_status,
     DtDataType *aggr_element_type;
     IrVariable *var;
     DtDataType *var_type;
+    ImlVariable *index;
+    ImlVariable *length;
+    iml_operation_t *loop_label;
 
     /*
      * Validate aggregate expression
@@ -1153,10 +1156,7 @@ validate_foreach(compilation_status_t *compile_status,
         }
     }
 
-    ImlVariable *index;
-    ImlVariable *length;
-    iml_operation_t *loop_label;
-
+    /* insert iml operations for foreach head */
     iml_add_foreach_head(compile_status->function,
                          foreach,
                          &index,
@@ -1164,10 +1164,11 @@ validate_foreach(compilation_status_t *compile_status,
                          &loop_label);
 
     /*
-     * validate foreach body code block
+     * validate and insert iml operations for foreach body
      */
     validate_code_block(compile_status, ir_foreach_get_body(foreach));
 
+    /* insert iml operations for foreach tail */
     iml_add_foreach_tail(compile_status->function,
                          index,
                          length,
