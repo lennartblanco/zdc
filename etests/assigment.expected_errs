@@ -1,5 +1,2 @@
-assigment.d:4: error: reference to unknown symbol 'non_exist'
-assigment.d:9: error: reference to unknown symbol 'x'
-assigment.d:14: error: can not assign value to 'func1', not a variable
-assigment.d:21: error: reference to unknown symbol 'asd'
-assigment.d:28: error: incompatible types in assigment to 'x'
+assigment.d:8: error: invalid lvalue in assigment
+assigment.d:15: error: incompatible types in assigment

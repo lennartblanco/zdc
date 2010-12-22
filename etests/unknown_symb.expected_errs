@@ -1,0 +1,2 @@
+unknown_symb.d:3: error: reference to unknown symbol 'non_exist'
+unknown_symb.d:10: error: reference to unknown symbol 'asd'

@@ -1,0 +1,13 @@
+void func1()
+{
+  non_exist = 1;
+}
+
+void func2()
+{
+  int x;
+
+  x = asd;
+}
+
+

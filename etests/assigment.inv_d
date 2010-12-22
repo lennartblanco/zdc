@@ -1,24 +1,11 @@
-void
-func1()
+void func1()
 {
-  non_exist = 1;
-}
 
-int func2()
-{
-  x = true;
 }
 
 void func3()
 {
   func1 = 2;
-}
-
-void func4()
-{
-  int x;
-
-  x = asd;
 }
 
 void func5()
