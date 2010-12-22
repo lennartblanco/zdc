@@ -10,4 +10,30 @@ void func2()
   x = asd;
 }
 
+void func3()
+{
+  a[19] = false;
+}
 
+void func4()
+{
+  int x;
+
+  x = lst[3];
+}
+
+void func5()
+{
+  int y;
+
+  y = func5[3];
+}
+
+int func6()
+{
+  int[] foo;
+
+  foo = [1, 2, 3];
+
+  return foo[bar];
+}

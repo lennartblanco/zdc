@@ -3,4 +3,4 @@ types.d:5: error: invalid assigment expression
 types.d:12: error: left operand can not be of void type
 types.d:12: error: invalid assigment expression
 types.d:17: error: can not convert to int type
-types.d:24: error: can not convert to bool type
+types.d:22: error: can not convert to bool type
