@@ -1060,6 +1060,11 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     exp = expression_to_ir(compile_status,
                            symbols,
                            ast_postfix_exp_get_expression(ast_postfix));
+    if (exp == NULL)
+    {
+        /* invalid expression, bail out */
+        return NULL;
+    }
 
     if (IR_IS_ENUM(exp))
     {
