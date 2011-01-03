@@ -42,3 +42,10 @@ void prop_on_unknown_symb()
 {
  while (foo.length < 0) { }
 }
+
+void arry_literal_unknown_symb()
+{
+  uint[10] arry;
+
+  arry[1..2] = [dw];
+}

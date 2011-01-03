@@ -1,9 +1,3 @@
 arry_literal.d:5: error: can not implicitly convert array literal value
 arry_literal.d:5: error: invalid assigment expression
-arry_literal.d:6: error: incompatible types in assigment to 'arry'
-arry_literal.d:7: error: reference to unknow symbol 'dw'
-arry_literal.d:7: error: invalid array literal value expression
-arry_literal.d:7: error: invalid assigment expression
-arry_literal.d:8: error: can not assign value to 'fuzz', not a variable
-arry_literal.d:8: error: invalid array literal value expression
-arry_literal.d:8: error: invalid assigment expression
+arry_literal.d:6: error: incompatible types in assigment

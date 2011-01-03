@@ -903,6 +903,11 @@ array_literal_to_ir(compilation_status_t *compile_status,
         IrExpression *exp;
 
         exp = expression_to_ir(compile_status, symbols, i->data);
+        if (exp == NULL)
+        {
+            /* invalid expression, bail out */
+            return NULL;
+        }
         ir_array_literal_add_value(ir_arry_literal, exp);
     }
 
