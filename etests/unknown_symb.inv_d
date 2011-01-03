@@ -38,7 +38,7 @@ int func6()
   return foo[bar];
 }
 
-void prop_on_unknow_symb()
+void prop_on_unknown_symb()
 {
  while (foo.length < 0) { }
 }
