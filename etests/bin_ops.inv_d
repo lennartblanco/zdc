@@ -3,18 +3,6 @@ void func()
 
 }
 
-bool
-inv_left()
-{
-  return x && true;
-}
-
-bool
-inv_right()
-{
-  return true && y;
-}
-
 void
 bin_add1(int arg)
 {
