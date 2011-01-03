@@ -20,7 +20,3 @@ exp_func()
   120 + 2;
 }
 
-void prop_on_unknow_symb()
-{
- while (foo.length < 0) { }
-}
