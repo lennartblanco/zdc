@@ -34,15 +34,15 @@ bool def_init_bool_array(int i)
     return arr[i];
 }
 
-//int init_exp_tst(int l)
-//{
-//    // check various init expressions
-//    int m = 15;
-//    int r = l;
-//    int[4] a = [l,2,3,4];
+int init_exp_tst(int l)
+{
+    // check various init expressions
+    int m = 15;
+    int r = l;
+    int[4] a = [l,2,3,4];
 
-//    return (a[0] + a[1] - m) * l;
-//}
+    return (a[0] + a[1] - m) * l;
+}
 
 int intops(int val, int index)
 {
@@ -301,15 +301,15 @@ bool bslice_assig(int i)
 //    return la[3] + la[2] + la[1] + la[0];
 //}
 
-////
-//// test implicit conversation of '0' and '1' in boolean array literal
-//// test implicit conversation of bool[4] array literal to int[4] static array 
-//int implicit_arry_lit_casts(int i)
-//{
-//    int[4] arr = [false, 0, 0, true];
+//
+// test implicit conversation of '0' and '1' in boolean array literal
+// test implicit conversation of bool[4] array literal to int[4] static array
+int implicit_arry_lit_casts(int i)
+{
+    int[4] arr = [false, 0, 0, true];
 
-//    return arr[i];
-//}
+    return arr[i];
+}
 
 ////
 //// test array slice assigment with length property

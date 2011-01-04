@@ -52,17 +52,17 @@ call_def_init_bool_array(int in)
    return res;
 }
 
-//int
-//call_init_exp_tst(int in)
-//{
-//   int res;
+int
+call_init_exp_tst(int in)
+{
+   int res;
 
-//   asm ("    call _D10stat_array12init_exp_tstFiZi\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array12init_exp_tstFiZi\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 int
 call_intops(int arg1, int arg2)
@@ -281,17 +281,17 @@ call_bslice_assig(int arg)
 //   return res;
 //}
 
-//int
-//call_implicit_arry_lit_casts(int arg)
-//{
-//   int res;
+int
+call_implicit_arry_lit_casts(int arg)
+{
+   int res;
 
-//   asm ("    call _D10stat_array23implicit_arry_lit_castsFiZi\n"
-//        : "=a"(res)
-//        : "a"(arg));
+   asm ("    call _D10stat_array23implicit_arry_lit_castsFiZi\n"
+        : "=a"(res)
+        : "a"(arg));
 
-//   return res;
-//}
+   return res;
+}
 
 //unsigned
 //call_stat_array_slice_assigment_length(unsigned arg)
@@ -338,9 +338,9 @@ main()
         check_bool("def_init_bool_array(i)", call_def_init_bool_array(i), 0);
     }
 
-//    /* init_exp_tst() tests */
-//    check_int("init_exp_tst(2)", call_init_exp_tst(2), (2 + 2 - 15) * 2);
-//    check_int("init_exp_tst(2)", call_init_exp_tst(100), (100 + 2 - 15) * 100);
+    /* init_exp_tst() tests */
+    check_int("init_exp_tst(2)", call_init_exp_tst(2), (2 + 2 - 15) * 2);
+    check_int("init_exp_tst(2)", call_init_exp_tst(100), (100 + 2 - 15) * 100);
 
     /* intops() tests */
     check_int("intops(3, 1)", call_intops(3, 1), 3 + 20 + 30 + 20);
@@ -458,18 +458,18 @@ main()
 //    check_int("stat_array_bool_var_init(3, 100, true)",
 //               call_stat_array_bool_var_init(0, 0, true), 3);
 
-//    /* implicit_arry_lit_casts() tests */
-//    check_int("implicit_arry_lit_casts(0)",
-//              call_implicit_arry_lit_casts(0), 0);
+    /* implicit_arry_lit_casts() tests */
+    check_int("implicit_arry_lit_casts(0)",
+              call_implicit_arry_lit_casts(0), 0);
 
-//    check_int("implicit_arry_lit_casts(1)",
-//              call_implicit_arry_lit_casts(1), 0);
+    check_int("implicit_arry_lit_casts(1)",
+              call_implicit_arry_lit_casts(1), 0);
 
-//    check_int("implicit_arry_lit_casts(2)",
-//              call_implicit_arry_lit_casts(2), 0);
+    check_int("implicit_arry_lit_casts(2)",
+              call_implicit_arry_lit_casts(2), 0);
 
-//    check_int("implicit_arry_lit_casts(3)",
-//              call_implicit_arry_lit_casts(3), 1);
+    check_int("implicit_arry_lit_casts(3)",
+              call_implicit_arry_lit_casts(3), 1);
 
 //    /* stat_array_slice_assigment_length() tests */
 //    check_uint("stat_array_slice_assigment_length(0)",
