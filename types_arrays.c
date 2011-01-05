@@ -3,6 +3,7 @@
 #include "types.h"
 #include "types_arrays.h"
 #include "dt_array_type.h"
+#include "dt_static_array_type.h"
 #include "ir_array_literal.h"
 #include "ir_array_slice.h"
 #include "ir_cast.h"

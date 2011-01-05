@@ -141,65 +141,65 @@ call_bslice_assig(int arg)
    return res;
 }
 
-//int
-//call_slices_ops(int arg)
-//{
-//   int res;
+int
+call_slices_ops(int arg)
+{
+   int res;
 
-//   asm ("    call _D10stat_array10slices_opsFiZi\n"
-//        : "=a"(res)
-//        : "a"(arg));
+   asm ("    call _D10stat_array10slices_opsFiZi\n"
+        : "=a"(res)
+        : "a"(arg));
 
-//   return res;
-//}
+   return res;
+}
 
-//int
-//call_int_slice_to_shorthand_slice(int arg)
-//{
-//   int res;
+int
+call_int_slice_to_shorthand_slice(int arg)
+{
+   int res;
 
-//   asm ("    call _D10stat_array28int_slice_to_shorthand_sliceFiZi\n"
-//        : "=a"(res)
-//        : "a"(arg));
+   asm ("    call _D10stat_array28int_slice_to_shorthand_sliceFiZi\n"
+        : "=a"(res)
+        : "a"(arg));
 
-//   return res;
-//}
+   return res;
+}
 
-//int
-//call_int_slice_to_slice(int arg)
-//{
-//   int res;
+int
+call_int_slice_to_slice(int arg)
+{
+   int res;
 
-//   asm ("    call _D10stat_array18int_slice_to_sliceFiZi\n"
-//        : "=a"(res)
-//        : "a"(arg));
+   asm ("    call _D10stat_array18int_slice_to_sliceFiZi\n"
+        : "=a"(res)
+        : "a"(arg));
 
-//   return res;
-//}
+   return res;
+}
 
-//bool
-//call_bool_slice_to_slice(bool in)
-//{
-//   bool res;
+bool
+call_bool_slice_to_slice(bool in)
+{
+   bool res;
 
-//   asm ("    call _D10stat_array19bool_slice_to_sliceFbZb\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array19bool_slice_to_sliceFbZb\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
-//unsigned
-//call_uint_slice_to_slice_idx(int in)
-//{
-//   unsigned res;
+unsigned
+call_uint_slice_to_slice_idx(int in)
+{
+   unsigned res;
 
-//   asm ("    call _D10stat_array23uint_slice_to_slice_idxFiZk\n"
-//        : "=a"(res)
-//        : "a"(in));
+   asm ("    call _D10stat_array23uint_slice_to_slice_idxFiZk\n"
+        : "=a"(res)
+        : "a"(in));
 
-//   return res;
-//}
+   return res;
+}
 
 //int
 //call_call_sum_stat()
@@ -374,51 +374,51 @@ main()
     check_bool("bslice_assig(3)", call_bslice_assig(3), true);
     check_bool("bslice_assig(4)", call_bslice_assig(4), false);
 
-//    /* slices_ops() test */
-//    check_int("slices_ops(85)", call_slices_ops(85), -85);
+    /* slices_ops() test */
+    check_int("slices_ops(85)", call_slices_ops(85), -85);
 
-//    /* int_slice_to_shorthand_slice() tests */
-//    check_int("int_slice_to_shorthand_slice(0)",
-//              call_int_slice_to_shorthand_slice(0), 9 + 7 + 6);
-//    check_int("int_slice_to_shorthand_slice(1)",
-//              call_int_slice_to_shorthand_slice(1), 7 + 6 + 5);
-//    check_int("int_slice_to_shorthand_slice(2)",
-//              call_int_slice_to_shorthand_slice(2), 6 + 5 + 4);
-//    check_int("int_slice_to_shorthand_slice(3)",
-//              call_int_slice_to_shorthand_slice(3), 5 + 4 + 3);
+    /* int_slice_to_shorthand_slice() tests */
+    check_int("int_slice_to_shorthand_slice(0)",
+              call_int_slice_to_shorthand_slice(0), 9 + 7 + 6);
+    check_int("int_slice_to_shorthand_slice(1)",
+              call_int_slice_to_shorthand_slice(1), 7 + 6 + 5);
+    check_int("int_slice_to_shorthand_slice(2)",
+              call_int_slice_to_shorthand_slice(2), 6 + 5 + 4);
+    check_int("int_slice_to_shorthand_slice(3)",
+              call_int_slice_to_shorthand_slice(3), 5 + 4 + 3);
 
-//    /* int_slice_to_slice() tests */
-//    check_int("int_slice_to_slice(0)",
-//              call_int_slice_to_slice(0), 15 + 24);
+    /* int_slice_to_slice() tests */
+    check_int("int_slice_to_slice(0)",
+              call_int_slice_to_slice(0), 15 + 24);
 
-//    check_int("int_slice_to_slice(2)",
-//              call_int_slice_to_slice(2), -33 + 42);
+    check_int("int_slice_to_slice(2)",
+              call_int_slice_to_slice(2), -33 + 42);
 
-//    check_int("int_slice_to_slice(3)",
-//              call_int_slice_to_slice(3), 42 + 51);
+    check_int("int_slice_to_slice(3)",
+              call_int_slice_to_slice(3), 42 + 51);
 
-//    check_int("int_slice_to_slice(4)",
-//              call_int_slice_to_slice(4), 51 + 60);
+    check_int("int_slice_to_slice(4)",
+              call_int_slice_to_slice(4), 51 + 60);
 
-//    /* bool_slice_to_slice() tests */
-//    check_bool("bool_slice_to_slice(true)",
-//               call_bool_slice_to_slice(true), true);
+    /* bool_slice_to_slice() tests */
+    check_bool("bool_slice_to_slice(true)",
+               call_bool_slice_to_slice(true), true);
 
-//    check_bool("bool_slice_to_slice(false)",
-//               call_bool_slice_to_slice(false), false);
+    check_bool("bool_slice_to_slice(false)",
+               call_bool_slice_to_slice(false), false);
 
-//    /* uint_slice_to_slice_idx() tests */
-//    check_uint("uint_slice_to_slice_idx(0)",
-//               call_uint_slice_to_slice_idx(0), 3 + 1 + 4);
+    /* uint_slice_to_slice_idx() tests */
+    check_uint("uint_slice_to_slice_idx(0)",
+               call_uint_slice_to_slice_idx(0), 3 + 1 + 4);
 
-//    check_uint("uint_slice_to_slice_idx(1)",
-//               call_uint_slice_to_slice_idx(1), 1 + 4 + 1);
+    check_uint("uint_slice_to_slice_idx(1)",
+               call_uint_slice_to_slice_idx(1), 1 + 4 + 1);
 
-//    check_uint("uint_slice_to_slice_idx(2)",
-//               call_uint_slice_to_slice_idx(2), 4 + 1 + 5);
+    check_uint("uint_slice_to_slice_idx(2)",
+               call_uint_slice_to_slice_idx(2), 4 + 1 + 5);
 
-//    check_uint("uint_slice_to_slice_idx(3)",
-//               call_uint_slice_to_slice_idx(3), 1 + 5 + 9);
+    check_uint("uint_slice_to_slice_idx(3)",
+               call_uint_slice_to_slice_idx(3), 1 + 5 + 9);
 
 //    /* call_sum_stat() and sum_stat() test */
 //    check_int("call_sum_stat()", 

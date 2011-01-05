@@ -3,8 +3,6 @@
 
 #include "ir_array_slice.h"
 #include "ir_uint_constant.h"
-#include "dt_array_type.h"
-#include "dt_static_array_type.h"
 
 #include <assert.h>
 
@@ -67,6 +65,7 @@ ir_array_slice_new(IrExpression *array,
                        "ir-node-line-number", line_number,
                        NULL);
 
+    obj->data_type = NULL;
     obj->array = array;
     obj->start = start;
     obj->end = end;
@@ -145,7 +144,18 @@ ir_array_slice_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ARRAY_SLICE(self));
 
-    return ir_expression_get_data_type(IR_ARRAY_SLICE(self)->array);
+    IrArraySlice *slice = IR_ARRAY_SLICE(self);
+    if (slice->data_type == NULL)
+    {
+        DtDataType *element_type;
+
+        element_type =
+            dt_array_type_get_data_type(
+                DT_ARRAY_TYPE(ir_expression_get_data_type(slice->array)));
+        slice->data_type = dt_array_type_new(element_type);
+    }
+
+    return DT_DATA_TYPE(slice->data_type);
 }
 
 static bool

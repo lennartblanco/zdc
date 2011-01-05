@@ -167,9 +167,7 @@ ir_array_literal_do_get_data_type(IrExpression *self)
             assert(false);
         }
 
-        arr_literal->data_type =
-            dt_static_array_type_new(first_val_type,
-                                     g_slist_length(arr_literal->values));
+        arr_literal->data_type = dt_array_type_new(first_val_type);
     }
     return DT_DATA_TYPE(arr_literal->data_type);
 }

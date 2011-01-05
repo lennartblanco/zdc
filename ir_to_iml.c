@@ -13,6 +13,7 @@
 #include "iml_constant.h"
 #include "iml_variable.h"
 #include "types.h"
+#include "dt_static_array_type.h"
 
 #include <assert.h>
 
@@ -972,7 +973,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     }
 
     /* figure out the element size of sliced array */
-    array_type = ir_expression_get_data_type(IR_EXPRESSION(slice));
+    array_type = ir_expression_get_data_type(ir_array_slice_get_array(slice));
     assert(DT_IS_ARRAY_TYPE(array_type));
     element_size = dt_array_get_element_size(DT_ARRAY_TYPE(array_type));
 
@@ -1266,8 +1267,8 @@ add_array_slice_assigment(IrFunctionDef *function,
     element_size = dt_array_get_element_size(DT_ARRAY_TYPE(array_type));
 
     /* generate code to evaluate left and right values */
-    src = iml_add_expression_eval(function, IR_EXPRESSION(value), NULL);
     dest = iml_add_expression_eval(function, IR_EXPRESSION(lvalue), NULL);
+    src = iml_add_expression_eval(function, IR_EXPRESSION(value), NULL);
 
     /* store source pointer in temp variable */
     src_ptr = iml_func_frame_get_temp(frame, iml_ptr);

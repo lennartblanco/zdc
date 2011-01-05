@@ -100,66 +100,66 @@ bool bslice_assig(int i)
 }
 
 // test assigning array literals to array slices with static indexes
-//int slices_ops(int last_val)
-//{
-//    int[4] m;
+int slices_ops(int last_val)
+{
+    int[4] m;
 
-//    m[0..4] = [1 + 4, 1, -100, -1000];
-//    m[2..4] = [slice_assig_sum(), last_val];
+    m[0..4] = [1 + 4, 1, -100, -1000];
+    m[2..4] = [slice_assig_sum(), last_val];
 
-//    return m[0] + m[1] - m[2] - m[3];
-//}
+    return m[0] + m[1] - m[2] - m[3];
+}
 
-//// tests assigment of array slice to a shothand array slice
-//int
-//int_slice_to_shorthand_slice(int start)
-//{
-//    int[6] m;
-//    int[3] r;
+// tests assigment of array slice to a shothand array slice
+int
+int_slice_to_shorthand_slice(int start)
+{
+    int[6] m;
+    int[3] r;
 
-//    m[] = [9, 7, 6, 5, 4, 3];
+    m[] = [9, 7, 6, 5, 4, 3];
 
-//    r[] = m[start..start+3];
+    r[] = m[start..start+3];
 
-//    return r[0] + r[1] + r[2];
-//}
+    return r[0] + r[1] + r[2];
+}
 
-//// tests assigment of array slice to array slice
-//int
-//int_slice_to_slice(int start)
-//{
-//    int[6] m = [15, 24, -33, 42, 51, 60];
-//    int[3] r;
+// tests assigment of array slice to array slice
+int
+int_slice_to_slice(int start)
+{
+    int[6] m = [15, 24, -33, 42, 51, 60];
+    int[3] r;
 
-//    r[1..3] = m[start..start+2];
+    r[1..3] = m[start..start+2];
 
-//    return r[0] + r[1] + r[2];
-//}
+    return r[0] + r[1] + r[2];
+}
 
-//// test assigment of boolean array slice to array slice
-//bool
-//bool_slice_to_slice(bool arg)
-//{
-//    bool[3] m = [true, true, arg];
-//    bool[3] r;
+// test assigment of boolean array slice to array slice
+bool
+bool_slice_to_slice(bool arg)
+{
+    bool[3] m = [true, true, arg];
+    bool[3] r;
 
-//    r[0..3] = m[0..3];
+    r[0..3] = m[0..3];
 
-//    return r[0] && r[1] && r[2];
-//}
+    return r[0] && r[1] && r[2];
+}
 
-//uint
-//uint_slice_to_slice_idx(int start)
-//{
-//    uint[6] m;
-//    uint[3] r;
+uint
+uint_slice_to_slice_idx(int start)
+{
+    uint[6] m;
+    uint[3] r;
 
-//    m[] = [3, 1, 4, 1, 5, 9];
+    m[] = [3, 1, 4, 1, 5, 9];
 
-//    r[0..3] = m[start..start+3];
+    r[0..3] = m[start..start+3];
 
-//    return r[0] + r[1] + r[2];
-//}
+    return r[0] + r[1] + r[2];
+}
 
 ////
 //// test static array as a
