@@ -288,18 +288,18 @@ uint_slice_to_slice_idx(int start)
 //    return arr[0] + arr[1] + arr[2] + arr[3] + arr[4] + arr[5];
 //}
 
-////
-//// test assigment of a static integer array from a single boolean variable
-////
-//int
-//stat_array_bool_var_init(int idx, int val, bool init)
-//{
-//    int[4] la = init;
+//
+// test assigment of a static integer array from a single boolean variable
+//
+int
+stat_array_bool_var_init(int idx, int val, bool init)
+{
+    int[4] la = init;
 
-//    la[idx] = val;
+    la[idx] = val;
 
-//    return la[3] + la[2] + la[1] + la[0];
-//}
+    return la[3] + la[2] + la[1] + la[0];
+}
 
 //
 // test implicit conversation of '0' and '1' in boolean array literal
@@ -311,14 +311,14 @@ int implicit_arry_lit_casts(int i)
     return arr[i];
 }
 
-////
-//// test array slice assigment with length property
-////
-//uint stat_array_slice_assigment_length(uint idx)
-//{
-//  uint[4] arr = [0, 0, 0, 0];
-//  arr[2..arr.length] = [3, 4];
+//
+// test array slice assigment with length property
+//
+uint stat_array_slice_assigment_length(uint idx)
+{
+  uint[4] arr = [0, 0, 0, 0];
+  arr[2..arr.length] = [3, 4];
 
-//  return arr[idx];
-//}
+  return arr[idx];
+}
 

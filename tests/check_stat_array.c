@@ -264,22 +264,22 @@ call_uint_slice_to_slice_idx(int in)
 //   return res;
 //}
 
-//int
-//call_stat_array_bool_var_init(int arg1, int arg2, bool arg3)
-//{
-//   int res;
+int
+call_stat_array_bool_var_init(int arg1, int arg2, int arg3)
+{
+   int res;
 
-//   asm ("    pushl %[arg1]\n"
-//        "    pushl %[arg2]\n"
-//        "    movl %[arg3], %%eax\n"
-//        "    call _D10stat_array24stat_array_bool_var_initFiibZi\n"
-//        : "=a"(res)
-//        : [arg1]"m"(arg1),
-//          [arg2]"m"(arg2),
-//          [arg3]"m"(arg3));
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    movl %[arg3], %%eax\n"
+        "    call _D10stat_array24stat_array_bool_var_initFiibZi\n"
+        : "=a"(res)
+        : [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3));
 
-//   return res;
-//}
+   return res;
+}
 
 int
 call_implicit_arry_lit_casts(int arg)
@@ -293,17 +293,17 @@ call_implicit_arry_lit_casts(int arg)
    return res;
 }
 
-//unsigned
-//call_stat_array_slice_assigment_length(unsigned arg)
-//{
-//   unsigned res;
+unsigned
+call_stat_array_slice_assigment_length(unsigned arg)
+{
+   unsigned res;
 
-//   asm ("    call _D10stat_array33stat_array_slice_assigment_lengthFkZk\n"
-//        : "=a"(res)
-//        : "a"(arg));
+   asm ("    call _D10stat_array33stat_array_slice_assigment_lengthFkZk\n"
+        : "=a"(res)
+        : "a"(arg));
 
-//   return res;
-//}
+   return res;
+}
 
 
 /*---------------------------------------------------------------------------*
@@ -448,15 +448,15 @@ main()
 //    check_int("scalar_to_arry_slice_assig(-100, 99)",
 //               call_scalar_to_arry_slice_assig(-100, 99), -100 * 3 + 99 * 3);
 
-//    /* stat_array_bool_var_init() tests */
-//    check_int("stat_array_bool_var_init(3, 100, true)",
-//               call_stat_array_bool_var_init(3, 100, true), 103);
+    /* stat_array_bool_var_init() tests */
+    check_int("stat_array_bool_var_init(3, 100, true)",
+               call_stat_array_bool_var_init(3, 100, true), 103);
 
-//    check_int("stat_array_bool_var_init(2, 20, false)",
-//               call_stat_array_bool_var_init(2, 20, false), 20);
+    check_int("stat_array_bool_var_init(2, 20, false)",
+               call_stat_array_bool_var_init(2, 20, false), 20);
 
-//    check_int("stat_array_bool_var_init(3, 100, true)",
-//               call_stat_array_bool_var_init(0, 0, true), 3);
+    check_int("stat_array_bool_var_init(3, 100, true)",
+               call_stat_array_bool_var_init(0, 0, true), 3);
 
     /* implicit_arry_lit_casts() tests */
     check_int("implicit_arry_lit_casts(0)",
@@ -471,15 +471,15 @@ main()
     check_int("implicit_arry_lit_casts(3)",
               call_implicit_arry_lit_casts(3), 1);
 
-//    /* stat_array_slice_assigment_length() tests */
-//    check_uint("stat_array_slice_assigment_length(0)",
-//               call_stat_array_slice_assigment_length(0), 0);
-//    check_uint("stat_array_slice_assigment_length(1)",
-//               call_stat_array_slice_assigment_length(1), 0);
-//    check_uint("stat_array_slice_assigment_length(2)",
-//               call_stat_array_slice_assigment_length(2), 3);
-//    check_uint("stat_array_slice_assigment_length(3)",
-//               call_stat_array_slice_assigment_length(3), 4);
+    /* stat_array_slice_assigment_length() tests */
+    check_uint("stat_array_slice_assigment_length(0)",
+               call_stat_array_slice_assigment_length(0), 0);
+    check_uint("stat_array_slice_assigment_length(1)",
+               call_stat_array_slice_assigment_length(1), 0);
+    check_uint("stat_array_slice_assigment_length(2)",
+               call_stat_array_slice_assigment_length(2), 3);
+    check_uint("stat_array_slice_assigment_length(3)",
+               call_stat_array_slice_assigment_length(3), 4);
 
     check_exit();
 }
