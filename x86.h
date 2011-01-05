@@ -1,6 +1,6 @@
 #include "ir_module.h"
 #include "ir_while.h"
-#include "ir_assigment.h"
+#include "ir_assignment.h"
 #include "auxil.h"
 
 #ifndef X86_INC_X
@@ -30,11 +30,6 @@ x86_compile_expression(x86_comp_params_t *params,
 
 int
 x86_get_expression_storage_size(IrExpression *expression);
-
-void
-x86_compile_assigment(x86_comp_params_t *params,
-                      IrAssigment *assigment,
-                      sym_table_t *sym_table);
 
 /**
  * Alligned an address/offset in 32-bit word boundary, 
