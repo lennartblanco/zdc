@@ -1,4 +1,4 @@
-#include "ir_assigment.h"
+#include "ir_assignment.h"
 
 #include <assert.h>
 
@@ -7,41 +7,41 @@
  *---------------------------------------------------------------------------*/
 
 GType
-ir_assigment_get_type(void)
+ir_assignment_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (IrAssigmentClass),
+        sizeof (IrAssignmentClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         NULL, /* class_init */
         NULL, /* class_finalize */
         NULL,   /* class_data */
-        sizeof (IrAssigment),
+        sizeof (IrAssignment),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(IR_TYPE_STATMENT,
-                                    "IrAssigmentType",
+                                    "IrAssignmentType",
                                     &info, 0);
     }
     return type;
 }
 
-IrAssigment *
-ir_assigment_new(IrExpression *lvalue,
-                 IrExpression *value,
-                 guint line_number)
+IrAssignment *
+ir_assignment_new(IrExpression *lvalue,
+                  IrExpression *value,
+                  guint line_number)
 {
-    IrAssigment *obj;
+    IrAssignment *obj;
 
     assert(IR_IS_EXPRESSION(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
-    obj = g_object_new(IR_TYPE_ASSIGMENT,
+    obj = g_object_new(IR_TYPE_ASSIGNMENT,
                        "ir-node-line-number", line_number,
                        NULL);
 
@@ -52,17 +52,17 @@ ir_assigment_new(IrExpression *lvalue,
 }
 
 IrExpression *
-ir_assigment_get_lvalue(IrAssigment *self)
+ir_assignment_get_lvalue(IrAssignment *self)
 {
-    assert(IR_IS_ASSIGMENT(self));
+    assert(IR_IS_ASSIGNMENT(self));
 
     return self->lvalue;
 }
 
 void
-ir_assigment_set_lvalue(IrAssigment *self, IrExpression *lvalue)
+ir_assignment_set_lvalue(IrAssignment *self, IrExpression *lvalue)
 {
-    assert(IR_IS_ASSIGMENT(self));
+    assert(IR_IS_ASSIGNMENT(self));
     assert(IR_IS_EXPRESSION(lvalue));
     assert(ir_expression_is_lvalue(lvalue));
 
@@ -70,18 +70,18 @@ ir_assigment_set_lvalue(IrAssigment *self, IrExpression *lvalue)
 }
 
 IrExpression *
-ir_assigment_get_value(IrAssigment *self)
+ir_assignment_get_value(IrAssignment *self)
 {
-    assert(IR_IS_ASSIGMENT(self));
+    assert(IR_IS_ASSIGNMENT(self));
 
     return self->value;
 }
 
 void
-ir_assigment_set_value(IrAssigment *self, IrExpression *value)
+ir_assignment_set_value(IrAssignment *self, IrExpression *value)
 {
     assert(self);
-    assert(IR_IS_ASSIGMENT(self));
+    assert(IR_IS_ASSIGNMENT(self));
 
     self->value = value;
 }

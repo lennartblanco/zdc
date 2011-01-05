@@ -1,0 +1,2 @@
+assignment.d:8: error: invalid lvalue in assignment
+assignment.d:15: error: incompatible types in assignment

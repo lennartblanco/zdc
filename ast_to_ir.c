@@ -6,7 +6,7 @@
 #include "ast_foreach.h"
 #include "ast_return.h"
 #include "ast_function_call.h"
-#include "ast_assigment.h"
+#include "ast_assignment.h"
 #include "ast_binary_operation.h"
 #include "ast_array_literal.h"
 #include "ast_string_literal.h"
@@ -24,7 +24,7 @@
 #include "ir_while.h"
 #include "ir_foreach.h"
 #include "ir_return.h"
-#include "ir_assigment.h"
+#include "ir_assignment.h"
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell.h"
@@ -90,9 +90,9 @@ return_to_ir(compilation_status_t *compile_status,
              AstReturn *ast_return);
 
 static IrStatment *
-assigment_to_ir(compilation_status_t *compile_status,
+assignment_to_ir(compilation_status_t *compile_status,
                 sym_table_t *symbols,
-                AstAssigment *ast_assigment);
+                AstAssignment *ast_assignment);
 
 static IrExpression *
 expression_to_ir(compilation_status_t *compile_status,
@@ -553,11 +553,11 @@ code_block_to_ir(compilation_status_t *compile_status,
                                             symbols,
                                             AST_FUNCTION_CALL(stmt)));
         }
-        else if (AST_IS_ASSIGMENT(stmt))
+        else if (AST_IS_ASSIGNMENT(stmt))
         {
-            ir_stmt = assigment_to_ir(compile_status,
-                                      symbols,
-                                      AST_ASSIGMENT(stmt));
+            ir_stmt = assignment_to_ir(compile_status,
+                                       symbols,
+                                       AST_ASSIGNMENT(stmt));
         }
         else if (AST_IS_EXPRESSION(stmt))
         {
@@ -754,17 +754,17 @@ return_to_ir(compilation_status_t *compile_status,
 }
 
 static IrStatment *
-assigment_to_ir(compilation_status_t *compile_status,
+assignment_to_ir(compilation_status_t *compile_status,
                 sym_table_t *symbols,
-                AstAssigment *ast_assigment)
+                AstAssignment *ast_assignment)
 {
     AstIdent *target;
     AstExpression *value;
     IrExpression *ir_target;
     IrExpression *ir_value;
 
-    target = ast_assigment_get_target(ast_assigment);
-    value = ast_assigment_get_value(ast_assigment);
+    target = ast_assignment_get_target(ast_assignment);
+    value = ast_assignment_get_value(ast_assignment);
 
     ir_target =
         expression_to_ir(compile_status, symbols, AST_EXPRESSION(target));
@@ -777,9 +777,10 @@ assigment_to_ir(compilation_status_t *compile_status,
         return NULL;
     }
 
-    return IR_STATMENT(ir_assigment_new(ir_target,
-                                        ir_value,
-                                        ast_node_get_line_num(ast_assigment)));
+    return
+        IR_STATMENT(ir_assignment_new(ir_target,
+                                      ir_value,
+                                      ast_node_get_line_num(ast_assignment)));
 }
 
 /**

@@ -1,5 +1,5 @@
 bin_ops.d:9: error: illegal types in arithmetic operation
-bin_ops.d:9: error: invalid assigment expression
+bin_ops.d:9: error: invalid assignment expression
 bin_ops.d:15: error: illegal types in arithmetic operation
-bin_ops.d:15: error: invalid assigment expression
+bin_ops.d:15: error: invalid assignment expression
 bin_ops.d:24: error: illegal types in compare operation

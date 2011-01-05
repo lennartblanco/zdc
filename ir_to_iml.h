@@ -2,7 +2,7 @@
 #define IR_TO_IML_INC_X
 
 #include "ir_function_def.h"
-#include "ir_assigment.h"
+#include "ir_assignment.h"
 #include "ir_function_call.h"
 #include "ir_foreach.h"
 #include "ir_variable.h"
@@ -22,7 +22,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
                   bool is_function_parameter);
 
 void
-iml_add_assigment(IrFunctionDef *function,
+iml_add_assignment(IrFunctionDef *function,
                   IrExpression *lvalue,
                   IrExpression *value);
 

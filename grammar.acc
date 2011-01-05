@@ -18,7 +18,7 @@
 #include "ast_array_cell_ref.h"
 #include "ast_array_slice_ref.h"
 #include "ast_function_decl.h"
-#include "ast_assigment.h"
+#include "ast_assignment.h"
 #include "ast_postfix_exp.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
@@ -317,7 +317,7 @@ statment<stmt> :
 
 non_empty_statment<stmt> :
     var_definition<stmt>
-|   var_assigment<stmt>
+|   var_assignment<stmt>
 |   if_else_block<stmt>
 |   foreach_block<stmt>
 |   while_block<stmt>
@@ -553,13 +553,13 @@ var_definition<n> :
 ;
 
 
-var_assigment<n> :
+var_assignment<n> :
    lvalue<l> '=' expression<y> ';'
    {
        (*n).statment =
-           AST_STATMENT(ast_assigment_new(l.ident, 
-                                          y.expression,
-                                          yypos));
+           AST_STATMENT(ast_assignment_new(l.ident,
+                                           y.expression,
+                                           yypos));
    }
 ;
 

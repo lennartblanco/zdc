@@ -1,3 +1,3 @@
 array_element.d:6: error: 'z' must be of array type, not bool
-array_element.d:6: error: invalid assigment expression
+array_element.d:6: error: invalid assignment expression
 array_element.d:14: error: illegal index expression type

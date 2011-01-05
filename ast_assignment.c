@@ -1,4 +1,4 @@
-#include "ast_assigment.h"
+#include "ast_assignment.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -8,48 +8,48 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ast_assigment_do_print(AstNode *self, FILE *out, int indention);
+ast_assignment_do_print(AstNode *self, FILE *out, int indention);
 
 static void
-ast_assigment_class_init(gpointer klass, gpointer dummy);
+ast_assignment_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-ast_assigment_get_type(void)
+ast_assignment_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (AstAssigmentClass),
+        sizeof (AstAssignmentClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_assigment_class_init,   /* class_init */
+        ast_assignment_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (AstAssigment),
+        sizeof (AstAssignment),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(AST_TYPE_STATMENT,
-                                    "AstAssigmentType",
+                                    "AstAssignmentType",
                                     &info, 0);
     }
     return type;
 }
 
-AstAssigment *
-ast_assigment_new(AstIdent *target,
-                  AstExpression *value,
-                  guint line_number)
+AstAssignment *
+ast_assignment_new(AstIdent *target,
+                   AstExpression *value,
+                   guint line_number)
 {
-    AstAssigment *obj;
+    AstAssignment *obj;
 
-    obj = g_object_new(AST_TYPE_ASSIGMENT,
+    obj = g_object_new(AST_TYPE_ASSIGNMENT,
                        "ast-node-line-number", line_number,
                        NULL);
     obj->target = target;
@@ -59,17 +59,17 @@ ast_assigment_new(AstIdent *target,
 }
 
 AstIdent *
-ast_assigment_get_target(AstAssigment *self)
+ast_assignment_get_target(AstAssignment *self)
 {
-    assert(AST_IS_ASSIGMENT(self));
+    assert(AST_IS_ASSIGNMENT(self));
 
     return self->target;
 }
 
 AstExpression *
-ast_assigment_get_value(AstAssigment *self)
+ast_assignment_get_value(AstAssignment *self)
 {
-    assert(AST_IS_ASSIGMENT(self));
+    assert(AST_IS_ASSIGNMENT(self));
 
     return self->value;
 }
@@ -81,21 +81,21 @@ ast_assigment_get_value(AstAssigment *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ast_assigment_do_print(AstNode *self, FILE *out, int indention)
+ast_assignment_do_print(AstNode *self, FILE *out, int indention)
 {
-    assert(AST_IS_ASSIGMENT(self));
+    assert(AST_IS_ASSIGNMENT(self));
     assert(out);
 
-    AstAssigment *obj = (AstAssigment *)self;
-    fprintf_indent(out, indention, "assigment\n  target:\n");
+    AstAssignment *obj = (AstAssignment *)self;
+    fprintf_indent(out, indention, "assignment\n  target:\n");
     ast_node_print(AST_NODE(obj->target), out, indention + 4);
     fprintf_indent(out, indention, "\n  value:\n");
     ast_node_print(AST_NODE(obj->value), out, indention + 4);
 }
 
 static void
-ast_assigment_class_init(gpointer klass, gpointer dummy)
+ast_assignment_class_init(gpointer klass, gpointer dummy)
 {
-    ((AstNodeClass *)klass)->do_print = ast_assigment_do_print;
+    ((AstNodeClass *)klass)->do_print = ast_assignment_do_print;
 }
 

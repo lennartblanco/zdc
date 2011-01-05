@@ -3,8 +3,7 @@ all:
 
 syntx_err: syntx_err.d
 array_slice: array_slice.d
-assigment: assigment.d
-assigment: assigment.d
+assignment: assignment.d
 unknown_symb: unknown_symb.d
 sym_clash: sym_clash.d
 func_call: func_call.d

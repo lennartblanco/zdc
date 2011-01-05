@@ -15,7 +15,7 @@
 #include "ir_return.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
-#include "ir_assigment.h"
+#include "ir_assignment.h"
 #include "iml_register.h"
 #include "iml_constant.h"
 

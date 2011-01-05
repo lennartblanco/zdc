@@ -6,7 +6,7 @@
 #include "dt_auto_type.h"
 #include "dt_static_array_type.h"
 #include "ir_function.h"
-#include "ir_assigment.h"
+#include "ir_assignment.h"
 #include "ir_function_call.h"
 #include "ir_return.h"
 #include "ir_unary_operation.h"
@@ -108,9 +108,9 @@ validate_return(compilation_status_t *compile_status,
                 IrReturn *ret);
 
 static void
-validate_assigment(compilation_status_t *compile_status,
+validate_assignment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
-                   IrAssigment *assigment);
+                   IrAssignment *assignment);
 
 static void
 validate_if_block(compilation_status_t *compile_status,
@@ -805,9 +805,9 @@ validate_return(compilation_status_t *compile_status,
 }
 
 static void
-validate_assigment(compilation_status_t *compile_status,
+validate_assignment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
-                   IrAssigment *assigment)
+                   IrAssignment *assignment)
 {
     IrExpression *lvalue;
     IrExpression *value;
@@ -817,7 +817,7 @@ validate_assigment(compilation_status_t *compile_status,
     /*
      * validate assignment lvalue
      */
-    lvalue = ir_assigment_get_lvalue(assigment);
+    lvalue = ir_assignment_get_lvalue(assignment);
     lvalue = validate_expression(compile_status, sym_table, lvalue);
     if (lvalue == NULL)
     {
@@ -827,22 +827,22 @@ validate_assigment(compilation_status_t *compile_status,
     if (!ir_expression_is_lvalue(lvalue))
     {
         compile_error(compile_status,
-                      assigment,
-                      "invalid lvalue in assigment\n");
+                      assignment,
+                      "invalid lvalue in assignment\n");
         return;
     }
-    ir_assigment_set_lvalue(assigment, lvalue);
+    ir_assignment_set_lvalue(assignment, lvalue);
 
     /*
-     * validate assigment right value
+     * validate assignment right value
      */
-    value = ir_assigment_get_value(assigment);
+    value = ir_assignment_get_value(assignment);
     value = validate_expression(compile_status, sym_table, value);
     if (value == NULL)
     {
         compile_error(compile_status,
-                      IR_NODE(ir_assigment_get_value(assigment)),
-                      "invalid assigment expression\n");
+                      IR_NODE(ir_assignment_get_value(assignment)),
+                      "invalid assignment expression\n");
         return;
     }
 
@@ -853,7 +853,7 @@ validate_assigment(compilation_status_t *compile_status,
     if (dt_data_type_is_immutalbe(target_type))
     {
         compile_error(compile_status,
-                      IR_NODE(assigment),
+                      IR_NODE(assignment),
                       "can not modify immutable lvalue\n");
         return;
     }
@@ -875,13 +875,13 @@ validate_assigment(compilation_status_t *compile_status,
     if (converted_value == NULL)
     {
         compile_error(compile_status,
-                      IR_NODE(assigment),
-                      "incompatible types in assigment\n");
+                      IR_NODE(assignment),
+                      "incompatible types in assignment\n");
         return;
     }
 
     /* valid assignment, add iml operations */
-    iml_add_assigment(compile_status->function, lvalue, converted_value);
+    iml_add_assignment(compile_status->function, lvalue, converted_value);
 }
 
 /**
@@ -1193,9 +1193,11 @@ validate_statment(compilation_status_t *compile_status,
                                 IR_FUNCTION_CALL(statment),
                                 NULL);
     }
-    else if (IR_IS_ASSIGMENT(statment))
+    else if (IR_IS_ASSIGNMENT(statment))
     {
-        validate_assigment(compile_status, sym_table, IR_ASSIGMENT(statment));
+        validate_assignment(compile_status,
+                            sym_table,
+                            IR_ASSIGNMENT(statment));
     }
     else if (IR_IS_RETURN(statment))
     {
@@ -1331,7 +1333,7 @@ validate_code_block(compilation_status_t *compile_status,
         {
             compile_error(compile_status,
                           IR_NODE(initializer),
-                          "illegal type in initializer assigment\n");
+                          "illegal type in initializer assignment\n");
             continue;
         }
         ir_variable_set_initializer(var, conv_initializer);

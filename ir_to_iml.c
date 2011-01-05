@@ -53,24 +53,24 @@ iml_add_property_eval(IrFunctionDef *function,
                       ImlVariable *res);
 
 static void
-add_array_cell_assigment(IrFunctionDef *function,
-                         IrArrayCell *lvalue,
-                         IrExpression *value);
-
-static void
-add_array_slice_assigment(IrFunctionDef *function,
-                          IrArraySlice *lvalue,
+add_array_cell_assignment(IrFunctionDef *function,
+                          IrArrayCell *lvalue,
                           IrExpression *value);
 
 static void
-add_array_assigment(IrFunctionDef *function,
-                    IrVariable *lvalue,
-                    IrExpression *value);
+add_array_slice_assignment(IrFunctionDef *function,
+                           IrArraySlice *lvalue,
+                           IrExpression *value);
 
 static void
-add_static_array_assigment(IrFunctionDef *function,
-                           IrVariable *lvalue,
-                           IrExpression *value);
+add_array_assignment(IrFunctionDef *function,
+                     IrVariable *lvalue,
+                     IrExpression *value);
+
+static void
+add_static_array_assignment(IrFunctionDef *function,
+                            IrVariable *lvalue,
+                            IrExpression *value);
 
 static ImlOperand *
 iml_add_array_literal_eval(IrFunctionDef *function,
@@ -238,7 +238,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
         init_exp = dt_data_type_get_init(ir_variable_get_data_type(variable));
     }
 
-    iml_add_assigment(parent_function, IR_EXPRESSION(variable), init_exp);
+    iml_add_assignment(parent_function, IR_EXPRESSION(variable), init_exp);
 }
 
 ImlOperand *
@@ -310,9 +310,9 @@ iml_add_func_call_eval(IrFunctionDef *function,
 }
 
 void
-iml_add_assigment(IrFunctionDef *function,
-                  IrExpression *lvalue,
-                  IrExpression *value)
+iml_add_assignment(IrFunctionDef *function,
+                   IrExpression *lvalue,
+                   IrExpression *value)
 {
     assert(IR_IS_FUNCTION_DEF(function));
     assert(IR_IS_EXPRESSION(lvalue));
@@ -321,11 +321,11 @@ iml_add_assigment(IrFunctionDef *function,
 
     if (IR_IS_ARRAY_CELL(lvalue))
     {
-        add_array_cell_assigment(function, IR_ARRAY_CELL(lvalue), value);
+        add_array_cell_assignment(function, IR_ARRAY_CELL(lvalue), value);
     }
     else if (IR_IS_ARRAY_SLICE(lvalue))
     {
-        add_array_slice_assigment(function, IR_ARRAY_SLICE(lvalue), value);
+        add_array_slice_assignment(function, IR_ARRAY_SLICE(lvalue), value);
     }
     else if (IR_IS_VARIABLE(lvalue))
     {
@@ -341,11 +341,11 @@ iml_add_assigment(IrFunctionDef *function,
         }
         else if (DT_IS_STATIC_ARRAY_TYPE(var_type))
         {
-            add_static_array_assigment(function, IR_VARIABLE(lvalue), value);
+            add_static_array_assignment(function, IR_VARIABLE(lvalue), value);
         }
         else if (DT_IS_ARRAY_TYPE(var_type))
         {
-            add_array_assigment(function, IR_VARIABLE(lvalue), value);
+            add_array_assignment(function, IR_VARIABLE(lvalue), value);
         }
         else
         {
@@ -1077,9 +1077,9 @@ iml_add_array_slice_eval(IrFunctionDef *function,
 }
 
 static void
-add_array_assigment(IrFunctionDef *function,
-                    IrVariable *lvalue,
-                    IrExpression *value)
+add_array_assignment(IrFunctionDef *function,
+                     IrVariable *lvalue,
+                     IrExpression *value)
 {
     ImlVariable *dest = ir_variable_get_location(lvalue);
 
@@ -1102,9 +1102,9 @@ add_array_assigment(IrFunctionDef *function,
 
 
 static void
-add_static_array_assigment(IrFunctionDef *function,
-                           IrVariable *lvalue,
-                           IrExpression *value)
+add_static_array_assignment(IrFunctionDef *function,
+                            IrVariable *lvalue,
+                            IrExpression *value)
 {
     ImlOperand *res_val;
     ImlVariable *array_var;
@@ -1182,9 +1182,9 @@ add_static_array_assigment(IrFunctionDef *function,
 }
 
 static void
-add_array_cell_assigment(IrFunctionDef *function,
-                         IrArrayCell *lvalue,
-                         IrExpression *value)
+add_array_cell_assignment(IrFunctionDef *function,
+                          IrArrayCell *lvalue,
+                          IrExpression *value)
 {
     IrVariable *array_symb;
     DtDataType *array_type;
@@ -1207,7 +1207,7 @@ add_array_cell_assigment(IrFunctionDef *function,
 
     if (DT_IS_STATIC_ARRAY_TYPE(array_type))
     {
-        /* static array cell assigment */
+        /* static array cell assignment */
         ir_function_def_add_operation(function,
                                   iml_operation_new(iml_setfld,
                                                     res_val,
@@ -1219,7 +1219,7 @@ add_array_cell_assigment(IrFunctionDef *function,
     {
         assert(DT_IS_ARRAY_TYPE(array_type));
 
-        /* dynamic array cell assigment */
+        /* dynamic array cell assignment */
 
         ImlVariable *ptr;
         iml_func_frame_t *frame = ir_function_def_get_frame(function);
@@ -1244,9 +1244,9 @@ add_array_cell_assigment(IrFunctionDef *function,
 }
 
 static void
-add_array_slice_assigment(IrFunctionDef *function,
-                          IrArraySlice *lvalue,
-                          IrExpression *value)
+add_array_slice_assignment(IrFunctionDef *function,
+                           IrArraySlice *lvalue,
+                           IrExpression *value)
 {
     assert(IR_IS_FUNCTION_DEF(function));
     assert(IR_IS_ARRAY_SLICE(lvalue));

@@ -1,5 +1,5 @@
-init_exp.d:13: error: illegal type in initializer assigment
-init_exp.d:9: error: illegal type in initializer assigment
-init_exp.d:16: error: illegal type in initializer assigment
-init_exp.d:15: error: illegal type in initializer assigment
-init_exp.d:10: error: illegal type in initializer assigment
+init_exp.d:13: error: illegal type in initializer assignment
+init_exp.d:9: error: illegal type in initializer assignment
+init_exp.d:16: error: illegal type in initializer assignment
+init_exp.d:15: error: illegal type in initializer assignment
+init_exp.d:10: error: illegal type in initializer assignment
