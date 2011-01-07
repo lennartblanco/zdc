@@ -51,7 +51,9 @@ main()
     check_pointer("call_def_char_ptr()", call_def_char_ptr(), NULL);
 
     /* malloced_ptr test */
-    check_non_null_ptr("call_malloced_ptr()", call_malloced_ptr());
+    void *res = call_malloced_ptr();
+    check_non_null_ptr("call_malloced_ptr()", res);
+    free(res);
 
     check_exit();
 }
