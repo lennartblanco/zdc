@@ -150,9 +150,9 @@ ir_array_slice_do_get_data_type(IrExpression *self)
         DtDataType *element_type;
 
         element_type =
-            dt_array_type_get_data_type(
-                DT_ARRAY_TYPE(ir_expression_get_data_type(slice->array)));
-        slice->data_type = dt_array_type_new(element_type);
+            dt_array_get_data_type(
+                DT_ARRAY(ir_expression_get_data_type(slice->array)));
+        slice->data_type = dt_array_new(element_type);
     }
 
     return DT_DATA_TYPE(slice->data_type);

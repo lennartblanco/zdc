@@ -36,7 +36,7 @@
 #include "ir_char_constant.h"
 #include "ir_property.h"
 #include "ir_enum_member.h"
-#include "dt_basic_type.h"
+#include "dt_basic.h"
 #include "errors.h"
 
 #include <assert.h>

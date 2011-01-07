@@ -2,8 +2,8 @@
 #include <string.h>
 
 #include "ir_array_cell.h"
-#include "dt_basic_type.h"
-#include "dt_static_array_type.h"
+#include "dt_basic.h"
+#include "dt_static_array.h"
 
 #include <assert.h>
 
@@ -117,12 +117,12 @@ ir_array_cell_do_get_data_type(IrExpression *self)
 
     if (cell->data_type == NULL)
     {
-        DtArrayType *array_data_type;
+        DtArray *array_data_type;
 
         array_data_type =
-            DT_ARRAY_TYPE(
+            DT_ARRAY(
                 ir_expression_get_data_type(IR_EXPRESSION(cell->array)));
-        cell->data_type = dt_array_type_get_data_type(array_data_type);
+        cell->data_type = dt_array_get_data_type(array_data_type);
     }
 
     return cell->data_type;

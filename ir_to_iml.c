@@ -14,7 +14,7 @@
 #include "iml_variable.h"
 #include "types.h"
 #include "dt_pointer.h"
-#include "dt_static_array_type.h"
+#include "dt_static_array.h"
 
 #include <assert.h>
 
@@ -324,7 +324,7 @@ iml_add_assignment(IrFunctionDef *function,
 
         var_type = ir_expression_get_data_type(lvalue);
 
-        if (DT_IS_BASIC_TYPE(var_type) || DT_IS_ENUM_TYPE(var_type))
+        if (DT_IS_BASIC(var_type) || DT_IS_ENUM(var_type))
         {
             iml_add_expression_eval(
                     function, value,
@@ -334,7 +334,7 @@ iml_add_assignment(IrFunctionDef *function,
         {
             add_static_array_assignment(function, IR_VARIABLE(lvalue), value);
         }
-        else if (DT_IS_ARRAY_TYPE(var_type))
+        else if (DT_IS_ARRAY(var_type))
         {
             add_array_assignment(function, IR_VARIABLE(lvalue), value);
         }
@@ -364,7 +364,7 @@ iml_add_foreach_head(IrFunctionDef *function,
                      iml_operation_t **loop_head)
 {
     IrExpression *ir_aggregate;
-    DtArrayType *aggregate_type;
+    DtArray *aggregate_type;
     ImlOperand *aggregate;
     IrVariable *ir_index;
     IrVariable *ir_value;
@@ -397,7 +397,7 @@ iml_add_foreach_head(IrFunctionDef *function,
 
     /* generate iml to evaluate aggregate expression */
     ir_aggregate = ir_foreach_get_aggregate(foreach);
-    aggregate_type = DT_ARRAY_TYPE(ir_expression_get_data_type(ir_aggregate));
+    aggregate_type = DT_ARRAY(ir_expression_get_data_type(ir_aggregate));
     aggregate = iml_add_expression_eval(function, ir_aggregate, NULL);
 
     /* store length of the aggregate array in a temp variable */
@@ -467,7 +467,7 @@ dt_to_iml_type(DtDataType *dt_type)
 {
     iml_data_type_t iml_type;
 
-    if (DT_IS_BASIC_TYPE(dt_type))
+    if (DT_IS_BASIC(dt_type))
     {
         switch (dt_data_type_get_size(dt_type))
         {
@@ -488,14 +488,14 @@ dt_to_iml_type(DtDataType *dt_type)
     {
         iml_type = iml_ptr;
     }
-    else if (DT_IS_ARRAY_TYPE(dt_type))
+    else if (DT_IS_ARRAY(dt_type))
     {
         iml_type = iml_blob;
     }
-    else if (DT_IS_ENUM_TYPE(dt_type))
+    else if (DT_IS_ENUM(dt_type))
     {
         return dt_to_iml_type(
-                  dt_enum_type_get_base_type(DT_ENUM_TYPE(dt_type)));
+                  dt_enum_get_base_type(DT_ENUM(dt_type)));
     }
     else
     {
@@ -513,11 +513,10 @@ static iml_opcode_t
 get_iml_opcode_binop(IrBinaryOperation *op)
 {
     iml_opcode_t opcode;
-    DtBasicType *operands_type;
+    DtBasic *operands_type;
 
     operands_type =
-        DT_BASIC_TYPE(
-                ir_expression_get_data_type(ir_binary_operation_get_left(op)));
+       DT_BASIC(ir_expression_get_data_type(ir_binary_operation_get_left(op)));
 
     /* right operand must be of same data type */
     assert(
@@ -534,7 +533,7 @@ get_iml_opcode_binop(IrBinaryOperation *op)
             break;
         case ast_mult_op:
             opcode =
-                dt_basic_type_is_signed(operands_type) ? iml_smult :
+                dt_basic_is_signed(operands_type) ? iml_smult :
                                                          iml_umult;
             break;
         case ast_and_op:
@@ -551,21 +550,21 @@ get_iml_opcode_binop(IrBinaryOperation *op)
             break;
         case ast_less_op:
             opcode =
-                dt_basic_type_is_signed(operands_type) ? iml_sless : iml_uless;
+                dt_basic_is_signed(operands_type) ? iml_sless : iml_uless;
             break;
         case ast_greater_op:
             opcode =
-                dt_basic_type_is_signed(operands_type) ? iml_sgreater :
+                dt_basic_is_signed(operands_type) ? iml_sgreater :
                                                          iml_ugreater;
             break;
         case ast_less_or_eq_op:
             opcode =
-                dt_basic_type_is_signed(operands_type) ? iml_slesseq :
+                dt_basic_is_signed(operands_type) ? iml_slesseq :
                                                          iml_ulesseq;
             break;
         case ast_greater_or_eq_op:
             opcode =
-                dt_basic_type_is_signed(operands_type) ? iml_sgreatereq :
+                dt_basic_is_signed(operands_type) ? iml_sgreatereq :
                                                          iml_ugreatereq;
             break;
         default:
@@ -776,7 +775,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
     else
     {
         /* dynamic array cell */
-        assert(DT_IS_ARRAY_TYPE(array_type));
+        assert(DT_IS_ARRAY(array_type));
         ImlVariable *ptr;
         iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
@@ -821,7 +820,7 @@ iml_add_property_eval(IrFunctionDef *function,
 
     prop_exp = IR_VARIABLE(ir_property_get_expression(prop));
     /* only length of dynamic array implemented for now */
-    assert(DT_IS_ARRAY_TYPE(ir_variable_get_data_type(prop_exp)));
+    assert(DT_IS_ARRAY(ir_variable_get_data_type(prop_exp)));
 
     src = ir_variable_get_location(prop_exp);
 
@@ -897,8 +896,8 @@ iml_add_array_literal_eval(IrFunctionDef *function,
 
         /* figure out array element size */
         dt = ir_expression_get_data_type(IR_EXPRESSION(expr));
-        assert(DT_IS_ARRAY_TYPE(dt));
-        element_size = dt_array_get_element_size(DT_ARRAY_TYPE(dt));
+        assert(DT_IS_ARRAY(dt));
+        element_size = dt_array_get_element_size(DT_ARRAY(dt));
 
         temp = iml_func_frame_get_temp(frame, iml_32b);
 
@@ -969,8 +968,8 @@ iml_add_array_slice_eval(IrFunctionDef *function,
 
     /* figure out the element size of sliced array */
     array_type = ir_expression_get_data_type(ir_array_slice_get_array(slice));
-    assert(DT_IS_ARRAY_TYPE(array_type));
-    element_size = dt_array_get_element_size(DT_ARRAY_TYPE(array_type));
+    assert(DT_IS_ARRAY(array_type));
+    element_size = dt_array_get_element_size(DT_ARRAY(array_type));
 
     /*
      * generate code to evaluate array expression,
@@ -1103,17 +1102,17 @@ add_static_array_assignment(IrFunctionDef *function,
 {
     ImlOperand *res_val;
     ImlVariable *array_var;
-    DtArrayType *array_type;
+    DtArray *array_type;
     guint32 array_length;
 
     array_type =
-            DT_ARRAY_TYPE(ir_expression_get_data_type(IR_EXPRESSION(lvalue)));
+            DT_ARRAY(ir_expression_get_data_type(IR_EXPRESSION(lvalue)));
 
     array_var = ir_variable_get_location(lvalue);
     array_length =
-        dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(array_type));
+        dt_static_array_get_length(DT_STATIC_ARRAY(array_type));
 
-    if (DT_IS_BASIC_TYPE(ir_expression_get_data_type(value)))
+    if (DT_IS_BASIC(ir_expression_get_data_type(value)))
     {
         /* assignment of basic types to static array */
 
@@ -1129,7 +1128,7 @@ add_static_array_assignment(IrFunctionDef *function,
         /*
          * assignment of array type to static array
          */
-        assert(DT_IS_ARRAY_TYPE(ir_expression_get_data_type(value)));
+        assert(DT_IS_ARRAY(ir_expression_get_data_type(value)));
 
         iml_func_frame_t *frame = ir_function_def_get_frame(function);
         ImlOperand *rvalue;
@@ -1212,7 +1211,7 @@ add_array_cell_assignment(IrFunctionDef *function,
     }
     else
     {
-        assert(DT_IS_ARRAY_TYPE(array_type));
+        assert(DT_IS_ARRAY(array_type));
 
         /* dynamic array cell assignment */
 
@@ -1258,8 +1257,8 @@ add_array_slice_assignment(IrFunctionDef *function,
 
     /* figure out the byte size of array elements */
     array_type = ir_expression_get_data_type(value);
-    assert(DT_IS_ARRAY_TYPE(array_type));
-    element_size = dt_array_get_element_size(DT_ARRAY_TYPE(array_type));
+    assert(DT_IS_ARRAY(array_type));
+    element_size = dt_array_get_element_size(DT_ARRAY(array_type));
 
     /* generate code to evaluate left and right values */
     dest = iml_add_expression_eval(function, IR_EXPRESSION(lvalue), NULL);

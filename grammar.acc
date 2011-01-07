@@ -4,11 +4,11 @@
 #include <stdio.h>
 
 #include "yystype_def.h"
-#include "dt_auto_type.h"
-#include "dt_basic_type.h"
+#include "dt_auto.h"
+#include "dt_basic.h"
 #include "dt_pointer.h"
-#include "dt_user_type.h"
-#include "dt_static_array_type.h"
+#include "dt_user.h"
+#include "dt_static_array.h"
 #include "ast_return.h"
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
@@ -338,12 +338,11 @@ type<x> :
     type<t> '[' TOK_INT_CONST<num> ']'
     {
         (*x).data_type =
-            DT_DATA_TYPE(dt_static_array_type_new(t.data_type,
-                                                  num.integer));
+            DT_DATA_TYPE(dt_static_array_new(t.data_type, num.integer));
     }
 |   type<t> '[' ']'
     {
-        (*x).data_type = DT_DATA_TYPE(dt_array_type_new(t.data_type));
+        (*x).data_type = DT_DATA_TYPE(dt_array_new(t.data_type));
     }
 |   basic_type<x>
 |   type<t> '*'
@@ -352,7 +351,7 @@ type<x> :
     }
 |   TOK_AUTO
     {
-        (*x).data_type = DT_DATA_TYPE(dt_auto_type_new());
+        (*x).data_type = DT_DATA_TYPE(dt_auto_new());
     }
 |   TOK_IMMUTABLE type<t>
     {
@@ -366,30 +365,30 @@ type<x> :
     }
 |   TOK_IDENT<t>
     {
-        (*x).data_type = DT_DATA_TYPE(dt_user_type_new(t.text, yypos));
+        (*x).data_type = DT_DATA_TYPE(dt_user_new(t.text, yypos));
     }
 ;
 
 basic_type<x> :
     TOK_VOID
     {
-        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(void_type));
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(void_type));
     }
 |   TOK_UINT
     {
-        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(uint_type));
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(uint_type));
     }
 |   TOK_INT
     {
-        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(int_type));
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(int_type));
     }
 |   TOK_CHAR
     {
-        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(char_type));
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(char_type));
     }
 |   TOK_BOOL
     { 
-        (*x).data_type = DT_DATA_TYPE(dt_basic_type_new(bool_type));
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(bool_type));
     }
 ;
 
@@ -456,7 +455,7 @@ foreach_block<x> :
             if (idx_type.data_type == NULL)
             {
                 /* if no type is specified handle as auto type */
-                idx_type.data_type = DT_DATA_TYPE(dt_auto_type_new());
+                idx_type.data_type = DT_DATA_TYPE(dt_auto_new());
             }
             index = ast_variable_declaration_new(idx_type.data_type,
                                                  idx_name.text,
@@ -469,7 +468,7 @@ foreach_block<x> :
         if (val_type.data_type == NULL)
         {
             /* if not type is specified handle as auto type */
-            val_type.data_type = DT_DATA_TYPE(dt_auto_type_new());
+            val_type.data_type = DT_DATA_TYPE(dt_auto_new());
         }
         value = ast_variable_declaration_new(val_type.data_type,
                                              val_name.text,

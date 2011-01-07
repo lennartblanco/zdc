@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "dt_basic_type.h"
+#include "dt_basic.h"
 #include "ir_array_literal.h"
 #include "utils.h"
 
@@ -109,7 +109,7 @@ ir_array_literal_get_size(IrArrayLiteral *self)
 
     return 
       dt_array_get_element_size(
-        DT_ARRAY_TYPE(
+        DT_ARRAY(
           ir_array_literal_do_get_data_type(IR_EXPRESSION(self)))) *
                                                  g_slist_length(self->values);
            
@@ -161,13 +161,13 @@ ir_array_literal_do_get_data_type(IrExpression *self)
         assert(IR_IS_EXPRESSION(first_val));
 
         first_val_type = ir_expression_get_data_type(first_val);
-        if (!DT_IS_BASIC_TYPE(first_val_type))
+        if (!DT_IS_BASIC(first_val_type))
         {
             /* array literals of non-basic types not implemented */
             assert(false);
         }
 
-        arr_literal->data_type = dt_array_type_new(first_val_type);
+        arr_literal->data_type = dt_array_new(first_val_type);
     }
     return DT_DATA_TYPE(arr_literal->data_type);
 }

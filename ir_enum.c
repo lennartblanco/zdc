@@ -56,7 +56,7 @@ ir_enum_new(gchar *tag,
                        NULL);
 
     obj->members = NULL;
-    obj->data_type = dt_enum_type_new(tag, base_type, parent_module);
+    obj->data_type = dt_enum_new(tag, base_type, parent_module);
 
     return obj;
 }
@@ -74,7 +74,7 @@ ir_enum_get_base_type(IrEnum *self)
 {
     assert(IR_IS_ENUM(self));
 
-    return dt_enum_type_get_base_type(self->data_type);
+    return dt_enum_get_base_type(self->data_type);
 }
 
 void
@@ -83,7 +83,7 @@ ir_enum_set_base_type(IrEnum *self, DtDataType *base_type)
     assert(IR_IS_ENUM(self));
     assert(DT_IS_DATA_TYPE(base_type));
 
-    dt_enum_type_set_base_type(self->data_type, base_type);
+    dt_enum_set_base_type(self->data_type, base_type);
 }
 
 void
@@ -93,7 +93,7 @@ ir_enum_set_members(IrEnum *self, GSList *members)
     assert(members);
 
     self->members = members;
-    dt_enum_type_set_first_member(self->data_type, members->data);
+    dt_enum_set_first_member(self->data_type, members->data);
 }
 
 GSList *
@@ -123,7 +123,7 @@ ir_enum_get_member(IrEnum *self, const gchar *enum_member_name)
     return NULL;
 }
 
-DtEnumType *
+DtEnum *
 ir_enum_get_data_type(IrEnum *self)
 {
     assert(IR_IS_ENUM(self));
@@ -145,7 +145,7 @@ ir_enum_do_print(IrNode *self, FILE *out, int indention)
     DtDataType *base_type;
     GSList *i;
 
-    base_type = dt_enum_type_get_base_type(e->data_type);
+    base_type = dt_enum_get_base_type(e->data_type);
 
     fprintf_indent(out, indention,
                    "enum [%p]\n"

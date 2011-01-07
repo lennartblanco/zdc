@@ -45,20 +45,18 @@ gen_array_literal_data(x86_comp_params_t *params,
     assert(IR_IS_ARRAY_LITERAL(array_literal));
 
     char *data_type_directive;
-    DtArrayType *array_type;
+    DtArray *array_type;
     DtDataType *element_type;
     basic_data_type_t element_basic_type;
     GSList *i;
 
     array_type =
-        DT_ARRAY_TYPE(
-            ir_expression_get_data_type(IR_EXPRESSION(array_literal)));
-    element_type = dt_array_type_get_data_type(array_type);
+        DT_ARRAY(ir_expression_get_data_type(IR_EXPRESSION(array_literal)));
+    element_type = dt_array_get_data_type(array_type);
 
     /* only array literal over basic data types are expected here */
-    assert(DT_IS_BASIC_TYPE(element_type));
-    element_basic_type =
-        dt_basic_type_get_data_type(DT_BASIC_TYPE(element_type));
+    assert(DT_IS_BASIC(element_type));
+    element_basic_type = dt_basic_get_data_type(DT_BASIC(element_type));
 
     if (types_is_bool(element_type) ||
         types_is_char(element_type))

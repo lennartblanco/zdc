@@ -1,4 +1,4 @@
-#include "dt_array_type.h"
+#include "dt_array.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -6,6 +6,6 @@
  *---------------------------------------------------------------------------*/
 
 IrExpression *
-types_arrays_implicit_conv(DtArrayType *target_type,
+types_arrays_implicit_conv(DtArray *target_type,
                            IrExpression *expression);
 

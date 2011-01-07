@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "dt_basic_type.h"
+#include "dt_basic.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
 #include "ir_bool_constant.h"
@@ -35,20 +35,20 @@ dt_basic_type_is_same(DtDataType *self, DtDataType *type);
  *---------------------------------------------------------------------------*/
 
 GType
-dt_basic_type_get_type(void)
+dt_basic_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (DtBasicTypeClass),
+        sizeof (DtBasicClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         dt_basic_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (DtBasicType),
+        sizeof (DtBasic),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
@@ -59,27 +59,27 @@ dt_basic_type_get_type(void)
     return type;
 }
 
-DtBasicType * 
-dt_basic_type_new(basic_data_type_t data_type)
+DtBasic *
+dt_basic_new(basic_data_type_t data_type)
 {
-    DtBasicType *basic_type;
+    DtBasic *basic_type;
 
-    basic_type = g_object_new(DT_TYPE_BASIC_TYPE, NULL);
+    basic_type = g_object_new(DT_TYPE_BASIC, NULL);
     basic_type->data_type = data_type;
 
     return basic_type;
 }
 
 basic_data_type_t
-dt_basic_type_get_data_type(DtBasicType *self)
+dt_basic_get_data_type(DtBasic *self)
 {
-    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_BASIC(self));
 
     return self->data_type;
 }
 
 bool
-dt_basic_type_is_signed(DtBasicType *self)
+dt_basic_is_signed(DtBasic *self)
 {
     bool is_signed;
 
@@ -107,10 +107,10 @@ dt_basic_type_is_signed(DtBasicType *self)
 static char *
 dt_basic_type_get_string(DtDataType *self)
 {
-    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_BASIC(self));
 
     char *str;
-    switch (DT_BASIC_TYPE(self)->data_type)
+    switch (DT_BASIC(self)->data_type)
     {
         case int_type:
             str = "int";
@@ -137,9 +137,9 @@ dt_basic_type_get_string(DtDataType *self)
 static guint
 dt_basic_type_get_size(DtDataType *self)
 {
-    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_BASIC(self));
 
-    switch (DT_BASIC_TYPE(self)->data_type)
+    switch (DT_BASIC(self)->data_type)
     {
         case int_type:
         case uint_type:
@@ -156,9 +156,9 @@ dt_basic_type_get_size(DtDataType *self)
 static char *
 dt_basic_type_get_mangled(DtDataType *self)
 {
-    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_BASIC(self));
 
-    switch (DT_BASIC_TYPE(self)->data_type)
+    switch (DT_BASIC(self)->data_type)
     {
         case int_type:
             return "i";
@@ -180,9 +180,9 @@ dt_basic_type_get_mangled(DtDataType *self)
 static IrExpression *
 dt_basic_type_get_init(DtDataType *self)
 {
-    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_BASIC(self));
 
-    switch (DT_BASIC_TYPE(self)->data_type)
+    switch (DT_BASIC(self)->data_type)
     {
         case int_type:
             return IR_EXPRESSION(ir_int_constant_new(0, 0));
@@ -200,16 +200,16 @@ dt_basic_type_get_init(DtDataType *self)
 static bool
 dt_basic_type_is_same(DtDataType *self, DtDataType *type)
 {
-    assert(DT_IS_BASIC_TYPE(self));
+    assert(DT_IS_BASIC(self));
     assert(DT_IS_DATA_TYPE(type));
 
-    if (!DT_IS_BASIC_TYPE(type))
+    if (!DT_IS_BASIC(type))
     {
         return false;
     }
 
-    return DT_BASIC_TYPE(self)->data_type ==
-           DT_BASIC_TYPE(type)->data_type;
+    return DT_BASIC(self)->data_type ==
+           DT_BASIC(type)->data_type;
 }
 
 static void

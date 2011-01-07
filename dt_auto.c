@@ -1,4 +1,4 @@
-#include "dt_auto_type.h"
+#include "dt_auto.h"
 
 #include <assert.h>
 
@@ -7,20 +7,20 @@
  *---------------------------------------------------------------------------*/
 
 GType
-dt_auto_type_get_type(void)
+dt_auto_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (DtAutoTypeClass),
+        sizeof (DtAutoClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         NULL,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (DtAutoType),
+        sizeof (DtAuto),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
@@ -31,12 +31,12 @@ dt_auto_type_get_type(void)
     return type;
 }
 
-DtAutoType *
-dt_auto_type_new()
+DtAuto *
+dt_auto_new()
 {
-    DtAutoType *obj;
+    DtAuto *obj;
 
-    obj = g_object_new(DT_TYPE_AUTO_TYPE, NULL);
+    obj = g_object_new(DT_TYPE_AUTO, NULL);
 
     return obj;
 }

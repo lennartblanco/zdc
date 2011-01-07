@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include "sym_table.h"
-#include "dt_user_type.h"
+#include "dt_user.h"
 #include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
@@ -122,7 +122,7 @@ ir_module_get_enums(IrModule *self);
  */
 DtDataType *
 ir_module_get_user_type(IrModule *self,
-                        DtUserType *user_type);
+                        DtUser *user_type);
 
 void
 ir_module_print(IrModule *self, FILE *out, int indention);

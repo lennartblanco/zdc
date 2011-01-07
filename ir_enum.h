@@ -3,7 +3,7 @@
 
 #include "ir_symbol.h"
 #include "dt_types.h"
-#include "dt_enum_type.h"
+#include "dt_enum.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -31,7 +31,7 @@ struct _IrEnum
     IrSymbol parent;
 
     /* private */
-    DtEnumType *data_type;
+    DtEnum *data_type;
     GSList *members;
 };
 
@@ -74,7 +74,7 @@ ir_enum_get_members(IrEnum *self);
 IrEnumMember *
 ir_enum_get_member(IrEnum *self, const gchar *enum_member_name);
 
-DtEnumType *
+DtEnum *
 ir_enum_get_data_type(IrEnum *self);
 
 #endif /* IR_ENUM_INC_X */

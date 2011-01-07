@@ -38,7 +38,7 @@ cfold_cast_basic_type(DtDataType *target_type,
                       IrExpression *val);
 
 static IrExpression *
-cfold_cast_array_literal(DtArrayType *target_type,
+cfold_cast_array_literal(DtArray *target_type,
                          IrArrayLiteral *array_lit);
 
 /*---------------------------------------------------------------------------*
@@ -190,13 +190,13 @@ cfold_cast(IrCast *cast_exp)
         return IR_EXPRESSION(cast_exp);
     }
 
-    if (DT_IS_BASIC_TYPE(val_type))
+    if (DT_IS_BASIC(val_type))
     {
         return cfold_cast_basic_type(target_type, val_type, val);
     }
     else if (IR_IS_ARRAY_LITERAL(val))
     {
-        return cfold_cast_array_literal(DT_ARRAY_TYPE(target_type),
+        return cfold_cast_array_literal(DT_ARRAY(target_type),
                                         IR_ARRAY_LITERAL(val));
     }
     /* unexpected target type */
@@ -356,11 +356,11 @@ cfold_cast_basic_type(DtDataType *target_type,
                       DtDataType *val_type,
                       IrExpression *val)
 {
-    assert(DT_IS_BASIC_TYPE(target_type));
-    assert(DT_IS_BASIC_TYPE(val_type));
+    assert(DT_IS_BASIC(target_type));
+    assert(DT_IS_BASIC(val_type));
 
-    if (dt_basic_type_get_data_type(DT_BASIC_TYPE(target_type)) ==
-        dt_basic_type_get_data_type(DT_BASIC_TYPE(val_type)))
+    if (dt_basic_get_data_type(DT_BASIC(target_type)) ==
+        dt_basic_get_data_type(DT_BASIC(val_type)))
     {
         return val;
     }
@@ -463,7 +463,7 @@ cfold_cast_basic_type(DtDataType *target_type,
 }
 
 static IrExpression *
-cfold_cast_array_literal(DtArrayType *target_type,
+cfold_cast_array_literal(DtArray *target_type,
                          IrArrayLiteral *array_lit)
 {
     DtDataType *element_target_type;
@@ -471,9 +471,9 @@ cfold_cast_array_literal(DtArrayType *target_type,
     GSList *new_array_vals = NULL;
     GSList *i;
 
-    element_target_type = dt_array_type_get_data_type(target_type);
+    element_target_type = dt_array_get_data_type(target_type);
     /* only arrays literals of basic types supported */
-    assert(DT_IS_BASIC_TYPE(element_target_type));
+    assert(DT_IS_BASIC(element_target_type));
 
     new_array_lit = ir_array_literal_new(0);
     for (i = ir_array_literal_get_values(array_lit);

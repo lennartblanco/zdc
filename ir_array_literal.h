@@ -1,7 +1,7 @@
 #ifndef IR_ARRAY_LITERAL_INC_X
 #define IR_ARRAY_LITERAL_INC_X
 
-#include "dt_array_type.h"
+#include "dt_array.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -30,7 +30,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
-    DtArrayType *data_type;
+    DtArray *data_type;
     GSList *values;
     char *data_label;
 } IrArrayLiteral;

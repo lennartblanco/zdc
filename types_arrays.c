@@ -2,8 +2,8 @@
 
 #include "types.h"
 #include "types_arrays.h"
-#include "dt_array_type.h"
-#include "dt_static_array_type.h"
+#include "dt_array.h"
+#include "dt_static_array.h"
 #include "ir_array_literal.h"
 #include "ir_array_slice.h"
 #include "ir_cast.h"
@@ -15,19 +15,19 @@
  *---------------------------------------------------------------------------*/
 
 static IrExpression *
-implicit_conv_to_int_array_type(DtArrayType *target_type,
+implicit_conv_to_int_array_type(DtArray *target_type,
                                 IrExpression *expression);
 
 static IrExpression *
-implicit_conv_to_uint_array_type(DtArrayType *target_type,
+implicit_conv_to_uint_array_type(DtArray *target_type,
                                  IrExpression *expression);
 
 static IrExpression *
-implicit_conv_to_bool_array_type(DtArrayType *target_type,
+implicit_conv_to_bool_array_type(DtArray *target_type,
                                  IrExpression *expression);
 
 static IrExpression *
-implicit_conv_to_char_array_type(DtArrayType *target_type,
+implicit_conv_to_char_array_type(DtArray *target_type,
                                  IrExpression *expression);
 
 /*---------------------------------------------------------------------------*
@@ -35,22 +35,21 @@ implicit_conv_to_char_array_type(DtArrayType *target_type,
  *---------------------------------------------------------------------------*/
 
 static IrExpression *
-implicit_conv_to_int_array_type(DtArrayType *target_type,
+implicit_conv_to_int_array_type(DtArray *target_type,
                                 IrExpression *expression)
 {
-    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(DT_IS_ARRAY(target_type));
 
     DtDataType *array_type;
-    DtBasicType *element_type;
+    DtBasic *element_type;
 
     array_type = ir_expression_get_data_type(expression);
-    assert(DT_IS_ARRAY_TYPE(array_type));
+    assert(DT_IS_ARRAY(array_type));
 
     /* only arrays over basic types as source expression are supported */
-    element_type =
-        DT_BASIC_TYPE(dt_array_type_get_data_type(DT_ARRAY_TYPE(array_type)));
+    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(array_type)));
 
-    switch (dt_basic_type_get_data_type(element_type))
+    switch (dt_basic_get_data_type(element_type))
     {
         case int_type:
             return expression;
@@ -65,22 +64,21 @@ implicit_conv_to_int_array_type(DtArrayType *target_type,
 }
 
 static IrExpression *
-implicit_conv_to_uint_array_type(DtArrayType *target_type,
+implicit_conv_to_uint_array_type(DtArray *target_type,
                                  IrExpression *expression)
 {
-    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(DT_IS_ARRAY(target_type));
 
     DtDataType *array_type;
-    DtBasicType *element_type;
+    DtBasic *element_type;
 
     array_type = ir_expression_get_data_type(expression);
-    assert(DT_IS_ARRAY_TYPE(array_type));
+    assert(DT_IS_ARRAY(array_type));
 
     /* only arrays over basic types as source expression are supported */
-    element_type =
-        DT_BASIC_TYPE(dt_array_type_get_data_type(DT_ARRAY_TYPE(array_type)));
+    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(array_type)));
 
-    switch (dt_basic_type_get_data_type(element_type))
+    switch (dt_basic_get_data_type(element_type))
     {
         case uint_type:
             return expression;
@@ -95,24 +93,23 @@ implicit_conv_to_uint_array_type(DtArrayType *target_type,
 }
 
 static IrExpression *
-implicit_conv_to_bool_array_type(DtArrayType *target_type,
+implicit_conv_to_bool_array_type(DtArray *target_type,
                                  IrExpression *expression)
 {
-    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(DT_IS_ARRAY(target_type));
 
 /*@ todo: implement and test int[] and uint[] to  bool[] cases */
 
     DtDataType *array_type;
-    DtBasicType *element_type;
+    DtBasic *element_type;
 
     array_type = ir_expression_get_data_type(expression);
-    assert(DT_IS_ARRAY_TYPE(array_type));
+    assert(DT_IS_ARRAY(array_type));
 
     /* only arrays over basic types as source expression are supported */
-    element_type =
-        DT_BASIC_TYPE(dt_array_type_get_data_type(DT_ARRAY_TYPE(array_type)));
+    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(array_type)));
 
-    switch (dt_basic_type_get_data_type(element_type))
+    switch (dt_basic_get_data_type(element_type))
     {
         case bool_type:
             return expression;
@@ -126,22 +123,21 @@ implicit_conv_to_bool_array_type(DtArrayType *target_type,
 }
 
 static IrExpression *
-implicit_conv_to_char_array_type(DtArrayType *target_type,
+implicit_conv_to_char_array_type(DtArray *target_type,
                                  IrExpression *expression)
 {
-    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(DT_IS_ARRAY(target_type));
 
     DtDataType *array_type;
-    DtBasicType *element_type;
+    DtBasic *element_type;
 
     array_type = ir_expression_get_data_type(expression);
-    assert(DT_IS_ARRAY_TYPE(array_type));
+    assert(DT_IS_ARRAY(array_type));
 
     /* only arrays over basic types as source expression are supported */
-    element_type =
-        DT_BASIC_TYPE(dt_array_type_get_data_type(DT_ARRAY_TYPE(array_type)));
+    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(array_type)));
 
-    switch (dt_basic_type_get_data_type(element_type))
+    switch (dt_basic_get_data_type(element_type))
     {
         case char_type:
             return expression;
@@ -161,10 +157,10 @@ implicit_conv_to_char_array_type(DtArrayType *target_type,
  *---------------------------------------------------------------------------*/
 
 IrExpression *
-types_arrays_implicit_conv(DtArrayType *target_type,
+types_arrays_implicit_conv(DtArray *target_type,
                            IrExpression *expression)
 {
-    assert(DT_IS_ARRAY_TYPE(target_type));
+    assert(DT_IS_ARRAY(target_type));
     assert(IR_IS_EXPRESSION(expression));
 
     DtDataType *source_type;
@@ -172,17 +168,17 @@ types_arrays_implicit_conv(DtArrayType *target_type,
 
     source_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_ARRAY_TYPE(source_type) &&
+    if (!DT_IS_ARRAY(source_type) &&
         !DT_IS_STATIC_ARRAY_TYPE(source_type))
     {
         return NULL;
     }
 
-    DtArrayType *src_arry_type;
-    DtArrayType *trg_arry_type;
+    DtArray *src_arry_type;
+    DtArray *trg_arry_type;
 
-    src_arry_type = DT_ARRAY_TYPE(source_type);
-    trg_arry_type = DT_ARRAY_TYPE(target_type);
+    src_arry_type = DT_ARRAY(source_type);
+    trg_arry_type = DT_ARRAY(target_type);
 
     /*
      * if both source and target data types are static arrays,
@@ -195,9 +191,9 @@ types_arrays_implicit_conv(DtArrayType *target_type,
        guint dst_len;
 
        src_len = 
-          dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(src_arry_type));
+          dt_static_array_get_length(DT_STATIC_ARRAY(src_arry_type));
        dst_len = 
-          dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(trg_arry_type));
+          dt_static_array_get_length(DT_STATIC_ARRAY(trg_arry_type));
 
        if (src_len != dst_len)
        {
@@ -206,8 +202,8 @@ types_arrays_implicit_conv(DtArrayType *target_type,
     }
 
     bdt =
-        dt_basic_type_get_data_type(
-            DT_BASIC_TYPE(dt_array_type_get_data_type(trg_arry_type)));
+        dt_basic_get_data_type(
+            DT_BASIC(dt_array_get_data_type(trg_arry_type)));
     switch (bdt)
     {
         case int_type:

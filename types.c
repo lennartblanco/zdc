@@ -2,9 +2,9 @@
 
 #include "types.h"
 #include "types_arrays.h"
-#include "dt_enum_type.h"
-#include "dt_array_type.h"
-#include "dt_static_array_type.h"
+#include "dt_enum.h"
+#include "dt_array.h"
+#include "dt_static_array.h"
 #include "dt_pointer.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
@@ -50,12 +50,12 @@ implicit_conv_to_int(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC(exp_data_type))
     {
         return NULL;
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_get_data_type(DT_BASIC(exp_data_type)))
     {
         case int_type:
             res_exp = expression;
@@ -83,12 +83,12 @@ implicit_conv_to_uint(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC(exp_data_type))
     {
         return NULL;
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_get_data_type(DT_BASIC(exp_data_type)))
     {
         case uint_type:
             res_exp = expression;
@@ -116,12 +116,12 @@ implicit_conv_to_bool(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC(exp_data_type))
     {
         return NULL;
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_get_data_type(DT_BASIC(exp_data_type)))
     {
         case int_type:
         case uint_type:
@@ -151,12 +151,12 @@ implicit_conv_to_char(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC_TYPE(exp_data_type))
+    if (!DT_IS_BASIC(exp_data_type))
     {
         return NULL;
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_data_type)))
+    switch (dt_basic_get_data_type(DT_BASIC(exp_data_type)))
     {
         case int_type:
         case uint_type:
@@ -178,18 +178,18 @@ implicit_conv_to_char(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
 {
-    assert(DT_IS_BASIC_TYPE(target_type));
+    assert(DT_IS_BASIC(target_type));
     assert(IR_IS_EXPRESSION(expression));
 
     IrExpression *res_exp = NULL;
     DtDataType *source_type;
 
     source_type = ir_expression_get_data_type(expression);
-    if (DT_IS_ENUM_TYPE(source_type))
+    if (DT_IS_ENUM(source_type))
     {
         DtDataType *base_type;
 
-        base_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(source_type));
+        base_type = dt_enum_get_base_type(DT_ENUM(source_type));
         if (!dt_data_type_is_same(target_type, base_type))
         {
             return NULL;
@@ -197,7 +197,7 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
         return IR_EXPRESSION(ir_cast_new(target_type, expression));
     }
 
-    switch (dt_basic_type_get_data_type(DT_BASIC_TYPE(target_type)))
+    switch (dt_basic_get_data_type(DT_BASIC(target_type)))
     {
         case void_type:
             /* not implemented */
@@ -247,16 +247,15 @@ types_implicit_conv(DtDataType *target_type,
 {
     IrExpression *res;
 
-    if (DT_IS_BASIC_TYPE(target_type))
+    if (DT_IS_BASIC(target_type))
     {
         res = implicit_conv_to_basic_type(target_type, expression);
     }
-    else if (DT_IS_ARRAY_TYPE(target_type))
+    else if (DT_IS_ARRAY(target_type))
     {
-        res = types_arrays_implicit_conv(DT_ARRAY_TYPE(target_type),
-                                         expression);
+        res = types_arrays_implicit_conv(DT_ARRAY(target_type), expression);
     }
-    else if (DT_IS_ENUM_TYPE(target_type))
+    else if (DT_IS_ENUM(target_type))
     {
         if (dt_data_type_is_same(target_type,
                                  ir_expression_get_data_type(expression)))
@@ -297,17 +296,17 @@ types_integer_promotion(IrExpression *expression)
 
     exp_type = ir_expression_get_data_type(expression);
 
-    if (DT_IS_ENUM_TYPE(exp_type))
+    if (DT_IS_ENUM(exp_type))
     {
-        exp_type = dt_enum_type_get_base_type(DT_ENUM_TYPE(exp_type));
+        exp_type = dt_enum_get_base_type(DT_ENUM(exp_type));
     }
 
-    if (!(DT_IS_BASIC_TYPE(exp_type)))
+    if (!(DT_IS_BASIC(exp_type)))
     {
         return NULL;
     }
 
-    exp_data_type = dt_basic_type_get_data_type(DT_BASIC_TYPE(exp_type));
+    exp_data_type = dt_basic_get_data_type(DT_BASIC(exp_type));
 
     switch (exp_data_type) {
         case char_type:
@@ -404,57 +403,57 @@ types_usual_arithm_conv(IrExpression *left,
 bool
 types_is_void(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC(data_type))
     {
         return false;
     }
 
-    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == void_type;
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == void_type;
 }
 
 bool
 types_is_bool(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC(data_type))
     {
         return false;
     }
 
-    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == bool_type;
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == bool_type;
 }
 
 bool
 types_is_char(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC(data_type))
     {
         return false;
     }
 
-    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == char_type;
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == char_type;
 }
 
 
 bool
 types_is_int(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC(data_type))
     {
         return false;
     }
 
-    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == int_type;
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == int_type;
 }
 
 bool
 types_is_uint(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC_TYPE(data_type))
+    if (!DT_IS_BASIC(data_type))
     {
         return false;
     }
 
-    return dt_basic_type_get_data_type(DT_BASIC_TYPE(data_type)) == uint_type;
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == uint_type;
 }
 
 DtDataType *
@@ -464,7 +463,7 @@ types_get_int_type()
 
    if (int_data_type == NULL)
    {
-      int_data_type = DT_DATA_TYPE(dt_basic_type_new(int_type));
+      int_data_type = DT_DATA_TYPE(dt_basic_new(int_type));
    }
 
    return int_data_type;
@@ -477,7 +476,7 @@ types_get_uint_type()
 
    if (uint_data_type == NULL)
    {
-      uint_data_type = DT_DATA_TYPE(dt_basic_type_new(uint_type));
+      uint_data_type = DT_DATA_TYPE(dt_basic_new(uint_type));
    }
 
    return uint_data_type;
@@ -490,7 +489,7 @@ types_get_char_type()
 
    if (char_data_type == NULL)
    {
-      char_data_type = DT_DATA_TYPE(dt_basic_type_new(char_type));
+      char_data_type = DT_DATA_TYPE(dt_basic_new(char_type));
    }
 
    return char_data_type;
@@ -504,7 +503,7 @@ types_get_bool_type()
 
    if (bool_data_type == NULL)
    {
-      bool_data_type = DT_DATA_TYPE(dt_basic_type_new(bool_type));
+      bool_data_type = DT_DATA_TYPE(dt_basic_new(bool_type));
    }
 
    return bool_data_type;
@@ -517,7 +516,7 @@ types_get_void_type()
 
    if (void_data_type == NULL)
    {
-      void_data_type = DT_DATA_TYPE(dt_basic_type_new(void_type));
+      void_data_type = DT_DATA_TYPE(dt_basic_new(void_type));
    }
 
    return void_data_type;

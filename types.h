@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "dt_basic_type.h"
+#include "dt_basic.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*

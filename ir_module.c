@@ -276,13 +276,13 @@ ir_module_get_enums(IrModule *self)
 
 DtDataType *
 ir_module_get_user_type(IrModule *self,
-                        DtUserType *user_type)
+                        DtUser *user_type)
 {
     assert(IR_IS_MODULE(self));
-    assert(DT_IS_USER_TYPE(user_type));
+    assert(DT_IS_USER(user_type));
 
     return g_hash_table_lookup(self->user_types,
-                               dt_user_type_get_name(user_type));
+                               dt_user_get_name(user_type));
 }
 
 void

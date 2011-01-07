@@ -1,10 +1,10 @@
 #include <stdbool.h>
 
 #include "sem_analyze_validate.h"
-#include "dt_user_type.h"
+#include "dt_user.h"
 #include "types.h"
-#include "dt_auto_type.h"
-#include "dt_static_array_type.h"
+#include "dt_auto.h"
+#include "dt_static_array.h"
 #include "ir_function.h"
 #include "ir_assignment.h"
 #include "ir_function_call.h"
@@ -152,7 +152,7 @@ validate_enum(compilation_status_t *compile_status,
  */
 static DtDataType *
 resolve_user_type(compilation_status_t *compile_status,
-                  DtUserType *user_type);
+                  DtUser *user_type);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -518,7 +518,7 @@ validate_array_cell(compilation_status_t *compile_status,
      * check that referenced symbol is an array variable
      */
     symb_type = ir_expression_get_data_type(IR_EXPRESSION(array_symb));
-    if (!DT_IS_ARRAY_TYPE(symb_type))
+    if (!DT_IS_ARRAY(symb_type))
     {
         compile_error(compile_status,
                       IR_NODE(cell),
@@ -615,12 +615,12 @@ validate_length_property(compilation_status_t *compile_status,
         guint32 length;
 
         length = 
-            dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(exp_type));
+            dt_static_array_get_length(DT_STATIC_ARRAY(exp_type));
 
         return IR_EXPRESSION(ir_uint_constant_new(length,
                                                   ir_node_get_line_num(prop)));
     }
-    else if (DT_IS_ARRAY_TYPE(exp_type))
+    else if (DT_IS_ARRAY(exp_type))
     {
         /* run-time expression */
         return IR_EXPRESSION(prop);
@@ -859,7 +859,7 @@ validate_assignment(compilation_status_t *compile_status,
     }
 
     converted_value = types_implicit_conv(target_type, value);
-    if (converted_value == NULL && DT_IS_ARRAY_TYPE(target_type))
+    if (converted_value == NULL && DT_IS_ARRAY(target_type))
     {
         /*
          * Handle the special case of array assignments from a scalar,
@@ -869,7 +869,7 @@ validate_assignment(compilation_status_t *compile_status,
         DtDataType *array_element_type;
 
         array_element_type =
-            dt_array_type_get_data_type(DT_ARRAY_TYPE(target_type));
+            dt_array_get_data_type(DT_ARRAY(target_type));
         converted_value = types_implicit_conv(array_element_type, value);
     }
     if (converted_value == NULL)
@@ -1097,7 +1097,7 @@ validate_foreach(compilation_status_t *compile_status,
         return;
     }
     aggr_type = ir_expression_get_data_type(aggregate);
-    if (!DT_IS_ARRAY_TYPE(aggr_type))
+    if (!DT_IS_ARRAY(aggr_type))
     {
         compile_error(compile_status,
                       foreach,
@@ -1105,25 +1105,25 @@ validate_foreach(compilation_status_t *compile_status,
                       dt_data_type_get_string(aggr_type));
         return;
     }
-    aggr_element_type = dt_array_type_get_data_type(DT_ARRAY_TYPE(aggr_type));
+    aggr_element_type = dt_array_get_data_type(DT_ARRAY(aggr_type));
     /* only foreach over aggregates over basic types is supported */
-    assert(DT_IS_BASIC_TYPE(aggr_element_type));
+    assert(DT_IS_BASIC(aggr_element_type));
 
     /*
      * check value variable's type
      */
     var = ir_foreach_get_value(foreach);
     var_type = ir_variable_get_data_type(var);
-    if (DT_IS_AUTO_TYPE(var_type))
+    if (DT_IS_AUTO(var_type))
     {
         ir_variable_set_data_type(var, aggr_element_type);
     }
     else
     {
         /* only foreach over aggregates over basic types is supported */
-        assert(DT_IS_BASIC_TYPE(var_type));
-        if (dt_basic_type_get_data_type(DT_BASIC_TYPE(var_type)) !=
-            dt_basic_type_get_data_type(DT_BASIC_TYPE(aggr_element_type)))
+        assert(DT_IS_BASIC(var_type));
+        if (dt_basic_get_data_type(DT_BASIC(var_type)) !=
+            dt_basic_get_data_type(DT_BASIC(aggr_element_type)))
         {
             compile_error(compile_status,
                           IR_NODE(var),
@@ -1141,7 +1141,7 @@ validate_foreach(compilation_status_t *compile_status,
     {
         var_type = ir_variable_get_data_type(var);
 
-        if (DT_IS_AUTO_TYPE(var_type))
+        if (DT_IS_AUTO(var_type))
         {
             ir_variable_set_data_type(var, types_get_uint_type());
         }
@@ -1225,7 +1225,7 @@ validate_statment(compilation_status_t *compile_status,
 
 static DtDataType *
 resolve_user_type(compilation_status_t *compile_status,
-                  DtUserType *user_type)
+                  DtUser *user_type)
 {
     DtDataType *type;
 
@@ -1236,7 +1236,7 @@ resolve_user_type(compilation_status_t *compile_status,
         compile_error(compile_status,
                       user_type,
                       "unkown data type '%s'\n",
-                      dt_user_type_get_name(user_type));
+                      dt_user_get_name(user_type));
     }
 
     return type;
@@ -1274,13 +1274,13 @@ validate_code_block(compilation_status_t *compile_status,
         initializer = ir_variable_get_initializer(var);
 
         var_type = ir_variable_get_data_type(var);
-        if (DT_IS_USER_TYPE(var_type))
+        if (DT_IS_USER(var_type))
         {
             /*
              * the variable is of user defined type,
              * look-up the data type object with the specified name
              */
-            DtUserType *user_type = DT_USER_TYPE(var_type);
+            DtUser *user_type = DT_USER(var_type);
 
             var_type = resolve_user_type(compile_status, user_type);
             if (var_type == NULL)
@@ -1315,7 +1315,7 @@ validate_code_block(compilation_status_t *compile_status,
         }
 
         conv_initializer = types_implicit_conv(var_type, initializer);
-        if (conv_initializer == NULL && DT_IS_ARRAY_TYPE(var_type))
+        if (conv_initializer == NULL && DT_IS_ARRAY(var_type))
         {
             /*
              * Handle the special case of array initialization from a scalar,
@@ -1325,7 +1325,7 @@ validate_code_block(compilation_status_t *compile_status,
             DtDataType *array_element_type;
  
             array_element_type =
-                dt_array_type_get_data_type(DT_ARRAY_TYPE(var_type));
+                dt_array_get_data_type(DT_ARRAY(var_type));
             conv_initializer =
                 types_implicit_conv(array_element_type, initializer);
         }
@@ -1430,13 +1430,13 @@ validate_function_def(compilation_status_t *compile_status,
         type = ir_variable_get_data_type(IR_VARIABLE(i->data));
 
         /* resolve user type */
-        if (DT_IS_USER_TYPE(type))
+        if (DT_IS_USER(type))
         {
             /*
              * the variable is of user defined type,
              * look-up the data type object with the specified name
              */
-            type = resolve_user_type(compile_status, DT_USER_TYPE(type));
+            type = resolve_user_type(compile_status, DT_USER(type));
             if (type == NULL)
             {
                 /* failed to look-up the data type */
@@ -1456,9 +1456,9 @@ validate_function_def(compilation_status_t *compile_status,
 
     /* resolve possible user types in function return type */
     type = ir_function_def_get_return_type(func_def);
-    if (DT_IS_USER_TYPE(type))
+    if (DT_IS_USER(type))
     {
-        type = resolve_user_type(compile_status, DT_USER_TYPE(type));
+        type = resolve_user_type(compile_status, DT_USER(type));
         if (type != NULL)
         {
             ir_function_def_set_return_type(func_def, type);
@@ -1512,7 +1512,7 @@ validate_array_slice(compilation_status_t *compile_status,
 
     /* make sure array expression is of array type */
     array_type = ir_expression_get_data_type(exp);
-    if (!DT_IS_ARRAY_TYPE(array_type))
+    if (!DT_IS_ARRAY(array_type))
     {
         compile_error(compile_status,
                       array_slice,
@@ -1563,7 +1563,7 @@ validate_array_slice(compilation_status_t *compile_status,
           guint32 end_idx;
 
           end_idx =
-              dt_static_array_type_get_length(DT_STATIC_ARRAY_TYPE(array_type));
+              dt_static_array_get_length(DT_STATIC_ARRAY(array_type));
           exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
         }
         else

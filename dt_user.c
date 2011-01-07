@@ -1,4 +1,4 @@
-#include "dt_user_type.h"
+#include "dt_user.h"
 
 #include <assert.h>
 
@@ -17,20 +17,20 @@ dt_user_type_class_init(gpointer klass, gpointer dummy);
  *---------------------------------------------------------------------------*/
 
 GType
-dt_user_type_get_type(void)
+dt_user_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (DtUserTypeClass),
+        sizeof (DtUserClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         dt_user_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (DtUserType),
+        sizeof (DtUser),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
@@ -41,12 +41,12 @@ dt_user_type_get_type(void)
     return type;
 }
 
-DtUserType *
-dt_user_type_new(gchar *name, guint line_number)
+DtUser *
+dt_user_new(gchar *name, guint line_number)
 {
-    DtUserType *obj;
+    DtUser *obj;
 
-    obj = g_object_new(DT_TYPE_USER_TYPE, NULL);
+    obj = g_object_new(DT_TYPE_USER, NULL);
     obj->name = g_strdup(name);
     obj->line_number = line_number;
 
@@ -54,17 +54,17 @@ dt_user_type_new(gchar *name, guint line_number)
 }
 
 gchar *
-dt_user_type_get_name(DtUserType *self)
+dt_user_get_name(DtUser *self)
 {
-    assert(DT_IS_USER_TYPE(self));
+    assert(DT_IS_USER(self));
 
     return self->name;
 }
 
 guint
-dt_user_type_get_line_num(DtUserType *self)
+dt_user_get_line_num(DtUser *self)
 {
-    assert(DT_IS_USER_TYPE(self));
+    assert(DT_IS_USER(self));
 
     return self->line_number;
 }
@@ -76,10 +76,10 @@ dt_user_type_get_line_num(DtUserType *self)
 static char *
 dt_user_type_get_string(DtDataType *self)
 {
-    assert(DT_IS_USER_TYPE(self));
+    assert(DT_IS_USER(self));
 
     return g_strdup_printf("[user type '%s']",
-                           DT_USER_TYPE(self)->name);
+                           DT_USER(self)->name);
 }
 
 static void

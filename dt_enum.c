@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "dt_enum_type.h"
+#include "dt_enum.h"
 #include "ir_module.h"
 
 #include <assert.h>
@@ -32,20 +32,20 @@ dt_enum_type_class_init(gpointer klass, gpointer dummy);
  *---------------------------------------------------------------------------*/
 
 GType
-dt_enum_type_get_type(void)
+dt_enum_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (DtEnumTypeClass),
+        sizeof (DtEnumClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         dt_enum_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (DtEnumType),
+        sizeof (DtEnum),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
@@ -56,16 +56,16 @@ dt_enum_type_get_type(void)
     return type;
 }
 
-DtEnumType *
-dt_enum_type_new(gchar *name,
-                 DtDataType *base_type,
-                 IrModule *parent_module)
+DtEnum *
+dt_enum_new(gchar *name,
+            DtDataType *base_type,
+            IrModule *parent_module)
 {
     assert(IR_IS_MODULE(parent_module));
 
-    DtEnumType *obj;
+    DtEnum *obj;
 
-    obj = g_object_new(DT_TYPE_ENUM_TYPE, NULL);
+    obj = g_object_new(DT_TYPE_ENUM, NULL);
 
     obj->name = g_strdup(name);
     obj->base_type = base_type;
@@ -77,27 +77,27 @@ dt_enum_type_new(gchar *name,
 }
 
 void
-dt_enum_type_set_first_member(DtEnumType *self,
-                              IrEnumMember *first_member)
+dt_enum_set_first_member(DtEnum *self,
+                         IrEnumMember *first_member)
 {
-    assert(DT_IS_ENUM_TYPE(self));
+    assert(DT_IS_ENUM(self));
     assert(IR_IS_ENUM_MEMBER(first_member));
 
     self->first_member = first_member;
 }
 
 DtDataType *
-dt_enum_type_get_base_type(DtEnumType *self)
+dt_enum_get_base_type(DtEnum *self)
 {
-    assert(DT_IS_ENUM_TYPE(self));
+    assert(DT_IS_ENUM(self));
 
     return self->base_type;
 }
 
 void
-dt_enum_type_set_base_type(DtEnumType *self, DtDataType *base_type)
+dt_enum_set_base_type(DtEnum *self, DtDataType *base_type)
 {
-    assert(DT_IS_ENUM_TYPE(self));
+    assert(DT_IS_ENUM(self));
     assert(DT_IS_DATA_TYPE(base_type));
 
     self->base_type = base_type;
@@ -110,17 +110,17 @@ dt_enum_type_set_base_type(DtEnumType *self, DtDataType *base_type)
 static char *
 dt_enum_type_get_string(DtDataType *self)
 {
-    assert(DT_IS_ENUM_TYPE(self));
+    assert(DT_IS_ENUM(self));
 
-    return DT_ENUM_TYPE(self)->name;
+    return DT_ENUM(self)->name;
 }
 
 static char *
 dt_enum_type_get_mangled(DtDataType *self)
 {
-    assert(DT_IS_ENUM_TYPE(self));
+    assert(DT_IS_ENUM(self));
 
-    DtEnumType *et = DT_ENUM_TYPE(self);
+    DtEnum *et = DT_ENUM(self);
 
     if (et->mangled_name == NULL)
     {
@@ -136,33 +136,33 @@ dt_enum_type_get_mangled(DtDataType *self)
 static guint
 dt_enum_type_get_size(DtDataType *self)
 {
-    assert(DT_IS_ENUM_TYPE(self));
-    assert(DT_IS_DATA_TYPE(DT_ENUM_TYPE(self)->base_type));
+    assert(DT_IS_ENUM(self));
+    assert(DT_IS_DATA_TYPE(DT_ENUM(self)->base_type));
 
-    return dt_data_type_get_size(DT_ENUM_TYPE(self)->base_type);
+    return dt_data_type_get_size(DT_ENUM(self)->base_type);
 }
 
 static IrExpression *
 dt_enum_type_get_init(DtDataType *self)
 {
-    assert(DT_IS_ENUM_TYPE(self));
-    assert(IR_IS_EXPRESSION(DT_ENUM_TYPE(self)->first_member));
+    assert(DT_IS_ENUM(self));
+    assert(IR_IS_EXPRESSION(DT_ENUM(self)->first_member));
 
-    return IR_EXPRESSION(DT_ENUM_TYPE(self)->first_member);
+    return IR_EXPRESSION(DT_ENUM(self)->first_member);
 }
 
 static bool
 dt_enum_type_is_same(DtDataType *self, DtDataType *type)
 {
-    assert(DT_IS_ENUM_TYPE(self));
+    assert(DT_IS_ENUM(self));
 
-    if (!DT_IS_ENUM_TYPE(type))
+    if (!DT_IS_ENUM(type))
     {
         return false;
     }
 
-    DtEnumType *l = DT_ENUM_TYPE(self);
-    DtEnumType *r = DT_ENUM_TYPE(type);
+    DtEnum *l = DT_ENUM(self);
+    DtEnum *r = DT_ENUM(type);
 
     return g_strcmp0(l->name, r->name) == 0;
 }

@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "dt_static_array_type.h"
+#include "dt_static_array.h"
 
 #include <assert.h>
 
@@ -28,37 +28,37 @@ dt_static_array_type_get_init(DtDataType *self);
  *---------------------------------------------------------------------------*/
 
 GType
-dt_static_array_type_get_type(void)
+dt_static_array_get_type(void)
 {
     static GType type = 0;
     if (type == 0) 
     {
       static const GTypeInfo info = 
       {
-        sizeof (DtStaticArrayTypeClass),
+        sizeof (DtStaticArrayClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         dt_static_array_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (DtStaticArrayType),
+        sizeof (DtStaticArray),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(DT_TYPE_ARRAY_TYPE,
+      type = g_type_register_static(DT_TYPE_ARRAY,
                                     "DtStaticArrayTypeType",
                                     &info, 0);
     }
     return type;
 }
 
-DtStaticArrayType *
-dt_static_array_type_new(DtDataType *data_type, guint32 length)
+DtStaticArray *
+dt_static_array_new(DtDataType *data_type, guint32 length)
 {
-    DtStaticArrayType *obj;
+    DtStaticArray *obj;
 
-    obj = g_object_new(DT_TYPE_STATIC_ARRAY_TYPE, NULL);
-    DT_ARRAY_TYPE(obj)->data_type = data_type;
+    obj = g_object_new(DT_TYPE_STATIC_ARRAY, NULL);
+    DT_ARRAY(obj)->data_type = data_type;
     obj->length = length;
     obj->string_of = NULL;
     obj->mangled_name = NULL;
@@ -67,15 +67,15 @@ dt_static_array_type_new(DtDataType *data_type, guint32 length)
 }
 
 DtDataType *
-dt_static_array_type_get_data_type(DtStaticArrayType *self)
+dt_static_array_get_data_type(DtStaticArray *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_array_type_get_data_type(DT_ARRAY_TYPE(self));
+    return dt_array_get_data_type(DT_ARRAY(self));
 }
 
 guint32
-dt_static_array_type_get_length(DtStaticArrayType *self)
+dt_static_array_get_length(DtStaticArray *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
@@ -91,14 +91,14 @@ dt_static_array_type_get_string(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    DtStaticArrayType *arry = DT_STATIC_ARRAY_TYPE(self);
+    DtStaticArray *arry = DT_STATIC_ARRAY(self);
 
     if (arry->string_of == NULL)
     {
         arry->string_of =
             g_strdup_printf("%s[%uu]",
                 dt_data_type_get_string(
-                    dt_static_array_type_get_data_type(arry)),
+                    dt_static_array_get_data_type(arry)),
                 arry->length);
     }
 
@@ -110,8 +110,8 @@ dt_static_array_type_get_size(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_data_type_get_size(DT_ARRAY_TYPE(self)->data_type) * 
-                                        DT_STATIC_ARRAY_TYPE(self)->length;
+    return dt_data_type_get_size(DT_ARRAY(self)->data_type) *
+                                        DT_STATIC_ARRAY(self)->length;
 }
 
 static char *
@@ -119,7 +119,7 @@ dt_static_array_type_get_mangled(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    DtStaticArrayType *stat_arry = DT_STATIC_ARRAY_TYPE(self);
+    DtStaticArray *stat_arry = DT_STATIC_ARRAY(self);
 
     if (stat_arry->mangled_name == NULL)
     {
@@ -129,7 +129,7 @@ dt_static_array_type_get_mangled(DtDataType *self)
             str, "%u%s",
             stat_arry->length,
             dt_data_type_get_mangled(
-                dt_static_array_type_get_data_type(stat_arry)));
+                dt_static_array_get_data_type(stat_arry)));
 
         stat_arry->mangled_name = g_string_free(str, FALSE);
     }
@@ -142,7 +142,7 @@ dt_static_array_type_get_init(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_data_type_get_init(DT_ARRAY_TYPE(self)->data_type);
+    return dt_data_type_get_init(DT_ARRAY(self)->data_type);
 }
 
 static void

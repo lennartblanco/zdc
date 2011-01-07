@@ -2,7 +2,7 @@
 #define IR_ARRAY_SLICE_INC_X
 
 #include "ir_variable.h"
-#include "dt_array_type.h"
+#include "dt_array.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -30,7 +30,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
-    DtArrayType *data_type;
+    DtArray *data_type;
     IrExpression *array;
     IrExpression *start;
     IrExpression *end;
