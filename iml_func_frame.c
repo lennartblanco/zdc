@@ -241,7 +241,11 @@ iml_func_frame_print(iml_func_frame_t *self, FILE *out, int indention)
         }
     }
 
-    if (self->var_32b || self->var_16b || self->var_8b || self->var_blob)
+    if (self->var_32b ||
+        self->var_16b ||
+        self->var_8b  ||
+        self->var_ptr ||
+        self->var_blob)
     {
         fprintf_indent(out, indention + 2, "variables\n");
 

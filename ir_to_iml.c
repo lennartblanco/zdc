@@ -13,6 +13,7 @@
 #include "iml_constant.h"
 #include "iml_variable.h"
 #include "types.h"
+#include "dt_pointer.h"
 #include "dt_static_array_type.h"
 
 #include <assert.h>
@@ -76,6 +77,11 @@ static ImlOperand *
 iml_add_array_literal_eval(IrFunctionDef *function,
                            IrArrayLiteral *expr,
                            ImlVariable *res);
+
+static void
+add_pointer_assignment(IrFunctionDef *function,
+                       IrVariable *lvalue,
+                       IrExpression *value);
 
 static iml_data_type_t
 dt_to_iml_type(DtDataType *dt_type);
@@ -347,6 +353,10 @@ iml_add_assignment(IrFunctionDef *function,
         {
             add_array_assignment(function, IR_VARIABLE(lvalue), value);
         }
+        else if (DT_IS_POINTER(var_type))
+        {
+            add_pointer_assignment(function, IR_VARIABLE(lvalue), value);
+        }
         else
         {
             /* variable of unexpected data type */
@@ -492,6 +502,10 @@ dt_to_iml_type(DtDataType *dt_type)
           default:
               assert(false);
         }
+    }
+    else if (DT_IS_POINTER(dt_type))
+    {
+        iml_type = iml_ptr;
     }
     else if (DT_IS_ARRAY_TYPE(dt_type))
     {
@@ -1314,4 +1328,25 @@ add_array_slice_assignment(IrFunctionDef *function,
             function,
             iml_operation_new_call_c("memcpy", NULL,
                                      dest_ptr, src_ptr, length, NULL));
+}
+
+static void
+add_pointer_assignment(IrFunctionDef *function,
+                      IrVariable *lvalue,
+                      IrExpression *value)
+{
+    ImlVariable *dest = ir_variable_get_location(lvalue);
+
+    if (IR_IS_NULL(value))
+    {
+        /* handle the special case of null assignment */
+        ir_function_def_add_operation(function,
+                                     iml_operation_new(iml_copy,
+                                                       iml_constant_new_32b(0),
+                                                       dest));
+    }
+    else
+    {
+        iml_add_expression_eval(function, value, dest);
+    }
 }

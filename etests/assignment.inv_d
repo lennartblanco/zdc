@@ -3,15 +3,24 @@ void func1()
 
 }
 
-void func3()
+void func2()
 {
   func1 = 2;
 }
 
-void func5()
+void func3()
 {
   int x;
 
   x = func1();
 }
 
+// test assigning non-pointer values to pointer variable
+void func4()
+{
+  int *x;
+  int i = 20;
+
+  x = 20;
+  x = i;
+}

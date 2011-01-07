@@ -5,6 +5,7 @@
 #include "dt_enum_type.h"
 #include "dt_array_type.h"
 #include "dt_static_array_type.h"
+#include "dt_pointer.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
@@ -32,6 +33,9 @@ implicit_conv_to_char(IrExpression *expression);
 
 static IrExpression *
 implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression);
+
+static IrExpression *
+implicit_conv_to_pointer(DtPointer *target_type, IrExpression *expression);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -218,6 +222,21 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
     return res_exp;
 }
 
+static IrExpression *
+implicit_conv_to_pointer(DtPointer *target_type, IrExpression *expression)
+{
+    assert(DT_IS_POINTER(target_type));
+    assert(IR_IS_EXPRESSION(expression));
+
+    if (dt_data_type_is_same(DT_DATA_TYPE(target_type),
+                              ir_expression_get_data_type(expression)))
+    {
+        return expression;
+    }
+
+    return NULL;
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -248,6 +267,11 @@ types_implicit_conv(DtDataType *target_type,
         {
             res = NULL;
         }
+    }
+    else if (DT_IS_POINTER(target_type))
+    {
+        res = implicit_conv_to_pointer(DT_POINTER(target_type),
+                                       expression);
     }
     else
     {
