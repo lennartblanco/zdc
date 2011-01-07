@@ -1359,9 +1359,25 @@ validate_code_block(compilation_status_t *compile_status,
             {
                 continue;
             }
+
+            IrVariable *variable = IR_VARIABLE(p->data);
             add_to_func_frame(compile_status->function,
-                              p->data,
+                              variable,
                               false);
+
+            /* generate iml code for default initialization of the variable */
+            IrExpression *init_exp = ir_variable_get_initializer(variable);
+
+            if (init_exp == NULL)
+            {
+                init_exp =
+                    dt_data_type_get_init(ir_variable_get_data_type(variable));
+            }
+
+            iml_add_assignment(compile_status->function,
+                               IR_EXPRESSION(variable),
+                               init_exp);
+
         }
     }
 

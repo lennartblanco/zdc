@@ -230,21 +230,6 @@ add_to_func_frame(IrFunctionDef *parent_function,
         iml_func_frame_add_local(frame, iml_var);
     }
     ir_variable_set_location(variable, iml_var);
-
-    /* if this is a function parameter, then we are done here */
-    if (is_function_parameter) {
-        return;
-    }
-
-    /* generate iml code for default initialization of the variable */
-    IrExpression *init_exp = ir_variable_get_initializer(variable);
-
-    if (init_exp == NULL)
-    {
-        init_exp = dt_data_type_get_init(ir_variable_get_data_type(variable));
-    }
-
-    iml_add_assignment(parent_function, IR_EXPRESSION(variable), init_exp);
 }
 
 ImlOperand *
@@ -391,8 +376,6 @@ iml_add_foreach_head(IrFunctionDef *function,
     ir_index = ir_foreach_get_index(foreach);
     if (ir_index != NULL)
     {
-        /* todo: fix so that default initialization expression assignment
-         * is not inserted for this variable */
         add_to_func_frame(function, ir_index, false);
         *index = ir_variable_get_location(ir_index);
     }
@@ -409,8 +392,6 @@ iml_add_foreach_head(IrFunctionDef *function,
     /* set-up value variable */
     ir_value = ir_foreach_get_value(foreach);
     assert(ir_value);
-    /* todo: fix so that default initialization expression assignment
-     * is not inserted for this variable */
     add_to_func_frame(function, ir_value, false);
     value = ir_variable_get_location(ir_value);
 
