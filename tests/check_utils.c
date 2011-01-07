@@ -102,6 +102,39 @@ check_char(char *function_called,
     }
 }
 
+void
+check_pointer(char *function_called, void *res, void *expected_res)
+{
+    printf("%s = %p", function_called, res);
+
+    if (res == expected_res)
+    {
+        printf(" [ok]\n");
+        passed += 1;
+    }
+    else
+    {
+        printf(" unexpected result!\n");
+        failed += 1;
+    }
+}
+
+void
+check_non_null_ptr(char *function_called, void *res)
+{
+    printf("%s = %p", function_called, res);
+
+    if (res != NULL)
+    {
+        printf(" [ok]\n");
+        passed += 1;
+    }
+    else
+    {
+        printf(" unexpected result!\n");
+        failed += 1;
+    }
+}
 
 void
 check_exit()

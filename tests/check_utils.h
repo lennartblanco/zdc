@@ -45,6 +45,17 @@ check_char(char *function_called,
            unsigned char res,
            unsigned char expected_res);
 
+/**
+ * Check if functions with pointer return value have returned expected result.
+ */
+void
+check_pointer(char *function_called, void *res, void *expected_res);
+
+/**
+ * Check that function have returned a non-null pointer.
+ */
+void
+check_non_null_ptr(char *function_called, void *res);
 
 /**
  * Exit function test program, printing test result summary

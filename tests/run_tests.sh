@@ -26,7 +26,8 @@ tests="empty "\
 "immutable "\
 "enums "\
 "foreach "\
-"str_literals "
+"str_literals "\
+"pointers "
 
 run_checked()
 {
