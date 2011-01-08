@@ -14,6 +14,7 @@ tests="empty "\
 "fact "\
 "implicit_cast "\
 "bool_op "\
+"arithm "\
 "nested_blocks "\
 "module_test "\
 "imports "\

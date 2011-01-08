@@ -78,6 +78,9 @@ check_enums: enums.o check_utils.o check_enums.c
 check_pointers: pointers.o check_utils.o check_pointers.c
 	gcc $(CFLAGS) -o $@ $^
 
+check_arithm: arithm.o check_utils.o check_arithm.c
+	gcc $(CFLAGS) -o $@ $^
+
 check_eels: eels
 
 check_str_literals: str_literals
@@ -101,4 +104,4 @@ check_bool_op check_extern_c check_fact check_foreach check_if_else \
 check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
 check_stat_array check_dyn_array check_uint_op check_while_loop eels \
 check_properties check_uninit_vars check_char_literals check_immutable \
-str_literals check_enums check_pointers
+str_literals check_enums check_pointers check_arithm

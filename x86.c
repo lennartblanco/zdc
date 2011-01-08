@@ -1131,6 +1131,70 @@ x86_compile_mult(FILE *out, iml_operation_t *op)
     x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
 }
 
+static void
+x86_compile_div(FILE *out, iml_operation_t *op)
+{
+    assert(op);
+    /* instruction to use for division */
+    const char *inst;
+    /* instruction to use for setting up edx register before division */
+    const char *init_edx;
+
+    ImlOperand *right = iml_operation_get_operand(op, 2);
+    ImlVariable *res = IML_VARIABLE(iml_operation_get_operand(op, 3));
+
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_sdiv:
+            inst = "idiv";        /* signed division */
+            init_edx = "cltd";    /* sign extend eax -> edx:eax */
+            break;
+        case iml_udiv:
+            inst = "div";                 /* unsigned division */
+            init_edx = "xor %edx, %edx";  /* zero out edx */
+            break;
+        default:
+            /* unexpected iml opcode */
+            assert(false);
+    }
+
+    x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
+
+    fprintf(out, "    %s\n", init_edx);
+
+    if (iml_is_constant(right))
+    {
+        x86_move_to_reg(out, TEMP_REG1_NAME, right);
+        fprintf(out,
+                "    %s %%" TEMP_REG1_NAME "\n",
+                inst);
+    }
+    else
+    {
+        assert(iml_is_variable(right));
+        ImlVariable *var = IML_VARIABLE(right);
+
+        iml_register_t *reg = iml_variable_get_register(var);
+        if (reg != NULL)
+        {
+            fprintf(out,
+                    "    %s %%%s\n",
+                    inst,
+                    iml_register_get_name(reg));
+        }
+        else
+        {
+            fprintf(out,
+                    "    %sl %d(%%ebp)\n",
+                    inst,
+                    iml_variable_get_frame_offset(var));
+        }
+    }
+
+    x86_move_from_reg(out, "eax", res);
+}
+
+
 /**
  * Generate assembly for ineg and bneg operations.
  */
@@ -1672,6 +1736,10 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_umult:
             case iml_smult:
                 x86_compile_mult(params->out, op);
+                break;
+            case iml_udiv:
+            case iml_sdiv:
+                x86_compile_div(params->out, op);
                 break;
             case iml_ineg:
             case iml_bneg:

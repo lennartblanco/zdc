@@ -533,8 +533,10 @@ get_iml_opcode_binop(IrBinaryOperation *op)
             break;
         case ast_mult_op:
             opcode =
-                dt_basic_is_signed(operands_type) ? iml_smult :
-                                                         iml_umult;
+                dt_basic_is_signed(operands_type) ? iml_smult : iml_umult;
+            break;
+        case ast_division_op:
+            opcode = dt_basic_is_signed(operands_type) ? iml_sdiv : iml_udiv;
             break;
         case ast_and_op:
             opcode = iml_and;
@@ -555,17 +557,16 @@ get_iml_opcode_binop(IrBinaryOperation *op)
         case ast_greater_op:
             opcode =
                 dt_basic_is_signed(operands_type) ? iml_sgreater :
-                                                         iml_ugreater;
+                                                    iml_ugreater;
             break;
         case ast_less_or_eq_op:
             opcode =
-                dt_basic_is_signed(operands_type) ? iml_slesseq :
-                                                         iml_ulesseq;
+                dt_basic_is_signed(operands_type) ? iml_slesseq : iml_ulesseq;
             break;
         case ast_greater_or_eq_op:
             opcode =
                 dt_basic_is_signed(operands_type) ? iml_sgreatereq :
-                                                         iml_ugreatereq;
+                                                    iml_ugreatereq;
             break;
         default:
             /* unexpected binary operation type */
@@ -698,7 +699,7 @@ iml_add_binary_op_eval(IrFunctionDef *function,
     opcode = get_iml_opcode_binop(bin_op);
 
     ir_function_def_add_operation(function,
-                              iml_operation_new(opcode, left, right, res));
+                                  iml_operation_new(opcode, left, right, res));
 
     /* mark any temporary variables used as operands as unused */
     iml_func_frame_unused_oper(frame, left);
