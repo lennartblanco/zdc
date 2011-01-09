@@ -1132,30 +1132,44 @@ x86_compile_mult(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_div(FILE *out, iml_operation_t *op)
+x86_compile_divmod(FILE *out, iml_operation_t *op)
 {
     assert(op);
     /* instruction to use for division */
     const char *inst;
     /* instruction to use for setting up edx register before division */
     const char *init_edx;
+    const char *res_reg;
 
+    iml_opcode_t opcode = iml_operation_get_opcode(op);
     ImlOperand *right = iml_operation_get_operand(op, 2);
     ImlVariable *res = IML_VARIABLE(iml_operation_get_operand(op, 3));
 
-    switch (iml_operation_get_opcode(op))
+    switch (opcode)
     {
         case iml_sdiv:
-            inst = "idiv";        /* signed division */
+        case iml_smod:
+            inst = "idiv";        /* signed division or modulo operation */
             init_edx = "cltd";    /* sign extend eax -> edx:eax */
             break;
         case iml_udiv:
-            inst = "div";                 /* unsigned division */
+        case iml_umod:
+            inst = "div";         /* unsigned division or modulo operation  */
             init_edx = "xor %edx, %edx";  /* zero out edx */
             break;
         default:
             /* unexpected iml opcode */
             assert(false);
+    }
+
+    if (opcode == iml_sdiv || opcode == iml_udiv)
+    {
+        res_reg = "eax";
+    }
+    else
+    {
+        assert(opcode == iml_smod || opcode == iml_umod);
+        res_reg = "edx";
     }
 
     x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
@@ -1191,7 +1205,7 @@ x86_compile_div(FILE *out, iml_operation_t *op)
         }
     }
 
-    x86_move_from_reg(out, "eax", res);
+    x86_move_from_reg(out, res_reg, res);
 }
 
 
@@ -1739,7 +1753,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_udiv:
             case iml_sdiv:
-                x86_compile_div(params->out, op);
+            case iml_umod:
+            case iml_smod:
+                x86_compile_divmod(params->out, op);
                 break;
             case iml_ineg:
             case iml_bneg:

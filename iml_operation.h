@@ -21,6 +21,8 @@ typedef enum iml_opcode_e
     iml_umult,
     iml_sdiv,
     iml_udiv,
+    iml_smod,
+    iml_umod,
     iml_and,
     iml_or,
     iml_ineg,

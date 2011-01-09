@@ -89,6 +89,8 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_umult:
         case iml_sdiv:
         case iml_udiv:
+        case iml_smod:
+        case iml_umod:
         case iml_and:
         case iml_or:
         case iml_equal:
@@ -203,6 +205,8 @@ iml_operation_print(iml_operation_t *self,
         case iml_umult:
         case iml_sdiv:
         case iml_udiv:
+        case iml_smod:
+        case iml_umod:
         case iml_and:
         case iml_or:
         case iml_equal:
@@ -312,6 +316,12 @@ print_ternary_op(iml_operation_t *op, FILE *out, int indention)
             break;
         case iml_udiv:
             op_name = "udiv";
+            break;
+        case iml_smod:
+            op_name = "smod";
+            break;
+        case iml_umod:
+            op_name = "umod";
             break;
         case iml_and:
             op_name = "and";

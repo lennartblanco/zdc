@@ -232,6 +232,9 @@ fold_int_arithm_bin_op(IrIntConstant *left,
         case ast_division_op:
             res = left_val / right_val;
             break;
+        case ast_modulo_op:
+            res = left_val % right_val;
+            break;
         default:
             /* unexpected int binary operation */
             assert(false);

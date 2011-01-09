@@ -705,6 +705,14 @@ mult_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
+|   mult_expression<l> '%' primary<r>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_binary_operation_new(ast_modulo_op,
+                                                    l.expression,
+                                                    r.expression,
+                                                    yypos));
+    }
 |   unary_expression<n>
 ;
 

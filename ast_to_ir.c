@@ -815,6 +815,7 @@ binary_op_to_ir(compilation_status_t *compile_status,
         case ast_minus_op:
         case ast_mult_op:
         case ast_division_op:
+        case ast_modulo_op:
         case ast_equal_op:
         case ast_not_equal_op:
         case ast_less_op:

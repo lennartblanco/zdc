@@ -538,6 +538,9 @@ get_iml_opcode_binop(IrBinaryOperation *op)
         case ast_division_op:
             opcode = dt_basic_is_signed(operands_type) ? iml_sdiv : iml_udiv;
             break;
+        case ast_modulo_op:
+            opcode = dt_basic_is_signed(operands_type) ? iml_smod : iml_umod;
+            break;
         case ast_and_op:
             opcode = iml_and;
             break;

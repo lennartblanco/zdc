@@ -8,6 +8,8 @@ enum iml_opcode_t
     umult,
     sdiv,
     udiv,
+    smod,
+    umod,
     and,
     or,
     ineg,

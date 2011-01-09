@@ -119,10 +119,11 @@ ir_binary_operation_is_arithm(IrBinaryOperation *self)
     op_type = ir_binary_operation_get_operation(self);
 
     return 
-        op_type == ast_plus_op  ||
-        op_type == ast_minus_op ||
-        op_type == ast_mult_op  ||
-        op_type == ast_division_op;
+        op_type == ast_plus_op     ||
+        op_type == ast_minus_op    ||
+        op_type == ast_mult_op     ||
+        op_type == ast_division_op ||
+        op_type == ast_modulo_op;
 }
 
 bool
@@ -194,6 +195,7 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
         case ast_minus_op:
         case ast_mult_op:
         case ast_division_op:
+        case ast_modulo_op:
             data_type = ir_expression_get_data_type(bin_op->left);
             break;
         case ast_less_op:

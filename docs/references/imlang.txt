@@ -36,16 +36,29 @@ add <left>, <right> => <res>
 
 sub left, right => res
  subtraction
-   - all operands are of same type
+  - all operands are of same type
   - constants are not allowed for <res>
 
 smult left, right => res
 umult left, right => res
  signed/unsigned multiplication
+  - all operands are of same type
+  - constants are not allowed for <res>
+  - left and right can not be constants at the same time
 
 sdiv left, right => res
 udiv left, right => res
   signed/unsigned division
+   - all operands are of same type
+   - constants are not allowed for <res>
+   - left and right can not be constants at the same time
+
+smod left, right => res
+umod left, right => res
+  signed/unsigned modulo (%)
+   - all operands are of same type
+   - constants are not allowed for <res>
+   - left and right can not be constants at the same time
 
 equal left, right => res
   signed/unsigned equal comparison, res = (left == right)

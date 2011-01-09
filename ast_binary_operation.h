@@ -40,7 +40,8 @@ typedef enum ast_binary_op_type_e
     ast_plus_op,           /*  +  */
     ast_minus_op,          /*  -  */
     ast_mult_op,           /*  *  */
-    ast_division_op        /*  /  */
+    ast_division_op,       /*  /  */
+    ast_modulo_op          /*  %  */
 } ast_binary_op_type_t;
 
 
