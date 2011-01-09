@@ -38,23 +38,26 @@ call_unsigned_div_vars(unsigned arg1, unsigned arg2)
 int
 call_signed_div_lconst(int in)
 {
-   int res;
+    int res;
 
-   asm ("    call _D6arithm17signed_div_lconstFiZi\n"
-        : "=a"(res)
-        : "a"(in));
+    asm ("    call _D6arithm17signed_div_lconstFiZi\n"
+         : "=a"(res)
+         : "a"(in));
 
-   return res;
+    return res;
 }
 
 unsigned
 call_unsigned_div_rconst(unsigned in)
 {
-   unsigned res;
+    unsigned res;
 
-   asm ("    call _D6arithm19unsigned_div_rconstFkZk\n"
-        : "=a"(res)
-        : "a"(in));
+    asm ("    call _D6arithm19unsigned_div_rconstFkZk\n"
+         : "=a"(res)
+         : "a"(in));
+
+    return res;
+}
 
    return res;
 }
