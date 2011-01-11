@@ -29,7 +29,7 @@ typedef struct
     DtDataType parent;
     /* private */
     DtDataType *base_type;
-//    char *string_of;
+    char *string_of;
     char *mangled_name;
 } DtPointer;
 
@@ -47,5 +47,8 @@ dt_pointer_get_type(void);
 
 DtPointer *
 dt_pointer_new(DtDataType *base_type);
+
+DtDataType *
+dt_pointer_get_base_type(DtPointer *self);
 
 #endif /* DT_POINTER_INC_X */

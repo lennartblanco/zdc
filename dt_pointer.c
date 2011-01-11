@@ -44,34 +44,44 @@ dt_pointer_new(DtDataType *base_type)
 {
     DtPointer *obj;
 
+    assert(DT_IS_DATA_TYPE(base_type));
+
     obj = g_object_new(DT_TYPE_POINTER, NULL);
     obj->base_type = base_type;
 
     return obj;
 }
 
+DtDataType *
+dt_pointer_get_base_type(DtPointer *self)
+{
+    assert(DT_IS_POINTER(self));
+
+    return self->base_type;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-//static char *
-//dt_array_type_get_string(DtDataType *self)
-//{
-//    assert(DT_IS_ARRAY_TYPE(self));
-//
-//    DtArrayType *arry = DT_ARRAY_TYPE(self);
-//
-//    if (arry->string_of == NULL)
-//    {
-//        arry->string_of =
-//            g_strdup_printf("%s[]",
-//                dt_data_type_get_string(dt_array_type_get_data_type(arry)));
-//
-//    }
-//
-//    return arry->string_of;
-//}
-//
+static char *
+dt_pointer_get_string(DtDataType *self)
+{
+    assert(DT_IS_POINTER(self));
+
+    DtPointer *ptr = DT_POINTER(self);
+
+    if (ptr->string_of == NULL)
+    {
+        ptr->string_of =
+            g_strdup_printf("%s*",
+                dt_data_type_get_string(dt_pointer_get_base_type(ptr)));
+
+    }
+
+    return ptr->string_of;
+}
+
 static char *
 dt_pointer_get_mangled(DtDataType *self)
 {
@@ -83,21 +93,13 @@ dt_pointer_get_mangled(DtDataType *self)
     {
         ptr->mangled_name =
             g_strdup_printf("P%s",
-                dt_data_type_get_mangled(ptr->base_type));
+                dt_data_type_get_mangled(dt_pointer_get_base_type(ptr)));
 
     }
 
     return ptr->mangled_name;
 }
 
-//static guint
-//dt_array_type_get_size(DtDataType *self)
-//{
-//    assert(DT_IS_ARRAY_TYPE(self));
-//
-//    return 8;
-//}
-//
 static IrExpression *
 dt_pointer_get_init(DtDataType *self)
 {
@@ -125,8 +127,7 @@ dt_pointer_is_same(DtDataType *self, DtDataType *type)
 static void
 dt_pointer_class_init(gpointer klass, gpointer dummy)
 {
-//    ((DtDataTypeClass *)klass)->get_size = dt_array_type_get_size;
-//    ((DtDataTypeClass *)klass)->get_string = dt_array_type_get_string;
+    ((DtDataTypeClass *)klass)->get_string = dt_pointer_get_string;
     ((DtDataTypeClass *)klass)->get_mangled = dt_pointer_get_mangled;
     ((DtDataTypeClass *)klass)->get_init = dt_pointer_get_init;
     ((DtDataTypeClass *)klass)->is_same = dt_pointer_is_same;
