@@ -62,6 +62,7 @@ char *
 dt_data_type_get_string(DtDataType *self)
 {
     assert(DT_IS_DATA_TYPE(self));
+    assert(DT_DATA_TYPE_GET_CLASS(self)->get_string != NULL);
 
     char *str = DT_DATA_TYPE_GET_CLASS(self)->get_string(self);
 
