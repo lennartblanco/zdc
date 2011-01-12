@@ -76,7 +76,7 @@ check_enums: enums.o check_utils.o check_enums.c
 	gcc $(CFLAGS) -o $@ $^
 
 check_pointers: pointers.o check_utils.o check_pointers.c
-	gcc $(CFLAGS) -o $@ $^
+	gcc -g $(CFLAGS) -o $@ $^
 
 check_arithm: arithm.o check_utils.o check_arithm.c
 	gcc $(CFLAGS) -o $@ $^
@@ -95,7 +95,7 @@ str_literals: str_literals.d
 	$(XDC) $(DFLAGS) -c $?
 
 check_utils.o: check_utils.c
-	gcc $(CFLAGS) -c $?
+	gcc -g $(CFLAGS) -c $?
 
 clean:
 	rm -f *.s *.class *.o *.j *~ core check_empty check_rets \

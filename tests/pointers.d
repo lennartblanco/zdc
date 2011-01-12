@@ -23,3 +23,11 @@ malloced_ptr()
     return malloc(8);
 }
 
+void
+divide(int divident, int divisor,
+       int *quotient, int *reminder)
+{
+  *quotient = divident / divisor;
+  *reminder = divident % divisor;
+}
+

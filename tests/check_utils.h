@@ -16,7 +16,13 @@
  * That is, print an 'func_call OK' message and increase
  * number of passed tests.
  */
-void check(char *func_called);
+void check(char *function_called);
+
+/**
+ * Log that function was calles successfully if cond is true, otherwise
+ * log failure.
+ */
+void check_cond(char *function_called, bool cond);
 
 /**
  * Check if functions with integer return value have returned expected result.

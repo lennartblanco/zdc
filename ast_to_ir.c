@@ -16,6 +16,7 @@
 #include "ast_int_constant.h"
 #include "ast_uint_constant.h"
 #include "ast_postfix_exp.h"
+#include "ast_ptr_dref.h"
 #include "ast_enum_member.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
@@ -35,6 +36,7 @@
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_property.h"
+#include "ir_ptr_dref.h"
 #include "ir_enum_member.h"
 #include "dt_basic.h"
 #include "errors.h"
@@ -758,27 +760,27 @@ assignment_to_ir(compilation_status_t *compile_status,
                 sym_table_t *symbols,
                 AstAssignment *ast_assignment)
 {
-    AstIdent *target;
+    AstExpression *lvalue;
     AstExpression *value;
-    IrExpression *ir_target;
+    IrExpression *ir_lvalue;
     IrExpression *ir_value;
 
-    target = ast_assignment_get_target(ast_assignment);
+    lvalue = ast_assignment_get_lvalue(ast_assignment);
     value = ast_assignment_get_value(ast_assignment);
 
-    ir_target =
-        expression_to_ir(compile_status, symbols, AST_EXPRESSION(target));
+    ir_lvalue =
+        expression_to_ir(compile_status, symbols, lvalue);
 
     ir_value =
         expression_to_ir(compile_status, symbols, value);
 
-    if (ir_target == NULL || ir_value == NULL)
+    if (ir_lvalue == NULL || ir_value == NULL)
     {
         return NULL;
     }
 
     return
-        IR_STATMENT(ir_assignment_new(ir_target,
+        IR_STATMENT(ir_assignment_new(ir_lvalue,
                                       ir_value,
                                       ast_node_get_line_num(ast_assignment)));
 }
@@ -1101,6 +1103,25 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     return IR_EXPRESSION(prop);
 }
 
+static IrExpression *
+ptr_dref_exp_to_ir(compilation_status_t *compile_status,
+                   sym_table_t *symbols,
+                   AstPtrDref *ast_ptr_dref)
+{
+    IrExpression *ptr_expr;
+
+    ptr_expr = expression_to_ir(compile_status,
+                                symbols,
+                                ast_ptr_dref_get_ptr_expression(ast_ptr_dref));
+    if (ptr_expr == NULL)
+    {
+        /* invalid expression, bail out */
+        return NULL;
+    }
+
+    return IR_EXPRESSION(ir_ptr_dref_new(ptr_expr));
+}
+
 /**
  * Convert AST expression to IR form.
  */
@@ -1228,6 +1249,12 @@ expression_to_ir(compilation_status_t *compile_status,
         return postfix_exp_to_ir(compile_status,
                                  symbols,
                                  AST_POSTFIX_EXP(ast_expression));
+    }
+    else if (AST_IS_PTR_DREF(ast_expression))
+    {
+        return ptr_dref_exp_to_ir(compile_status,
+                                  symbols,
+                                  AST_PTR_DREF(ast_expression));
     }
 
     /* unexpected expression type */

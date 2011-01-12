@@ -7,6 +7,7 @@
 #include "ir_array_slice.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_ptr_dref.h"
 #include "ir_property.h"
 #include "ir_cast.h"
 #include "ir_null.h"
@@ -82,6 +83,11 @@ static void
 add_pointer_assignment(IrFunctionDef *function,
                        IrVariable *lvalue,
                        IrExpression *value);
+
+static void
+add_ptr_dref_assignment(IrFunctionDef *function,
+                        IrPtrDref *lvalue,
+                        IrExpression *value);
 
 static iml_data_type_t
 dt_to_iml_type(DtDataType *dt_type);
@@ -310,15 +316,7 @@ iml_add_assignment(IrFunctionDef *function,
     assert(ir_expression_is_lvalue(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
-    if (IR_IS_ARRAY_CELL(lvalue))
-    {
-        add_array_cell_assignment(function, IR_ARRAY_CELL(lvalue), value);
-    }
-    else if (IR_IS_ARRAY_SLICE(lvalue))
-    {
-        add_array_slice_assignment(function, IR_ARRAY_SLICE(lvalue), value);
-    }
-    else if (IR_IS_VARIABLE(lvalue))
+    if (IR_IS_VARIABLE(lvalue))
     {
         DtDataType *var_type;
 
@@ -347,6 +345,18 @@ iml_add_assignment(IrFunctionDef *function,
             /* variable of unexpected data type */
             assert(false);
         }
+    }
+    else if (IR_IS_ARRAY_CELL(lvalue))
+    {
+        add_array_cell_assignment(function, IR_ARRAY_CELL(lvalue), value);
+    }
+    else if (IR_IS_ARRAY_SLICE(lvalue))
+    {
+        add_array_slice_assignment(function, IR_ARRAY_SLICE(lvalue), value);
+    }
+    else if (IR_IS_PTR_DREF(lvalue))
+    {
+        add_ptr_dref_assignment(function, IR_PTR_DREF(lvalue), value);
     }
     else
     {
@@ -1333,4 +1343,38 @@ add_pointer_assignment(IrFunctionDef *function,
     {
         iml_add_expression_eval(function, value, dest);
     }
+}
+
+static void
+add_ptr_dref_assignment(IrFunctionDef *function,
+                        IrPtrDref *lvalue,
+                        IrExpression *value)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_PTR_DREF(lvalue));
+    assert(IR_IS_EXPRESSION(value));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *lval;
+    ImlOperand *rval;
+
+    /* generate iml operation to evaluate pointer expression */
+    lval = iml_add_expression_eval(function,
+                                   ir_ptr_dref_get_expression(lvalue),
+                                   NULL);
+    /* generate iml operations to evaluate rvalue */
+    rval = iml_add_expression_eval(function, value, NULL);
+
+    /* add iml to write rvalue to the destination address */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_setfld,
+                          rval,
+                          lval,
+                          iml_constant_new_32b(0),
+                          ir_ptr_dref_get_dest_size(lvalue)));
+
+    /* mark left and right operands as unused */
+    iml_func_frame_unused_oper(frame, lval);
+    iml_func_frame_unused_oper(frame, rval);
 }

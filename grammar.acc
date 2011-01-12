@@ -21,6 +21,7 @@
 #include "ast_function_decl.h"
 #include "ast_assignment.h"
 #include "ast_postfix_exp.h"
+#include "ast_ptr_dref.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_literal.h"
@@ -318,7 +319,7 @@ statment<stmt> :
 
 non_empty_statment<stmt> :
     var_definition<stmt>
-|   var_assignment<stmt>
+|   assignment<stmt>
 |   if_else_block<stmt>
 |   foreach_block<stmt>
 |   while_block<stmt>
@@ -557,31 +558,14 @@ var_definition<n> :
 ;
 
 
-var_assignment<n> :
-   lvalue<l> '=' expression<y> ';'
+assignment<n> :
+   expression<l> '=' expression<r> ';'
    {
        (*n).statment =
-           AST_STATMENT(ast_assignment_new(l.ident,
-                                           y.expression,
+           AST_STATMENT(ast_assignment_new(l.expression,
+                                           r.expression,
                                            yypos));
    }
-;
-
-lvalue<n> :
-    TOK_IDENT<x>
-    {
-        (*n).ident = ast_ident_new(x.text, yypos);
-        free(x.text);
-    }
-|   TOK_IDENT<name> '[' expression<exp> ']'
-    {
-        (*n).ident =
-            AST_IDENT(ast_array_cell_ref_new(name.text,
-                                             exp.expression,
-                                             yypos));
-        free(name.text);
-    }
-|   array_slice<n>
 ;
 
 expression<n> :
@@ -717,16 +701,20 @@ mult_expression<n> :
 ;
 
 unary_expression<n> :
-   '!' primary<x>
+   '!' unary_expression<x>
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op, x.expression)); 
     }
-|   '-' primary<x>
+|   '-' unary_expression<x>
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
                                                    x.expression));
+    }
+|   '*' unary_expression<x>
+    {
+        (*n).expression = AST_EXPRESSION(ast_ptr_dref_new(x.expression));
     }
 |   postfix_expression<n>
 ;

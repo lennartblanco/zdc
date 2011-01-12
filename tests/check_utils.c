@@ -17,12 +17,26 @@ static int failed = 0;
  *---------------------------------------------------------------------------*/
 
 
-void check(char *func_called)
+void check(char *function_called)
 {
-    printf("%s [ok]\n", func_called);
+    printf("%s [ok]\n", function_called);
     passed += 1;
 }
 
+void check_cond(char *function_called, bool cond)
+{
+    printf("%s ", function_called);
+    if (cond)
+    {
+        printf(" [ok]\n");
+        passed += 1;
+    }
+    else
+    {
+        printf(" unexpected result!\n");
+        failed += 1;
+    }
+}
 
 void
 check_int(char *function_called, int res, int expected_res)

@@ -24,3 +24,12 @@ void func4()
   x = 20;
   x = i;
 }
+
+void func5()
+{
+  int *p;
+  bool *b;
+
+  p = b;   // incompatible base types int and bool
+  *b = 10; // assigning int value via bool pointer
+}

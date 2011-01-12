@@ -30,8 +30,8 @@ typedef struct
 {
     AstStatment parent;
     /* private */
-    AstIdent *target;
-    AstExpression  *value;
+    AstExpression *lvalue;
+    AstExpression *value;
 } AstAssignment;
 
 typedef struct
@@ -47,12 +47,12 @@ GType
 ast_assignment_get_type(void);
 
 AstAssignment *
-ast_assignment_new(AstIdent *target,
+ast_assignment_new(AstExpression *lvalue,
                    AstExpression *value,
                    guint line_number);
 
-AstIdent *
-ast_assignment_get_target(AstAssignment *self);
+AstExpression *
+ast_assignment_get_lvalue(AstAssignment *self);
 
 AstExpression *
 ast_assignment_get_value(AstAssignment *self);
