@@ -50,6 +50,11 @@ iml_add_array_slice_eval(IrFunctionDef *function,
                          ImlVariable *res);
 
 static ImlOperand *
+iml_add_ptr_dref_eval(IrFunctionDef *function,
+                      IrPtrDref *ptr_dref,
+                      ImlVariable *res);
+
+static ImlOperand *
 iml_add_property_eval(IrFunctionDef *function,
                       IrProperty *prop,
                       ImlVariable *res);
@@ -166,6 +171,12 @@ iml_add_expression_eval(IrFunctionDef *function,
         res = iml_add_array_slice_eval(function,
                                        IR_ARRAY_SLICE(ir_expression),
                                        dest);
+    }
+    else if (IR_IS_PTR_DREF(ir_expression))
+    {
+        res = iml_add_ptr_dref_eval(function,
+                                    IR_PTR_DREF(ir_expression),
+                                    dest);
     }
     else if (IR_IS_ENUM_MEMBER(ir_expression))
     {
@@ -813,6 +824,47 @@ iml_add_array_cell_eval(IrFunctionDef *function,
                                                     size,
                                                     res));
     }
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_ptr_dref_eval(IrFunctionDef *function,
+                      IrPtrDref *ptr_dref,
+                      ImlVariable *res)
+{
+    assert(IR_IS_PTR_DREF(ptr_dref));
+
+    ImlOperand *ptr_exp;
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    /* add iml to evaluate pointer expression */
+    ptr_exp = iml_add_expression_eval(function,
+                                      ir_ptr_dref_get_expression(ptr_dref),
+                                      NULL);
+
+    /* figure out where to store the result */
+    if (res == NULL)
+    {
+        iml_data_type_t res_type;
+
+        res_type =
+            dt_to_iml_type(
+                ir_expression_get_data_type(IR_EXPRESSION(ptr_dref)));
+        res = iml_func_frame_get_temp(frame, res_type);
+    }
+
+    /* add iml to fetch the value from the address to the result variable */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_getfld,
+                          ptr_exp,
+                          iml_constant_new_32b(0),
+                          ir_ptr_dref_get_dest_size(ptr_dref),
+                          res));
+
+    /* pointer expression operand not needed any more */
+    iml_func_frame_unused_oper(frame, ptr_exp);
 
     return IML_OPERAND(res);
 }

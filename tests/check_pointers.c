@@ -53,6 +53,21 @@ call_divide(int arg1, int arg2, int *arg3, int *arg4)
           [arg3]"m"(arg3));
 }
 
+unsigned
+call_uint_ptr_dref(unsigned *arg1, int arg2)
+{
+    unsigned res;
+
+    asm ("    pushl %[arg1]\n"
+         "    call _D8pointers13uint_ptr_drefFPkbZk\n"
+         "    addl $4, %%esp\n"
+         : "=a"(res)
+         : "a" (arg2),
+           [arg1]"m"(arg1));
+
+    return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -83,6 +98,23 @@ main()
     call_divide(13, -15, &q, &r);
     check_cond("divide(13, -20, &quotient, &reminder)",
                q == (13 / -15) && r == (13 % -15));
+
+    /* call_uint_ptr_dref() tests */
+    unsigned val;
+
+    val = 85;
+    check_uint("uint_ptr_dref(&val, true)",
+               call_uint_ptr_dref(&val, true), val);
+    val = 2000002;
+    check_uint("uint_ptr_dref(&val, true)",
+               call_uint_ptr_dref(&val, true), val);
+    val = 32;
+    check_uint("uint_ptr_dref(&val, false)",
+               call_uint_ptr_dref(&val, false), val * 2 + val / 2);
+    val = 100;
+    check_uint("uint_ptr_dref(&val, false)",
+               call_uint_ptr_dref(&val, false), val * 2 + val / 2);
+
 
     check_exit();
 }

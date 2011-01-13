@@ -31,3 +31,19 @@ divide(int divident, int divisor,
   *reminder = divident % divisor;
 }
 
+// test using pointer dereference operation in expressions
+uint
+uint_ptr_dref(uint *ptr, bool simple)
+{
+  if (simple)
+  {
+    return *ptr;
+  }
+
+  uint tmp = *ptr;
+  uint a;
+
+  a = *ptr / 2;
+
+  return *ptr + a + tmp;
+}
