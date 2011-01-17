@@ -1,1 +1,9 @@
 CONF_DEF_BACKEND = "x86"
+
+# default x86 backend configuration
+CONF_X86_AS_CMD = "as --32 -g -o"
+CONF_X86_LD_CMD = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 /usr/lib/crt1.o -lc -lgc -o"
+
+# default arm backend configuration
+CONF_ARM_AS_CMD = ""
+CONF_ARM_LD_CMD = ""

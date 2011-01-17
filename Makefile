@@ -38,7 +38,12 @@ config:
 	touch $@
 
 config.d: config config.d.in
-	filepp -DCONF_DEF_BACKEND=$(CONF_DEF_BACKEND) config.d.in > $@
+	filepp -DCONF_DEF_BACKEND=$(CONF_DEF_BACKEND) \
+           -DCONF_X86_AS_CMD=$(CONF_X86_AS_CMD) \
+           -DCONF_X86_LD_CMD=$(CONF_X86_LD_CMD) \
+           -DCONF_ARM_AS_CMD=$(CONF_ARM_AS_CMD) \
+           -DCONF_ARM_LD_CMD=$(CONF_ARM_LD_CMD) \
+           config.d.in > $@
 
 $(ACCENT):
 	mkdir -p tools/bin

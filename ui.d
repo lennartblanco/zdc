@@ -10,7 +10,11 @@ import GSList;
 import auxil;
 import arm;
 
-alias extern (C) void function (arch_backend_s *backend) init_backend_cb;
+enum backend_e
+{
+    x86,
+    arm
+}
 
 enum compilation_stages_e
 {
@@ -59,22 +63,22 @@ print_usage_message(string progname)
              );
 }
 
-init_backend_cb
+backend_e
 get_default_backend()
 {
     switch (DEFAULT_BACKEND)
     {
         case "x86":
-            return &x86_init;
+            return backend_e.x86;
         case "arm":
-            return &arm_init;
+            return backend_e.arm;
         default:
             assert(false, "unexpected default backend '" ~
                           DEFAULT_BACKEND ~ "'");
     }
 }
 
-init_backend_cb
+backend_e
 parse_march_option(string option)
 {
     string arch;
@@ -95,9 +99,9 @@ parse_march_option(string option)
     switch (arch)
     {
         case "x86":
-            return &x86_init;
+            return backend_e.x86;
         case "arm":
-            return &arm_init;
+            return backend_e.arm;
         default:
             throw new Exception("unsupported target architecture '" ~ arch ~
                                 "' specified");
@@ -112,14 +116,24 @@ parse_march_option(string option)
  * @return created object file name or null if assembler returned with error
  */
 string
-assemble_file(string assembly_file)
+assemble_file(backend_e backend, string assembly_file)
 {
     string object_file_name;
     string command;
 
     object_file_name = assembly_file[0..$-2] ~ ".o";
 
-    command = "as --32 -g -o " ~ object_file_name ~ " " ~ assembly_file;
+    switch (backend)
+    {
+        case backend_e.x86:
+            command = X86_AS_CMD;
+            break;
+        case backend_e.arm:
+            command = ARM_AS_CMD;
+            break;
+    }
+
+    command ~= " " ~ object_file_name ~ " " ~ assembly_file;
 
     if (system(std.string.toStringz(command)) != 0)
     {
@@ -138,28 +152,27 @@ assemble_file(string assembly_file)
  * @return 0 if linked successfully, -1 if linker returned an error
  */
 int
-link_files(string output_file, string[] object_files)
+link_files(backend_e backend, string output_file, string[] object_files)
 {
     string ofile = output_file;
     string command;
-    string crt1_path;
+
+    switch (backend)
+    {
+        case backend_e.x86:
+            command = X86_LD_CMD;
+            break;
+        case backend_e.arm:
+            command = ARM_LD_CMD;
+            break;
+    }
 
     if (ofile == null)
     {
         ofile = object_files[0][0..$-2];
     }
 
-    version (X86_64)
-    {
-        crt1_path = "/usr/lib32/";
-    }
-    version (X86)
-    {
-        crt1_path = "/usr/lib/";
-    }
-
-    command = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 " ~ 
-               crt1_path ~ "crt1.o -o " ~ ofile ~ " -lc -lgc";
+    command ~= " " ~ ofile;
     foreach (file; object_files)
     {
       command ~= " " ~ file;
@@ -178,7 +191,7 @@ main(string[] args)
     string[] source_files;
     string[] object_files;
     string output_file;
-    init_backend_cb backend_cb;
+    backend_e backend;
 
     compile_options_s options;
     compilation_stages_e last_compilation_stage;
@@ -187,7 +200,7 @@ main(string[] args)
     last_compilation_stage = compilation_stages_e.link_stage;
     options.print_ast = false;
     options.print_ir = false;
-    backend_cb = get_default_backend();
+    backend = get_default_backend();
 
     /* parse command line options */
     for (int i = 1; i < args.length; i += 1)
@@ -240,7 +253,7 @@ main(string[] args)
             else if ((arg.length >=6 && arg[0..6] == "-march") ||
                      (arg.length >=7 && arg[0..7] == "--march"))
             {
-                backend_cb = parse_march_option(arg);
+                backend = parse_march_option(arg);
             }
             else
             {
@@ -267,7 +280,17 @@ main(string[] args)
     }
 
     /* init arch specific backend */
-    backend_cb(&options.backend);
+    switch (backend)
+    {
+        case backend_e.x86:
+            x86_init(&options.backend);
+            break;
+        case backend_e.arm:
+            arm_init(&options.backend);
+            break;
+        default:
+            assert(false, "unexpected backend");
+    }
 
     /* compile and assemble all specified source files */
     g_type_init();
@@ -294,7 +317,7 @@ main(string[] args)
         /* unless -S flag is specified, assemble generated file */
         if (last_compilation_stage > compilation_stages_e.compile_stage)
         {
-            string obj_file = assemble_file(target_file);
+            string obj_file = assemble_file(backend, target_file);
             if (obj_file == null)
             {
                 writefln("error assembling '%s'", target_file);
@@ -309,7 +332,7 @@ main(string[] args)
     {
         int r;
 
-        r = link_files(output_file, object_files);
+        r = link_files(backend, output_file, object_files);
         if (r != 0)
         {
             return r;
