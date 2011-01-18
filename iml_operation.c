@@ -33,6 +33,9 @@ static void
 print_mset_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
+print_set_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
 print_setelm_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
@@ -107,6 +110,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_jmpuless:
         case iml_call:
         case iml_call_c:
+        case iml_set:
             op->arg1 = va_arg(argp, void *);
             op->arg2 = va_arg(argp, void *);
             op->arg3 = va_arg(argp, void *);
@@ -223,6 +227,9 @@ iml_operation_print(iml_operation_t *self,
             break;
         case iml_mset:
             print_mset_op(self, out, indention);
+            break;
+        case iml_set:
+            print_set_op(self, out, indention);
             break;
         case iml_setelm:
             print_setelm_op(self, out, indention);
@@ -384,6 +391,24 @@ print_mset_op(iml_operation_t *op, FILE *out, int indention)
     fprintf(out, ", %u => ", GPOINTER_TO_UINT(op->arg2));
     iml_operand_print_short(op->arg3, out, 0);
     fprintf(out, "\n");
+}
+
+static void
+print_set_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_set);
+
+    fprintf_indent(out, indention, "set ");
+    iml_operand_print_short(op->arg1, out, 0);
+    fprintf(out, " => [");
+    iml_operand_print_short(op->arg2, out, 0);
+    if (op->arg3 != NULL)
+    {
+        fprintf(out, " + ");
+        iml_operand_print_short(op->arg3, out, 0);
+    }
+    fprintf(out, "]\n");
 }
 
 static void

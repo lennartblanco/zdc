@@ -39,6 +39,21 @@ call_malloced_ptr()
 }
 
 void
+call_compare(int arg1, int arg2, bool *arg3, bool *arg4)
+{
+   asm ("    pushl %[arg1]\n"
+        "    pushl %[arg2]\n"
+        "    pushl %[arg3]\n"
+        "    call _D8pointers7compareFiiPbPbZv\n"
+        "    addl $12, %%esp\n"
+        :
+        : "a" (arg4),
+          [arg1]"m"(arg1),
+          [arg2]"m"(arg2),
+          [arg3]"m"(arg3));
+}
+
+void
 call_divide(int arg1, int arg2, int *arg3, int *arg4)
 {
    asm ("    pushl %[arg1]\n"
@@ -85,7 +100,7 @@ main()
     check_non_null_ptr("call_malloced_ptr()", res);
     free(res);
 
-    /* call_divide() tests */
+    /* divide() tests */
     int q = 0, r = 0;
     call_divide(11, 4, &q, &r);
     check_cond("divide(11, 4, &quotient, &reminder)",
@@ -99,7 +114,26 @@ main()
     check_cond("divide(13, -20, &quotient, &reminder)",
                q == (13 / -15) && r == (13 % -15));
 
-    /* call_uint_ptr_dref() tests */
+    /* compare() tests */
+    bool equal = false;
+    bool is_less = false;
+
+    call_compare(20, 30, &equal, &is_less);
+    check_cond("compare(20, 30, &equal, &is_less)",
+               equal == (20 == 30) && is_less == (20 < 30));
+
+    call_compare(-120, -120, &equal, &is_less);
+    check_cond("compare(-120, -120, &equal, &is_less)",
+               equal == (-120 == -120) && is_less == (-120 < -120));
+
+    call_compare(0, -1, &equal, &is_less);
+    check_cond("compare(0, -1, &equal, &is_less)",
+               equal == (0 == -1) && is_less == (0 < -1));
+
+
+
+
+    /* uint_ptr_dref() tests */
     unsigned val;
 
     val = 85;

@@ -819,6 +819,94 @@ x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
 }
 
 static void
+x86_compile_set(FILE *out, iml_operation_t *op)
+{
+    assert(out);
+    assert(op && iml_operation_get_opcode(op) == iml_set);
+
+    ImlOperand *src = iml_operation_get_operand(op, 1);
+    ImlVariable *addr = iml_operation_get_operand(op, 2);
+    iml_register_t *reg;
+    const char *mov_suffix;
+    const char *addr_reg;
+
+    /* offset parameter not implemented */
+    assert(iml_operation_get_operand(op, 3) == NULL);
+
+    switch (iml_operand_get_data_type(src))
+    {
+        case iml_32b:
+            mov_suffix = "l";
+            break;
+        case iml_8b:
+            mov_suffix = "b";
+            break;
+        default:
+            /* unexpected data type */
+            assert(false);
+    }
+
+    reg = iml_variable_get_register(addr);
+    if (reg == NULL)
+    {
+        x86_move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
+        addr_reg = TEMP_REG1_NAME;
+    }
+    else
+    {
+        addr_reg = iml_register_get_name(reg);
+    }
+
+    if (iml_is_constant(src))
+    {
+        fprintf(out,
+                "    mov%s $%d, (%%%s)\n",
+                mov_suffix,
+                iml_constant_get_val_32b(IML_CONSTANT(src)),
+                addr_reg);
+    }
+    else
+    {
+        assert(iml_is_variable(src));
+        const char *src_reg;
+
+        if (iml_operand_get_data_type(src) == iml_8b)
+        {
+            /*
+             * handle the special case of 8-bit write.
+             * - zero out eax
+             * - move src variable to eax
+             * - use lowerst 8-bits in eax (al) for the write operation
+             */
+            fprintf(out,
+                    "    xor %%%s, %%%s\n",
+                    TEMP_REG2_NAME,
+                    TEMP_REG2_NAME);
+            x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+            src_reg = TEMP_REG2_BYTE_NAME;
+        }
+        else
+        {
+            reg = iml_variable_get_register(IML_VARIABLE(src));
+            if (reg == NULL)
+            {
+               x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+               src_reg = TEMP_REG2_NAME;
+            }
+            else
+            {
+               src_reg = iml_register_get_name(reg);
+            }
+        }
+
+        fprintf(out,
+                "    mov%s %%%s, (%%%s)\n",
+                mov_suffix, src_reg, addr_reg);
+    }
+}
+
+
+static void
 x86_compile_setelm(FILE *out, iml_operation_t *op)
 {
     ImlVariable *dest = iml_operation_get_operand(op, 2);
@@ -1734,6 +1822,9 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_setelm:
                 x86_compile_setelm(params->out, op);
+                break;
+            case iml_set:
+                x86_compile_set(params->out, op);
                 break;
             case iml_getelm:
                 x86_compile_getelm(params->out, op);

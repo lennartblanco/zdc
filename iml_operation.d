@@ -26,6 +26,7 @@ enum iml_opcode_t
     ugreatereq,
     copy,
     mset,
+    set,
     setelm,
     getelm,
     getaddr,

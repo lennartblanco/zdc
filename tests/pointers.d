@@ -31,6 +31,24 @@ divide(int divident, int divisor,
   *reminder = divident % divisor;
 }
 
+void
+compare(int left, int right,
+        bool *equal,
+        bool *left_less_then_right)
+{
+  if (left == right) // test assigning writing bool constant via pointer
+  {
+    *equal = true;
+  }
+  else
+  {
+    *equal = false;
+  }
+
+  // test saving expression result via a pointer
+  *left_less_then_right = left < right;
+}
+
 // test using pointer dereference operation in expressions
 uint
 uint_ptr_dref(uint *ptr, bool simple)

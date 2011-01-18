@@ -148,6 +148,14 @@ memcpy src, length => dest
    - length is variable or constant of 32b type
    - dest is pointer, frame offset or array handle
 
+set <src> => <addr>[+<offset>]
+  write <src> value to memory address specified by <addr> + <offset>. offset is
+  optional, and if not specified 0 is assumed. the size of the write operation
+  is derived from the type of <src>
+    - <addr> must be a pointer variable
+    - <offset> must be contant of variable of 32b,
+        it's value will be evaluated as unsigned integer
+
 getaddr blob => addr
   get the address of the blob variable and store it in a pointer variable
    - blob is a variable of blob type

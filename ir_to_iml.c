@@ -1420,11 +1420,7 @@ add_ptr_dref_assignment(IrFunctionDef *function,
     /* add iml to write rvalue to the destination address */
     ir_function_def_add_operation(
         function,
-        iml_operation_new(iml_setelm,
-                          rval,
-                          lval,
-                          iml_constant_new_32b(0),
-                          ir_ptr_dref_get_dest_size(lvalue)));
+        iml_operation_new(iml_set, rval, lval, NULL));
 
     /* mark left and right operands as unused */
     iml_func_frame_unused_oper(frame, lval);
