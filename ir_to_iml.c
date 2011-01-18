@@ -424,7 +424,7 @@ iml_add_foreach_head(IrFunctionDef *function,
     /* store length of the aggregate array in a temp variable */
     *length = iml_func_frame_get_temp(frame, iml_32b);
     ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     aggregate,
                                                     iml_constant_new_32b(0),
                                                     4,
@@ -433,7 +433,7 @@ iml_add_foreach_head(IrFunctionDef *function,
     /* store pointer to the start of aggregate array in a temp variable */
     aggr_ptr = iml_func_frame_get_temp(frame, iml_ptr);
     ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     aggregate,
                                                     iml_constant_new_32b(1),
                                                     4,
@@ -450,7 +450,7 @@ iml_add_foreach_head(IrFunctionDef *function,
     /* generate iml for assigning value variable with aggregates element */
     ir_function_def_add_operation(
         function,
-        iml_operation_new(iml_getfld,
+        iml_operation_new(iml_getelm,
                           aggr_ptr,
                           *index,
                           dt_array_get_element_size(aggregate_type),
@@ -791,7 +791,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
     {
         /* static array cell */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     src,
                                                     index_val,
                                                     size,
@@ -807,7 +807,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
         /* generate code to store array pointer in a temp variable */
         ptr = iml_func_frame_get_temp(frame, iml_ptr);
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     src,
                                                     iml_constant_new_32b(1),
                                                     4,
@@ -818,7 +818,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
          * the destination variable
          */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     ptr,
                                                     index_val,
                                                     size,
@@ -857,7 +857,7 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
     /* add iml to fetch the value from the address to the result variable */
     ir_function_def_add_operation(
         function,
-        iml_operation_new(iml_getfld,
+        iml_operation_new(iml_getelm,
                           ptr_exp,
                           iml_constant_new_32b(0),
                           ir_ptr_dref_get_dest_size(ptr_dref),
@@ -896,7 +896,7 @@ iml_add_property_eval(IrFunctionDef *function,
     }
 
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getfld,
+                              iml_operation_new(iml_getelm,
                                                 src,
                                                 iml_constant_new_32b(0),
                                                 4,
@@ -974,7 +974,7 @@ iml_add_array_literal_eval(IrFunctionDef *function,
             iml_add_expression_eval(function,
                                     i->data,
                                     temp);
-            op = iml_operation_new(iml_setfld,
+            op = iml_operation_new(iml_setelm,
                                    temp,
                                    ptr,
                                    iml_constant_new_32b(cntr),
@@ -992,14 +992,14 @@ iml_add_array_literal_eval(IrFunctionDef *function,
      * store length and pointer address in array handle blob
      */
     length = iml_constant_new_32b(ir_array_literal_get_length(expr));
-    op = iml_operation_new(iml_setfld,
+    op = iml_operation_new(iml_setelm,
                            length,
                            res,
                            iml_constant_new_32b(0),
                            4);
     ir_function_def_add_operation(function, op);
 
-    op = iml_operation_new(iml_setfld,
+    op = iml_operation_new(iml_setelm,
                            ptr,
                            res,
                            iml_constant_new_32b(1),
@@ -1065,7 +1065,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
                                                 length));
     /* store length in the result blob */
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_setfld,
+                              iml_operation_new(iml_setelm,
                                                 length,
                                                 res,
                                                 iml_constant_new_32b(0),
@@ -1090,7 +1090,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     {
         /* dynamic array sliced */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     array,
                                                     iml_constant_new_32b(1),
                                                     4,
@@ -1121,7 +1121,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
 
     /* store slice start pointer in the result blob */
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_setfld,
+                              iml_operation_new(iml_setelm,
                                                 start_ptr,
                                                 res,
                                                 iml_constant_new_32b(1),
@@ -1215,7 +1215,7 @@ add_static_array_assignment(IrFunctionDef *function,
         /* generate code to get pointer to rvalue */
         src_ptr = iml_func_frame_get_temp(frame, iml_ptr);
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     rvalue,
                                                     iml_constant_new_32b(1),
                                                     4,
@@ -1269,7 +1269,7 @@ add_array_cell_assignment(IrFunctionDef *function,
     {
         /* static array cell assignment */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_setfld,
+                                  iml_operation_new(iml_setelm,
                                                     res_val,
                                                     dest,
                                                     index_val,
@@ -1287,7 +1287,7 @@ add_array_cell_assignment(IrFunctionDef *function,
         /* generate code to store array pointer in a temp variable */
         ptr = iml_func_frame_get_temp(frame, iml_ptr);
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getfld,
+                                  iml_operation_new(iml_getelm,
                                                     dest,
                                                     iml_constant_new_32b(1),
                                                     4,
@@ -1295,7 +1295,7 @@ add_array_cell_assignment(IrFunctionDef *function,
 
         /* generate code to store value in the array cell */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_setfld,
+                                  iml_operation_new(iml_setelm,
                                                     res_val,
                                                     ptr,
                                                     index_val,
@@ -1333,7 +1333,7 @@ add_array_slice_assignment(IrFunctionDef *function,
     /* store source pointer in temp variable */
     src_ptr = iml_func_frame_get_temp(frame, iml_ptr);
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getfld,
+                              iml_operation_new(iml_getelm,
                                                 src,
                                                 iml_constant_new_32b(1),
                                                 4,
@@ -1342,7 +1342,7 @@ add_array_slice_assignment(IrFunctionDef *function,
     /* generate code to calculate the length in bytes of the array to copy */
     length = iml_func_frame_get_temp(frame, iml_32b);
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getfld,
+                              iml_operation_new(iml_getelm,
                                                 src,
                                                 iml_constant_new_32b(0),
                                                 4,
@@ -1362,7 +1362,7 @@ add_array_slice_assignment(IrFunctionDef *function,
     /* store destination pointer in temp variable */
     dest_ptr = iml_func_frame_get_temp(frame, iml_ptr);
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getfld,
+                              iml_operation_new(iml_getelm,
                                                 dest,
                                                 iml_constant_new_32b(1),
                                                 4,
@@ -1420,7 +1420,7 @@ add_ptr_dref_assignment(IrFunctionDef *function,
     /* add iml to write rvalue to the destination address */
     ir_function_def_add_operation(
         function,
-        iml_operation_new(iml_setfld,
+        iml_operation_new(iml_setelm,
                           rval,
                           lval,
                           iml_constant_new_32b(0),

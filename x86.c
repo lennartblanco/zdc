@@ -628,10 +628,10 @@ x86_compile_mset(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
+x86_compile_setelm_blob(FILE *out, iml_operation_t *op)
 {
     assert(op);
-    assert(iml_operation_get_opcode(op) == iml_setfld);
+    assert(iml_operation_get_opcode(op) == iml_setelm);
 
     ImlOperand *src = iml_operation_get_operand(op, 1);
     ImlVariable *dest = iml_operation_get_operand(op, 2);
@@ -729,10 +729,10 @@ x86_compile_setfld_blob(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
+x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
 {
     assert(op);
-    assert(iml_operation_get_opcode(op) == iml_setfld);
+    assert(iml_operation_get_opcode(op) == iml_setelm);
 
     ImlOperand *src = iml_operation_get_operand(op, 1);
     ImlVariable *dest = iml_operation_get_operand(op, 2);
@@ -819,29 +819,29 @@ x86_compile_setfld_ptr(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_setfld(FILE *out, iml_operation_t *op)
+x86_compile_setelm(FILE *out, iml_operation_t *op)
 {
     ImlVariable *dest = iml_operation_get_operand(op, 2);
 
     if (iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr)
     {
         /* setfld with pointer destination variable */
-        x86_compile_setfld_ptr(out, op);
+        x86_compile_setelm_ptr(out, op);
     }
     else
     {
         assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
 
         /* setfld with blob destination variable */
-        x86_compile_setfld_blob(out, op);
+        x86_compile_setelm_blob(out, op);
     }
 }
 
 static void
-x86_compile_getfld(FILE *out, iml_operation_t *op)
+x86_compile_getelm(FILE *out, iml_operation_t *op)
 {
     assert(op);
-    assert(iml_operation_get_opcode(op) == iml_getfld);
+    assert(iml_operation_get_opcode(op) == iml_getelm);
 
     ImlVariable *src = iml_operation_get_operand(op, 1);
     ImlOperand *index = iml_operation_get_operand(op, 2);
@@ -1732,11 +1732,11 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_mset:
                 x86_compile_mset(params->out, op);
                 break;
-            case iml_setfld:
-                x86_compile_setfld(params->out, op);
+            case iml_setelm:
+                x86_compile_setelm(params->out, op);
                 break;
-            case iml_getfld:
-                x86_compile_getfld(params->out, op);
+            case iml_getelm:
+                x86_compile_getelm(params->out, op);
                 break;
             case iml_getaddr:
                 x86_compile_getaddr(params->out, op);

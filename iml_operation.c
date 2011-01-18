@@ -33,10 +33,10 @@ static void
 print_mset_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
-print_setfld_op(iml_operation_t *op, FILE *out, int indention);
+print_setelm_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
-print_getfld_op(iml_operation_t *op, FILE *out, int indention);
+print_getelm_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
 print_jmpcond_op(iml_operation_t *op, FILE *out, int indention);
@@ -111,13 +111,13 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg2 = va_arg(argp, void *);
             op->arg3 = va_arg(argp, void *);
             break;
-        case iml_setfld:
+        case iml_setelm:
             op->arg1 = va_arg(argp, void *);
             op->arg2 = va_arg(argp, void *);
             op->arg3 = va_arg(argp, void *);
             op->arg4 = GUINT_TO_POINTER(va_arg(argp, guint));
             break;
-        case iml_getfld:
+        case iml_getelm:
             op->arg1 = va_arg(argp, void *);
             op->arg2 = va_arg(argp, void *);
             op->arg3 = GUINT_TO_POINTER(va_arg(argp, guint));
@@ -224,11 +224,11 @@ iml_operation_print(iml_operation_t *self,
         case iml_mset:
             print_mset_op(self, out, indention);
             break;
-        case iml_setfld:
-            print_setfld_op(self, out, indention);
+        case iml_setelm:
+            print_setelm_op(self, out, indention);
             break;
-        case iml_getfld:
-            print_getfld_op(self, out, indention);
+        case iml_getelm:
+            print_getelm_op(self, out, indention);
             break;
         case iml_jmp:
             fprintf_indent(out, indention, "jmp %s\n", self->arg1);
@@ -387,12 +387,12 @@ print_mset_op(iml_operation_t *op, FILE *out, int indention)
 }
 
 static void
-print_setfld_op(iml_operation_t *op, FILE *out, int indention)
+print_setelm_op(iml_operation_t *op, FILE *out, int indention)
 {
     assert(op);
-    assert(op->opcode == iml_setfld);
+    assert(op->opcode == iml_setelm);
 
-    fprintf_indent(out, indention, "setfld ");
+    fprintf_indent(out, indention, "setelm ");
     iml_operand_print_short(op->arg1, out, 0);
     fprintf(out, " => ");
     iml_operand_print_short(op->arg2, out, 0);
@@ -402,12 +402,12 @@ print_setfld_op(iml_operation_t *op, FILE *out, int indention)
 }
 
 static void
-print_getfld_op(iml_operation_t *op, FILE *out, int indention)
+print_getelm_op(iml_operation_t *op, FILE *out, int indention)
 {
     assert(op);
-    assert(op->opcode == iml_getfld);
+    assert(op->opcode == iml_getelm);
 
-    fprintf_indent(out, indention, "getfld ");
+    fprintf_indent(out, indention, "getelm ");
     iml_operand_print_short(op->arg1, out, 0);
     fprintf(out, "(");
     iml_operand_print_short(op->arg2, out, 0);
