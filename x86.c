@@ -495,7 +495,6 @@ x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
         }
         else
         {
-            assert(false); /* code below not tested */
             fprintf(out,
                     "    movl %%%s, %d(%%ebp)\n",
                     iml_register_get_name(reg), frame_offset);
