@@ -829,6 +829,9 @@ x86_compile_set(FILE *out, iml_operation_t *op)
     const char *mov_suffix;
     const char *addr_reg;
 
+    /* only pointers address operands supported */
+    assert(iml_variable_get_data_type(addr) == iml_ptr);
+
     /* offset parameter not implemented */
     assert(iml_operation_get_operand(op, 3) == NULL);
 
