@@ -44,11 +44,35 @@ enum {
  *---------------------------------------------------------------------------*/
 
 static void
-x86_text_prelude(x86_comp_params_t *params,
-                 sym_table_t *sym_table);
+text_prelude(x86_comp_params_t *params, sym_table_t *sym_table);
 
 static void
-x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
+compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
+
+static void
+get_registers(GSList **scratch, GSList **preserved);
+
+static void
+gen_code(IrModule *module, FILE *out_stream, const char *source_file);
+
+static void
+assign_var_locations(iml_func_frame_t *frame);
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
+void
+x86_init(arch_backend_t *backend)
+{
+    backend->get_registers = get_registers;
+    backend->assign_var_locations = assign_var_locations;
+    backend->gen_code = gen_code;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
 
 /**
  * Get the set of available registers on x86 platform.
@@ -61,38 +85,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
  *                  function calls
  */
 static void
-x86_get_registers(GSList **scratch,
-                  GSList **preserved);
-
-/**
- * generate x86 assembly from IR
- */
-static void
-x86_gen_code(IrModule *module,
-             FILE *out_stream,
-             const char *source_file);
-
-static void
-x86_assign_var_locations(iml_func_frame_t *frame);
-
-/*---------------------------------------------------------------------------*
- *                           exported functions                              *
- *---------------------------------------------------------------------------*/
-
-void
-x86_init(arch_backend_t *backend)
-{
-    backend->get_registers = x86_get_registers;
-    backend->assign_var_locations = x86_assign_var_locations;
-    backend->gen_code = x86_gen_code;
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-x86_get_registers(GSList **scratch,
+get_registers(GSList **scratch,
                   GSList **preserved)
 {
     GSList *s_regs = NULL; /* scratch registers */
@@ -118,7 +111,7 @@ x86_get_registers(GSList **scratch,
  *         eax register when used as last argument
  */
 static bool
-x86_param_stored_in_reg(ImlVariable *param)
+param_stored_in_reg(ImlVariable *param)
 {
     guint size;
 
@@ -133,7 +126,7 @@ x86_param_stored_in_reg(ImlVariable *param)
 }
 
 static void
-x86_assign_var_locations(iml_func_frame_t *frame)
+assign_var_locations(iml_func_frame_t *frame)
 {
     GSList *parameters;
     GSList *i;
@@ -151,7 +144,7 @@ x86_assign_var_locations(iml_func_frame_t *frame)
          * deal with last parameter
          */
         param = parameters->data;
-        if (x86_param_stored_in_reg(param))
+        if (param_stored_in_reg(param))
         {
             /*
              * last parameter is passed via eax
@@ -249,10 +242,11 @@ x86_assign_var_locations(iml_func_frame_t *frame)
     iml_func_frame_set_size(frame, (guint)(-(offset)));
 }
 
+/**
+ * generate x86 assembly from IR
+ */
 static void
-x86_gen_code(IrModule *module,
-             FILE *out_stream,
-             const char *source_file)
+gen_code(IrModule *module, FILE *out_stream, const char *source_file)
 {
     x86_comp_params_t params;
     sym_table_t *global_sym_table;
@@ -271,13 +265,13 @@ x86_gen_code(IrModule *module,
     x86_gen_data_section(&params, data_section);
     g_list_free(data_section);
 
-    x86_text_prelude(&params, global_sym_table);
+    text_prelude(&params, global_sym_table);
 
     i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_FUNCTION_DEF(i->data));
-        x86_compile_function_def(&params, i->data);
+        compile_function_def(&params, i->data);
     }
 }
 
@@ -285,8 +279,7 @@ x86_gen_code(IrModule *module,
  * Generate prelude of the .text section for assembly file.
  */
 static void
-x86_text_prelude(x86_comp_params_t *params,
-                 sym_table_t *sym_table)
+text_prelude(x86_comp_params_t *params, sym_table_t *sym_table)
 {
     IrSymbol *main_symb;
 
@@ -335,7 +328,7 @@ x86_text_prelude(x86_comp_params_t *params,
  * @return number of bytes pushed on stack
  */
 static guint
-x86_push_operand(FILE *out, ImlOperand *oper)
+push_operand(FILE *out, ImlOperand *oper)
 {
     assert(IML_IS_OPERAND(oper));
 
@@ -405,7 +398,7 @@ x86_push_operand(FILE *out, ImlOperand *oper)
  * Generate assembly that will move the operand to a register.
  */
 static void
-x86_move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
+move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
 {
     assert(IML_IS_OPERAND(oper));
 
@@ -444,7 +437,7 @@ x86_move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
  * to specified variable.
  */
 static void
-x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
+move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
 {
     assert(IML_VARIABLE(var));
 
@@ -470,7 +463,7 @@ x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
  * Generate assembly that will move operand value to an frame offset.
  */
 static void
-x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
+move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
 {
     assert(IML_IS_OPERAND(oper));
 
@@ -504,19 +497,19 @@ x86_move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
 }
 
 static void
-x86_compile_return(FILE *out, const char *return_label, iml_operation_t *op)
+compile_return(FILE *out, const char *return_label, iml_operation_t *op)
 {
     ImlOperand *ret_value = iml_operation_get_operand(op, 1);
 
     if (ret_value != NULL)
     {
-        x86_move_to_reg(out, "eax", ret_value);
+        move_to_reg(out, "eax", ret_value);
     }
     fprintf(out, "    jmp %s\n", return_label);
 }
 
 static void
-x86_compile_copy(FILE *out, iml_operation_t *op)
+compile_copy(FILE *out, iml_operation_t *op)
 {
     ImlOperand *src;
     ImlVariable *dst;
@@ -575,15 +568,13 @@ x86_compile_copy(FILE *out, iml_operation_t *op)
         }
         else
         {
-            x86_move_from_reg(out,
-                              iml_register_get_name(src_reg),
-                              dst);
+            move_from_reg(out, iml_register_get_name(src_reg), dst);
         }
     }
 }
 
 static void
-x86_compile_mset(FILE *out, iml_operation_t *op)
+compile_mset(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_mset);
@@ -612,7 +603,7 @@ x86_compile_mset(FILE *out, iml_operation_t *op)
             assert(false);
     }
 
-    x86_move_to_reg(out, "eax", src);
+    move_to_reg(out, "eax", src);
 
     fprintf(out,
             "    pushl %%edi\n"
@@ -627,7 +618,7 @@ x86_compile_mset(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_setelm_blob(FILE *out, iml_operation_t *op)
+compile_setelm_blob(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_setelm);
@@ -716,7 +707,7 @@ x86_compile_setelm_blob(FILE *out, iml_operation_t *op)
                 assert(false);
         }
 
-        x86_move_to_reg(out, TEMP_REG2_NAME, src);
+        move_to_reg(out, TEMP_REG2_NAME, src);
         fprintf(out,
                 "    mov%s %%%s, %d(%%ebp, %%%s, %u)\n",
                 move_suffix,
@@ -743,7 +734,7 @@ x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
     assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr);
 
     /* move index value to a temp register */
-    x86_move_to_reg(out, TEMP_REG1_NAME, index);
+    move_to_reg(out, TEMP_REG1_NAME, index);
 
     /* multiply array index with element size to get array offset in bytes */
     if (size > 1)
@@ -809,7 +800,7 @@ x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
                 assert(false);
         }
 
-        x86_move_to_reg(out, TEMP_REG2_NAME, src);
+        move_to_reg(out, TEMP_REG2_NAME, src);
 
         fprintf(out,
                 "    mov%s %%%s, (%%" TEMP_REG1_NAME ")\n",
@@ -818,7 +809,7 @@ x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_set(FILE *out, iml_operation_t *op)
+compile_set(FILE *out, iml_operation_t *op)
 {
     assert(out);
     assert(op && iml_operation_get_opcode(op) == iml_set);
@@ -851,7 +842,7 @@ x86_compile_set(FILE *out, iml_operation_t *op)
     reg = iml_variable_get_register(addr);
     if (reg == NULL)
     {
-        x86_move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
+        move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
         addr_reg = TEMP_REG1_NAME;
     }
     else
@@ -884,7 +875,7 @@ x86_compile_set(FILE *out, iml_operation_t *op)
                     "    xor %%%s, %%%s\n",
                     TEMP_REG2_NAME,
                     TEMP_REG2_NAME);
-            x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+            move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
             src_reg = TEMP_REG2_BYTE_NAME;
         }
         else
@@ -892,7 +883,7 @@ x86_compile_set(FILE *out, iml_operation_t *op)
             reg = iml_variable_get_register(IML_VARIABLE(src));
             if (reg == NULL)
             {
-               x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+               move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
                src_reg = TEMP_REG2_NAME;
             }
             else
@@ -908,7 +899,7 @@ x86_compile_set(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_get(FILE *out, iml_operation_t *op)
+compile_get(FILE *out, iml_operation_t *op)
 {
     assert(out);
     assert(op && iml_operation_get_opcode(op) == iml_get);
@@ -943,7 +934,7 @@ x86_compile_get(FILE *out, iml_operation_t *op)
     reg = iml_variable_get_register(addr);
     if (reg == NULL)
     {
-        x86_move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
+        move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
         addr_reg = TEMP_REG1_NAME;
     }
     else
@@ -973,7 +964,7 @@ x86_compile_get(FILE *out, iml_operation_t *op)
 
 
 static void
-x86_compile_setelm(FILE *out, iml_operation_t *op)
+compile_setelm(FILE *out, iml_operation_t *op)
 {
     ImlVariable *dest = iml_operation_get_operand(op, 2);
 
@@ -987,12 +978,12 @@ x86_compile_setelm(FILE *out, iml_operation_t *op)
         assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
 
         /* setfld with blob destination variable */
-        x86_compile_setelm_blob(out, op);
+        compile_setelm_blob(out, op);
     }
 }
 
 static void
-x86_compile_getelm(FILE *out, iml_operation_t *op)
+compile_getelm(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_getelm);
@@ -1053,7 +1044,7 @@ x86_compile_getelm(FILE *out, iml_operation_t *op)
         if (reg == NULL)
         {
             /* move the pointer to a register */
-            x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+            move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
             base_reg = TEMP_REG2_NAME;
         }
         else
@@ -1114,7 +1105,7 @@ x86_compile_getelm(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_getaddr(FILE *out, iml_operation_t *op)
+compile_getaddr(FILE *out, iml_operation_t *op)
 {
     assert(out);
     assert(iml_operation_get_opcode(op) == iml_getaddr);
@@ -1149,12 +1140,12 @@ x86_compile_getaddr(FILE *out, iml_operation_t *op)
     /* move address to result pointer variable if needed */
     if (reg == NULL)
     {
-        x86_move_from_reg(out, reg_name, ptr);
+        move_from_reg(out, reg_name, ptr);
     }
 }
 
 static void
-x86_compile_binop(FILE *out, iml_operation_t *op)
+compile_binop(FILE *out, iml_operation_t *op)
 {
     ImlOperand *left;
     ImlOperand *right;
@@ -1272,21 +1263,21 @@ x86_compile_binop(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_mult(FILE *out, iml_operation_t *op)
+compile_mult(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_smult ||
            iml_operation_get_opcode(op) == iml_umult);
-    x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
-    x86_move_to_reg(out, TEMP_REG1_NAME, iml_operation_get_operand(op, 2));
+    move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
+    move_to_reg(out, TEMP_REG1_NAME, iml_operation_get_operand(op, 2));
     fprintf(out,
             "    %smul %%" TEMP_REG1_NAME "\n",
             iml_operation_get_opcode(op) == iml_smult ? "i" : "");
-    x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
+    move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
 }
 
 static void
-x86_compile_divmod(FILE *out, iml_operation_t *op)
+compile_divmod(FILE *out, iml_operation_t *op)
 {
     assert(op);
     /* instruction to use for division */
@@ -1326,13 +1317,13 @@ x86_compile_divmod(FILE *out, iml_operation_t *op)
         res_reg = "edx";
     }
 
-    x86_move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
+    move_to_reg(out, "eax", iml_operation_get_operand(op, 1));
 
     fprintf(out, "    %s\n", init_edx);
 
     if (iml_is_constant(right))
     {
-        x86_move_to_reg(out, TEMP_REG1_NAME, right);
+        move_to_reg(out, TEMP_REG1_NAME, right);
         fprintf(out,
                 "    %s %%" TEMP_REG1_NAME "\n",
                 inst);
@@ -1359,7 +1350,7 @@ x86_compile_divmod(FILE *out, iml_operation_t *op)
         }
     }
 
-    x86_move_from_reg(out, res_reg, res);
+    move_from_reg(out, res_reg, res);
 }
 
 
@@ -1367,7 +1358,7 @@ x86_compile_divmod(FILE *out, iml_operation_t *op)
  * Generate assembly for ineg and bneg operations.
  */
 static void
-x86_compile_neg(FILE *out, iml_operation_t *op)
+compile_neg(FILE *out, iml_operation_t *op)
 {
     assert(op);
 
@@ -1394,9 +1385,7 @@ x86_compile_neg(FILE *out, iml_operation_t *op)
 
     res_reg = iml_variable_get_register(res);
     if (res_reg == NULL) {
-        x86_move_to_offset(out,
-                           iml_variable_get_frame_offset(res),
-                           oper);
+        move_to_offset(out, iml_variable_get_frame_offset(res), oper);
         fprintf(out,
                 "    %s %d(%%ebp)\n",
                 instr,
@@ -1404,7 +1393,7 @@ x86_compile_neg(FILE *out, iml_operation_t *op)
     }
     else
     {
-        x86_move_to_reg(out, iml_register_get_name(res_reg), oper);
+        move_to_reg(out, iml_register_get_name(res_reg), oper);
         fprintf(out, "    %s %%%s\n", instr, iml_register_get_name(res_reg));
     }
 }
@@ -1413,7 +1402,7 @@ x86_compile_neg(FILE *out, iml_operation_t *op)
  * Generate assembly for integer comparison operations
  */
 static void
-x86_compile_icmp(FILE *out, iml_operation_t *op)
+compile_icmp(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_equal ||
@@ -1615,7 +1604,7 @@ x86_compile_icmp(FILE *out, iml_operation_t *op)
 }
 
 static void
-x86_compile_jmpcond(FILE *out, iml_operation_t *op)
+compile_jmpcond(FILE *out, iml_operation_t *op)
 {
     assert(op);
 
@@ -1677,7 +1666,7 @@ x86_compile_jmpcond(FILE *out, iml_operation_t *op)
         else
         {
             left_reg_name = TEMP_REG1_NAME;
-            x86_move_to_reg(out, left_reg_name, arg1);
+            move_to_reg(out, left_reg_name, arg1);
         }
 
         if (right_reg == NULL)
@@ -1706,21 +1695,21 @@ x86_compile_jmpcond(FILE *out, iml_operation_t *op)
  * @return number of bytes used by the arguments on the stack
  */
 static guint
-x86_compile_dcall_args(FILE *out, GSList *arguments)
+compile_dcall_args(FILE *out, GSList *arguments)
 {
     GSList *i;
     guint args_stack_size = 0;
 
     for (i = arguments; i != NULL; i = g_slist_next(i))
     {
-        if (g_slist_next(i) != NULL || !x86_param_stored_in_reg(i->data))
+        if (g_slist_next(i) != NULL || !param_stored_in_reg(i->data))
         {
-            args_stack_size += x86_push_operand(out, IML_OPERAND(i->data));
+            args_stack_size += push_operand(out, IML_OPERAND(i->data));
         }
         else
         {
             /* store last argument in eax */
-            x86_move_to_reg(out, "eax", IML_OPERAND(i->data));
+            move_to_reg(out, "eax", IML_OPERAND(i->data));
         }
     }
 
@@ -1733,7 +1722,7 @@ x86_compile_dcall_args(FILE *out, GSList *arguments)
  * @return number of bytes used by the arguments on the stack
  */
 static guint
-x86_compile_ccall_args(FILE *out, GSList *arguments)
+compile_ccall_args(FILE *out, GSList *arguments)
 {
     GSList *args;
     GSList *i;
@@ -1749,7 +1738,7 @@ x86_compile_ccall_args(FILE *out, GSList *arguments)
 
     for (i = args; i != NULL; i = g_slist_next(i))
     {
-      x86_push_operand(out, IML_OPERAND(i->data));
+      push_operand(out, IML_OPERAND(i->data));
       args_stack_size += 4;
     }
     g_slist_free(args);
@@ -1758,7 +1747,7 @@ x86_compile_ccall_args(FILE *out, GSList *arguments)
 }
 
 static void
-x86_compile_call(FILE *out, iml_operation_t *op)
+compile_call(FILE *out, iml_operation_t *op)
 {
     assert(op);
     assert(iml_operation_get_opcode(op) == iml_call ||
@@ -1775,10 +1764,10 @@ x86_compile_call(FILE *out, iml_operation_t *op)
     switch (iml_operation_get_opcode(op))
     {
         case iml_call:
-            args_stack_size = x86_compile_dcall_args(out, args);
+            args_stack_size = compile_dcall_args(out, args);
             break;
         case iml_call_c:
-            args_stack_size = x86_compile_ccall_args(out, args);
+            args_stack_size = compile_ccall_args(out, args);
             break;
         default:
             /* unexpected operand */
@@ -1801,12 +1790,12 @@ x86_compile_call(FILE *out, iml_operation_t *op)
     res = iml_operation_get_operand(op, 3);
     if (res != NULL)
     {
-        x86_move_from_reg(out, "eax", res);
+        move_from_reg(out, "eax", res);
     }
 }
 
 static void
-x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
+compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 {
     char *func_name;
     iml_func_frame_t *frame;
@@ -1832,7 +1821,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 
     /* generate the code to store last parameter in stack frame if needed */
     i = g_slist_last(iml_func_frame_get_parameters(frame));
-    if (i != NULL && x86_param_stored_in_reg(i->data))
+    if (i != NULL && param_stored_in_reg(i->data))
     {
         fprintf(params->out,
                 "    movl %%eax, %d(%%ebp)\n",
@@ -1870,10 +1859,10 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
         switch (opcode)
         {
             case iml_return:
-                x86_compile_return(params->out, return_label, op);
+                compile_return(params->out, return_label, op);
                 break;
             case iml_copy:
-                x86_compile_copy(params->out, op);
+                compile_copy(params->out, op);
                 break;
             case iml_cast:
                 /*
@@ -1881,45 +1870,45 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                  * stored as 32-bit integers,
                  * thus iml_cast is equivalent to iml_copy operation
                  */
-                x86_compile_copy(params->out, op);
+                compile_copy(params->out, op);
                 break;
             case iml_mset:
-                x86_compile_mset(params->out, op);
+                compile_mset(params->out, op);
                 break;
             case iml_set:
-                x86_compile_set(params->out, op);
+                compile_set(params->out, op);
                 break;
             case iml_get:
-                x86_compile_get(params->out, op);
+                compile_get(params->out, op);
                 break;
             case iml_setelm:
-                x86_compile_setelm(params->out, op);
+                compile_setelm(params->out, op);
                 break;
             case iml_getelm:
-                x86_compile_getelm(params->out, op);
+                compile_getelm(params->out, op);
                 break;
             case iml_getaddr:
-                x86_compile_getaddr(params->out, op);
+                compile_getaddr(params->out, op);
                 break;
             case iml_add:
             case iml_sub:
             case iml_and:
             case iml_or:
-                x86_compile_binop(params->out, op);
+                compile_binop(params->out, op);
                 break;
             case iml_umult:
             case iml_smult:
-                x86_compile_mult(params->out, op);
+                compile_mult(params->out, op);
                 break;
             case iml_udiv:
             case iml_sdiv:
             case iml_umod:
             case iml_smod:
-                x86_compile_divmod(params->out, op);
+                compile_divmod(params->out, op);
                 break;
             case iml_ineg:
             case iml_bneg:
-                x86_compile_neg(params->out, op);
+                compile_neg(params->out, op);
                 break;
             case iml_equal:
             case iml_nequal:
@@ -1931,7 +1920,7 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_ulesseq:
             case iml_sgreatereq:
             case iml_ugreatereq:
-                x86_compile_icmp(params->out, op);
+                compile_icmp(params->out, op);
                 break;
             case iml_jmp:
                 fprintf(params->out,
@@ -1940,11 +1929,11 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_jmpneq:
             case iml_jmpuless:
-                x86_compile_jmpcond(params->out, op);
+                compile_jmpcond(params->out, op);
                 break;
             case iml_call:
             case iml_call_c:
-                x86_compile_call(params->out, op);
+                compile_call(params->out, op);
                 break;
             case iml_label:
                 fprintf(params->out,
