@@ -83,6 +83,18 @@ call_uint_ptr_dref(unsigned *arg1, int arg2)
     return res;
 }
 
+bool
+call_char_ptr_dref(char *arg1)
+{
+   int res;
+
+   asm ("    call _D8pointers13char_ptr_drefFPaZb\n"
+        : "=a"(res)
+        : "a"(arg1));
+
+   return res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -130,9 +142,6 @@ main()
     check_cond("compare(0, -1, &equal, &is_less)",
                equal == (0 == -1) && is_less == (0 < -1));
 
-
-
-
     /* uint_ptr_dref() tests */
     unsigned val;
 
@@ -149,6 +158,14 @@ main()
     check_uint("uint_ptr_dref(&val, false)",
                call_uint_ptr_dref(&val, false), val * 2 + val / 2);
 
+    /* char_ptr_dref() tests */
+    char c;
+    c = 'x';
+    check_bool("char_ptr_dref(&'x')", call_char_ptr_dref(&c), false);
+    c = 'G';
+    check_bool("char_ptr_dref(&'G')", call_char_ptr_dref(&c), true);
+    c = '7';
+    check_bool("char_ptr_dref(&'7')", call_char_ptr_dref(&c), false);
 
     check_exit();
 }

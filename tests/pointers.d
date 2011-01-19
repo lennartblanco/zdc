@@ -49,7 +49,7 @@ compare(int left, int right,
   *left_less_then_right = left < right;
 }
 
-// test using pointer dereference operation in expressions
+// test using uint pointer dereference operation in expressions
 uint
 uint_ptr_dref(uint *ptr, bool simple)
 {
@@ -64,4 +64,16 @@ uint_ptr_dref(uint *ptr, bool simple)
   a = *ptr / 2;
 
   return *ptr + a + tmp;
+}
+
+// test using char pointer dereference operation in expressions
+bool
+char_ptr_dref(char *c)
+{
+  if ('A' <= *c && *c <= 'Z')
+  {
+     return true;
+  }
+
+  return false;
 }

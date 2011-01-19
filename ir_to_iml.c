@@ -857,11 +857,7 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
     /* add iml to fetch the value from the address to the result variable */
     ir_function_def_add_operation(
         function,
-        iml_operation_new(iml_getelm,
-                          ptr_exp,
-                          iml_constant_new_32b(0),
-                          ir_ptr_dref_get_dest_size(ptr_dref),
-                          res));
+        iml_operation_new(iml_get, ptr_exp, NULL, res));
 
     /* pointer expression operand not needed any more */
     iml_func_frame_unused_oper(frame, ptr_exp);

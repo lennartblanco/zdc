@@ -40,6 +40,7 @@ typedef enum iml_opcode_e
     iml_copy,
     iml_mset,
     iml_set,
+    iml_get,
     iml_setelm,
     iml_getelm,
     iml_getaddr,

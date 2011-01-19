@@ -148,6 +148,15 @@ memcpy src, length => dest
    - length is variable or constant of 32b type
    - dest is pointer, frame offset or array handle
 
+get <addr>[+<offset>] => <dest>
+  get value at memory soecified by <addr> + <offset> and store it in <dest>.
+  offset is optional, and if not specified 0 is assumed. the size of the read
+  operation is derived from the type of <dest>
+   - <addr> must be a pointer variable
+   - <offset> must be contant of variable of 32b,
+       it's value will be evaluated as unsigned integer
+   - <dest> must be a variable
+
 set <src> => <addr>[+<offset>]
   write <src> value to memory address specified by <addr> + <offset>. offset is
   optional, and if not specified 0 is assumed. the size of the write operation

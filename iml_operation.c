@@ -36,6 +36,9 @@ static void
 print_set_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
+print_get_op(iml_operation_t *op, FILE *out, int indention);
+
+static void
 print_setelm_op(iml_operation_t *op, FILE *out, int indention);
 
 static void
@@ -111,6 +114,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_call:
         case iml_call_c:
         case iml_set:
+        case iml_get:
             op->arg1 = va_arg(argp, void *);
             op->arg2 = va_arg(argp, void *);
             op->arg3 = va_arg(argp, void *);
@@ -230,6 +234,9 @@ iml_operation_print(iml_operation_t *self,
             break;
         case iml_set:
             print_set_op(self, out, indention);
+            break;
+        case iml_get:
+            print_get_op(self, out, indention);
             break;
         case iml_setelm:
             print_setelm_op(self, out, indention);
@@ -409,6 +416,24 @@ print_set_op(iml_operation_t *op, FILE *out, int indention)
         iml_operand_print_short(op->arg3, out, 0);
     }
     fprintf(out, "]\n");
+}
+
+static void
+print_get_op(iml_operation_t *op, FILE *out, int indention)
+{
+    assert(op);
+    assert(op->opcode == iml_get);
+
+    fprintf_indent(out, indention, "get [");
+    iml_operand_print_short(op->arg1, out, 0);
+    if (op->arg2 != NULL)
+    {
+        fprintf(out, " + ");
+        iml_operand_print_short(op->arg2, out, 0);
+    }
+    fprintf(out, "] => ");
+    iml_operand_print_short(op->arg3, out, 0);
+    fprintf(out, "\n");
 }
 
 static void

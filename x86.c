@@ -907,6 +907,70 @@ x86_compile_set(FILE *out, iml_operation_t *op)
     }
 }
 
+static void
+x86_compile_get(FILE *out, iml_operation_t *op)
+{
+    assert(out);
+    assert(op && iml_operation_get_opcode(op) == iml_get);
+
+    ImlVariable *addr = iml_operation_get_operand(op, 1);
+    ImlVariable *dest = iml_operation_get_operand(op, 3);
+    iml_register_t *reg;
+    const char *mov_suffix;
+    const char *addr_reg;
+
+    /* only pointers address operands supported */
+    assert(iml_variable_get_data_type(addr) == iml_ptr);
+
+    /* offset parameter not implemented */
+    assert(iml_operation_get_operand(op, 2) == NULL);
+
+    assert(iml_is_variable(dest));
+
+    switch (iml_variable_get_data_type(dest))
+    {
+        case iml_32b:
+            mov_suffix = "l";
+            break;
+        case iml_8b:
+            mov_suffix = "zbl";
+            break;
+        default:
+            /* unexpected data type */
+            assert(false);
+    }
+
+    reg = iml_variable_get_register(addr);
+    if (reg == NULL)
+    {
+        x86_move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
+        addr_reg = TEMP_REG1_NAME;
+    }
+    else
+    {
+        addr_reg = iml_register_get_name(reg);
+    }
+
+    reg = iml_variable_get_register(dest);
+    if (reg == NULL)
+    {
+        fprintf(out,
+                "    mov%s (%%%s), %%" TEMP_REG2_NAME "\n"
+                "    movl %%" TEMP_REG2_NAME ", %d(%%ebp)\n",
+                mov_suffix,
+                addr_reg,
+                iml_variable_get_frame_offset(dest));
+    }
+    else
+    {
+        fprintf(out,
+                "    mov%s (%%%s), %%%s\n",
+                mov_suffix,
+                addr_reg,
+                iml_register_get_name(reg));
+    }
+}
+
 
 static void
 x86_compile_setelm(FILE *out, iml_operation_t *op)
@@ -1822,11 +1886,14 @@ x86_compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_mset:
                 x86_compile_mset(params->out, op);
                 break;
-            case iml_setelm:
-                x86_compile_setelm(params->out, op);
-                break;
             case iml_set:
                 x86_compile_set(params->out, op);
+                break;
+            case iml_get:
+                x86_compile_get(params->out, op);
+                break;
+            case iml_setelm:
+                x86_compile_setelm(params->out, op);
                 break;
             case iml_getelm:
                 x86_compile_getelm(params->out, op);
