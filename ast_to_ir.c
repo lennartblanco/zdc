@@ -416,31 +416,38 @@ func_params_to_ir(GSList *ast_func_params)
     return g_slist_reverse(parameters);
 }
 
-static IrFunctionDecl *
-func_decl_to_ir(AstFunctionDecl *ast_func_decl)
+static ir_linkage_type_t
+parse_linkage_type(const char *linkage_name)
 {
-    assert(AST_IS_FUNCTION_DECL(ast_func_decl));
-
-    IrFunctionDecl *func_decl;
-    char *linkage_type_name;
     ir_linkage_type_t linkage_type;
-    GSList *parameters;
 
-
-    linkage_type_name = ast_function_decl_get_linkage(ast_func_decl);
-
-    if (linkage_type_name == NULL || g_str_equal("D", linkage_type_name))
+    if (linkage_name == NULL || /* default linkage type is 'D' */
+        g_str_equal("D", linkage_name))
     {
-        /* default linkage type is 'D' */
         linkage_type = ir_d_linkage;
     }
-    else if (g_str_equal("C", linkage_type_name))
+    else if (g_str_equal("C", linkage_name))
     {
         linkage_type = ir_c_linkage;
     } else {
         /* unexpected linkage type string */
         assert(false);
     }
+
+    return linkage_type;
+}
+
+static IrFunctionDecl *
+func_decl_to_ir(AstFunctionDecl *ast_func_decl)
+{
+    assert(AST_IS_FUNCTION_DECL(ast_func_decl));
+
+    IrFunctionDecl *func_decl;
+    ir_linkage_type_t linkage_type;
+    GSList *parameters;
+
+    linkage_type =
+            parse_linkage_type(ast_function_decl_get_linkage(ast_func_decl));
 
     parameters = 
         func_params_to_ir(ast_function_decl_get_parameters(ast_func_decl));
@@ -462,7 +469,12 @@ func_def_to_ir(compilation_status_t *compile_status,
                bool convert_body)
 {
     IrFunctionDef *ir_func;
+    ir_linkage_type_t linkage_type;
     GSList *parameters;
+
+    linkage_type =
+            parse_linkage_type(ast_function_def_get_linkage(ast_func_def));
+
     parameters = 
         func_params_to_ir(ast_function_def_get_parameters(ast_func_def));
 
@@ -471,6 +483,7 @@ func_def_to_ir(compilation_status_t *compile_status,
                             ast_function_def_get_name(ast_func_def),
                             parameters,
                             parent_module,
+                            linkage_type,
                             ast_node_get_line_num(ast_func_def));
 
     if (convert_body)

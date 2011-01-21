@@ -56,7 +56,7 @@ static void
 gen_code(IrModule *module, FILE *out_stream, const char *source_file);
 
 static void
-assign_var_locations(iml_func_frame_t *frame);
+assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -125,11 +125,13 @@ param_stored_in_reg(ImlVariable *param)
     return size < 4 && size != 3;
 }
 
-static void
-assign_var_locations(iml_func_frame_t *frame)
+/**
+ * Assign location to parameters of a function with D-linkage.
+ */
+static gint
+assign_dparams_locations(iml_func_frame_t *frame)
 {
     GSList *parameters;
-    GSList *i;
     gint offset = 0;
 
     /* assign locations to parameters */
@@ -160,17 +162,64 @@ assign_var_locations(iml_func_frame_t *frame)
             params_offset += iml_variable_get_size(param);
         }
 
+        GSList *i;
         for (i = g_slist_next(parameters);
              i != NULL;
              i = g_slist_next(i))
         {
-            param = parameters->data;
+            param = i->data;
             iml_variable_set_frame_offset(IML_VARIABLE(i->data), params_offset);
             params_offset += iml_variable_get_size(param);
         }
 
         /* clean-up */
         g_slist_free(parameters);
+    }
+
+    return offset;
+}
+
+/**
+ * Assign location to parameters of a function with C-linkage.
+ */
+static gint
+assign_cparams_locations(iml_func_frame_t *frame)
+{
+    GSList *i;
+    guint params_offset = 8;
+
+    for (i = iml_func_frame_get_parameters(frame);
+         i != NULL;
+         i = g_slist_next(i))
+    {
+        ImlVariable *param;
+
+        param = i->data;
+        iml_variable_set_frame_offset(IML_VARIABLE(i->data), params_offset);
+        params_offset += iml_variable_get_size(param);
+    }
+
+
+    return 0;
+}
+
+static void
+assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
+{
+    GSList *i;
+    gint offset;
+
+    switch (linkage)
+    {
+        case ir_d_linkage:
+            offset = assign_dparams_locations(frame);
+            break;
+        case ir_c_linkage:
+            offset = assign_cparams_locations(frame);
+            break;
+        default:
+            /* unexpected linkage type */
+            assert(false);
     }
 
     /*
@@ -1797,6 +1846,7 @@ compile_call(FILE *out, iml_operation_t *op)
 static void
 compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
 {
+    ir_linkage_type_t linkage;
     char *func_name;
     iml_func_frame_t *frame;
     GSList *i;
@@ -1804,6 +1854,7 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     char *return_label;
 
 
+    linkage = ir_function_get_linkage(IR_FUNCTION(func_def));
     func_name = ir_function_get_mangled_name(IR_FUNCTION(func_def));
     frame = ir_function_def_get_frame(func_def);
 
@@ -1819,9 +1870,13 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             "    enter $%d, $0\n",
             iml_func_frame_get_size(frame));
 
-    /* generate the code to store last parameter in stack frame if needed */
-    i = g_slist_last(iml_func_frame_get_parameters(frame));
-    if (i != NULL && param_stored_in_reg(i->data))
+    /*
+     * generate the code to store last parameter
+     * on the stack frame if needed
+     */
+    if (linkage == ir_d_linkage &&
+        (i = g_slist_last(iml_func_frame_get_parameters(frame))) != NULL &&
+        param_stored_in_reg(i->data))
     {
         fprintf(params->out,
                 "    movl %%eax, %d(%%ebp)\n",

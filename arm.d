@@ -52,10 +52,13 @@ get_registers(GSList **scratch, GSList **preserved)
 }
 
 extern (C) void
-assign_var_locations(iml_func_frame_t *frame)
+assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
 {
     int start_offset;
     int offset;
+
+    assert(linkage == ir_linkage_type_t.d_linkage,
+           "only function defintions with D linkage implemented");
 
     int get_start_offset()
     {

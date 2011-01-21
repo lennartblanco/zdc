@@ -1,5 +1,11 @@
 struct IrFunction;
 
+enum ir_linkage_type_t
+{
+  d_linkage,
+  c_linkage
+}
+
 extern (C)
 {
     char *

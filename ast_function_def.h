@@ -35,6 +35,7 @@ typedef struct
     AstNode      parent;
 
     /* private */
+    char         *linkage;      /* linkage attribute */
     char         *name;
     GSList       *parameters;
     DtDataType   *return_type;
@@ -59,6 +60,15 @@ ast_function_def_new(char *name,
                      DtDataType *return_type,
                      AstCodeBlock *body,
                      guint line_number);
+
+/**
+ * Set function's linkage type attribute
+ */
+void
+ast_function_def_set_linkage(AstFunctionDef *self, char *linkage);
+
+char *
+ast_function_def_get_linkage(AstFunctionDef *self);
 
 char *
 ast_function_def_get_name(AstFunctionDef *self);

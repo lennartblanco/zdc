@@ -75,7 +75,6 @@ declaration<module> :
     import_declaration<module>
 |   alias_declaration<module>
 |   enum_declaration<module>
-|   func_def_list<module>
 |   declaration_blocks<module>
 ;
 
@@ -167,20 +166,29 @@ declaration_blocks<module> :
 
 declaration_block<module, linkage> :
     {
-        char *l = (*linkage).text;
+        local_linkage.text = (*linkage).text;
     }
     ( linkage_attribute<local_linkage>
-        {
-            l = local_linkage.text;
-        }
     )?
-    func_declaration<func>
+    func<module, local_linkage>
+|   linkage_attribute<l> '{' ( declaration_block<module, l> )* '}'
+;
+
+func<module, linkage> :
+    func_declaration<func_decl>
     {
         ast_module_add_function_decl((*module).module,
-                                     func.function_decl);
-        ast_function_decl_set_linkage(func.function_decl, l);
+                                     func_decl.function_decl);
+        ast_function_decl_set_linkage(func_decl.function_decl,
+                                      (*linkage).text);
     }
-|   linkage_attribute<l> '{' ( declaration_block<module, l> )* '}'
+|   func_definition<func_def>
+    {
+        ast_module_add_function_def((*module).module,
+                                    func_def.function_def);
+        ast_function_def_set_linkage(func_def.function_def,
+                                     (*linkage).text);
+    }
 ;
 
 func_declaration<func> :
@@ -190,6 +198,21 @@ func_declaration<func> :
                                                       args.list,
                                                       t.data_type,
                                                       yypos);
+        free(name.text);
+    }
+;
+
+func_definition<x> :
+    {
+        args.list = NULL;
+    }
+    type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
+    {
+        (*x).function_def = ast_function_def_new(name.text,
+                                                 args.list,
+                                                 t.data_type,
+                                                 code.code_block,
+                                                 yypos);
         free(name.text);
     }
 ;
@@ -218,30 +241,6 @@ module_name<fq_name> :
     {
         (*fq_name).list = g_slist_prepend((*fq_name).list, name.text);
         (*fq_name).list = g_slist_reverse((*fq_name).list);
-    }
-;
-
-func_def_list<module> :
-    func_def_list<module> func_def<func>
-    {
-        ast_module_add_function_def((*module).module,
-                                    func.function_def);
-    }
-| null
-;
-
-func_def<x> :
-    {
-        args.list = NULL;
-    }
-    type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
-    {
-        (*x).function_def = ast_function_def_new(name.text,
-                                                 args.list,
-                                                 t.data_type,
-                                                 code.code_block,
-                                                 yypos);
-        free(name.text);
     }
 ;
 

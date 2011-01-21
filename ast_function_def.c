@@ -63,6 +63,22 @@ ast_function_def_new(char *name,
     return func;
 }
 
+void
+ast_function_def_set_linkage(AstFunctionDef *self, char *linkage)
+{
+    assert(AST_IS_FUNCTION_DEF(self));
+
+    self->linkage = linkage;
+}
+
+char *
+ast_function_def_get_linkage(AstFunctionDef *self)
+{
+    assert(AST_IS_FUNCTION_DEF(self));
+
+    return self->linkage;
+}
+
 char *
 ast_function_def_get_name(AstFunctionDef *self)
 {

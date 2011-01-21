@@ -12,7 +12,8 @@
 
 typedef void (*get_registers_func_t) (GSList **scratch, GSList **preserved);
 
-typedef void (*assign_var_locations_func_t) (iml_func_frame_t *frame);
+typedef void (*assign_var_locations_func_t) (iml_func_frame_t *frame,
+                                             ir_linkage_type_t linkage);
 
 typedef void (*gen_code_func_t) (IrModule *module,
                                  FILE *out_stream,

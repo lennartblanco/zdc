@@ -1812,8 +1812,9 @@ validate_entry_point(compilation_status_t *compile_status,
 }
 
 static void
-assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
+assign_registers(IrFunctionDef *func, arch_backend_t *backend)
 {
+    iml_func_frame_t *frame = ir_function_def_get_frame(func);
     GSList *scratch_regs;
     GSList *preserved_regs;
     GSList *regs; /* all available registers */
@@ -1889,7 +1890,8 @@ assign_registers(iml_func_frame_t *frame, arch_backend_t *backend)
      * call the backend hook for
      * assigning locations to this frames variables
      */
-    backend->assign_var_locations(frame);
+    backend->assign_var_locations(frame,
+                                  ir_function_get_linkage(IR_FUNCTION(func)));
 }
 
 /*---------------------------------------------------------------------------*
@@ -1924,8 +1926,7 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
         validate_function_def(compile_status, func_def);
         if (compile_status->errors_count == 0) {
-            assign_registers(ir_function_def_get_frame(func_def),
-                             compile_status->backend);
+            assign_registers(func_def, compile_status->backend);
         }
     }
 }

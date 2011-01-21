@@ -56,6 +56,7 @@ ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
                     IrModule *parent_module,
+                    ir_linkage_type_t linkage_type,
                     guint line_number);
 
 char *
