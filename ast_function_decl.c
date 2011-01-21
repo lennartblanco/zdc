@@ -63,8 +63,7 @@ ast_function_decl_new(char *name,
 }
 
 void
-ast_function_decl_set_linkage(AstFunctionDecl *self,
-                              char *linkage)
+ast_function_decl_set_linkage(AstFunctionDecl *self, char *linkage)
 {
     assert(AST_IS_FUNCTION_DECL(self));
 
