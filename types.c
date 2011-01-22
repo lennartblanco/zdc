@@ -6,6 +6,7 @@
 #include "dt_array.h"
 #include "dt_static_array.h"
 #include "dt_pointer.h"
+#include "ir_function.h"
 #include "ir_cast.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
@@ -183,6 +184,12 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
 
     IrExpression *res_exp = NULL;
     DtDataType *source_type;
+
+    if (IR_IS_FUNCTION(expression))
+    {
+        /* can't convert function name to basic type */
+        return NULL;
+    }
 
     source_type = ir_expression_get_data_type(expression);
     if (DT_IS_ENUM(source_type))

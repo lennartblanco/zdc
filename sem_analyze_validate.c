@@ -772,7 +772,7 @@ validate_return(compilation_status_t *compile_status,
         if (conv_exp == NULL)
         {
             compile_error(compile_status,
-                          IR_NODE(exp),
+                          ret,
                           "return expression have incompatible type\n");
             return;
         }
