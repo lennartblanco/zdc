@@ -55,9 +55,6 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
     int start_offset;
     int offset;
 
-    assert(linkage == ir_linkage_type_t.d_linkage,
-           "only function defintions with D linkage implemented");
-
     int get_start_offset()
     {
         uint num_of_used_regs;
@@ -281,6 +278,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.cast_op:
                 compile_copy(asmfile, op);
                 break;
+            case iml_opcode_t.call_c:
             case iml_opcode_t.call:
                 compile_call(asmfile, op);
                 break;
