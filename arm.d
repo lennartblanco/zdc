@@ -780,7 +780,8 @@ compile_jmpcond(File asmfile, iml_operation_t *op)
     }
     else
     {
-        assert(false, "not implemented");
+        gen_move_to_reg(asmfile, TEMP_REG1, cast(ImlOperand*)left);
+        left_reg_name = TEMP_REG1;
     }
 
     asmfile.writefln("    cmp %s, #%s\n"
