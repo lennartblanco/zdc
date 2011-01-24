@@ -406,8 +406,17 @@ compile_copy(File asmfile, iml_operation_t *op)
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
     iml_register_t *reg = iml_variable_get_register(dest);
 
-    assert(reg != null, "move to variables not in register not implemented");
-    gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
+    if (reg != null)
+    {
+        gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
+    }
+    else
+    {
+        gen_move_to_reg(asmfile, TEMP_REG1, src);
+        asmfile.writefln("    str %s, [fp, #%s]",
+                         TEMP_REG1,
+                         iml_variable_get_frame_offset(dest));
+    }
 }
 
 /**
