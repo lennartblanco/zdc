@@ -15,7 +15,7 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ast_variable_definition.o  ast_if_block.o ast_ident.o                \
          ast_function_call.o ast_if_else.o ast_foreach.o ast_array_cell_ref.o \
          ast_array_slice_ref.o ast_string_literal.o ast_alias.o ast_enum.o    \
-         ast_enum_member.o ast_ptr_dref.o                                     \
+         ast_enum_member.o ast_struct.o ast_ptr_dref.o                        \
          dt_data_type.o dt_auto.o dt_basic.o dt_pointer.o dt_enum.o dt_user.o \
          dt_array.o  dt_static_array.o                                        \
          ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_enum_member.o   \

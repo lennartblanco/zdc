@@ -21,6 +21,7 @@
 #include "ast_function_decl.h"
 #include "ast_assignment.h"
 #include "ast_postfix_exp.h"
+#include "ast_struct.h"
 #include "ast_ptr_dref.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
@@ -35,8 +36,8 @@ AstModule *module;
 
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
-       TOK_ENUM, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_RETURN,
-       TOK_EXTERN,
+       TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
+       TOK_RETURN, TOK_EXTERN,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
        
@@ -75,6 +76,7 @@ declaration<module> :
     import_declaration<module>
 |   alias_declaration<module>
 |   enum_declaration<module>
+|   struct_declaration<module>
 |   declaration_blocks<module>
 ;
 
@@ -155,6 +157,28 @@ enum_member<x> :
                                                name.text,
                                                init.expression);
     }
+;
+
+struct_declaration<module> :
+    TOK_STRUCT TOK_IDENT<name> '{' struct_body_declarations<members> '}'
+    {
+        AstStruct *ast_struct;
+
+        ast_struct = ast_struct_new(name.text, members.list);
+        free(name.text);
+    }
+;
+
+struct_body_declarations<members> :
+    {
+        (*members).list = NULL;
+    }
+    ( var_definition<def>
+        {
+            (*members).list = g_slist_append((*members).list,
+                                             def.variable_definition);
+        }
+    )*
 ;
 
 declaration_blocks<module> :

@@ -48,6 +48,7 @@ unescape_char_literal(char *str, int len);
 "alias"  { return TOK_ALIAS; }
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }
+"struct" { return TOK_STRUCT; }
 "return" { return TOK_RETURN; }
 "extern" { return TOK_EXTERN; }
 "module" { return TOK_MODULE; }
