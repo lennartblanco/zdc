@@ -31,8 +31,6 @@ get_registers(GSList **scratch, GSList **preserved)
     GSList *p_regs;
 
     p_regs = g_slist_prepend(p_regs,
-            iml_register_new(11, "v8"));
-    p_regs = g_slist_prepend(p_regs,
             iml_register_new(10, "v7"));
     p_regs = g_slist_prepend(p_regs,
             iml_register_new(9, "v6"));
