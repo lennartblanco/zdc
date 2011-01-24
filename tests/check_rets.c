@@ -148,7 +148,7 @@ main()
 
     /* iret_val() tests */
     check_int("iret_val(-2)", call_iret_val(-2), -2);
-    check_int("iret_val(-2)", call_iret_val(1984), 1984);
+    check_int("iret_val(1984)", call_iret_val(1984), 1984);
 
     /* iret_arg1() tests */
     check_int("iret_arg1(11, 21, 31)", call_iret_arg1(11, 21, 31), 11);
