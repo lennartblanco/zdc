@@ -1,3 +1,5 @@
+import std.stdio;
+
 struct iml_operation_t;
 
 enum iml_opcode_t
@@ -49,4 +51,9 @@ extern (C)
     void *
     iml_operation_get_operand(iml_operation_t *self,
                               uint operand_num);
+
+    void
+    iml_operation_print(iml_operation_t *self,
+                        FILE *out_stream,
+                        int indention);
 }

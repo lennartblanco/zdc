@@ -260,8 +260,16 @@ compile_function_def(File asmfile, IrFunctionDef *func)
          i = g_slist_next(i))
     {
         iml_operation_t *op = cast(iml_operation_t *)i.data;
+        iml_opcode_t opcode = iml_operation_get_opcode(op);
 
-        switch (iml_operation_get_opcode(op))
+        /* annotate assembly file with compiled IML operations */
+        if (opcode != iml_opcode_t.label)
+        {
+            asmfile.writef("\n    @ ");
+            iml_operation_print(op, asmfile.getFP(), 0);
+        }
+
+        switch (opcode)
         {
             case iml_opcode_t.ret:
                 compile_ret(asmfile,
