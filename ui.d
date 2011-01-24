@@ -28,7 +28,7 @@ struct compile_options_s
     arch_backend_s       backend;
     bool                 print_ast;
     bool                 print_ir;
-};
+}
 
 extern (C) void g_type_init();
 extern (C) int compile_file(const char* input_file,
