@@ -92,3 +92,34 @@ void main()
 $ ./xdc tst.d
 xdc: ir_symbol.c:104: ir_symbol_get_parent_module: Assertion `(((__extension__ ({ GTypeInstance *__inst = (GTypeInstance*) ((self->parent_module)); GType __t = (ir_module_get_type()); gboolean __r; if (__inst && __inst->g_class && __inst->g_class->g_type == __t) __r = (!(0)); else __r = g_type_check_instance_is_a (__inst, __t); __r; }))))' failed.
 
+* the code below fails an assertion
+
+void foo(int arg)
+{
+
+}
+
+void main()
+{
+  return foo(2);
+}
+
+$ xdc meep.d
+xdc: types.c:211: implicit_conv_to_basic_type: Assertion `0' failed.
+Aborted
+
+* the code below fails an assertion
+
+void foo(char arg)
+{
+
+}
+
+void main()
+{
+  int x;
+  foo(x);
+}
+
+$ ./xdc meep.d
+xdc: types.c:165: implicit_conv_to_char: Assertion `0' failed.
