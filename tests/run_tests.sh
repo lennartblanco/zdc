@@ -41,7 +41,7 @@ run_checked()
     return 0;
 }
 
-run_test_x86()
+run_test()
 {
     local test_name
 
@@ -64,7 +64,7 @@ run_all_tests()
 
     for test_name in $tests
     do
-        $RUN_TEST $test_name
+        run_test $test_name
         if [ "$?" = 0 ]; then
             passed=$(($passed + 1));
         else
@@ -81,20 +81,13 @@ run_all_tests()
     return 0
 }
 
-if [ "$1" = "--march=x86" ]; then
-    RUN_TEST=run_test_x86
-else
-    echo "unsupported target architecture specified with option '$1'"
-    exit 1
-fi
-
-if [ "$2" ]; then
-    $RUN_TEST $2
+if [ "$1" ]; then
+    run_test $1
     if [ "$?" = 0 ]; then
-        echo "'$2' test passed"
+        echo "'$1' test passed"
         exit 0
     else
-        echo "'$2' test failed"
+        echo "'$1' test failed"
         exit 1
     fi
 fi

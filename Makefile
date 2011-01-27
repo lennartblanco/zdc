@@ -65,8 +65,8 @@ lex.o: lex.c lex.h
 $(PROG): $(OBJS)
 	dmd -debug -gc -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
 
-function_tests_x86: $(PROG)
-	cd tests; ./run_tests.sh --march=x86
+function_tests: $(PROG)
+	cd tests; ./run_tests.sh
 
 errors_tests: $(PROG)
 	cd etests; ./run_tests.sh
