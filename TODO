@@ -80,7 +80,7 @@ wee.d(1): Error: bar is used as a type
 wee.d(2): Error: identifier 'hej' is not defined
 wee.d(2): Error: hej is used as a type
 
-* the code below failes an assertion
+* the code below fails an assertion
 
 int foo();
 
