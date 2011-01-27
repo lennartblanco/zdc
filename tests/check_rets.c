@@ -1,137 +1,34 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
-/*
- * The calling convention for void or int functions without any arguments
- * is identical for C and D (without name mangling, which is not
- * implemented at the moment)
- */
 void
-call_void_return()
-{
-   asm("call _D4rets11void_returnFZv");
-}
-
-void
-call_printNum(int arg)
-{
-   asm("call _D4rets8printNumFiZv"
-       :
-       : "a"(arg));
-}
+call_void_return();
 
 int
-call_int_ret()
-{
-   int res;
-
-   asm ("    call _D4rets7int_retFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_int_ret();
 
 int
-call_iret_val(int in)
-{
-   int res;
-
-   asm ("    call _D4rets8iret_valFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_iret_val(int in);
 
 int
-call_iret_arg1(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D4rets9iret_arg1FiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_iret_arg1(int arg1, int arg2, int arg3);
 
 int
-call_iret_arg1_with_ret_var(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D4rets22iret_arg1_with_ret_varFiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
-
+call_iret_arg1_with_ret_var(int arg1, int arg2, int arg3);
 
 int
-call_iret_arg2(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D4rets9iret_arg2FiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_iret_arg2(int arg1, int arg2, int arg3);
 
 int
-call_iret_arg3(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D4rets9iret_arg3FiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_iret_arg3(int arg1, int arg2, int arg3);
 
 void
-call_no_ret_void(int arg1, int arg2)
-{
-   asm ("    pushl %[arg1]\n"
-        "    call _D4rets11no_ret_voidFiiZv\n"
-        "    add $4, %%esp\n" // clear call arguments from the stack
-        :
-        : [arg1]"m"(arg1),
-          "a"(arg2));
-}
+call_printNum(int arg);
 
 void
-call_empty_func()
-{
-   asm("call _D4rets10empty_funcFZv");
-}
+call_no_ret_void(int arg1, int arg2);
+
+void
+call_empty_func();
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

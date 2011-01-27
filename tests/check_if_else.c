@@ -1,142 +1,34 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+bool
+call_if_isless(int arg);
 
 bool
-call_if_isless(int in)
-{
-   bool res;
-
-   asm ("    call _D7if_else9if_islessFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_if_isgreater(int arg);
 
 bool
-call_if_isgreater(int in)
-{
-   bool res;
-
-   asm ("    call _D7if_else12if_isgreaterFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_if_isless_eq(int arg);
 
 bool
-call_if_isless_eq(int in)
-{
-   bool res;
-
-   asm ("    call _D7if_else12if_isless_eqFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_if_isgreater_eq(int arg);
 
 bool
-call_if_isgreater_eq(int in)
-{
-   bool res;
-
-   asm ("    call _D7if_else15if_isgreater_eqFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_if_iseq(int arg1, int arg2);
 
 bool
-call_if_iseq(int arg1, int arg2)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7if_else7if_iseqFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
-
-bool
-call_if_isnoteq(int arg1, int arg2)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7if_else10if_isnoteqFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_if_isnoteq(int arg1, int arg2);
 
 int
-call_abs(int in)
-{
-   int res;
-
-   asm ("    call _D7if_else3absFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_abs(int arg);
 
 int
-call_if_else_test(int in)
-{
-   int res;
-
-   asm ("    call _D7if_else12if_else_testFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_if_else_test(int arg);
 
 int
-call_get_sign(int in)
-{
-   int res;
-
-   asm ("    call _D7if_else8get_signFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_get_sign(int arg);
 
 int
-call_iret_n_arg(int arg1, int arg2, int arg3, int arg4)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    movl %[arg4],%%eax\n"
-        "    call _D7if_else10iret_n_argFiiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3),
-          [arg4]"m"(arg4));
-
-   return res;
-}
-
+call_iret_n_arg(int arg1, int arg2, int arg3, int arg4);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

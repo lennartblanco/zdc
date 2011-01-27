@@ -82,3 +82,93 @@ int invoke_subst3(int x)
 {
     return subst3(x, 10, 20);
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_hej()
+  {
+    return hej();
+  }
+
+  int
+  call_get_13()
+  {
+    return get_13();
+  }
+
+  int
+  call_foo()
+  {
+    return foo();
+  }
+
+  int
+  call_add(int arg1, int arg2)
+  {
+    return add(arg1, arg2);
+  }
+
+  int
+  call_sum(int arg1, int arg2, int arg3)
+  {
+    return sum(arg1, arg2, arg3);
+  }
+
+  int
+  call_ind_sum(int arg)
+  {
+    return ind_sum(arg);
+  }
+
+  int
+  call_subst3(int arg1, int arg2, int arg3)
+  {
+    return subst3(arg1, arg2, arg3);
+  }
+
+  int
+  call_subst4(int arg1, int arg2, int arg3, int arg4)
+  {
+    return subst4(arg1, arg2, arg3, arg4);
+  }
+
+  int
+  call_add_13(int arg)
+  {
+    return add_13(arg);
+  }
+
+  int
+  call_invoke_subst3(int arg)
+  {
+    return invoke_subst3(arg);
+  }
+
+  int
+  call_unnamed_arg1(int arg1, int arg2)
+  {
+    return unnamed_arg1(arg1, arg2);
+  }
+
+  int
+  call_unnamed_arg2(int arg1, int arg2)
+  {
+    return unnamed_arg2(arg1, arg2);
+  }
+
+  int
+  call_unnamed_arg3(int arg1, bool arg2, uint arg3)
+  {
+    return unnamed_arg3(arg1, arg2, arg3);
+  }
+
+  int
+  call_unnamed_arg4(int arg1, int arg2, int arg3)
+  {
+    return unnamed_arg4(arg1, arg2, arg3);
+  }
+}

@@ -94,4 +94,56 @@ c_is_equal_wrap(int left, int right)
     return c_is_equal(left, right);
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_cinv_wrap(int arg)
+  {
+    return cinv_wrap(arg);
+  }
 
+  int
+  call_cadd_wrap(int arg1, int arg2)
+  {
+    return cadd_wrap(arg1, arg2);
+  }
+
+  int
+  call_csubst3_wrap(int arg1, int arg2, int arg3)
+  {
+    return csubst3_wrap(arg1, arg2, arg3);
+  }
+
+  int
+  call_cexpr_wrap(int arg1, int arg2, int arg3, int arg4)
+  {
+    return cexpr_wrap(arg1, arg2, arg3, arg4);
+  }
+
+  int
+  call_cget20_wrap()
+  {
+    return cget20_wrap();
+  }
+
+  void
+  call_c_store_num_wrap(int arg)
+  {
+    c_store_num_wrap(arg);
+  }
+
+  int
+  call_c_get_num_wrap()
+  {
+    return c_get_num_wrap();
+  }
+
+  bool
+  call_c_is_equal_wrap(int arg1, int arg2)
+  {
+    return c_is_equal_wrap(arg1, arg2);
+  }
+}

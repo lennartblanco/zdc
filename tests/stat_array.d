@@ -322,3 +322,116 @@ uint stat_array_slice_assigment_length(uint idx)
   return arr[idx];
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_init_int_array(int arg)
+  {
+    return init_int_array(arg);
+  }
+
+  bool
+  call_init_bool_array(int arg)
+  {
+    return init_bool_array(arg);
+  }
+
+  int
+  call_def_init_int_array(int arg)
+  {
+    return def_init_int_array(arg);
+  }
+
+  bool
+  call_def_init_bool_array(int arg)
+  {
+    return def_init_bool_array(arg);
+  }
+
+  int
+  call_init_exp_tst(int arg)
+  {
+    return init_exp_tst(arg);
+  }
+
+  int
+  call_intops(int arg1, int arg2)
+  {
+    return intops(arg1, arg2);
+  }
+
+  bool
+  call_boolops(bool arg1, bool arg2, bool arg3, int arg4)
+  {
+    return boolops(arg1, arg2, arg3, arg4);
+  }
+
+  bool
+  call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
+  {
+    return boolops2(arg1, arg2, arg3, arg4);
+  }
+
+  int
+  call_slice_assig_sum()
+  {
+    return slice_assig_sum();
+  }
+
+  bool
+  call_bslice_assig(int arg)
+  {
+    return bslice_assig(arg);
+  }
+
+  int
+  call_slices_ops(int arg)
+  {
+    return slices_ops(arg);
+  }
+
+  int
+  call_int_slice_to_shorthand_slice(int arg)
+  {
+    return int_slice_to_shorthand_slice(arg);
+  }
+
+  int
+  call_int_slice_to_slice(int arg)
+  {
+    return int_slice_to_slice(arg);
+  }
+
+  bool
+  call_bool_slice_to_slice(bool arg)
+  {
+    return bool_slice_to_slice(arg);
+  }
+
+  uint
+  call_uint_slice_to_slice_idx(int arg)
+  {
+    return uint_slice_to_slice_idx(arg);
+  }
+
+  int
+  call_stat_array_bool_var_init(bool arg1, bool arg2, bool arg3)
+  {
+    return stat_array_bool_var_init(arg1, arg2, arg3);
+  }
+
+  int
+  call_implicit_arry_lit_casts(int arg)
+  {
+    return implicit_arry_lit_casts(arg);
+  }
+
+  uint
+  call_stat_array_slice_assigment_length(uint arg)
+  {
+    return stat_array_slice_assigment_length(arg);
+  }
+}

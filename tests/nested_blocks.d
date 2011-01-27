@@ -84,3 +84,32 @@ nested_blocks_with_if2(int arg)
     return res;
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_nested_blocks1()
+  {
+    return nested_blocks1();
+  }
+
+  int
+  call_nested_blocks2(int arg)
+  {
+    return nested_blocks2(arg);
+  }
+
+  int
+  call_nested_blocks_with_if(bool arg)
+  {
+    return nested_blocks_with_if(arg);
+  }
+
+  int
+  call_nested_blocks_with_if2(int arg)
+  {
+    return nested_blocks_with_if2(arg);
+  }
+}

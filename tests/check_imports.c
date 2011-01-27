@@ -1,32 +1,10 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_run_fact(bool arg);
 
 int
-call_run_fact(bool in)
-{
-   int res;
-
-   asm ("    call _D7imports8run_factFbZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
-int
-call_run_misc()
-{
-   int res;
-
-   asm ("    call _D7imports8run_miscFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_run_misc();
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

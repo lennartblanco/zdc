@@ -2,57 +2,17 @@
 
 #include <assert.h>
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_nested_blocks1();
 
 int
-call_nested_blocks1()
-{
-   int res;
-
-   asm ("    call _D13nested_blocks14nested_blocks1FZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_nested_blocks2(int arg);
 
 int
-call_nested_blocks2(int in)
-{
-   int res;
-
-   asm ("    call _D13nested_blocks14nested_blocks2FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_nested_blocks_with_if(bool arg);
 
 int
-call_nested_blocks_with_if(bool in)
-{
-   int res;
-
-   asm ("    call _D13nested_blocks21nested_blocks_with_ifFbZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
-int
-call_nested_blocks_with_if2(int in)
-{
-   int res;
-
-   asm ("    call _D13nested_blocks22nested_blocks_with_if2FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_nested_blocks_with_if2(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

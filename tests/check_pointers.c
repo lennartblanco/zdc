@@ -1,99 +1,26 @@
 #include <stdlib.h>
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 int *
-call_def_int_ptr()
-{
-   int *res;
-
-   asm ("    call _D8pointers11def_int_ptrFZPi\n"
-        : "=a"(res));
-
-   return res;
-}
+call_def_int_ptr();
 
 char *
-call_def_char_ptr()
-{
-   char *res;
-
-   asm ("    call _D8pointers12def_char_ptrFZPa\n"
-        : "=a"(res));
-
-   return res;
-}
+call_def_char_ptr();
 
 void *
-call_malloced_ptr()
-{
-   void *res;
-
-   asm ("    call _D8pointers12malloced_ptrFZPv\n"
-        : "=a"(res));
-
-   return res;
-}
+call_malloced_ptr();
 
 void
-call_compare(int arg1, int arg2, bool *arg3, bool *arg4)
-{
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    call _D8pointers7compareFiiPbPbZv\n"
-        "    addl $12, %%esp\n"
-        :
-        : "a" (arg4),
-          [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-}
+call_compare(int arg1, int arg2, bool *arg3, bool *arg4);
 
 void
-call_divide(int arg1, int arg2, int *arg3, int *arg4)
-{
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    call _D8pointers6divideFiiPiPiZv\n"
-        "    addl $12, %%esp\n"
-        :
-        : "a" (arg4),
-          [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-}
+call_divide(int arg1, int arg2, int *arg3, int *arg4);
 
 unsigned
-call_uint_ptr_dref(unsigned *arg1, int arg2)
-{
-    unsigned res;
-
-    asm ("    pushl %[arg1]\n"
-         "    call _D8pointers13uint_ptr_drefFPkbZk\n"
-         "    addl $4, %%esp\n"
-         : "=a"(res)
-         : "a" (arg2),
-           [arg1]"m"(arg1));
-
-    return res;
-}
+call_uint_ptr_dref(unsigned *arg1, int arg2);
 
 bool
-call_char_ptr_dref(char *arg1)
-{
-   int res;
-
-   asm ("    call _D8pointers13char_ptr_drefFPaZb\n"
-        : "=a"(res)
-        : "a"(arg1));
-
-   return res;
-}
+call_char_ptr_dref(char *arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

@@ -18,204 +18,53 @@ enum nato
   NATO_ECHO         //   101
 };
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
-bool
-call_states_get_def_as_int()
-{
-   bool res;
-
-   asm ("    call _D5enums21states_get_def_as_intFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-bool
-call_states_get_idle_as_int()
-{
-   bool res;
-
-   asm ("    call _D5enums22states_get_idle_as_intFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-bool
-call_states_get_stop_as_int()
-{
-   bool res;
-
-   asm ("    call _D5enums22states_get_stop_as_intFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-bool
-call_states_get_run_as_int()
-{
-   bool res;
-
-   asm ("    call _D5enums21states_get_run_as_intFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+int
+call_states_get_def_as_int();
 
 int
-call_get_state(char arg)
-{
-    int res;
+call_states_get_idle_as_int();
 
-    asm ("    call _D5enums9get_stateFaZE5enums6states\n"
-         : "=a"(res)
-         : "a"(arg));
+int
+call_states_get_stop_as_int();
 
-    return res;
-}
+int
+call_states_get_run_as_int();
 
-unsigned
-call_ustates_get_def_as_uint()
-{
-   unsigned res;
-
-   asm ("    call _D5enums23ustates_get_def_as_uintFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+int
+call_get_state(char arg);
 
 unsigned
-call_ustates_get_off_as_uint()
-{
-   unsigned res;
-
-   asm ("    call _D5enums23ustates_get_off_as_uintFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_ustates_get_def_as_uint();
 
 unsigned
-call_ustates_get_as_uint(enum ustates arg)
-{
-    unsigned res;
+call_ustates_get_off_as_uint();
 
-    asm ("    call _D5enums19ustates_get_as_uintFE5enums7ustatesZk\n"
-         : "=a"(res)
-         : "a"(arg));
-
-    return res;
-}
+unsigned
+call_ustates_get_as_uint(enum ustates arg);
 
 char
-call_nums_get_def_as_char()
-{
-   bool res;
-
-   asm ("    call _D5enums20nums_get_def_as_charFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_nums_get_def_as_char();
 
 char
-call_nums_get_SIX_as_char()
-{
-   bool res;
-
-   asm ("    call _D5enums20nums_get_SIX_as_charFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_nums_get_SIX_as_char();
 
 char
-call_nato_get_def_as_char()
-{
-   bool res;
-
-   asm ("    call _D5enums20nato_get_def_as_charFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_nato_get_def_as_char();
 
 char
-call_nato_get_DELTA_as_char()
-{
-   bool res;
-
-   asm ("    call _D5enums22nato_get_DELTA_as_charFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_nato_get_DELTA_as_char();
 
 enum nato
-call_get_next_char(enum nato arg)
-{
-    enum nato res;
-
-    asm ("    call _D5enums13get_next_charFE5enums4natoZE5enums4nato\n"
-         : "=a"(res)
-         : "a"(arg));
-
-    return res;
-}
+call_get_next_char(enum nato arg);
 
 bool
-call_logic_get_def_as_bool()
-{
-   bool res;
-
-   asm ("    call _D5enums21logic_get_def_as_boolFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_logic_get_def_as_bool();
 
 bool
-call_logic_get_F_as_bool()
-{
-   bool res;
-
-   asm ("    call _D5enums19logic_get_F_as_boolFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_logic_get_F_as_bool();
 
 bool
-call_unnamed_enum_param(int arg1, char arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    call _D5enums18unnamed_enum_paramFbE5enums4numsZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          "a"(arg2));
-
-   return res;
-}
-
+call_unnamed_enum_param(bool arg1, int arg2);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

@@ -1,129 +1,32 @@
 #include <stdlib.h>
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 int
-call_signed_div_vars(int arg1, int arg2)
-{
-    int res;
-
-    asm ("    pushl %[arg1]\n"
-         "    movl %[arg2], %%eax\n"
-         "    call _D6arithm15signed_div_varsFiiZi\n"
-         : "=a"(res)
-         : [arg1]"m"(arg1),
-           [arg2]"m"(arg2));
-
-    return res;
-}
+call_signed_div_vars(int arg1, int arg2);
 
 unsigned
-call_unsigned_div_vars(unsigned arg1, unsigned arg2)
-{
-    unsigned res;
-
-    asm ("    pushl %[arg1]\n"
-         "    movl %[arg2], %%eax\n"
-         "    call _D6arithm17unsigned_div_varsFkkZk\n"
-         : "=a"(res)
-         : [arg1]"m"(arg1),
-           [arg2]"m"(arg2));
-
-    return res;
-}
+call_unsigned_div_vars(unsigned arg1, unsigned arg2);
 
 int
-call_signed_div_lconst(int in)
-{
-    int res;
-
-    asm ("    call _D6arithm17signed_div_lconstFiZi\n"
-         : "=a"(res)
-         : "a"(in));
-
-    return res;
-}
+call_signed_div_lconst(int arg);
 
 unsigned
-call_unsigned_div_rconst(unsigned in)
-{
-    unsigned res;
-
-    asm ("    call _D6arithm19unsigned_div_rconstFkZk\n"
-         : "=a"(res)
-         : "a"(in));
-
-    return res;
-}
+call_unsigned_div_rconst(unsigned arg);
 
 int
-call_const_mod()
-{
-    int res;
-
-    asm ("    call _D6arithm9const_modFZi\n"
-         : "=a"(res)
-         : );
-
-    return res;
-}
+call_const_mod();
 
 int
-call_signed_mod_vars(int arg1, int arg2)
-{
-    int res;
-
-    asm ("    pushl %[arg1]\n"
-         "    movl %[arg2], %%eax\n"
-         "    call _D6arithm15signed_mod_varsFiiZi\n"
-         : "=a"(res)
-         : [arg1]"m"(arg1),
-           [arg2]"m"(arg2));
-
-    return res;
-}
+call_signed_mod_vars(int arg1, int arg2);
 
 unsigned
-call_unsigned_mod_vars(unsigned arg1, unsigned arg2)
-{
-    unsigned res;
-
-    asm ("    pushl %[arg1]\n"
-         "    movl %[arg2], %%eax\n"
-         "    call _D6arithm17unsigned_mod_varsFkkZk\n"
-         : "=a"(res)
-         : [arg1]"m"(arg1),
-           [arg2]"m"(arg2));
-
-    return res;
-}
+call_unsigned_mod_vars(unsigned arg1, unsigned arg2);
 
 int
-call_signed_mod_lconst(int in)
-{
-    int res;
-
-    asm ("    call _D6arithm17signed_mod_lconstFiZi\n"
-         : "=a"(res)
-         : "a"(in));
-
-    return res;
-}
+call_signed_mod_lconst(int arg);
 
 unsigned
-call_unsigned_mod_rconst(unsigned in)
-{
-    unsigned res;
-
-    asm ("    call _D6arithm19unsigned_mod_rconstFkZk\n"
-         : "=a"(res)
-         : "a"(in));
-
-    return res;
-}
+call_unsigned_mod_rconst(unsigned arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

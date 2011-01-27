@@ -171,3 +171,105 @@ unnamed_enum_param(bool dummy, nums)
 {
     return !dummy;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_states_get_def_as_int()
+  {
+    return states_get_def_as_int();
+  }
+
+  int
+  call_states_get_idle_as_int()
+  {
+    return states_get_idle_as_int();
+  }
+
+  int
+  call_states_get_stop_as_int()
+  {
+    return states_get_stop_as_int();
+  }
+
+  int
+  call_states_get_run_as_int()
+  {
+    return states_get_run_as_int();
+  }
+
+  int
+  call_get_state(char arg)
+  {
+    return get_state(arg);
+  }
+
+  uint
+  call_ustates_get_def_as_uint()
+  {
+    return ustates_get_def_as_uint();
+  }
+
+  uint
+  call_ustates_get_off_as_uint()
+  {
+    return ustates_get_off_as_uint();
+  }
+
+  uint
+  call_ustates_get_as_uint(ustates arg)
+  {
+    return ustates_get_as_uint(arg);
+  }
+
+  char
+  call_nums_get_def_as_char()
+  {
+    return nums_get_def_as_char();
+  }
+
+  char
+  call_nums_get_SIX_as_char()
+  {
+    return nums_get_SIX_as_char();
+  }
+
+  char
+  call_nato_get_def_as_char()
+  {
+    return nato_get_def_as_char();
+  }
+
+  char
+  call_nato_get_DELTA_as_char()
+  {
+    return nato_get_DELTA_as_char();
+  }
+
+  nato
+  call_get_next_char(nato arg)
+  {
+    return get_next_char(arg);
+  }
+
+  bool
+  call_logic_get_def_as_bool()
+  {
+    return logic_get_def_as_bool();
+  }
+
+  bool
+  call_logic_get_F_as_bool()
+  {
+    return logic_get_F_as_bool();
+  }
+
+  bool
+  call_unnamed_enum_param(bool arg1, nums arg2)
+  {
+    return unnamed_enum_param(arg1, arg2);
+  }
+}

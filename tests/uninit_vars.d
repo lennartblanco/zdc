@@ -30,3 +30,33 @@ uint uninit_uint()
 
     return x;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+    bool
+    call_uninit_bool()
+    {
+      return uninit_bool();
+    }
+
+    char
+    call_uninit_char()
+    {
+      return uninit_char();
+    }
+
+    int
+    call_uninit_int()
+    {
+      return uninit_int();
+    }
+
+    uint
+    call_uninit_uint()
+    {
+      return uninit_uint();
+    }
+}

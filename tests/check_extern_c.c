@@ -1,116 +1,28 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_cinv_wrap(int arg);
 
 int
-call_cinv_wrap(int in)
-{
-   int res;
-
-   asm ("    call _D8extern_c9cinv_wrapFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_cadd_wrap(int arg1, int arg2);
 
 int
-call_cadd_wrap(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D8extern_c9cadd_wrapFiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_csubst3_wrap(int arg1, int arg2, int arg3);
 
 int
-call_csubst3_wrap(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    call _D8extern_c12csubst3_wrapFiiiZi\n"
-        : "=a"(res)
-        : "a" (arg3),
-          [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_cexpr_wrap(int arg1, int arg2, int arg3, int arg4);
 
 int
-call_cexpr_wrap(int arg1, int arg2, int arg3, int arg4)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    call _D8extern_c10cexpr_wrapFiiiiZi\n"
-        : "=a"(res)
-        : "a" (arg4),
-          [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
-
-int
-call_cget20_wrap()
-{
-   int res;
-
-   asm ("    call _D8extern_c11cget20_wrapFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_cget20_wrap();
 
 void
-call_c_store_num_wrap(int in)
-{
-   asm ("    call _D8extern_c16c_store_num_wrapFiZv\n"
-        :
-        : "a"(in));
-}
+call_c_store_num_wrap(int in);
 
 int
-call_c_get_num_wrap()
-{
-   int res;
-
-   asm ("    call _D8extern_c14c_get_num_wrapFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_c_get_num_wrap();
 
 bool
-call_c_is_equal_wrap(int arg1, int arg2)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D8extern_c15c_is_equal_wrapFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_c_is_equal_wrap(int arg1, int arg2);
 
 /*---------------------------------------------------------------------------*
  *               extern (C) functions called from tests                      *

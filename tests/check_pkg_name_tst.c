@@ -1,33 +1,10 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 int
-call_first_func()
-{
-   int res;
-
-   asm ("    call _D1a4test3pkg4name10first_funcFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_first_func();
 
 bool
-call_second_func(int in)
-{
-   bool res;
-
-   asm ("    call _D1a4test3pkg4name11second_funcFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
+call_second_func(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

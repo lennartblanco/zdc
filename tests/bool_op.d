@@ -143,3 +143,129 @@ nested_eq(int arg)
 
   return  a+b+c;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  bool
+  call_return_true()
+  {
+    return return_true();
+  }
+
+  bool
+  call_return_false()
+  {
+    return return_false();
+  }
+
+  bool
+  call_invert(bool arg)
+  {
+    return invert(arg);
+  }
+
+  int
+  call_is_equal(int arg1, int arg2)
+  {
+    return is_equal(arg1, arg2);
+  }
+
+  int
+  call_not_equal(int arg1, int arg2)
+  {
+    return not_equal(arg1, arg2);
+  }
+
+  int
+  call_is_less_or_equal(int arg1, int arg2)
+  {
+    return is_less_or_equal(arg1, arg2);
+  }
+
+  int
+  call_is_greater_or_equal(int arg1, int arg2)
+  {
+    return is_greater_or_equal(arg1, arg2);
+  }
+
+  int
+  call_is_greater(int arg1, int arg2)
+  {
+    return is_greater(arg1, arg2);
+  }
+
+  int
+  call_is_less(int arg1, int arg2)
+  {
+    return is_less(arg1, arg2);
+  }
+
+  bool
+  call_greater_tst1()
+  {
+    return greater_tst1();
+  }
+
+  bool
+  call_greater_tst2(int arg)
+  {
+    return greater_tst2(arg);
+  }
+
+  bool
+  call_greater_tst3(int arg)
+  {
+    return greater_tst3(arg);
+  }
+
+  bool
+  call_less_tst1()
+  {
+    return less_tst1();
+  }
+
+  bool
+  call_less_tst2(int arg)
+  {
+    return less_tst2(arg);
+  }
+
+  bool
+  call_less_tst3(int arg)
+  {
+    return less_tst3(arg);
+  }
+
+  bool
+  call_and_oper(bool arg1, bool arg2)
+  {
+    return and_oper(arg1, arg2);
+  }
+
+  bool
+  call_or_oper(bool arg1, bool arg2)
+  {
+    return or_oper(arg1, arg2);
+  }
+
+  bool
+  call_tripple_and_op(bool arg1, bool arg2, bool arg3)
+  {
+    return tripple_and_op(arg1, arg2, arg3);
+  }
+
+  bool
+  call_andor_ops(bool arg1, bool arg2, bool arg3)
+  {
+    return andor_ops(arg1, arg2, arg3);
+  }
+
+  int
+  call_nested_eq(int arg)
+  {
+    return nested_eq(arg);
+  }
+}

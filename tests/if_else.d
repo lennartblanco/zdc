@@ -142,3 +142,70 @@ int iret_n_arg(int n, int arg1, int arg2, int arg3)
    else if (n == 3) return arg3;
    else return -1;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+
+extern (C)
+{
+  bool
+  call_if_isless(int arg)
+  {
+    return if_isless(arg);
+  }
+
+  bool
+  call_if_isgreater(int arg)
+  {
+    return if_isgreater(arg);
+  }
+
+  bool
+  call_if_isless_eq(int arg)
+  {
+    return if_isless_eq(arg);
+  }
+
+  bool
+  call_if_isgreater_eq(int arg)
+  {
+    return if_isgreater_eq(arg);
+  }
+
+  bool
+  call_if_iseq(int arg1, int arg2)
+  {
+    return if_iseq(arg1, arg2);
+  }
+
+  bool
+  call_if_isnoteq(int arg1, int arg2)
+  {
+    return if_isnoteq(arg1, arg2);
+  }
+
+  int
+  call_abs(int arg)
+  {
+    return abs(arg);
+  }
+
+  int
+  call_if_else_test(int arg)
+  {
+    return if_else_test(arg);
+  }
+
+  int
+  call_get_sign(int arg)
+  {
+    return get_sign(arg);
+  }
+
+  int
+  call_iret_n_arg(int arg1, int arg2, int arg3, int arg4)
+  {
+    return iret_n_arg(arg1, arg2, arg3, arg4);
+  }
+}

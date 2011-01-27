@@ -53,3 +53,27 @@ bool invoke_char_present(char c)
 {
   return char_present(['p', 't', 's', 'c', 'q'], c);
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_immutable_int(uint arg1, uint arg2)
+  {
+    return immutable_int(arg1, arg2);
+  }
+
+  bool
+  call_immutable_bool(int arg)
+  {
+    return immutable_bool(arg);
+  }
+
+  bool
+  call_invoke_char_present(char arg)
+  {
+    return invoke_char_present(arg);
+  }
+}

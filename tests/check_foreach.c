@@ -1,74 +1,19 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_foreach_slice();
 
 int
-call_foreach_slice()
-{
-   int res;
-
-   asm ("    call _D7foreach13foreach_sliceFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_foreach_slice_params(int arg1, int arg2);
 
 int
-call_foreach_slice_params(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7foreach20foreach_slice_paramsFiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
-
-int
-call_foreach_shorthand_slice(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7foreach23foreach_shorthand_sliceFiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_foreach_shorthand_slice(int arg1, int arg2);
 
 bool
-call_foreach_value_auto_type(int in)
-{
-   bool res;
-
-   asm ("    call _D7foreach23foreach_value_auto_typeFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_foreach_value_auto_type(int arg);
 
 int
-call_run_foreach_index_auto_type(int in)
-{
-   int res;
-
-   asm ("    call _D7foreach27run_foreach_index_auto_typeFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-   
-   return res;
-}
+call_run_foreach_index_auto_type(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

@@ -1,32 +1,10 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 bool
-call_dummy1(int in)
-{
-   bool res;
-
-   asm ("    call _D8comments6dummy1FbZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_dummy1(int in);
 
 int
-call_dummy2()
-{
-   int res;
-
-   asm ("    call _D8comments6dummy2FZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_dummy2();
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

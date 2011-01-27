@@ -60,3 +60,44 @@ int invoke_array_lit_find(char c)
   return my_find(['e', 'x', 'p', 'r', 'e', 's', 's', 'i', 'o', 'n'], c);
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  char
+  call_char_assigment()
+  {
+    return char_assigment();
+  }
+
+  char
+  call_char_init()
+  {
+    return char_init();
+  }
+
+  char
+  call_char_return()
+  {
+    return char_return();
+  }
+
+  char
+  call_char_array_literal(uint arg)
+  {
+    return char_array_literal(arg);
+  }
+
+  int
+  call_invoke_array_var_find(char arg)
+  {
+    return invoke_array_var_find(arg);
+  }
+
+  int
+  call_invoke_array_lit_find(char arg)
+  {
+    return invoke_array_lit_find(arg);
+  }
+}

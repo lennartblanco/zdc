@@ -1,107 +1,28 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 int
-call_bool_to_int(bool in)
-{
-    int res;
-
-    asm ("    call _D13implicit_cast11bool_to_intFbZi\n"
-         : "=a"(res)
-         : "a"(in));
-
-    return res;
-}
+call_bool_to_int(bool arg);
 
 bool
-call_int0_to_bool()
-{
-    bool res;
-
-    asm ("    call _D13implicit_cast12int0_to_boolFZb\n"
-         : "=a"(res)
-         : );
-
-    return res;
-}
+call_int0_to_bool();
 
 bool
-call_int1_to_bool()
-{
-    bool res;
-
-    asm ("    call _D13implicit_cast12int1_to_boolFZb\n"
-         : "=a"(res)
-         : );
-
-    return res;
-}
+call_int1_to_bool();
 
 int
-call_add_bools(int arg1, int arg2)
-{
-    int res;
-
-    asm ("    pushl %[arg1]\n"
-         "    movl %[arg2],%%eax\n"
-         "    call _D13implicit_cast9add_boolsFbbZi\n"
-         : "=a"(res)
-         : [arg1]"m"(arg1),
-           [arg2]"m"(arg2));
-
-    return res;
-}
+call_add_bools(int arg1, int arg2);
 
 int
-call_char_to_int(char arg1)
-{
-    int res;
-
-    asm ("    call _D13implicit_cast11char_to_intFaZi\n"
-         : "=a"(res)
-         : "a"(arg1));
-
-    return res;
-}
+call_char_to_int(char arg1);
 
 int
-char_lit_to_int()
-{
-    int res;
-
-    asm ("    call _D13implicit_cast15char_lit_to_intFZi\n"
-         : "=a"(res)
-         : );
-
-    return res;
-}
+call_char_lit_to_int();
 
 unsigned
-call_char_to_uint(char arg1)
-{
-    unsigned res;
-
-    asm ("    call _D13implicit_cast12char_to_uintFaZk\n"
-         : "=a"(res)
-         : "a"(arg1));
-
-    return res;
-}
+call_char_to_uint(char arg1);
 
 unsigned
-char_lit_to_uint()
-{
-    unsigned res;
-
-    asm ("    call _D13implicit_cast16char_lit_to_uintFZk\n"
-         : "=a"(res)
-         : );
-
-    return res;
-}
+call_char_lit_to_uint();
 
 
 /*---------------------------------------------------------------------------*
@@ -132,7 +53,7 @@ main()
     check_int("char_to_int('\\0')", call_char_to_int('\0'), 0);
 
     /* char_lit_to_int() test */
-    check_int("char_lit_to_int()", char_lit_to_int(), (int)'h');
+    check_int("char_lit_to_int()", call_char_lit_to_int(), (int)'h');
 
     /* char_to_uint() tests */
     check_uint("char_to_uint('M')", call_char_to_uint('M'), (unsigned)'M');
@@ -140,7 +61,7 @@ main()
     check_uint("char_to_uint('\\0')", call_char_to_uint('\0'), 0u);
 
     /* char_lit_to_uint() test */
-    check_uint("char_lit_to_uint()", char_lit_to_uint(), (unsigned)'Z');
+    check_uint("char_lit_to_uint()", call_char_lit_to_uint(), (unsigned)'Z');
 
     check_exit();
 }

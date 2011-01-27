@@ -1,33 +1,10 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_fact_rec(int arg);
 
 int
-call_fact_rec(int in)
-{
-   int res;
-
-   asm ("    call _D4fact8fact_recFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
-int
-call_fact_while(int in)
-{
-   int res;
-
-   asm ("    call _D4fact10fact_whileFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
+call_fact_while(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

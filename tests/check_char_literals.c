@@ -1,81 +1,22 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+unsigned char
+call_char_assigment();
 
 unsigned char
-call_char_assigment()
-{
-   unsigned char res;
-
-   asm ("    call _D13char_literals14char_assigmentFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_char_init();
 
 unsigned char
-call_char_init()
-{
-   unsigned char res;
-
-   asm ("    call _D13char_literals9char_initFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_char_return();
 
 unsigned char
-call_char_return()
-{
-   unsigned char res;
-
-   asm ("    call _D13char_literals11char_returnFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-unsigned char
-call_char_array_literal(unsigned in)
-{
-   unsigned char res;
-
-   asm ("    call _D13char_literals18char_array_literalFkZa\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_char_array_literal(unsigned arg);
 
 int
-call_invoke_array_var_find(unsigned char in)
-{
-   int res;
-
-   asm ("    call _D13char_literals21invoke_array_var_findFaZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_invoke_array_var_find(unsigned char arg);
 
 int
-call_invoke_array_lit_find(unsigned char in)
-{
-   int res;
-
-   asm ("    call _D13char_literals21invoke_array_lit_findFaZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
+call_invoke_array_lit_find(unsigned char arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

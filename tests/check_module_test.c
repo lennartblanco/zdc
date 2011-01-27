@@ -1,33 +1,10 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 void
-call_depl(unsigned in)
-{
-   int res;
-
-   asm ("    call _D7trinity4deplFkZv\n"
-        :
-        : "a"(in));
-}
+call_depl(unsigned arg);
 
 bool
-call_boom(int arg1, int arg2)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    call _D7trinity4boomFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          "a"(arg2));
-
-   return res;
-}
-
+call_boom(int arg1, int arg2);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

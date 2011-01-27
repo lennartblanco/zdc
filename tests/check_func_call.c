@@ -1,210 +1,46 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_hej();
 
 int
-call_hej()
-{
-   int res;
-
-   asm ("    call _D9func_call3hejFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_get_13();
 
 int
-call_get_13()
-{
-   int res;
-
-   asm ("    call _D9func_call6get_13FZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_foo();
 
 int
-call_foo()
-{
-   int res;
-
-   asm ("    call _D9func_call3fooFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_add(int arg1, int arg2);
 
 int
-call_add(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9func_call3addFiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_sum(int arg1, int arg2, int arg3);
 
 int
-call_sum(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D9func_call3sumFiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_ind_sum(int arg);
 
 int
-call_ind_sum(int in)
-{
-   int res;
-
-   asm ("    call _D9func_call7ind_sumFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_subst3(int arg1, int arg2, int arg3);
 
 int
-call_subst3(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    call _D9func_call6subst3FiiiZi\n"
-        : "=a"(res)
-        : "a" (arg3),
-          [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_subst4(int arg1, int arg2, int arg3, int arg4);
 
 int
-call_subst4(int arg1, int arg2, int arg3, int arg4)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    call _D9func_call6subst4FiiiiZi\n"
-        : "=a"(res)
-        : "a" (arg4),
-          [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_add_13(int arg);
 
 int
-call_add_13(int in)
-{
-   int res;
-
-   asm ("    call _D9func_call6add_13FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_invoke_subst3(int arg);
 
 int
-call_invoke_subst3(int in)
-{
-   int res;
-
-   asm ("    call _D9func_call13invoke_subst3FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_unnamed_arg1(int arg1, int arg2);
 
 int
-call_unnamed_arg1(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9func_call12unnamed_arg1FiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_unnamed_arg2(int arg1, int arg2);
 
 int
-call_unnamed_arg2(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9func_call12unnamed_arg2FiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_unnamed_arg3(int arg1, int arg2, int arg3);
 
 int
-call_unnamed_arg3(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D9func_call12unnamed_arg3FibkZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
-
-int
-call_unnamed_arg4(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D9func_call12unnamed_arg4FiiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_unnamed_arg4(int arg1, int arg2, int arg3);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

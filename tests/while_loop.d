@@ -38,3 +38,27 @@ while_loc_vars(int idx, uint step)
 
   return i;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_while_tst1(int arg)
+  {
+    return while_tst1(arg);
+  }
+
+  int
+  call_while_tst2(int arg)
+  {
+    return while_tst2(arg);
+  }
+
+  uint
+  call_while_loc_vars(int arg1, uint arg2)
+  {
+    return while_loc_vars(arg1, arg2);
+  }
+}

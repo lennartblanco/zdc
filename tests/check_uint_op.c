@@ -1,108 +1,28 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+bool
+call_uint_assig();
 
 bool
-call_uint_assig()
-{
-   bool res;
-
-   asm ("    call _D7uint_op10uint_assigFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-bool
-call_uint_arg(unsigned in)
-{
-   bool res;
-
-   asm ("    call _D7uint_op8uint_argFkZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_uint_arg(unsigned arg);
 
 unsigned
-call_uint_ret(bool in)
-{
-   unsigned res;
-
-   asm ("    call _D7uint_op8uint_retFbZk\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_uint_ret(bool arg);
 
 unsigned
-call_uint_arrys(unsigned in)
-{
-   unsigned res;
+call_uint_arrys(unsigned arg);
 
-   asm ("    call _D7uint_op10uint_arrysFkZk\n"
-        : "=a"(res)
-        : "a"(in));
+unsigned
+call_signed_unsigned_const_add();
 
-   return res;
-}
+unsigned
+call_unsigned_signed_const_div();
 
-bool
-call_signed_unsigned_const_add()
-{
-   bool res;
+int
+call_signed_unsigned_add(int arg1, unsigned arg2);
 
-   asm ("    call _D7uint_op25signed_unsigned_const_addFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-bool
-call_unsigned_signed_const_div()
-{
-   bool res;
-
-   asm ("    call _D7uint_op25unsigned_signed_const_divFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-call_signed_unsigned_add(int arg1, unsigned arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7uint_op19signed_unsigned_addFikZk\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
-
-call_unsigned_signed_mult(int arg1, unsigned arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7uint_op20unsigned_signed_multFkiZk\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+int
+call_unsigned_signed_mult(int arg1, unsigned arg2);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

@@ -78,3 +78,63 @@ unsigned_mod_rconst(uint left)
 
     return res;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_signed_div_vars(int arg1, int arg2)
+  {
+    return signed_div_vars(arg1, arg2);
+  }
+
+  uint
+  call_unsigned_div_vars(uint arg1, uint arg2)
+  {
+    return unsigned_div_vars(arg1, arg2);
+  }
+
+  int
+  call_signed_div_lconst(int arg)
+  {
+    return signed_div_lconst(arg);
+  }
+
+  uint
+  call_unsigned_div_rconst(uint arg)
+  {
+    return unsigned_div_rconst(arg);
+  }
+
+  int
+  call_const_mod()
+  {
+    return const_mod();
+  }
+
+  int
+  call_signed_mod_vars(int arg1, int arg2)
+  {
+    return signed_mod_vars(arg1, arg2);
+  }
+
+  uint
+  call_unsigned_mod_vars(uint arg1, uint arg2)
+  {
+    return unsigned_mod_vars(arg1, arg2);
+  }
+
+  int
+  call_signed_mod_lconst(int arg)
+  {
+    return signed_mod_lconst(arg);
+  }
+
+  uint
+  call_unsigned_mod_rconst(uint arg)
+  {
+    return unsigned_mod_rconst(arg);
+  }
+}

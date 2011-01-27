@@ -114,3 +114,38 @@ uint foreach_bool_arry(bool[6] add_op)
    return res;
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_foreach_slice()
+  {
+    return foreach_slice();
+  }
+
+  int
+  call_foreach_slice_params(int arg1, int arg2)
+  {
+    return foreach_slice_params(arg1, arg2);
+  }
+
+  int
+  call_foreach_shorthand_slice(int arg1, int arg2)
+  {
+    return foreach_shorthand_slice(arg1, arg2);
+  }
+
+  bool
+  call_foreach_value_auto_type(int arg)
+  {
+    return foreach_value_auto_type(arg);
+  }
+
+  int
+  call_run_foreach_index_auto_type(int arg)
+  {
+    return run_foreach_index_auto_type(arg);
+  }
+}

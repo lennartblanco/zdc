@@ -24,3 +24,20 @@ fact_while(int i)
     return res;
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_fact_rec(int arg)
+  {
+    return fact_rec(arg);
+  }
+
+  int
+  call_fact_while(int arg)
+  {
+    return fact_while(arg);
+  }
+}

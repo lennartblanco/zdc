@@ -1,282 +1,64 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+bool
+call_return_true();
 
 bool
-call_return_true()
-{
-   bool res;
-
-   asm ("    call _D7bool_op11return_trueFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_return_false();
 
 bool
-call_return_false()
-{
-   bool res;
-
-   asm ("    call _D7bool_op12return_falseFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-bool
-call_invert(int in)
-{
-   bool res;
-
-   asm ("    call _D7bool_op6invertFbZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_invert(int arg);
 
 int
-call_is_equal(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op8is_equalFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_is_equal(int arg1, int arg2);
 
 int
-call_not_equal(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op9not_equalFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_not_equal(int arg1, int arg2);
 
 int
-call_is_less_or_equal(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op16is_less_or_equalFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_is_less_or_equal(int arg1, int arg2);
 
 int
-call_is_greater_or_equal(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op19is_greater_or_equalFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_is_greater_or_equal(int arg1, int arg2);
 
 int
-call_is_greater(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op10is_greaterFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_is_greater(int arg1, int arg2);
 
 int
-call_is_less(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op7is_lessFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_is_less(int arg1, int arg2);
 
 bool
-call_greater_tst1()
-{
-   bool res;
-
-   asm ("    call _D7bool_op12greater_tst1FZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_greater_tst1();
 
 bool
-call_greater_tst2(int in)
-{
-   bool res;
-
-   asm ("    call _D7bool_op12greater_tst2FiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_greater_tst2(int arg);
 
 bool
-call_greater_tst3(int in)
-{
-   bool res;
-
-   asm ("    call _D7bool_op12greater_tst3FiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_greater_tst3(int arg);
 
 bool
-call_less_tst1()
-{
-   bool res;
-
-   asm ("    call _D7bool_op9less_tst1FZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_less_tst1();
 
 bool
-call_less_tst2(int in)
-{
-   bool res;
-
-   asm ("    call _D7bool_op9less_tst2FiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_less_tst2(int arg);
 
 bool
-call_less_tst3(int in)
-{
-   bool res;
-
-   asm ("    call _D7bool_op9less_tst3FiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_less_tst3(int arg);
 
 bool
-call_and_oper(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op8and_operFbbZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_and_oper(int arg1, int arg2);
 
 bool
-call_or_oper(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D7bool_op7or_operFbbZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_or_oper(int arg1, int arg2);
 
 bool
-call_tripple_and_op(bool arg1, bool arg2, bool arg3)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D7bool_op14tripple_and_opFbbbZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_tripple_and_op(bool arg1, bool arg2, bool arg3);
 
 bool
-call_andor_ops(bool arg1, bool arg2, bool arg3)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3],%%eax\n"
-        "    call _D7bool_op9andor_opsFbbbZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_andor_ops(bool arg1, bool arg2, bool arg3);
 
 int
-call_nested_eq(int in)
-{
-   int res;
-
-   asm ("    call _D7bool_op9nested_eqFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_nested_eq(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

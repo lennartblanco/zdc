@@ -34,3 +34,21 @@ dummy2() { return 3; }
  * foo
  */
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  bool
+  call_dummy1(bool arg)
+  {
+    return dummy1(arg);
+  }
+
+  int
+  call_dummy2()
+  {
+    return dummy2();
+  }
+}
+

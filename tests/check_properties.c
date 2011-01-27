@@ -1,200 +1,52 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+unsigned
+call_int_var_sizeof();
 
 unsigned
-call_int_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties14int_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_uint_var_sizeof();
 
 unsigned
-call_uint_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties15uint_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_bool_var_sizeof();
 
 unsigned
-call_bool_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties15bool_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_char_var_sizeof();
 
 unsigned
-call_char_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties15char_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_int_exp_sizeof();
 
 unsigned
-call_int_exp_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties14int_exp_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_bool_exp_sizeof();
 
 unsigned
-call_bool_exp_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties15bool_exp_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_stat_int_arry_var_sizeof();
 
 unsigned
-call_stat_int_arry_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties24stat_int_arry_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_stat_bool_arry_var_sizeof();
 
 unsigned
-call_stat_bool_arry_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties25stat_bool_arry_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
-
-unsigned
-call_dyn_int_arry_var_sizeof()
-{
-   unsigned res;
-
-   asm ("    call _D10properties23dyn_int_arry_var_sizeofFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_dyn_int_arry_var_sizeof();
 
 int
-call_int_var_init()
-{
-   int res;
-
-   asm ("    call _D10properties12int_var_initFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_int_var_init();
 
 unsigned
-call_uint_var_init()
-{
-   unsigned res;
-
-   asm ("    call _D10properties13uint_var_initFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_uint_var_init();
 
 bool
-call_bool_var_init()
-{
-   bool res;
-
-   asm ("    call _D10properties13bool_var_initFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_bool_var_init();
 
 unsigned char
-call_char_var_init()
-{
-   unsigned char res;
-
-   asm ("    call _D10properties13char_var_initFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_char_var_init();
 
 unsigned
-call_stat_int_arry_length()
-{
-   unsigned res;
-
-   asm ("    call _D10properties20stat_int_arry_lengthFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_stat_int_arry_length();
 
 unsigned
-call_stat_bool_arry_length()
-{
-   unsigned res;
-
-   asm ("    call _D10properties21stat_bool_arry_lengthFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_stat_bool_arry_length();
 
 unsigned
-call_dyn_int_arry_length(bool in)
-{
-   unsigned res;
-
-   asm ("    call _D10properties19dyn_int_arry_lengthFbZk\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_dyn_int_arry_length(bool arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

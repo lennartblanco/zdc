@@ -85,3 +85,57 @@ unsigned_signed_mult(uint l, int r)
 
   return res;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  bool
+  call_uint_assig()
+  {
+    return uint_assig();
+  }
+
+  bool
+  call_uint_arg(uint arg)
+  {
+    return uint_arg(arg);
+  }
+
+  uint
+  call_uint_ret(bool arg)
+  {
+    return uint_ret(arg);
+  }
+
+  uint
+  call_uint_arrys(uint arg)
+  {
+    return uint_arrys(arg);
+  }
+
+  uint
+  call_signed_unsigned_const_add()
+  {
+    return signed_unsigned_const_add();
+  }
+
+  uint
+  call_unsigned_signed_const_div()
+  {
+    return unsigned_signed_const_div();
+  }
+
+  int
+  call_signed_unsigned_add(int arg1, uint arg2)
+  {
+    return signed_unsigned_add(arg1, arg2);
+  }
+
+  int
+  call_unsigned_signed_mult(int arg1, uint arg2)
+  {
+    return unsigned_signed_mult(arg1, arg2);
+  }
+}

@@ -1,184 +1,43 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_int_array_lit_assigment(int arg);
 
 int
-call_int_array_lit_assigment(int in)
-{
-   int res;
-
-   asm ("    call _D9dyn_array23int_array_lit_assigmentFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_int_array_lit_init(int arg);
 
 int
-call_int_array_lit_init(int in)
-{
-   int res;
-
-   asm ("    call _D9dyn_array18int_array_lit_initFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
-int
-call_intops(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9dyn_array6intopsFiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_intops(int arg1, int arg2);
 
 bool
-call_bool_array_lit_assigment(int in)
-{
-   bool res;
-
-   asm ("    call _D9dyn_array24bool_array_lit_assigmentFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_bool_array_lit_assigment(int arg);
 
 bool
-call_bool_array_lit_init(bool in)
-{
-   bool res;
-
-   asm ("    call _D9dyn_array19bool_array_lit_initFbZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_bool_array_lit_init(bool arg);
 
 bool
-call_boolops(int arg1, int arg2)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9dyn_array7boolopsFiiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_boolops(int arg1, int arg2);
 
 char
-call_char_array(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9dyn_array10char_arrayFakZa\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_char_array(char arg1, int arg2);
 
 int
-call_invoke_dyn_array_sum_handle(int in)
-{
-   int res;
-
-   asm ("    call _D9dyn_array27invoke_dyn_array_sum_handleFkZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_invoke_dyn_array_sum_handle(int arg);
 
 int
-call_invoke_dyn_array_sum_lit(int in)
-{
-   int res;
-
-   asm ("    call _D9dyn_array24invoke_dyn_array_sum_litFkZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_invoke_dyn_array_sum_lit(int arg);
 
 int
-call_dyn_array_slice_assigment(int arg1, unsigned arg2)
-{
-   int res;
-
-   asm ("    pushl %%esi\n"
-        "    pushl %%edi\n"
-        "    pushl %%ebx\n"
-        "    pushl %[arg1]\n"
-        "    call _D9dyn_array25dyn_array_slice_assigmentFbkZi\n"
-        "    addl $4, %%esp\n"
-        "    pop %%ebx\n"
-        "    pop %%edi\n"
-        "    pop %%esi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          "a"(arg2));
-
-   return res;
-}
+call_dyn_array_slice_assigment(bool arg1, unsigned arg2);
 
 unsigned
-call_dyn_array_slice_assigment_length(unsigned in)
-{
-   unsigned res;
-
-   asm ("    call _D9dyn_array32dyn_array_slice_assigment_lengthFkZk\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_dyn_array_slice_assigment_length(unsigned arg);
 
 int
-call_dyn_array_slice_shorthand(int arg1, unsigned arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    call _D9dyn_array25dyn_array_slice_shorthandFbkZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          "a"(arg2));
-
-   return res;
-}
+call_dyn_array_slice_shorthand(bool arg1, unsigned arg2);
 
 int
-call_invoke_find_int(int in)
-{
-   int res;
-
-   asm ("    call _D9dyn_array15invoke_find_intFkZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_invoke_find_int(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

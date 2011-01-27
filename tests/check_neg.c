@@ -1,104 +1,28 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
+int
+call_neg0(int arg);
 
 int
-call_neg0(int in)
-{
-   int res;
-
-   asm ("    call _D3neg4neg0FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_neg1(int arg);
 
 int
-call_neg1(int in)
-{
-   int res;
-
-   asm ("    call _D3neg4neg1FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_neg2(int arg);
 
 int
-call_neg2(int in)
-{
-   int res;
-
-   asm ("    call _D3neg4neg2FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_neg3();
 
 int
-call_neg3()
-{
-   int res;
-
-   asm ("    call _D3neg4neg3FZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_neg4();
 
 int
-call_neg4()
-{
-   int res;
-
-   asm ("    call _D3neg4neg4FZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_neg5(int arg);
 
 int
-call_neg5(int in)
-{
-   int res;
-
-   asm ("    call _D3neg4neg5FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_neg51(int arg);
 
 int
-call_neg51(int in)
-{
-   int res;
-
-   asm ("    call _D3neg5neg51FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
-int
-call_neg6(int in)
-{
-   int res;
-
-   asm ("    call _D3neg4neg6FiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_neg6(int arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

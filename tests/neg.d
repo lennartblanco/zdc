@@ -52,3 +52,56 @@ int neg6(int l)
    return v;
 }
 
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int
+  call_neg0(int arg)
+  {
+    return neg0(arg);
+  }
+
+  int
+  call_neg1(int arg)
+  {
+    return neg1(arg);
+  }
+
+  int
+  call_neg2(int arg)
+  {
+    return neg2(arg);
+  }
+
+  int
+  call_neg3()
+  {
+    return neg3();
+  }
+
+  int
+  call_neg4()
+  {
+    return neg4();
+  }
+
+  int
+  call_neg5(int arg)
+  {
+    return neg5(arg);
+  }
+
+  int
+  call_neg51(int arg)
+  {
+    return neg51(arg);
+  }
+
+  int
+  call_neg6(int arg)
+  {
+    return neg6(arg);
+  }
+}

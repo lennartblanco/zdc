@@ -1,48 +1,13 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 int
-call_immutable_int(unsigned arg1, unsigned arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D9immutable13immutable_intFkkZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_immutable_int(unsigned arg1, unsigned arg2);
 
 bool
-call_immutable_bool(int in)
-{
-   int res;
-
-   asm ("    call _D9immutable14immutable_boolFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_immutable_bool(int arg);
 
 bool
-call_invoke_char_present(char in)
-{
-   int res;
-
-   asm ("    call _D9immutable19invoke_char_presentFaZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
-
+call_invoke_char_present(char arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

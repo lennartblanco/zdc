@@ -1,205 +1,49 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 int
-call_init_int_array(int in)
-{
-   int res;
-
-   asm ("    call _D10stat_array14init_int_arrayFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_init_int_array(int arg);
 
 bool
-call_init_bool_array(int in)
-{
-   bool res;
-
-   asm ("    call _D10stat_array15init_bool_arrayFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_init_bool_array(int arg);
 
 int
-call_def_init_int_array(int in)
-{
-   int res;
-
-   asm ("    call _D10stat_array18def_init_int_arrayFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_def_init_int_array(int arg);
 
 bool
-call_def_init_bool_array(int in)
-{
-   bool res;
-
-   asm ("    call _D10stat_array19def_init_bool_arrayFiZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_def_init_bool_array(int arg);
 
 int
-call_init_exp_tst(int in)
-{
-   int res;
-
-   asm ("    call _D10stat_array12init_exp_tstFiZi\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_init_exp_tst(int arg);
 
 int
-call_intops(int arg1, int arg2)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    movl %[arg2],%%eax\n"
-        "    call _D10stat_array6intopsFiiZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2));
-
-   return res;
-}
+call_intops(int arg1, int arg2);
 
 bool
-call_boolops(int arg1, int arg2, int arg3, int arg4)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    movl %[arg4], %%eax\n"
-        "    call _D10stat_array7boolopsFbbbiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3),
-          [arg4]"m"(arg4));
-
-   return res;
-}
+call_boolops(bool arg1, bool arg2, bool arg3, int arg4);
 
 bool
-call_boolops2(bool arg1, bool arg2, bool arg3, int arg4)
-{
-   bool res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    pushl %[arg3]\n"
-        "    movl %[arg4], %%eax\n"
-        "    call _D10stat_array8boolops2FbbbiZb\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3),
-          [arg4]"m"(arg4));
-
-   return res;
-}
+call_boolops2(bool arg1, bool arg2, bool arg3, int arg4);
 
 int
-call_slice_assig_sum()
-{
-   int res;
-
-   asm ("    call _D10stat_array15slice_assig_sumFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_slice_assig_sum();
 
 bool
-call_bslice_assig(int arg)
-{
-   bool res;
-
-   asm ("    call _D10stat_array12bslice_assigFiZb\n"
-        : "=a"(res)
-        : "a"(arg));
-
-   return res;
-}
+call_bslice_assig(int arg);
 
 int
-call_slices_ops(int arg)
-{
-   int res;
-
-   asm ("    call _D10stat_array10slices_opsFiZi\n"
-        : "=a"(res)
-        : "a"(arg));
-
-   return res;
-}
+call_slices_ops(int arg);
 
 int
-call_int_slice_to_shorthand_slice(int arg)
-{
-   int res;
-
-   asm ("    call _D10stat_array28int_slice_to_shorthand_sliceFiZi\n"
-        : "=a"(res)
-        : "a"(arg));
-
-   return res;
-}
+call_int_slice_to_shorthand_slice(int arg);
 
 int
-call_int_slice_to_slice(int arg)
-{
-   int res;
-
-   asm ("    call _D10stat_array18int_slice_to_sliceFiZi\n"
-        : "=a"(res)
-        : "a"(arg));
-
-   return res;
-}
+call_int_slice_to_slice(int arg);
 
 bool
-call_bool_slice_to_slice(bool in)
-{
-   bool res;
-
-   asm ("    call _D10stat_array19bool_slice_to_sliceFbZb\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_bool_slice_to_slice(bool arg);
 
 unsigned
-call_uint_slice_to_slice_idx(int in)
-{
-   unsigned res;
-
-   asm ("    call _D10stat_array23uint_slice_to_slice_idxFiZk\n"
-        : "=a"(res)
-        : "a"(in));
-
-   return res;
-}
+call_uint_slice_to_slice_idx(int arg);
 
 //int
 //call_call_sum_stat()
@@ -265,46 +109,13 @@ call_uint_slice_to_slice_idx(int in)
 //}
 
 int
-call_stat_array_bool_var_init(int arg1, int arg2, int arg3)
-{
-   int res;
-
-   asm ("    pushl %[arg1]\n"
-        "    pushl %[arg2]\n"
-        "    movl %[arg3], %%eax\n"
-        "    call _D10stat_array24stat_array_bool_var_initFiibZi\n"
-        : "=a"(res)
-        : [arg1]"m"(arg1),
-          [arg2]"m"(arg2),
-          [arg3]"m"(arg3));
-
-   return res;
-}
+call_stat_array_bool_var_init(int arg1, int arg2, int arg3);
 
 int
-call_implicit_arry_lit_casts(int arg)
-{
-   int res;
-
-   asm ("    call _D10stat_array23implicit_arry_lit_castsFiZi\n"
-        : "=a"(res)
-        : "a"(arg));
-
-   return res;
-}
+call_implicit_arry_lit_casts(int arg);
 
 unsigned
-call_stat_array_slice_assigment_length(unsigned arg)
-{
-   unsigned res;
-
-   asm ("    call _D10stat_array33stat_array_slice_assigment_lengthFkZk\n"
-        : "=a"(res)
-        : "a"(arg));
-
-   return res;
-}
-
+call_stat_array_slice_assigment_length(unsigned arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

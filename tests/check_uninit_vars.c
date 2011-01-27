@@ -1,56 +1,16 @@
 #include "check_utils.h"
 
-/*---------------------------------------------------------------------------*
- *          wrappers to call test function with D calling convention         *
- *---------------------------------------------------------------------------*/
-
 bool
-call_uninit_bool()
-{
-   bool res;
-
-   asm ("    call _D11uninit_vars11uninit_boolFZb\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_uninit_bool();
 
 unsigned char
-call_uninit_char()
-{
-   unsigned char res;
-
-   asm ("    call _D11uninit_vars11uninit_charFZa\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_uninit_char();
 
 unsigned char
-call_uninit_int()
-{
-   unsigned char res;
-
-   asm ("    call _D11uninit_vars10uninit_intFZi\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_uninit_int();
 
 unsigned char
-call_uninit_uint()
-{
-   unsigned char res;
-
-   asm ("    call _D11uninit_vars11uninit_uintFZk\n"
-        : "=a"(res)
-        : );
-
-   return res;
-}
+call_uninit_uint();
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *

@@ -77,3 +77,51 @@ char_ptr_dref(char *c)
 
   return false;
 }
+
+/*
+ * wrappers to allow call test functions with C calling convention
+ */
+extern (C)
+{
+  int *
+  call_def_int_ptr()
+  {
+    return def_int_ptr();
+  }
+
+  char *
+  call_def_char_ptr()
+  {
+    return def_char_ptr();
+  }
+
+  void *
+  call_malloced_ptr()
+  {
+    return malloced_ptr();
+  }
+
+  void
+  call_compare(int arg1, int arg2, bool *arg3, bool *arg4)
+  {
+    compare(arg1, arg2, arg3, arg4);
+  }
+
+  void
+  call_divide(int arg1, int arg2, int *arg3, int *arg4)
+  {
+    divide(arg1, arg2, arg3, arg4);
+  }
+
+  uint
+  call_uint_ptr_dref(uint *arg1, bool arg2)
+  {
+    return uint_ptr_dref(arg1, arg2);
+  }
+
+  bool
+  call_char_ptr_dref(char *arg)
+  {
+    return char_ptr_dref(arg);
+  }
+}
