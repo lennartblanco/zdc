@@ -159,17 +159,21 @@ implicit_conv_to_char(IrExpression *expression)
 
     switch (dt_basic_get_data_type(DT_BASIC(exp_data_type)))
     {
-        case int_type:
-        case uint_type:
-        case bool_type:
-            assert(false); /* not implemented */
-            break;
         case char_type:
             res_exp = expression;
             break;
-        default:
+        case bool_type:
+            res_exp =
+              IR_EXPRESSION(ir_cast_new(types_get_char_type(), expression));
+            break;
+        case void_type:
+        case int_type:
+        case uint_type:
             /* invalid implicit conversion, return NULL */
             break;
+        default:
+            /* unexpected data type */
+            assert(false);
     }
 
     return res_exp;

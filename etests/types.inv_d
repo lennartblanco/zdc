@@ -24,6 +24,18 @@ bool func3()
   return !x;
 }
 
+void char_arg_func(char arg)
+{
 
+}
 
+void func4()
+{
+  int x;
+  char_arg_func(x);
+}
 
+void func5()
+{
+  char_arg_func(30u);
+}

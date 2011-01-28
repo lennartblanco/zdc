@@ -107,19 +107,3 @@ void main()
 $ xdc meep.d
 xdc: types.c:211: implicit_conv_to_basic_type: Assertion `0' failed.
 Aborted
-
-* the code below fails an assertion
-
-void foo(char arg)
-{
-
-}
-
-void main()
-{
-  int x;
-  foo(x);
-}
-
-$ ./xdc meep.d
-xdc: types.c:165: implicit_conv_to_char: Assertion `0' failed.

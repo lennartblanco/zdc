@@ -19,6 +19,13 @@ int bool_to_int(bool b)
     return res;
 }
 
+char bool_to_char(bool b)
+{
+    char c = b;
+
+    return c;
+}
+
 int add_bools(bool a, bool b)
 {
     return 2 * a + b;
@@ -61,6 +68,12 @@ extern (C)
   call_bool_to_int(bool arg)
   {
       return bool_to_int(arg);
+  }
+
+  char
+  call_bool_to_char(bool arg)
+  {
+      return bool_to_char(arg);
   }
 
   bool

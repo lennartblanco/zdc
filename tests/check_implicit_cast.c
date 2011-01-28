@@ -3,6 +3,9 @@
 int
 call_bool_to_int(bool arg);
 
+unsigned char
+call_bool_to_char(bool arg);
+
 bool
 call_int0_to_bool();
 
@@ -34,6 +37,10 @@ main()
     /* bool_to_int() tests */
     check_int("bool_to_int(false)", call_bool_to_int(false), 0);
     check_int("bool_to_int(true)", call_bool_to_int(true), 1);
+
+    /* bool_to_char() tests */
+    check_char("bool_to_char(false)", call_bool_to_char(false), '\0');
+    check_char("bool_to_char(true)", call_bool_to_char(true), '\1');
 
     /* int0_to_bool() test */
     check_bool("int0_to_bool()", call_int0_to_bool(), false);
