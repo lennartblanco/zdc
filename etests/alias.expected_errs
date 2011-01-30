@@ -1,1 +1,1 @@
-alias.d:2: error: alias conflicts with other user type 'mytype' definition
+alias.d:1: error: alias conflicts with other user type 'mytype' definition

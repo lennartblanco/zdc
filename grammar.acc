@@ -22,6 +22,7 @@
 #include "ast_assignment.h"
 #include "ast_postfix_exp.h"
 #include "ast_struct.h"
+#include "ast_enum.h"
 #include "ast_ptr_dref.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
@@ -98,8 +99,9 @@ import_declaration<module> :
 alias_declaration<module> :
     TOK_ALIAS type<t> TOK_IDENT<name> ';'
     {
-        ast_module_add_alias((*module).module,
-                             ast_alias_new(t.data_type, name.text, yypos));
+        ast_module_add_user_type(
+            (*module).module,
+            AST_USER_TYPE(ast_alias_new(t.data_type, name.text, yypos)));
     }
 ;
 
@@ -118,7 +120,7 @@ enum_declaration<module> :
                                  base_type.data_type,
                                  mbrs.list,
                                  yypos);
-        ast_module_add_enum_def((*module).module, enum_node);
+        ast_module_add_user_type((*module).module, AST_USER_TYPE(enum_node));
     }
 ;
 

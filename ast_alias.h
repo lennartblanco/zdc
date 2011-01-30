@@ -1,7 +1,7 @@
 #ifndef AST_ALIAS_INC_X
 #define AST_ALIAS_INC_X
 
-#include "ast_node.h"
+#include "ast_user_type.h"
 #include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,7 +27,7 @@
 
 typedef struct
 {
-    AstNode    parent;
+    AstUserType    parent;
 
     /* private */
     DtDataType *type;

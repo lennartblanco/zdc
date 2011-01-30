@@ -17,6 +17,8 @@
 #include "ast_uint_constant.h"
 #include "ast_postfix_exp.h"
 #include "ast_ptr_dref.h"
+#include "ast_alias.h"
+#include "ast_enum.h"
 #include "ast_enum_member.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
@@ -245,41 +247,47 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
     }
 
     /*
-     * process all enum definitions
+     * process all user defined types
      */
-    i = ast_module_get_enum_defs(ast_module);
+    i = ast_module_get_user_types(ast_module);
     for (; i != NULL; i = i->next)
     {
-        IrEnum *ir_enum;
+        AstUserType *user_type = AST_USER_TYPE(i->data);
 
-        ir_enum = enum_to_ir(compile_status,
-                             module_sym_table,
-                             AST_ENUM(i->data));
-        if (!ir_module_add_enum(module, ir_enum))
+        if (AST_IS_ENUM(user_type))
         {
-            compile_error(compile_status,
-                          IR_NODE(ir_enum),
-                          "enum declaration conflicts with"
-                          " other user type '%s' definition\n",
-                          ast_enum_get_tag(AST_ENUM(i->data)));
+            IrEnum *ir_enum;
+
+            ir_enum = enum_to_ir(compile_status,
+                                 module_sym_table,
+                                 AST_ENUM(i->data));
+            if (!ir_module_add_enum(module, ir_enum))
+            {
+                compile_error(compile_status,
+                              IR_NODE(ir_enum),
+                              "enum declaration conflicts with"
+                              " other user type '%s' definition\n",
+                              ast_enum_get_tag(AST_ENUM(i->data)));
+            }
+
         }
-    }
+        else if (AST_IS_ALIAS(user_type))
+        {
+            DtDataType *alias_type = ast_alias_get_data_type(i->data);
+            gchar *alias_name = ast_alias_get_name(i->data);
 
-    /*
-     * process all alias statments
-     */
-    i = ast_module_get_aliases(ast_module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        DtDataType *alias_type = ast_alias_get_data_type(i->data);
-        gchar *alias_name = ast_alias_get_name(i->data);
-
-        if (!ir_module_add_type_alias(module, alias_type, alias_name)) {
-            compile_error(compile_status,
-                          i->data,
-                          "alias conflicts with"
-                          " other user type '%s' definition\n",
-                          alias_name);
+            if (!ir_module_add_type_alias(module, alias_type, alias_name)) {
+                        compile_error(compile_status,
+                                      i->data,
+                                      "alias conflicts with"
+                                      " other user type '%s' definition\n",
+                                      alias_name);
+            }
+        }
+        else
+        {
+            /* unexpected user type */
+            assert(false);
         }
     }
 

@@ -1,7 +1,7 @@
 #ifndef AST_STRUCT_INC_X
 #define AST_STRUCT_INC_X
 
-#include "ast_node.h"
+#include "ast_user_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    AstNode    parent;
+    AstUserType    parent;
 
     /* private */
     gchar *name;

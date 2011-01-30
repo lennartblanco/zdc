@@ -4,8 +4,7 @@
 #include "ast_types.h"
 #include "ast_function_decl.h"
 #include "ast_function_def.h"
-#include "ast_enum.h"
-#include "ast_alias.h"
+#include "ast_user_type.h"
 #include "ast_import.h"
 
 /*---------------------------------------------------------------------------*
@@ -77,22 +76,9 @@ GSList *
 ast_module_get_function_defs(AstModule *self);
 
 void
-ast_module_add_enum_def(AstModule *self,
-                        AstEnum *enum_def);
+ast_module_add_user_type(AstModule *self, AstUserType *user_type);
 
-GSList *
-ast_module_get_enum_defs(AstModule *self);
-
-void
-ast_module_add_alias(AstModule *self,
-                     AstAlias *alias);
-
-/**
- * Get all alias statments in this module.
- *
- * @return a list of AstAlias objects
- */
-GSList *
-ast_module_get_aliases(AstModule *self);
+GSList*
+ast_module_get_user_types(AstModule *self);
 
 #endif /* AST_MODULE_INC_X */
