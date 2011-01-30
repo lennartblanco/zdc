@@ -75,6 +75,9 @@ check_immutable: immutable.o check_utils.o check_immutable.c
 check_enums: enums.o check_utils.o check_enums.c
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_alias: alias.o check_utils.o check_alias.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_pointers: pointers.o check_utils.o check_pointers.c
 	$(CC) -g $(CFLAGS) -o $@ $^
 
