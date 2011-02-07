@@ -1235,7 +1235,7 @@ resolve_user_type(compilation_status_t *compile_status,
         /* failed to look-up the data type */
         compile_error(compile_status,
                       user_type,
-                      "unkown data type '%s'\n",
+                      "unknown data type '%s'\n",
                       dt_user_get_name(user_type));
     }
 

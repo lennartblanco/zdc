@@ -1,3 +1,3 @@
-unknow_usr_type.d:4: error: unkown data type 'my_int32'
-unknow_usr_type.d:8: error: unkown data type 'my_type'
-unknow_usr_type.d:13: error: unkown data type 'my_bool'
+unknow_usr_type.d:4: error: unknown data type 'my_int32'
+unknow_usr_type.d:8: error: unknown data type 'my_type'
+unknow_usr_type.d:13: error: unknown data type 'my_bool'
