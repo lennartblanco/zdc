@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "ast_unary_operation.h"
 
 #include <assert.h>
@@ -91,6 +93,9 @@ ast_unary_operation_do_print(AstNode *self, FILE *out, int indention)
         case ast_bool_neg_op:             /*  !  */
             str = "!";
             break;
+        default:
+            /* unexpected operation type */
+            assert(false);
     }
     fprintf(out, "%s(", str);
     ast_node_print(AST_NODE(op->operand), out, indention);
