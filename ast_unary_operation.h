@@ -30,7 +30,11 @@
 typedef enum ast_unary_op_type_e
 {
     ast_arithm_neg_op,     /*  -(exp)  */
-    ast_bool_neg_op        /*  !(exp)  */
+    ast_bool_neg_op,       /*  !(exp)  */
+    ast_pre_inc_op,        /*  ++(exp) */
+    ast_pre_dec_op,        /*  --(exp) */
+    ast_post_inc_op,       /* (exp)++ */
+    ast_post_dec_op        /* (exp)-- */
 } ast_unary_op_type_t;
 
 typedef struct

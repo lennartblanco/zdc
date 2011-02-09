@@ -740,6 +740,18 @@ unary_expression<n> :
             AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
                                                    x.expression));
     }
+|   '+' '+' unary_expression<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_unary_operation_new(ast_pre_inc_op,
+                                                   x.expression));
+    }
+|   '-' '-' unary_expression<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_unary_operation_new(ast_pre_dec_op,
+                                                   x.expression));
+    }
 |   '*' unary_expression<x>
     {
         (*n).expression =
@@ -756,6 +768,18 @@ postfix_expression<n> :
             AST_EXPRESSION(ast_postfix_exp_new(exp.expression,
                                                name.text, yypos));
         free(name.text);
+    }
+|   postfix_expression<exp> '+' '+'
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_unary_operation_new(ast_post_inc_op,
+                           exp.expression));
+    }
+|   postfix_expression<exp> '-' '-'
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_unary_operation_new(ast_post_dec_op,
+                           exp.expression));
     }
 |   primary<n>
 ;
