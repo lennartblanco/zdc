@@ -417,10 +417,9 @@ struct_to_ir(compilation_status_t *compile_status,
 {
     GSList *i;
     GSList *members = NULL;
-    IrStruct *ir_struct;
+    sym_table_t *symbols;
 
-    ir_struct = ir_struct_new(ast_struct_get_name(ast_struct));
-
+    symbols = sym_table_new(NULL);
     for (i = ast_struct_get_members(ast_struct);
          i != NULL;
          i = g_slist_next(i))
@@ -430,17 +429,15 @@ struct_to_ir(compilation_status_t *compile_status,
         IrVariable *var =
                 var_def_to_ir(compile_status,
                               AST_VARIABLE_DEFINITION(i->data),
-                              ir_struct_get_symbols(ir_struct));
+                              symbols);
 
         members = g_slist_prepend(members, var);
     }
 
-    ir_struct_set_members(ir_struct,
-                          g_slist_reverse(members));
-
-    return ir_struct;
+    return ir_struct_new(ast_struct_get_name(ast_struct),
+                         g_slist_reverse(members),
+                         symbols);
 }
-
 
 static GSList *
 func_params_to_ir(GSList *ast_func_params)

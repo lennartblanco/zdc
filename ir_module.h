@@ -122,6 +122,9 @@ ir_module_get_enums(IrModule *self);
 bool
 ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
 
+GSList *
+ir_module_get_structs(IrModule *self);
+
 /**
  * Look-up the user defined type by it's name.
  *

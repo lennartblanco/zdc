@@ -1771,6 +1771,49 @@ validate_enum(compilation_status_t *compile_status,
 }
 
 static void
+validate_struct(compilation_status_t *compile_status,
+                IrStruct *ir_struct)
+{
+    assert(compile_status);
+    assert(IR_IS_STRUCT(ir_struct));
+
+    /* validated members */
+    GSList *valid_mbrs = NULL;
+    GSList *i;
+
+    for (i = ir_struct_get_members(ir_struct); i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_VARIABLE(i->data));
+        IrVariable *var = IR_VARIABLE(i->data);
+        DtDataType *type = ir_variable_get_data_type(var);
+
+        /* resolve user type */
+        if (DT_IS_USER(type))
+        {
+            /*
+             * the variable is of user defined type,
+             * look-up the data type object with the specified name
+             */
+            type = resolve_user_type(compile_status, DT_USER(type));
+            if (type == NULL)
+            {
+                /* failed to look-up the data type */
+                continue;
+            }
+
+            /*
+             * overwrite the place holder data type object with the
+             * found object
+             */
+            ir_variable_set_data_type(var, type);
+        }
+        valid_mbrs = g_slist_prepend(valid_mbrs, var);
+    }
+    ir_struct_set_members(ir_struct, g_slist_reverse(valid_mbrs));
+}
+
+
+static void
 validate_entry_point(compilation_status_t *compile_status,
                      IrModule *module)
 {
@@ -1911,12 +1954,21 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
     validate_entry_point(compile_status, module);
 
+    /* validate enum definitions */
     i = ir_module_get_enums(module);
     for (; i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_ENUM(i->data));
         validate_enum(compile_status,
                       IR_ENUM(i->data));
+    }
+
+    /* validate struct definitions */
+    i = ir_module_get_structs(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_STRUCT(i->data));
+        validate_struct(compile_status, IR_STRUCT(i->data));
     }
 
     i = ir_module_get_function_defs(module);

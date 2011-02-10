@@ -39,20 +39,27 @@ dt_struct_get_type(void)
 }
 
 DtStruct *
-dt_struct_new(GSList *member_types)
+dt_struct_new()
 {
     DtStruct *obj;
-    GSList *i;
 
     obj = g_object_new(DT_TYPE_STRUCT, NULL);
+
+    return obj;
+}
+
+void
+dt_struct_set_member_types(DtStruct *self, GSList *member_types)
+{
+    assert(DT_IS_STRUCT(self));
+
+    GSList *i;
 
     /* sum the byte size of all members, to get the size of this struct */
     for (i = member_types; i != NULL; i = g_slist_next(i))
     {
-        obj->size += dt_data_type_get_size(i->data);
+        self->size += dt_data_type_get_size(i->data);
     }
-
-    return obj;
 }
 
 /*---------------------------------------------------------------------------*

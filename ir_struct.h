@@ -50,13 +50,13 @@ GType
 ir_struct_get_type(void);
 
 IrStruct *
-ir_struct_new(gchar *name);
-
-sym_table_t *
-ir_struct_get_symbols(IrStruct *self);
+ir_struct_new(gchar *name, GSList *members, sym_table_t *symbols);
 
 void
 ir_struct_set_members(IrStruct *self, GSList *members);
+
+GSList *
+ir_struct_get_members(IrStruct *self);
 
 gchar *
 ir_struct_get_name(IrStruct *self);

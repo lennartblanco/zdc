@@ -45,6 +45,9 @@ GType
 dt_struct_get_type(void);
 
 DtStruct *
-dt_struct_new(GSList *member_types);
+dt_struct_new();
+
+void
+dt_struct_set_member_types(DtStruct *self, GSList *member_types);
 
 #endif /* DT_STRUCT_INC_X */

@@ -16,6 +16,7 @@ struct _IrModule
   sym_table_t    *symbols;
   GHashTable     *user_types;
   GSList         *enums;
+  GSList         *structs;
   GSList         *function_defs;
   guint           label_counter; /** used to generate module unique labels */
   GHashTable     *data_section;  /** compile-time constant expressions */
@@ -67,6 +68,7 @@ ir_module_new(GSList *package_name)
     obj->symbols = sym_table_new(NULL);
     obj->user_types = g_hash_table_new(g_str_hash, g_str_equal);
     obj->enums = NULL;
+    obj->structs = NULL;
     obj->function_defs = NULL;
     obj->label_counter = 0;
     obj->data_section = g_hash_table_new(g_str_hash, g_str_equal);
@@ -277,9 +279,25 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct)
     assert(IR_IS_MODULE(self));
     assert(IR_IS_STRUCT(ir_struct));
 
-    return add_user_type(self,
-                         ir_struct_get_name(ir_struct),
-                         ir_struct_get_data_type(ir_struct));
+    if (!add_user_type(self,
+                       ir_struct_get_name(ir_struct),
+                       ir_struct_get_data_type(ir_struct)))
+    {
+        return false;
+    }
+
+    /* add it to the module's structs list */
+    self->structs = g_slist_prepend(self->structs, ir_struct);
+
+    return true;
+}
+
+GSList *
+ir_module_get_structs(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->structs;
 }
 
 DtDataType *
