@@ -7,7 +7,7 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_struct_type_class_init(gpointer klass, gpointer dummy);
+dt_struct_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -24,7 +24,7 @@ dt_struct_get_type(void)
         sizeof (DtStructClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        dt_struct_type_class_init,   /* class_init */
+        dt_struct_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (DtStruct),
@@ -60,7 +60,7 @@ dt_struct_new(GSList *member_types)
  *---------------------------------------------------------------------------*/
 
 static guint
-dt_struct_type_get_size(DtDataType *self)
+dt_struct_get_size(DtDataType *self)
 {
     assert(DT_IS_STRUCT(self));
 
@@ -68,7 +68,7 @@ dt_struct_type_get_size(DtDataType *self)
 }
 
 static void
-dt_struct_type_class_init(gpointer klass, gpointer dummy)
+dt_struct_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_size = dt_struct_type_get_size;
+    ((DtDataTypeClass *)klass)->get_size = dt_struct_get_size;
 }
