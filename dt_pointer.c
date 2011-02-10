@@ -124,6 +124,15 @@ dt_pointer_is_same(DtDataType *self, DtDataType *type)
                                 DT_POINTER(type)->base_type);
 }
 
+static guint
+dt_pointer_get_size(DtDataType *self)
+{
+    assert(DT_IS_POINTER(self));
+
+    /* hard-code pointers to 4 bytes for all platforms for now */
+    return 4;
+}
+
 static void
 dt_pointer_class_init(gpointer klass, gpointer dummy)
 {
@@ -131,5 +140,6 @@ dt_pointer_class_init(gpointer klass, gpointer dummy)
     ((DtDataTypeClass *)klass)->get_mangled = dt_pointer_get_mangled;
     ((DtDataTypeClass *)klass)->get_init = dt_pointer_get_init;
     ((DtDataTypeClass *)klass)->is_same = dt_pointer_is_same;
+    ((DtDataTypeClass *)klass)->get_size = dt_pointer_get_size;
 }
 
