@@ -51,6 +51,7 @@ guint
 dt_data_type_get_size(DtDataType *self)
 {
     assert(DT_IS_DATA_TYPE(self));
+    assert(DT_DATA_TYPE_GET_CLASS(self)->get_size != NULL);
 
     return DT_DATA_TYPE_GET_CLASS(self)->get_size(self);
 }

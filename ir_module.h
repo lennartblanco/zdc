@@ -11,6 +11,7 @@
 #include "ir_function_decl.h"
 #include "ir_array_literal.h"
 #include "ir_enum.h"
+#include "ir_struct.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -116,6 +117,12 @@ GSList *
 ir_module_get_enums(IrModule *self);
 
 /**
+ * @return false if this struct definition conflicts with some other user type
+ */
+bool
+ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
+
+/**
  * Look-up the user defined type by it's name.
  *
  * @return the data type or NULL if no user type with provided name is defined.
@@ -123,7 +130,6 @@ ir_module_get_enums(IrModule *self);
 DtDataType *
 ir_module_get_user_type(IrModule *self,
                         DtUser *user_type);
-
 void
 ir_module_print(IrModule *self, FILE *out, int indention);
 

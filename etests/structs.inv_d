@@ -1,0 +1,16 @@
+struct struct1
+{
+  int mbr1;
+  int mbr2;
+  uint mbr1;
+}
+
+struct struct_a
+{
+  char one;
+}
+
+struct struct_a
+{
+  bool x;
+}

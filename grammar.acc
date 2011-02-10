@@ -166,8 +166,10 @@ struct_declaration<module> :
     {
         AstStruct *ast_struct;
 
-        ast_struct = ast_struct_new(name.text, members.list);
+        ast_struct = ast_struct_new(name.text, members.list, yypos);
         free(name.text);
+
+        ast_module_add_user_type((*module).module, AST_USER_TYPE(ast_struct));
     }
 ;
 

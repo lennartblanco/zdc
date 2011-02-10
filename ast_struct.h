@@ -46,6 +46,12 @@ GType
 ast_struct_get_type(void);
 
 AstStruct *
-ast_struct_new(gchar *name, GSList *members);
+ast_struct_new(gchar *name, GSList *members, guint line_number);
+
+gchar *
+ast_struct_get_name(AstStruct *self);
+
+GSList *
+ast_struct_get_members(AstStruct *self);
 
 #endif /* AST_STRUCT_INC_X */

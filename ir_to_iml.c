@@ -509,7 +509,7 @@ dt_to_iml_type(DtDataType *dt_type)
     {
         iml_type = iml_ptr;
     }
-    else if (DT_IS_ARRAY(dt_type))
+    else if (DT_IS_ARRAY(dt_type) || DT_IS_STRUCT(dt_type))
     {
         iml_type = iml_blob;
     }

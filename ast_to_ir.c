@@ -20,6 +20,7 @@
 #include "ast_alias.h"
 #include "ast_enum.h"
 #include "ast_enum_member.h"
+#include "ast_struct.h"
 #include "ir_function_call.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
@@ -40,6 +41,7 @@
 #include "ir_property.h"
 #include "ir_ptr_dref.h"
 #include "ir_enum_member.h"
+#include "ir_struct.h"
 #include "dt_basic.h"
 #include "errors.h"
 
@@ -53,6 +55,10 @@ static IrEnum *
 enum_to_ir(compilation_status_t *compile_status,
            sym_table_t *symbols,
            AstEnum *ast_enum);
+
+static IrStruct *
+struct_to_ir(compilation_status_t *compile_status,
+             AstStruct *ast_struct);
 
 static IrFunctionDecl *
 func_decl_to_ir(AstFunctionDecl *ast_func_decl);
@@ -138,7 +144,7 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstPostfixExp *ast_postfix);
 
-static void
+static IrVariable *
 var_def_to_ir(compilation_status_t *compile_status,
               AstVariableDefinition *var_def,
               sym_table_t *sym_table);
@@ -271,6 +277,21 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
             }
 
         }
+        else if (AST_IS_STRUCT(user_type))
+        {
+            IrStruct *ir_struct;
+
+            ir_struct = struct_to_ir(compile_status,
+                                     AST_STRUCT(i->data));
+            if (!ir_module_add_struct(module, ir_struct))
+            {
+                compile_error(compile_status,
+                              i->data,
+                              "struct declaration conflicts with"
+                              " other user type '%s' definition\n",
+                              ast_struct_get_name(AST_STRUCT(i->data)));
+            }
+        }
         else if (AST_IS_ALIAS(user_type))
         {
             DtDataType *alias_type = ast_alias_get_data_type(i->data);
@@ -389,6 +410,37 @@ enum_to_ir(compilation_status_t *compile_status,
 
     return enum_def;
 }
+
+static IrStruct *
+struct_to_ir(compilation_status_t *compile_status,
+             AstStruct *ast_struct)
+{
+    GSList *i;
+    GSList *members = NULL;
+    IrStruct *ir_struct;
+
+    ir_struct = ir_struct_new(ast_struct_get_name(ast_struct));
+
+    for (i = ast_struct_get_members(ast_struct);
+         i != NULL;
+         i = g_slist_next(i))
+    {
+        assert(AST_IS_VARIABLE_DEFINITION(i->data));
+
+        IrVariable *var =
+                var_def_to_ir(compile_status,
+                              AST_VARIABLE_DEFINITION(i->data),
+                              ir_struct_get_symbols(ir_struct));
+
+        members = g_slist_prepend(members, var);
+    }
+
+    ir_struct_set_members(ir_struct,
+                          g_slist_reverse(members));
+
+    return ir_struct;
+}
+
 
 static GSList *
 func_params_to_ir(GSList *ast_func_params)
@@ -1285,7 +1337,7 @@ expression_to_ir(compilation_status_t *compile_status,
 }
 
 
-static void
+static IrVariable *
 var_def_to_ir(compilation_status_t *compile_status,
               AstVariableDefinition *var_def,
               sym_table_t *sym_table)
@@ -1318,4 +1370,6 @@ var_def_to_ir(compilation_status_t *compile_status,
                       "redeclaration of symbol '%s'\n",
                       ir_symbol_get_name(IR_SYMBOL(sym)));
     }
+
+    return sym;
 }

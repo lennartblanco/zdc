@@ -24,6 +24,13 @@ struct _IrModule
 };
 
 /*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static bool
+add_user_type(IrModule *self, gchar *type_name, void *type);
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -218,14 +225,7 @@ ir_module_add_type_alias(IrModule *self,
     assert(DT_IS_DATA_TYPE(data_type));
     assert(alias_name);
 
-    if (g_hash_table_lookup(self->user_types, alias_name) != NULL)
-    {
-        return false;
-    }
-
-    g_hash_table_insert(self->user_types, alias_name, data_type);
-
-    return true;
+    return add_user_type(self, alias_name, data_type);
 }
 
 bool
@@ -234,8 +234,6 @@ ir_module_add_enum(IrModule *self,
 {
     assert(IR_IS_MODULE(self));
     assert(IR_IS_ENUM(ir_enum));
-
-    gchar *enum_tag = ir_enum_get_tag(ir_enum);
 
     /*
      * store enum in symbols table
@@ -248,13 +246,12 @@ ir_module_add_enum(IrModule *self,
     /*
      * store enum in the user type table
      */
-    if (g_hash_table_lookup(self->user_types, enum_tag) != NULL)
+    if (!add_user_type(self,
+                       ir_enum_get_tag(ir_enum),
+                       ir_enum_get_data_type(ir_enum)))
     {
         return false;
     }
-    g_hash_table_insert(self->user_types,
-                        enum_tag,
-                        ir_enum_get_data_type(ir_enum));
 
     /* add it to the module's enum's list */
     self->enums = g_slist_prepend(self->enums, ir_enum);
@@ -272,6 +269,17 @@ ir_module_get_enums(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->enums;
+}
+
+bool
+ir_module_add_struct(IrModule *self, IrStruct *ir_struct)
+{
+    assert(IR_IS_MODULE(self));
+    assert(IR_IS_STRUCT(ir_struct));
+
+    return add_user_type(self,
+                         ir_struct_get_name(ir_struct),
+                         ir_struct_get_data_type(ir_struct));
 }
 
 DtDataType *
@@ -311,3 +319,20 @@ ir_module_print(IrModule *self, FILE *out, int indention)
     g_list_free(p);
 }
 
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static bool
+add_user_type(IrModule *self, gchar *type_name, void *type)
+{
+    assert(IR_IS_MODULE(self));
+
+    if (g_hash_table_lookup(self->user_types, type_name) != NULL)
+    {
+        return false;
+    }
+    g_hash_table_insert(self->user_types, type_name, type);
+
+    return true;
+}

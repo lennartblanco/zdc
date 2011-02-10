@@ -29,6 +29,7 @@ alias: alias.d
 usr_types_conflict: usr_types_conflict.d
 unknow_usr_type: unknow_usr_type.d
 enum_init_err: enum_init_err.d
+structs: structs.d
 
 %.d: %.inv_d
 	cp $? $@
