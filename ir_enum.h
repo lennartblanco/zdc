@@ -74,6 +74,9 @@ ir_enum_get_members(IrEnum *self);
 IrEnumMember *
 ir_enum_get_member(IrEnum *self, const gchar *enum_member_name);
 
+/**
+ * convenience wrapper around ir_expression_get_data_type()
+ */
 DtEnum *
 ir_enum_get_data_type(IrEnum *self);
 

@@ -34,6 +34,9 @@ int
 call_get_state(char arg);
 
 unsigned
+ustates_get_sizeof();
+
+unsigned
 call_ustates_get_def_as_uint();
 
 unsigned
@@ -47,6 +50,9 @@ call_nums_get_def_as_char();
 
 char
 call_nums_get_SIX_as_char();
+
+unsigned
+nato_get_sizeof();
 
 char
 call_nato_get_def_as_char();
@@ -98,6 +104,9 @@ main()
     check_int("get_state('s')",
               call_get_state('s'), 2);
 
+    /* ustates_get_sizeof() test */
+    check_uint("ustates_get_sizeof()", ustates_get_sizeof(), 4);
+
     /* ustates_get_def_as_uint() test */
     check_uint("ustates_get_def_as_uint()",
                call_ustates_get_def_as_uint(), 10);
@@ -121,6 +130,9 @@ main()
     /* nums_get_SIX_as_char() test */
     check_char("nums_get_SIX_as_char()",
                call_nums_get_SIX_as_char(), '6');
+
+    /* nato_get_sizeof() test */
+    check_uint("nato_get_sizeof()", nato_get_sizeof(), 1);
 
     /* nato_get_def_as_char() test */
     check_char("nato_get_def_as_char()",

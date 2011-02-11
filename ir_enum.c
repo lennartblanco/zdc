@@ -128,7 +128,7 @@ ir_enum_get_data_type(IrEnum *self)
 {
     assert(IR_IS_ENUM(self));
 
-    return self->data_type;
+    return DT_ENUM(ir_expression_get_data_type(IR_EXPRESSION(self)));
 }
 
 /*---------------------------------------------------------------------------*
@@ -161,9 +161,18 @@ ir_enum_do_print(IrNode *self, FILE *out, int indention)
     }
 }
 
+static DtDataType *
+ir_enum_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_ENUM(self));
+
+    return DT_DATA_TYPE(IR_ENUM(self)->data_type);
+}
+
 static void
 ir_enum_class_init(gpointer klass, gpointer foo)
 {
     ((IrNodeClass *)klass)->do_print = ir_enum_do_print;
+    ((IrExpressionClass *)klass)->do_get_data_type = ir_enum_do_get_data_type;
 }
 

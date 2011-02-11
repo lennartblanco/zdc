@@ -86,6 +86,12 @@ get_state(char t)
     return states.idle;
 }
 
+extern (C) uint
+ustates_get_sizeof()
+{
+    return ustates.sizeof;
+}
+
 uint
 ustates_get_def_as_uint()
 {
@@ -121,6 +127,12 @@ nums_get_SIX_as_char()
    nums x = nums.SIX;
 
    return x;
+}
+
+extern (C) uint
+nato_get_sizeof()
+{
+    return nato.sizeof;
 }
 
 char
