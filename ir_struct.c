@@ -4,6 +4,13 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_struct_class_init(gpointer klass, gpointer foo);
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -18,14 +25,14 @@ ir_struct_get_type(void)
         sizeof (IrStructClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL, /* class_init */
+        ir_struct_class_init, /* class_init */
         NULL, /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrStruct),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_NODE,
+      type = g_type_register_static(IR_TYPE_SYMBOL,
                                     "IrStructType",
                                     &info, 0);
     }
@@ -37,10 +44,11 @@ ir_struct_new(gchar *name, GSList *members, sym_table_t *symbols)
 {
     IrStruct *obj;
 
-    obj = g_object_new(IR_TYPE_STRUCT, NULL);
+    obj = g_object_new(IR_TYPE_STRUCT,
+                       "ir-symbol-name", name,
+                       NULL);
 
     obj->data_type = dt_struct_new();
-    obj->name = name;
     obj->members = members;
     obj->symbols = symbols;
 
@@ -81,7 +89,7 @@ ir_struct_get_name(IrStruct *self)
 {
     assert(IR_IS_STRUCT(self));
 
-    return self->name;
+    return ir_symbol_get_name(IR_SYMBOL(self));
 }
 
 DtStruct *
@@ -89,5 +97,24 @@ ir_struct_get_data_type(IrStruct *self)
 {
     assert(IR_IS_STRUCT(self));
 
-    return self->data_type;
+    return DT_STRUCT(ir_expression_get_data_type(IR_EXPRESSION(self)));
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static DtDataType *
+ir_struct_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_STRUCT(self));
+
+    return DT_DATA_TYPE(IR_STRUCT(self)->data_type);
+}
+
+static void
+ir_struct_class_init(gpointer klass, gpointer foo)
+{
+    ((IrExpressionClass *)klass)->do_get_data_type =
+        ir_struct_do_get_data_type;
 }

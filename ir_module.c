@@ -279,6 +279,14 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct)
     assert(IR_IS_MODULE(self));
     assert(IR_IS_STRUCT(ir_struct));
 
+    /*
+     * store struct in symbols table
+     */
+    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(ir_struct)) != 0)
+    {
+        return false;
+    }
+
     if (!add_user_type(self,
                        ir_struct_get_name(ir_struct),
                        ir_struct_get_data_type(ir_struct)))

@@ -75,6 +75,9 @@ check_immutable: immutable.o check_utils.o check_immutable.c
 check_enums: enums.o check_utils.o check_enums.c
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_struct: struct.o check_utils.o check_struct.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_alias: alias.o check_utils.o check_alias.c
 	$(CC) $(CFLAGS) -o $@ $^
 
@@ -107,4 +110,4 @@ check_bool_op check_extern_c check_fact check_foreach check_if_else \
 check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
 check_stat_array check_dyn_array check_uint_op check_while_loop eels \
 check_properties check_uninit_vars check_char_literals check_immutable \
-str_literals check_enums check_pointers check_arithm check_alias
+str_literals check_enums check_pointers check_arithm check_alias check_struct

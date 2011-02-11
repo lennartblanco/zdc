@@ -26,6 +26,7 @@ tests="empty "\
 "properties "\
 "immutable "\
 "enums "\
+"struct "\
 "alias "\
 "foreach "\
 "str_literals "\

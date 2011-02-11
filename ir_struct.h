@@ -1,7 +1,6 @@
 #ifndef IR_STRUCT_INC_X
 #define IR_STRUCT_INC_X
 
-#include "ir_node.h"
 #include "dt_struct.h"
 #include "sym_table.h"
 
@@ -28,18 +27,17 @@
 
 typedef struct
 {
-    IrNode parent;
+    IrSymbol parent;
 
     /* private */
     DtStruct *data_type;
-    gchar *name;
     GSList *members;
     sym_table_t *symbols;
 } IrStruct;
 
 typedef struct
 {
-    IrNodeClass parent_class;
+    IrSymbolClass parent_class;
 } IrStructClass;
 
 /*---------------------------------------------------------------------------*
@@ -61,6 +59,9 @@ ir_struct_get_members(IrStruct *self);
 gchar *
 ir_struct_get_name(IrStruct *self);
 
+/**
+ * convenience wrapper around ir_expression_get_data_type()
+ */
 DtStruct *
 ir_struct_get_data_type(IrStruct *self);
 
