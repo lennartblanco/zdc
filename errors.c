@@ -46,7 +46,7 @@ compile_error(compilation_status_t *compile_status,
 
     /*
      * if line number is 0, which is a default value,
-     * it have not been set propertly
+     * it have not been set properly
      */
     assert(line_num != 0);
 
