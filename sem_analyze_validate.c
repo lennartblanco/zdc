@@ -2,6 +2,7 @@
 
 #include "sem_analyze_validate.h"
 #include "dt_user.h"
+#include "dt_pointer.h"
 #include "types.h"
 #include "dt_auto.h"
 #include "dt_static_array.h"
@@ -1405,6 +1406,52 @@ validate_code_block(compilation_status_t *compile_status,
     }
 }
 
+static IrVariable *
+validate_variable(compilation_status_t *compile_status,
+                  IrVariable *variable)
+{
+    assert(compile_status);
+    assert(IR_IS_VARIABLE(variable));
+
+    DtDataType *type;
+
+    type = ir_variable_get_data_type(variable);
+
+    if (DT_IS_USER(type))
+    {
+        /*
+         * the variable is of user defined type,
+         * look-up the data type object with the specified name
+         */
+        type = resolve_user_type(compile_status, DT_USER(type));
+        if (type == NULL)
+        {
+            /* failed to look-up the data type */
+            return NULL;
+        }
+        ir_variable_set_data_type(variable, type);
+    }
+    else if (DT_IS_POINTER(type))
+    {
+        DtDataType *base_type;
+        DtPointer *ptr_type = DT_POINTER(type);
+
+        base_type = dt_pointer_get_base_type(ptr_type);
+        if (DT_IS_USER(base_type))
+        {
+            base_type = resolve_user_type(compile_status, DT_USER(base_type));
+            if (base_type == NULL)
+            {
+                /* failed to look-up the data type */
+                return NULL;
+            }
+            dt_pointer_set_base_type(ptr_type, base_type);
+        }
+    }
+
+    return variable;
+}
+
 static void
 validate_function_def(compilation_status_t *compile_status,
                       IrFunctionDef *func_def)
@@ -1418,40 +1465,21 @@ validate_function_def(compilation_status_t *compile_status,
     compile_status->function = func_def;
 
     /*
-     * resolve possible user types in function parameters
-     * and add parameters to function frame
+     * validate parameter definitions and add parameters to function frame
      */
     GSList *i = ir_function_def_get_parameters(func_def);
     for (; i != NULL; i = g_slist_next(i))
     {
+        IrVariable *var;
 
-        assert(IR_IS_VARIABLE(i->data));
-
-        type = ir_variable_get_data_type(IR_VARIABLE(i->data));
-
-        /* resolve user type */
-        if (DT_IS_USER(type))
+        var = validate_variable(compile_status, IR_VARIABLE(i->data));
+        if (var == NULL)
         {
-            /*
-             * the variable is of user defined type,
-             * look-up the data type object with the specified name
-             */
-            type = resolve_user_type(compile_status, DT_USER(type));
-            if (type == NULL)
-            {
-                /* failed to look-up the data type */
-                continue;
-            }
-
-            /*
-             * overwrite the placehold data type object with the
-             * found object
-             */
-            ir_variable_set_data_type(i->data, type);
+            /* invalid parameter */
+            continue;
         }
-
         /* Add to function frame */
-        add_to_func_frame(func_def, IR_VARIABLE(i->data), true);
+        add_to_func_frame(func_def, var, true);
     }
 
     /* resolve possible user types in function return type */

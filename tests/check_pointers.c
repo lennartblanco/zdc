@@ -22,6 +22,9 @@ call_uint_ptr_dref(unsigned *arg1, int arg2);
 bool
 call_char_ptr_dref(char *arg);
 
+int
+call_alias_ptr_arg(int *arg);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -93,6 +96,18 @@ main()
     check_bool("char_ptr_dref(&'G')", call_char_ptr_dref(&c), true);
     c = '7';
     check_bool("char_ptr_dref(&'7')", call_char_ptr_dref(&c), false);
+
+    /* alias_ptr_arg() tests */
+    int arg;
+
+    arg = 10;
+    check_int("alias_ptr_arg(&arg)", call_alias_ptr_arg(&arg), 9);
+    check_cond("arg = 11", arg == 11);
+
+    arg = 0;
+    check_int("alias_ptr_arg(&arg)", call_alias_ptr_arg(&arg), -1);
+    check_cond("arg = 1", arg == 1);
+
 
     check_exit();
 }

@@ -78,6 +78,21 @@ char_ptr_dref(char *c)
   return false;
 }
 
+// test using pointer to aliased type as function argument
+
+alias int myint;
+
+int
+alias_ptr_arg(myint *arg)
+{
+  int res;
+
+  res = *arg - 1;
+  *arg = res + 2;
+
+  return res;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
@@ -123,5 +138,11 @@ extern (C)
   call_char_ptr_dref(char *arg)
   {
     return char_ptr_dref(arg);
+  }
+
+  int
+  call_alias_ptr_arg(myint *arg)
+  {
+    return alias_ptr_arg(arg);
   }
 }

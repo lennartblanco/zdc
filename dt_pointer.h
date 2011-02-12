@@ -51,4 +51,7 @@ dt_pointer_new(DtDataType *base_type);
 DtDataType *
 dt_pointer_get_base_type(DtPointer *self);
 
+void
+dt_pointer_set_base_type(DtPointer *self, DtDataType *base_type);
+
 #endif /* DT_POINTER_INC_X */
