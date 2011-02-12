@@ -1470,7 +1470,7 @@ validate_function_def(compilation_status_t *compile_status,
     validate_code_block(compile_status, body);
 
     /*
-     * For void function, add an implicit return statment if needed
+     * For void function, add an implicit return statement if needed
      */
     if (types_is_void(ir_function_def_get_return_type(func_def)))
     {
