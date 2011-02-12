@@ -374,9 +374,22 @@ types_usual_arithm_conv(IrExpression *left,
         return false;
     }
 
-    /* do integer promotions of both operands */
+    /* do integer promotion of left operand */
     *res_left = types_integer_promotion(left);
+    if (*res_left == NULL)
+    {
+        /* can't promote left operand to integer */
+        return false;
+    }
+
+    /* do integer promotion of right operand */
     *res_right = types_integer_promotion(right);
+    if (*res_right == NULL)
+    {
+        /* can't promote right operand to integer */
+        return false;
+    }
+
 
     /* fetch data-types of integer promoted operands */
     left_type = ir_expression_get_data_type(*res_left);

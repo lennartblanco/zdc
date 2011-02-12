@@ -39,3 +39,12 @@ void func5()
 {
   char_arg_func(30u);
 }
+
+void func6(bool b)
+{
+  int *p;
+
+  /* int operations on a pointer variable */
+  if (b) { return p - 1; } /* left operand not convertable to int */
+  return 1 + p;            /* right operand not convertable to int */
+}
