@@ -22,7 +22,7 @@ compile_error(compilation_status_t *compile_status,
     assert(compile_status->source_file);
     assert(IR_IS_NODE(error_node) || 
            AST_IS_NODE(error_node) ||
-           DT_IS_USER(error_node));
+           DT_IS_NAME(error_node));
 
     guint line_num;
 
@@ -34,9 +34,9 @@ compile_error(compilation_status_t *compile_status,
     {
         line_num = ast_node_get_line_num(error_node);
     }
-    else if (DT_IS_USER(error_node))
+    else if (DT_IS_NAME(error_node))
     {
-        line_num = dt_user_get_line_num(error_node);
+        line_num = dt_name_get_line_num(error_node);
     }
     else
     {

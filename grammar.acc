@@ -7,7 +7,7 @@
 #include "dt_auto.h"
 #include "dt_basic.h"
 #include "dt_pointer.h"
-#include "dt_user.h"
+#include "dt_name.h"
 #include "dt_static_array.h"
 #include "ast_return.h"
 #include "ast_binary_operation.h"
@@ -393,7 +393,7 @@ type<x> :
     }
 |   TOK_IDENT<t>
     {
-        (*x).data_type = DT_DATA_TYPE(dt_user_new(t.text, yypos));
+        (*x).data_type = DT_DATA_TYPE(dt_name_new(t.text, yypos));
     }
 ;
 

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
 #include "sem_analyze_validate.h"
-#include "dt_user.h"
+#include "dt_name.h"
 #include "dt_pointer.h"
 #include "types.h"
 #include "dt_auto.h"
@@ -153,7 +153,7 @@ validate_enum(compilation_status_t *compile_status,
  */
 static DtDataType *
 resolve_user_type(compilation_status_t *compile_status,
-                  DtUser *user_type);
+                  DtName *user_type);
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
@@ -1226,7 +1226,7 @@ validate_statment(compilation_status_t *compile_status,
 
 static DtDataType *
 resolve_user_type(compilation_status_t *compile_status,
-                  DtUser *user_type)
+                  DtName *user_type)
 {
     DtDataType *type;
 
@@ -1237,7 +1237,7 @@ resolve_user_type(compilation_status_t *compile_status,
         compile_error(compile_status,
                       user_type,
                       "unknown data type '%s'\n",
-                      dt_user_get_name(user_type));
+                      dt_name_get_name(user_type));
     }
 
     return type;
@@ -1275,13 +1275,13 @@ validate_code_block(compilation_status_t *compile_status,
         initializer = ir_variable_get_initializer(var);
 
         var_type = ir_variable_get_data_type(var);
-        if (DT_IS_USER(var_type))
+        if (DT_IS_NAME(var_type))
         {
             /*
              * the variable is of user defined type,
              * look-up the data type object with the specified name
              */
-            DtUser *user_type = DT_USER(var_type);
+            DtName *user_type = DT_NAME(var_type);
 
             var_type = resolve_user_type(compile_status, user_type);
             if (var_type == NULL)
@@ -1417,13 +1417,13 @@ validate_variable(compilation_status_t *compile_status,
 
     type = ir_variable_get_data_type(variable);
 
-    if (DT_IS_USER(type))
+    if (DT_IS_NAME(type))
     {
         /*
          * the variable is of user defined type,
          * look-up the data type object with the specified name
          */
-        type = resolve_user_type(compile_status, DT_USER(type));
+        type = resolve_user_type(compile_status, DT_NAME(type));
         if (type == NULL)
         {
             /* failed to look-up the data type */
@@ -1437,9 +1437,9 @@ validate_variable(compilation_status_t *compile_status,
         DtPointer *ptr_type = DT_POINTER(type);
 
         base_type = dt_pointer_get_base_type(ptr_type);
-        if (DT_IS_USER(base_type))
+        if (DT_IS_NAME(base_type))
         {
-            base_type = resolve_user_type(compile_status, DT_USER(base_type));
+            base_type = resolve_user_type(compile_status, DT_NAME(base_type));
             if (base_type == NULL)
             {
                 /* failed to look-up the data type */
@@ -1484,9 +1484,9 @@ validate_function_def(compilation_status_t *compile_status,
 
     /* resolve possible user types in function return type */
     type = ir_function_def_get_return_type(func_def);
-    if (DT_IS_USER(type))
+    if (DT_IS_NAME(type))
     {
-        type = resolve_user_type(compile_status, DT_USER(type));
+        type = resolve_user_type(compile_status, DT_NAME(type));
         if (type != NULL)
         {
             ir_function_def_set_return_type(func_def, type);
@@ -1816,13 +1816,13 @@ validate_struct(compilation_status_t *compile_status,
         DtDataType *type = ir_variable_get_data_type(var);
 
         /* resolve user type */
-        if (DT_IS_USER(type))
+        if (DT_IS_NAME(type))
         {
             /*
              * the variable is of user defined type,
              * look-up the data type object with the specified name
              */
-            type = resolve_user_type(compile_status, DT_USER(type));
+            type = resolve_user_type(compile_status, DT_NAME(type));
             if (type == NULL)
             {
                 /* failed to look-up the data type */

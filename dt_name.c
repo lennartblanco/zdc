@@ -1,4 +1,4 @@
-#include "dt_user.h"
+#include "dt_name.h"
 
 #include <assert.h>
 
@@ -17,36 +17,36 @@ dt_user_type_class_init(gpointer klass, gpointer dummy);
  *---------------------------------------------------------------------------*/
 
 GType
-dt_user_get_type(void)
+dt_name_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
-        sizeof (DtUserClass),
+        sizeof (DtNameClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
         dt_user_type_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (DtUser),
+        sizeof (DtName),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
       type = g_type_register_static(DT_TYPE_DATA_TYPE,
-                                    "DtUserTypeType",
+                                    "DtNameType",
                                     &info, 0);
     }
     return type;
 }
 
-DtUser *
-dt_user_new(gchar *name, guint line_number)
+DtName *
+dt_name_new(gchar *name, guint line_number)
 {
-    DtUser *obj;
+    DtName *obj;
 
-    obj = g_object_new(DT_TYPE_USER, NULL);
+    obj = g_object_new(DT_TYPE_NAME, NULL);
     obj->name = g_strdup(name);
     obj->line_number = line_number;
 
@@ -54,17 +54,17 @@ dt_user_new(gchar *name, guint line_number)
 }
 
 gchar *
-dt_user_get_name(DtUser *self)
+dt_name_get_name(DtName *self)
 {
-    assert(DT_IS_USER(self));
+    assert(DT_IS_NAME(self));
 
     return self->name;
 }
 
 guint
-dt_user_get_line_num(DtUser *self)
+dt_name_get_line_num(DtName *self)
 {
-    assert(DT_IS_USER(self));
+    assert(DT_IS_NAME(self));
 
     return self->line_number;
 }
@@ -76,10 +76,10 @@ dt_user_get_line_num(DtUser *self)
 static char *
 dt_user_type_get_string(DtDataType *self)
 {
-    assert(DT_IS_USER(self));
+    assert(DT_IS_NAME(self));
 
     return g_strdup_printf("[user type '%s']",
-                           DT_USER(self)->name);
+                           DT_NAME(self)->name);
 }
 
 static void

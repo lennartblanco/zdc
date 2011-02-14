@@ -1,5 +1,5 @@
-#ifndef DT_USER_INC_X
-#define DT_USER_INC_X
+#ifndef DT_NAME_INC_X
+#define DT_NAME_INC_X
 
 /**
  * A place-holder for a user defined type, e.g. alias or enum. When a user
@@ -13,22 +13,22 @@
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
 
-#define DT_TYPE_USER dt_user_get_type()
+#define DT_TYPE_NAME dt_name_get_type()
 
-#define DT_USER(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_USER, DtUser))
+#define DT_NAME(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_NAME, DtName))
 
-#define DT_USER_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_USER, DtUserClass))
+#define DT_NAME_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_NAME, DtNameClass))
 
-#define DT_IS_USER(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_TYPE_USER))
+#define DT_IS_NAME(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_TYPE_NAME))
 
-#define DT_IS_USER_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_USER))
+#define DT_IS_NAME_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_NAME))
 
-#define DT_USER_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_USER, DtUserClass))
+#define DT_NAME_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_NAME, DtNameClass))
 
 typedef struct
 {
@@ -37,27 +37,27 @@ typedef struct
     /* private */
     gchar *name;
     guint line_number;
-} DtUser;
+} DtName;
 
 typedef struct
 {
     DtDataTypeClass parent_class;
-} DtUserClass;
+} DtNameClass;
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-dt_user_get_type(void);
+dt_name_get_type(void);
 
-DtUser *
-dt_user_new(gchar *name, guint line_number);
+DtName *
+dt_name_new(gchar *name, guint line_number);
 
 gchar *
-dt_user_get_name(DtUser *self);
+dt_name_get_name(DtName *self);
 
 guint
-dt_user_get_line_num(DtUser *self);
+dt_name_get_line_num(DtName *self);
 
-#endif /* DT_USER_INC_X */
+#endif /* DT_NAME_INC_X */

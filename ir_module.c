@@ -310,13 +310,13 @@ ir_module_get_structs(IrModule *self)
 
 DtDataType *
 ir_module_get_user_type(IrModule *self,
-                        DtUser *user_type)
+                        DtName *user_type)
 {
     assert(IR_IS_MODULE(self));
-    assert(DT_IS_USER(user_type));
+    assert(DT_IS_NAME(user_type));
 
     return g_hash_table_lookup(self->user_types,
-                               dt_user_get_name(user_type));
+                               dt_name_get_name(user_type));
 }
 
 void
