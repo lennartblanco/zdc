@@ -10,3 +10,4 @@ types.d:40: error: in function call to 'char_arg_func()', argument 1 of invalid 
 types.d:40: error: argument's type is 'char' got 'uint'
 types.d:48: error: illegal types in arithmetic operation
 types.d:49: error: illegal types in arithmetic operation
+types.d:58: error: incompatible types in assignment

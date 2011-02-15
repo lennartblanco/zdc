@@ -1,7 +1,7 @@
 #ifndef DT_ENUM_INC_X
 #define DT_ENUM_INC_X
 
-#include "dt_data_type.h"
+#include "dt_user.h"
 #include "ir_enum_member.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,19 +27,16 @@
 
 struct _DtEnum
 {
-    DtDataType parent;
+    DtUser parent;
 
     /* private */
-    gchar *name;
     DtDataType *base_type;
     IrEnumMember *first_member;
-    IrModule *parent_module;
-    char *mangled_name;
 };
 
 typedef struct
 {
-    DtDataTypeClass parent_class;
+    DtUserClass parent_class;
 } DtEnumClass;
 
 /*---------------------------------------------------------------------------*

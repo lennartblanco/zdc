@@ -1,5 +1,3 @@
-#include <string.h>
-
 #include "dt_enum.h"
 #include "ir_module.h"
 
@@ -10,22 +8,13 @@
  *---------------------------------------------------------------------------*/
 
 static guint
-dt_enum_type_get_size(DtDataType *self);
-
-static char *
-dt_enum_type_get_string(DtDataType *self);
-
-static char *
-dt_enum_type_get_mangled(DtDataType *self);
+dt_enum_get_size(DtDataType *self);
 
 static IrExpression *
-dt_enum_type_get_init(DtDataType *self);
-
-static bool
-dt_enum_type_is_same(DtDataType *self, DtDataType *type);
+dt_enum_get_init(DtDataType *self);
 
 static void
-dt_enum_type_class_init(gpointer klass, gpointer dummy);
+dt_enum_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -35,21 +24,21 @@ GType
 dt_enum_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
         sizeof (DtEnumClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        dt_enum_type_class_init,   /* class_init */
+        dt_enum_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (DtEnum),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(DT_TYPE_DATA_TYPE,
+      type = g_type_register_static(DT_TYPE_USER,
                                     "DtEnumTypeType",
                                     &info, 0);
     }
@@ -65,13 +54,13 @@ dt_enum_new(gchar *name,
 
     DtEnum *obj;
 
-    obj = g_object_new(DT_TYPE_ENUM, NULL);
+    obj = g_object_new(DT_TYPE_ENUM,
+                       "dt-user-name", name,
+                       "dt-user-parent-module", parent_module,
+                       NULL);
 
-    obj->name = g_strdup(name);
     obj->base_type = base_type;
     obj->first_member = NULL;
-    obj->parent_module = parent_module;
-    obj->mangled_name = NULL;
 
     return obj;
 }
@@ -108,33 +97,15 @@ dt_enum_set_base_type(DtEnum *self, DtDataType *base_type)
  *---------------------------------------------------------------------------*/
 
 static char *
-dt_enum_type_get_string(DtDataType *self)
+dt_enum_get_mangled_prefix(DtUser *self)
 {
     assert(DT_IS_ENUM(self));
 
-    return DT_ENUM(self)->name;
-}
-
-static char *
-dt_enum_type_get_mangled(DtDataType *self)
-{
-    assert(DT_IS_ENUM(self));
-
-    DtEnum *et = DT_ENUM(self);
-
-    if (et->mangled_name == NULL)
-    {
-        et->mangled_name =
-            g_strdup_printf("E%s%d%s",
-                            ir_module_get_mangled_name(et->parent_module),
-                            strlen(et->name), et->name);
-    }
-
-    return et->mangled_name;
+    return "E";
 }
 
 static guint
-dt_enum_type_get_size(DtDataType *self)
+dt_enum_get_size(DtDataType *self)
 {
     assert(DT_IS_ENUM(self));
     assert(DT_IS_DATA_TYPE(DT_ENUM(self)->base_type));
@@ -143,7 +114,7 @@ dt_enum_type_get_size(DtDataType *self)
 }
 
 static IrExpression *
-dt_enum_type_get_init(DtDataType *self)
+dt_enum_get_init(DtDataType *self)
 {
     assert(DT_IS_ENUM(self));
     assert(IR_IS_EXPRESSION(DT_ENUM(self)->first_member));
@@ -151,29 +122,10 @@ dt_enum_type_get_init(DtDataType *self)
     return IR_EXPRESSION(DT_ENUM(self)->first_member);
 }
 
-static bool
-dt_enum_type_is_same(DtDataType *self, DtDataType *type)
-{
-    assert(DT_IS_ENUM(self));
-
-    if (!DT_IS_ENUM(type))
-    {
-        return false;
-    }
-
-    DtEnum *l = DT_ENUM(self);
-    DtEnum *r = DT_ENUM(type);
-
-    return g_strcmp0(l->name, r->name) == 0;
-}
-
 static void
-dt_enum_type_class_init(gpointer klass, gpointer dummy)
+dt_enum_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_size = dt_enum_type_get_size;
-    ((DtDataTypeClass *)klass)->get_string = dt_enum_type_get_string;
-    ((DtDataTypeClass *)klass)->get_mangled = dt_enum_type_get_mangled;
-    ((DtDataTypeClass *)klass)->get_init = dt_enum_type_get_init;
-    ((DtDataTypeClass *)klass)->is_same = dt_enum_type_is_same;
+    ((DtUserClass *)klass)->get_mangled_prefix = dt_enum_get_mangled_prefix;
+    ((DtDataTypeClass *)klass)->get_size = dt_enum_get_size;
+    ((DtDataTypeClass *)klass)->get_init = dt_enum_get_init;
 }
-

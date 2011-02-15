@@ -48,3 +48,12 @@ void func6(bool b)
   if (b) { return p - 1; } /* left operand not convertable to int */
   return 1 + p;            /* right operand not convertable to int */
 }
+
+enum tstenum { a, b, c }
+
+void func7()
+{
+   tstenum e;
+
+   e = 23;
+}

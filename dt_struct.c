@@ -74,8 +74,18 @@ dt_struct_get_size(DtDataType *self)
     return DT_STRUCT(self)->size;
 }
 
+static char *
+dt_struct_get_mangled(DtDataType *self)
+{
+    assert(DT_IS_STRUCT(self));
+
+    /* not implemented */
+    assert(false);
+}
+
 static void
 dt_struct_class_init(gpointer klass, gpointer dummy)
 {
     ((DtDataTypeClass *)klass)->get_size = dt_struct_get_size;
+    ((DtDataTypeClass *)klass)->get_mangled = dt_struct_get_mangled;
 }
