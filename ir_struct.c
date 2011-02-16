@@ -40,7 +40,10 @@ ir_struct_get_type(void)
 }
 
 IrStruct *
-ir_struct_new(gchar *name, GSList *members, sym_table_t *symbols)
+ir_struct_new(gchar *name,
+              GSList *members,
+              IrModule *parent_module,
+              sym_table_t *symbols)
 {
     IrStruct *obj;
 
@@ -48,7 +51,7 @@ ir_struct_new(gchar *name, GSList *members, sym_table_t *symbols)
                        "ir-symbol-name", name,
                        NULL);
 
-    obj->data_type = dt_struct_new();
+    obj->data_type = dt_struct_new(name, parent_module);
     obj->members = members;
     obj->symbols = symbols;
 

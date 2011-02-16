@@ -436,6 +436,7 @@ struct_to_ir(compilation_status_t *compile_status,
 
     return ir_struct_new(ast_struct_get_name(ast_struct),
                          g_slist_reverse(members),
+                         compile_status->module,
                          symbols);
 }
 

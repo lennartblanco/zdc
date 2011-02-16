@@ -31,7 +31,7 @@ dt_struct_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(DT_TYPE_DATA_TYPE,
+      type = g_type_register_static(DT_TYPE_USER,
                                     "DtStructTypeType",
                                     &info, 0);
     }
@@ -39,11 +39,14 @@ dt_struct_get_type(void)
 }
 
 DtStruct *
-dt_struct_new()
+dt_struct_new(gchar *name, IrModule *parent_module)
 {
     DtStruct *obj;
 
-    obj = g_object_new(DT_TYPE_STRUCT, NULL);
+    obj = g_object_new(DT_TYPE_STRUCT,
+                       "dt-user-name", name,
+                       "dt-user-parent-module", parent_module,
+                       NULL);
 
     return obj;
 }
@@ -74,18 +77,17 @@ dt_struct_get_size(DtDataType *self)
     return DT_STRUCT(self)->size;
 }
 
-static char *
-dt_struct_get_mangled(DtDataType *self)
+static gchar *
+dt_struct_get_mangled_prefix(DtUser *self)
 {
     assert(DT_IS_STRUCT(self));
 
-    /* not implemented */
-    assert(false);
+    return "S";
 }
 
 static void
 dt_struct_class_init(gpointer klass, gpointer dummy)
 {
+    ((DtUserClass *)klass)->get_mangled_prefix = dt_struct_get_mangled_prefix;
     ((DtDataTypeClass *)klass)->get_size = dt_struct_get_size;
-    ((DtDataTypeClass *)klass)->get_mangled = dt_struct_get_mangled;
 }

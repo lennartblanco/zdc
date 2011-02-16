@@ -1,7 +1,7 @@
 #ifndef DT_STRUCT_INC_X
 #define DT_STRUCT_INC_X
 
-#include "dt_data_type.h"
+#include "dt_user.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    DtDataType parent;
+    DtUser parent;
 
     /* private */
     guint size;
@@ -34,7 +34,7 @@ typedef struct
 
 typedef struct
 {
-    DtDataTypeClass parent_class;
+    DtUserClass parent_class;
 } DtStructClass;
 
 /*---------------------------------------------------------------------------*
@@ -45,7 +45,7 @@ GType
 dt_struct_get_type(void);
 
 DtStruct *
-dt_struct_new();
+dt_struct_new(gchar *name, IrModule *parent_module);
 
 void
 dt_struct_set_member_types(DtStruct *self, GSList *member_types);

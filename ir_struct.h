@@ -48,7 +48,10 @@ GType
 ir_struct_get_type(void);
 
 IrStruct *
-ir_struct_new(gchar *name, GSList *members, sym_table_t *symbols);
+ir_struct_new(gchar *name,
+              GSList *members,
+              IrModule *parent_module,
+              sym_table_t *symbols);
 
 void
 ir_struct_set_members(IrStruct *self, GSList *members);
