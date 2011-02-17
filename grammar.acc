@@ -345,13 +345,13 @@ statment<stmt> :
 ;
 
 non_empty_statment<stmt> :
-    var_definition<stmt>
-|   assignment<stmt>
+    assignment<stmt>
 |   if_else_block<stmt>
 |   foreach_block<stmt>
 |   while_block<stmt>
 |   expression_statment<stmt>
 |   return_stmt<stmt>
+|   var_definition<stmt>
 ;
 
 scope_block_statment<x> :
