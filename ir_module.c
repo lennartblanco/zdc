@@ -17,6 +17,7 @@ struct _IrModule
   GHashTable     *user_types;
   GSList         *enums;
   GSList         *structs;
+  GSList         *function_decls;
   GSList         *function_defs;
   guint           label_counter; /** used to generate module unique labels */
   GHashTable     *data_section;  /** compile-time constant expressions */
@@ -69,6 +70,7 @@ ir_module_new(GSList *package_name)
     obj->user_types = g_hash_table_new(g_str_hash, g_str_equal);
     obj->enums = NULL;
     obj->structs = NULL;
+    obj->function_decls = NULL;
     obj->function_defs = NULL;
     obj->label_counter = 0;
     obj->data_section = g_hash_table_new(g_str_hash, g_str_equal);
@@ -98,7 +100,18 @@ ir_module_add_function_decl(IrModule *self,
     {
         return false;
     }
+
+    self->function_decls = g_slist_append(self->function_decls, function_decl);
+
     return true;
+}
+
+GSList *
+ir_module_get_function_decls(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->function_decls;
 }
 
 bool
@@ -113,8 +126,7 @@ ir_module_add_function_def(IrModule *self,
         return false;
     }
 
-    self->function_defs =
-      g_slist_append(self->function_defs, function_def);
+    self->function_defs = g_slist_append(self->function_defs, function_def);
 
    return true;
 }

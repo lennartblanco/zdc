@@ -24,6 +24,9 @@ call_c_get_num_wrap();
 bool
 call_c_is_equal_wrap(int arg1, int arg2);
 
+int
+call_cenum_a_wrap();
+
 /*---------------------------------------------------------------------------*
  *               extern (C) functions called from tests                      *
  *---------------------------------------------------------------------------*/
@@ -76,6 +79,12 @@ bool
 c_is_equal(int left, int right)
 {
     return left == right;
+}
+
+int
+cenum_a()
+{
+    return 0;
 }
 
 /*---------------------------------------------------------------------------*
@@ -139,6 +148,8 @@ main()
     check_bool("c_is_equal_wrap(-10, 10)",
                call_c_is_equal_wrap(-10, 10), false);
 
+    /* cenum_a_wrap() test */
+    check_int("cenum_a_wrap()", call_cenum_a_wrap(), 0);
 
     check_exit();
 }

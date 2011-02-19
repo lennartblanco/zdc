@@ -100,7 +100,6 @@ ir_variable_set_data_type(IrVariable *self, DtDataType *type)
     assert(IR_IS_VARIABLE(self));
     assert(DT_IS_DATA_TYPE(type));
 
-    g_object_unref(self->type);
     self->type = type;
 }
 

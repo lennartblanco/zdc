@@ -1,3 +1,5 @@
+types.d:62: error: unknown data type 'inv_type1'
+types.d:64: error: unknown data type 'inv_type2'
 types.d:5: error: left operand can not be of void type
 types.d:5: error: invalid assignment expression
 types.d:12: error: left operand can not be of void type

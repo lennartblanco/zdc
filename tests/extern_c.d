@@ -2,11 +2,19 @@
 // test calling C functions from D file
 //
 
+enum tst_enum : int
+{
+  a = 0,
+  b = 1,
+  c = 2
+}
+
 //
 // external C function declaration in varius styles
 //
 extern (C) int cinv(int c);
 extern (C) bool c_is_equal(int, int);
+extern (C) tst_enum cenum_a();
 
 extern (C)
 {
@@ -94,6 +102,17 @@ c_is_equal_wrap(int left, int right)
     return c_is_equal(left, right);
 }
 
+// cenum() wrapper
+tst_enum
+cenum_a_wrap()
+{
+  tst_enum res;
+
+  res = cenum_a();
+
+  return res;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
@@ -145,5 +164,11 @@ extern (C)
   call_c_is_equal_wrap(int arg1, int arg2)
   {
     return c_is_equal_wrap(arg1, arg2);
+  }
+
+  tst_enum
+  call_cenum_a_wrap()
+  {
+     return cenum_a_wrap();
   }
 }

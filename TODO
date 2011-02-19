@@ -66,20 +66,6 @@ err.d(11): Error: cannot implicitly convert expression (t) of type int to int[5u
 
 * add a check that non-void functions have a return statment, and throw compile error otherwise
 
-* types not validated in function declarations
-
-For example, the code:
-
-void* func1(bar);
-hej func2();
-
-Does not generate any compile errors. Here are DMD error messages:
-
-wee.d(1): Error: identifier 'bar' is not defined
-wee.d(1): Error: bar is used as a type
-wee.d(2): Error: identifier 'hej' is not defined
-wee.d(2): Error: hej is used as a type
-
 * the code below fails an assertion
 
 int foo();

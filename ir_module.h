@@ -66,6 +66,9 @@ bool
 ir_module_add_function_decl(IrModule *self,
                             IrFunctionDecl *function_decl);
 
+GSList *
+ir_module_get_function_decls(IrModule *self);
+
 /**
  * @return true if function definition was successfully added,
  *         false if function with this name is already defined

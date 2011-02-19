@@ -57,3 +57,8 @@ void func7()
 
    e = 23;
 }
+
+/* invalid return type in a function declaration */
+inv_type1 *func8();
+
+void func9(inv_type2);

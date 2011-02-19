@@ -97,7 +97,7 @@ dt_user_get_mangled(DtDataType *self)
 static bool
 dt_user_is_same(DtDataType *self, DtDataType *type)
 {
-    assert(DT_IS_ENUM(self));
+    assert(DT_IS_USER(self));
 
     if (!g_type_is_a(G_TYPE_FROM_INSTANCE(self), G_TYPE_FROM_INSTANCE(type)))
     {

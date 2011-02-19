@@ -1243,6 +1243,63 @@ resolve_user_type(compilation_status_t *compile_status,
     return type;
 }
 
+static DtDataType *
+validate_type(compilation_status_t *compile_status,
+              DtDataType *type)
+{
+    assert(compile_status);
+    assert(DT_IS_DATA_TYPE(type));
+
+    DtDataType *validated_type = type;
+
+    if (DT_IS_NAME(type))
+    {
+        /*
+         * user defined type,
+         * look-up the data type object with the specified name
+         */
+        validated_type = resolve_user_type(compile_status, DT_NAME(type));
+    }
+    else if (DT_IS_POINTER(type))
+    {
+        DtDataType *base_type;
+        DtPointer *ptr_type = DT_POINTER(type);
+
+        base_type = validate_type(compile_status,
+                                  dt_pointer_get_base_type(ptr_type));
+        if (base_type == NULL)
+        {
+            return NULL;
+        }
+
+        dt_pointer_set_base_type(ptr_type, base_type);
+    }
+
+    return validated_type;
+}
+
+
+static IrVariable *
+validate_variable(compilation_status_t *compile_status,
+                  IrVariable *variable)
+{
+    assert(compile_status);
+    assert(IR_IS_VARIABLE(variable));
+
+    DtDataType *type;
+
+    type = validate_type(compile_status,
+                         ir_variable_get_data_type(variable));
+    if (type == NULL)
+    {
+        /* invalid type */
+        return NULL;
+    }
+    ir_variable_set_data_type(variable, type);
+
+    return variable;
+}
+
 static void
 validate_code_block(compilation_status_t *compile_status,
                     IrCodeBlock *code_block)
@@ -1272,30 +1329,16 @@ validate_code_block(compilation_status_t *compile_status,
             continue;
         }
         var = IR_VARIABLE(p->data);
-        initializer = ir_variable_get_initializer(var);
 
-        var_type = ir_variable_get_data_type(var);
-        if (DT_IS_NAME(var_type))
+        var = validate_variable(compile_status, IR_VARIABLE(p->data));
+        if (var == NULL)
         {
-            /*
-             * the variable is of user defined type,
-             * look-up the data type object with the specified name
-             */
-            DtName *user_type = DT_NAME(var_type);
-
-            var_type = resolve_user_type(compile_status, user_type);
-            if (var_type == NULL)
-            {
-                /* failed to look-up the data type */
-                continue;
-            }
-
-            /*
-             * overwrite the placehold data type object with the
-             * found object
-             */
-            ir_variable_set_data_type(var, var_type);
+            /* invalid variable definition */
+            continue;
         }
+
+        initializer = ir_variable_get_initializer(var);
+        var_type = ir_variable_get_data_type(var);
 
         /* no initializer expression, skip */
         if (initializer == NULL)
@@ -1406,50 +1449,30 @@ validate_code_block(compilation_status_t *compile_status,
     }
 }
 
-static IrVariable *
-validate_variable(compilation_status_t *compile_status,
-                  IrVariable *variable)
+static void
+validate_function_decl(compilation_status_t *compile_status,
+                       IrFunctionDecl *func_decl)
 {
     assert(compile_status);
-    assert(IR_IS_VARIABLE(variable));
+    assert(IR_IS_FUNCTION_DECL(func_decl));
 
     DtDataType *type;
 
-    type = ir_variable_get_data_type(variable);
-
-    if (DT_IS_NAME(type))
+    /* validate return type */
+    type = validate_type(compile_status,
+                         ir_function_get_return_type(IR_FUNCTION(func_decl)));
+    if (type != NULL)
     {
-        /*
-         * the variable is of user defined type,
-         * look-up the data type object with the specified name
-         */
-        type = resolve_user_type(compile_status, DT_NAME(type));
-        if (type == NULL)
-        {
-            /* failed to look-up the data type */
-            return NULL;
-        }
-        ir_variable_set_data_type(variable, type);
-    }
-    else if (DT_IS_POINTER(type))
-    {
-        DtDataType *base_type;
-        DtPointer *ptr_type = DT_POINTER(type);
-
-        base_type = dt_pointer_get_base_type(ptr_type);
-        if (DT_IS_NAME(base_type))
-        {
-            base_type = resolve_user_type(compile_status, DT_NAME(base_type));
-            if (base_type == NULL)
-            {
-                /* failed to look-up the data type */
-                return NULL;
-            }
-            dt_pointer_set_base_type(ptr_type, base_type);
-        }
+        ir_function_set_return_type(IR_FUNCTION(func_decl),
+                                    type);
     }
 
-    return variable;
+    /* validate parameters */
+    GSList *i = ir_function_get_parameters(IR_FUNCTION(func_decl));
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        validate_variable(compile_status, IR_VARIABLE(i->data));
+    }
 }
 
 static void
@@ -1484,13 +1507,11 @@ validate_function_def(compilation_status_t *compile_status,
 
     /* resolve possible user types in function return type */
     type = ir_function_def_get_return_type(func_def);
-    if (DT_IS_NAME(type))
+    type = validate_type(compile_status,
+                         ir_function_def_get_return_type(func_def));
+    if (type != NULL)
     {
-        type = resolve_user_type(compile_status, DT_NAME(type));
-        if (type != NULL)
-        {
-            ir_function_def_set_return_type(func_def, type);
-        }
+        ir_function_def_set_return_type(func_def, type);
     }
 
     /* validate function's body */
@@ -1997,6 +2018,13 @@ sem_analyze_validate(compilation_status_t *compile_status,
     {
         assert(IR_IS_STRUCT(i->data));
         validate_struct(compile_status, IR_STRUCT(i->data));
+    }
+
+    /* validate function declarations */
+    i = ir_module_get_function_decls(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        validate_function_decl(compile_status, IR_FUNCTION_DECL(i->data));
     }
 
     i = ir_module_get_function_defs(module);
