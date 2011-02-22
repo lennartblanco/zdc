@@ -2,6 +2,7 @@
 #define DT_STRUCT_INC_X
 
 #include "dt_user.h"
+#include "ir_struct_member.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -30,6 +31,7 @@ typedef struct
 
     /* private */
     guint size;
+    GHashTable *members;
 } DtStruct;
 
 typedef struct
@@ -48,6 +50,17 @@ DtStruct *
 dt_struct_new(gchar *name, IrModule *parent_module);
 
 void
-dt_struct_set_member_types(DtStruct *self, GSList *member_types);
+dt_struct_add_member(DtStruct *self,
+                     DtDataType *member_type,
+                     const gchar *member_name);
+
+/**
+ * Look-up struct member by name.
+ *
+ * @return new constructed IrStructMember object representing the member or
+ *         NULL of no member with specified name is found
+ */
+IrStructMember *
+dt_struct_get_member(DtStruct *self, const gchar *name);
 
 #endif /* DT_STRUCT_INC_X */

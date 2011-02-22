@@ -23,6 +23,8 @@
 #include "ir_array_cell.h"
 #include "ir_property.h"
 #include "ir_enum_member.h"
+#include "ir_dot.h"
+#include "ir_ident.h"
 #include "ir_to_iml.h"
 #include "const_fold.h"
 #include "errors.h"
@@ -686,6 +688,117 @@ validate_property(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+validate_dot_property(compilation_status_t *compile_status,
+                      sym_table_t *sym_table,
+                      IrExpression *left,
+                      IrExpression *right)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_EXPRESSION(left));
+    /* only identifiers supported as right operand to '.' operation */
+    assert(IR_IS_IDENT(right));
+
+    IrProperty *prop =
+        ir_property_new(left,
+                        ir_ident_get_name(IR_IDENT(right)),
+                        ir_node_get_line_num(IR_NODE(left)));
+
+    if (prop == NULL)
+    {
+        compile_error(compile_status,
+                      left,
+                      "unknown property '%s'\n",
+                      ir_ident_get_name(IR_IDENT(right)));
+        return NULL;
+    }
+    return IR_EXPRESSION(prop);
+}
+
+static IrExpression *
+validate_dot_variable(compilation_status_t *compile_status,
+                      sym_table_t *sym_table,
+                      IrExpression *left,
+                      IrExpression *right)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_EXPRESSION(left));
+    /* only identifiers supported as right operand to '.' operation */
+    assert(IR_IS_IDENT(right));
+
+    DtDataType *type = ir_expression_get_data_type(left);
+    if (DT_IS_POINTER(type) &&
+        DT_IS_STRUCT(dt_pointer_get_base_type(DT_POINTER(type))))
+    {
+        DtStruct *dt_struct;
+        IrStructMember *mbr;
+
+        dt_struct = DT_STRUCT(dt_pointer_get_base_type(DT_POINTER(type)));
+        mbr = dt_struct_get_member(dt_struct,
+                                   ir_ident_get_name(IR_IDENT(right)));
+
+        if (mbr != NULL)
+        {
+            return IR_EXPRESSION(mbr);
+        }
+    }
+
+    return validate_dot_property(compile_status, sym_table, left, right);
+}
+
+static IrExpression *
+validate_dot(compilation_status_t *compile_status,
+             sym_table_t *sym_table,
+             IrDot *dot)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_DOT(dot));
+
+    IrExpression *left = ir_dot_get_left(dot);
+    IrExpression *right = ir_dot_get_right(dot);
+    IrExpression *res;
+
+    /* only identifiers supported as right operand to '.' operation */
+    assert(IR_IS_IDENT(right));
+
+    if (IR_IS_ENUM(left))
+    {
+        IrEnumMember *mbr;
+
+        mbr = ir_enum_get_member(IR_ENUM(left),
+                                 ir_ident_get_name(IR_IDENT(right)));
+        if (mbr == NULL)
+        {
+            res = validate_dot_property(compile_status,
+                                        sym_table,
+                                        left,
+                                        right);
+        }
+        else
+        {
+            res = IR_EXPRESSION(mbr);
+        }
+    }
+    else if (IR_IS_VARIABLE(left))
+    {
+        res = validate_dot_variable(compile_status, sym_table, left, right);
+    }
+    else
+    {
+        res = validate_dot_property(compile_status, sym_table, left, right);
+    }
+
+    if (res != NULL)
+    {
+        res = validate_expression(compile_status, sym_table, res);
+    }
+    return res;
+}
+
+
+static IrExpression *
 validate_expression(compilation_status_t *compile_status,
                     sym_table_t *sym_table,
                     IrExpression *expression)
@@ -738,6 +851,11 @@ validate_expression(compilation_status_t *compile_status,
             validate_property(compile_status,
                               sym_table,
                               IR_PROPERTY(expression));
+    }
+    else if (IR_IS_DOT(expression))
+    {
+        expression =
+            validate_dot(compile_status, sym_table, IR_DOT(expression));
     }
 
     return expression;
@@ -1826,10 +1944,10 @@ validate_struct(compilation_status_t *compile_status,
     assert(compile_status);
     assert(IR_IS_STRUCT(ir_struct));
 
-    /* validated members */
-    GSList *valid_mbrs = NULL;
+    DtStruct *struct_type;
     GSList *i;
 
+    struct_type = ir_struct_get_data_type(ir_struct);
     for (i = ir_struct_get_members(ir_struct); i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_VARIABLE(i->data));
@@ -1856,9 +1974,9 @@ validate_struct(compilation_status_t *compile_status,
              */
             ir_variable_set_data_type(var, type);
         }
-        valid_mbrs = g_slist_prepend(valid_mbrs, var);
+
+        dt_struct_add_member(struct_type, type, ir_variable_get_name(var));
     }
-    ir_struct_set_members(ir_struct, g_slist_reverse(valid_mbrs));
 }
 
 

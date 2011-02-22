@@ -3,6 +3,17 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+typedef struct
+{
+    DtDataType *type;
+    gchar *name;
+    guint offset;
+} struct_member;
+
+/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -48,21 +59,49 @@ dt_struct_new(gchar *name, IrModule *parent_module)
                        "dt-user-parent-module", parent_module,
                        NULL);
 
+    obj->size = 0;
+    obj->members = g_hash_table_new(g_str_hash, g_str_equal);
+
     return obj;
 }
 
 void
-dt_struct_set_member_types(DtStruct *self, GSList *member_types)
+dt_struct_add_member(DtStruct *self,
+                     DtDataType *member_type,
+                     const gchar *member_name)
 {
     assert(DT_IS_STRUCT(self));
+    assert(DT_IS_DATA_TYPE(self));
+    assert(member_name);
 
-    GSList *i;
+    struct_member *member;
 
-    /* sum the byte size of all members, to get the size of this struct */
-    for (i = member_types; i != NULL; i = g_slist_next(i))
+    member = g_malloc(sizeof(*member));
+    member->type = member_type;
+    member->name = g_strdup(member_name);
+    member->offset = self->size;
+
+    g_hash_table_insert(self->members, member->name, member);
+
+    self->size += dt_data_type_get_size(member_type);
+}
+
+IrStructMember *
+dt_struct_get_member(DtStruct *self, const gchar *name)
+{
+    assert(DT_IS_STRUCT(self));
+    assert(name);
+
+    struct_member *inter_member;
+
+    inter_member = g_hash_table_lookup(self->members, name);
+    if (inter_member == NULL)
     {
-        self->size += dt_data_type_get_size(i->data);
+        /* member not found */
+        return NULL;
     }
+
+    return ir_struct_member_new(inter_member->type, inter_member->offset);
 }
 
 /*---------------------------------------------------------------------------*

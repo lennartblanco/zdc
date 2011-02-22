@@ -58,27 +58,6 @@ ir_struct_new(gchar *name,
     return obj;
 }
 
-void
-ir_struct_set_members(IrStruct *self, GSList *members)
-{
-    assert(IR_IS_STRUCT(self));
-
-    GSList *member_types = NULL;
-    GSList *i;
-
-    for (i = self->members; i != NULL; i = g_slist_next(i))
-    {
-        member_types =
-                g_slist_prepend(member_types,
-                                ir_variable_get_data_type(
-                                    IR_VARIABLE(i->data)));
-    }
-
-    dt_struct_set_member_types(self->data_type, g_slist_reverse(member_types));
-
-    self->members = members;
-}
-
 GSList *
 ir_struct_get_members(IrStruct *self)
 {

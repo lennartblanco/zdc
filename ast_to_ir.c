@@ -42,6 +42,8 @@
 #include "ir_ptr_dref.h"
 #include "ir_enum_member.h"
 #include "ir_struct.h"
+#include "ir_dot.h"
+#include "ir_ident.h"
 #include "dt_basic.h"
 #include "errors.h"
 
@@ -1134,44 +1136,24 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     assert(compile_status);
     assert(symbols);
     assert(AST_IS_POSTFIX_EXP(ast_postfix));
-    IrExpression *exp;
-    IrProperty *prop;
+    IrExpression *left;
+    IrExpression *right;
 
-    exp = expression_to_ir(compile_status,
-                           symbols,
-                           ast_postfix_exp_get_expression(ast_postfix));
-    if (exp == NULL)
+
+    left = expression_to_ir(compile_status,
+                            symbols,
+                            ast_postfix_exp_get_expression(ast_postfix));
+    if (left == NULL)
     {
         /* invalid expression, bail out */
         return NULL;
     }
 
-    if (IR_IS_ENUM(exp))
-    {
-        IrEnumMember *mbr;
+    right = IR_EXPRESSION(ir_ident_new(ast_postfix_exp_get_name(ast_postfix)));
 
-        mbr = ir_enum_get_member(IR_ENUM(exp),
-                                 ast_postfix_exp_get_name(ast_postfix));
-        if (mbr != NULL)
-        {
-            return IR_EXPRESSION(mbr);
-        }
-    }
-
-    prop = ir_property_new(exp,
-                           ast_postfix_exp_get_name(ast_postfix),
-                           ast_node_get_line_num(ast_postfix));
-
-    if (prop == NULL)
-    {
-        compile_error(compile_status,
-                      ast_postfix,
-                      "unknown property '%s'\n",
-                      ast_postfix_exp_get_name(ast_postfix));
-       return NULL;
-    }
-
-    return IR_EXPRESSION(prop);
+    return IR_EXPRESSION(ir_dot_new(left,
+                                    right,
+                                    ast_node_get_line_num(ast_postfix)));
 }
 
 static IrExpression *
