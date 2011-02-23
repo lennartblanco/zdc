@@ -41,6 +41,8 @@ ir_struct_member_get_type(void)
 IrStructMember *
 ir_struct_member_new(DtDataType *type, guint offset)
 {
+    assert(DT_IS_DATA_TYPE(type));
+
     IrStructMember *obj;
 
     obj = g_object_new(IR_TYPE_STRUCT_MEMBER, NULL);
@@ -50,6 +52,30 @@ ir_struct_member_new(DtDataType *type, guint offset)
     return obj;
 }
 
+void
+ir_struct_member_set_base(IrStructMember *self, IrExpression *base)
+{
+    assert(IR_IS_STRUCT_MEMBER(self));
+    assert(IR_IS_EXPRESSION(base));
+
+    self->base = base;
+}
+
+IrExpression *
+ir_struct_member_get_base(IrStructMember *self)
+{
+    assert(IR_IS_STRUCT_MEMBER(self));
+
+    return self->base;
+}
+
+guint
+ir_struct_member_get_offset(IrStructMember *self)
+{
+    assert(IR_IS_STRUCT_MEMBER(self));
+
+    return self->offset;
+}
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

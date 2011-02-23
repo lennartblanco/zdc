@@ -723,7 +723,7 @@ validate_dot_variable(compilation_status_t *compile_status,
 {
     assert(compile_status);
     assert(sym_table);
-    assert(IR_IS_EXPRESSION(left));
+    assert(IR_IS_VARIABLE(left));
     /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
 
@@ -737,9 +737,9 @@ validate_dot_variable(compilation_status_t *compile_status,
         dt_struct = DT_STRUCT(dt_pointer_get_base_type(DT_POINTER(type)));
         mbr = dt_struct_get_member(dt_struct,
                                    ir_ident_get_name(IR_IDENT(right)));
-
         if (mbr != NULL)
         {
+            ir_struct_member_set_base(mbr, left);
             return IR_EXPRESSION(mbr);
         }
     }

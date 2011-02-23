@@ -94,6 +94,11 @@ add_ptr_dref_assignment(IrFunctionDef *function,
                         IrPtrDref *lvalue,
                         IrExpression *value);
 
+static void
+add_struct_member_assignment(IrFunctionDef *function,
+                             IrStructMember *lvalue,
+                             IrExpression *value);
+
 static iml_data_type_t
 dt_to_iml_type(DtDataType *dt_type);
 
@@ -368,6 +373,12 @@ iml_add_assignment(IrFunctionDef *function,
     else if (IR_IS_PTR_DREF(lvalue))
     {
         add_ptr_dref_assignment(function, IR_PTR_DREF(lvalue), value);
+    }
+    else if (IR_IS_STRUCT_MEMBER(lvalue))
+    {
+        add_struct_member_assignment(function,
+                                     IR_STRUCT_MEMBER(lvalue),
+                                     value);
     }
     else
     {
@@ -1420,5 +1431,38 @@ add_ptr_dref_assignment(IrFunctionDef *function,
 
     /* mark left and right operands as unused */
     iml_func_frame_unused_oper(frame, lval);
+    iml_func_frame_unused_oper(frame, rval);
+}
+
+static void
+add_struct_member_assignment(IrFunctionDef *function,
+                             IrStructMember *lvalue,
+                             IrExpression *value)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_STRUCT_MEMBER(lvalue));
+    assert(IR_IS_EXPRESSION(value));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *base;
+    ImlOperand *rval;
+    ImlConstant *offset;
+
+    /* generate iml operation to evaluate struct base expression */
+    base = iml_add_expression_eval(function,
+                                   ir_struct_member_get_base(lvalue),
+                                   NULL);
+
+    /* generate iml operations to evaluate rvalue */
+    rval = iml_add_expression_eval(function, value, NULL);
+
+    /* store rvalue at the base + offset */
+    offset = iml_constant_new_32b(ir_struct_member_get_offset(lvalue));
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_set, rval, base, offset));
+
+    /* mark  operands as unused */
+    iml_func_frame_unused_oper(frame, base);
     iml_func_frame_unused_oper(frame, rval);
 }

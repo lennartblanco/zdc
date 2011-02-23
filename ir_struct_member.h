@@ -29,6 +29,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
+    IrExpression *base;
     DtDataType *type;
     guint offset;
 } IrStructMember;
@@ -47,5 +48,28 @@ ir_struct_member_get_type(void);
 
 IrStructMember *
 ir_struct_member_new(DtDataType *type, guint offset);
+
+/**
+ * Set the base expression for this struct member. Base expression denotes the
+ * struct instance where we want to access the member.
+ *
+ * E.g.
+ *
+ * struct some { int a, int b }
+ *
+ * some foo;
+ *
+ * foo.bar = 2;
+ *
+ * 'foo' is the base expression of the foo.bar.
+ */
+void
+ir_struct_member_set_base(IrStructMember *self, IrExpression *base);
+
+IrExpression *
+ir_struct_member_get_base(IrStructMember *self);
+
+guint
+ir_struct_member_get_offset(IrStructMember *self);
 
 #endif /* IR_STRUCT_MEMBER_INC_X */
