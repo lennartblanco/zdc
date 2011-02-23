@@ -868,10 +868,20 @@ compile_set(FILE *out, iml_operation_t *op)
     ImlConstant *offset = iml_operation_get_operand(op, 3);
     iml_register_t *reg;
     const char *mov_suffix;
+    char *offset_str;
     const char *addr_reg;
 
     /* only pointers address operands supported */
     assert(iml_variable_get_data_type(addr) == iml_ptr);
+
+    if (offset != NULL)
+    {
+        offset_str = g_strdup_printf("%u", iml_constant_get_val_32b(offset));
+    }
+    else
+    {
+        offset_str = "";
+    }
 
     switch (iml_operand_get_data_type(src))
     {
@@ -900,10 +910,10 @@ compile_set(FILE *out, iml_operation_t *op)
     if (iml_is_constant(src))
     {
         fprintf(out,
-                "    mov%s $%d, %u(%%%s)\n",
+                "    mov%s $%d, %s(%%%s)\n",
                 mov_suffix,
                 iml_constant_get_val_32b(IML_CONSTANT(src)),
-                iml_constant_get_val_32b(offset),
+                offset_str,
                 addr_reg);
     }
     else
@@ -941,10 +951,16 @@ compile_set(FILE *out, iml_operation_t *op)
         }
 
         fprintf(out,
-                "    mov%s %%%s, %d(%%%s)\n",
+                "    mov%s %%%s, %s(%%%s)\n",
                 mov_suffix, src_reg,
-                iml_constant_get_val_32b(offset),
+                offset_str,
                 addr_reg);
+    }
+
+    /* free offset string if it was allocated */
+    if (offset != NULL)
+    {
+        g_free(offset_str);
     }
 }
 
