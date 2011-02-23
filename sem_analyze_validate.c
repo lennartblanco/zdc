@@ -631,7 +631,7 @@ validate_length_property(compilation_status_t *compile_status,
     else
     {
         compile_error(compile_status,
-                      IR_NODE(prop),
+                      prop,
                       "no property 'length' for type '%s'\n",
                       dt_data_type_get_string(exp_type));
         return NULL;
@@ -702,12 +702,12 @@ validate_dot_property(compilation_status_t *compile_status,
     IrProperty *prop =
         ir_property_new(left,
                         ir_ident_get_name(IR_IDENT(right)),
-                        ir_node_get_line_num(IR_NODE(left)));
+                        ir_node_get_line_num(IR_NODE(right)));
 
     if (prop == NULL)
     {
         compile_error(compile_status,
-                      left,
+                      right,
                       "unknown property '%s'\n",
                       ir_ident_get_name(IR_IDENT(right)));
         return NULL;

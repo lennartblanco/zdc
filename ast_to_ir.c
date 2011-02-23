@@ -1149,7 +1149,8 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
         return NULL;
     }
 
-    right = IR_EXPRESSION(ir_ident_new(ast_postfix_exp_get_name(ast_postfix)));
+    right = IR_EXPRESSION(ir_ident_new(ast_postfix_exp_get_name(ast_postfix),
+                                       ast_node_get_line_num(ast_postfix)));
 
     return IR_EXPRESSION(ir_dot_new(left,
                                     right,

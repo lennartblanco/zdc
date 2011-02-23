@@ -45,7 +45,7 @@ GType
 ir_ident_get_type(void);
 
 IrIdent *
-ir_ident_new(const gchar *name);
+ir_ident_new(const gchar *name, guint line_number);
 
 const gchar *
 ir_ident_get_name(IrIdent *self);

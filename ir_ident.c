@@ -32,13 +32,15 @@ ir_ident_get_type(void)
 }
 
 IrIdent *
-ir_ident_new(const gchar *name)
+ir_ident_new(const gchar *name, guint line_number)
 {
     assert(name);
 
     IrIdent *obj;
 
-    obj = g_object_new(IR_TYPE_IDENT, NULL);
+    obj = g_object_new(IR_TYPE_IDENT,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->name = g_strdup(name);
 
     return obj;

@@ -1,1 +1,2 @@
 unknown_prop.d:5: error: unknown property 'foobar'
+unknown_prop.d:5: error: invalid assignment expression
