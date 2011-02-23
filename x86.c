@@ -971,18 +971,27 @@ compile_get(FILE *out, iml_operation_t *op)
     assert(op && iml_operation_get_opcode(op) == iml_get);
 
     ImlVariable *addr = iml_operation_get_operand(op, 1);
+    ImlConstant *offset = iml_operation_get_operand(op, 2);
     ImlVariable *dest = iml_operation_get_operand(op, 3);
     iml_register_t *reg;
     const char *mov_suffix;
+    char *offset_str;
     const char *addr_reg;
 
     /* only pointers address operands supported */
     assert(iml_variable_get_data_type(addr) == iml_ptr);
 
-    /* offset parameter not implemented */
-    assert(iml_operation_get_operand(op, 2) == NULL);
-
     assert(iml_is_variable(dest));
+
+    if (offset != NULL)
+    {
+        offset_str = g_strdup_printf("%u", iml_constant_get_val_32b(offset));
+    }
+    else
+    {
+        offset_str = "";
+    }
+
 
     switch (iml_variable_get_data_type(dest))
     {
@@ -1012,19 +1021,27 @@ compile_get(FILE *out, iml_operation_t *op)
     if (reg == NULL)
     {
         fprintf(out,
-                "    mov%s (%%%s), %%" TEMP_REG2_NAME "\n"
+                "    mov%s %s(%%%s), %%" TEMP_REG2_NAME "\n"
                 "    movl %%" TEMP_REG2_NAME ", %d(%%ebp)\n",
                 mov_suffix,
+                offset_str,
                 addr_reg,
                 iml_variable_get_frame_offset(dest));
     }
     else
     {
         fprintf(out,
-                "    mov%s (%%%s), %%%s\n",
+                "    mov%s %s(%%%s), %%%s\n",
                 mov_suffix,
+                offset_str,
                 addr_reg,
                 iml_register_get_name(reg));
+    }
+
+    /* free offset string if it was allocated */
+    if (offset != NULL)
+    {
+        g_free(offset_str);
     }
 }
 

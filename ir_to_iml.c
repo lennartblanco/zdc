@@ -55,6 +55,11 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
                       ImlVariable *res);
 
 static ImlOperand *
+iml_add_struct_member_eval(IrFunctionDef *function,
+                           IrStructMember *ptr_dref,
+                           ImlVariable *res);
+
+static ImlOperand *
 iml_add_property_eval(IrFunctionDef *function,
                       IrProperty *prop,
                       ImlVariable *res);
@@ -189,6 +194,12 @@ iml_add_expression_eval(IrFunctionDef *function,
 
         val = ir_enum_member_get_value(IR_ENUM_MEMBER(ir_expression));
         res = iml_add_expression_eval(function, val, dest);
+    }
+    else if (IR_IS_STRUCT_MEMBER(ir_expression))
+    {
+        res = iml_add_struct_member_eval(function,
+                                         IR_STRUCT_MEMBER(ir_expression),
+                                         dest);
     }
     else
     {
@@ -877,6 +888,46 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
 }
 
 static ImlOperand *
+iml_add_struct_member_eval(IrFunctionDef *function,
+                           IrStructMember *struct_member,
+                           ImlVariable *res)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_STRUCT_MEMBER(struct_member));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *base;
+    ImlConstant *offset;
+
+    /* generate iml operation to evaluate struct base expression */
+    base = iml_add_expression_eval(function,
+                                   ir_struct_member_get_base(struct_member),
+                                   NULL);
+
+    /* figure out where to store the result */
+    if (res == NULL)
+    {
+        iml_data_type_t res_type;
+
+        res_type =
+            dt_to_iml_type(
+                ir_expression_get_data_type(IR_EXPRESSION(struct_member)));
+        res = iml_func_frame_get_temp(frame, res_type);
+    }
+
+    /* store rvalue at the base + offset */
+    offset = iml_constant_new_32b(ir_struct_member_get_offset(struct_member));
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_get, base, offset, res));
+
+    /* mark base operand as unused */
+    iml_func_frame_unused_oper(frame, base);
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
 iml_add_property_eval(IrFunctionDef *function,
                       IrProperty *prop,
                       ImlVariable *res)
@@ -1462,7 +1513,7 @@ add_struct_member_assignment(IrFunctionDef *function,
         function,
         iml_operation_new(iml_set, rval, base, offset));
 
-    /* mark  operands as unused */
+    /* mark operands as unused */
     iml_func_frame_unused_oper(frame, base);
     iml_func_frame_unused_oper(frame, rval);
 }
