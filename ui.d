@@ -140,7 +140,7 @@ assemble_file(backend_e backend, string assembly_file)
         return null;
     }
 
-  return object_file_name;
+    return object_file_name;
 }
 
 /**
