@@ -1954,27 +1954,14 @@ validate_struct(compilation_status_t *compile_status,
         IrVariable *var = IR_VARIABLE(i->data);
         DtDataType *type = ir_variable_get_data_type(var);
 
-        /* resolve user type */
-        if (DT_IS_NAME(type))
+        type = validate_type(compile_status, type);
+        if (type == NULL)
         {
-            /*
-             * the variable is of user defined type,
-             * look-up the data type object with the specified name
-             */
-            type = resolve_user_type(compile_status, DT_NAME(type));
-            if (type == NULL)
-            {
-                /* failed to look-up the data type */
-                continue;
-            }
-
-            /*
-             * overwrite the place holder data type object with the
-             * found object
-             */
-            ir_variable_set_data_type(var, type);
+            /* invalid type, skip to next member */
+            continue;
         }
 
+        ir_variable_set_data_type(var, type);
         dt_struct_add_member(struct_type, type, ir_variable_get_name(var));
     }
 }
