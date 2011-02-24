@@ -116,12 +116,14 @@ parse_march_option(string option)
  * @return created object file name or null if assembler returned with error
  */
 string
-assemble_file(backend_e backend, string assembly_file)
+assemble_file(backend_e backend, string object_file_name, string assembly_file)
 {
-    string object_file_name;
     string command;
 
-    object_file_name = assembly_file[0..$-2] ~ ".o";
+    if (object_file_name == null)
+    {
+        object_file_name = assembly_file[0..$-2] ~ ".o";
+    }
 
     switch (backend)
     {
@@ -191,6 +193,8 @@ main(string[] args)
     string[] source_files;
     string[] object_files;
     string output_file;
+    string compiled_output_file;
+    string assembled_output_file;
     backend_e backend;
 
     compile_options_s options;
@@ -279,6 +283,33 @@ main(string[] args)
         return -1;
     }
 
+    /* make sure output_file (-o) option makes sense */
+    if (output_file != null &&
+        last_compilation_stage != compilation_stages_e.link_stage &&
+        source_files.length > 1)
+    {
+        writefln("%s: cannot specify -o with -c or -S with multiple files",
+                 args[0]);
+        return -1;
+    }
+
+    if (output_file != null &&
+        source_files.length == 1)
+    {
+        switch (last_compilation_stage)
+        {
+            case compilation_stages_e.compile_stage:
+                compiled_output_file = output_file;
+                break;
+            case compilation_stages_e.assemble_stage:
+                assembled_output_file = output_file;
+                break;
+            default:
+                /* nop */
+                break;
+        }
+    }
+
     /* init arch specific backend */
     switch (backend)
     {
@@ -298,11 +329,18 @@ main(string[] args)
     {
         string target_file;
 
-        /*
-         * get compilation target file from source file name
-         * replace '.d' with '.s'
-         */
-        target_file = file[0..file.length-2] ~ ".s"; 
+        if (compiled_output_file == null)
+        {
+            /*
+             * get compilation target file from source file name
+             * replace '.d' with '.s'
+             */
+            target_file = file[0..file.length-2] ~ ".s";
+        }
+        else
+        {
+            target_file = compiled_output_file;
+        }
 
         /* invoke compilation */
         int r = compile_file(std.string.toStringz(file), 
@@ -317,7 +355,9 @@ main(string[] args)
         /* unless -S flag is specified, assemble generated file */
         if (last_compilation_stage > compilation_stages_e.compile_stage)
         {
-            string obj_file = assemble_file(backend, target_file);
+            string obj_file = assemble_file(backend,
+                                            assembled_output_file,
+                                            target_file);
             if (obj_file == null)
             {
                 writefln("error assembling '%s'", target_file);
