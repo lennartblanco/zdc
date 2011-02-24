@@ -886,6 +886,7 @@ compile_set(FILE *out, iml_operation_t *op)
     switch (iml_operand_get_data_type(src))
     {
         case iml_32b:
+        case iml_ptr:
             mov_suffix = "l";
             break;
         case iml_8b:
@@ -996,6 +997,7 @@ compile_get(FILE *out, iml_operation_t *op)
     switch (iml_variable_get_data_type(dest))
     {
         case iml_32b:
+        case iml_ptr:
             mov_suffix = "l";
             break;
         case iml_8b:
