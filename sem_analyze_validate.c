@@ -29,7 +29,6 @@
 #include "const_fold.h"
 #include "errors.h"
 #include "iml_constant.h"
-#include "iml_register.h"
 
 #include <assert.h>
 
@@ -2028,56 +2027,56 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
     vars = iml_func_frame_get_locals(frame, iml_32b);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        iml_register_t *reg = regs->data;
+        const char *reg = regs->data;
 
         /* remove register from the list of available */
         regs = g_slist_remove(regs, reg);
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, reg);
+        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
     }
 
     /* assign registers to 16b variables */
     vars = iml_func_frame_get_locals(frame, iml_16b);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        iml_register_t *reg = regs->data;
+        const char *reg = regs->data;
 
         /* remove register from the list of available */
         regs = g_slist_remove(regs, reg);
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, reg);
+        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
     }
 
     /* assign registers to 8b variables */
     vars = iml_func_frame_get_locals(frame, iml_8b);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        iml_register_t *reg = regs->data;
+        const char *reg = regs->data;
 
         /* remove register from the list of available */
         regs = g_slist_remove(regs, reg);
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, reg);
+        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
     }
 
     /* assign registers to pointer variables */
     vars = iml_func_frame_get_locals(frame, iml_ptr);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        iml_register_t *reg = regs->data;
+        const char *reg = regs->data;
 
         /* remove register from the list of available */
         regs = g_slist_remove(regs, reg);
 
         /* assign the register to the variable */
         iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, reg);
+        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
     }
 
     /* store the list of used preserved registers */

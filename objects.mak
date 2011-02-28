@@ -28,7 +28,7 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ir_function_def.o ir_function_decl.o ir_property.o ir_struct.o       \
          ir_dot.o ir_ident.o ir_struct_member.o                               \
          iml_operation.o iml_func_frame.o iml_operand.o iml_variable.o        \
-         iml_constant.o iml_register.o                                        \
+         iml_constant.o                                                       \
          $(X86_TRGT_OBJS)
 
 # all objects generated both from C and D source files

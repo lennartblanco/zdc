@@ -2,7 +2,6 @@
 #define IML_VARIABLE_INC_X
 
 #include "iml_operand.h"
-#include "iml_register.h"
 
 #include <stdio.h>
 
@@ -40,7 +39,7 @@ typedef struct
      * the register allocation, or NULL if no register is allocated
      * for this variable
      */
-    iml_register_t *reg;
+    const char *reg;
 
     /*
      * variables frame offset location,
@@ -101,13 +100,13 @@ bool
 iml_variable_is_temp(ImlVariable *self);
 
 void
-iml_variable_set_register(ImlVariable *self, iml_register_t *reg);
+iml_variable_set_register(ImlVariable *self, const char *reg);
 
 /**
  *  Get the register this variable is assigned to. Returns NULL if
  *  no register was assigned.
  */
-iml_register_t *
+const char *
 iml_variable_get_register(ImlVariable *self);
 
 void

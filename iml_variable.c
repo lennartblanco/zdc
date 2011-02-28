@@ -127,7 +127,7 @@ iml_variable_is_temp(ImlVariable *self)
 }
 
 void
-iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
+iml_variable_set_register(ImlVariable *self, const char *reg)
 {
     assert(iml_is_variable(self));
     assert(reg);
@@ -135,7 +135,7 @@ iml_variable_set_register(ImlVariable *self, iml_register_t *reg)
     self->reg = reg;
 }
 
-iml_register_t *
+const char *
 iml_variable_get_register(ImlVariable *self)
 {
     assert(iml_is_variable(self));
@@ -216,9 +216,7 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
                    var->name);
 
     if (var->reg != NULL) {
-        fprintf(out, " [");
-        iml_register_print(var->reg, out, 0);
-        fprintf(out, "]");
+        fprintf(out, " [%s]", var->reg);
     }
     else
     {

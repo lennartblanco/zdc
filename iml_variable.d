@@ -1,5 +1,3 @@
-public import iml_register;
-
 struct ImlVariable;
 
 extern (C)
@@ -7,7 +5,7 @@ extern (C)
     bool
     iml_is_variable(void *obj);
 
-    iml_register_t *
+    char *
     iml_variable_get_register(ImlVariable *self);
 
     void

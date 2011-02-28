@@ -1,4 +1,5 @@
 import std.stdio;
+import std.algorithm;
 import std.string;
 import std.conv;
 import std.c.stdio;
@@ -9,7 +10,6 @@ import ir_function;
 import ir_function_def;
 import iml_func_frame;
 import iml_operation;
-import iml_register;
 import iml_variable;
 import iml_constant;
 import types;
@@ -30,20 +30,13 @@ get_registers(GSList **scratch, GSList **preserved)
 {
     GSList *p_regs;
 
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(10, "v7"));
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(9, "v6"));
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(8, "v5"));
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(7, "v4"));
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(6, "v3"));
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(5, "v2"));
-    p_regs = g_slist_prepend(p_regs,
-            iml_register_new(4, "v1"));
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v7");
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v6");
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v5");
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v4");
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v3");
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v2");
+    p_regs = g_slist_prepend(p_regs, cast(char*)"v1");
 
     *scratch = null;
     *preserved = p_regs;
@@ -173,8 +166,7 @@ private string
 get_used_preserved_regs(iml_func_frame_t *func_frame)
 {
     string preserved_regs = "";
-    GSList *sorted_regs = null;
-    string[uint] regs;
+    string[] regs;
 
     /*
      * the registers must be specified in accending order,
@@ -185,16 +177,14 @@ get_used_preserved_regs(iml_func_frame_t *func_frame)
          i != null;
          i = g_slist_next(i))
     {
-        iml_register_t *reg = cast(iml_register_t *)i.data;
-        regs[iml_register_get_id(reg)] = to!string(iml_register_get_name(reg));
+        string reg = to!string(cast(char*)i.data);
+        regs = reg ~ regs;
     }
+    sort(regs);
 
-    foreach (i; 1..16)
+    foreach (reg; regs)
     {
-        if (i in regs)
-        {
-            preserved_regs ~= regs[i] ~ ", ";
-        }
+        preserved_regs ~= reg ~ ", ";
     }
 
     return preserved_regs;
@@ -357,12 +347,12 @@ gen_move_to_reg(File asmfile, string register, ImlOperand *operand)
         assert(iml_is_variable(operand));
 
         ImlVariable *var = cast(ImlVariable *)operand;
-        iml_register_t *reg = iml_variable_get_register(var);
+        char *reg = iml_variable_get_register(var);
 
         if (reg != null)
         {
             asmfile.writefln("    mov %s, %s",
-                             register, to!string(iml_register_get_name(reg)));
+                             register, to!string(reg));
         }
         else
         {
@@ -375,12 +365,12 @@ gen_move_to_reg(File asmfile, string register, ImlOperand *operand)
 private void
 gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
 {
-    iml_register_t *dest_reg = iml_variable_get_register(destination);
+    char *dest_reg = iml_variable_get_register(destination);
 
     if (dest_reg != null)
     {
         asmfile.writefln("    mov %s, %s",
-                         to!string(iml_register_get_name(dest_reg)),
+                         to!string(dest_reg),
                          src_reg);
     }
     else
@@ -415,11 +405,11 @@ compile_copy(File asmfile, iml_operation_t *op)
 {
     ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
-    iml_register_t *reg = iml_variable_get_register(dest);
+    char *reg = iml_variable_get_register(dest);
 
     if (reg != null)
     {
-        gen_move_to_reg(asmfile, to!string(iml_register_get_name(reg)), src);
+        gen_move_to_reg(asmfile, to!string(reg), src);
     }
     else
     {
@@ -463,7 +453,7 @@ load_to_regs(File asmfile,
              out string dest_reg,
              out bool store_res)
 {
-    iml_register_t *res_reg = iml_variable_get_register(res);
+    char *res_reg = iml_variable_get_register(res);
 
     string pick_left_reg()
     {
@@ -511,7 +501,7 @@ load_to_regs(File asmfile,
     }
     else
     {
-        dest_reg = to!string(iml_register_get_name(res_reg));
+        dest_reg = to!string(res_reg);
         store_res = false;
     }
 
@@ -527,7 +517,7 @@ load_to_regs(File asmfile,
     {
         assert(iml_is_variable(left));
         ImlVariable *var = cast(ImlVariable *)left;
-        iml_register_t *reg = iml_variable_get_register(var);
+        char *reg = iml_variable_get_register(var);
 
         if (reg == null)
         {
@@ -538,7 +528,7 @@ load_to_regs(File asmfile,
         }
         else
         {
-            left_reg = to!string(iml_register_get_name(reg));
+            left_reg = to!string(reg);
         }
     }
 
@@ -567,7 +557,7 @@ load_to_regs(File asmfile,
         /* right operand is a variable, make sure it's loaded into register */
         assert(iml_is_variable(right));
         ImlVariable *var = cast(ImlVariable *)right;
-        iml_register_t *reg = iml_variable_get_register(var);
+        char *reg = iml_variable_get_register(var);
 
         if (reg == null)
         {
@@ -579,7 +569,7 @@ load_to_regs(File asmfile,
         }
         else
         {
-            right_exp = to!string(iml_register_get_name(reg));
+            right_exp = to!string(reg);
         }
     }
 }
@@ -645,10 +635,10 @@ compile_ineg(File asmfile, iml_operation_t *op)
     string res_reg_name;
     bool store_res = false;
 
-    iml_register_t *reg = iml_variable_get_register(src);
+    char *reg = iml_variable_get_register(src);
     if (reg != null)
     {
-        src_reg_name = to!string(iml_register_get_name(reg));
+        src_reg_name = to!string(reg);
     }
     else
     {
@@ -659,7 +649,7 @@ compile_ineg(File asmfile, iml_operation_t *op)
     reg = iml_variable_get_register(res);
     if (reg != null)
     {
-        res_reg_name = to!string(iml_register_get_name(reg));
+        res_reg_name = to!string(reg);
     }
     else
     {
@@ -772,11 +762,11 @@ compile_jmpcond(File asmfile, iml_operation_t *op)
     ImlConstant *right = cast(ImlConstant*)iml_operation_get_operand(op, 2);
     string label = to!string(cast(char*)iml_operation_get_operand(op, 3));
     string left_reg_name;
-    iml_register_t *reg = iml_variable_get_register(left);
+    char *reg = iml_variable_get_register(left);
 
     if (reg != null)
     {
-        left_reg_name = to!string(iml_register_get_name(reg));
+        left_reg_name = to!string(reg);
     }
     else
     {
