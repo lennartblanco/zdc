@@ -6,8 +6,11 @@ ACCENT := tools/bin/accent
 PROG := xdc
 #CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
-DEP_DIR := .depend
+BLD_DIR := build
+DEP_DIR := $(BLD_DIR)
 CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os,%.dep,$(@:.o=.dep)))) -MT $@
+
+VPATH = $(BLD_DIR)
 
 .PHONY: docs
 
@@ -24,8 +27,11 @@ auxil.o: lex.h auxil.c
 
 parser.o: lex.h parser.c
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $(BLD_DIR)/$@
+
 %-d.o: %.d
-	dmd -debug -gc -of$@ -c $<
+	dmd -debug -gc -of$(BLD_DIR)/$@ -c $<
 
 yygrammar.h: yygrammar.c
 
@@ -54,16 +60,16 @@ $(ACCENT):
 # as we can't compile them, as the rest of the files, with -Werror flag
 #
 entire.o: entire.c auxil.h lex.h
-	gcc -g -c entire.c
+	gcc -g -c entire.c -o $(BLD_DIR)/$@
 
 yygrammar.o: yygrammar.c
-	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) yygrammar.c
+	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) yygrammar.c -o $(BLD_DIR)/$@
 
 lex.o: lex.c lex.h
-	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c
+	gcc -g -c $(shell  pkg-config --cflags glib-2.0 gobject-2.0) lex.c -o $(BLD_DIR)/$@
 
 $(PROG): $(OBJS)
-	dmd -debug -gc -of$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
+	cd $(BLD_DIR); dmd -debug -gc -of../$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
 
 function_tests: $(PROG)
 	cd tests; ./run_tests.sh
@@ -79,5 +85,5 @@ clean:
 	make -C tests clean
 	make -C etests clean
 	make -C examples clean
-	rm -rf $(DEP_DIR)
-	rm -rf $(PROG) *.o lex.c lex.h yygrammar.c yygrammar.h core *.class *.j *~ config.d
+	rm -rf $(BLD_DIR)
+	rm -rf $(PROG) lex.c lex.h yygrammar.c yygrammar.h core *~ config.d
