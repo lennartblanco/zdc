@@ -65,7 +65,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
                "more then 4 function parameters not supported");
         for (i = params, cntr = 0;
              i != null && cntr < 4;
-             i = g_slist_next(i), cntr += 1)
+             i = i.next(), cntr += 1)
         {
             iml_variable_set_frame_offset(cast(ImlVariable*)i.data, offset);
             offset -= 4;
@@ -74,7 +74,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
 
     void assign_offset(GSList *variable)
     {
-        for (auto i = variable; i != null; i = g_slist_next(i))
+        for (auto i = variable; i != null; i = i.next())
         {
             ImlVariable *var = cast(ImlVariable*)i.data;
 
@@ -109,7 +109,7 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
     gen_text_prelude(f, ir_module_get_symbols(ir_module));
 
     GSList *funcs = ir_module_get_function_defs(ir_module);
-    for (GSList *i = funcs; i != null; i = g_slist_next(i))
+    for (GSList *i = funcs; i != null; i = i.next())
     {
         compile_function_def(f, cast(IrFunctionDef*)i.data);
     }
@@ -175,7 +175,7 @@ get_used_preserved_regs(iml_func_frame_t *func_frame)
 
     for (auto i = iml_func_frame_get_used_regs(func_frame);
          i != null;
-         i = g_slist_next(i))
+         i = i.next())
     {
         string reg = to!string(cast(char*)i.data);
         regs = reg ~ regs;
@@ -237,7 +237,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     /* store parameters in the function's frame */
     for (i = iml_func_frame_get_parameters(frame), cntr = 0;
          i != null && cntr < 4;
-         i = g_slist_next(i), cntr += 1)
+         i = i.next(), cntr += 1)
     {
         asmfile.writefln("    str r%s, [fp, #%s]",
                          cntr,
@@ -247,7 +247,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
 
     for (i = ir_function_def_get_operations(func);
          i != null;
-         i = g_slist_next(i))
+         i = i.next())
     {
         iml_operation_t *op = cast(iml_operation_t *)i.data;
         iml_opcode_t opcode = iml_operation_get_opcode(op);
@@ -265,7 +265,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                 compile_ret(asmfile,
                             op,
                             return_label,
-                            g_slist_next(i) == null);
+                            i.next() == null);
                 break;
             case iml_opcode_t.copy:
                 /*
@@ -792,7 +792,7 @@ compile_call(File asmfile, iml_operation_t *op)
            "max 4 args in function calls supported");
 
     GSList *i = args;
-    for (uint cntr = 0; i != null && cntr < 4; i = g_slist_next(i), cntr += 1)
+    for (uint cntr = 0; i != null && cntr < 4; i = i.next(), cntr += 1)
     {
         gen_move_to_reg(asmfile,
                         "r" ~ to!string(cntr),

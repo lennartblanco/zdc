@@ -3,7 +3,13 @@ alias void* gpointer;
 struct GSList
 {
     gpointer data;
-    GSList *next;
+    GSList *_next;
+
+    GSList *
+    next()
+    {
+        return this._next;
+    }
 }
 
 extern (C)
@@ -13,10 +19,4 @@ extern (C)
 
     uint
     g_slist_length(GSList *list);
-}
-
-GSList *
-g_slist_next(GSList *l)
-{
-    return l.next;
 }
