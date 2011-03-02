@@ -91,14 +91,14 @@ check_eels: eels
 
 check_str_literals: str_literals
 
-eels: eels.d
-	$(XDC) $(DFLAGS) $?
+eels: eels.d $(XDC)
+	$(XDC) $(DFLAGS) $<
 
-str_literals: str_literals.d
-	$(XDC) $(DFLAGS) $?
+str_literals: str_literals.d $(XDC)
+	$(XDC) $(DFLAGS) $<
 
-%.o: %.d
-	$(XDC) $(DFLAGS) -c $?
+%.o: %.d $(XDC)
+	$(XDC) $(DFLAGS) -c $<
 
 check_utils.o: check_utils.c
 	$(CC) -g $(CFLAGS) -c $?
