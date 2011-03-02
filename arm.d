@@ -301,6 +301,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.ineg:
                 compile_ineg(asmfile, op);
                 break;
+            case iml_opcode_t.bneg:
+                compile_bneg(asmfile, op);
+                break;
             case iml_opcode_t.jmpneq:
                 compile_jmpcond(asmfile, op);
                 break;
@@ -662,6 +665,48 @@ compile_ineg(File asmfile, iml_operation_t *op)
                      res_reg_name,
                      src_reg_name);
     if (store_res)
+    {
+        gen_move_from_reg(asmfile, res_reg_name, res);
+    }
+}
+
+private void
+compile_bneg(File asmfile, iml_operation_t *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode_t.bneg);
+
+    ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
+    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    char *src_reg;
+    string src_reg_name;
+    char *res_reg;
+    string res_reg_name;
+
+    res_reg = iml_variable_get_register(res);
+    if (res_reg != null)
+    {
+        res_reg_name = to!string(res_reg);
+    }
+    else
+    {
+        res_reg_name = TEMP_REG1;
+    }
+
+    src_reg = iml_variable_get_register(src);
+    if (src_reg != null)
+    {
+        src_reg_name = to!string(src_reg);
+    }
+    else
+    {
+        gen_move_to_reg(asmfile, res_reg_name, cast(ImlOperand*)src);
+        src_reg_name = res_reg_name;
+    }
+
+    asmfile.writefln("    eor %s, %s, #1",
+                     res_reg_name, src_reg_name);
+
+    if (res_reg == null)
     {
         gen_move_from_reg(asmfile, res_reg_name, res);
     }
