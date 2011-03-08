@@ -284,6 +284,8 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.sub:
             case iml_opcode_t.smult:
             case iml_opcode_t.umult:
+            case iml_opcode_t.and:
+            case iml_opcode_t.or:
                 compile_binop(asmfile, op);
                 break;
             case iml_opcode_t.sless:
@@ -592,6 +594,12 @@ compile_binop(File asmfile, iml_operation_t *op)
 
     switch (iml_operation_get_opcode(op))
     {
+        case iml_opcode_t.and:
+            inst = "and";
+            break;
+        case iml_opcode_t.or:
+            inst = "orr";
+            break;
         case iml_opcode_t.add:
             inst = "add";
             break;
