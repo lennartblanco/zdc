@@ -1,0 +1,26 @@
+XDC - the D compiler
+--------------------
+
+xdc is the compiler supporting small, but growing, subset of D 2.0 programming
+language. It support compiling code for x86 and ARM targets.
+
+Building
+--------
+
+Build the xdc requires following tools:
+
+  flex
+  gcc
+  dmd (Digital Mars D compiler, http://www.digitalmars.com/d/2.0/dmd-linux.html)
+  GNU Make
+
+To build compiler run 'make' from the same directory as this file. This will
+generate the xdc binary. The default build time configuration is stored in
+config.default file. To override default configuration add new setting to
+config file.
+
+Tests
+-----
+
+To run function test suits run 'make function_tests' and 'make errors_tests'.
+
