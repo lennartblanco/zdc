@@ -343,7 +343,7 @@ gen_move_to_reg(File asmfile, string register, ImlOperand *operand)
 {
     if (iml_is_constant(operand))
     {
-        asmfile.writefln("    mov %s, #%s",
+        asmfile.writefln("    ldr %s, =%s",
                          register,
                          iml_constant_get_val_32b(cast(ImlConstant *)operand));
     }
