@@ -355,7 +355,6 @@ types_usual_arithm_conv(IrExpression *left,
      */
 
     left_type = ir_expression_get_data_type(left);
-    /* only conversions of basic types is implemented */
     if (types_is_void(left_type))
     {
         /* converting void types is illegal */
