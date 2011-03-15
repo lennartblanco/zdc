@@ -13,4 +13,7 @@ extern (C)
 
     int
     iml_variable_get_frame_offset(ImlVariable *self);
+
+    uint
+    iml_variable_get_size(ImlVariable *self);
 }
