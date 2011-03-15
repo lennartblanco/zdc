@@ -6,6 +6,7 @@
 #include "types.h"
 #include "dt_auto.h"
 #include "dt_static_array.h"
+#include "dt_pointer.h"
 #include "ir_function.h"
 #include "ir_assignment.h"
 #include "ir_function_call.h"
@@ -574,6 +575,58 @@ validate_binary_op(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+validate_ind_dec_ops(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrExpression *exp)
+{
+    if (!ir_expression_is_lvalue(exp))
+    {
+        compile_error(compile_status,
+                      exp,
+                      "must be an lvalue\n");
+        goto invalid_exp;
+    }
+
+    DtDataType *exp_type = ir_expression_get_data_type(exp);
+
+    if (DT_IS_BASIC(exp_type))
+    {
+        switch (dt_basic_get_data_type(DT_BASIC(exp_type)))
+        {
+            case char_type:
+            case int_type:
+            case uint_type:
+                goto valid_exp;
+            default:
+                goto invalid_type;
+        }
+    }
+    else if (DT_IS_POINTER(exp_type))
+    {
+        goto valid_exp;
+    }
+    else
+    {
+        /* any non-basic type convertible to int is valid */
+        if (types_implicit_conv(types_get_int_type(), exp) == NULL)
+        {
+            goto invalid_type;
+        }
+    }
+
+valid_exp:
+    return exp;
+
+invalid_type:
+    compile_error(compile_status,
+                  exp,
+                  "operation not allowed on '%s' type\n",
+                  dt_data_type_get_string(exp_type));
+invalid_exp:
+    return NULL;
+}
+
+static IrExpression *
 validate_unary_op(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrUnaryOperation *operation)
@@ -602,6 +655,16 @@ validate_unary_op(compilation_status_t *compile_status,
                 compile_error(compile_status,
                               IR_NODE(ir_unary_operation_get_operand(operation)),
                               "can not convert to bool type\n");
+                return NULL;
+            }
+            break;
+        case ast_pre_inc_op:
+        case ast_pre_dec_op:
+        case ast_post_inc_op:
+        case ast_post_dec_op:
+            exp = validate_ind_dec_ops(compile_status, sym_table, exp);
+            if (exp == NULL)
+            {
                 return NULL;
             }
             break;
@@ -1106,7 +1169,7 @@ validate_assignment(compilation_status_t *compile_status,
     if (value == NULL)
     {
         compile_error(compile_status,
-                      IR_NODE(ir_assignment_get_value(assignment)),
+                      ir_assignment_get_value(assignment),
                       "invalid assignment expression\n");
         return;
     }

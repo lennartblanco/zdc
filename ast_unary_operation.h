@@ -60,7 +60,8 @@ ast_unary_operation_get_type(void);
 
 AstUnaryOperation *
 ast_unary_operation_new(ast_unary_op_type_t operation,
-                        AstExpression *operand);
+                        AstExpression *operand,
+                        guint line_number);
 
 ast_unary_op_type_t
 ast_unary_operation_get_operation(AstUnaryOperation *self);

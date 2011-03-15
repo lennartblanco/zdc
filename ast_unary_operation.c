@@ -45,11 +45,14 @@ ast_unary_operation_get_type(void)
 
 AstUnaryOperation *
 ast_unary_operation_new(ast_unary_op_type_t operation,
-                        AstExpression *operand)
+                        AstExpression *operand,
+                        guint line_number)
 {
     AstUnaryOperation *obj;
 
-    obj = g_object_new(AST_TYPE_UNARY_OPERATION, NULL);
+    obj = g_object_new(AST_TYPE_UNARY_OPERATION,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->operation = operation;
     obj->operand = operand;
 

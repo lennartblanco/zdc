@@ -732,25 +732,29 @@ unary_expression<n> :
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
-                                                   x.expression));
+                                                   x.expression,
+                                                   yypos));
     }
 |   '-' unary_expression<x>
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
-                                                   x.expression));
+                                                   x.expression,
+                                                   yypos));
     }
 |   '+' '+' unary_expression<x>
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_pre_inc_op,
-                                                   x.expression));
+                                                   x.expression,
+                                                   yypos));
     }
 |   '-' '-' unary_expression<x>
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_pre_dec_op,
-                                                   x.expression));
+                                                   x.expression,
+                                                   yypos));
     }
 |   '*' unary_expression<x>
     {
@@ -773,13 +777,15 @@ postfix_expression<n> :
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_post_inc_op,
-                           exp.expression));
+                                                   exp.expression,
+                                                   yypos));
     }
 |   postfix_expression<exp> '-' '-'
     {
         (*n).expression =
             AST_EXPRESSION(ast_unary_operation_new(ast_post_dec_op,
-                           exp.expression));
+                                                   exp.expression,
+                                                   yypos));
     }
 |   primary<n>
 ;

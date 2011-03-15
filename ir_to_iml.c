@@ -699,7 +699,6 @@ iml_add_unary_op_eval(IrFunctionDef *function,
     iml_data_type_t iml_type;
     iml_opcode_t opcode;
 
-    /* only arithmetic negation implemented */
     switch (ir_unary_operation_get_operation(op))
     {
         case ast_arithm_neg_op:

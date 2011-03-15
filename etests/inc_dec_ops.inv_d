@@ -1,0 +1,25 @@
+void func1()
+{
+  int r;
+
+  r = --4;
+  r = 4u--;
+  r = false++;
+  r = ++'c';
+}
+
+void func2()
+{
+  bool b;
+  
+  b = ++b;
+}
+
+enum cmd : bool { stop, go }
+
+cmd func3()
+{
+  cmd x;
+
+  return x++;
+}

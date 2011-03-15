@@ -1,0 +1,11 @@
+inc_dec_ops.d:5: error: must be an lvalue
+inc_dec_ops.d:5: error: invalid assignment expression
+inc_dec_ops.d:6: error: must be an lvalue
+inc_dec_ops.d:6: error: invalid assignment expression
+inc_dec_ops.d:7: error: must be an lvalue
+inc_dec_ops.d:7: error: invalid assignment expression
+inc_dec_ops.d:8: error: must be an lvalue
+inc_dec_ops.d:8: error: invalid assignment expression
+inc_dec_ops.d:13: error: operation not allowed on 'bool' type
+inc_dec_ops.d:15: error: invalid assignment expression
+inc_dec_ops.d:22: error: operation not allowed on 'cmd' type

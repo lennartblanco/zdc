@@ -932,7 +932,12 @@ ast_unary_op_to_ir(compilation_status_t *compile_status,
                          symbols,
                          ast_unary_operation_get_operand(ast_operation));
 
-    return IR_EXPRESSION(ir_unary_operation_new(op_type, operand));
+    return
+        IR_EXPRESSION(
+            ir_unary_operation_new(
+                op_type,
+                operand,
+                ast_node_get_line_num(AST_NODE(ast_operation))));
 }
 
 static IrExpression *

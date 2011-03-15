@@ -48,7 +48,8 @@ ir_unary_operation_get_type(void);
 
 IrUnaryOperation *
 ir_unary_operation_new(ast_unary_op_type_t operation,
-                       IrExpression *operand);
+                       IrExpression *operand,
+                       guint line_number);
 
 ast_unary_op_type_t
 ir_unary_operation_get_operation(IrUnaryOperation *self);
