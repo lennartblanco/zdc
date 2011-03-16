@@ -1,5 +1,5 @@
-types.d:62: error: unknown data type 'inv_type1'
-types.d:64: error: unknown data type 'inv_type2'
+types.d:53: error: unknown data type 'inv_type1'
+types.d:55: error: unknown data type 'inv_type2'
 types.d:5: error: left operand can not be of void type
 types.d:5: error: invalid assignment expression
 types.d:12: error: left operand can not be of void type
@@ -10,6 +10,4 @@ types.d:34: error: in function call to 'char_arg_func()', argument 1 of invalid 
 types.d:34: error: argument's type is 'char' got 'int'
 types.d:40: error: in function call to 'char_arg_func()', argument 1 of invalid type
 types.d:40: error: argument's type is 'char' got 'uint'
-types.d:48: error: illegal types in arithmetic operation
-types.d:49: error: illegal types in arithmetic operation
-types.d:58: error: incompatible types in assignment
+types.d:49: error: incompatible types in assignment

@@ -40,18 +40,9 @@ void func5()
   char_arg_func(30u);
 }
 
-void func6(bool b)
-{
-  int *p;
-
-  /* int operations on a pointer variable */
-  if (b) { return p - 1; } /* left operand not convertable to int */
-  return 1 + p;            /* right operand not convertable to int */
-}
-
 enum tstenum { a, b, c }
 
-void func7()
+void func6()
 {
    tstenum e;
 
@@ -59,6 +50,6 @@ void func7()
 }
 
 /* invalid return type in a function declaration */
-inv_type1 *func8();
+inv_type1 *func7();
 
-void func9(inv_type2);
+void func8(inv_type2);
