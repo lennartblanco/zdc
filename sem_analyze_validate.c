@@ -324,7 +324,11 @@ validate_bin_arithm(compilation_status_t *compile_status,
     left = ir_binary_operation_get_left(bin_op);
     right = ir_binary_operation_get_right(bin_op);
 
-    if (!types_usual_arithm_conv(left, right, &left, &right))
+    if (!types_arithm_conv(left,
+                           ir_binary_operation_get_operation(bin_op),
+                           right,
+                           &left,
+                           &right))
     {
         compile_error(compile_status,
                       IR_NODE(bin_op),

@@ -20,3 +20,19 @@ exp_func()
   120 + 2;
 }
 
+// invalid pointer arithmetic expressions
+void ptr_arithm()
+{
+  int *ptr;
+  int *ptr2;
+
+  char[2] arr;
+
+  ptr = ptr + arr;     // pointer and non-integral addition
+  ptr = arr + ptr;     // non-integral and pointer addition
+  ptr = ptr + ptr2;    // two pointers addition
+
+  ptr = 10 - ptr2;     // pointer substracted fron integral
+  ptr = arr[0] - ptr2; // pointer substracted fron integral
+}
+

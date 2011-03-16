@@ -341,6 +341,103 @@ types_integer_promotion(IrExpression *expression)
     return res_exp;
 }
 
+static bool
+pointer_arithm_conv(IrExpression *left,
+                    ast_binary_op_type_t operation,
+                    IrExpression *right,
+                    IrExpression **res_left,
+                    IrExpression **res_right)
+{
+    assert(operation == ast_plus_op || operation == ast_minus_op);
+
+    DtDataType *left_type = ir_expression_get_data_type(left);
+    DtDataType *right_type = ir_expression_get_data_type(right);
+
+    assert(DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type));
+
+    /*
+     * promote non-pointer operand to integer if needed
+     */
+    if (!DT_IS_POINTER(left_type))
+    {
+        *res_left = types_integer_promotion(left);
+        if (*res_left == NULL)
+        {
+            /* can't promote left operand to integer */
+            return false;
+        }
+    }
+
+    if (!DT_IS_POINTER(right_type))
+    {
+        *res_right = types_integer_promotion(right);
+        if (*res_right == NULL)
+        {
+            /* can't promote right operand to integer */
+            return false;
+        }
+    }
+
+    if (operation == ast_plus_op)
+    {
+      if (DT_IS_POINTER(left_type) && DT_IS_POINTER(right_type))
+      {
+          /* adding two pointers is illegal */
+          return false;
+      }
+
+      if (!DT_IS_POINTER(left_type))
+      {
+          /*
+           * if left operand is integral and right is pointer,
+           * the operands are reversed
+           */
+          IrExpression *tmp;
+
+          tmp = *res_left;
+          *res_left = *res_right;
+          *res_right = tmp;
+      }
+
+    }
+    else
+    {
+        assert(operation == ast_minus_op);
+        if (!DT_IS_POINTER(left_type))
+        {
+            /* it's illegal to substract pointer from a non-pointer */
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+types_arithm_conv(IrExpression *left,
+                  ast_binary_op_type_t operation,
+                  IrExpression *right,
+                  IrExpression **res_left,
+                  IrExpression **res_right)
+{
+    DtDataType *left_type;
+    DtDataType *right_type;
+
+
+    left_type = ir_expression_get_data_type(left);
+    right_type = ir_expression_get_data_type(right);
+    if (DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type))
+    {
+        return pointer_arithm_conv(left,
+                                   operation,
+                                   right,
+                                   res_left,
+                                   res_right);
+    }
+
+    return types_usual_arithm_conv(left, right, res_left, res_right);
+}
+
 bool
 types_usual_arithm_conv(IrExpression *left,
                         IrExpression *right,

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "ast_binary_operation.h"
 #include "dt_basic.h"
 #include "ir_expression.h"
 
@@ -44,6 +45,13 @@ types_implicit_conv(DtDataType *target_type,
  */
 IrExpression *
 types_integer_promotion(IrExpression *expression);
+
+bool
+types_arithm_conv(IrExpression *left,
+                  ast_binary_op_type_t operation,
+                  IrExpression *right,
+                  IrExpression **res_left,
+                  IrExpression **res_right);
 
 bool
 types_usual_arithm_conv(IrExpression *left,
