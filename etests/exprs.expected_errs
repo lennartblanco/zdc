@@ -1,13 +1,13 @@
 exprs.d:6: error: can not convert if condition to bool type
 exprs.d:14: error: can not convert while loop condition to bool type
 exprs.d:20: error: expression have no effect
-exprs.d:31: error: illegal types in arithmetic operation
+exprs.d:31: error: illegal types for pointer arithmetic operation
 exprs.d:31: error: invalid assignment expression
-exprs.d:32: error: illegal types in arithmetic operation
+exprs.d:32: error: illegal types for pointer arithmetic operation
 exprs.d:32: error: invalid assignment expression
-exprs.d:33: error: illegal types in arithmetic operation
+exprs.d:33: error: illegal types for pointer arithmetic operation
 exprs.d:33: error: invalid assignment expression
-exprs.d:35: error: illegal types in arithmetic operation
+exprs.d:35: error: illegal types for pointer arithmetic operation
 exprs.d:35: error: invalid assignment expression
-exprs.d:36: error: illegal types in arithmetic operation
+exprs.d:36: error: illegal types for pointer arithmetic operation
 exprs.d:36: error: invalid assignment expression

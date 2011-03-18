@@ -93,6 +93,43 @@ alias_ptr_arg(myint *arg)
   return res;
 }
 
+
+// test pointer and integer addition
+extern (C) int *
+ipointer_int_addition(int *ptr, int i, bool pointer_first)
+{
+  int *res;
+
+  if (pointer_first)
+  {
+    res = ptr + i;
+  }
+  else
+  {
+    res = i + ptr;
+  }
+
+  return res;
+}
+
+// test char pointer and integer addition
+extern (C) char *
+cpointer_int_addition(char *ptr, uint i)
+{
+  return ptr + i;
+}
+
+// test bool pointer and character addition
+extern (C) bool *
+bpointer_char_addition(char c, bool *ptr)
+{
+  bool *r;
+
+  r = c + ptr;
+
+  return r;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

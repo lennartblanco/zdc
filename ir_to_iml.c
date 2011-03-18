@@ -550,21 +550,44 @@ dt_to_iml_type(DtDataType *dt_type)
 }
 
 /**
+ * Figure out if an operation is signed or unsigned by looking at data types
+ * of it's operands.
+ *
+ * @return true if op is signed operation, false otherwise
+ */
+static bool
+is_signed_op(IrBinaryOperation *op)
+{
+    DtDataType *operands_type;
+
+    ast_binary_op_type_t optype = ir_binary_operation_get_operation(op);
+    assert(optype == ast_mult_op ||
+           optype == ast_division_op ||
+           optype == ast_modulo_op ||
+           optype == ast_less_op ||
+           optype == ast_greater_op ||
+           optype == ast_less_or_eq_op ||
+           optype == ast_greater_or_eq_op);
+
+    operands_type =
+       ir_expression_get_data_type(ir_binary_operation_get_left(op));
+
+    if (DT_IS_BASIC(operands_type))
+    {
+        return dt_basic_is_signed(DT_BASIC(operands_type));
+    }
+
+    assert(DT_IS_POINTER(operands_type));
+    return true;
+}
+
+/**
  * Map IR binary operation to IML opcode
  */
 static iml_opcode_t
 get_iml_opcode_binop(IrBinaryOperation *op)
 {
     iml_opcode_t opcode;
-    DtBasic *operands_type;
-
-    operands_type =
-       DT_BASIC(ir_expression_get_data_type(ir_binary_operation_get_left(op)));
-
-    /* right operand must be of same data type */
-    assert(
-        dt_data_type_is_same(DT_DATA_TYPE(operands_type),
-            ir_expression_get_data_type(ir_binary_operation_get_right(op))));
 
     switch (ir_binary_operation_get_operation(op))
     {
@@ -575,14 +598,13 @@ get_iml_opcode_binop(IrBinaryOperation *op)
             opcode = iml_sub;
             break;
         case ast_mult_op:
-            opcode =
-                dt_basic_is_signed(operands_type) ? iml_smult : iml_umult;
+            opcode = is_signed_op(op) ? iml_smult : iml_umult;
             break;
         case ast_division_op:
-            opcode = dt_basic_is_signed(operands_type) ? iml_sdiv : iml_udiv;
+            opcode = is_signed_op(op) ? iml_sdiv : iml_udiv;
             break;
         case ast_modulo_op:
-            opcode = dt_basic_is_signed(operands_type) ? iml_smod : iml_umod;
+            opcode = is_signed_op(op) ? iml_smod : iml_umod;
             break;
         case ast_and_op:
             opcode = iml_and;
@@ -597,22 +619,16 @@ get_iml_opcode_binop(IrBinaryOperation *op)
             opcode = iml_nequal;
             break;
         case ast_less_op:
-            opcode =
-                dt_basic_is_signed(operands_type) ? iml_sless : iml_uless;
+            opcode = is_signed_op(op) ? iml_sless : iml_uless;
             break;
         case ast_greater_op:
-            opcode =
-                dt_basic_is_signed(operands_type) ? iml_sgreater :
-                                                    iml_ugreater;
+            opcode = is_signed_op(op) ? iml_sgreater : iml_ugreater;
             break;
         case ast_less_or_eq_op:
-            opcode =
-                dt_basic_is_signed(operands_type) ? iml_slesseq : iml_ulesseq;
+            opcode = is_signed_op(op) ? iml_slesseq : iml_ulesseq;
             break;
         case ast_greater_or_eq_op:
-            opcode =
-                dt_basic_is_signed(operands_type) ? iml_sgreatereq :
-                                                    iml_ugreatereq;
+            opcode = is_signed_op(op) ? iml_sgreatereq : iml_ugreatereq;
             break;
         default:
             /* unexpected binary operation type */

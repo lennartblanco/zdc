@@ -25,6 +25,15 @@ call_char_ptr_dref(char *arg);
 int
 call_alias_ptr_arg(int *arg);
 
+int *
+ipointer_int_addition(int *arg1, int arg2, bool arg3);
+
+char *
+cpointer_int_addition(char *ptr, uint i);
+
+bool *
+bpointer_char_addition(char c, bool *ptr);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -107,6 +116,40 @@ main()
     arg = 0;
     check_int("alias_ptr_arg(&arg)", call_alias_ptr_arg(&arg), -1);
     check_cond("arg = 1", arg == 1);
+
+    /* ipointer_int_addition() tests */
+    check_pointer("ipointer_int_addition(0x100, 3, true)",
+                  ipointer_int_addition((int*)0x100, 3, true),
+                                        (int*)(0x100 + 3 * 4));
+    check_pointer("ipointer_int_addition(0x200, 1, false)",
+                  ipointer_int_addition((int*)0x200, 1, false),
+                                        (int*)(0x200 + 1 * 4));
+    check_pointer("ipointer_int_addition(0x108, -2, true)",
+                  ipointer_int_addition((int*)0x108, -2, true),
+                                        (int*)(0x108 + (-2) * 4));
+    check_pointer("ipointer_int_addition(0x20c, -1, true)",
+                  ipointer_int_addition((int*)0x20c, -1, true),
+                                        (int*)(0x20c + (-1) * 4));
+
+    /* cpointer_int_addition() tests */
+    check_pointer("cpointer_int_addition(0x1000, 2)",
+                  cpointer_int_addition((char*)0x1000, 2),
+                  (char*)(0x1000 + 2));
+    check_pointer("cpointer_int_addition(0x1008, -2)",
+                  cpointer_int_addition((char*)0x1008, -2),
+                  (char*)(0x1008 + (-2)));
+    check_pointer("cpointer_int_addition(0x0, 1)",
+                  cpointer_int_addition((char*)0x0, 1),
+                  (char*)(0x0 + 1));
+
+    /* bpointer_char_addition() tests */
+    check_pointer("bpointer_char_addition('x', 0x0)",
+                  bpointer_char_addition('x', 0x0),
+                  (bool *)('x' + 0x0));
+
+    check_pointer("bpointer_char_addition('F', 0xcafe)",
+                  bpointer_char_addition('F', (bool*)0xcafe),
+                  (bool *)('F' + 0xcafe));
 
 
     check_exit();

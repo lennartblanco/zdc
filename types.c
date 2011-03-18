@@ -341,12 +341,12 @@ types_integer_promotion(IrExpression *expression)
     return res_exp;
 }
 
-static bool
-pointer_arithm_conv(IrExpression *left,
-                    ast_binary_op_type_t operation,
-                    IrExpression *right,
-                    IrExpression **res_left,
-                    IrExpression **res_right)
+bool
+types_pointer_arithm_conv(IrExpression *left,
+                          ast_binary_op_type_t operation,
+                          IrExpression *right,
+                          IrExpression **res_left,
+                          IrExpression **res_right)
 {
     assert(operation == ast_plus_op || operation == ast_minus_op);
 
@@ -411,31 +411,6 @@ pointer_arithm_conv(IrExpression *left,
     }
 
     return true;
-}
-
-bool
-types_arithm_conv(IrExpression *left,
-                  ast_binary_op_type_t operation,
-                  IrExpression *right,
-                  IrExpression **res_left,
-                  IrExpression **res_right)
-{
-    DtDataType *left_type;
-    DtDataType *right_type;
-
-
-    left_type = ir_expression_get_data_type(left);
-    right_type = ir_expression_get_data_type(right);
-    if (DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type))
-    {
-        return pointer_arithm_conv(left,
-                                   operation,
-                                   right,
-                                   res_left,
-                                   res_right);
-    }
-
-    return types_usual_arithm_conv(left, right, res_left, res_right);
 }
 
 bool

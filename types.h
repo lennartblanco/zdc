@@ -47,17 +47,17 @@ IrExpression *
 types_integer_promotion(IrExpression *expression);
 
 bool
-types_arithm_conv(IrExpression *left,
-                  ast_binary_op_type_t operation,
-                  IrExpression *right,
-                  IrExpression **res_left,
-                  IrExpression **res_right);
-
-bool
 types_usual_arithm_conv(IrExpression *left,
                         IrExpression *right,
                         IrExpression **res_left,
                         IrExpression **res_right);
+
+bool
+types_pointer_arithm_conv(IrExpression *left,
+                          ast_binary_op_type_t operation,
+                          IrExpression *right,
+                          IrExpression **res_left,
+                          IrExpression **res_right);
 
 /**
  * Returns true if data_type represent basic type void,

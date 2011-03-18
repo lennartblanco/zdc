@@ -317,23 +317,60 @@ validate_bin_arithm(compilation_status_t *compile_status,
     IrExpression *left;
     IrExpression *right;
 
-
-    /*
-     * integer promote left operand
-     */
     left = ir_binary_operation_get_left(bin_op);
     right = ir_binary_operation_get_right(bin_op);
 
-    if (!types_arithm_conv(left,
-                           ir_binary_operation_get_operation(bin_op),
-                           right,
-                           &left,
-                           &right))
+    if (DT_IS_POINTER(ir_expression_get_data_type(left)) ||
+        DT_IS_POINTER(ir_expression_get_data_type(right)))
     {
-        compile_error(compile_status,
-                      IR_NODE(bin_op),
-                      "illegal types in arithmetic operation\n");
-        return NULL;
+        ast_binary_op_type_t op = ir_binary_operation_get_operation(bin_op);
+        if (!types_pointer_arithm_conv(left, op, right, &left, &right))
+        {
+            compile_error(compile_status,
+                          bin_op,
+                          "illegal types for pointer arithmetic operation\n");
+            return NULL;
+        }
+
+        /* now we know that left operand is of pointer type */
+        DtDataType *base_type =
+            dt_pointer_get_base_type(
+                DT_POINTER(ir_expression_get_data_type(left)));
+        IrUintConstant *base_type_size =
+                ir_uint_constant_new(dt_data_type_get_size(base_type), 0);
+
+        switch (op)
+        {
+            case ast_plus_op:
+                right =
+                    IR_EXPRESSION(
+                        ir_binary_operation_new(ast_mult_op,
+                                                right,
+                                                IR_EXPRESSION(base_type_size),
+                                                0));
+                right =
+                    validate_bin_arithm(compile_status,
+                                        sym_table,
+                                        IR_BINARY_OPERATION(right));
+                break;
+            case ast_minus_op:
+                assert(false); /* not implemented */
+                break;
+            default:
+                /* unexpected operation type */
+                assert(false);
+        }
+    }
+    else
+    {
+        if (!types_usual_arithm_conv(left, right, &left, &right))
+        {
+            compile_error(compile_status,
+                          bin_op,
+                          "illegal types in arithmetic operation\n");
+            return NULL;
+        }
+
     }
 
     ir_binary_operation_set_left(bin_op, left);
