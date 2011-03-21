@@ -305,6 +305,85 @@ validate_function_call(compilation_status_t *compile_status,
 }
 
 /**
+ * validate pointer arithmetic binary expression
+ */
+static IrExpression *
+validate_pointer_arithm(compilation_status_t *compile_status,
+                        sym_table_t *sym_table,
+                        IrBinaryOperation *bin_op)
+{
+    IrExpression *left;
+    IrExpression *right;
+    DtDataType *left_type;
+    DtDataType *right_type;
+
+    ast_binary_op_type_t op = ir_binary_operation_get_operation(bin_op);
+    left = ir_binary_operation_get_left(bin_op);
+    right = ir_binary_operation_get_right(bin_op);
+
+    if (!types_pointer_arithm_conv(left, op, right, &left, &right))
+    {
+        compile_error(compile_status,
+                      bin_op,
+                      "illegal types for pointer arithmetic operation\n");
+        return NULL;
+    }
+
+    left_type = ir_expression_get_data_type(left);
+    right_type = ir_expression_get_data_type(right);
+
+    /* now we know that left operand is of pointer type */
+    DtDataType *base_type = dt_pointer_get_base_type(DT_POINTER(left_type));
+    IrUintConstant *base_type_size =
+            ir_uint_constant_new(dt_data_type_get_size(base_type), 0);
+
+    if (op == ast_plus_op)
+    {
+        right =
+            IR_EXPRESSION(
+                ir_binary_operation_new(ast_mult_op,
+                                        right,
+                                        IR_EXPRESSION(base_type_size),
+                                        0));
+        right =
+            validate_bin_arithm(compile_status,
+                                sym_table,
+                                IR_BINARY_OPERATION(right));
+    }
+    else
+    {
+        assert(op == ast_minus_op);
+
+        if (DT_IS_POINTER(right_type))
+        {
+            left =
+                IR_EXPRESSION(
+                    ir_binary_operation_new(ast_minus_op, left, right, 0));
+            right = IR_EXPRESSION(base_type_size);
+            bin_op = ir_binary_operation_new(ast_division_op, left, right, 0);
+        }
+        else
+        {
+            right =
+                IR_EXPRESSION(
+                    ir_binary_operation_new(ast_mult_op,
+                                            right,
+                                            IR_EXPRESSION(base_type_size),
+                                            0));
+            right =
+                validate_bin_arithm(compile_status,
+                                    sym_table,
+                                    IR_BINARY_OPERATION(right));
+        }
+    }
+
+    ir_binary_operation_set_left(bin_op, left);
+    ir_binary_operation_set_right(bin_op, right);
+
+    return cfold_bin_arithm(bin_op);
+}
+
+/**
  * validate binary integer arithmetic operation
  */
 static IrExpression *
@@ -323,54 +402,17 @@ validate_bin_arithm(compilation_status_t *compile_status,
     if (DT_IS_POINTER(ir_expression_get_data_type(left)) ||
         DT_IS_POINTER(ir_expression_get_data_type(right)))
     {
-        ast_binary_op_type_t op = ir_binary_operation_get_operation(bin_op);
-        if (!types_pointer_arithm_conv(left, op, right, &left, &right))
-        {
-            compile_error(compile_status,
-                          bin_op,
-                          "illegal types for pointer arithmetic operation\n");
-            return NULL;
-        }
-
-        /* now we know that left operand is of pointer type */
-        DtDataType *base_type =
-            dt_pointer_get_base_type(
-                DT_POINTER(ir_expression_get_data_type(left)));
-        IrUintConstant *base_type_size =
-                ir_uint_constant_new(dt_data_type_get_size(base_type), 0);
-
-        switch (op)
-        {
-            case ast_plus_op:
-                right =
-                    IR_EXPRESSION(
-                        ir_binary_operation_new(ast_mult_op,
-                                                right,
-                                                IR_EXPRESSION(base_type_size),
-                                                0));
-                right =
-                    validate_bin_arithm(compile_status,
-                                        sym_table,
-                                        IR_BINARY_OPERATION(right));
-                break;
-            case ast_minus_op:
-                assert(false); /* not implemented */
-                break;
-            default:
-                /* unexpected operation type */
-                assert(false);
-        }
+        return validate_pointer_arithm(compile_status,
+                                       sym_table,
+                                       bin_op);
     }
-    else
-    {
-        if (!types_usual_arithm_conv(left, right, &left, &right))
-        {
-            compile_error(compile_status,
-                          bin_op,
-                          "illegal types in arithmetic operation\n");
-            return NULL;
-        }
 
+    if (!types_usual_arithm_conv(left, right, &left, &right))
+    {
+        compile_error(compile_status,
+                      bin_op,
+                      "illegal types in arithmetic operation\n");
+        return NULL;
     }
 
     ir_binary_operation_set_left(bin_op, left);

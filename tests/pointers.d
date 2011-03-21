@@ -130,6 +130,25 @@ bpointer_char_addition(char c, bool *ptr)
   return r;
 }
 
+// test substracting an integer from a pointer
+extern (C) uint *
+pointer_substraction(uint *ptr, uint i, bool use_arg)
+{
+  if (use_arg)
+  {
+    return ptr - i;
+  }
+
+  return ptr - 3;
+}
+
+// test substracting a pointer from pointer
+extern (C) int
+pointer_pointer_substraction(int *l, int *r)
+{
+  return l - r;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

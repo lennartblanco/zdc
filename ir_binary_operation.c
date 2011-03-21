@@ -1,5 +1,6 @@
 #include "ir_binary_operation.h"
 #include "types.h"
+#include "dt_pointer.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -183,6 +184,33 @@ ir_binary_operation_class_init(gpointer klass, gpointer dummy)
 }
 
 static DtDataType *
+get_substaction_data_type(IrBinaryOperation *self)
+{
+    assert(IR_IS_BINARY_OPERATION(self));
+    assert(self->operation == ast_minus_op);
+
+    DtDataType *left_type = ir_expression_get_data_type(self->left);
+
+    if (!DT_IS_POINTER(left_type))
+    {
+        return left_type;
+    }
+
+    /* this is pointer arithmetic subtraction */
+    if (DT_IS_POINTER(ir_expression_get_data_type(self->right)))
+    {
+        /*
+         * left and right operand are pointers
+         * thus the resulting up is int
+         */
+        return types_get_int_type();
+    }
+
+    /* pointer and integer subtraction */
+    return left_type;
+}
+
+static DtDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self)
 {
     DtDataType *data_type = NULL;
@@ -192,11 +220,13 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
     switch (bin_op->operation) 
     {
         case ast_plus_op:
-        case ast_minus_op:
         case ast_mult_op:
         case ast_division_op:
         case ast_modulo_op:
             data_type = ir_expression_get_data_type(bin_op->left);
+            break;
+        case ast_minus_op:
+            data_type = get_substaction_data_type(bin_op);
             break;
         case ast_less_op:
         case ast_greater_op:

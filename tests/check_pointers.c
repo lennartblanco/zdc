@@ -34,6 +34,12 @@ cpointer_int_addition(char *ptr, uint i);
 bool *
 bpointer_char_addition(char c, bool *ptr);
 
+unsigned *
+pointer_substraction(unsigned *ptr, unsigned i, bool use_arg);
+
+int
+pointer_pointer_substraction(int *l, int *r);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -150,6 +156,23 @@ main()
     check_pointer("bpointer_char_addition('F', 0xcafe)",
                   bpointer_char_addition('F', (bool*)0xcafe),
                   (bool *)('F' + 0xcafe));
+
+    /* pointer_substraction() tests */
+    check_pointer("pointer_substraction(0x108, 2, true)",
+                  pointer_substraction((unsigned *)0x108, 2, true),
+                  (unsigned *)(0x108 - 2 * 4));
+    check_pointer("pointer_substraction(0x108, 12, false)",
+                  pointer_substraction((unsigned *)0x108, 12, false),
+                  (unsigned *)(0x108 - 3 * 4));
+
+    /* pointer_pointer_substraction() tests */
+    check_int("pointer_pointer_substraction(0xff, 0xf7)",
+              pointer_pointer_substraction((int*)0xff, (int*)0xf7),
+              ((0xff - 0xf7) / 4));
+    check_int("pointer_pointer_substraction(0xbeef, 0xbeef)",
+              pointer_pointer_substraction((int*)0xbeef, (int*)0xbeef), 0);
+    check_int("pointer_pointer_substraction(4, 8)",
+              pointer_pointer_substraction((int*)4, (int*)8), (4-8)/4);
 
 
     check_exit();
