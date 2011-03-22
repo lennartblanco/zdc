@@ -32,11 +32,13 @@ ast_ptr_dref_get_type(void)
 }
 
 AstPtrDref *
-ast_ptr_dref_new(AstExpression *ptr_expression)
+ast_ptr_dref_new(AstExpression *ptr_expression, guint line_number)
 {
     AstPtrDref *obj;
 
-    obj = g_object_new(AST_TYPE_PTR_DREF, NULL);
+    obj = g_object_new(AST_TYPE_PTR_DREF,
+                       "ast-node-line-number", line_number,
+                       NULL);
     obj->ptr_expression = ptr_expression;
 
     return obj;

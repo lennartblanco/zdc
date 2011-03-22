@@ -149,6 +149,13 @@ pointer_pointer_substraction(int *l, int *r)
   return l - r;
 }
 
+// test dereferencing pointer arithmetic expression
+extern (C) int
+ptr_offset_access(int *ptr, uint offset)
+{
+  return *(ptr + offset);
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

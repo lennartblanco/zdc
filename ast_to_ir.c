@@ -1173,7 +1173,10 @@ ptr_dref_exp_to_ir(compilation_status_t *compile_status,
         return NULL;
     }
 
-    return IR_EXPRESSION(ir_ptr_dref_new(ptr_expr));
+    return
+        IR_EXPRESSION(
+            ir_ptr_dref_new(ptr_expr,
+                            ast_node_get_line_num(AST_NODE(ast_ptr_dref))));
 }
 
 /**

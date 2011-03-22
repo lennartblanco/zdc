@@ -40,6 +40,9 @@ pointer_substraction(unsigned *ptr, unsigned i, bool use_arg);
 int
 pointer_pointer_substraction(int *l, int *r);
 
+int
+ptr_offset_access(int *ptr, unsigned offset);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -174,6 +177,13 @@ main()
     check_int("pointer_pointer_substraction(4, 8)",
               pointer_pointer_substraction((int*)4, (int*)8), (4-8)/4);
 
+    /* ptr_offset_access() tests */
+    int arr[4] = {1, 11, 111, 1111};
+
+    check_int("ptr_offset_access(arr, 3)", ptr_offset_access(arr, 3), arr[3]);
+    check_int("ptr_offset_access(arr, 2)", ptr_offset_access(arr, 2), arr[2]);
+    check_int("ptr_offset_access(arr, 1)", ptr_offset_access(arr, 1), arr[1]);
+    check_int("ptr_offset_access(arr, 0)", ptr_offset_access(arr, 0), arr[0]);
 
     check_exit();
 }

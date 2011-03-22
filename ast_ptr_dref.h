@@ -44,7 +44,7 @@ GType
 ast_ptr_dref_get_type(void);
 
 AstPtrDref *
-ast_ptr_dref_new(AstExpression *ptr_expression);
+ast_ptr_dref_new(AstExpression *ptr_expression, guint line_number);
 
 AstExpression *
 ast_ptr_dref_get_ptr_expression(AstPtrDref *self);

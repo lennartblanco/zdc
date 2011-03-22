@@ -44,10 +44,13 @@ GType
 ir_ptr_dref_get_type(void);
 
 IrPtrDref *
-ir_ptr_dref_new(IrExpression *ptr_expression);
+ir_ptr_dref_new(IrExpression *ptr_expression, guint line_number);
 
 IrExpression *
 ir_ptr_dref_get_expression(IrPtrDref *self);
+
+void
+ir_ptr_dref_set_expression(IrPtrDref *self, IrExpression *ptr_expression);
 
 /**
  * Returns storage size, in bytes, of the dereferenced memory destination.

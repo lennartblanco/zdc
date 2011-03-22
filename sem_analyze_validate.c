@@ -24,6 +24,7 @@
 #include "ir_property.h"
 #include "ir_enum_member.h"
 #include "ir_dot.h"
+#include "ir_ptr_dref.h"
 #include "ir_ident.h"
 #include "ir_to_iml.h"
 #include "const_fold.h"
@@ -879,6 +880,38 @@ validate_dot(compilation_status_t *compile_status,
     return res;
 }
 
+static IrExpression *
+validate_ptr_dref(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
+                  IrPtrDref *ptr_dref)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_PTR_DREF(ptr_dref));
+
+    IrExpression *exp = ir_ptr_dref_get_expression(ptr_dref);
+
+    /* validate pointer expression */
+    exp = validate_expression(compile_status, sym_table, exp);
+    if (exp == NULL)
+    {
+        /* invalid expression dereferenced */
+        return NULL;
+    }
+    ir_ptr_dref_set_expression(ptr_dref, exp);
+
+    /* check that dereferenced expression is of pointer type */
+    if (!DT_IS_POINTER(ir_expression_get_data_type(exp)))
+    {
+        compile_error(compile_status,
+                      ptr_dref,
+                      "can't dereference non-pointer expression\n");
+        return NULL;
+    }
+
+    return IR_EXPRESSION(ptr_dref);
+}
+
 
 static IrExpression *
 validate_expression(compilation_status_t *compile_status,
@@ -938,6 +971,13 @@ validate_expression(compilation_status_t *compile_status,
     {
         expression =
             validate_dot(compile_status, sym_table, IR_DOT(expression));
+    }
+    else if (IR_IS_PTR_DREF(expression))
+    {
+        expression =
+            validate_ptr_dref(compile_status,
+                              sym_table,
+                              IR_PTR_DREF(expression));
     }
 
     return expression;

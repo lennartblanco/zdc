@@ -742,7 +742,8 @@ unary_expression<n> :
     }
 |   '*' unary_expression<x>
     {
-        (*n).expression = AST_EXPRESSION(ast_ptr_dref_new(x.expression));
+        (*n).expression =
+            AST_EXPRESSION(ast_ptr_dref_new(x.expression, yypos));
     }
 |   postfix_expression<n>
 ;

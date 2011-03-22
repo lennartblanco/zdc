@@ -40,13 +40,15 @@ ir_ptr_dref_get_type(void)
 }
 
 IrPtrDref *
-ir_ptr_dref_new(IrExpression *ptr_expression)
+ir_ptr_dref_new(IrExpression *ptr_expression, guint line_number)
 {
     IrPtrDref *obj;
 
     assert(IR_IS_EXPRESSION(ptr_expression));
 
-    obj = g_object_new(IR_TYPE_PTR_DREF, NULL);
+    obj = g_object_new(IR_TYPE_PTR_DREF,
+                       "ir-node-line-number", line_number,
+                       NULL);
     obj->ptr_expression = ptr_expression;
 
     return obj;
@@ -58,6 +60,15 @@ ir_ptr_dref_get_expression(IrPtrDref *self)
     assert(IR_IS_PTR_DREF(self));
 
     return self->ptr_expression;
+}
+
+void
+ir_ptr_dref_set_expression(IrPtrDref *self, IrExpression *ptr_expression)
+{
+    assert(IR_IS_PTR_DREF(self));
+    assert(IR_IS_EXPRESSION(ptr_expression));
+
+    self->ptr_expression = ptr_expression;
 }
 
 guint

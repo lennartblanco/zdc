@@ -36,3 +36,10 @@ void ptr_arithm()
   ptr = arr[0] - ptr2; // pointer substracted fron integral
 }
 
+void ptr_dref()
+{
+  int x;
+
+  *x = 10;             // dereferensing a non-pointer variable
+}
+
