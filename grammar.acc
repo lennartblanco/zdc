@@ -731,7 +731,8 @@ unary_expression<n> :
    '!' unary_expression<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op, x.expression)); 
+            AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
+                                                   x.expression));
     }
 |   '-' unary_expression<x>
     {
