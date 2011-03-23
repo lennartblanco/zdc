@@ -12,3 +12,6 @@ exprs.d:35: error: invalid assignment expression
 exprs.d:36: error: illegal types for pointer arithmetic operation
 exprs.d:36: error: invalid assignment expression
 exprs.d:43: error: can't dereference non-pointer expression
+exprs.d:52: error: invalid pointers comparison
+exprs.d:53: error: invalid pointers comparison
+exprs.d:54: error: invalid pointers comparison

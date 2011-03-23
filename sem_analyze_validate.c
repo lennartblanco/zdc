@@ -432,22 +432,46 @@ validate_bin_icomp(compilation_status_t *compile_status,
 {
     assert(ir_binary_operation_is_icomp(bin_op));
 
+    IrExpression *left;
+    IrExpression *right;
     IrExpression *converted_left;
     IrExpression *converted_right;
+    DtDataType *left_type;
+    DtDataType *right_type;
 
-    if (!types_usual_arithm_conv(ir_binary_operation_get_left(bin_op),
-                                 ir_binary_operation_get_right(bin_op),
-                                 &converted_left,
-                                 &converted_right))
+    left = ir_binary_operation_get_left(bin_op);
+    right = ir_binary_operation_get_right(bin_op);
+
+    left_type = ir_expression_get_data_type(left);
+    right_type = ir_expression_get_data_type(right);
+
+    if (DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type))
     {
-        compile_error(compile_status,
-                      IR_NODE(bin_op),
-                      "illegal types in compare operation\n");
-        return NULL;
+        /* when pointers are compared, data types must match */
+        if (!dt_data_type_is_same(left_type, right_type))
+        {
+            compile_error(compile_status,
+                          bin_op,
+                          "invalid pointers comparison\n");
+            return NULL;
+        }
     }
+    else
+    {
+        if (!types_usual_arithm_conv(left,
+                                     right,
+                                     &converted_left,
+                                     &converted_right))
+        {
+            compile_error(compile_status,
+                          bin_op,
+                          "illegal types in compare operation\n");
+            return NULL;
+        }
 
-    ir_binary_operation_set_left(bin_op, converted_left);
-    ir_binary_operation_set_right(bin_op, converted_right);
+        ir_binary_operation_set_left(bin_op, converted_left);
+        ir_binary_operation_set_right(bin_op, converted_right);
+    }
 
     return cfold_bin_icomp(bin_op);
 }
@@ -1143,6 +1167,11 @@ validate_if_block(compilation_status_t *compile_status,
     /* validate if condition expression */
     condition = ir_if_block_get_condition(if_block);
     condition = validate_expression(compile_status, sym_table, condition);
+    if (condition == NULL)
+    {
+        /* invalid condition expression */
+        return;
+    }
 
     /* insert implicit conversion to boolean type */
     condition = types_implicit_conv(types_get_bool_type(),

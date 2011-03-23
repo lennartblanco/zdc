@@ -43,6 +43,9 @@ pointer_pointer_substraction(int *l, int *r);
 int
 ptr_offset_access(int *ptr, unsigned offset);
 
+bool
+ptr_comp(char *left, char *right, int op_type);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -184,6 +187,52 @@ main()
     check_int("ptr_offset_access(arr, 2)", ptr_offset_access(arr, 2), arr[2]);
     check_int("ptr_offset_access(arr, 1)", ptr_offset_access(arr, 1), arr[1]);
     check_int("ptr_offset_access(arr, 0)", ptr_offset_access(arr, 0), arr[0]);
+
+    /* ptr_comp() tests */
+    check_bool("ptr_comp(NULL, NULL, -1)",
+               ptr_comp(NULL, NULL, -1), false);
+
+    check_bool("ptr_comp(NULL, NULL, 0)",
+               ptr_comp(NULL, NULL, 0), true);
+    check_bool("ptr_comp(NULL, 0x1234, 0)",
+               ptr_comp(NULL, (char*)0x1234, 0), false);
+
+    check_bool("ptr_comp(NULL, NULL, 1)",
+               ptr_comp(NULL, NULL, 1), false);
+    check_bool("ptr_comp(NULL, 0x1234, 1)",
+               ptr_comp(NULL, (char*)0x1234, 1), true);
+
+    check_bool("ptr_comp(NULL, 0x1234, 2)",
+               ptr_comp(NULL, (char*)0x1234, 2), true);
+    check_bool("ptr_comp(0x10, 0x10, 2)",
+               ptr_comp((char*)0x10, (char*)0x10, 2), false);
+    check_bool("ptr_comp(0x35, 0x34, 2)",
+               ptr_comp((char*)0x35, (char*)0x34, 2), false);
+
+    check_bool("ptr_comp(0x5, 0x8, 3)",
+               ptr_comp((char *)0x5, (char*)0x8, 3), true);
+    check_bool("ptr_comp(0x8, 0x8, 3)",
+               ptr_comp((char *)0x8, (char*)0x8, 3), true);
+    check_bool("ptr_comp(0x12, 0x8, 3)",
+               ptr_comp((char *)0x12, (char*)0x8, 3), false);
+
+    check_bool("ptr_comp(0xab, 0xab, 4)",
+               ptr_comp((char*)0xab, (char*)0xab, 4), false);
+    check_bool("ptr_comp(0xa0, 0xab, 4)",
+               ptr_comp((char*)0xa0, (char*)0xab, 4), false);
+    check_bool("ptr_comp(0xb0, 0xab, 4)",
+               ptr_comp((char*)0xb0, (char*)0xab, 4), true);
+
+    check_bool("ptr_comp(0xab, 0xab, 5)",
+               ptr_comp((char*)0xab, (char*)0xab, 5), true);
+    check_bool("ptr_comp(0xa0, 0xab, 5)",
+               ptr_comp((char*)0xa0, (char*)0xab, 5), false);
+    check_bool("ptr_comp(0xb0, 0xab, 5)",
+               ptr_comp((char*)0xb0, (char*)0xab, 5), true);
+
+    check_bool("ptr_comp(NULL, NULL, 6)",
+               ptr_comp(NULL, NULL, 6), false);
+
 
     check_exit();
 }

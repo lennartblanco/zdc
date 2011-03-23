@@ -43,3 +43,14 @@ void ptr_dref()
   *x = 10;             // dereferensing a non-pointer variable
 }
 
+void ptr_cmp() // invalid pointer comparisons
+{
+  int i;
+  int *iptr;
+  bool *bptr;
+
+  if (i != iptr) { }
+  if (bptr == 29) { }
+  if (iptr < bptr) { }
+}
+

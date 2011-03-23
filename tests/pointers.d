@@ -156,6 +156,38 @@ ptr_offset_access(int *ptr, uint offset)
   return *(ptr + offset);
 }
 
+// test pointer comparison expressions
+extern (C) bool
+ptr_comp(char *left, char *right, int op_type)
+{
+  if (op_type == 0)
+  {
+    return left == right;
+  }
+  else if (op_type == 1)
+  {
+    return left != right;
+  }
+  else if (op_type == 2)
+  {
+    return left < right;
+  }
+  else if (op_type == 3)
+  {
+    return left <= right;
+  }
+  else if (op_type == 4)
+  {
+    return left > right;
+  }
+  else if (op_type == 5)
+  {
+    return left >= right;
+  }
+
+  return false;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
