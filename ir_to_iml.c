@@ -687,9 +687,9 @@ ir_constant_to_iml(IrConstant *constant)
 }
 
 static ImlOperand *
-iml_add_unary_op_eval(IrFunctionDef *function,
-                      IrUnaryOperation *op,
-                      ImlVariable *res)
+iml_add_neg_op_eval(IrFunctionDef *function,
+                    IrUnaryOperation *op,
+                    ImlVariable *res)
 {
     assert(IR_IS_FUNCTION_DEF(function));
     assert(IR_IS_UNARY_OPERATION(op));
@@ -726,8 +726,123 @@ iml_add_unary_op_eval(IrFunctionDef *function,
     }
 
     ir_function_def_add_operation(function,
-                              iml_operation_new(opcode, operand, res));
+                                  iml_operation_new(opcode, operand, res));
     return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_X_op_eval(IrFunctionDef *function,
+                    IrUnaryOperation *op,
+                    ImlVariable *res)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_UNARY_OPERATION(op));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlOperand *operand;
+    IrExpression *ir_operand;
+    DtDataType *operand_type;
+    iml_operation_t *mod_op;
+    iml_operation_t *copy_op = NULL;
+    iml_opcode_t opcode;
+    ImlConstant *mod_constant;
+    bool copy_after_mod;
+
+    switch (ir_unary_operation_get_operation(op))
+    {
+        case ast_pre_inc_op:
+            opcode = iml_add;
+            copy_after_mod = true;
+            break;
+        case ast_pre_dec_op:
+            opcode = iml_sub;
+            copy_after_mod = true;
+            break;
+        case ast_post_inc_op:
+            opcode = iml_add;
+            copy_after_mod = false;
+            break;
+        case ast_post_dec_op:
+            opcode = iml_sub;
+            copy_after_mod = false;
+            break;
+        default:
+            /* unexpected unary operation */
+            assert(false);
+    }
+
+    ir_operand = ir_unary_operation_get_operand(op);
+    operand_type = ir_expression_get_data_type(ir_operand);
+
+    /*
+     * figure out the size of increment/decrement operation
+     */
+    if (DT_IS_POINTER(operand_type))
+    {
+        /* pointers are (in/de)-cremented by the base type size */
+        mod_constant =
+            iml_constant_new_32b(
+                dt_pointer_get_base_type_size(DT_POINTER(operand_type)));
+    }
+    else
+    {
+        mod_constant = iml_constant_new_32b(1);
+    }
+
+    /*
+     * create the increment/decrement operation
+     */
+    operand = iml_add_expression_eval(function, ir_operand, NULL);
+    mod_op = iml_operation_new(opcode, operand, mod_constant, operand);
+
+    /*
+     * create operation to store the value
+     * of this expression to result operand
+     */
+    if (res == NULL)
+    {
+      res = iml_func_frame_get_temp(frame, dt_to_iml_type(operand_type));
+    }
+    copy_op = iml_operation_new(iml_copy, operand, res);
+
+    if (copy_after_mod)
+    {
+        /* pre (in/de)-crement operation */
+        ir_function_def_add_operation(function, mod_op);
+        ir_function_def_add_operation(function, copy_op);
+    }
+    else
+    {
+        /* post (in/de)-crement operation */
+        ir_function_def_add_operation(function, copy_op);
+        ir_function_def_add_operation(function, mod_op);
+    }
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_unary_op_eval(IrFunctionDef *function,
+                      IrUnaryOperation *op,
+                      ImlVariable *res)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_UNARY_OPERATION(op));
+
+    switch (ir_unary_operation_get_operation(op))
+    {
+        case ast_arithm_neg_op:
+        case ast_bool_neg_op:
+            return iml_add_neg_op_eval(function, op, res);
+        case ast_pre_inc_op:
+        case ast_pre_dec_op:
+        case ast_post_inc_op:
+        case ast_post_dec_op:
+            return iml_add_X_op_eval(function, op, res);
+        default:
+            /* unexpected unary operation */
+            assert(false);
+    }
 }
 
 static ImlOperand *

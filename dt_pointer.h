@@ -54,4 +54,12 @@ dt_pointer_get_base_type(DtPointer *self);
 void
 dt_pointer_set_base_type(DtPointer *self, DtDataType *base_type);
 
+/**
+ * Get this pointer base type's storage size.
+ *
+ * E.g. for 'int *' base type size is 4, for 'bool *' it's 1.
+ */
+guint
+dt_pointer_get_base_type_size(DtPointer *self);
+
 #endif /* DT_POINTER_INC_X */

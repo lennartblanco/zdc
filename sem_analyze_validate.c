@@ -335,9 +335,10 @@ validate_pointer_arithm(compilation_status_t *compile_status,
     right_type = ir_expression_get_data_type(right);
 
     /* now we know that left operand is of pointer type */
-    DtDataType *base_type = dt_pointer_get_base_type(DT_POINTER(left_type));
     IrUintConstant *base_type_size =
-            ir_uint_constant_new(dt_data_type_get_size(base_type), 0);
+        ir_uint_constant_new(
+            dt_pointer_get_base_type_size(DT_POINTER(left_type)),
+            0);
 
     if (op == ast_plus_op)
     {

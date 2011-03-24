@@ -30,7 +30,8 @@ tests="empty "\
 "alias "\
 "foreach "\
 "str_literals "\
-"pointers "
+"pointers "\
+"incdec_ops "
 
 run_checked()
 {

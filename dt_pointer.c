@@ -69,6 +69,15 @@ dt_pointer_set_base_type(DtPointer *self, DtDataType *base_type)
     self->base_type = base_type;
 }
 
+guint
+dt_pointer_get_base_type_size(DtPointer *self)
+{
+    assert(DT_IS_POINTER(self));
+    assert(DT_IS_DATA_TYPE(self->base_type));
+
+    return dt_data_type_get_size(self->base_type);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
