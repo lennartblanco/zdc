@@ -8,3 +8,9 @@ enum iml_data_type_t
     iml_ptr,
     iml_blob
 };
+
+extern (C)
+{
+    iml_data_type_t
+    iml_operand_get_data_type(ImlOperand *self);
+}

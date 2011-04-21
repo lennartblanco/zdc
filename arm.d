@@ -316,6 +316,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.jmpneq:
                 compile_jmpcond(asmfile, op);
                 break;
+            case iml_opcode_t.set:
+                compile_set(asmfile, op);
+                break;
             case iml_opcode_t.jmp:
                 asmfile.writefln("    b %s",
                                  to!string(cast(char*)
@@ -839,6 +842,61 @@ compile_jmpcond(File asmfile, iml_operation_t *op)
                      left_reg_name,
                      iml_constant_get_val_32b(right),
                      label);
+}
+
+private void
+compile_set(File asmfile, iml_operation_t *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode_t.set);
+    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlConstant *offset = cast(ImlConstant *)iml_operation_get_operand(op, 3);
+
+    assert(iml_operand_get_data_type(src) == iml_data_type_t.iml_32b ||
+           iml_operand_get_data_type(src) == iml_data_type_t.iml_ptr,
+           "only 32-bit set is implemented");
+
+    /* make sure source operand is placed in a register */
+    string src_reg;
+    if (iml_is_constant(src))
+    {
+        gen_move_to_reg(asmfile, TEMP_REG1, src);
+        src_reg = TEMP_REG1;
+    }
+    else
+    {
+        assert(iml_is_variable(src));
+        char *reg = iml_variable_get_register(cast(ImlVariable*)src);
+        if (reg == null)
+        {
+            gen_move_to_reg(asmfile, TEMP_REG1, src);
+            src_reg = TEMP_REG1;
+        }
+        else
+        {
+            src_reg = to!string(reg);
+        }
+    }
+
+    /* make sure destination operand is placed in a register */
+    string dest_reg = to!string(iml_variable_get_register(dest));
+    if (dest_reg == null)
+    {
+        gen_move_to_reg(asmfile, TEMP_REG2, cast(ImlOperand *)dest);
+        dest_reg = TEMP_REG2;
+    }
+
+    /* generate offset assembly expression */
+    string offset_exp = "";
+    if (offset != null && iml_constant_get_val_32b(offset) != 0)
+    {
+        offset_exp = ", #" ~ to!string(iml_constant_get_val_32b(offset));
+    }
+
+    asmfile.writefln("    str %s, [%s%s]",
+                     src_reg,
+                     dest_reg,
+                     offset_exp);
 }
 
 private void
