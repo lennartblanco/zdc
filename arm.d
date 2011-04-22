@@ -319,6 +319,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode_t.set:
                 compile_set(asmfile, op);
                 break;
+            case iml_opcode_t.get:
+                compile_get(asmfile, op);
+                break;
             case iml_opcode_t.jmp:
                 asmfile.writefln("    b %s",
                                  to!string(cast(char*)
@@ -844,6 +847,25 @@ compile_jmpcond(File asmfile, iml_operation_t *op)
                      label);
 }
 
+/**
+ * Generate the offset expression for ldr or str instruction.
+ *
+ * @param offset the IML offset value
+ *
+ * @return the offset expression or empty string if no offset or offset 0
+ *         is specified
+ */
+private string
+get_offset_expression(ImlConstant *offset)
+{
+    if (offset == null || iml_constant_get_val_32b(offset) == 0)
+    {
+        return "";
+    }
+
+    return ", #" ~ to!string(iml_constant_get_val_32b(offset));
+}
+
 private void
 compile_set(File asmfile, iml_operation_t *op)
 {
@@ -886,17 +908,52 @@ compile_set(File asmfile, iml_operation_t *op)
         dest_reg = TEMP_REG2;
     }
 
-    /* generate offset assembly expression */
-    string offset_exp = "";
-    if (offset != null && iml_constant_get_val_32b(offset) != 0)
-    {
-        offset_exp = ", #" ~ to!string(iml_constant_get_val_32b(offset));
-    }
-
     asmfile.writefln("    str %s, [%s%s]",
                      src_reg,
                      dest_reg,
-                     offset_exp);
+                     get_offset_expression(offset));
+}
+
+private void
+compile_get(File asmfile, iml_operation_t *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode_t.get);
+
+    /* make sure address value is stored in the register */
+    ImlVariable *addr = cast(ImlVariable *)iml_operation_get_operand(op, 1);
+    string addr_reg = to!string(iml_variable_get_register(addr));
+    if (addr_reg == null)
+    {
+        gen_move_to_reg(asmfile, TEMP_REG1, cast(ImlOperand*) addr);
+        addr_reg = TEMP_REG1;
+    }
+
+    /* figure out the register where to load the value */
+    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
+
+    assert(iml_operand_get_data_type(cast(ImlOperand*)dest) ==
+                                                    iml_data_type_t.iml_32b ||
+           iml_operand_get_data_type(cast(ImlOperand*)dest) ==
+                                                    iml_data_type_t.iml_ptr,
+           "only 32-bit get is implemented");
+
+    string dest_reg = to!string(iml_variable_get_register(dest));
+    if (dest_reg == null)
+    {
+        dest_reg = TEMP_REG2;
+    }
+
+    ImlConstant *offset = cast(ImlConstant *)iml_operation_get_operand(op, 2);
+    asmfile.writefln("    ldr %s, [%s%s]",
+                     dest_reg,
+                     addr_reg,
+                     get_offset_expression(offset));
+
+    /* move the loaded value from temp register if needed */
+    if (dest_reg == TEMP_REG2)
+    {
+        gen_move_from_reg(asmfile, dest_reg, dest);
+    }
 }
 
 private void
