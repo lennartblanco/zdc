@@ -6,6 +6,7 @@
 import config;
 import std.stdio;
 import std.string;
+import std.conv;
 import GSList;
 import auxil;
 import arm;
@@ -16,97 +17,51 @@ enum backend_e
     arm
 }
 
-enum compilation_stages_e
+enum compilation_stages
 {
     compile_stage,             /* generate assembly file (.s) */
     assemble_stage,            /* genarate object file   (.o) */
     link_stage                 /* build elf binary            */
 }
 
-struct compile_options_s
+/**
+ * Setting for compilation step.
+ */
+struct compilation_settings
 {
     arch_backend_s       backend;
     bool                 print_ast;
     bool                 print_ir;
 }
 
+struct command_options
+{
+    backend_e backend;
+    compilation_stages last_compilation_stage;
+    string[] source_files;
+    string[] object_files;
+    string output_file;
+
+    compilation_settings comp_settings;
+}
+
+class CommandOptionException : Exception
+{
+    int exit_code;
+    this(string error_message, int exit_code)
+    {
+        super(error_message);
+        this.exit_code = exit_code;
+    }
+}
+
 extern (C) void g_type_init();
 extern (C) int compile_file(const char* input_file,
                             const char* output_file,
-                            compile_options_s options);
+                            compilation_settings settings);
 extern (C) uint system(const char *command);
 
 extern (C) void x86_init(arch_backend_s *backend);
-
-/**
- * Print the usage help message for xdc to stdout.
- *
- * @param progname the command issued to invoke xdc binary
- */
-void
-print_usage_message(string progname)
-{
-    writefln("usage: %s [OPTION]... [SOURCE_FILES]...\n", progname);
-    writefln("Compile specified D source file(s).\n"
-             "\n"
-             "Options:\n"
-             "  --march=arch,      Generate code for the specified architecture.\n"
-             "   or -march=arch    The choices for arch are 'arm' or 'x86'.\n"
-             "  -o outfile         Place output in file outfile.\n"
-             "  -S                 Generate assembly files only.\n"
-             "  -c                 Compile only, do not link.\n"
-             "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
-             "                     unit.\n"
-             "  --print-ir         Output Intermediate Represantation of each\n"
-             "                     compile unit.\n"
-             "  --help, -?, -h     Print this help message."
-             );
-}
-
-backend_e
-get_default_backend()
-{
-    switch (DEFAULT_BACKEND)
-    {
-        case "x86":
-            return backend_e.x86;
-        case "arm":
-            return backend_e.arm;
-        default:
-            assert(false, "unexpected default backend '" ~
-                          DEFAULT_BACKEND ~ "'");
-    }
-}
-
-backend_e
-parse_march_option(string option)
-{
-    string arch;
-
-    int eqsign = indexOf(option, '=');
-
-    if (eqsign > -1)
-    {
-        arch = option[eqsign + 1..$];
-    }
-
-    if (eqsign == -1 || arch.length <= 0)
-    {
-        throw new Exception("no value provided for '" ~ option ~
-                            "' option");
-    }
-
-    switch (arch)
-    {
-        case "x86":
-            return backend_e.x86;
-        case "arm":
-            return backend_e.arm;
-        default:
-            throw new Exception("unsupported target architecture '" ~ arch ~
-                                "' specified");
-    }
-}
 
 /**
  * Create an object file (.o) from provided assembly file by invoking assembler.
@@ -187,24 +142,88 @@ link_files(backend_e backend, string output_file, string[] object_files)
     return 0;
 }
 
-int 
-main(string[] args)
+backend_e
+get_default_backend()
 {
-    string[] source_files;
-    string[] object_files;
-    string output_file;
-    string compiled_output_file;
-    string assembled_output_file;
-    backend_e backend;
+    switch (DEFAULT_BACKEND)
+    {
+        case "x86":
+            return backend_e.x86;
+        case "arm":
+            return backend_e.arm;
+        default:
+            assert(false, "unexpected default backend '" ~
+                          DEFAULT_BACKEND ~ "'");
+    }
+}
 
-    compile_options_s options;
-    compilation_stages_e last_compilation_stage;
+/**
+ * Get the usage help message for xdc to stdout.
+ *
+ * @param progname the command issued to invoke xdc binary
+ */
+string
+get_usage_message(string progname)
+{
+    return "usage: %s [OPTION]... [SOURCE_FILES]...\n" ~ progname ~
+           "Compile specified D source file(s).\n"
+            "\n"
+            "Options:\n"
+            "  --march=arch,      Generate code for the specified architecture.\n"
+            "   or -march=arch    The choices for arch are 'arm' or 'x86'.\n"
+            "  -o outfile         Place output in file outfile.\n"
+            "  -S                 Generate assembly files only.\n"
+            "  -c                 Compile only, do not link.\n"
+            "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
+            "                     unit.\n"
+            "  --print-ir         Output Intermediate Represantation of each\n"
+            "                     compile unit.\n"
+            "  --help, -?, -h     Print this help message.";
+}
 
+backend_e
+parse_march_option(string option)
+{
+    string arch;
+
+    int eqsign = indexOf(option, '=');
+
+    if (eqsign > -1)
+    {
+        arch = option[eqsign + 1..$];
+    }
+
+    if (eqsign == -1 || arch.length <= 0)
+    {
+        throw new Exception("no value provided for '" ~ option ~
+                            "' option");
+    }
+
+    switch (arch)
+    {
+        case "x86":
+            return backend_e.x86;
+        case "arm":
+            return backend_e.arm;
+        default:
+            throw new Exception("unsupported target architecture '" ~ arch ~
+                                "' specified");
+    }
+}
+
+/**
+ * Parse the command line arguments.
+ *
+ * @throw CommandOptionException on errors parsing arguments
+ */
+void
+parse_command_arguments(string[] args, ref command_options options)
+{
     /* set default compile options */
-    last_compilation_stage = compilation_stages_e.link_stage;
-    options.print_ast = false;
-    options.print_ir = false;
-    backend = get_default_backend();
+    options.last_compilation_stage = compilation_stages.link_stage;
+    options.comp_settings.print_ast = false;
+    options.comp_settings.print_ir = false;
+    options.backend = get_default_backend();
 
     /* parse command line options */
     for (int i = 1; i < args.length; i += 1)
@@ -225,84 +244,115 @@ main(string[] args)
                 arg == "-?"     ||
                 arg == "-h")
             {
-                print_usage_message(args[0]);
-                return 0;
+                throw new CommandOptionException(get_usage_message(args[0]), 0);
             }
             else if (arg == "-o")
             {
                 if (i + 1 >= args.length)
                 {
-                    writefln("argument to -o is missing");
-                    return -1;
+                    throw new
+                      CommandOptionException("argument to -o is missing", -1);
                 }
-                output_file = args[i+1];
+                options.output_file = args[i+1];
                 i += 1;
             }
             else if (arg == "-S")
             {
-                last_compilation_stage = compilation_stages_e.compile_stage;
+                options.last_compilation_stage =
+                    compilation_stages.compile_stage;
             }
             else if (arg == "-c")
             {
-                last_compilation_stage = compilation_stages_e.assemble_stage;
+                options.last_compilation_stage =
+                    compilation_stages.assemble_stage;
             }
             else if (arg == "--print-ast")
             {
-                options.print_ast = true;
+                options.comp_settings.print_ast = true;
             }
             else if (arg == "--print-ir")
             {
-                options.print_ir = true;
+                options.comp_settings.print_ir = true;
             }
             else if ((arg.length >=6 && arg[0..6] == "-march") ||
                      (arg.length >=7 && arg[0..7] == "--march"))
             {
-                backend = parse_march_option(arg);
+                options.backend = parse_march_option(arg);
             }
             else
             {
-                writefln("unrecognized option '%s'", arg);
-                return -1; 
+                throw new
+                    CommandOptionException("unrecognized option '" ~ arg ~ "'",
+                                           -1);
             }
             continue;
         }
         /* should be a D source file name, which ends with '.d' */
         else if (arg.length < 2 || arg[arg.length-2..$] != ".d")
         {
-            writefln("%s: error: '%s' not a d source file.", args[0], arg);
-            return -1;
+            throw new
+              CommandOptionException(args[0] ~
+                                       ": error: '" ~ arg ~
+                                       "' not a d source file.",
+                                     -1);
         }
 
-        source_files ~= arg;
+        options.source_files ~= arg;
     }
 
-    /* did we get any source input files ? */
-    if (source_files.length < 1)
+  /* did we get any source input files ? */
+  if (options.source_files.length < 1)
+  {
+      throw new CommandOptionException(args[0] ~ ": no input files", -1);
+  }
+}
+
+int
+main(string[] args)
+{
+    command_options options;
+    string compiled_output_file;
+    string assembled_output_file;
+
+    /*
+     * parse command line options
+     */
+    try
     {
-        writefln("%s: no input files", args[0]);
-        return -1;
+        parse_command_arguments(args, options);
     }
+    catch (CommandOptionException ex)
+    {
+        /*
+         * error detected while parsing options,
+         * print error message and exit
+         */
+        writefln("%s", ex.msg);
+        return ex.exit_code;
+    }
+
+
 
     /* make sure output_file (-o) option makes sense */
-    if (output_file != null &&
-        last_compilation_stage != compilation_stages_e.link_stage &&
-        source_files.length > 1)
+    if (options.output_file != null &&
+        options.last_compilation_stage != compilation_stages.link_stage &&
+        options.source_files.length > 1)
     {
         writefln("%s: cannot specify -o with -c or -S with multiple files",
                  args[0]);
         return -1;
     }
 
-    if (output_file != null &&
-        source_files.length == 1)
+    if (options.output_file != null &&
+        options.source_files.length == 1)
     {
-        switch (last_compilation_stage)
+        switch (options.last_compilation_stage)
         {
-            case compilation_stages_e.compile_stage:
-                compiled_output_file = output_file;
+            case compilation_stages.compile_stage:
+                compiled_output_file = options.output_file;
                 break;
-            case compilation_stages_e.assemble_stage:
-                assembled_output_file = output_file;
+            case compilation_stages.assemble_stage:
+                assembled_output_file = options.output_file;
                 break;
             default:
                 /* nop */
@@ -311,13 +361,13 @@ main(string[] args)
     }
 
     /* init arch specific backend */
-    switch (backend)
+    switch (options.backend)
     {
         case backend_e.x86:
-            x86_init(&options.backend);
+            x86_init(&options.comp_settings.backend);
             break;
         case backend_e.arm:
-            arm_init(&options.backend);
+            arm_init(&options.comp_settings.backend);
             break;
         default:
             assert(false, "unexpected backend");
@@ -325,7 +375,7 @@ main(string[] args)
 
     /* compile and assemble all specified source files */
     g_type_init();
-    foreach (file; source_files)
+    foreach (file; options.source_files)
     {
         string target_file;
 
@@ -345,7 +395,7 @@ main(string[] args)
         /* invoke compilation */
         int r = compile_file(std.string.toStringz(file), 
                              std.string.toStringz(target_file),
-                             options);
+                             options.comp_settings);
         if (r != 0)
         {
             /* there were error compiling the file, bail out */
@@ -353,9 +403,9 @@ main(string[] args)
         }
 
         /* unless -S flag is specified, assemble generated file */
-        if (last_compilation_stage > compilation_stages_e.compile_stage)
+        if (options.last_compilation_stage > compilation_stages.compile_stage)
         {
-            string obj_file = assemble_file(backend,
+            string obj_file = assemble_file(options.backend,
                                             assembled_output_file,
                                             target_file);
             if (obj_file == null)
@@ -363,16 +413,18 @@ main(string[] args)
                 writefln("error assembling '%s'", target_file);
                 return -1;
             }
-            object_files ~= obj_file;
+            options.object_files ~= obj_file;
         }
     }
 
     /* unless linkage stage is disabled, invoke linker on our object files */
-    if (last_compilation_stage >= compilation_stages_e.link_stage)
+    if (options.last_compilation_stage >= compilation_stages.link_stage)
     {
         int r;
 
-        r = link_files(backend, output_file, object_files);
+        r = link_files(options.backend,
+                       options.output_file,
+                       options.object_files);
         if (r != 0)
         {
             return r;

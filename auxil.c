@@ -22,7 +22,7 @@ parse_import(AstImport *import, GError **error);
 int
 compile_file(const char* input_file, 
              const char* output_file,
-             compile_options_t options)
+             compilation_settings_t options)
 {
     FILE *output_stream;
     AstModule *ast_module;

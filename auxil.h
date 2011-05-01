@@ -36,12 +36,12 @@ typedef struct arch_backend_e
     gen_code_func_t gen_code;
 } arch_backend_t;
 
-typedef struct compile_options_s
+typedef struct compilation_settings_s
 {
     arch_backend_t backend;
     bool print_ast;
     bool print_ir;
-} compile_options_t;
+} compilation_settings_t;
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -60,6 +60,6 @@ typedef struct compile_options_s
 int
 compile_file(const char* input_file, 
              const char* output_file,
-             compile_options_t options);
+             compilation_settings_t settings);
 
 #endif /* AUXIL_INC_X */
