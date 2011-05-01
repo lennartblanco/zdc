@@ -101,7 +101,7 @@ str_literals: str_literals.d $(XDC)
 	$(XDC) $(DFLAGS) $<
 
 %.o: %.d $(XDC)
-	$(XDC) $(DFLAGS) -c $<
+	$(XDC) -o $@ $(DFLAGS) -c $<
 
 check_utils.o: check_utils.c
 	$(CC) -g $(CFLAGS) -c $?
