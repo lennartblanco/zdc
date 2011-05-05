@@ -40,4 +40,7 @@ yyerror(char *msg, ...);
 int
 yywrap(void);
 
+GQuark
+parser_error_quark(void);
+
 #endif /* PARSER_INC_X */

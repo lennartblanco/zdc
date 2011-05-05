@@ -29,6 +29,7 @@ enum compilation_stages
  */
 struct compilation_settings
 {
+    GSList              *import_paths;
     arch_backend_s       backend;
     bool                 print_ast;
     bool                 print_ir;
@@ -174,6 +175,9 @@ get_usage_message(string progname)
             "  -o outfile         Place output in file outfile.\n"
             "  -S                 Generate assembly files only.\n"
             "  -c                 Compile only, do not link.\n"
+            "  -Ipath             Where to look for imported modules. When\n"
+            "                     multiple -I are specified, the paths are\n"
+            "                     search from left to right.\n"
             "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
             "                     unit.\n"
             "  --print-ir         Output Intermediate Represantation of each\n"
@@ -246,6 +250,27 @@ parse_command_arguments(string[] args, ref command_options options)
             {
                 throw new CommandOptionException(get_usage_message(args[0]), 0);
             }
+            else if (arg[0..2] == "-I")
+            {
+                string path = arg["-I".length..$];
+
+                if (path == "")
+                {
+                    /* no path is specified */
+                    throw new
+                      CommandOptionException("argument to -I is missing", -1);
+                }
+
+                /* add trailing '/' if needed */
+                if (path[$-1] != '/')
+                {
+                    path ~= '/';
+                }
+
+                options.comp_settings.import_paths =
+                    g_slist_prepend(options.comp_settings.import_paths,
+                                    cast(void*)toStringz(path));
+            }
             else if (arg == "-o")
             {
                 if (i + 1 >= args.length)
@@ -300,11 +325,20 @@ parse_command_arguments(string[] args, ref command_options options)
         options.source_files ~= arg;
     }
 
-  /* did we get any source input files ? */
-  if (options.source_files.length < 1)
-  {
-      throw new CommandOptionException(args[0] ~ ": no input files", -1);
-  }
+    /* put the import paths in 'left-to-right' order */
+    options.comp_settings.import_paths =
+        g_slist_reverse(options.comp_settings.import_paths);
+
+    /* always look for imports in local directory */
+    options.comp_settings.import_paths =
+        g_slist_prepend(options.comp_settings.import_paths,
+                        cast(void*)toStringz("./"));
+
+    /* did we get any source input files ? */
+    if (options.source_files.length < 1)
+    {
+        throw new CommandOptionException(args[0] ~ ": no input files", -1);
+    }
 }
 
 int

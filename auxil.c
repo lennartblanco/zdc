@@ -13,7 +13,7 @@
  *---------------------------------------------------------------------------*/
 
 static int
-parse_import(AstImport *import, GError **error);
+parse_import(AstImport *import, GSList *import_paths, GError **error);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -52,7 +52,7 @@ compile_file(const char* input_file,
     i = ast_module_get_imports(ast_module);
     for (; i != NULL; i = g_slist_next(i))
     {
-        if (parse_import(i->data, &error) != 0)
+        if (parse_import(i->data, settings.import_paths, &error) != 0)
         {
             char *path = ast_import_get_path(i->data);
             switch (error->code)
@@ -125,17 +125,44 @@ compile_file(const char* input_file,
  *---------------------------------------------------------------------------*/
 
 static int
-parse_import(AstImport *import, GError **error)
+parse_import(AstImport *import, GSList *import_paths, GError **error)
 {
-    char *path;
+    GSList *i;
     AstModule *module;
     GError *loc_err = NULL;
     int ret = 0;
 
-    path = ast_import_get_path(import);
+    GString *file_path = g_string_new(NULL);
+    char *rel_path = ast_import_get_path(import);
 
+    /* look for the module among specified import paths */
+    for (i = import_paths; i != NULL; i = g_slist_next(i))
+    {
+        g_string_append(file_path, i->data);
+        g_string_append(file_path, rel_path);
 
-    module = parse_file(path, &loc_err);
+        if (g_file_test(file_path->str, G_FILE_TEST_EXISTS))
+        {
+            /* found the file */
+            break;
+        }
+
+        g_string_erase(file_path, 0, -1);
+    }
+
+    if (file_path->len == 0)
+    {
+        /* the file to import not found */
+        g_set_error(error,
+                    PARSER_ERROR,
+                    PARSER_FILE_READ_ERROR,
+                    "File not found");
+        ret = -1;
+        goto exit_parse_import;
+    }
+
+    /* load and parse the imported module file */
+    module = parse_file(file_path->str, &loc_err);
     if (module == NULL)
     {
         g_propagate_error(error, loc_err);
@@ -145,7 +172,8 @@ parse_import(AstImport *import, GError **error)
     ast_import_set_module(import, module);
 
 exit_parse_import:
-    g_free(path);
+    g_string_free(file_path, true);
+    g_free(rel_path);
     return ret;
 }
 

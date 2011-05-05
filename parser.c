@@ -14,13 +14,6 @@ extern AstModule *module;
 extern long yypos;
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static GQuark
-parser_error_quark(void);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -111,7 +104,7 @@ yywrap(void)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static GQuark
+GQuark
 parser_error_quark(void)
 {
     return g_quark_from_static_string ("xdc-parser-error-quark");

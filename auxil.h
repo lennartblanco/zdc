@@ -38,6 +38,7 @@ typedef struct arch_backend_e
 
 typedef struct compilation_settings_s
 {
+    GSList *import_paths;
     arch_backend_t backend;
     bool print_ast;
     bool print_ir;
