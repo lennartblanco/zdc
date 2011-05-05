@@ -22,7 +22,7 @@ parse_import(AstImport *import, GError **error);
 int
 compile_file(const char* input_file, 
              const char* output_file,
-             compilation_settings_t options)
+             compilation_settings_t settings)
 {
     FILE *output_stream;
     AstModule *ast_module;
@@ -78,7 +78,7 @@ compile_file(const char* input_file,
             return -1;
        }
     }
-    if (options.print_ast)
+    if (settings.print_ast)
     {
         ast_node_print(AST_NODE(ast_module), stdout, 0);
     }
@@ -86,14 +86,14 @@ compile_file(const char* input_file,
     /*
      * Perform semantic analysis of the code
      */
-    ir_module = semantic_analyze(input_file, &(options.backend), ast_module);
+    ir_module = semantic_analyze(input_file, &(settings.backend), ast_module);
     if (ir_module == NULL)
     {
         /* error during semantic analysis */
         return -2;
     }
 
-    if (options.print_ir)
+    if (settings.print_ir)
     {
         ir_module_print(ir_module, stdout, 0);
     }
@@ -112,7 +112,7 @@ compile_file(const char* input_file,
         return -1;        
     }
 
-    options.backend.gen_code(ir_module, output_stream, input_file);
+    settings.backend.gen_code(ir_module, output_stream, input_file);
 
     /* clean up */
     fclose(output_stream);
