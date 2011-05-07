@@ -72,7 +72,7 @@ $(PROG): $(OBJS)
 	cd $(BLD_DIR); dmd -debug -gc -of../$(PROG) $(OBJS) -L-lgobject-2.0 -L-lglib-2.0
 
 function_tests: $(PROG)
-	cd tests; ./run_tests.sh
+	cd tests; ./run_tests.rb
 
 errors_tests: $(PROG)
 	cd etests; ./run_tests.sh
