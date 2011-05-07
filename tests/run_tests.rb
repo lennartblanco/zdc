@@ -116,8 +116,22 @@ class TestTarget
   end
 
   def get_compile_command(source_dir, test)
-    "make VPATH=#{source_dir} XDC=#{source_dir}/../xdc " +
-         "CFLAGS=\"-g -m32 -lgc\" " +
+    cc = nil
+
+    case @arch
+      when "arm"
+        cc="arm-linux-gnueabi-gcc"
+        cflags=""
+      when "x86"
+        cflags="-m32 -lgc"
+      else
+        fail "unexpected architecture '#{@arch}'"
+    end
+
+    "make VPATH=#{source_dir} " +
+         (cc != nil ? "CC=#{cc} " : "") +
+         "XDC=#{source_dir}/../xdc " +
+         "CFLAGS=\"-g #{cflags}\" " +
          "DFLAGS=\"--march=#{@arch} -I#{source_dir}\" " +
          "-f #{source_dir}/Makefile check_#{test} 2>&1"
   end
