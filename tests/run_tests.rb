@@ -56,7 +56,7 @@ class TestTarget
     end
 
     # get specified arch
-    @arch = root.get_text("arch")
+    @arch = root.get_text("arch").to_s
     if @arch == nil
       fail "no architecture specified, check <arch> element"
     end
@@ -66,13 +66,13 @@ class TestTarget
     end
 
     # get runner type
-    runner_type = root.get_text("runner/type")
+    runner_type = root.get_text("runner/type").to_s
     if runner_type == nil
       fail "no runner type specified, check <runner> -> <type> element"
     end
 
     @runner =
-      case runner_type.to_s
+      case runner_type
         when "local" then LocalRunner.new
         else fail "invalid runner type '#{runner_type}' specified"
       end
