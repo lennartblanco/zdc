@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<test-fixture>
+<test-target>
   <arch>arm</arch>
   <runner>
    <type>remote-ssh</type>
@@ -8,4 +8,4 @@
   <skip>
     <test>enums</test>
   </skip>
-</test-fixture>
+</test-target>

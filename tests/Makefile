@@ -90,15 +90,17 @@ check_arithm: arithm.o check_utils.o check_arithm.c
 check_incdec_ops: incdec_ops.o check_utils.o check_incdec_ops.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_eels: eels
+check_eels: check_eels.sh eels
+	cp $< $@
 
-check_str_literals: str_literals
+check_str_literals: check_str_literals.sh str_literals
+	cp $< $@
 
 eels: eels.d $(XDC)
-	$(XDC) $(DFLAGS) $<
+	$(XDC) -o $@ $(DFLAGS) $<
 
 str_literals: str_literals.d $(XDC)
-	$(XDC) $(DFLAGS) $<
+	$(XDC) -o $@ $(DFLAGS) $<
 
 %.o: %.d $(XDC)
 	$(XDC) -o $@ $(DFLAGS) -c $<
@@ -115,3 +117,4 @@ check_stat_array check_dyn_array check_uint_op check_while_loop eels \
 check_properties check_uninit_vars check_char_literals check_immutable \
 str_literals check_enums check_pointers check_arithm check_alias check_struct \
 check_incdec_ops
+	rm -rf build
