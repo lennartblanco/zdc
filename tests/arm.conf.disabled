@@ -2,8 +2,7 @@
 <test-target>
   <arch>arm</arch>
   <runner>
-   <type>remote-ssh</type>
-   <ip>10.0.1.100</ip>
+   <type>qemu-user</type>
   </runner>
   <skip>
     <test>enums</test>

@@ -5,15 +5,18 @@ include REXML
 
 BuildDirRoot = "build"
 
-class LocalRunner
+class Runner
   attr_reader :passed
   attr_reader :failed
 
-  def initialize
+  def initialize(arch)
     @passed = 0
     @failed = 0
+    @arch = arch
   end
+end
 
+class LocalRunner < Runner
   def run(build_dir, tests)
 
     orig_dir = Dir.pwd
@@ -23,6 +26,33 @@ class LocalRunner
       print "Running #{test}..."
       res = `./check_#{test} 2>&1`
 
+      if $? == 0
+        print "[ok]\n"
+        @passed += 1
+      else
+        print "error\n\n", res, "\n"
+        @failed += 1
+      end
+    end
+
+    Dir.chdir(orig_dir)
+  end
+end
+
+# run test binaries via qemu arm user-mode emulation
+class QemuUserRunner < Runner
+  def run(build_dir, tests)
+
+    # only arm supported currently
+    fail "#{@arch} architecture unsupported by #{self.class.to_s} runner" \
+      unless @arch == "arm"
+
+    orig_dir = Dir.pwd
+    Dir.chdir(build_dir)
+
+    for test in tests
+      print "Running #{test}..."
+      res = `qemu-arm-static -L /usr/arm-linux-gnueabi ./check_#{test} 2>&1`
       if $? == 0
         print "[ok]\n"
         @passed += 1
@@ -73,7 +103,8 @@ class TestTarget
 
     @runner =
       case runner_type
-        when "local" then LocalRunner.new
+        when "local" then LocalRunner.new(@arch)
+        when "qemu-user" then QemuUserRunner.new(@arch)
         else fail "invalid runner type '#{runner_type}' specified"
       end
   end
