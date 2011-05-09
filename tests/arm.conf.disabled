@@ -5,6 +5,19 @@
    <type>qemu-user</type>
   </runner>
   <skip>
-    <test>enums</test>
+    <test>arithm</test>
+    <test>dyn_array</test>
+    <test>stat_array</test>
+    <test>uint_op</test>
+    <test>char_literals</test>
+    <test>immutable</test>
+    <test>properties</test>
+    <test>struct</test>
+    <test>alias</test>
+    <test>foreach</test>
+    <test>str_literals</test>
+    <test>pointers</test>
+    <test>incdec_ops</test>
+    <test>eels</test>
   </skip>
 </test-target>

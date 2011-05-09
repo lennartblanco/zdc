@@ -71,10 +71,11 @@ class TestTarget
   def initialize(tests, conf_file)
 
     @tests = tests
+    @skip_tests = {}
 
     @passed_tests = 0
     @failed_tests = 0
-    @skiped_tests = 0
+    @skipped_tests = 0
 
     # chop off '.conf' and use as name
     @name = conf_file[0..-(".conf".length + 1)]
@@ -107,6 +108,11 @@ class TestTarget
         when "qemu-user" then QemuUserRunner.new(@arch)
         else fail "invalid runner type '#{runner_type}' specified"
       end
+
+    # skip-list
+    for test in root.get_elements("skip/*")
+      @skip_tests[test.get_text.to_s] = true
+    end
   end
 
   def run_tests
@@ -119,6 +125,14 @@ class TestTarget
     # compile test binaries
     Dir.chdir(build_dir)
     for test in @tests
+
+      # ignore tests on the skip list
+      if @skip_tests[test]
+        print "Skipping  #{test} test\n"
+        @skipped_tests += 1
+        next
+      end
+
       compile_command = get_compile_command(source_dir, test)
       print "Compiling #{test}..."
       res = `#{compile_command}`
@@ -168,8 +182,10 @@ class TestTarget
   end
 
   def get_summary
-   "#{@tests.length} TEST SUITES RUN, " +
-   "#{@passed_tests} PASSED " +
+   tests_run = @tests.length - @skipped_tests
+   "#{tests_run} TEST SUITES RUN" +
+   (@skipped_tests > 0 ? " (#{@skipped_tests} SKIPPED)" : "") +
+   ", #{@passed_tests} PASSED " +
    "#{@failed_tests} FAILED"
   end
 end
