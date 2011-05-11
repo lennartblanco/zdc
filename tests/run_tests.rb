@@ -115,7 +115,15 @@ class TestTarget
     end
   end
 
-  def run_tests
+  #
+  # req_test the test to run, if nil/not specified run all tests
+  #
+  def run_tests(req_test = nil)
+    if req_test != nil
+      requested_tests = [req_test]
+    else
+      requested_tests = @tests
+    end
 
     compiled_tests = []
 
@@ -124,7 +132,7 @@ class TestTarget
 
     # compile test binaries
     Dir.chdir(build_dir)
-    for test in @tests
+    for test in requested_tests
 
       # ignore tests on the skip list
       if @skip_tests[test]
@@ -194,15 +202,43 @@ end
 tests = File.new("tests.list").read.split
 
 # build and run tests
-test_sets = []
+test_targets = {}
 for conf in Dir["*.conf"]
   target = TestTarget.new(tests, conf)
-  print "Running tests for '", target.name,  "'\n"
-  target.run_tests
-
-  test_sets += [target]
+  test_targets[target.name] = target
 end
 
-# print test results for each target
-test_sets.each { |t| print t.name, ": ", t.get_summary, "\n" }
+if ARGV.size > 0
+  # if any test are specified as arguments,
+  # run only them
+  for arg in ARGV
+
+    # figure out test target and test name
+    parts = arg.split(".")
+    if !(1..2).member?(parts.length) or parts[0].empty?
+      fail "invalid test name '#{name}'"
+    end
+
+    # fetch the test target instance
+    target = test_targets[parts[0]]
+    if target == nil
+      fail "unknown test target #{parts[0]}"
+    end
+
+    # run the requested test,
+    # or all tests for the target if no name is specified
+    target.run_tests(parts[1])
+
+  end
+else
+  # run all tests
+  test_targets.each_value { |t|
+    print "Running tests for '", t.name,  "'\n"
+    t.run_tests
+  }
+
+  # print test results for each target
+  test_targets.each_value { |t| print t.name, ": ", t.get_summary, "\n" }
+end
+
 
