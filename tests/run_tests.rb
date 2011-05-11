@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require "rexml/document"
+require 'optparse'
 include REXML
 
 BuildDirRoot = "build"
@@ -201,12 +202,28 @@ end
 # load tests list
 tests = File.new("tests.list").read.split
 
-# build and run tests
+# load test target configurations
 test_targets = {}
 for conf in Dir["*.conf"]
   target = TestTarget.new(tests, conf)
   test_targets[target.name] = target
 end
+
+# parse command line arguments
+OptionParser.new do |opts|
+  opts.banner =
+  "Usage: run_tests.rb [options] [tests]\n" +
+  "   Run the specified tests. If no tests are specified, all tests are run.\n"
+
+  opts.on("-l", "--list", "List available tests") do |l|
+    for target_name in test_targets.keys
+      for test_name in tests
+        print "#{target_name}.#{test_name}\n"
+      end
+    end
+    exit
+  end
+end.parse!
 
 if ARGV.size > 0
   # if any test are specified as arguments,
