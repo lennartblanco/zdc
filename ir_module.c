@@ -249,26 +249,45 @@ ir_module_add_enum(IrModule *self,
     assert(IR_IS_MODULE(self));
     assert(IR_IS_ENUM(ir_enum));
 
-    /*
-     * store enum in symbols table
-     */
-    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(ir_enum)) != 0)
+    if (ir_enum_is_anonymous(ir_enum))
     {
-        return false;
-    }
+        /*
+         * for anonymous enum definitions,
+         * store enum members in the symbol table
+         */
+        GSList *i = ir_enum_get_members(ir_enum);
 
-    /*
-     * store enum in the user type table
-     */
-    if (!add_user_type(self,
-                       ir_enum_get_tag(ir_enum),
-                       ir_enum_get_data_type(ir_enum)))
+        for (; i != NULL; i = g_slist_next(i))
+        {
+            if (sym_table_add_symbol(self->symbols, IR_SYMBOL(i->data)) != 0)
+            {
+                return false;
+            }
+        }
+    }
+    else
     {
-        return false;
-    }
+        /*
+         * non-anonymous enum definition, store it in symbols table
+         */
+        if (sym_table_add_symbol(self->symbols, IR_SYMBOL(ir_enum)) != 0)
+        {
+            return false;
+        }
 
-    /* add it to the module's enum's list */
-    self->enums = g_slist_prepend(self->enums, ir_enum);
+        /*
+         * store enum in the user type table
+         */
+        if (!add_user_type(self,
+                           ir_enum_get_tag(ir_enum),
+                           ir_enum_get_data_type(ir_enum)))
+        {
+            return false;
+        }
+
+        /* add it to the module's enum's list */
+        self->enums = g_slist_prepend(self->enums, ir_enum);
+    }
 
 
     return true;

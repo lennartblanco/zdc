@@ -167,7 +167,7 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
                                 "ir symbol name",
                                 "the name of the symbol",
                                 "no-name-set" /* default value */,
-                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                                G_PARAM_READWRITE);
 
     g_object_class_install_property(gobject_class,
                                     IR_SYMBOL_NAME,

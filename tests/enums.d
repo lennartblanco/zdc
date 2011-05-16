@@ -40,6 +40,10 @@ enum logic // base type bool
   F = false
 }
 
+enum ANON_ENUM = 23;
+enum AE_A = 20, AE_B = 21, AE_C = 22;
+enum { E = 100, N = 'c', U = "orange", M = false }
+
 int
 states_get_def_as_int()
 {
@@ -183,6 +187,28 @@ unnamed_enum_param(bool dummy, nums)
 {
     return !dummy;
 }
+
+extern (C) int anon_enum_val()
+{
+  return ANON_ENUM;
+}
+
+extern (C) int get_ae_exp(int i)
+{
+  int sum = AE_A;
+
+  sum = sum + AE_B;
+
+  if (i > 0) { return (sum + AE_C) * i; }
+  else       { sum = sum + (i + AE_C); }
+
+  return sum;
+}
+
+
+extern (C) int get_anon_e() { return E; }
+
+extern (C) uint get_u_length() { return U.length; }
 
 /*
  * wrappers to allow call test functions with C calling convention

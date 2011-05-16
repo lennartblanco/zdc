@@ -47,6 +47,9 @@ typedef struct
 GType
 ir_enum_get_type(void);
 
+/**
+ * @param tag enum's tag or NULL if anonymous enum definition
+ */
 IrEnum *
 ir_enum_new(gchar *tag,
             DtDataType *base_type,
@@ -64,6 +67,9 @@ ir_enum_set_base_type(IrEnum *self, DtDataType *base_type);
 
 void
 ir_enum_set_members(IrEnum *self, GSList *members);
+
+gboolean
+ir_enum_is_anonymous(IrEnum *self);
 
 /**
  * @return enum members as a list of IrEnumMember objects

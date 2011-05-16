@@ -94,8 +94,14 @@ static DtDataType *
 ir_enum_member_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ENUM_MEMBER(self));
+    IrEnumMember *enum_member = IR_ENUM_MEMBER(self);
 
-    return DT_DATA_TYPE(ir_enum_get_data_type(IR_ENUM_MEMBER(self)->enum_def));
+    if (ir_enum_is_anonymous(enum_member->enum_def))
+    {
+        return ir_expression_get_data_type(enum_member->value);
+    }
+
+    return DT_DATA_TYPE(ir_enum_get_data_type(enum_member->enum_def));
 }
 
 static void

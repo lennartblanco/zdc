@@ -383,19 +383,11 @@ enum_to_ir(compilation_status_t *compile_status,
            AstEnum *ast_enum)
 {
     IrEnum *enum_def;
-    DtDataType *base_type;
-    gchar *enum_tag;
     GSList *i;
     GSList *ir_enum_members = NULL;
 
-    base_type = ast_enum_get_base_type(ast_enum);
-    enum_tag = ast_enum_get_tag(ast_enum);
-    if (enum_tag == NULL)
-    {
-        g_error("anonymous enums not implemented");
-    }
-
-    enum_def = ir_enum_new(enum_tag, base_type,
+    enum_def = ir_enum_new(ast_enum_get_tag(ast_enum),
+                           ast_enum_get_base_type(ast_enum),
                            compile_status->module,
                            ast_node_get_line_num(ast_enum));
 

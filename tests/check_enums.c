@@ -72,6 +72,18 @@ call_logic_get_F_as_bool();
 bool
 call_unnamed_enum_param(bool arg1, int arg2);
 
+int
+anon_enum_val();
+
+int
+get_ae_exp(int arg);
+
+int
+get_anon_e();
+
+unsigned
+get_u_length();
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -172,6 +184,19 @@ main()
     check_bool("unnamed_enum_param(false)",
                call_unnamed_enum_param(false, '\0'), true);
 
+    /* anon_enum_val() test */
+    check_int("anon_enum_val()", anon_enum_val(), 23);
+
+    /* get_ae_exp() tests */
+    check_int("get_ae_exp(1)", get_ae_exp(1), (20 + 21 + 22) * 1);
+    check_int("get_ae_exp(11)", get_ae_exp(11), (20 + 21 + 22) * 11);
+    check_int("get_ae_exp(-2)", get_ae_exp(-2), 20 + 21 + (-2 + 22));
+
+    /* get_anon_e() test */
+    check_int("get_anon_e()", get_anon_e(), 100);
+
+    /* get_u_length() test */
+    check_uint("get_u_length()", get_u_length(), 6);
 
     check_exit();
 }

@@ -52,8 +52,12 @@ ir_enum_new(gchar *tag,
 
     obj = g_object_new(IR_TYPE_ENUM,
                        "ir-node-line-number", line_number,
-                       "ir-symbol-name", tag,
                        NULL);
+    if (tag != NULL)
+    {
+        /* in not an anonymous, store the tag */
+        g_object_set(obj, "ir-symbol-name", tag, NULL);
+    }
 
     obj->members = NULL;
     obj->data_type = dt_enum_new(tag, base_type, parent_module);
@@ -121,6 +125,12 @@ ir_enum_get_member(IrEnum *self, const gchar *enum_member_name)
     }
 
     return NULL;
+}
+
+gboolean
+ir_enum_is_anonymous(IrEnum *self)
+{
+	return ir_enum_get_tag(self) == NULL;
 }
 
 DtEnum *
