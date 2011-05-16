@@ -112,16 +112,21 @@ enum_declaration<module> :
     }
     TOK_ENUM ( TOK_IDENT<enum_tag> )?
              ( ':' type<base_type> )?
-             '{' enum_members<mbrs> '}'
+             enum_body<members>
     {
         AstEnum *enum_node;
 
         enum_node = ast_enum_new(enum_tag.text,
                                  base_type.data_type,
-                                 mbrs.list,
+                                 members.list,
                                  yypos);
         ast_module_add_user_type((*module).module, AST_USER_TYPE(enum_node));
     }
+;
+
+enum_body<members> :
+    enum_members<members> ';'
+|   '{' enum_members<members> '}'
 ;
 
 enum_members<l> :
