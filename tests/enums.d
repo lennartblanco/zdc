@@ -34,6 +34,13 @@ enum nato : char
   ECHO         //   101
 }
 
+enum emot : string // todo: write test code
+{
+ happy = "yellow",
+ angry = "green",
+ sad = "blue"
+}
+
 enum logic // base type bool
 {
   T = true,
@@ -43,6 +50,8 @@ enum logic // base type bool
 enum ANON_ENUM = 23;
 enum AE_A = 20, AE_B = 21, AE_C = 22;
 enum { E = 100, N = 'c', U = "orange", M = false }
+
+enum DEFAULT_COLOR = "blue";
 
 int
 states_get_def_as_int()
@@ -208,7 +217,32 @@ extern (C) int get_ae_exp(int i)
 
 extern (C) int get_anon_e() { return E; }
 
-extern (C) uint get_u_length() { return U.length; }
+extern (C) uint get_u_length(bool via_var)
+{
+  if (via_var)
+  {
+     immutable(char)[] str = U;
+
+     return str.length;
+  }
+  return U.length;
+}
+
+extern (C) char get_def_color_c(bool via_var, uint idx)
+{
+  if (idx >= DEFAULT_COLOR.length)
+  {
+    return '?';
+  }
+
+  if (via_var)
+  {
+     immutable(char)[] str = DEFAULT_COLOR;
+     return str[idx];
+  }
+
+  return DEFAULT_COLOR[idx];
+}
 
 /*
  * wrappers to allow call test functions with C calling convention
