@@ -48,6 +48,9 @@ call_stat_bool_arry_length();
 unsigned
 call_dyn_int_arry_length(bool arg);
 
+unsigned
+str_lit_length();
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -107,7 +110,9 @@ main()
                call_dyn_int_arry_length(true), 5);
     check_uint("dyn_int_arry_length(false)",
                call_dyn_int_arry_length(false), 0);
-              
+
+    /* str_lit_length() test */
+    check_uint("str_lit_length()", str_lit_length(), 6);
 
     check_exit();
 }

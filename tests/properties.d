@@ -127,6 +127,14 @@ uint dyn_int_arry_length(bool assign)
     return x.length;
 }
 
+/**
+ * Test length property on string literals
+ */
+extern (C) uint str_lit_length()
+{
+    return "orange".length;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

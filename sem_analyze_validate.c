@@ -780,11 +780,22 @@ validate_length_property(compilation_status_t *compile_status,
     assert(IR_IS_PROPERTY(prop));
     assert(ir_property_get_id(prop) == ir_prop_length);
 
+    IrExpression *exp;
     DtDataType *exp_type;
 
-    exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
+    exp = ir_property_get_expression(prop);
+    exp_type = ir_expression_get_data_type(exp);
 
-    if (DT_IS_STATIC_ARRAY_TYPE(exp_type))
+    if (IR_IS_ARRAY_LITERAL(exp))
+    {
+        guint32 length;
+
+        length = ir_array_literal_get_length(IR_ARRAY_LITERAL(exp));
+
+        return IR_EXPRESSION(ir_uint_constant_new(length,
+                                                  ir_node_get_line_num(prop)));
+    }
+    else if (DT_IS_STATIC_ARRAY_TYPE(exp_type))
     {
         guint32 length;
 
