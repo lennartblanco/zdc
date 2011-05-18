@@ -2059,7 +2059,7 @@ validate_enum(compilation_status_t *compile_status,
     sym_table_t *sym_table;
     DtDataType *base_type;
     IrExpression *first_member_init;
-    IrExpression *member_value;
+    IrExpression *prev_member_value;
     bool enum_member_errs = false;
 
     sym_table = ir_module_get_symbols(compile_status->module);
@@ -2130,36 +2130,34 @@ validate_enum(compilation_status_t *compile_status,
      */
     if (first_member_init == NULL)
     {
-        member_value =
+        prev_member_value =
             cfold_cast(ir_cast_new(base_type,
                                    IR_EXPRESSION(ir_int_constant_new(0, 0))));
+        ir_enum_member_set_value(members->data, prev_member_value);
     }
 
     for (i = members; i != NULL; i = g_slist_next(i))
     {
         IrEnumMember *member = IR_ENUM_MEMBER(i->data);
-        IrExpression *tmp = ir_enum_member_get_value(member);
+        IrExpression *value = ir_enum_member_get_value(member);
 
-        if (tmp == NULL)
+        if (value == NULL)
         {
-            ir_enum_member_set_value(member, member_value);
-        }
-        else
-        {
-            member_value = tmp;
-        }
+            /* calculate next member value by increasing previous with 1 */
+            value =
+                validate_binary_op(
+                    compile_status,
+                    sym_table,
+                        ir_binary_operation_new(
+                            ast_plus_op,
+                            prev_member_value,
+                            IR_EXPRESSION(ir_int_constant_new(1, 0)),
+                        0));
+            value = cfold_cast(ir_cast_new(base_type, value));
 
-        /* calculate next enum member value by increasing previous with 1 */
-        member_value =
-           validate_binary_op(
-               compile_status,
-               sym_table,
-                 ir_binary_operation_new(
-                    ast_plus_op,
-                    member_value,
-                    IR_EXPRESSION(ir_int_constant_new(1, 0)),
-                    0));
-        member_value = cfold_cast(ir_cast_new(base_type, member_value));
+            ir_enum_member_set_value(member, value);
+        }
+        prev_member_value = value;
     }
 }
 
