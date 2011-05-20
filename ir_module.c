@@ -284,11 +284,9 @@ ir_module_add_enum(IrModule *self,
         {
             return false;
         }
-
-        /* add it to the module's enum's list */
-        self->enums = g_slist_prepend(self->enums, ir_enum);
     }
-
+    /* add it to the module's enum's list */
+    self->enums = g_slist_prepend(self->enums, ir_enum);
 
     return true;
 }
