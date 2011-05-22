@@ -788,7 +788,7 @@ validate_length_property(compilation_status_t *compile_status,
 
     if (IR_IS_ENUM_MEMBER(exp))
     {
-      exp = ir_enum_member_get_value(exp);
+      exp = ir_enum_member_get_value(IR_ENUM_MEMBER(exp));
     }
 
     if (IR_IS_ARRAY_LITERAL(exp))
