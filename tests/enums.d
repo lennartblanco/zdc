@@ -229,20 +229,15 @@ extern (C) uint get_u_length(bool via_var)
   return U.length;
 }
 
-extern (C) char get_def_color_c(bool via_var, uint idx)
+extern (C) char get_def_color_c(uint idx)
 {
   if (idx >= DEFAULT_COLOR.length)
   {
     return '?';
   }
 
-  if (via_var)
-  {
-     immutable(char)[] str = DEFAULT_COLOR;
-     return str[idx];
-  }
-
-  return DEFAULT_COLOR[idx];
+  immutable(char)[] str = DEFAULT_COLOR;
+  return str[idx];
 }
 
 /*

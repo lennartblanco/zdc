@@ -84,6 +84,9 @@ get_anon_e();
 unsigned
 get_u_length(bool arg);
 
+char
+get_def_color_c(unsigned);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -199,6 +202,12 @@ main()
     check_uint("get_u_length(true)", get_u_length(true), 6);
     check_uint("get_u_length(false)", get_u_length(false), 6);
 
+    /* get_def_color_c() tests */
+    check_char("get_def_color_c(4)", get_def_color_c(4), '?');
+    check_char("get_def_color_c(0)", get_def_color_c(0), 'b');
+    check_char("get_def_color_c(1)", get_def_color_c(1), 'l');
+    check_char("get_def_color_c(2)", get_def_color_c(2), 'u');
+    check_char("get_def_color_c(3)", get_def_color_c(3), 'e');
 
     check_exit();
 }
