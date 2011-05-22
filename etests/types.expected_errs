@@ -10,4 +10,4 @@ types.d:34: error: in function call to 'char_arg_func()', argument 1 of invalid 
 types.d:34: error: argument's type is 'char' got 'int'
 types.d:40: error: in function call to 'char_arg_func()', argument 1 of invalid type
 types.d:40: error: argument's type is 'char' got 'uint'
-types.d:49: error: incompatible types in assignment
+types.d:49: error: can't assign expression of type int to lvalue of tstenum type

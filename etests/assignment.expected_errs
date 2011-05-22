@@ -1,6 +1,6 @@
 assignment.d:8: error: invalid lvalue in assignment
-assignment.d:15: error: incompatible types in assignment
-assignment.d:24: error: incompatible types in assignment
-assignment.d:25: error: incompatible types in assignment
-assignment.d:33: error: incompatible types in assignment
-assignment.d:34: error: incompatible types in assignment
+assignment.d:15: error: can't assign expression of type void to lvalue of int type
+assignment.d:24: error: can't assign expression of type int to lvalue of int* type
+assignment.d:25: error: can't assign expression of type int to lvalue of int* type
+assignment.d:33: error: can't assign expression of type bool* to lvalue of int* type
+assignment.d:34: error: can't assign expression of type int to lvalue of bool type

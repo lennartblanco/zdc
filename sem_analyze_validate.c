@@ -1219,9 +1219,13 @@ validate_assignment(compilation_status_t *compile_status,
     }
     if (converted_value == NULL)
     {
-        compile_error(compile_status,
-                      IR_NODE(assignment),
-                      "incompatible types in assignment\n");
+        compile_error(
+            compile_status,
+            IR_NODE(assignment),
+            "can't assign expression of type %s to lvalue of %s type\n",
+            dt_data_type_get_string(ir_expression_get_data_type(value)),
+            dt_data_type_get_string(target_type));
+
         return;
     }
 
