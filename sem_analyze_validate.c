@@ -786,6 +786,11 @@ validate_length_property(compilation_status_t *compile_status,
     exp = ir_property_get_expression(prop);
     exp_type = ir_expression_get_data_type(exp);
 
+    if (IR_IS_ENUM_MEMBER(exp))
+    {
+      exp = ir_enum_member_get_value(exp);
+    }
+
     if (IR_IS_ARRAY_LITERAL(exp))
     {
         guint32 length;

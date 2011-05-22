@@ -82,7 +82,7 @@ int
 get_anon_e();
 
 unsigned
-get_u_length();
+get_u_length(bool arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -196,7 +196,9 @@ main()
     check_int("get_anon_e()", get_anon_e(), 100);
 
     /* get_u_length() test */
-    check_uint("get_u_length()", get_u_length(), 6);
+    check_uint("get_u_length(true)", get_u_length(true), 6);
+    check_uint("get_u_length(false)", get_u_length(false), 6);
+
 
     check_exit();
 }

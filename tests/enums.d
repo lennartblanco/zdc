@@ -225,6 +225,7 @@ extern (C) uint get_u_length(bool via_var)
 
      return str.length;
   }
+
   return U.length;
 }
 
