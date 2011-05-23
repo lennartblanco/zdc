@@ -34,7 +34,7 @@ enum nato : char
   ECHO         //   101
 }
 
-enum emot : string // todo: write test code
+enum emot : immutable(char)[]
 {
  happy = "yellow",
  angry = "green",
@@ -238,6 +238,23 @@ extern (C) char get_def_color_c(uint idx)
 
   immutable(char)[] str = DEFAULT_COLOR;
   return str[idx];
+}
+
+extern (C) int emot_num(int a)
+{
+  immutable(char)[] str;
+  int num = 0;
+
+  if (a == 0) { str = emot.happy; }
+  else if (a == 1) { str = emot.angry; }
+  else { str = emot.sad; }
+
+  foreach (c; str)
+  {
+    num = num + c;
+  }
+
+  return num;
 }
 
 /*

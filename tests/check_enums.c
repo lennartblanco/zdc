@@ -87,6 +87,9 @@ get_u_length(bool arg);
 char
 get_def_color_c(unsigned);
 
+int
+emot_num(int);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -208,6 +211,11 @@ main()
     check_char("get_def_color_c(1)", get_def_color_c(1), 'l');
     check_char("get_def_color_c(2)", get_def_color_c(2), 'u');
     check_char("get_def_color_c(3)", get_def_color_c(3), 'e');
+
+    /* emot_num() tests */
+    check_int("emot_num(0)", emot_num(0), 'y' + 'e' + 'l' + 'l' + 'o' + 'w');
+    check_int("emot_num(1)", emot_num(1), 'g' + 'r' + 'e' + 'e' + 'n');
+    check_int("emot_num(2)", emot_num(2), 'b' + 'l' + 'u' + 'e');
 
     check_exit();
 }
