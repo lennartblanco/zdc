@@ -13,6 +13,8 @@ unescape_char_literal(char *str, int len);
 
 %}
 
+hex    0[xX][[:xdigit:]]+
+
 %%
 "!"      { return '!'; }
 "+"      { return '+'; }
@@ -66,6 +68,17 @@ unescape_char_literal(char *str, int len);
                     /* todo: handle integer overflows */
                     return TOK_UINT_CONST;
                 }
+{hex} {
+
+    yylval.integer = g_ascii_strtoull(yytext + 2, NULL, 16);
+    return TOK_INT_CONST;
+}
+{hex}[uU] {
+
+    yylval.integer = g_ascii_strtoull(yytext + 2, NULL, 16);
+    return TOK_UINT_CONST;
+}
+
 "'"."'"  { yylval.character = (guint8)yytext[1]; return TOK_CHAR_CONST; }
 "'"\\."'" {
 

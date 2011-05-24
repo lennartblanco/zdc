@@ -2,6 +2,7 @@ empty
 only_comments
 rets
 comments
+hex
 uninit_vars
 extern_c
 eels
