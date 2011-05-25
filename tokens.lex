@@ -59,15 +59,17 @@ hex    0[xX][[:xdigit:]]+
 "immutable" { return TOK_IMMUTABLE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
 [0-9]+ {
-                    yylval.integer = g_ascii_strtoull(yytext, NULL, 10);
-                    /* todo: handle integer overflows */
-                    return TOK_INT_CONST;
-                }
+
+    yylval.integer = g_ascii_strtoull(yytext, NULL, 10);
+    /* todo: handle integer overflows */
+    return TOK_INT_CONST;
+}
 [0-9]+("u"|"U") {
-                    yylval.integer = g_ascii_strtoull(yytext, NULL, 10);
-                    /* todo: handle integer overflows */
-                    return TOK_UINT_CONST;
-                }
+
+    yylval.integer = g_ascii_strtoull(yytext, NULL, 10);
+    /* todo: handle integer overflows */
+    return TOK_UINT_CONST;
+}
 {hex} {
 
     yylval.integer = g_ascii_strtoull(yytext + 2, NULL, 16);
@@ -86,26 +88,25 @@ hex    0[xX][[:xdigit:]]+
     return TOK_CHAR_CONST; 
 }
 \".*\"   {
-                           /* drop first and last "-character */
-             yylval.text = unescape_char_literal(yytext+1, strlen(yytext)-2);
-             return TOK_STRING_LITERAL;
-         }
+                  /* drop first and last "-character */
+    yylval.text = unescape_char_literal(yytext+1, strlen(yytext)-2);
+    return TOK_STRING_LITERAL;
+}
 " "|\t   { /* skip blank */ }
 "//".*   { /* consume comment */ }
 "/*"([^*]|[\n]|(\*+([^*/]|[\n])))*\*+"/" {
-           /* consume C-style comments */
+    /* consume C-style comments */
 
-           int cntr;
-           for (cntr = 0; yytext[cntr] != '\0'; cntr++)
-           {
-               /* count newline characters and update line counter */
-               if (yytext[cntr] == '\n')
-               {
-                   yypos++;
-               }
-           }
-           
-         }
+    int cntr;
+    for (cntr = 0; yytext[cntr] != '\0'; cntr++)
+    {
+        /* count newline characters and update line counter */
+        if (yytext[cntr] == '\n')
+        {
+            yypos++;
+        }
+    }
+}
 \n       { yypos++; /* adjust linenumber and skip newline */ }
 .        { yyerror("illegal token"); }
 
