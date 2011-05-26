@@ -42,7 +42,7 @@ void
 check_int(char *function_called, int res, int expected_res)
 {
     printf("%s = %d", function_called, res);
-    if (res == expected_res) 
+    if (res == expected_res)
     {
         printf(" [ok]\n");
         passed += 1;
@@ -58,7 +58,7 @@ void
 check_uint(char *function_called, unsigned res, unsigned expected_res)
 {
     printf("%s = %u", function_called, res);
-    if (res == expected_res) 
+    if (res == expected_res)
     {
         printf(" [ok]\n");
         passed += 1;
@@ -75,7 +75,7 @@ void
 check_bool(char *function_called, bool res, bool expected_res)
 {
     printf("%s = %s", function_called, BOOL_TO_STR(res));
-    if (res == expected_res) 
+    if (res == expected_res)
     {
         printf(" [ok]\n");
         passed += 1;
@@ -104,7 +104,7 @@ check_char(char *function_called,
       printf("%u", res);
     }
 
-    if (res == expected_res) 
+    if (res == expected_res)
     {
         printf(" [ok]\n");
         passed += 1;
