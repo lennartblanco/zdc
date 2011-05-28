@@ -1507,6 +1507,7 @@ validate_foreach(compilation_status_t *compile_status,
                           "invalid index variable '%s' type,"
                           " expected int or uint\n",
                           ir_variable_get_name(var));
+            return;
         }
     }
 
