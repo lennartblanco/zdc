@@ -1660,8 +1660,7 @@ validate_code_block(compilation_status_t *compile_status,
 {
     sym_table_t *sym_table;
     GSList *i;
-    GList *locals;
-    GList *p;
+    GSList *local_vars;
 
     sym_table = ir_code_block_get_symbols(code_block);
 
@@ -1669,22 +1668,16 @@ validate_code_block(compilation_status_t *compile_status,
      * validate default initializer expressions of local variables
      * in this code block
      */
-    locals = sym_table_get_all_symbols(sym_table);
-    for (p = locals; p != NULL; p = g_list_next(p))
+    local_vars = ir_code_block_get_local_vars(code_block);
+
+    for (i = local_vars; i != NULL; i = g_slist_next(i))
     {
         IrVariable *var;
         IrExpression *initializer;
         IrExpression *conv_initializer;
         DtDataType *var_type;
 
-        /* skip if not a variable */
-        if (!IR_IS_VARIABLE(p->data))
-        {
-            continue;
-        }
-        var = IR_VARIABLE(p->data);
-
-        var = validate_variable(compile_status, IR_VARIABLE(p->data));
+        var = validate_variable(compile_status, IR_VARIABLE(i->data));
         if (var == NULL)
         {
             /* invalid variable definition */
@@ -1750,15 +1743,9 @@ validate_code_block(compilation_status_t *compile_status,
      */
     if (compile_status->errors_count == 0)
     {
-        for (p = locals; p != NULL; p = g_list_next(p))
+        for (i = local_vars; i != NULL; i = g_slist_next(i))
         {
-            /* skip if not a variable */
-            if (!IR_IS_VARIABLE(p->data))
-            {
-                continue;
-            }
-
-            IrVariable *variable = IR_VARIABLE(p->data);
+            IrVariable *variable = IR_VARIABLE(i->data);
             add_to_func_frame(compile_status->function,
                               variable,
                               false);
@@ -1775,11 +1762,8 @@ validate_code_block(compilation_status_t *compile_status,
             iml_add_assignment(compile_status->function,
                                IR_EXPRESSION(variable),
                                init_exp);
-
         }
     }
-
-    g_list_free(locals);
 
     /*
      * validate statments in the code block

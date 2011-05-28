@@ -4,6 +4,7 @@
 #include <glib-object.h>
 
 #include "sym_table.h"
+#include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -32,6 +33,7 @@ typedef struct
   /* private */
   sym_table_t *symbols;
   GSList      *statments;
+  GSList      *local_vars;
 } IrCodeBlock;
 
 typedef struct 
@@ -66,5 +68,18 @@ ir_code_block_add_statment(IrCodeBlock *self, IrStatment *statment);
 
 GSList *
 ir_code_block_get_statments(IrCodeBlock *self);
+
+/**
+ * @return 0  - successfully added
+ *         -1 - re-declaration of the variable
+ */
+int
+ir_code_block_add_local_var(IrCodeBlock *self, IrVariable *var);
+
+/**
+ * Get a local variable in this code block, as a list of IrVariable objects.
+ */
+GSList *
+ir_code_block_get_local_vars(IrCodeBlock *self);
 
 #endif /* IR_CODE_BLOCK_INC_X */

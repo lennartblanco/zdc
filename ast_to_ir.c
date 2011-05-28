@@ -424,6 +424,13 @@ struct_to_ir(compilation_status_t *compile_status,
                 var_def_to_ir(compile_status,
                               AST_VARIABLE_DEFINITION(i->data),
                               symbols);
+        if (sym_table_add_symbol(symbols, IR_SYMBOL(var)) != 0)
+        {
+            compile_error(compile_status,
+                          var,
+                          "redeclaration of symbol '%s'\n",
+                          ir_symbol_get_name(IR_SYMBOL(var)));
+        }
 
         members = g_slist_prepend(members, var);
     }
@@ -572,11 +579,18 @@ code_block_to_ir(compilation_status_t *compile_status,
         /* variable declaration found */
         if (AST_IS_VARIABLE_DEFINITION(stmt))
         {
-            AstVariableDefinition *var_def = AST_VARIABLE_DEFINITION(stmt);
+            IrVariable *var =
+                    var_def_to_ir(compile_status,
+                                  AST_VARIABLE_DEFINITION(stmt),
+                                  symbols);
+            if (ir_code_block_add_local_var(ir_code_block, var) != 0)
+            {
+                compile_error(compile_status,
+                              stmt,
+                              "redeclaration of symbol '%s'\n",
+                              ir_symbol_get_name(IR_SYMBOL(var)));
+            }
 
-            var_def_to_ir(compile_status, var_def, symbols);
-
-            /** @todo delete the stmt node here */
             /* no IR statment to add, jump to next ast statment */
             continue;
         }
@@ -1343,14 +1357,6 @@ var_def_to_ir(compilation_status_t *compile_status,
                         ast_variable_definition_get_name(var_def),
                         initializer,
                         ast_node_get_line_num(var_def));
-
-    if (sym_table_add_symbol(sym_table, IR_SYMBOL(sym)) != 0)
-    {
-        compile_error(compile_status,
-                      IR_NODE(sym),
-                      "redeclaration of symbol '%s'\n",
-                      ir_symbol_get_name(IR_SYMBOL(sym)));
-    }
 
     return sym;
 }
