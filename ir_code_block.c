@@ -49,7 +49,6 @@ ir_code_block_new(sym_table_t *parent_sym_table)
 sym_table_t *
 ir_code_block_get_symbols(IrCodeBlock *self)
 {
-    assert(self);
     assert(IR_IS_CODE_BLOCK(self));
 
     return self->symbols;
@@ -67,7 +66,6 @@ ir_code_block_add_statment(IrCodeBlock *self, IrStatment *statment)
 GSList *
 ir_code_block_get_statments(IrCodeBlock *self)
 {
-    assert(self);
     assert(IR_IS_CODE_BLOCK(self));
 
     return self->statments;
