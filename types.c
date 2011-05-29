@@ -109,6 +109,124 @@ implicit_conv_to_uint(IrExpression *expression)
 }
 
 static IrExpression *
+implicit_conv_to_short(IrExpression *expression)
+{
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!DT_IS_BASIC(exp_data_type))
+    {
+        return NULL;
+    }
+
+    basic_data_type_t exp_basic_type =
+        dt_basic_get_data_type(DT_BASIC(exp_data_type));
+
+    if (exp_basic_type == short_type)
+    {
+        return expression;
+    }
+    else if (exp_basic_type == ushort_type)
+    {
+        assert(false); /* not implemented */
+    }
+    else if (exp_basic_type == int_type)
+    {
+        if (!IR_IS_INT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        if (val > G_MAXINT16 || val < G_MININT16)
+        {
+            return NULL;
+        }
+
+        return expression;
+    }
+    else if (exp_basic_type == uint_type)
+    {
+        if (!IR_IS_UINT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        if (val > G_MAXINT16)
+        {
+            return NULL;
+        }
+
+        return expression;
+    }
+
+    /* invalid implicit cast */
+    return NULL;
+}
+
+static IrExpression *
+implicit_conv_to_ushort(IrExpression *expression)
+{
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!DT_IS_BASIC(exp_data_type))
+    {
+        return NULL;
+    }
+
+    basic_data_type_t exp_basic_type =
+        dt_basic_get_data_type(DT_BASIC(exp_data_type));
+
+    if (exp_basic_type == ushort_type)
+    {
+        return expression;
+    }
+    else if (exp_basic_type == short_type)
+    {
+        assert(false); /* not implemented */
+    }
+    else if (exp_basic_type == int_type)
+    {
+        if (!IR_IS_INT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        if (val > G_MAXUINT16 || val < 0)
+        {
+            return NULL;
+        }
+
+        return expression;
+    }
+    else if (exp_basic_type == uint_type)
+    {
+        if (!IR_IS_UINT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        if (val > G_MAXUINT16)
+        {
+            return NULL;
+        }
+
+        return expression;
+    }
+
+    /* invalid implicit cast */
+    return NULL;
+}
+
+static IrExpression *
 implicit_conv_to_bool(IrExpression *expression)
 {
     assert(IR_IS_EXPRESSION(expression));
@@ -224,6 +342,12 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
             break;
         case uint_type:
             res_exp = implicit_conv_to_uint(expression);
+            break;
+        case short_type:
+            res_exp = implicit_conv_to_short(expression);
+            break;
+        case ushort_type:
+            res_exp = implicit_conv_to_ushort(expression);
             break;
         default:
             /* unexpected target type */
@@ -575,6 +699,32 @@ types_get_uint_type()
    }
 
    return uint_data_type;
+}
+
+DtDataType *
+types_get_short_type()
+{
+   static DtDataType *short_data_type = NULL;
+
+   if (short_data_type == NULL)
+   {
+       short_data_type = DT_DATA_TYPE(dt_basic_new(short_type));
+   }
+
+   return short_data_type;
+}
+
+DtDataType *
+types_get_ushort_type()
+{
+   static DtDataType *ushort_data_type = NULL;
+
+   if (ushort_data_type == NULL)
+   {
+       ushort_data_type = DT_DATA_TYPE(dt_basic_new(ushort_type));
+   }
+
+   return ushort_data_type;
 }
 
 DtDataType *

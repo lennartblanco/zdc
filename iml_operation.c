@@ -87,7 +87,9 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_bneg:
         case iml_getaddr:
             op->arg1 = va_arg(argp, void *);
+            assert(op->arg1);
             op->arg2 = va_arg(argp, void *);
+            assert(op->arg2);
             break;
         case iml_add:
         case iml_sub:

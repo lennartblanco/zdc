@@ -39,7 +39,8 @@ AstModule *module;
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
        TOK_RETURN, TOK_EXTERN,
-       TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
+       TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT, TOK_CHAR,
+       TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
        
 
@@ -419,6 +420,14 @@ basic_type<x> :
 |   TOK_INT
     {
         (*x).data_type = DT_DATA_TYPE(dt_basic_new(int_type));
+    }
+|   TOK_SHORT
+    {
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(short_type));
+    }
+|   TOK_USHORT
+    {
+        (*x).data_type = DT_DATA_TYPE(dt_basic_new(ushort_type));
     }
 |   TOK_CHAR
     {

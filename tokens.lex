@@ -47,9 +47,11 @@ hex    0[xX][[:xdigit:]]+
 "void"   { return TOK_VOID; }
 "bool"   { return TOK_BOOL; }
 "true"   { return TOK_TRUE; }
+"short"  { return TOK_SHORT; }
 "alias"  { return TOK_ALIAS; }
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }
+"ushort" { return TOK_USHORT; }
 "struct" { return TOK_STRUCT; }
 "return" { return TOK_RETURN; }
 "extern" { return TOK_EXTERN; }

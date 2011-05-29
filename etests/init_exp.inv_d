@@ -18,3 +18,35 @@ int foa()
   return x;
 }
 
+void short_errs()
+{
+  int i;
+  uint u;
+
+  short v1 = 32768;
+  short v2 = -32769;
+  short v3 = 32768u;
+
+  short v4 = i;
+  short v5 = u;
+  short v6;
+
+  v6 = i;
+  v6 = u;
+}
+
+void ushort_errs()
+{
+  int i;
+  uint u;
+
+  ushort v1 = -10;
+  ushort v2 = 65536;
+  ushort v3 = i;
+  ushort v4 = u;
+  ushort v5;
+
+  v5 = i;
+  v5 = u;
+}
+

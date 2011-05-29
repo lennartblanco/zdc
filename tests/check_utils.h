@@ -38,6 +38,21 @@ void
 check_uint(char *function_called, unsigned res, unsigned expected_res);
 
 /**
+ * Check if functions with short return value have returned expected result.
+ */
+void
+check_short(char *function_called, short res, short expected_res);
+
+/**
+ * Check if functions with short return value have returned expected result.
+ */
+void
+check_ushort(char *function_called,
+             unsigned short res,
+             unsigned short expected_res);
+
+
+/**
  * Check if functions with boolean return value have returned expected result.
  */
 void

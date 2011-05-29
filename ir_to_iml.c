@@ -214,6 +214,7 @@ iml_add_expression_eval(IrFunctionDef *function,
      */
     if (dest != NULL && res != IML_OPERAND(dest))
     {
+        assert(res != NULL);
         ir_function_def_add_operation(function,
                                       iml_operation_new(iml_copy, res, dest));
         res = IML_OPERAND(dest);
@@ -243,6 +244,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
     {
         var_name = "(anon)";
     }
+
     ImlVariable *iml_var;
 
     if (iml_datatype == iml_blob)

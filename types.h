@@ -109,6 +109,18 @@ DtDataType *
 types_get_uint_type();
 
 /**
+ * Get singelton instance of object representing short type.
+ */
+DtDataType *
+types_get_short_type();
+
+/**
+ * Get singelton instance of object representing ushort type.
+ */
+DtDataType *
+types_get_ushort_type();
+
+/**
  * Get singelton instance of object representing char type.
  */
 DtDataType *

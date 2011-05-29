@@ -81,6 +81,9 @@ check_struct: struct.o check_utils.o check_struct.c
 check_alias: alias.o check_utils.o check_alias.c
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_basic_types: basic_types.o check_utils.o check_basic_types.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_pointers: pointers.o check_utils.o check_pointers.c
 	$(CC) -g $(CFLAGS) -o $@ $^
 
@@ -119,5 +122,5 @@ check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
 check_stat_array check_dyn_array check_uint_op check_while_loop eels \
 check_properties check_uninit_vars check_char_literals check_immutable \
 str_literals check_enums check_pointers check_arithm check_alias check_struct \
-check_incdec_ops check_hex
+check_incdec_ops check_hex check_basic_types
 	rm -rf build

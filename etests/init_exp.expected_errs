@@ -3,3 +3,16 @@ init_exp.d:10: error: illegal type in initializer assignment
 init_exp.d:13: error: illegal type in initializer assignment
 init_exp.d:15: error: illegal type in initializer assignment
 init_exp.d:16: error: illegal type in initializer assignment
+init_exp.d:26: error: illegal type in initializer assignment
+init_exp.d:27: error: illegal type in initializer assignment
+init_exp.d:28: error: illegal type in initializer assignment
+init_exp.d:30: error: illegal type in initializer assignment
+init_exp.d:31: error: illegal type in initializer assignment
+init_exp.d:34: error: can't assign expression of type int to lvalue of short type
+init_exp.d:35: error: can't assign expression of type uint to lvalue of short type
+init_exp.d:43: error: illegal type in initializer assignment
+init_exp.d:44: error: illegal type in initializer assignment
+init_exp.d:45: error: illegal type in initializer assignment
+init_exp.d:46: error: illegal type in initializer assignment
+init_exp.d:49: error: can't assign expression of type int to lvalue of ushort type
+init_exp.d:50: error: can't assign expression of type uint to lvalue of ushort type

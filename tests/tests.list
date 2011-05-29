@@ -11,6 +11,7 @@ if_else
 while_loop
 func_call
 fact
+basic_types
 implicit_cast
 bool_op
 arithm
