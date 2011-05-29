@@ -1723,7 +1723,7 @@ validate_code_block(compilation_status_t *compile_status,
         if (conv_initializer == NULL)
         {
             compile_error(compile_status,
-                          IR_NODE(initializer),
+                          var,
                           "illegal type in initializer assignment\n");
             continue;
         }
