@@ -3,7 +3,7 @@ only_comments
 rets
 comments
 hex
-uninit_vars
+vars
 extern_c
 eels
 neg

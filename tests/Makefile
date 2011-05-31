@@ -60,7 +60,7 @@ check_pkg_name_tst: pkg_name_tst.o check_utils.o check_pkg_name_tst.c
 check_imports: imports.o fact.o rets.o neg.o check_utils.o check_imports.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_uninit_vars: uninit_vars.o check_utils.o check_uninit_vars.c
+check_vars: vars.o check_utils.o check_vars.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_char_literals: char_literals.o check_utils.o check_char_literals.c

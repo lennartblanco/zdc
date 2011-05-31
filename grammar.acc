@@ -182,10 +182,10 @@ struct_body_declarations<members> :
     {
         (*members).list = NULL;
     }
-    ( var_definition<def>
+    ( var_definition<defs>
         {
-            (*members).list = g_slist_append((*members).list,
-                                             def.variable_definition);
+            (*members).list = g_slist_concat((*members).list,
+                                             defs.list);
         }
     )*
 ;
@@ -338,6 +338,12 @@ statments_list<code> :
         }
     }
     ( statments_list<code> )?
+|   var_definition<stmts>
+    {
+        ast_code_block_add_statments((*code).code_block,
+                                     stmts.list);
+    }
+    ( statments_list<code> )?
 ;
 
 statment<stmt> :
@@ -356,7 +362,6 @@ non_empty_statment<stmt> :
 |   while_block<stmt>
 |   expression_statment<stmt>
 |   return_stmt<stmt>
-|   var_definition<stmt>
 ;
 
 scope_block_statment<x> :
@@ -571,24 +576,36 @@ var_declaration<n> :
 ;
 
 var_definition<n> :
-   type<t> TOK_IDENT<x> ';'
+   { (*n).list = NULL; }
+   type<t> def_init<name, e>
    {
-       (*n).variable_definition = 
-           ast_variable_definition_new(t.data_type, x.text, NULL, yypos);
-       free(x.text);
+       (*n).list =
+           g_slist_append(
+               (*n).list,
+               ast_variable_definition_new(t.data_type,
+                                           name.text,
+                                           e.expression,
+                                           yypos));
+       free(name.text);
    }
-|  type<t> TOK_IDENT<x> '=' expression<e> ';'
-   {
-       (*n).variable_definition = 
-           ast_variable_definition_new(t.data_type,
-                                       x.text,
-                                       e.expression,
-                                       yypos);
-       free(x.text);
-   }
-
+   (',' def_init<name, e>
+       {
+           (*n).list =
+               g_slist_append(
+                   (*n).list,
+                   ast_variable_definition_new(t.data_type,
+                                               name.text,
+                                               e.expression,
+                                               yypos));
+           free(name.text);
+       }
+   )* ';'
 ;
 
+def_init<name, exp> :
+   { (*exp).expression = NULL; }
+   TOK_IDENT<name> ( '=' expression<exp> )?
+;
 
 assignment<n> :
    expression<l> '=' expression<r> ';'

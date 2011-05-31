@@ -61,6 +61,14 @@ ast_code_block_add_statment(AstCodeBlock *self, AstStatment *statment)
     self->statments = g_slist_append(self->statments, statment);
 }
 
+void
+ast_code_block_add_statments(AstCodeBlock *self, GSList *statments)
+{
+    assert(AST_IS_CODE_BLOCK(self));
+
+    self->statments = g_slist_concat(self->statments, statments);
+}
+
 GSList *
 ast_code_block_get_statments(AstCodeBlock *self)
 {

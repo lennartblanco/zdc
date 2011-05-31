@@ -12,6 +12,9 @@ call_uninit_int();
 unsigned char
 call_uninit_uint();
 
+int
+var_decls(int);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -29,6 +32,13 @@ main()
 
     /* uninit_uint() test */
     check_int("uninit_uint()", call_uninit_uint(), 0);
+
+    /* var_decls() tests */
+    check_int("var_decls(0)", var_decls(0), -1);
+    check_int("var_decls(1)", var_decls(1), 0 + 1 + 12 + 0 + 0);
+    check_int("var_decls(2)", var_decls(2), 0 + 0 + 10 + 2 + 100);
+    check_int("var_decls(3)", var_decls(3), 0);
+    check_int("var_decls(4)", var_decls(4), -1);
 
     check_exit();
 }

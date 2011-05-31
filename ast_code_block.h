@@ -49,6 +49,9 @@ ast_code_block_new();
 void
 ast_code_block_add_statment(AstCodeBlock *self, AstStatment *statment);
 
+void
+ast_code_block_add_statments(AstCodeBlock *self, GSList *statments);
+
 GSList *
 ast_code_block_get_statments(AstCodeBlock *self);
 

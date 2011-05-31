@@ -1,7 +1,6 @@
 struct orange
 {
-  int a;
-  int b;
+  int a, b;
   char c;
 }
 
