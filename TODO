@@ -118,3 +118,20 @@ void main()
 however an compile error should be printed instead, for example DMD's error message:
 
 wee.d(3): Error: cannot implicitly convert expression ("foo") of type string to char[]
+
+* implicit module names not checked for correctness, for example compile a file with '-' in it's filename:
+
+$ cat foo-bar.d
+void main() { }
+$ ./xdc foo-bar.d
+foo-bar.s: Assembler messages:
+foo-bar.s:11: Error: junk at end of line, first unrecognized character is `-'
+foo-bar.s:12: Error: unrecognized symbol type ""
+foo-bar.s:12: Error: junk at end of line, first unrecognized character is `-'
+foo-bar.s:13: Error: invalid character '_' in mnemonic
+error assembling 'foo-bar.s'
+
+where is dmd will print following nice error message:
+
+$ dmd foo-bar.d
+foo-bar.d: Error: module foo-bar has non-identifier characters in filename, use module declaration instead
