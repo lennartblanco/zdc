@@ -16,3 +16,16 @@ init_exp.d:45: error: illegal type in initializer assignment
 init_exp.d:46: error: illegal type in initializer assignment
 init_exp.d:49: error: can't assign expression of type int to lvalue of ushort type
 init_exp.d:50: error: can't assign expression of type uint to lvalue of ushort type
+init_exp.d:58: error: illegal type in initializer assignment
+init_exp.d:59: error: illegal type in initializer assignment
+init_exp.d:60: error: illegal type in initializer assignment
+init_exp.d:62: error: illegal type in initializer assignment
+init_exp.d:63: error: illegal type in initializer assignment
+init_exp.d:66: error: can't assign expression of type int to lvalue of byte type
+init_exp.d:67: error: can't assign expression of type uint to lvalue of byte type
+init_exp.d:75: error: illegal type in initializer assignment
+init_exp.d:76: error: illegal type in initializer assignment
+init_exp.d:77: error: illegal type in initializer assignment
+init_exp.d:78: error: illegal type in initializer assignment
+init_exp.d:81: error: can't assign expression of type int to lvalue of ubyte type
+init_exp.d:82: error: can't assign expression of type uint to lvalue of ubyte type

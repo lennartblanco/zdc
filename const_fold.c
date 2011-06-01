@@ -5,6 +5,8 @@
 #include "ir_char_constant.h"
 #include "ir_short_constant.h"
 #include "ir_ushort_constant.h"
+#include "ir_byte_constant.h"
+#include "ir_ubyte_constant.h"
 #include "ir_array_literal.h"
 #include "types.h"
 
@@ -454,6 +456,42 @@ cfold_cast_basic_type(DtDataType *target_type,
             assert(false); /* unexpected value type */
         }
         return IR_EXPRESSION(ir_ushort_constant_new(res));
+    }
+    else if (types_is_byte(target_type))
+    {
+        gint8 res;
+
+        if (IR_IS_INT_CONSTANT(val))
+        {
+            res = (gint8)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (IR_IS_UINT_CONSTANT(val))
+        {
+            res = (gint8)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else
+        {
+            assert(false); /* unexpected value type */
+        }
+        return IR_EXPRESSION(ir_byte_constant_new(res));
+    }
+    else if (types_is_ubyte(target_type))
+    {
+        guint8 res;
+
+        if (IR_IS_INT_CONSTANT(val))
+        {
+            res = (guint8)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+        }
+        else if (IR_IS_UINT_CONSTANT(val))
+        {
+            res = (guint8)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+        }
+        else
+        {
+            assert(false); /* unexpected value type */
+        }
+        return IR_EXPRESSION(ir_ubyte_constant_new(res));
     }
     else if (types_is_bool(target_type))
     {

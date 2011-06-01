@@ -47,7 +47,9 @@ hex    0[xX][[:xdigit:]]+
 "void"   { return TOK_VOID; }
 "bool"   { return TOK_BOOL; }
 "true"   { return TOK_TRUE; }
+"byte"   { return TOK_BYTE; }
 "short"  { return TOK_SHORT; }
+"ubyte"  { return TOK_UBYTE; }
 "alias"  { return TOK_ALIAS; }
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }

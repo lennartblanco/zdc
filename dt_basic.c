@@ -5,6 +5,8 @@
 #include "ir_uint_constant.h"
 #include "ir_short_constant.h"
 #include "ir_ushort_constant.h"
+#include "ir_byte_constant.h"
+#include "ir_ubyte_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 
@@ -126,6 +128,12 @@ dt_basic_type_get_string(DtDataType *self)
         case ushort_type:
             str = "ushort";
             break;
+        case byte_type:
+            str = "byte";
+            break;
+        case ubyte_type:
+            str = "ubyte";
+            break;
         case void_type:
             str = "void";
             break;
@@ -155,6 +163,8 @@ dt_basic_type_get_size(DtDataType *self)
         case short_type:
         case ushort_type:
             return 2;
+        case byte_type:
+        case ubyte_type:
         case char_type:
         case bool_type:
             return 1;
@@ -179,6 +189,10 @@ dt_basic_type_get_mangled(DtDataType *self)
             return "s";
         case ushort_type:
             return "t";
+        case byte_type:
+            return "g";
+        case ubyte_type:
+            return "h";
         case void_type:
             return "v";
         case bool_type:
@@ -207,6 +221,10 @@ dt_basic_type_get_init(DtDataType *self)
             return IR_EXPRESSION(ir_bool_constant_new(false, 0));
         case char_type:
             return IR_EXPRESSION(ir_char_constant_new(255, 0));
+        case byte_type:
+            return IR_EXPRESSION(ir_byte_constant_new(0));
+        case ubyte_type:
+            return IR_EXPRESSION(ir_ubyte_constant_new(0));
         case short_type:
             return IR_EXPRESSION(ir_short_constant_new(0));
         case ushort_type:

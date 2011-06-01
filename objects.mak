@@ -21,7 +21,8 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_enum_member.o   \
          ir_code_block.o ir_statment.o ir_cast.o ir_constant.o ir_enum.o      \
          ir_null.o ir_bool_constant.o ir_int_constant.o ir_uint_constant.o    \
-         ir_short_constant.o ir_ushort_constant.o ir_char_constant.o          \
+         ir_short_constant.o ir_ushort_constant.o ir_byte_constant.o          \
+         ir_ubyte_constant.o ir_char_constant.o                                \
          ir_binary_operation.o ir_unary_operation.o ir_module.o ir_if_else.o  \
          ir_if_block.o ir_while.o ir_foreach.o ir_expression.o ir_return.o    \
          ir_function_call.o ir_assignment.o ir_array_literal.o                \

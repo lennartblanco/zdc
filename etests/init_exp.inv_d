@@ -50,3 +50,34 @@ void ushort_errs()
   v5 = u;
 }
 
+void byte_errs()
+{
+  int i;
+  uint u;
+
+  byte v1 = 128;
+  byte v2 = -129;
+  byte v3 = 200u;
+
+  byte v4 = i;
+  byte v5 = u;
+  byte v6;
+
+  v6 = i;
+  v6 = u;
+}
+
+void ubyte_errs()
+{
+  int i;
+  uint u;
+
+  ubyte v1 = -10;
+  ubyte v2 = 260;
+  ubyte v3 = i;
+  ubyte v4 = u;
+  ubyte v5;
+
+  v5 = i;
+  v5 = u;
+}

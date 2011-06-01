@@ -51,6 +51,19 @@ check_ushort(char *function_called,
              unsigned short res,
              unsigned short expected_res);
 
+/**
+ * Check if functions with byte return value have returned expected result.
+ */
+void
+check_byte(char *function_called, char res, char expected_res);
+
+/**
+ * Check if functions with ubyte return value have returned expected result.
+ */
+void
+check_ubyte(char *function_called,
+            unsigned char res,
+            unsigned char expected_res);
 
 /**
  * Check if functions with boolean return value have returned expected result.

@@ -110,6 +110,20 @@ bool
 types_is_ushort(DtDataType *data_type);
 
 /**
+ * Returns true if data_type represent basic type byte,
+ * false otherwise.
+ */
+bool
+types_is_byte(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type ubyte,
+ * false otherwise.
+ */
+bool
+types_is_ubyte(DtDataType *data_type);
+
+/**
  * Get singelton instance of object representing int type.
  */
 DtDataType *
@@ -132,6 +146,18 @@ types_get_short_type();
  */
 DtDataType *
 types_get_ushort_type();
+
+/**
+ * Get singelton instance of object representing byte type.
+ */
+DtDataType *
+types_get_byte_type();
+
+/**
+ * Get singelton instance of object representing ubyte type.
+ */
+DtDataType *
+types_get_ubyte_type();
 
 /**
  * Get singelton instance of object representing char type.

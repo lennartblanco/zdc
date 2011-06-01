@@ -61,6 +61,10 @@ implicit_conv_to_int(IrExpression *expression)
         case int_type:
             res_exp = expression;
             break;
+        case byte_type:
+        case ubyte_type:
+        case short_type:
+        case ushort_type:
         case uint_type:
         case char_type:
         case bool_type:
@@ -228,6 +232,117 @@ implicit_conv_to_ushort(IrExpression *expression)
 }
 
 static IrExpression *
+implicit_conv_to_byte(IrExpression *expression)
+{
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!DT_IS_BASIC(exp_data_type))
+    {
+        return NULL;
+    }
+
+    basic_data_type_t exp_basic_type =
+        dt_basic_get_data_type(DT_BASIC(exp_data_type));
+
+    if (exp_basic_type == byte_type)
+    {
+        return expression;
+    }
+    else if (exp_basic_type == int_type)
+    {
+        if (!IR_IS_INT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        if (val > G_MAXINT8 || val < G_MININT8)
+        {
+            return NULL;
+        }
+
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_byte_type(), expression));
+    }
+    else if (exp_basic_type == uint_type)
+    {
+        if (!IR_IS_UINT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        if (val > G_MAXINT8)
+        {
+            return NULL;
+        }
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_byte_type(), expression));
+    }
+
+    /* invalid implicit cast */
+    return NULL;
+}
+
+static IrExpression *
+implicit_conv_to_ubyte(IrExpression *expression)
+{
+    assert(IR_IS_EXPRESSION(expression));
+
+    DtDataType *exp_data_type;
+    exp_data_type = ir_expression_get_data_type(expression);
+
+    if (!DT_IS_BASIC(exp_data_type))
+    {
+        return NULL;
+    }
+
+    basic_data_type_t exp_basic_type =
+        dt_basic_get_data_type(DT_BASIC(exp_data_type));
+    if (exp_basic_type == ubyte_type)
+    {
+        return expression;
+    }
+    else if (exp_basic_type == int_type)
+    {
+        if (!IR_IS_INT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        if (val > G_MAXUINT8 || val < 0)
+        {
+            return NULL;
+        }
+
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_ubyte_type(), expression));
+    }
+    else if (exp_basic_type == uint_type)
+    {
+        if (!IR_IS_UINT_CONSTANT(expression))
+        {
+            return NULL;
+        }
+
+        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        if (val > G_MAXUINT8)
+        {
+            return NULL;
+        }
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_ubyte_type(), expression));
+    }
+
+    /* invalid implicit cast */
+    return NULL;
+}
+
+static IrExpression *
 implicit_conv_to_bool(IrExpression *expression)
 {
     assert(IR_IS_EXPRESSION(expression));
@@ -349,6 +464,12 @@ implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
             break;
         case ushort_type:
             res_exp = implicit_conv_to_ushort(expression);
+            break;
+        case byte_type:
+            res_exp = implicit_conv_to_byte(expression);
+            break;
+        case ubyte_type:
+            res_exp = implicit_conv_to_ubyte(expression);
             break;
         default:
             /* unexpected target type */
@@ -698,6 +819,28 @@ types_is_ushort(DtDataType *data_type)
     return dt_basic_get_data_type(DT_BASIC(data_type)) == ushort_type;
 }
 
+bool
+types_is_byte(DtDataType *data_type)
+{
+    if (!DT_IS_BASIC(data_type))
+    {
+        return false;
+    }
+
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == byte_type;
+}
+
+bool
+types_is_ubyte(DtDataType *data_type)
+{
+    if (!DT_IS_BASIC(data_type))
+    {
+        return false;
+    }
+
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == ubyte_type;
+}
+
 DtDataType *
 types_get_int_type()
 {
@@ -748,6 +891,32 @@ types_get_ushort_type()
    }
 
    return ushort_data_type;
+}
+
+DtDataType *
+types_get_byte_type()
+{
+   static DtDataType *byte_data_type = NULL;
+
+   if (byte_data_type == NULL)
+   {
+       byte_data_type = DT_DATA_TYPE(dt_basic_new(byte_type));
+   }
+
+   return byte_data_type;
+}
+
+DtDataType *
+types_get_ubyte_type()
+{
+   static DtDataType *ubyte_data_type = NULL;
+
+   if (ubyte_data_type == NULL)
+   {
+       ubyte_data_type = DT_DATA_TYPE(dt_basic_new(ubyte_type));
+   }
+
+   return ubyte_data_type;
 }
 
 DtDataType *
@@ -805,4 +974,3 @@ types_is_literal_0or1(IrExpression *expression)
 
     return val == 0 || val == 1;
 }
-
