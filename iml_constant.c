@@ -69,7 +69,14 @@ iml_constant_new_8b(guint8 val)
 ImlConstant *
 iml_constant_new_16b(guint16 val)
 {
-    assert(false); /* not implemented */
+    ImlConstant *obj;
+
+    obj = g_object_new(IML_TYPE_CONSTANT, NULL);
+
+    obj->datatype = iml_16b;
+    obj->value.v16 = val;
+
+    return obj;
 }
 
 ImlConstant *

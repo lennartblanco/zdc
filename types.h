@@ -95,6 +95,19 @@ types_is_int(DtDataType *data_type);
 bool
 types_is_uint(DtDataType *data_type);
 
+/**
+ * Returns true if data_type represent basic type short,
+ * false otherwise.
+ */
+bool
+types_is_short(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type ushort,
+ * false otherwise.
+ */
+bool
+types_is_ushort(DtDataType *data_type);
 
 /**
  * Get singelton instance of object representing int type.

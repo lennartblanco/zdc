@@ -145,7 +145,8 @@ implicit_conv_to_short(IrExpression *expression)
             return NULL;
         }
 
-        return expression;
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_short_type(), expression));
     }
     else if (exp_basic_type == uint_type)
     {
@@ -159,8 +160,8 @@ implicit_conv_to_short(IrExpression *expression)
         {
             return NULL;
         }
-
-        return expression;
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_short_type(), expression));
     }
 
     /* invalid implicit cast */
@@ -203,8 +204,8 @@ implicit_conv_to_ushort(IrExpression *expression)
         {
             return NULL;
         }
-
-        return expression;
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_ushort_type(), expression));
     }
     else if (exp_basic_type == uint_type)
     {
@@ -218,8 +219,8 @@ implicit_conv_to_ushort(IrExpression *expression)
         {
             return NULL;
         }
-
-        return expression;
+        return
+          IR_EXPRESSION(ir_cast_new(types_get_ushort_type(), expression));
     }
 
     /* invalid implicit cast */
@@ -673,6 +674,28 @@ types_is_uint(DtDataType *data_type)
     }
 
     return dt_basic_get_data_type(DT_BASIC(data_type)) == uint_type;
+}
+
+bool
+types_is_short(DtDataType *data_type)
+{
+    if (!DT_IS_BASIC(data_type))
+    {
+        return false;
+    }
+
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == short_type;
+}
+
+bool
+types_is_ushort(DtDataType *data_type)
+{
+    if (!DT_IS_BASIC(data_type))
+    {
+        return false;
+    }
+
+    return dt_basic_get_data_type(DT_BASIC(data_type)) == ushort_type;
 }
 
 DtDataType *

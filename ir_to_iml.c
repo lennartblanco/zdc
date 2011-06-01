@@ -1,6 +1,8 @@
 #include "ir_to_iml.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
+#include "ir_short_constant.h"
+#include "ir_ushort_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_array_cell.h"
@@ -645,7 +647,7 @@ ir_constant_to_iml(IrConstant *constant)
 {
     iml_data_type_t type;
     guint8 v8;
-    guint16 v16 = 0;
+    guint16 v16;
     guint32 v32;
 
     if (IR_IS_INT_CONSTANT(constant))
@@ -657,6 +659,16 @@ ir_constant_to_iml(IrConstant *constant)
     {
         type = iml_32b;
         v32 = ir_uint_constant_get_value(IR_UINT_CONSTANT(constant));
+    }
+    else if (IR_IS_SHORT_CONSTANT(constant))
+    {
+        type = iml_16b;
+        v16 = ir_short_constant_get_value(IR_SHORT_CONSTANT(constant));
+    }
+    else if (IR_IS_USHORT_CONSTANT(constant))
+    {
+        type = iml_16b;
+        v16 = ir_ushort_constant_get_value(IR_USHORT_CONSTANT(constant));
     }
     else if (IR_IS_BOOL_CONSTANT(constant))
     {

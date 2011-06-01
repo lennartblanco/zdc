@@ -3,6 +3,8 @@
 #include "dt_basic.h"
 #include "ir_int_constant.h"
 #include "ir_uint_constant.h"
+#include "ir_short_constant.h"
+#include "ir_ushort_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 
@@ -206,8 +208,9 @@ dt_basic_type_get_init(DtDataType *self)
         case char_type:
             return IR_EXPRESSION(ir_char_constant_new(255, 0));
         case short_type:
+            return IR_EXPRESSION(ir_short_constant_new(0));
         case ushort_type:
-            return IR_EXPRESSION(ir_int_constant_new(0, 0));
+            return IR_EXPRESSION(ir_ushort_constant_new(0));
         default:
             assert(false);
     }
