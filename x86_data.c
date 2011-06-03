@@ -2,8 +2,6 @@
 
 #include "types.h"
 #include "ir_basic_constant.h"
-#include "ir_bool_constant.h"
-#include "ir_char_constant.h"
 
 #include <assert.h>
 
@@ -24,11 +22,11 @@ gen_data_section_string(FILE *out,
             break;
         case bool_type:
             fprintf(out, "%d",
-                    ir_bool_constant_get_value(IR_BOOL_CONSTANT(exp)));
+                    ir_basic_constant_get_bool(IR_BASIC_CONSTANT(exp)));
             break;
         case char_type:
             fprintf(out, "%u",
-                    ir_char_constant_get_value(IR_CHAR_CONSTANT(exp)));
+                    ir_basic_constant_get_char(IR_BASIC_CONSTANT(exp)));
             break;
         default:
             /* unexpected expression data type */

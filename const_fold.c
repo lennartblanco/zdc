@@ -1,7 +1,5 @@
 #include "const_fold.h"
 #include "ir_basic_constant.h"
-#include "ir_bool_constant.h"
-#include "ir_char_constant.h"
 #include "ir_array_literal.h"
 #include "types.h"
 
@@ -106,9 +104,9 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
 
     IrExpression *left = ir_binary_operation_get_left(bin_op);
     IrExpression *right = ir_binary_operation_get_right(bin_op);
-    gboolean left_val;
-    gboolean right_val;
-    gboolean res;
+    bool left_val;
+    bool right_val;
+    bool res;
 
     if (!ir_expression_is_constant(left) ||
         !ir_expression_is_constant(right))
@@ -118,8 +116,8 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
 
     assert(types_is_bool(ir_expression_get_data_type(IR_EXPRESSION(bin_op))));
 
-    left_val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(left));
-    right_val = ir_bool_constant_get_value(IR_BOOL_CONSTANT(right));
+    left_val = ir_basic_constant_get_bool(IR_BASIC_CONSTANT(left));
+    right_val = ir_basic_constant_get_bool(IR_BASIC_CONSTANT(right));
 
     switch (ir_binary_operation_get_operation(bin_op))
     {
@@ -134,7 +132,7 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
             assert(false);
     }
 
-    return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+    return IR_EXPRESSION(ir_basic_constant_new_bool(res, 0));
 }
 
 IrExpression *
@@ -282,7 +280,7 @@ fold_int_comp_bin_op(IrBasicConstant *left,
 {
     gint32 left_val;
     gint32 right_val;
-    gboolean res;
+    bool res;
 
     left_val = ir_basic_constant_get_int(left);
     right_val = ir_basic_constant_get_int(right);
@@ -311,7 +309,7 @@ fold_int_comp_bin_op(IrBasicConstant *left,
             assert(false);
     }
 
-    return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+    return IR_EXPRESSION(ir_basic_constant_new_bool(res, 0));
 }
 
 static IrExpression *
@@ -321,7 +319,7 @@ fold_uint_comp_bin_op(IrBasicConstant *left,
 {
     guint32 left_val;
     guint32 right_val;
-    gboolean res;
+    bool res;
 
     left_val = ir_basic_constant_get_uint(left);
     right_val = ir_basic_constant_get_uint(right);
@@ -350,7 +348,7 @@ fold_uint_comp_bin_op(IrBasicConstant *left,
             assert(false);
     }
 
-    return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+    return IR_EXPRESSION(ir_basic_constant_new_bool(res, 0));
 }
 
 static IrExpression *
@@ -376,7 +374,7 @@ cfold_cast_basic_type(DtDataType *target_type,
 
         if (types_is_bool(val_type))
         {
-            res = (gint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+            res = (gint32)ir_basic_constant_get_bool(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_uint(val_type))
         {
@@ -384,7 +382,7 @@ cfold_cast_basic_type(DtDataType *target_type,
         }
         else if (types_is_char(val_type))
         {
-            res = (gint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
+            res = (gint32)ir_basic_constant_get_char(IR_BASIC_CONSTANT(val));
         }
         else
         {
@@ -399,7 +397,7 @@ cfold_cast_basic_type(DtDataType *target_type,
 
         if (types_is_bool(val_type))
         {
-            res = (guint32)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+            res = (guint32)ir_basic_constant_get_bool(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_int(val_type))
         {
@@ -407,7 +405,7 @@ cfold_cast_basic_type(DtDataType *target_type,
         }
         else if (types_is_char(val_type))
         {
-            res = (guint32)ir_char_constant_get_value(IR_CHAR_CONSTANT(val));
+            res = (guint32)ir_basic_constant_get_char(IR_BASIC_CONSTANT(val));
         }
         else
         {
@@ -490,22 +488,22 @@ cfold_cast_basic_type(DtDataType *target_type,
     }
     else if (types_is_bool(target_type))
     {
-        gboolean res;
+        bool res;
 
         if (types_is_int(val_type))
         {
-            res = (gboolean)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
+            res = (bool)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_uint(val_type))
         {
-            res = (gboolean)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
+            res = (bool)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {
             /* unexpected value type */
             assert(false);
         }
-        return IR_EXPRESSION(ir_bool_constant_new(res, 0));
+        return IR_EXPRESSION(ir_basic_constant_new_bool(res, 0));
 
     }
     else if (types_is_char(target_type))
@@ -514,7 +512,7 @@ cfold_cast_basic_type(DtDataType *target_type,
 
         if (types_is_bool(val_type))
         {
-            res = (guint8)ir_bool_constant_get_value(IR_BOOL_CONSTANT(val));
+            res = (guint8)ir_basic_constant_get_bool(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_int(val_type))
         {
@@ -529,7 +527,7 @@ cfold_cast_basic_type(DtDataType *target_type,
             /* unexpected value type */
             assert(false);
         }
-        return IR_EXPRESSION(ir_char_constant_new(res, 0));
+        return IR_EXPRESSION(ir_basic_constant_new_char(res, 0));
 
     }
     /* unexpected target type */

@@ -9,8 +9,6 @@
 #include "ir_function.h"
 #include "ir_cast.h"
 #include "ir_basic_constant.h"
-#include "ir_char_constant.h"
-#include "ir_bool_constant.h"
 #include "const_fold.h"
 
 #include <assert.h>

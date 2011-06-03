@@ -36,6 +36,8 @@ typedef struct
         guint16 ushort_val;
         gint8 byte_val;
         guint8 ubyte_val;
+        guint8 char_val;
+        bool bool_val;
     };
 } IrBasicConstant;
 
@@ -69,6 +71,12 @@ ir_basic_constant_new_byte(gint8 value);
 IrBasicConstant *
 ir_basic_constant_new_ubyte(guint8 value);
 
+IrBasicConstant *
+ir_basic_constant_new_char(guint8 value, guint line_number);
+
+IrBasicConstant *
+ir_basic_constant_new_bool(bool value, guint line_number);
+
 gint32
 ir_basic_constant_get_int(IrBasicConstant *self);
 
@@ -86,5 +94,11 @@ ir_basic_constant_get_byte(IrBasicConstant *self);
 
 guint8
 ir_basic_constant_get_ubyte(IrBasicConstant *self);
+
+guint8
+ir_basic_constant_get_char(IrBasicConstant *self);
+
+bool
+ir_basic_constant_get_bool(IrBasicConstant *self);
 
 #endif /* IR_BASIC_CONSTANT_INC_X */

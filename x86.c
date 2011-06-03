@@ -8,8 +8,6 @@
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_basic_constant.h"
-#include "ir_char_constant.h"
-#include "ir_bool_constant.h"
 #include "ir_variable.h"
 #include "ir_return.h"
 #include "ir_function_call.h"

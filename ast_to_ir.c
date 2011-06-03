@@ -35,8 +35,6 @@
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_basic_constant.h"
-#include "ir_bool_constant.h"
-#include "ir_char_constant.h"
 #include "ir_property.h"
 #include "ir_ptr_dref.h"
 #include "ir_enum_member.h"
@@ -1024,7 +1022,7 @@ string_literal_to_ir(compilation_status_t *compile_status,
     while((c = *(str++)) != '\0')
     {
         vals = g_slist_prepend(vals,
-                               ir_char_constant_new(c, 0));
+                               ir_basic_constant_new_char(c, 0));
     }
 
     /* build IR array literal object */
@@ -1219,17 +1217,17 @@ expression_to_ir(compilation_status_t *compile_status,
     }
     else if (AST_IS_BOOL_CONSTANT(ast_expression))
     {
-        gboolean val;
+        bool val;
 
         val = ast_bool_constant_get_value(AST_BOOL_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_bool_constant_new(val, line_num));
+        return IR_EXPRESSION(ir_basic_constant_new_bool(val, line_num));
     }
     else if (AST_IS_CHAR_CONSTANT(ast_expression))
     {
         guint8 val;
 
         val = ast_char_constant_get_value(AST_CHAR_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_char_constant_new(val, line_num));
+        return IR_EXPRESSION(ir_basic_constant_new_char(val, line_num));
     }
     else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {

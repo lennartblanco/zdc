@@ -84,6 +84,18 @@ ir_basic_constant_new_ubyte(guint8 value)
     return ir_basic_constant_new(ubyte_type, &value, 0);
 }
 
+IrBasicConstant *
+ir_basic_constant_new_char(guint8 value, guint line_number)
+{
+    return ir_basic_constant_new(char_type, &value, line_number);
+}
+
+IrBasicConstant *
+ir_basic_constant_new_bool(bool value, guint line_number)
+{
+    return ir_basic_constant_new(bool_type, &value, line_number);
+}
+
 gint32
 ir_basic_constant_get_int(IrBasicConstant *self)
 {
@@ -138,6 +150,24 @@ ir_basic_constant_get_ubyte(IrBasicConstant *self)
     return self->ubyte_val;
 }
 
+guint8
+ir_basic_constant_get_char(IrBasicConstant *self)
+{
+    assert(IR_IS_BASIC_CONSTANT(self));
+    assert(self->type == char_type);
+
+    return self->char_val;
+}
+
+bool
+ir_basic_constant_get_bool(IrBasicConstant *self)
+{
+    assert(IR_IS_BASIC_CONSTANT(self));
+    assert(self->type == bool_type);
+
+    return self->bool_val;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -172,6 +202,12 @@ ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
         case ubyte_type:
             obj->ubyte_val = *((guint8*)value);
             break;
+        case char_type:
+            obj->char_val = *((guint8*)value);
+            break;
+        case bool_type:
+            obj->bool_val = *((bool*)value);
+            break;
         default:
             assert(false); /* unexpected basic data type */
     }
@@ -205,6 +241,10 @@ ir_basic_constant_do_get_data_type(IrExpression *self)
             return types_get_byte_type();
         case ubyte_type:
             return types_get_ubyte_type();
+        case char_type:
+            return types_get_char_type();
+        case bool_type:
+            return types_get_bool_type();
         default:
             assert(false); /* unexpected data type */
     }
