@@ -16,6 +16,9 @@ ir_basic_constant_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_basic_constant_do_get_data_type(IrExpression *self);
 
+static IrBasicConstant *
+ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -43,41 +46,6 @@ ir_basic_constant_get_type(void)
                                     &info, 0);
     }
     return type;
-}
-
-static IrBasicConstant *
-ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
-{
-    IrBasicConstant *obj;
-
-    obj = g_object_new(IR_TYPE_BASIC_CONSTANT, "ir-node-line-number", line_number, NULL);
-
-    obj->type = type;
-    switch (type)
-    {
-        case int_type:
-            obj->int_val = *((gint32*)value);
-            break;
-        case uint_type:
-            obj->uint_val = *((guint32*)value);
-            break;
-        case short_type:
-            obj->short_val = *((gint16*)value);
-            break;
-        case ushort_type:
-            obj->ushort_val = *((guint16*)value);
-            break;
-        case byte_type:
-            obj->byte_val = *((gint8*)value);
-            break;
-        case ubyte_type:
-            obj->ubyte_val = *((guint8*)value);
-            break;
-        default:
-            assert(false); /* unexpected basic data type */
-    }
-
-    return obj;
 }
 
 IrBasicConstant *
@@ -173,6 +141,41 @@ ir_basic_constant_get_ubyte(IrBasicConstant *self)
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static IrBasicConstant *
+ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
+{
+    IrBasicConstant *obj;
+
+    obj = g_object_new(IR_TYPE_BASIC_CONSTANT, "ir-node-line-number", line_number, NULL);
+
+    obj->type = type;
+    switch (type)
+    {
+        case int_type:
+            obj->int_val = *((gint32*)value);
+            break;
+        case uint_type:
+            obj->uint_val = *((guint32*)value);
+            break;
+        case short_type:
+            obj->short_val = *((gint16*)value);
+            break;
+        case ushort_type:
+            obj->ushort_val = *((guint16*)value);
+            break;
+        case byte_type:
+            obj->byte_val = *((gint8*)value);
+            break;
+        case ubyte_type:
+            obj->ubyte_val = *((guint8*)value);
+            break;
+        default:
+            assert(false); /* unexpected basic data type */
+    }
+
+    return obj;
+}
 
 static void
 ir_basic_constant_class_init(gpointer klass, gpointer dummy)
