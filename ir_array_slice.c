@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "ir_array_slice.h"
-#include "ir_uint_constant.h"
+#include "ir_basic_constant.h"
 
 #include <assert.h>
 

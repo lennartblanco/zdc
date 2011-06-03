@@ -1,12 +1,7 @@
 #include <stdbool.h>
 
 #include "dt_basic.h"
-#include "ir_int_constant.h"
-#include "ir_uint_constant.h"
-#include "ir_short_constant.h"
-#include "ir_ushort_constant.h"
-#include "ir_byte_constant.h"
-#include "ir_ubyte_constant.h"
+#include "ir_basic_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 
@@ -214,21 +209,21 @@ dt_basic_type_get_init(DtDataType *self)
     switch (DT_BASIC(self)->data_type)
     {
         case int_type:
-            return IR_EXPRESSION(ir_int_constant_new(0, 0));
+            return IR_EXPRESSION(ir_basic_constant_new_int(0, 0));
         case uint_type:
-            return IR_EXPRESSION(ir_uint_constant_new(0, 0));
+            return IR_EXPRESSION(ir_basic_constant_new_uint(0, 0));
+        case short_type:
+            return IR_EXPRESSION(ir_basic_constant_new_short(0));
+        case ushort_type:
+            return IR_EXPRESSION(ir_basic_constant_new_ushort(0));
         case bool_type:
             return IR_EXPRESSION(ir_bool_constant_new(false, 0));
         case char_type:
             return IR_EXPRESSION(ir_char_constant_new(255, 0));
         case byte_type:
-            return IR_EXPRESSION(ir_byte_constant_new(0));
+            return IR_EXPRESSION(ir_basic_constant_new_byte(0));
         case ubyte_type:
-            return IR_EXPRESSION(ir_ubyte_constant_new(0));
-        case short_type:
-            return IR_EXPRESSION(ir_short_constant_new(0));
-        case ushort_type:
-            return IR_EXPRESSION(ir_ushort_constant_new(0));
+            return IR_EXPRESSION(ir_basic_constant_new_ubyte(0));
         default:
             assert(false);
     }

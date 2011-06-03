@@ -1,8 +1,7 @@
 #include "x86_data.h"
 
 #include "types.h"
-#include "ir_int_constant.h"
-#include "ir_uint_constant.h"
+#include "ir_basic_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 
@@ -17,11 +16,11 @@ gen_data_section_string(FILE *out,
     {
         case int_type:
             fprintf(out, "%d",
-                    ir_int_constant_get_value(IR_INT_CONSTANT(exp)));
+                    ir_basic_constant_get_int(IR_BASIC_CONSTANT(exp)));
             break;
         case uint_type:
             fprintf(out, "%u",
-                    ir_uint_constant_get_value(IR_UINT_CONSTANT(exp)));
+                    ir_basic_constant_get_uint(IR_BASIC_CONSTANT(exp)));
             break;
         case bool_type:
             fprintf(out, "%d",

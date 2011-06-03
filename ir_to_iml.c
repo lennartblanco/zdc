@@ -1,10 +1,5 @@
 #include "ir_to_iml.h"
-#include "ir_int_constant.h"
-#include "ir_uint_constant.h"
-#include "ir_short_constant.h"
-#include "ir_ushort_constant.h"
-#include "ir_byte_constant.h"
-#include "ir_ubyte_constant.h"
+#include "ir_basic_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
 #include "ir_array_cell.h"
@@ -652,35 +647,45 @@ ir_constant_to_iml(IrConstant *constant)
     guint16 v16;
     guint32 v32;
 
-    if (IR_IS_INT_CONSTANT(constant))
+    if (IR_IS_BASIC_CONSTANT(constant))
     {
-        type = iml_32b;
-        v32 = ir_int_constant_get_value(IR_INT_CONSTANT(constant));
-    }
-    else if (IR_IS_UINT_CONSTANT(constant))
-    {
-        type = iml_32b;
-        v32 = ir_uint_constant_get_value(IR_UINT_CONSTANT(constant));
-    }
-    else if (IR_IS_SHORT_CONSTANT(constant))
-    {
-        type = iml_16b;
-        v16 = ir_short_constant_get_value(IR_SHORT_CONSTANT(constant));
-    }
-    else if (IR_IS_USHORT_CONSTANT(constant))
-    {
-        type = iml_16b;
-        v16 = ir_ushort_constant_get_value(IR_USHORT_CONSTANT(constant));
-    }
-    else if (IR_IS_BYTE_CONSTANT(constant))
-    {
-        type = iml_8b;
-        v8 = ir_byte_constant_get_value(IR_BYTE_CONSTANT(constant));
-    }
-    else if (IR_IS_UBYTE_CONSTANT(constant))
-    {
-        type = iml_8b;
-        v8 = ir_ubyte_constant_get_value(IR_UBYTE_CONSTANT(constant));
+        DtDataType *exp_type =
+            ir_expression_get_data_type(IR_EXPRESSION(constant));
+
+        if (types_is_int(exp_type))
+        {
+            type = iml_32b;
+            v32 = ir_basic_constant_get_int(IR_BASIC_CONSTANT(constant));
+        }
+        else if (types_is_uint(exp_type))
+        {
+            type = iml_32b;
+            v32 = ir_basic_constant_get_uint(IR_BASIC_CONSTANT(constant));
+        }
+        else if (types_is_short(exp_type))
+        {
+            type = iml_16b;
+            v16 = ir_basic_constant_get_short(IR_BASIC_CONSTANT(constant));
+        }
+        else if (types_is_ushort(exp_type))
+        {
+            type = iml_16b;
+            v16 = ir_basic_constant_get_ushort(IR_BASIC_CONSTANT(constant));
+        }
+        else if (types_is_byte(exp_type))
+        {
+            type = iml_8b;
+            v8 = ir_basic_constant_get_byte(IR_BASIC_CONSTANT(constant));
+        }
+        else if (types_is_ubyte(exp_type))
+        {
+            type = iml_8b;
+            v8 = ir_basic_constant_get_ubyte(IR_BASIC_CONSTANT(constant));
+        }
+        else
+        {
+            assert(false); /* unexpected data type */
+        }
     }
     else if (IR_IS_BOOL_CONSTANT(constant))
     {

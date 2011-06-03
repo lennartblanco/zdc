@@ -15,8 +15,7 @@
 #include "ir_binary_operation.h"
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
-#include "ir_int_constant.h"
-#include "ir_uint_constant.h"
+#include "ir_basic_constant.h"
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
@@ -335,8 +334,8 @@ validate_pointer_arithm(compilation_status_t *compile_status,
     right_type = ir_expression_get_data_type(right);
 
     /* now we know that left operand is of pointer type */
-    IrUintConstant *base_type_size =
-        ir_uint_constant_new(
+    IrBasicConstant *base_type_size =
+        ir_basic_constant_new_uint(
             dt_pointer_get_base_type_size(DT_POINTER(left_type)),
             0);
 
@@ -743,12 +742,12 @@ validate_sizeof_property(compilation_status_t *compile_status,
     assert(ir_property_get_id(prop) == ir_prop_sizeof);
 
     DtDataType *exp_type;
-    IrUintConstant *size_exp;
+    IrBasicConstant *size_exp;
 
     exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
 
-    size_exp = ir_uint_constant_new(dt_data_type_get_size(exp_type),
-                                    ir_node_get_line_num(prop));
+    size_exp = ir_basic_constant_new_uint(dt_data_type_get_size(exp_type),
+                                          ir_node_get_line_num(prop));
 
     return IR_EXPRESSION(size_exp);
 }
@@ -797,8 +796,10 @@ validate_length_property(compilation_status_t *compile_status,
 
         length = ir_array_literal_get_length(IR_ARRAY_LITERAL(exp));
 
-        return IR_EXPRESSION(ir_uint_constant_new(length,
-                                                  ir_node_get_line_num(prop)));
+        return
+            IR_EXPRESSION(
+                ir_basic_constant_new_int(length,
+                                          ir_node_get_line_num(prop)));
     }
     else if (DT_IS_STATIC_ARRAY_TYPE(exp_type))
     {
@@ -807,8 +808,10 @@ validate_length_property(compilation_status_t *compile_status,
         length = 
             dt_static_array_get_length(DT_STATIC_ARRAY(exp_type));
 
-        return IR_EXPRESSION(ir_uint_constant_new(length,
-                                                  ir_node_get_line_num(prop)));
+        return
+            IR_EXPRESSION(
+                ir_basic_constant_new_int(length,
+                                          ir_node_get_line_num(prop)));
     }
     else if (DT_IS_ARRAY(exp_type))
     {
@@ -1916,7 +1919,7 @@ validate_array_slice(compilation_status_t *compile_status,
     exp = ir_array_slice_get_start(array_slice);
     if (exp == NULL)
     {
-        exp = IR_EXPRESSION(ir_uint_constant_new(0, 0));
+        exp = IR_EXPRESSION(ir_basic_constant_new_uint(0, 0));
     }
     else
     {
@@ -1951,7 +1954,7 @@ validate_array_slice(compilation_status_t *compile_status,
 
           end_idx =
               dt_static_array_get_length(DT_STATIC_ARRAY(array_type));
-          exp = IR_EXPRESSION(ir_uint_constant_new(end_idx, 0));
+          exp = IR_EXPRESSION(ir_basic_constant_new_uint(end_idx, 0));
         }
         else
         {
@@ -2055,6 +2058,12 @@ validate_enum(compilation_status_t *compile_status,
     IrExpression *first_member_init;
     IrExpression *prev_member_value;
     bool enum_member_errs = false;
+    static IrExpression *one = NULL;
+
+    if (one == NULL)
+    {
+        one = IR_EXPRESSION(ir_basic_constant_new_int(1, 0));
+    }
 
     sym_table = ir_module_get_symbols(compile_status->module);
     members = ir_enum_get_members(enum_def);
@@ -2125,8 +2134,9 @@ validate_enum(compilation_status_t *compile_status,
     if (first_member_init == NULL)
     {
         prev_member_value =
-            cfold_cast(ir_cast_new(base_type,
-                                   IR_EXPRESSION(ir_int_constant_new(0, 0))));
+            cfold_cast(
+                ir_cast_new(base_type,
+                            IR_EXPRESSION(ir_basic_constant_new_int(0, 0))));
         ir_enum_member_set_value(members->data, prev_member_value);
     }
 
@@ -2145,7 +2155,7 @@ validate_enum(compilation_status_t *compile_status,
                         ir_binary_operation_new(
                             ast_plus_op,
                             prev_member_value,
-                            IR_EXPRESSION(ir_int_constant_new(1, 0)),
+                            one,
                         0));
             value = cfold_cast(ir_cast_new(base_type, value));
 

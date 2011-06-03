@@ -1,12 +1,7 @@
 #include "const_fold.h"
-#include "ir_int_constant.h"
-#include "ir_uint_constant.h"
+#include "ir_basic_constant.h"
 #include "ir_bool_constant.h"
 #include "ir_char_constant.h"
-#include "ir_short_constant.h"
-#include "ir_ushort_constant.h"
-#include "ir_byte_constant.h"
-#include "ir_ubyte_constant.h"
 #include "ir_array_literal.h"
 #include "types.h"
 
@@ -17,23 +12,23 @@
  *---------------------------------------------------------------------------*/
 
 static IrExpression *
-fold_int_arithm_bin_op(IrIntConstant *left,
-                       IrIntConstant *right,
+fold_int_arithm_bin_op(IrBasicConstant *left,
+                       IrBasicConstant *right,
                        ast_binary_op_type_t operation);
 
 static IrExpression *
-fold_uint_arithm_bin_op(IrUintConstant *left,
-                        IrUintConstant *right,
+fold_uint_arithm_bin_op(IrBasicConstant *left,
+                        IrBasicConstant *right,
                         ast_binary_op_type_t operation);
 
 static IrExpression *
-fold_int_comp_bin_op(IrIntConstant *left,
-                     IrIntConstant *right,
+fold_int_comp_bin_op(IrBasicConstant *left,
+                     IrBasicConstant *right,
                      ast_binary_op_type_t operation);
 
 static IrExpression *
-fold_uint_comp_bin_op(IrUintConstant *left,
-                      IrUintConstant *right,
+fold_uint_comp_bin_op(IrBasicConstant *left,
+                      IrBasicConstant *right,
                       ast_binary_op_type_t operation);
 
 static IrExpression *
@@ -89,15 +84,15 @@ cfold_bin_arithm(IrBinaryOperation *bin_op)
     if (types_is_int(bin_op_type))
     {
         return
-            fold_int_arithm_bin_op(IR_INT_CONSTANT(left),
-                                   IR_INT_CONSTANT(right),
+            fold_int_arithm_bin_op(IR_BASIC_CONSTANT(left),
+                                   IR_BASIC_CONSTANT(right),
                                    ir_binary_operation_get_operation(bin_op));
     }
     else if (types_is_uint(bin_op_type))
     {
         return
-            fold_uint_arithm_bin_op(IR_UINT_CONSTANT(left),
-                                    IR_UINT_CONSTANT(right),
+            fold_uint_arithm_bin_op(IR_BASIC_CONSTANT(left),
+                                    IR_BASIC_CONSTANT(right),
                                     ir_binary_operation_get_operation(bin_op));
     }
     /* unexpected data type of arithmetic binary operations */
@@ -163,16 +158,16 @@ cfold_bin_icomp(IrBinaryOperation *bin_op)
     {
         assert(types_is_int(ir_expression_get_data_type(right)));
         return 
-           fold_int_comp_bin_op(IR_INT_CONSTANT(left),
-                                IR_INT_CONSTANT(right),
+           fold_int_comp_bin_op(IR_BASIC_CONSTANT(left),
+                                IR_BASIC_CONSTANT(right),
                                 ir_binary_operation_get_operation(bin_op));
     }
     else if (types_is_uint(left_type))
     {
         assert(types_is_uint(ir_expression_get_data_type(right)));
         return 
-           fold_uint_comp_bin_op(IR_UINT_CONSTANT(left),
-                                 IR_UINT_CONSTANT(right),
+           fold_uint_comp_bin_op(IR_BASIC_CONSTANT(left),
+                                 IR_BASIC_CONSTANT(right),
                                  ir_binary_operation_get_operation(bin_op));
     }
     /* unexpected data type of integer comparison operations */
@@ -212,16 +207,16 @@ cfold_cast(IrCast *cast_exp)
  *---------------------------------------------------------------------------*/
 
 static IrExpression *
-fold_int_arithm_bin_op(IrIntConstant *left,
-                       IrIntConstant *right,
+fold_int_arithm_bin_op(IrBasicConstant *left,
+                       IrBasicConstant *right,
                        ast_binary_op_type_t operation)
 {
     gint32 left_val;
     gint32 right_val;
     gint32 res;
 
-    left_val = ir_int_constant_get_value(left);
-    right_val = ir_int_constant_get_value(right);
+    left_val = ir_basic_constant_get_int(left);
+    right_val = ir_basic_constant_get_int(right);
 
     switch (operation) {
         case ast_plus_op:
@@ -244,20 +239,20 @@ fold_int_arithm_bin_op(IrIntConstant *left,
             assert(false);
     }
 
-    return IR_EXPRESSION(ir_int_constant_new(res, 0));
+    return IR_EXPRESSION(ir_basic_constant_new_int(res, 0));
 }
 
 static IrExpression *
-fold_uint_arithm_bin_op(IrUintConstant *left,
-                        IrUintConstant *right,
+fold_uint_arithm_bin_op(IrBasicConstant *left,
+                        IrBasicConstant *right,
                         ast_binary_op_type_t operation)
 {
     guint32 left_val;
     guint32 right_val;
     guint32 res;
 
-    left_val = ir_uint_constant_get_value(left);
-    right_val = ir_uint_constant_get_value(right);
+    left_val = ir_basic_constant_get_uint(left);
+    right_val = ir_basic_constant_get_uint(right);
 
     switch (operation) {
         case ast_plus_op:
@@ -277,20 +272,20 @@ fold_uint_arithm_bin_op(IrUintConstant *left,
             assert(false);
     }
 
-    return IR_EXPRESSION(ir_uint_constant_new(res, 0));
+    return IR_EXPRESSION(ir_basic_constant_new_uint(res, 0));
 }
 
 static IrExpression *
-fold_int_comp_bin_op(IrIntConstant *left,
-                     IrIntConstant *right,
+fold_int_comp_bin_op(IrBasicConstant *left,
+                     IrBasicConstant *right,
                      ast_binary_op_type_t operation)
 {
     gint32 left_val;
     gint32 right_val;
     gboolean res;
 
-    left_val = ir_int_constant_get_value(left);
-    right_val = ir_int_constant_get_value(right);
+    left_val = ir_basic_constant_get_int(left);
+    right_val = ir_basic_constant_get_int(right);
 
     switch (operation) {
         case ast_less_op:           /*  <  */
@@ -320,16 +315,16 @@ fold_int_comp_bin_op(IrIntConstant *left,
 }
 
 static IrExpression *
-fold_uint_comp_bin_op(IrUintConstant *left,
-                      IrUintConstant *right,
+fold_uint_comp_bin_op(IrBasicConstant *left,
+                      IrBasicConstant *right,
                       ast_binary_op_type_t operation)
 {
     guint32 left_val;
     guint32 right_val;
     gboolean res;
 
-    left_val = ir_uint_constant_get_value(left);
-    right_val = ir_uint_constant_get_value(right);
+    left_val = ir_basic_constant_get_uint(left);
+    right_val = ir_basic_constant_get_uint(right);
 
     switch (operation) {
         case ast_less_op:           /*  <  */
@@ -385,7 +380,7 @@ cfold_cast_basic_type(DtDataType *target_type,
         }
         else if (types_is_uint(val_type))
         {
-            res = (gint32)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (gint32)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_char(val_type))
         {
@@ -396,7 +391,7 @@ cfold_cast_basic_type(DtDataType *target_type,
             /* unexpected value type */
             assert(false);
         }
-        return IR_EXPRESSION(ir_int_constant_new(res, 0));
+        return IR_EXPRESSION(ir_basic_constant_new_int(res, 0));
     }
     else if (types_is_uint(target_type))
     {
@@ -408,7 +403,7 @@ cfold_cast_basic_type(DtDataType *target_type,
         }
         else if (types_is_int(val_type))
         {
-            res = (guint32)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (guint32)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_char(val_type))
         {
@@ -419,79 +414,79 @@ cfold_cast_basic_type(DtDataType *target_type,
             /* unexpected value type */
             assert(false);
         }
-        return IR_EXPRESSION(ir_uint_constant_new(res, 0));
+        return IR_EXPRESSION(ir_basic_constant_new_uint(res, 0));
     }
     else if (types_is_short(target_type))
     {
         gint16 res;
 
-        if (IR_IS_INT_CONSTANT(val))
+        if (types_is_int(val_type))
         {
-            res = (gint16)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (gint16)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
-        else if (IR_IS_UINT_CONSTANT(val))
+        else if (types_is_uint(val_type))
         {
-            res = (gint16)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (gint16)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {
             assert(false); /* unexpected value type */
         }
-        return IR_EXPRESSION(ir_short_constant_new(res));
+        return IR_EXPRESSION(ir_basic_constant_new_short(res));
     }
     else if (types_is_ushort(target_type))
     {
         guint16 res;
 
-        if (IR_IS_INT_CONSTANT(val))
+        if (types_is_int(val_type))
         {
-            res = (guint16)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (guint16)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
-        else if (IR_IS_UINT_CONSTANT(val))
+        else if (types_is_uint(val_type))
         {
-            res = (guint16)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (guint16)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {
             assert(false); /* unexpected value type */
         }
-        return IR_EXPRESSION(ir_ushort_constant_new(res));
+        return IR_EXPRESSION(ir_basic_constant_new_ushort(res));
     }
     else if (types_is_byte(target_type))
     {
         gint8 res;
 
-        if (IR_IS_INT_CONSTANT(val))
+        if (types_is_int(val_type))
         {
-            res = (gint8)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (gint8)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
-        else if (IR_IS_UINT_CONSTANT(val))
+        else if (types_is_uint(val_type))
         {
-            res = (gint8)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (gint8)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {
             assert(false); /* unexpected value type */
         }
-        return IR_EXPRESSION(ir_byte_constant_new(res));
+        return IR_EXPRESSION(ir_basic_constant_new_byte(res));
     }
     else if (types_is_ubyte(target_type))
     {
         guint8 res;
 
-        if (IR_IS_INT_CONSTANT(val))
+        if (types_is_int(val_type))
         {
-            res = (guint8)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (guint8)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
-        else if (IR_IS_UINT_CONSTANT(val))
+        else if (types_is_uint(val_type))
         {
-            res = (guint8)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (guint8)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {
             assert(false); /* unexpected value type */
         }
-        return IR_EXPRESSION(ir_ubyte_constant_new(res));
+        return IR_EXPRESSION(ir_basic_constant_new_ubyte(res));
     }
     else if (types_is_bool(target_type))
     {
@@ -499,11 +494,11 @@ cfold_cast_basic_type(DtDataType *target_type,
 
         if (types_is_int(val_type))
         {
-            res = (gboolean)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (gboolean)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_uint(val_type))
         {
-            res = (gboolean)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (gboolean)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {
@@ -523,11 +518,11 @@ cfold_cast_basic_type(DtDataType *target_type,
         }
         else if (types_is_int(val_type))
         {
-            res = (guint8)ir_int_constant_get_value(IR_INT_CONSTANT(val));
+            res = (guint8)ir_basic_constant_get_int(IR_BASIC_CONSTANT(val));
         }
         else if (types_is_uint(val_type))
         {
-            res = (gint8)ir_uint_constant_get_value(IR_UINT_CONSTANT(val));
+            res = (gint8)ir_basic_constant_get_uint(IR_BASIC_CONSTANT(val));
         }
         else
         {

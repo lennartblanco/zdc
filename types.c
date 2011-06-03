@@ -8,8 +8,7 @@
 #include "dt_pointer.h"
 #include "ir_function.h"
 #include "ir_cast.h"
-#include "ir_int_constant.h"
-#include "ir_uint_constant.h"
+#include "ir_basic_constant.h"
 #include "ir_char_constant.h"
 #include "ir_bool_constant.h"
 #include "const_fold.h"
@@ -138,12 +137,12 @@ implicit_conv_to_short(IrExpression *expression)
     }
     else if (exp_basic_type == int_type)
     {
-        if (!IR_IS_INT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXINT16 || val < G_MININT16)
         {
             return NULL;
@@ -154,12 +153,13 @@ implicit_conv_to_short(IrExpression *expression)
     }
     else if (exp_basic_type == uint_type)
     {
-        if (!IR_IS_UINT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        guint32 val =
+            ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXINT16)
         {
             return NULL;
@@ -198,12 +198,12 @@ implicit_conv_to_ushort(IrExpression *expression)
     }
     else if (exp_basic_type == int_type)
     {
-        if (!IR_IS_INT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXUINT16 || val < 0)
         {
             return NULL;
@@ -213,12 +213,12 @@ implicit_conv_to_ushort(IrExpression *expression)
     }
     else if (exp_basic_type == uint_type)
     {
-        if (!IR_IS_UINT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        guint32 val = ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXUINT16)
         {
             return NULL;
@@ -253,12 +253,12 @@ implicit_conv_to_byte(IrExpression *expression)
     }
     else if (exp_basic_type == int_type)
     {
-        if (!IR_IS_INT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXINT8 || val < G_MININT8)
         {
             return NULL;
@@ -269,12 +269,13 @@ implicit_conv_to_byte(IrExpression *expression)
     }
     else if (exp_basic_type == uint_type)
     {
-        if (!IR_IS_UINT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        guint32 val =
+            ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXINT8)
         {
             return NULL;
@@ -308,12 +309,12 @@ implicit_conv_to_ubyte(IrExpression *expression)
     }
     else if (exp_basic_type == int_type)
     {
-        if (!IR_IS_INT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        gint32 val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+        gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXUINT8 || val < 0)
         {
             return NULL;
@@ -324,12 +325,13 @@ implicit_conv_to_ubyte(IrExpression *expression)
     }
     else if (exp_basic_type == uint_type)
     {
-        if (!IR_IS_UINT_CONSTANT(expression))
+        if (!IR_IS_BASIC_CONSTANT(expression))
         {
             return NULL;
         }
 
-        guint32 val = ir_uint_constant_get_value(IR_UINT_CONSTANT(expression));
+        guint32 val =
+            ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));
         if (val > G_MAXUINT8)
         {
             return NULL;
@@ -962,15 +964,30 @@ types_get_void_type()
 bool
 types_is_literal_0or1(IrExpression *expression)
 {
-    gint32 val;
+    bool res;
 
-    /* todo add support for uint constants */
-    if (!IR_IS_INT_CONSTANT(expression))
+    if (!IR_IS_BASIC_CONSTANT(expression))
     {
         return false;
     }
 
-    val = ir_int_constant_get_value(IR_INT_CONSTANT(expression));
+    DtDataType *exp_type = ir_expression_get_data_type(expression);
 
-    return val == 0 || val == 1;
+    if (types_is_int(exp_type))
+    {
+         gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
+         res = (val == 0 || val == 1);
+    }
+    else if (types_is_uint(exp_type))
+    {
+         guint32 val =
+             ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));
+         res = (val == 0 || val == 1);
+    }
+    else
+    {
+        assert(false); /* unexpected expression data type */
+    }
+
+    return res;
 }
