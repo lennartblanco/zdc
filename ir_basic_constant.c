@@ -147,7 +147,9 @@ ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
 {
     IrBasicConstant *obj;
 
-    obj = g_object_new(IR_TYPE_BASIC_CONSTANT, "ir-node-line-number", line_number, NULL);
+    obj = g_object_new(IR_TYPE_BASIC_CONSTANT,
+                       "ir-node-line-number",
+                       line_number, NULL);
 
     obj->type = type;
     switch (type)
