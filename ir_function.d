@@ -1,6 +1,6 @@
 struct IrFunction;
 
-enum ir_linkage_type_t
+enum ir_linkage_type
 {
   d_linkage,
   c_linkage

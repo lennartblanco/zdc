@@ -30,7 +30,7 @@ enum compilation_stages
 struct compilation_settings
 {
     GSList              *import_paths;
-    arch_backend_s       backend;
+    arch_backend         backend;
     bool                 print_ast;
     bool                 print_ir;
 }
@@ -62,7 +62,7 @@ extern (C) int compile_file(const char* input_file,
                             compilation_settings settings);
 extern (C) uint system(const char *command);
 
-extern (C) void x86_init(arch_backend_s *backend);
+extern (C) void x86_init(arch_backend *backend);
 
 /**
  * Create an object file (.o) from provided assembly file by invoking assembler.

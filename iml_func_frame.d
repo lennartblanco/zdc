@@ -1,23 +1,22 @@
 public import GSList;
 public import iml_operand;
 
-struct iml_func_frame_t;
+struct iml_func_frame;
 
 extern (C)
 {
     GSList *
-    iml_func_frame_get_parameters(iml_func_frame_t *self);
+    iml_func_frame_get_parameters(iml_func_frame *self);
 
     GSList *
-    iml_func_frame_get_locals(iml_func_frame_t *self,
-                              iml_data_type_t vars_type);
+    iml_func_frame_get_locals(iml_func_frame *self, iml_data_type vars_type);
 
     void
-    iml_func_frame_set_size(iml_func_frame_t *self, uint stack_size);
+    iml_func_frame_set_size(iml_func_frame *self, uint stack_size);
 
     uint
-    iml_func_frame_get_size(iml_func_frame_t *self);
+    iml_func_frame_get_size(iml_func_frame *self);
 
     GSList *
-    iml_func_frame_get_used_regs(iml_func_frame_t *self);
+    iml_func_frame_get_used_regs(iml_func_frame *self);
 }

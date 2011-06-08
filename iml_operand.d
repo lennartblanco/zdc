@@ -1,16 +1,16 @@
 struct ImlOperand;
 
-enum iml_data_type_t
+enum iml_data_type
 {
-    iml_8b,
-    iml_16b,
-    iml_32b,
-    iml_ptr,
-    iml_blob
+    _8b,
+    _16b,
+    _32b,
+    ptr,
+    blob
 };
 
 extern (C)
 {
-    iml_data_type_t
+    iml_data_type
     iml_operand_get_data_type(ImlOperand *self);
 }

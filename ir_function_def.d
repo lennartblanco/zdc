@@ -15,7 +15,7 @@ extern (C)
     DtDataType *
     ir_function_def_get_return_type(IrFunctionDef *self);
 
-    iml_func_frame_t *
+    iml_func_frame *
     ir_function_def_get_frame(IrFunctionDef *self);
 
     GSList *

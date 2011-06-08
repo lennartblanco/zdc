@@ -18,7 +18,7 @@ enum TEMP_REG1 = "ip";
 enum TEMP_REG2 = "r0";
 
 extern (C) void
-arm_init(arch_backend_s *backend)
+arm_init(arch_backend *backend)
 {
     backend.get_registers = &get_registers;
     backend.assign_var_locations = &assign_var_locations;
@@ -43,7 +43,7 @@ get_registers(GSList **scratch, GSList **preserved)
 }
 
 extern (C) void
-assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
+assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
 {
     int start_offset;
     int offset;
@@ -72,7 +72,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
         }
     }
 
-    void assign_offset(iml_data_type_t vars_type)
+    void assign_offset(iml_data_type vars_type)
     {
         GSList *variables = iml_func_frame_get_locals(frame, vars_type);
 
@@ -83,7 +83,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
             if (iml_variable_get_register(var) == null)
             {
                 iml_variable_set_frame_offset(var, offset);
-                if (vars_type == iml_data_type_t.iml_blob)
+                if (vars_type == iml_data_type.blob)
                 {
                     offset -= iml_variable_get_size(var);
                 }
@@ -98,11 +98,11 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
     offset = start_offset = get_start_offset();
 
     assign_params_offset(iml_func_frame_get_parameters(frame));
-    assign_offset(iml_data_type_t.iml_32b);
-    assign_offset(iml_data_type_t.iml_16b);
-    assign_offset(iml_data_type_t.iml_8b);
-    assign_offset(iml_data_type_t.iml_ptr);
-    assign_offset(iml_data_type_t.iml_blob);
+    assign_offset(iml_data_type._32b);
+    assign_offset(iml_data_type._16b);
+    assign_offset(iml_data_type._8b);
+    assign_offset(iml_data_type.ptr);
+    assign_offset(iml_data_type.blob);
 
     iml_func_frame_set_size(frame, start_offset - offset);
 }
@@ -123,7 +123,7 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
 }
 
 private void
-gen_text_prelude(File asmfile, sym_table_t *sym_table)
+gen_text_prelude(File asmfile, sym_table *sym_table)
 {
     IrSymbol *symb;
 
@@ -170,7 +170,7 @@ gen_text_prelude(File asmfile, sym_table_t *sym_table)
  * in a function frame
  */
 private string
-get_used_preserved_regs(iml_func_frame_t *func_frame)
+get_used_preserved_regs(iml_func_frame *func_frame)
 {
     string preserved_regs = "";
     string[] regs;
@@ -203,7 +203,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     IrModule *parent_module;
     string mangled_name;
     string return_label;
-    iml_func_frame_t *frame = ir_function_def_get_frame(func);
+    iml_func_frame *frame = ir_function_def_get_frame(func);
     string preserved_regs;
     uint frame_size;
     uint cntr;
@@ -256,11 +256,11 @@ compile_function_def(File asmfile, IrFunctionDef *func)
          i != null;
          i = i.next())
     {
-        iml_operation_t *op = cast(iml_operation_t *)i.data;
-        iml_opcode_t opcode = iml_operation_get_opcode(op);
+        iml_operation *op = cast(iml_operation *)i.data;
+        iml_opcode opcode = iml_operation_get_opcode(op);
 
         /* annotate assembly file with compiled IML operations */
-        if (opcode != iml_opcode_t.label)
+        if (opcode != iml_opcode.label)
         {
             asmfile.writef("\n    @ ");
             iml_operation_print(op, asmfile.getFP(), 0);
@@ -268,66 +268,66 @@ compile_function_def(File asmfile, IrFunctionDef *func)
 
         switch (opcode)
         {
-            case iml_opcode_t.ret:
+            case iml_opcode.ret:
                 compile_ret(asmfile,
                             op,
                             return_label,
                             i.next() == null);
                 break;
-            case iml_opcode_t.copy:
+            case iml_opcode.copy:
                 /*
                  * currently variables of all supported iml types are
                  * stored as 32-bit integers,
                  * thus iml_cast is equivalent to iml_copy operation
                  */
-            case iml_opcode_t.cast_op:
+            case iml_opcode.cast_op:
                 compile_copy(asmfile, op);
                 break;
-            case iml_opcode_t.call_c:
-            case iml_opcode_t.call:
+            case iml_opcode.call_c:
+            case iml_opcode.call:
                 compile_call(asmfile, op);
                 break;
-            case iml_opcode_t.add:
-            case iml_opcode_t.sub:
-            case iml_opcode_t.smult:
-            case iml_opcode_t.umult:
-            case iml_opcode_t.and:
-            case iml_opcode_t.or:
+            case iml_opcode.add:
+            case iml_opcode.sub:
+            case iml_opcode.smult:
+            case iml_opcode.umult:
+            case iml_opcode.and:
+            case iml_opcode.or:
                 compile_binop(asmfile, op);
                 break;
-            case iml_opcode_t.sless:
-            case iml_opcode_t.uless:
-            case iml_opcode_t.slesseq:
-            case iml_opcode_t.ulesseq:
-            case iml_opcode_t.equal:
-            case iml_opcode_t.nequal:
-            case iml_opcode_t.sgreatereq:
-            case iml_opcode_t.ugreatereq:
-            case iml_opcode_t.sgreater:
-            case iml_opcode_t.ugreater:
+            case iml_opcode.sless:
+            case iml_opcode.uless:
+            case iml_opcode.slesseq:
+            case iml_opcode.ulesseq:
+            case iml_opcode.equal:
+            case iml_opcode.nequal:
+            case iml_opcode.sgreatereq:
+            case iml_opcode.ugreatereq:
+            case iml_opcode.sgreater:
+            case iml_opcode.ugreater:
                 compile_icmp(asmfile, op);
                 break;
-            case iml_opcode_t.ineg:
+            case iml_opcode.ineg:
                 compile_ineg(asmfile, op);
                 break;
-            case iml_opcode_t.bneg:
+            case iml_opcode.bneg:
                 compile_bneg(asmfile, op);
                 break;
-            case iml_opcode_t.jmpneq:
+            case iml_opcode.jmpneq:
                 compile_jmpcond(asmfile, op);
                 break;
-            case iml_opcode_t.set:
+            case iml_opcode.set:
                 compile_set(asmfile, op);
                 break;
-            case iml_opcode_t.get:
+            case iml_opcode.get:
                 compile_get(asmfile, op);
                 break;
-            case iml_opcode_t.jmp:
+            case iml_opcode.jmp:
                 asmfile.writefln("    b %s",
                                  to!string(cast(char*)
                                            iml_operation_get_operand(op, 1)));
                 break;
-            case iml_opcode_t.label:
+            case iml_opcode.label:
                 asmfile.writefln("%s:",
                                  to!string(cast(char*)
                                            iml_operation_get_operand(op, 1)));
@@ -401,7 +401,7 @@ gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
 
 private void
 compile_ret(File asmfile,
-            iml_operation_t *op,
+            iml_operation *op,
             string return_label,
             bool is_last_op)
 {
@@ -419,7 +419,7 @@ compile_ret(File asmfile,
 }
 
 private void
-compile_copy(File asmfile, iml_operation_t *op)
+compile_copy(File asmfile, iml_operation *op)
 {
     ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
@@ -593,7 +593,7 @@ load_to_regs(File asmfile,
 }
 
 private void
-compile_binop(File asmfile, iml_operation_t *op)
+compile_binop(File asmfile, iml_operation *op)
 {
     ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
     ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
@@ -607,20 +607,20 @@ compile_binop(File asmfile, iml_operation_t *op)
 
     switch (iml_operation_get_opcode(op))
     {
-        case iml_opcode_t.and:
+        case iml_opcode.and:
             inst = "and";
             break;
-        case iml_opcode_t.or:
+        case iml_opcode.or:
             inst = "orr";
             break;
-        case iml_opcode_t.add:
+        case iml_opcode.add:
             inst = "add";
             break;
-        case iml_opcode_t.sub:
+        case iml_opcode.sub:
             inst = "sub";
             break;
-        case iml_opcode_t.smult:
-        case iml_opcode_t.umult:
+        case iml_opcode.smult:
+        case iml_opcode.umult:
             inst = "mul";
             mul_style = true;
             break;
@@ -649,9 +649,9 @@ compile_binop(File asmfile, iml_operation_t *op)
 }
 
 private void
-compile_ineg(File asmfile, iml_operation_t *op)
+compile_ineg(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode_t.ineg);
+    assert(iml_operation_get_opcode(op) == iml_opcode.ineg);
 
     ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
     ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
@@ -692,9 +692,9 @@ compile_ineg(File asmfile, iml_operation_t *op)
 }
 
 private void
-compile_bneg(File asmfile, iml_operation_t *op)
+compile_bneg(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode_t.bneg);
+    assert(iml_operation_get_opcode(op) == iml_opcode.bneg);
 
     ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
     ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
@@ -734,7 +734,7 @@ compile_bneg(File asmfile, iml_operation_t *op)
 }
 
 private void
-compile_icmp(File asmfile, iml_operation_t *op)
+compile_icmp(File asmfile, iml_operation *op)
 {
     ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
     ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
@@ -748,43 +748,43 @@ compile_icmp(File asmfile, iml_operation_t *op)
 
     switch (iml_operation_get_opcode(op))
     {
-        case iml_opcode_t.sless:
+        case iml_opcode.sless:
             true_suffix = "lt";
             false_suffix = "ge";
             break;
-        case iml_opcode_t.uless:
+        case iml_opcode.uless:
             true_suffix = "lo";
             false_suffix = "hs";
             break;
-        case iml_opcode_t.slesseq:
+        case iml_opcode.slesseq:
             true_suffix = "le";
             false_suffix = "gt";
             break;
-        case iml_opcode_t.ulesseq:
+        case iml_opcode.ulesseq:
             true_suffix = "ls";
             false_suffix = "hi";
             break;
-        case iml_opcode_t.equal:
+        case iml_opcode.equal:
             true_suffix = "eq";
             false_suffix = "ne";
             break;
-        case iml_opcode_t.nequal:
+        case iml_opcode.nequal:
             true_suffix = "ne";
             false_suffix = "eq";
             break;
-        case iml_opcode_t.sgreatereq:
+        case iml_opcode.sgreatereq:
             true_suffix = "ge";
             false_suffix = "lt";
             break;
-        case iml_opcode_t.ugreatereq:
+        case iml_opcode.ugreatereq:
             true_suffix = "hs";
             false_suffix = "lo";
             break;
-        case iml_opcode_t.sgreater:
+        case iml_opcode.sgreater:
             true_suffix = "gt";
             false_suffix = "le";
             break;
-        case iml_opcode_t.ugreater:
+        case iml_opcode.ugreater:
             true_suffix = "hi";
             false_suffix = "ls";
             break;
@@ -815,9 +815,9 @@ compile_icmp(File asmfile, iml_operation_t *op)
 }
 
 private void
-compile_jmpcond(File asmfile, iml_operation_t *op)
+compile_jmpcond(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode_t.jmpneq,
+    assert(iml_operation_get_opcode(op) == iml_opcode.jmpneq,
            "only jmpneq implemented");
     assert(iml_is_variable(iml_operation_get_operand(op, 1)),
            "only variable left operand supported");
@@ -867,15 +867,15 @@ get_offset_expression(ImlConstant *offset)
 }
 
 private void
-compile_set(File asmfile, iml_operation_t *op)
+compile_set(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode_t.set);
+    assert(iml_operation_get_opcode(op) == iml_opcode.set);
     ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
     ImlConstant *offset = cast(ImlConstant *)iml_operation_get_operand(op, 3);
 
-    assert(iml_operand_get_data_type(src) == iml_data_type_t.iml_32b ||
-           iml_operand_get_data_type(src) == iml_data_type_t.iml_ptr,
+    assert(iml_operand_get_data_type(src) == iml_data_type._32b ||
+           iml_operand_get_data_type(src) == iml_data_type.ptr,
            "only 32-bit set is implemented");
 
     /* make sure source operand is placed in a register */
@@ -915,9 +915,9 @@ compile_set(File asmfile, iml_operation_t *op)
 }
 
 private void
-compile_get(File asmfile, iml_operation_t *op)
+compile_get(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode_t.get);
+    assert(iml_operation_get_opcode(op) == iml_opcode.get);
 
     /* make sure address value is stored in the register */
     ImlVariable *addr = cast(ImlVariable *)iml_operation_get_operand(op, 1);
@@ -932,9 +932,9 @@ compile_get(File asmfile, iml_operation_t *op)
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
 
     assert(iml_operand_get_data_type(cast(ImlOperand*)dest) ==
-                                                    iml_data_type_t.iml_32b ||
+                                                    iml_data_type._32b ||
            iml_operand_get_data_type(cast(ImlOperand*)dest) ==
-                                                    iml_data_type_t.iml_ptr,
+                                                    iml_data_type.ptr,
            "only 32-bit get is implemented");
 
     string dest_reg = to!string(iml_variable_get_register(dest));
@@ -957,7 +957,7 @@ compile_get(File asmfile, iml_operation_t *op)
 }
 
 private void
-compile_call(File asmfile, iml_operation_t *op)
+compile_call(File asmfile, iml_operation *op)
 {
     string func_name = to!string(cast(char*)iml_operation_get_operand(op, 1));
     GSList *args = cast(GSList *)iml_operation_get_operand(op, 2);

@@ -8,7 +8,7 @@ extern (C)
     GSList *
     ir_module_get_function_defs(IrModule *self);
 
-    sym_table_t *
+    sym_table *
     ir_module_get_symbols(IrModule *self);
 
     char *

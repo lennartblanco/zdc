@@ -1,8 +1,8 @@
 import std.stdio;
 
-struct iml_operation_t;
+struct iml_operation;
 
-enum iml_opcode_t
+enum iml_opcode
 {
     add,
     sub,
@@ -45,15 +45,15 @@ enum iml_opcode_t
 
 extern (C)
 {
-    iml_opcode_t
-    iml_operation_get_opcode(iml_operation_t *self);
+    iml_opcode
+    iml_operation_get_opcode(iml_operation *self);
     
     void *
-    iml_operation_get_operand(iml_operation_t *self,
+    iml_operation_get_operand(iml_operation *self,
                               uint operand_num);
 
     void
-    iml_operation_print(iml_operation_t *self,
+    iml_operation_print(iml_operation *self,
                         FILE *out_stream,
                         int indention);
 }
