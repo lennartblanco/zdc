@@ -142,12 +142,6 @@ call_c function_name, (arg0, arg1, ..., argN) [ => res ]
  call a function, use calling convension (extern(C) linkage)
     - if no res variable is specified, then this is a call to void function
 
-memcpy src, length => dest
-  copy memory <length> bytes from <src> to <dest>.
-   - src is data section label or pointer
-   - length is variable or constant of 32b type
-   - dest is pointer, frame offset or array handle
-
 get <addr>[+<offset>] => <dest>
   get value at memory soecified by <addr> + <offset> and store it in <dest>.
   offset is optional, and if not specified 0 is assumed. the size of the read
