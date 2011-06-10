@@ -82,15 +82,9 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
 
             if (iml_variable_get_register(var) == null)
             {
-                iml_variable_set_frame_offset(var, offset);
-                if (vars_type == iml_data_type.blob)
-                {
-                    offset -= iml_variable_get_size(var);
-                }
-                else
-                {
-                    offset -= 4;
-                }
+                uint var_size = iml_variable_get_size(var);
+                iml_variable_set_frame_offset(var, offset - (var_size - 4));
+                offset -= var_size;
             }
         }
     }
