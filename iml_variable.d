@@ -1,3 +1,5 @@
+import iml_operand;
+
 struct ImlVariable;
 
 extern (C)
@@ -13,6 +15,9 @@ extern (C)
 
     int
     iml_variable_get_frame_offset(ImlVariable *self);
+
+    iml_data_type
+    iml_variable_get_data_type(ImlVariable *self);
 
     uint
     iml_variable_get_size(ImlVariable *self);

@@ -316,6 +316,12 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.get:
                 compile_get(asmfile, op);
                 break;
+            case iml_opcode.setelm:
+                compile_setelm(asmfile, op);
+                break;
+            case iml_opcode.getelm:
+                compile_getelm(asmfile, op);
+                break;
             case iml_opcode.jmp:
                 asmfile.writefln("    b %s",
                                  to!string(cast(char*)
@@ -345,31 +351,64 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                      preserved_regs);
 }
 
+/**
+ * Generate assembly to move an operand into specified register. The operands
+ * value can optionally be multiplied by an 2^x value.
+ *
+ * @param file where to write generated assembly
+ * @param regiser register name where to store the operand
+ * @param operand the operand to store in the register
+ * @param mult if specified the value stored in register will be (operand * mult)
+ */
 private void
-gen_move_to_reg(File asmfile, string register, ImlOperand *operand)
+gen_move_to_reg(File asmfile,
+                string register,
+                ImlOperand *operand,
+                uint mult = 1)
 {
     if (iml_is_constant(operand))
     {
         asmfile.writefln("    ldr %s, =%s",
                          register,
-                         iml_constant_get_val_32b(cast(ImlConstant *)operand));
+                         iml_constant_get_val_32b(cast(ImlConstant *)operand)
+                                                                       * mult);
     }
     else
     {
         assert(iml_is_variable(operand));
+
+        string shift_operand;
+        switch (mult)
+        {
+            case 4:
+                shift_operand = ", lsl #2";
+                break;
+            case 2:
+                shift_operand = ", lsl #1";
+                break;
+            case 1:
+                shift_operand = "";
+                break;
+            default:
+                assert(false, "unsupported mult value");
+        }
 
         ImlVariable *var = cast(ImlVariable *)operand;
         char *reg = iml_variable_get_register(var);
 
         if (reg != null)
         {
-            asmfile.writefln("    mov %s, %s",
-                             register, to!string(reg));
+            asmfile.writefln("    mov %s, %s%s",
+                             register, to!string(reg), shift_operand);
         }
         else
         {
             asmfile.writefln("    ldr %s, [fp, #%s]",
                              register, iml_variable_get_frame_offset(var));
+            if (shift_operand != "")
+            {
+                asmfile.writefln("    mov %s, %s%s", register, register, shift_operand);
+            }
         }
     }
 }
@@ -391,6 +430,40 @@ gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
                          src_reg,
                          iml_variable_get_frame_offset(destination));
     }
+}
+
+/**
+ * Check if operand is stored in register. If not, generate assembly to
+ * copy operand to provided register.
+ *
+ * @param asmfile the file where to write generated code
+ * @param operand the operand to be copied to a register
+ * @param register the register where operand can be stored
+ *
+ * @return the register where operand is stored
+ */
+private string
+store_in_reg(File asmfile, ImlOperand *operand, string register)
+{
+    if (iml_is_constant(operand))
+    {
+        gen_move_to_reg(asmfile, register, operand);
+    }
+    else
+    {
+        assert(iml_is_variable(operand));
+        char *reg = iml_variable_get_register(cast(ImlVariable*)operand);
+        if (reg == null)
+        {
+            gen_move_to_reg(asmfile, register, operand);
+        }
+        else
+        {
+            register = to!string(reg);
+        }
+    }
+
+    return register;
 }
 
 private void
@@ -873,26 +946,7 @@ compile_set(File asmfile, iml_operation *op)
            "only 32-bit set is implemented");
 
     /* make sure source operand is placed in a register */
-    string src_reg;
-    if (iml_is_constant(src))
-    {
-        gen_move_to_reg(asmfile, TEMP_REG1, src);
-        src_reg = TEMP_REG1;
-    }
-    else
-    {
-        assert(iml_is_variable(src));
-        char *reg = iml_variable_get_register(cast(ImlVariable*)src);
-        if (reg == null)
-        {
-            gen_move_to_reg(asmfile, TEMP_REG1, src);
-            src_reg = TEMP_REG1;
-        }
-        else
-        {
-            src_reg = to!string(reg);
-        }
-    }
+    string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
 
     /* make sure destination operand is placed in a register */
     string dest_reg = to!string(iml_variable_get_register(dest));
@@ -947,6 +1001,148 @@ compile_get(File asmfile, iml_operation *op)
     if (dest_reg == TEMP_REG2)
     {
         gen_move_from_reg(asmfile, dest_reg, dest);
+    }
+}
+
+private void
+compile_setelm(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.setelm);
+
+    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlOperand *index = cast(ImlOperand *)iml_operation_get_operand(op, 3);
+    uint size = cast(uint)iml_operation_get_operand(op, 4);
+
+    string op_suffix;
+
+    switch (iml_operand_get_data_type(src))
+    {
+        case iml_data_type._32b:
+        case iml_data_type.ptr:
+            op_suffix = "";
+            break;
+        case iml_data_type._16b:
+            op_suffix = "h";
+            break;
+        case iml_data_type._8b:
+            op_suffix = "b";
+            break;
+        default:
+            assert(false, "unexpected source data type");
+    }
+
+    /* make sure source operand is placed in a register */
+    string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
+
+    string addr_exp;
+    if (iml_variable_get_data_type(dest) == iml_data_type.blob)
+    {
+        int dest_offset = iml_variable_get_frame_offset(dest);
+
+        if (iml_is_constant(index))
+        {
+            assert(iml_operand_get_data_type(index) == iml_data_type._32b);
+            ImlConstant *const_idx = cast(ImlConstant *)index;
+            addr_exp = "fp, #" ~
+                to!string(dest_offset +
+                   cast(int)(iml_constant_get_val_32b(const_idx) * size));
+        }
+        else
+        {
+            assert(iml_is_variable(index));
+            ImlVariable *var = cast(ImlVariable*)index;
+
+            gen_move_to_reg(asmfile, TEMP_REG2, index, size);
+            asmfile.writefln("    add %s, %s, #%s",
+                             TEMP_REG2,
+                             TEMP_REG2,
+                             dest_offset);
+            addr_exp = "fp, " ~ TEMP_REG2;
+        }
+    }
+    else
+    {
+        assert(false, "unsupported destination variable type");
+    }
+
+    asmfile.writefln("    str%s %s, [%s]", op_suffix, src_reg, addr_exp);
+}
+
+private void
+compile_getelm(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.getelm);
+
+    ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
+    ImlOperand *index = cast(ImlOperand *)iml_operation_get_operand(op, 2);
+    uint size = cast(uint)iml_operation_get_operand(op, 3);
+    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 4);
+
+    string op_suffix;
+
+    switch (iml_variable_get_data_type(dest))
+    {
+        case iml_data_type._32b:
+        case iml_data_type.ptr:
+            op_suffix = "";
+            break;
+        case iml_data_type._16b:
+            op_suffix = "h";
+            break;
+        case iml_data_type._8b:
+            op_suffix = "b";
+            break;
+        default:
+            assert(false, "unexpected destination data type");
+    }
+
+    string addr_exp;
+    if (iml_variable_get_data_type(src) == iml_data_type.blob)
+    {
+        int src_offset = iml_variable_get_frame_offset(src);
+
+        if (iml_is_constant(index))
+        {
+            assert(iml_operand_get_data_type(index) == iml_data_type._32b);
+            ImlConstant *const_idx = cast(ImlConstant *)index;
+            addr_exp = "fp, #" ~
+                to!string(src_offset +
+                   cast(int)(iml_constant_get_val_32b(const_idx) * size));
+
+        }
+        else
+        {
+            assert(iml_is_variable(index));
+            ImlVariable *var = cast(ImlVariable*)index;
+
+            gen_move_to_reg(asmfile, TEMP_REG2, index, size);
+            asmfile.writefln("    add %s, %s, #%s",
+                             TEMP_REG2,
+                             TEMP_REG2,
+                             src_offset);
+            addr_exp = "fp, " ~ TEMP_REG2;
+        }
+    }
+    else
+    {
+        assert(false, "not impelemted");
+    }
+
+    char *dest_reg = iml_variable_get_register(dest);
+    string reg;
+    if (dest_reg != null)
+    {
+        reg = to!string(dest_reg);
+    }
+    else
+    {
+        reg = TEMP_REG2;
+    }
+    asmfile.writefln("    ldr%s %s, [%s]",op_suffix, reg, addr_exp);
+    if (dest_reg == null)
+    {
+        gen_move_from_reg(asmfile, TEMP_REG2, dest);
     }
 }
 

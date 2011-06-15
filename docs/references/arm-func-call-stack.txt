@@ -1,9 +1,23 @@
 void foo();
 
--24             <- sp
--20 local var
--16 local var 
+-24 local var <- sp
+-20 v1
+-16 v2
 -12 lr (return address)
 - 8 old_sp 
 - 4 old_fp       <- fp
   0
+
+void foo()
+{
+  int[5] arr;
+}
+
+100 arr[0]              fp - 28
+104 arr[1]              fp - 24
+108 arr[2]              fp - 20
+112 arr[3]              fp - 16
+116 arr[4]              fp - 12
+120 lr (return address)
+124 old_sp
+128 old_fp       <- fp
