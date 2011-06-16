@@ -146,7 +146,6 @@ gen_text_prelude(File asmfile, sym_table *sym_table)
     string main_mangled_name =
         to!string(ir_function_get_mangled_name(cast(IrFunction *) main_func));
     asmfile.writefln(
-        "    .text\n"
         "    .align 2\n"
         "    .global main\n"
         "    .type main, %%function\n"
