@@ -5,6 +5,7 @@ import std.conv;
 import std.c.stdio;
 import std.c.string;
 import auxil;
+import data_section;
 import ir_module;
 import ir_function;
 import ir_function_def;
@@ -107,6 +108,7 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
     File f = File.wrapFile(out_stream);
     f.writefln("    .file \"%s\"\n", to!string(source_file));
 
+    gen_data_section(f.getFP(), ir_module);
     gen_text_prelude(f, ir_module_get_symbols(ir_module));
 
     GSList *funcs = ir_module_get_function_defs(ir_module);
