@@ -321,6 +321,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.getelm:
                 compile_getelm(asmfile, op);
                 break;
+            case iml_opcode.getaddr:
+                compile_getaddr(asmfile, op);
+                break;
             case iml_opcode.jmp:
                 asmfile.writefln("    b %s",
                                  to!string(cast(char*)
@@ -1152,6 +1155,28 @@ compile_getelm(File asmfile, iml_operation *op)
     if (dest_reg == null)
     {
         gen_move_from_reg(asmfile, TEMP_REG2, dest);
+    }
+}
+
+private void
+compile_getaddr(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.getaddr);
+
+    ImlVariable *var = cast(ImlVariable *)iml_operation_get_operand(op, 1);
+    ImlVariable *addr = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+
+    assert(iml_variable_get_data_type(var) == iml_data_type.blob);
+    assert(iml_variable_get_data_type(addr) == iml_data_type.ptr);
+
+    char *addr_reg = iml_variable_get_register(addr);
+    string reg = addr_reg != null ? to!string(addr_reg) : TEMP_REG1;
+
+    asmfile.writefln("    add %s, fp, #%s",
+                     reg, iml_variable_get_frame_offset(var));
+    if (addr_reg == null)
+    {
+        gen_move_from_reg(asmfile, reg, addr);
     }
 }
 
