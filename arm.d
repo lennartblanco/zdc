@@ -367,10 +367,20 @@ gen_move_to_reg(File asmfile,
 {
     if (iml_is_constant(operand))
     {
-        asmfile.writefln("    ldr %s, =%s",
-                         register,
-                         iml_constant_get_val_32b(cast(ImlConstant *)operand)
-                                                                       * mult);
+        ImlConstant *const_op = cast(ImlConstant *)operand;
+        if (iml_operand_get_data_type(operand) == iml_data_type.ptr)
+        {
+            assert(mult == 1); /* can't multiply label constants */
+            asmfile.writefln("    ldr %s, =%s",
+                             register,
+                             to!string(iml_constant_get_val_ptr(const_op)));
+        }
+        else
+        {
+            asmfile.writefln("    ldr %s, =%s",
+                             register,
+                             iml_constant_get_val_32b(const_op) * mult);
+        }
     }
     else
     {
