@@ -2,8 +2,8 @@
 #include <string.h>
 
 #include "types.h"
+#include "data_section.h"
 #include "x86.h"
-#include "x86_data.h"
 #include "ir_property.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
@@ -20,6 +20,13 @@
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
  *---------------------------------------------------------------------------*/
+
+typedef struct x86_comp_params_s
+{
+    FILE *out;
+    IrModule *module;
+} x86_comp_params_t;
+
 
 #define TEMP_REG1_NAME "ecx"
 #define TEMP_REG2_NAME "eax"
@@ -280,7 +287,6 @@ gen_code(IrModule *module, FILE *out_stream, const char *source_file)
     x86_comp_params_t params;
     sym_table_t *global_sym_table;
     GSList *i;
-    GList *data_section;
 
     params.out = out_stream;
     params.module = module;
@@ -290,9 +296,7 @@ gen_code(IrModule *module, FILE *out_stream, const char *source_file)
             "    .file \"%s\"\n",
             source_file);
 
-    data_section = ir_module_get_data_section(module);
-    x86_gen_data_section(&params, data_section);
-    g_list_free(data_section);
+    gen_data_section(out_stream, module);
 
     text_prelude(&params, global_sym_table);
 

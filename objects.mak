@@ -1,10 +1,10 @@
-X86_TRGT_OBJS := x86.o x86_data.o
+X86_TRGT_OBJS := x86.o
 
 ARM_TRGT_OBJS := arm-d.o
 
 # objects generated from C source files
 COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
-         errors.o types.o types_arrays.o const_fold.o ir_to_iml.o             \
+         errors.o data_section.o types.o types_arrays.o const_fold.o          \
          ast_to_ir.o sem_analyze.o sem_analyze_validate.o                     \
          ast_array_literal.o ast_while.o ast_code_block.o ast_statment.o      \
          ast_node.o ast_module.o ast_function_def.o ast_function_decl.o       \
@@ -28,7 +28,7 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ir_function_decl.o ir_property.o ir_struct.o ir_dot.o ir_ident.o     \
          ir_struct_member.o                                                   \
          iml_operation.o iml_func_frame.o iml_operand.o iml_variable.o        \
-         iml_constant.o                                                       \
+         iml_constant.o ir_to_iml.o                                           \
          $(X86_TRGT_OBJS)
 
 # all objects generated both from C and D source files

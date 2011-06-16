@@ -1,4 +1,4 @@
-#include "x86_data.h"
+#include "data_section.h"
 
 #include "types.h"
 #include "ir_basic_constant.h"
@@ -35,10 +35,9 @@ gen_data_section_string(FILE *out,
 }
 
 static void
-gen_array_literal_data(x86_comp_params_t *params,
-                       IrArrayLiteral *array_literal)
+gen_array_literal_data(FILE *out, IrArrayLiteral *array_literal)
 {
-    assert(params);
+    assert(out);
     assert(IR_IS_ARRAY_LITERAL(array_literal));
 
     char *data_type_directive;
@@ -72,7 +71,7 @@ gen_array_literal_data(x86_comp_params_t *params,
     }
 
     /* write label and array data type */
-    fprintf(params->out, "%s: .%s ",
+    fprintf(out, "%s: .%s ",
             ir_array_literal_get_data_label(array_literal),
             data_type_directive);
 
@@ -81,15 +80,15 @@ gen_array_literal_data(x86_comp_params_t *params,
          i != NULL;
          i = g_slist_next(i))
     {
-        gen_data_section_string(params->out,
+        gen_data_section_string(out,
                                 element_basic_type,
                                 IR_EXPRESSION(i->data));
         if (g_slist_next(i) != NULL)
         {
-            fprintf(params->out, ", ");
+            fprintf(out, ", ");
         }
     }
-    fputc('\n', params->out);
+    fputc('\n', out);
 }
 
 /*---------------------------------------------------------------------------*
@@ -97,24 +96,22 @@ gen_array_literal_data(x86_comp_params_t *params,
  *---------------------------------------------------------------------------*/
 
 void
-x86_gen_data_section(x86_comp_params_t *params,
-                     GList *data_section_exprs)
+gen_data_section(FILE *out, IrModule *module)
 {
     GList *i;
+    GList *data_section = ir_module_get_data_section(module);
 
-    if (data_section_exprs == NULL)
+    if (data_section != NULL)
     {
-        /* empty data section, nothing to generate */
-        return;
+        fprintf(out, "    .data\n");
     }
 
-    fprintf(params->out, "    .data\n");
-
-    for (i = data_section_exprs; i != NULL; i = g_list_next(i))
+    for (i = data_section; i != NULL; i = g_list_next(i))
     {
         /* only array literals in data section supported */
         assert(IR_IS_ARRAY_LITERAL(i->data));
-        gen_array_literal_data(params, IR_ARRAY_LITERAL(i->data));
+        gen_array_literal_data(out, IR_ARRAY_LITERAL(i->data));
     }
+    g_list_free(data_section);
 }
 
