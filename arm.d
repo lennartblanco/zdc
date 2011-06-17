@@ -355,16 +355,42 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                      preserved_regs);
 }
 
+private string
+mult_as_shift(uint mult)
+{
+    string shift_operand;
+
+    switch (mult)
+    {
+        case 4:
+            shift_operand = ", lsl #2";
+            break;
+        case 2:
+            shift_operand = ", lsl #1";
+            break;
+        case 1:
+            shift_operand = "";
+            break;
+        default:
+            assert(false, "unsupported mult value");
+    }
+
+    return shift_operand;
+}
+
 /**
- * Generate assembly to move an operand into specified register. The operands
+ * Generate assembly to move an operand into specified register. The operand's
  * value can optionally be multiplied by an 2^x value.
  *
  * @param file where to write generated assembly
  * @param regiser register name where to store the operand
  * @param operand the operand to store in the register
  * @param mult if specified the value stored in register will be (operand * mult)
+ *
+ * @return the register were the operand have been moved, e.g. the value of
+ *         register parameter
  */
-private void
+private string
 gen_move_to_reg(File asmfile,
                 string register,
                 ImlOperand *operand,
@@ -391,22 +417,7 @@ gen_move_to_reg(File asmfile,
     {
         assert(iml_is_variable(operand));
 
-        string shift_operand;
-        switch (mult)
-        {
-            case 4:
-                shift_operand = ", lsl #2";
-                break;
-            case 2:
-                shift_operand = ", lsl #1";
-                break;
-            case 1:
-                shift_operand = "";
-                break;
-            default:
-                assert(false, "unsupported mult value");
-        }
-
+        string shift_operand = mult_as_shift(mult);
         ImlVariable *var = cast(ImlVariable *)operand;
         char *reg = iml_variable_get_register(var);
 
@@ -426,6 +437,8 @@ gen_move_to_reg(File asmfile,
             }
         }
     }
+
+    return register;
 }
 
 private void
@@ -1131,17 +1144,43 @@ compile_getelm(File asmfile, iml_operation *op)
             assert(iml_is_variable(index));
             ImlVariable *var = cast(ImlVariable*)index;
 
-            gen_move_to_reg(asmfile, TEMP_REG2, index, size);
+            gen_move_to_reg(asmfile, TEMP_REG1, index, size);
             asmfile.writefln("    add %s, %s, #%s",
-                             TEMP_REG2,
-                             TEMP_REG2,
+                             TEMP_REG1,
+                             TEMP_REG1,
                              src_offset);
-            addr_exp = "fp, " ~ TEMP_REG2;
+            addr_exp = "fp, " ~ TEMP_REG1;
         }
     }
     else
     {
-        assert(false, "not impelemted");
+        assert(iml_variable_get_data_type(src) == iml_data_type.ptr);
+
+        string addr_reg =
+            store_in_reg(asmfile, cast(ImlOperand*)src, TEMP_REG1);
+
+        if (iml_is_constant(index))
+        {
+            ImlConstant *const_idx = cast(ImlConstant *)index;
+            int offset = cast(int)iml_constant_get_val_32b(const_idx) * size;
+
+            addr_exp = addr_reg ~
+                       (offset != 0 ? ", #" ~ to!string(offset) : "");
+        }
+        else
+        {
+            assert(iml_is_variable(index));
+
+            ImlVariable *index_var = cast(ImlVariable *)index;
+            string index_reg = store_in_reg(asmfile, index, TEMP_REG2);
+
+            asmfile.writefln("    add %s, %s, %s%s",
+                             TEMP_REG1,
+                             addr_reg,
+                             index_reg,
+                             mult_as_shift(size));
+            addr_exp = TEMP_REG1;
+        }
     }
 
     char *dest_reg = iml_variable_get_register(dest);
@@ -1152,12 +1191,12 @@ compile_getelm(File asmfile, iml_operation *op)
     }
     else
     {
-        reg = TEMP_REG2;
+        reg = TEMP_REG1;
     }
-    asmfile.writefln("    ldr%s %s, [%s]",op_suffix, reg, addr_exp);
+    asmfile.writefln("    ldr%s %s, [%s]", op_suffix, reg, addr_exp);
     if (dest_reg == null)
     {
-        gen_move_from_reg(asmfile, TEMP_REG2, dest);
+        gen_move_from_reg(asmfile, TEMP_REG1, dest);
     }
 }
 
