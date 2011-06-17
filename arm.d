@@ -421,7 +421,8 @@ gen_move_to_reg(File asmfile,
                              register, iml_variable_get_frame_offset(var));
             if (shift_operand != "")
             {
-                asmfile.writefln("    mov %s, %s%s", register, register, shift_operand);
+                asmfile.writefln("    mov %s, %s%s",
+                                 register, register, shift_operand);
             }
         }
     }
