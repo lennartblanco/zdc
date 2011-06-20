@@ -326,6 +326,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.getaddr:
                 compile_getaddr(asmfile, op);
                 break;
+            case iml_opcode.mset:
+                compile_mset(asmfile, op);
+                break;
             case iml_opcode.jmp:
                 asmfile.writefln("    b %s",
                                  to!string(cast(char*)
@@ -1245,5 +1248,31 @@ compile_call(File asmfile, iml_operation *op)
     if (ret != null)
     {
         gen_move_from_reg(asmfile, "r0", ret);
+    }
+}
+
+private void
+compile_mset(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.mset);
+
+    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    uint num = cast(uint)iml_operation_get_operand(op, 2);
+    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
+
+    assert(iml_operand_get_data_type(src) == iml_data_type._32b,
+           "only 32-bit mset implemented");
+    assert(iml_variable_get_data_type(dest) == iml_data_type.blob,
+           "only mset to blob variables implemented");
+
+    /* store source value in register */
+    string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
+    int dest_offset = iml_variable_get_frame_offset(dest);
+
+    for (uint i = 0; i < num; i += 1)
+    {
+        asmfile.writefln("    str %s, [fp, #%s]",
+                         src_reg,
+                         (dest_offset + cast(int)(i * 4)));
     }
 }
