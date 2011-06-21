@@ -63,13 +63,13 @@ check_imports: imports.o fact.o rets.o neg.o check_utils.o check_imports.c
 check_vars: vars.o check_utils.o check_vars.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_char_literals: char_literals.o check_utils.o check_char_literals.c
+check_char_literals: char_literals.o check_utils.o check_char_literals.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_properties: properties.o check_utils.o check_properties.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_immutable: immutable.o check_utils.o check_immutable.c
+check_immutable: immutable.o check_utils.o check_immutable.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_enums: enums.o check_utils.o check_enums.c
@@ -78,7 +78,7 @@ check_enums: enums.o check_utils.o check_enums.c
 check_struct: struct.o check_utils.o check_struct.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_alias: alias.o check_utils.o check_alias.c
+check_alias: alias.o check_utils.o check_alias.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_basic_types: basic_types.o check_utils.o check_basic_types.c
@@ -90,7 +90,7 @@ check_pointers: pointers.o check_utils.o check_pointers.c
 check_arithm: arithm.o check_utils.o check_arithm.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_incdec_ops: incdec_ops.o check_utils.o check_incdec_ops.c
+check_incdec_ops: incdec_ops.o check_utils.o check_incdec_ops.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_hex: hex.o check_utils.o check_hex.c
@@ -105,14 +105,17 @@ check_str_literals: check_str_literals.sh str_literals
 eels: eels.d $(XDC)
 	$(XDC) -o $@ $(DFLAGS) $<
 
-str_literals: str_literals.d $(XDC)
+str_literals: str_literals.d $(XDC)  $(ARCH_SPECIFIC)
 	$(XDC) -o $@ $(DFLAGS) $<
 
 %.o: %.d $(XDC)
 	$(XDC) -o $@ $(DFLAGS) -c $<
 
 check_utils.o: check_utils.c
-	$(CC) -g $(CFLAGS) -c $?
+	$(CC) $(CFLAGS) -c $?
+
+dummy_gc.o: dummy_gc.c
+	$(CC) $(CFLAGS) -c $?
 
 clean:
 	rm -f *.s *.o *~ core check_empty check_rets \

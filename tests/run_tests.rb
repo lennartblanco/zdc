@@ -171,11 +171,13 @@ class TestTarget
 
   def get_compile_command(source_dir, test)
     cc = nil
+    arch_specific = nil
 
     case @arch
       when "arm"
         cc="arm-linux-gnueabi-gcc"
         cflags=""
+        arch_specific="dummy_gc.o"
       when "x86"
         cflags="-m32 -lgc"
       else
@@ -187,6 +189,7 @@ class TestTarget
          "XDC=#{source_dir}/../xdc " +
          "CFLAGS=\"-g #{cflags}\" " +
          "DFLAGS=\"--march=#{@arch} -I#{source_dir}\" " +
+         (arch_specific != nil ? "ARCH_SPECIFIC=#{arch_specific} " : "") +
          "-f #{source_dir}/Makefile check_#{test} 2>&1"
   end
 
