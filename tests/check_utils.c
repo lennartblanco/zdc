@@ -120,6 +120,7 @@ check_byte(char *function_called, char res, char expected_res)
     }
 }
 
+void
 check_ubyte(char *function_called,
             unsigned char res,
             unsigned char expected_res)
