@@ -307,6 +307,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                 compile_neg(asmfile, op);
                 break;
             case iml_opcode.jmpneq:
+            case iml_opcode.jmpuless:
                 compile_jmpcond(asmfile, op);
                 break;
             case iml_opcode.set:
@@ -866,21 +867,42 @@ compile_icmp(File asmfile, iml_operation *op)
 private void
 compile_jmpcond(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode.jmpneq,
-           "only jmpneq implemented");
-    assert(iml_is_constant(iml_operation_get_operand(op, 2)),
-           "only constant right operand supported");
-
     ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
-    ImlConstant *right = cast(ImlConstant*)iml_operation_get_operand(op, 2);
+    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
     string label = to!string(cast(char*)iml_operation_get_operand(op, 3));
 
-    string reg = store_in_reg(asmfile, left, TEMP_REG1);
+    string left_reg = store_in_reg(asmfile, left, TEMP_REG1);
 
-    asmfile.writefln("    cmp %s, #%s\n"
-                     "    bne %s",
-                     reg,
-                     iml_constant_get_val_32b(right),
+    string right_exp;
+    if (iml_is_constant(right))
+    {
+        right_exp =
+            "#" ~ to!string(iml_constant_get_val_32b(cast(ImlConstant*)right));
+    }
+    else
+    {
+        assert(iml_is_variable(right));
+        right_exp = store_in_reg(asmfile, right, TEMP_REG1);
+    }
+
+    string cond;
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_opcode.jmpneq:
+            cond = "ne";
+            break;
+        case iml_opcode.jmpuless:
+            cond = "lo";
+            break;
+        default:
+            assert(false, "unexpected opcode");
+    }
+
+    asmfile.writefln("    cmp %s, %s\n"
+                     "    b%s %s",
+                     left_reg,
+                     right_exp,
+                     cond,
                      label);
 }
 
