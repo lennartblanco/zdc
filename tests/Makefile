@@ -72,7 +72,7 @@ check_properties: properties.o check_utils.o check_properties.c
 check_immutable: immutable.o check_utils.o check_immutable.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_enums: enums.o check_utils.o check_enums.c
+check_enums: enums.o check_utils.o check_enums.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_struct: struct.o check_utils.o check_struct.c
