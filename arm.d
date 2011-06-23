@@ -303,10 +303,8 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                 compile_icmp(asmfile, op);
                 break;
             case iml_opcode.ineg:
-                compile_ineg(asmfile, op);
-                break;
             case iml_opcode.bneg:
-                compile_bneg(asmfile, op);
+                compile_neg(asmfile, op);
                 break;
             case iml_opcode.jmpneq:
                 compile_jmpcond(asmfile, op);
@@ -747,14 +745,11 @@ compile_binop(File asmfile, iml_operation *op)
 }
 
 private void
-compile_ineg(File asmfile, iml_operation *op)
+compile_neg(File asmfile, iml_operation *op)
 {
-    assert(iml_operation_get_opcode(op) == iml_opcode.ineg);
-
     ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
     ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
     string res_reg_name;
-    bool store_res = false;
 
     string src_reg = store_in_reg(asmfile, cast(ImlOperand*)src, TEMP_REG1);
 
@@ -765,57 +760,23 @@ compile_ineg(File asmfile, iml_operation *op)
     }
     else
     {
-        gen_move_to_reg(asmfile, TEMP_REG2, cast(ImlOperand*)res);
-        res_reg_name = TEMP_REG2;
-        store_res = true;
+        res_reg_name =
+            gen_move_to_reg(asmfile, TEMP_REG2, cast(ImlOperand*)res);
     }
 
-    asmfile.writefln("    rsb %s, %s, #0",
-                     res_reg_name,
-                     src_reg);
-    if (store_res)
+    switch (iml_operation_get_opcode(op))
     {
-        gen_move_from_reg(asmfile, res_reg_name, res);
-    }
-}
-
-private void
-compile_bneg(File asmfile, iml_operation *op)
-{
-    assert(iml_operation_get_opcode(op) == iml_opcode.bneg);
-
-    ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
-    char *src_reg;
-    string src_reg_name;
-    char *res_reg;
-    string res_reg_name;
-
-    res_reg = iml_variable_get_register(res);
-    if (res_reg != null)
-    {
-        res_reg_name = to!string(res_reg);
-    }
-    else
-    {
-        res_reg_name = TEMP_REG1;
+        case iml_opcode.ineg:
+            asmfile.writefln("    rsb %s, %s, #0", res_reg_name, src_reg);
+            break;
+        case iml_opcode.bneg:
+            asmfile.writefln("    eor %s, %s, #1", res_reg_name, src_reg);
+            break;
+        default:
+            assert(false, "unexpected opcode");
     }
 
-    src_reg = iml_variable_get_register(src);
-    if (src_reg != null)
-    {
-        src_reg_name = to!string(src_reg);
-    }
-    else
-    {
-        gen_move_to_reg(asmfile, res_reg_name, cast(ImlOperand*)src);
-        src_reg_name = res_reg_name;
-    }
-
-    asmfile.writefln("    eor %s, %s, #1",
-                     res_reg_name, src_reg_name);
-
-    if (res_reg == null)
+    if (reg == null)
     {
         gen_move_from_reg(asmfile, res_reg_name, res);
     }
