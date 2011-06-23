@@ -28,6 +28,9 @@ call_signed_mod_lconst(int arg);
 unsigned
 call_unsigned_mod_rconst(unsigned arg);
 
+int
+signed_mult_unary(int left, int r);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -97,6 +100,11 @@ main()
                call_unsigned_mod_rconst(297), 297 % 100);
     check_uint("unsigned_mod_rconst(500)",
                call_unsigned_mod_rconst(500), 500 % 100);
+
+    /* signed_mult_unary() tests */
+    check_int("signed_mult_unary(20, 4)", signed_mult_unary(20, 4), 20 * -4);
+    check_int("signed_mult_unary(4, -2)", signed_mult_unary(4, -2), 4*-(-2));
+    check_int("signed_mult_unary(-1, 0)", signed_mult_unary(-1, 0), -1 * -0);
 
     check_exit();
 }

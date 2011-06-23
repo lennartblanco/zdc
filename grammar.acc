@@ -738,7 +738,7 @@ add_expression<n> :
 ;
 
 mult_expression<n> :
-    mult_expression<l> '*' primary<r> 
+    mult_expression<l> '*' unary_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
@@ -746,7 +746,7 @@ mult_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
-|   mult_expression<l> '/' primary<r> 
+|   mult_expression<l> '/' unary_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
@@ -754,7 +754,7 @@ mult_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
-|   mult_expression<l> '%' primary<r>
+|   mult_expression<l> '%' unary_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_modulo_op,

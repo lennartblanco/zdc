@@ -79,6 +79,13 @@ unsigned_mod_rconst(uint left)
     return res;
 }
 
+// test multiplication where right operand is a unary expression
+extern (C) int
+signed_mult_unary(int left, int r)
+{
+    return left * -r;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
