@@ -753,22 +753,12 @@ compile_ineg(File asmfile, iml_operation *op)
 
     ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
     ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
-    string src_reg_name;
     string res_reg_name;
     bool store_res = false;
 
-    char *reg = iml_variable_get_register(src);
-    if (reg != null)
-    {
-        src_reg_name = to!string(reg);
-    }
-    else
-    {
-        gen_move_to_reg(asmfile, TEMP_REG1, cast(ImlOperand*)src);
-        src_reg_name = TEMP_REG1;
-    }
+    string src_reg = store_in_reg(asmfile, cast(ImlOperand*)src, TEMP_REG1);
 
-    reg = iml_variable_get_register(res);
+    char *reg = iml_variable_get_register(res);
     if (reg != null)
     {
         res_reg_name = to!string(reg);
@@ -782,7 +772,7 @@ compile_ineg(File asmfile, iml_operation *op)
 
     asmfile.writefln("    rsb %s, %s, #0",
                      res_reg_name,
-                     src_reg_name);
+                     src_reg);
     if (store_res)
     {
         gen_move_from_reg(asmfile, res_reg_name, res);
@@ -917,30 +907,18 @@ compile_jmpcond(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.jmpneq,
            "only jmpneq implemented");
-    assert(iml_is_variable(iml_operation_get_operand(op, 1)),
-           "only variable left operand supported");
     assert(iml_is_constant(iml_operation_get_operand(op, 2)),
            "only constant right operand supported");
 
-    ImlVariable *left = cast(ImlVariable*)iml_operation_get_operand(op, 1);
+    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
     ImlConstant *right = cast(ImlConstant*)iml_operation_get_operand(op, 2);
     string label = to!string(cast(char*)iml_operation_get_operand(op, 3));
-    string left_reg_name;
-    char *reg = iml_variable_get_register(left);
 
-    if (reg != null)
-    {
-        left_reg_name = to!string(reg);
-    }
-    else
-    {
-        gen_move_to_reg(asmfile, TEMP_REG1, cast(ImlOperand*)left);
-        left_reg_name = TEMP_REG1;
-    }
+    string reg = store_in_reg(asmfile, left, TEMP_REG1);
 
     asmfile.writefln("    cmp %s, #%s\n"
                      "    bne %s",
-                     left_reg_name,
+                     reg,
                      iml_constant_get_val_32b(right),
                      label);
 }
@@ -969,7 +947,7 @@ compile_set(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.set);
     ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
-    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlOperand *dest = cast(ImlOperand *)iml_operation_get_operand(op, 2);
     ImlConstant *offset = cast(ImlConstant *)iml_operation_get_operand(op, 3);
 
     assert(iml_operand_get_data_type(src) == iml_data_type._32b ||
@@ -980,12 +958,7 @@ compile_set(File asmfile, iml_operation *op)
     string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
 
     /* make sure destination operand is placed in a register */
-    string dest_reg = to!string(iml_variable_get_register(dest));
-    if (dest_reg == null)
-    {
-        gen_move_to_reg(asmfile, TEMP_REG2, cast(ImlOperand *)dest);
-        dest_reg = TEMP_REG2;
-    }
+    string dest_reg = store_in_reg(asmfile, dest, TEMP_REG2);
 
     asmfile.writefln("    str %s, [%s%s]",
                      src_reg,
@@ -999,13 +972,10 @@ compile_get(File asmfile, iml_operation *op)
     assert(iml_operation_get_opcode(op) == iml_opcode.get);
 
     /* make sure address value is stored in the register */
-    ImlVariable *addr = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    string addr_reg = to!string(iml_variable_get_register(addr));
-    if (addr_reg == null)
-    {
-        gen_move_to_reg(asmfile, TEMP_REG1, cast(ImlOperand*) addr);
-        addr_reg = TEMP_REG1;
-    }
+    string addr_reg =
+        store_in_reg(asmfile,
+                     cast(ImlOperand *)iml_operation_get_operand(op, 1),
+                     TEMP_REG1);
 
     /* figure out the register where to load the value */
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
