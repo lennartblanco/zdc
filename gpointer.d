@@ -1,0 +1,3 @@
+alias void* gpointer;
+
+

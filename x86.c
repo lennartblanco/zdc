@@ -296,7 +296,7 @@ gen_code(IrModule *module, FILE *out_stream, const char *source_file)
             "    .file \"%s\"\n",
             source_file);
 
-    gen_data_section(out_stream, module);
+    data_section_add_literals(out_stream, module);
 
     text_prelude(&params, global_sym_table);
 

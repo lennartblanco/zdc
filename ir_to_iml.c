@@ -167,7 +167,7 @@ iml_add_expression_eval(IrFunctionDef *function,
                                     IR_PROPERTY(ir_expression),
                                     dest);
     }
-    else if (IR_IS_ARRAY_LITERAL(ir_expression))
+    else if (ir_is_array_literal(ir_expression))
     {
         res = iml_add_array_literal_eval(function,
                                          IR_ARRAY_LITERAL(ir_expression),
@@ -348,7 +348,7 @@ iml_add_assignment(IrFunctionDef *function,
 
         var_type = ir_expression_get_data_type(lvalue);
 
-        if (DT_IS_BASIC(var_type) || DT_IS_ENUM(var_type))
+        if (dt_is_basic(var_type) || DT_IS_ENUM(var_type))
         {
             iml_add_expression_eval(
                     function, value,
@@ -509,7 +509,7 @@ dt_to_iml_type(DtDataType *dt_type)
 {
     iml_data_type_t iml_type;
 
-    if (DT_IS_BASIC(dt_type))
+    if (dt_is_basic(dt_type))
     {
         switch (dt_data_type_get_size(dt_type))
         {
@@ -571,7 +571,7 @@ is_signed_op(IrBinaryOperation *op)
     operands_type =
        ir_expression_get_data_type(ir_binary_operation_get_left(op));
 
-    if (DT_IS_BASIC(operands_type))
+    if (dt_is_basic(operands_type))
     {
         return dt_basic_is_signed(DT_BASIC(operands_type));
     }
@@ -1121,7 +1121,7 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                            IrArrayLiteral *expr,
                            ImlVariable *res)
 {
-    assert(IR_IS_ARRAY_LITERAL(expr));
+    assert(ir_is_array_literal(expr));
 
     ImlVariable *ptr;
     ImlConstant *length;
@@ -1389,7 +1389,7 @@ add_static_array_assignment(IrFunctionDef *function,
     array_length =
         dt_static_array_get_length(DT_STATIC_ARRAY(array_type));
 
-    if (DT_IS_BASIC(ir_expression_get_data_type(value)))
+    if (dt_is_basic(ir_expression_get_data_type(value)))
     {
         /* assignment of basic types to static array */
 

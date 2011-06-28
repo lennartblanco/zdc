@@ -137,7 +137,7 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
     ast_binary_op_type_t op_type;
 
     data_type = ir_expression_get_data_type(IR_EXPRESSION(self));
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }

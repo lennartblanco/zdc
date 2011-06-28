@@ -15,9 +15,6 @@
 #define DT_BASIC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_BASIC, DtBasicClass))
 
-#define DT_IS_BASIC(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_TYPE_BASIC))
-
 #define DT_IS_BASIC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_BASIC))
 
@@ -42,6 +39,9 @@ typedef struct
 
 GType
 dt_basic_get_type(void);
+
+bool
+dt_is_basic(void *obj);
 
 DtBasic *
 dt_basic_new(basic_data_type_t data_type);

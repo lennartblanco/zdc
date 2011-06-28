@@ -187,11 +187,11 @@ cfold_cast(IrCast *cast_exp)
         return IR_EXPRESSION(cast_exp);
     }
 
-    if (DT_IS_BASIC(val_type))
+    if (dt_is_basic(val_type))
     {
         return cfold_cast_basic_type(target_type, val_type, val);
     }
-    else if (IR_IS_ARRAY_LITERAL(val))
+    else if (ir_is_array_literal(val))
     {
         return cfold_cast_array_literal(DT_ARRAY(target_type),
                                         IR_ARRAY_LITERAL(val));
@@ -356,8 +356,8 @@ cfold_cast_basic_type(DtDataType *target_type,
                       DtDataType *val_type,
                       IrExpression *val)
 {
-    assert(DT_IS_BASIC(target_type));
-    assert(DT_IS_BASIC(val_type));
+    assert(dt_is_basic(target_type));
+    assert(dt_is_basic(val_type));
 
     if (dt_basic_get_data_type(DT_BASIC(target_type)) ==
         dt_basic_get_data_type(DT_BASIC(val_type)))
@@ -545,7 +545,7 @@ cfold_cast_array_literal(DtArray *target_type,
 
     element_target_type = dt_array_get_data_type(target_type);
     /* only arrays literals of basic types supported */
-    assert(DT_IS_BASIC(element_target_type));
+    assert(dt_is_basic(element_target_type));
 
     new_array_lit = ir_array_literal_new(0);
     for (i = ir_array_literal_get_values(array_lit);

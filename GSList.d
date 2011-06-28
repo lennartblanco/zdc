@@ -1,4 +1,4 @@
-alias void* gpointer;
+public import gpointer;
 
 struct GSList
 {

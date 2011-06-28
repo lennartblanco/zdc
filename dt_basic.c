@@ -56,6 +56,12 @@ dt_basic_get_type(void)
     return type;
 }
 
+bool
+dt_is_basic(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE((obj), DT_TYPE_BASIC);
+}
+
 DtBasic *
 dt_basic_new(basic_data_type_t data_type)
 {
@@ -70,7 +76,7 @@ dt_basic_new(basic_data_type_t data_type)
 basic_data_type_t
 dt_basic_get_data_type(DtBasic *self)
 {
-    assert(DT_IS_BASIC(self));
+    assert(dt_is_basic(self));
 
     return self->data_type;
 }
@@ -104,7 +110,7 @@ dt_basic_is_signed(DtBasic *self)
 static char *
 dt_basic_type_get_string(DtDataType *self)
 {
-    assert(DT_IS_BASIC(self));
+    assert(dt_is_basic(self));
 
     char *str;
     switch (DT_BASIC(self)->data_type)
@@ -146,7 +152,7 @@ dt_basic_type_get_string(DtDataType *self)
 static guint
 dt_basic_type_get_size(DtDataType *self)
 {
-    assert(DT_IS_BASIC(self));
+    assert(dt_is_basic(self));
 
     switch (DT_BASIC(self)->data_type)
     {
@@ -170,7 +176,7 @@ dt_basic_type_get_size(DtDataType *self)
 static char *
 dt_basic_type_get_mangled(DtDataType *self)
 {
-    assert(DT_IS_BASIC(self));
+    assert(dt_is_basic(self));
 
     switch (DT_BASIC(self)->data_type)
     {
@@ -202,7 +208,7 @@ dt_basic_type_get_mangled(DtDataType *self)
 static IrExpression *
 dt_basic_type_get_init(DtDataType *self)
 {
-    assert(DT_IS_BASIC(self));
+    assert(dt_is_basic(self));
 
     switch (DT_BASIC(self)->data_type)
     {
@@ -230,10 +236,10 @@ dt_basic_type_get_init(DtDataType *self)
 static bool
 dt_basic_type_is_same(DtDataType *self, DtDataType *type)
 {
-    assert(DT_IS_BASIC(self));
+    assert(dt_is_basic(self));
     assert(DT_IS_DATA_TYPE(type));
 
-    if (!DT_IS_BASIC(type))
+    if (!dt_is_basic(type))
     {
         return false;
     }

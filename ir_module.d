@@ -1,4 +1,5 @@
 public import GSList;
+public import GList;
 public import sym_table;
 
 struct IrModule;
@@ -13,4 +14,7 @@ extern (C)
 
     char *
     ir_module_gen_label(IrModule *self);
+
+    GList *
+    ir_module_get_data_section(IrModule *self);
 }

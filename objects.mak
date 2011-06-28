@@ -4,7 +4,7 @@ ARM_TRGT_OBJS := arm-d.o
 
 # objects generated from C source files
 COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
-         errors.o data_section.o types.o types_arrays.o const_fold.o          \
+         errors.o types.o types_arrays.o const_fold.o                         \
          ast_to_ir.o sem_analyze.o sem_analyze_validate.o                     \
          ast_array_literal.o ast_while.o ast_code_block.o ast_statment.o      \
          ast_node.o ast_module.o ast_function_def.o ast_function_decl.o       \
@@ -33,4 +33,4 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
 
 # all objects generated both from C and D source files
 OBJS := $(COBJS) $(ARM_TRGT_OBJS)                                             \
-         GSList-d.o ui-d.o iml_operation-d.o data_section-d.o
+         GList-d.o GSList-d.o ui-d.o iml_operation-d.o data_section-d.o

@@ -589,7 +589,7 @@ validate_ind_dec_ops(compilation_status_t *compile_status,
 
     DtDataType *exp_type = ir_expression_get_data_type(exp);
 
-    if (DT_IS_BASIC(exp_type))
+    if (dt_is_basic(exp_type))
     {
         switch (dt_basic_get_data_type(DT_BASIC(exp_type)))
         {
@@ -790,7 +790,7 @@ validate_length_property(compilation_status_t *compile_status,
       exp = ir_enum_member_get_value(IR_ENUM_MEMBER(exp));
     }
 
-    if (IR_IS_ARRAY_LITERAL(exp))
+    if (ir_is_array_literal(exp))
     {
         guint32 length;
 
@@ -1053,7 +1053,7 @@ validate_expression(compilation_status_t *compile_status,
                                 sym_table,
                                 IR_ARRAY_CELL(expression));
     }
-    else if (IR_IS_ARRAY_LITERAL(expression))
+    else if (ir_is_array_literal(expression))
     {
         expression =
             validate_array_literal(compile_status,
@@ -1464,7 +1464,7 @@ validate_foreach(compilation_status_t *compile_status,
     }
     aggr_element_type = dt_array_get_data_type(DT_ARRAY(aggr_type));
     /* only foreach over aggregates over basic types is supported */
-    assert(DT_IS_BASIC(aggr_element_type));
+    assert(dt_is_basic(aggr_element_type));
 
     /*
      * check value variable's type
@@ -1478,7 +1478,7 @@ validate_foreach(compilation_status_t *compile_status,
     else
     {
         /* only foreach over aggregates over basic types is supported */
-        assert(DT_IS_BASIC(var_type));
+        assert(dt_is_basic(var_type));
         if (dt_basic_get_data_type(DT_BASIC(var_type)) !=
             dt_basic_get_data_type(DT_BASIC(aggr_element_type)))
         {

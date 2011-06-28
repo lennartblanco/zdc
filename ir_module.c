@@ -202,7 +202,7 @@ ir_module_add_const_data(IrModule *self, IrExpression *const_expr)
     IrArrayLiteral *array_literal;
     char *label;
 
-    if (!IR_IS_ARRAY_LITERAL(const_expr) ||
+    if (!ir_is_array_literal(const_expr) ||
         !ir_expression_is_constant(const_expr))
     {
         /* only constant array literal expression are stored in data section */

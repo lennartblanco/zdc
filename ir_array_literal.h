@@ -16,9 +16,6 @@
 #define IR_ARRAY_LITERAL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_ARRAY_LITERAL, IrArrayLiteralClass))
 
-#define IR_IS_ARRAY_LITERAL(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IR_TYPE_ARRAY_LITERAL))
-
 #define IR_IS_ARRAY_LITERAL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE ((klass), IR_TYPE_ARRAY_LITERAL))
 
@@ -46,6 +43,9 @@ typedef struct
 
 GType 
 ir_array_literal_get_type(void);
+
+bool
+ir_is_array_literal(void *obj);
 
 IrArrayLiteral *
 ir_array_literal_new(guint line_number);

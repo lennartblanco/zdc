@@ -48,7 +48,7 @@ implicit_conv_to_int(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -85,7 +85,7 @@ implicit_conv_to_uint(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -117,7 +117,7 @@ implicit_conv_to_short(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -178,7 +178,7 @@ implicit_conv_to_ushort(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -237,7 +237,7 @@ implicit_conv_to_byte(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -294,7 +294,7 @@ implicit_conv_to_ubyte(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -351,7 +351,7 @@ implicit_conv_to_bool(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -386,7 +386,7 @@ implicit_conv_to_char(IrExpression *expression)
     DtDataType *exp_data_type;
     exp_data_type = ir_expression_get_data_type(expression);
 
-    if (!DT_IS_BASIC(exp_data_type))
+    if (!dt_is_basic(exp_data_type))
     {
         return NULL;
     }
@@ -417,7 +417,7 @@ implicit_conv_to_char(IrExpression *expression)
 static IrExpression *
 implicit_conv_to_basic_type(DtDataType *target_type, IrExpression *expression)
 {
-    assert(DT_IS_BASIC(target_type));
+    assert(dt_is_basic(target_type));
     assert(IR_IS_EXPRESSION(expression));
 
     IrExpression *res_exp = NULL;
@@ -504,7 +504,7 @@ types_implicit_conv(DtDataType *target_type,
 {
     IrExpression *res;
 
-    if (DT_IS_BASIC(target_type))
+    if (dt_is_basic(target_type))
     {
         res = implicit_conv_to_basic_type(target_type, expression);
     }
@@ -558,7 +558,7 @@ types_integer_promotion(IrExpression *expression)
         exp_type = dt_enum_get_base_type(DT_ENUM(exp_type));
     }
 
-    if (!(DT_IS_BASIC(exp_type)))
+    if (!(dt_is_basic(exp_type)))
     {
         return NULL;
     }
@@ -744,7 +744,7 @@ types_usual_arithm_conv(IrExpression *left,
 bool
 types_is_void(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -755,7 +755,7 @@ types_is_void(DtDataType *data_type)
 bool
 types_is_bool(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -766,7 +766,7 @@ types_is_bool(DtDataType *data_type)
 bool
 types_is_char(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -778,7 +778,7 @@ types_is_char(DtDataType *data_type)
 bool
 types_is_int(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -789,7 +789,7 @@ types_is_int(DtDataType *data_type)
 bool
 types_is_uint(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -800,7 +800,7 @@ types_is_uint(DtDataType *data_type)
 bool
 types_is_short(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -811,7 +811,7 @@ types_is_short(DtDataType *data_type)
 bool
 types_is_ushort(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -822,7 +822,7 @@ types_is_ushort(DtDataType *data_type)
 bool
 types_is_byte(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
@@ -833,7 +833,7 @@ types_is_byte(DtDataType *data_type)
 bool
 types_is_ubyte(DtDataType *data_type)
 {
-    if (!DT_IS_BASIC(data_type))
+    if (!dt_is_basic(data_type))
     {
         return false;
     }
