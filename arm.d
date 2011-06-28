@@ -991,6 +991,91 @@ compile_get(File asmfile, iml_operation *op)
     }
 }
 
+/**
+ * Generate an array element address expression, which can be used in
+ * ldr and str instructions. Will generate assembly to preform address
+ * calculations if needed.
+ *
+ * @param asmfile  the file were to write generated assembly if needed
+ * @param base the array base variable, must be of blob or ptr type
+ * @param index the array index operand
+ * @param size array element size in bytes
+ * @param addr_reg the register to use as a part of address expression,
+ *                 for cases when part of address expression must be stored
+ *                 in a register, e.g. "fp, r0"
+ * @param temp_reg temporary register to use for address calculations if needed
+ *
+ * @return the derived address expression, for example "fp, #-52"
+ */
+private string
+get_addr_exp(File asmfile,
+             ImlVariable *base,
+             ImlOperand *index,
+             uint size,
+             string addr_reg,
+             string temp_reg)
+{
+    string addr_exp;
+
+    if (iml_variable_get_data_type(base) == iml_data_type.blob)
+    {
+        int base_offset = iml_variable_get_frame_offset(base);
+
+        if (iml_is_constant(index))
+        {
+            assert(iml_operand_get_data_type(index) == iml_data_type._32b);
+            ImlConstant *const_idx = cast(ImlConstant *)index;
+            addr_exp = "fp, #" ~
+                to!string(base_offset +
+                   cast(int)(iml_constant_get_val_32b(const_idx) * size));
+
+        }
+        else
+        {
+            assert(iml_is_variable(index));
+
+            gen_move_to_reg(asmfile, addr_reg, index, size);
+            asmfile.writefln("    add %s, %s, #%s",
+                             addr_reg,
+                             addr_reg,
+                             base_offset);
+            addr_exp = "fp, " ~ addr_reg;
+        }
+    }
+    else
+    {
+        assert(iml_variable_get_data_type(base) == iml_data_type.ptr);
+
+        string base_reg =
+            store_in_reg(asmfile, cast(ImlOperand*)base, addr_reg);
+
+        if (iml_is_constant(index))
+        {
+            ImlConstant *const_idx = cast(ImlConstant *)index;
+            int offset = cast(int)iml_constant_get_val_32b(const_idx) * size;
+
+            addr_exp = base_reg ~
+                       (offset != 0 ? ", #" ~ to!string(offset) : "");
+        }
+        else
+        {
+            assert(iml_is_variable(index));
+
+            ImlVariable *index_var = cast(ImlVariable *)index;
+            string index_reg = store_in_reg(asmfile, index, temp_reg);
+
+            asmfile.writefln("    add %s, %s, %s%s",
+                             addr_reg,
+                             base_reg,
+                             index_reg,
+                             mult_as_shift(size));
+            addr_exp = addr_reg;
+        }
+    }
+
+    return addr_exp;
+}
+
 private void
 compile_setelm(File asmfile, iml_operation *op)
 {
@@ -1019,39 +1104,11 @@ compile_setelm(File asmfile, iml_operation *op)
             assert(false, "unexpected source data type");
     }
 
+    string addr_exp =
+        get_addr_exp(asmfile, dest, index, size, TEMP_REG1, TEMP_REG2);
+
     /* make sure source operand is placed in a register */
-    string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
-
-    string addr_exp;
-    if (iml_variable_get_data_type(dest) == iml_data_type.blob)
-    {
-        int dest_offset = iml_variable_get_frame_offset(dest);
-
-        if (iml_is_constant(index))
-        {
-            assert(iml_operand_get_data_type(index) == iml_data_type._32b);
-            ImlConstant *const_idx = cast(ImlConstant *)index;
-            addr_exp = "fp, #" ~
-                to!string(dest_offset +
-                   cast(int)(iml_constant_get_val_32b(const_idx) * size));
-        }
-        else
-        {
-            assert(iml_is_variable(index));
-            ImlVariable *var = cast(ImlVariable*)index;
-
-            gen_move_to_reg(asmfile, TEMP_REG2, index, size);
-            asmfile.writefln("    add %s, %s, #%s",
-                             TEMP_REG2,
-                             TEMP_REG2,
-                             dest_offset);
-            addr_exp = "fp, " ~ TEMP_REG2;
-        }
-    }
-    else
-    {
-        assert(false, "unsupported destination variable type");
-    }
+    string src_reg = store_in_reg(asmfile, src, TEMP_REG2);
 
     asmfile.writefln("    str%s %s, [%s]", op_suffix, src_reg, addr_exp);
 }
@@ -1084,63 +1141,8 @@ compile_getelm(File asmfile, iml_operation *op)
             assert(false, "unexpected destination data type");
     }
 
-    string addr_exp;
-    if (iml_variable_get_data_type(src) == iml_data_type.blob)
-    {
-        int src_offset = iml_variable_get_frame_offset(src);
-
-        if (iml_is_constant(index))
-        {
-            assert(iml_operand_get_data_type(index) == iml_data_type._32b);
-            ImlConstant *const_idx = cast(ImlConstant *)index;
-            addr_exp = "fp, #" ~
-                to!string(src_offset +
-                   cast(int)(iml_constant_get_val_32b(const_idx) * size));
-
-        }
-        else
-        {
-            assert(iml_is_variable(index));
-            ImlVariable *var = cast(ImlVariable*)index;
-
-            gen_move_to_reg(asmfile, TEMP_REG1, index, size);
-            asmfile.writefln("    add %s, %s, #%s",
-                             TEMP_REG1,
-                             TEMP_REG1,
-                             src_offset);
-            addr_exp = "fp, " ~ TEMP_REG1;
-        }
-    }
-    else
-    {
-        assert(iml_variable_get_data_type(src) == iml_data_type.ptr);
-
-        string addr_reg =
-            store_in_reg(asmfile, cast(ImlOperand*)src, TEMP_REG1);
-
-        if (iml_is_constant(index))
-        {
-            ImlConstant *const_idx = cast(ImlConstant *)index;
-            int offset = cast(int)iml_constant_get_val_32b(const_idx) * size;
-
-            addr_exp = addr_reg ~
-                       (offset != 0 ? ", #" ~ to!string(offset) : "");
-        }
-        else
-        {
-            assert(iml_is_variable(index));
-
-            ImlVariable *index_var = cast(ImlVariable *)index;
-            string index_reg = store_in_reg(asmfile, index, TEMP_REG2);
-
-            asmfile.writefln("    add %s, %s, %s%s",
-                             TEMP_REG1,
-                             addr_reg,
-                             index_reg,
-                             mult_as_shift(size));
-            addr_exp = TEMP_REG1;
-        }
-    }
+    string addr_exp =
+        get_addr_exp(asmfile, src, index, size, TEMP_REG1, TEMP_REG2);
 
     char *dest_reg = iml_variable_get_register(dest);
     string reg;
