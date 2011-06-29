@@ -1267,13 +1267,25 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     /*
      * generate code to calculate length of the slice
      */
+
     /* subtract end from the start */
-    length = IML_OPERAND(iml_func_frame_get_temp(frame, iml_32b));
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_sub,
-                                                end,
-                                                start,
-                                                length));
+    if (iml_is_constant(end) && iml_is_constant(start))
+    {
+        length =
+          IML_OPERAND(
+            iml_constant_new_32b(
+                iml_constant_get_val_32b(IML_CONSTANT(end)) -
+                iml_constant_get_val_32b(IML_CONSTANT(start))));
+    }
+    else
+    {
+        length = IML_OPERAND(iml_func_frame_get_temp(frame, iml_32b));
+        ir_function_def_add_operation(function,
+                                      iml_operation_new(iml_sub,
+                                                        end,
+                                                        start,
+                                                        length));
+    }
     /* store length in the result blob */
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_setelm,
@@ -1311,12 +1323,23 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     /* multiply slice start with element size if needed */
     if (element_size > 1)
     {
-        ir_function_def_add_operation(
-                function,
-                iml_operation_new(iml_umult,
-                                  start,
-                                  iml_constant_new_32b(element_size),
-                                  length));
+        if (iml_is_constant(start))
+        {
+            length =
+                IML_OPERAND(
+                    iml_constant_new_32b(
+                        element_size *
+                            iml_constant_get_val_32b(IML_CONSTANT(start))));
+        }
+        else
+        {
+            ir_function_def_add_operation(
+                    function,
+                    iml_operation_new(iml_umult,
+                                      start,
+                                      iml_constant_new_32b(element_size),
+                                      length));
+        }
     }
     else
     {
