@@ -1293,9 +1293,9 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     {
         /* static array sliced */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getaddr,
-                                                    array,
-                                                    start_ptr));
+                                      iml_operation_new(iml_getaddr,
+                                                        array,
+                                                        start_ptr));
     }
     else
     {
@@ -1325,18 +1325,18 @@ iml_add_array_slice_eval(IrFunctionDef *function,
 
     /* move forward the array start pointer to slice start */
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_add,
-                                                start_ptr,
-                                                length,
-                                                start_ptr));
+                                  iml_operation_new(iml_add,
+                                                    start_ptr,
+                                                    length,
+                                                    start_ptr));
 
     /* store slice start pointer in the result blob */
     ir_function_def_add_operation(function,
-                              iml_operation_new(iml_setelm,
-                                                start_ptr,
-                                                res,
-                                                iml_constant_new_32b(1),
-                                                4));
+                                  iml_operation_new(iml_setelm,
+                                                    start_ptr,
+                                                    res,
+                                                    iml_constant_new_32b(1),
+                                                    4));
 
     /* mark operands as unused */
     iml_func_frame_unused_oper(frame, start);
