@@ -20,6 +20,12 @@ extern (C)
     GSList*
     g_slist_reverse(GSList *list);
 
+    GSList*
+    g_slist_copy(GSList *list);
+
     uint
     g_slist_length(GSList *list);
+
+    void
+    g_slist_free(GSList *list);
 }

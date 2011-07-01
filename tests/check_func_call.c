@@ -42,6 +42,9 @@ call_unnamed_arg3(int arg1, int arg2, int arg3);
 int
 call_unnamed_arg4(int arg1, int arg2, int arg3);
 
+int
+call_func_5args(int a, int b, int x, int z, int n);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -110,6 +113,15 @@ main()
     /* unnamed_arg4() tests */
     check_int("unnamed_arg4(1, 2, 3)", call_unnamed_arg4(1, 2, 3), 10);
     check_int("unnamed_arg4(0, 0, 1)", call_unnamed_arg4(0, 0, 1), 10);
+
+    /* func_5args() tests */
+    check_int("func_5args(2, 5, 3, 4, 1)",
+              call_func_5args(2, 5, 3, 4, 1),
+              2 * 5 + 3 * 4 - 1);
+
+    check_int("func_5args(0, 5, 3, 1, 6)",
+              call_func_5args(0, 5, 3, 1, 6),
+              0 * 5 + 3 * 1 - 6);
 
     check_exit();
 }

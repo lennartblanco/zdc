@@ -62,14 +62,31 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
         GSList *i;
         uint cntr;
 
-        assert(g_slist_length(params) <= 4,
-               "more then 4 function parameters not supported");
+        /*
+         * first 4 parameters are passed via r0-r3 registers,
+         * they will be stored in the local function frame
+         */
         for (i = params, cntr = 0;
              i != null && cntr < 4;
              i = i.next(), cntr += 1)
         {
+            assert(iml_variable_get_data_type(cast(ImlVariable*)i.data) !=
+                   iml_data_type.blob,
+                   "blob function parameters not implemented");
             iml_variable_set_frame_offset(cast(ImlVariable*)i.data, offset);
             offset -= 4;
+        }
+
+        /*
+         * if there is more then 4 paremeters, the will be passed
+         * on the stack
+         */
+        for (cntr = 4; i != null; i = i.next(), cntr += 4)
+        {
+            assert(iml_variable_get_data_type(cast(ImlVariable*)i.data) !=
+                   iml_data_type.blob,
+                   "blob function parameters not implemented");
+            iml_variable_set_frame_offset(cast(ImlVariable*)i.data, cntr);
         }
     }
 
@@ -1190,9 +1207,6 @@ compile_call(File asmfile, iml_operation *op)
     GSList *args = cast(GSList *)iml_operation_get_operand(op, 2);
     ImlVariable *ret = cast(ImlVariable*)iml_operation_get_operand(op, 3);
 
-    assert(g_slist_length(args) <= 4,
-           "max 4 args in function calls supported");
-
     GSList *i = args;
     for (uint cntr = 0; i != null && cntr < 4; i = i.next(), cntr += 1)
     {
@@ -1201,7 +1215,26 @@ compile_call(File asmfile, iml_operation *op)
                         cast(ImlOperand*)i.data);
     }
 
+    uint args_stack_size = 0; /* number of bytes on stack used for arguments */
+    i = g_slist_reverse(g_slist_copy(i));
+    for (; i != null; i = i.next())
+    {
+        asmfile.writefln("    push {%s}",
+                         store_in_reg(asmfile,
+                                      cast(ImlOperand*)i.data,
+                                      TEMP_REG1));
+        args_stack_size += 4;
+    }
+    g_slist_free(i);
+
     asmfile.writefln("    bl %s", func_name);
+
+    /* remove arguments from stack if needed */
+    if (args_stack_size > 0)
+    {
+        asmfile.writefln("    add sp, sp, #%s", args_stack_size);
+    }
+
 
     if (ret != null)
     {

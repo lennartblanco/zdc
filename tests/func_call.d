@@ -83,6 +83,11 @@ int invoke_subst3(int x)
     return subst3(x, 10, 20);
 }
 
+int func_5args(int a, int b, int x, int z, int n)
+{
+  return a * b + x * z - n;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
@@ -170,5 +175,11 @@ extern (C)
   call_unnamed_arg4(int arg1, int arg2, int arg3)
   {
     return unnamed_arg4(arg1, arg2, arg3);
+  }
+
+  int
+  call_func_5args(int a, int b, int x, int z, int n)
+  {
+    return func_5args(a, b, x, z, n);
   }
 }
