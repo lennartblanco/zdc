@@ -81,9 +81,7 @@ docs:
 	make -C docs
 
 clean:
-	make -C docs clean
 	make -C tests clean
 	make -C etests clean
-	make -C examples clean
 	rm -rf $(BLD_DIR)
 	rm -rf $(PROG) lex.c lex.h yygrammar.c yygrammar.h core *~ config.d
