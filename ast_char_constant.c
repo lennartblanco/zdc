@@ -22,7 +22,7 @@ ast_char_constant_get_type(void)
     static GType type = 0;
     if (type == 0) 
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
         sizeof (AstCharConstantClass),
         NULL,   /* base_init */

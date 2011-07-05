@@ -31,7 +31,7 @@ ir_binary_operation_get_type(void)
     static GType type = 0;
     if (type == 0) 
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
         sizeof (IrBinaryOperationClass),
         NULL,   /* base_init */

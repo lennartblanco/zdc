@@ -22,7 +22,7 @@ ast_code_block_get_type(void)
     static GType type = 0;
     if (type == 0) 
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
         sizeof (AstCodeBlockClass),
         NULL,   /* base_init */

@@ -22,7 +22,7 @@ ast_bool_constant_get_type(void)
     static GType type = 0;
     if (type == 0) 
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
         sizeof (AstBoolConstantClass),
         NULL,   /* base_init */

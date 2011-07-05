@@ -23,7 +23,7 @@ ir_if_else_get_type(void)
     static GType type = 0;
     if (type == 0) 
     {
-      static const GTypeInfo info = 
+      static const GTypeInfo info =
       {
         sizeof (IrIfElseClass),
         NULL,   /* base_init */
