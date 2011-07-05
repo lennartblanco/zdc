@@ -1,6 +1,6 @@
 X86_TRGT_OBJS := x86.o
 
-ARM_TRGT_OBJS := arm-d.o
+ARM_TRGT_OBJS := arm-d.o arm_util-d.o
 
 # objects generated from C source files
 COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
