@@ -70,11 +70,27 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
              i != null && cntr < 4;
              i = i.next(), cntr += 1)
         {
-            assert(iml_variable_get_data_type(cast(ImlVariable*)i.data) !=
-                   iml_data_type.blob,
-                   "blob function parameters not implemented");
-            iml_variable_set_frame_offset(cast(ImlVariable*)i.data, offset);
-            offset -= 4;
+            ImlVariable *var = cast(ImlVariable*)i.data;
+
+            if (iml_variable_get_data_type(var) == iml_data_type.blob)
+            {
+                uint size = iml_variable_get_size(var);
+                uint register_space_avail = (4 - cntr) * 4;
+                if (size > register_space_avail)
+                {
+                    assert(false, "spliting blob params not implemented");
+                }
+                else
+                {
+                  iml_variable_set_frame_offset(var, offset - (size - 4));
+                  offset -= size;
+                }
+            }
+            else
+            {
+                iml_variable_set_frame_offset(var, offset);
+                offset -= 4;
+            }
         }
 
         /*
@@ -209,6 +225,23 @@ get_used_preserved_regs(iml_func_frame *func_frame)
     return preserved_regs;
 }
 
+private string
+get_blob_arg_regs(ref uint next_reg, ImlVariable *var)
+{
+    uint size = iml_variable_get_size(var);
+
+    /* figure how many and which rX regs to use for storing the blob */
+    uint r;
+    string regs;
+    for (r = next_reg; (r - next_reg) * 4 < size; r += 1)
+    {
+        regs ~= (regs != null ? ", " : "") ~ "r" ~ to!string(r);
+    }
+    next_reg = r;
+
+    return regs;
+}
+
 private void
 compile_function_def(File asmfile, IrFunctionDef *func)
 {
@@ -256,12 +289,24 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     /* store parameters in the function's frame */
     for (i = iml_func_frame_get_parameters(frame), cntr = 0;
          i != null && cntr < 4;
-         i = i.next(), cntr += 1)
+         i = i.next())
     {
-        asmfile.writefln("    str r%s, [fp, #%s]",
-                         cntr,
-                         iml_variable_get_frame_offset(
-                                                  cast(ImlVariable*)i.data));
+        ImlVariable *var = cast(ImlVariable*)i.data;
+
+        if (iml_variable_get_data_type(var) == iml_data_type.blob)
+        {
+            asmfile.writefln("    add ip, fp, #%s\n"
+                             "    stmia ip, {%s}",
+                             iml_variable_get_frame_offset(var),
+                             get_blob_arg_regs(cntr, var));
+        }
+        else
+        {
+            asmfile.writefln("    str r%s, [fp, #%s]",
+                             cntr,
+                             iml_variable_get_frame_offset(var));
+            cntr += 1;
+        }
     }
 
     for (i = ir_function_def_get_operations(func);
@@ -1208,11 +1253,31 @@ compile_call(File asmfile, iml_operation *op)
     ImlVariable *ret = cast(ImlVariable*)iml_operation_get_operand(op, 3);
 
     GSList *i = args;
-    for (uint cntr = 0; i != null && cntr < 4; i = i.next(), cntr += 1)
+    for (uint cntr = 0; i != null && cntr < 4; i = i.next())
     {
-        gen_move_to_reg(asmfile,
-                        "r" ~ to!string(cntr),
-                        cast(ImlOperand*)i.data);
+        ImlOperand *oper = cast(ImlOperand*)i.data;
+
+        if (iml_operand_get_data_type(oper) == iml_data_type.blob)
+        {
+            /*
+             * generate code to load blob variable into rX registers
+             */
+
+            /* only blob variable arguments expected */
+            assert(iml_is_variable(oper));
+            ImlVariable *var = cast(ImlVariable*)oper;
+
+            asmfile.writefln("    add ip, fp, #%s\n"
+                             "    ldmia ip, {%s}",
+                             iml_variable_get_frame_offset(var),
+                             get_blob_arg_regs(cntr, var));
+        }
+        else
+        {
+            /* a 32-bit value, load it to a rX register */
+            gen_move_to_reg(asmfile, "r" ~ to!string(cntr), oper);
+            cntr += 1;
+        }
     }
 
     uint args_stack_size = 0; /* number of bytes on stack used for arguments */
