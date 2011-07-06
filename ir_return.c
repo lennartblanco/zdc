@@ -79,7 +79,6 @@ ir_return_get_return_value(IrReturn *self)
 static void
 ir_return_do_print(IrNode *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_RETURN(self));
     assert(out);
 

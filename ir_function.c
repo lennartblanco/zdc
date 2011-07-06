@@ -170,7 +170,7 @@ ir_function_print(IrFunction *self, FILE *out, int indention)
 static void
 ir_function_do_print(IrNode *self, FILE *out, int indention)
 {
-    assert(self);
+    assert(IR_IS_FUNCTION(self));
     assert(out);
 
     IrFunction *func = IR_FUNCTION(self);

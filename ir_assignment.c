@@ -80,7 +80,6 @@ ir_assignment_get_value(IrAssignment *self)
 void
 ir_assignment_set_value(IrAssignment *self, IrExpression *value)
 {
-    assert(self);
     assert(IR_IS_ASSIGNMENT(self));
 
     self->value = value;

@@ -58,9 +58,7 @@ ir_if_else_new(void)
 void
 ir_if_else_add_if_else_block(IrIfElse *self, IrIfBlock *if_block)
 {
-    assert(self);
     assert(IR_IS_IF_ELSE(self));
-    assert(if_block);
     assert(IR_IS_IF_BLOCK(if_block));
 
     self->if_else_blocks = g_slist_append(self->if_else_blocks, if_block);
@@ -69,7 +67,6 @@ ir_if_else_add_if_else_block(IrIfElse *self, IrIfBlock *if_block)
 GSList *
 ir_if_else_get_if_else_blocks(IrIfElse *self)
 {
-    assert(self);
     assert(IR_IS_IF_ELSE(self));
 
     return self->if_else_blocks;
@@ -78,9 +75,7 @@ ir_if_else_get_if_else_blocks(IrIfElse *self)
 void
 ir_if_else_set_else_body(IrIfElse *self, IrCodeBlock *else_body)
 {
-    assert(self);
     assert(IR_IS_IF_ELSE(self));
-    assert(else_body);
     assert(IR_IS_CODE_BLOCK(else_body));
 
     self->else_body = else_body;
@@ -89,7 +84,6 @@ ir_if_else_set_else_body(IrIfElse *self, IrCodeBlock *else_body)
 IrCodeBlock *
 ir_if_else_get_else_body(IrIfElse *self)
 {
-    assert(self);
     assert(IR_IS_IF_ELSE(self));
 
     return self->else_body;
@@ -102,7 +96,6 @@ ir_if_else_get_else_body(IrIfElse *self)
 static void
 ir_if_else_do_print(IrNode *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_IF_ELSE(self));
     assert(out);
 

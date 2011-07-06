@@ -58,9 +58,7 @@ ir_while_new(IrExpression *loop_condition, IrCodeBlock *body)
 void
 ir_while_set_loop_condition(IrWhile *self, IrExpression *loop_condition)
 {
-    assert(self);
     assert(IR_IS_WHILE(self));
-    assert(loop_condition);
     assert(IR_IS_EXPRESSION(loop_condition));
 
     self->loop_condition = loop_condition;
@@ -69,7 +67,6 @@ ir_while_set_loop_condition(IrWhile *self, IrExpression *loop_condition)
 IrExpression *
 ir_while_get_loop_condition(IrWhile *self)
 {
-    assert(self);
     assert(IR_IS_WHILE(self));
 
     return self->loop_condition;
@@ -78,7 +75,6 @@ ir_while_get_loop_condition(IrWhile *self)
 IrCodeBlock *
 ir_while_get_body(IrWhile *self)
 {
-    assert(self);
     assert(IR_IS_WHILE(self));
 
     return self->body;
@@ -92,7 +88,6 @@ ir_while_get_body(IrWhile *self)
 static void
 ir_while_do_print(IrNode *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_WHILE(self));
     assert(out);
 

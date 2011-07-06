@@ -81,9 +81,8 @@ ast_while_get_body(AstWhile *self)
 static void
 ast_while_do_print(AstNode *self, FILE *out, int indention)
 {
-    assert(self);
-    assert(out);
     assert(AST_IS_WHILE(self));
+    assert(out);
 
     AstWhile *while_loop = AST_WHILE(self);
 

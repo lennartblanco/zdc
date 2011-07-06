@@ -63,7 +63,6 @@ ir_cast_new(DtDataType *target_type, IrExpression *value)
 DtDataType *
 ir_cast_get_target_type(IrCast *self)
 {
-    assert(self);
     assert(IR_IS_CAST(self));
 
     return self->target_type;
@@ -72,7 +71,6 @@ ir_cast_get_target_type(IrCast *self)
 IrExpression *
 ir_cast_get_value(IrCast *self)
 {
-    assert(self);
     assert(IR_IS_CAST(self));
 
     return self->value;
@@ -110,7 +108,6 @@ ir_cast_do_is_constant(IrExpression *self)
 static void
 ir_cast_do_print(IrNode *self, FILE *out, int indention)
 {
-    assert(self);
     assert(IR_IS_CAST(self));
     assert(out);
 
