@@ -39,7 +39,7 @@ check_fact: fact.o check_utils.o check_fact.c
 check_extern_c: extern_c.o check_utils.o check_extern_c.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_while_loop: while_loop.o check_utils.o check_while_loop.c
+check_while_loop: while_loop.o check_utils.o check_while_loop.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_stat_array: stat_array.o check_utils.o check_stat_array.c

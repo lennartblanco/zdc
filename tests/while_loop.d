@@ -39,6 +39,52 @@ while_loc_vars(int idx, uint step)
   return i;
 }
 
+//
+// test nested while-loops
+//
+bool while_nested(char[] arr)
+{
+  uint i = 0, j;
+
+  while (i < arr.length)
+  {
+    char c = arr[i];
+    j = ++i;
+    while (j < arr.length)
+    {
+      if (arr[j] == c)
+      {
+         return false;
+      }
+      j = j + 1;
+    }
+  }
+
+  return true;
+}
+
+// test driver for while_nested()
+extern (C)
+bool invoke_while_nested(uint test_num)
+{
+    char[] a;
+
+    if (test_num == 1)
+    {
+         a = ['a', 'b', 'c', 'd'];
+    }
+    else if (test_num == 2)
+    {
+         a = ['h', 'e', 'l', 'l', 'o'];
+    }
+    else if (test_num == 3)
+    {
+         a = ['X', 'a', 'b', 'c', 'd', 'e', 'X'];
+    }
+
+    return while_nested(a);
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
