@@ -176,9 +176,9 @@ ir_function_def_add_operation(IrFunctionDef *self, iml_operation_t *operation)
 GSList *
 ir_function_def_get_operations(IrFunctionDef *self)
 {
-	assert(IR_IS_FUNCTION_DEF(self));
+    assert(IR_IS_FUNCTION_DEF(self));
 
-	return self->operations;
+    return self->operations;
 }
 
 /*---------------------------------------------------------------------------*
