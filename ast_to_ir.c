@@ -4,6 +4,7 @@
 #include "ast_if_else.h"
 #include "ast_while.h"
 #include "ast_foreach.h"
+#include "ast_break.h"
 #include "ast_return.h"
 #include "ast_function_call.h"
 #include "ast_assignment.h"
@@ -27,6 +28,7 @@
 #include "ir_variable.h"
 #include "ir_while.h"
 #include "ir_foreach.h"
+#include "ir_break.h"
 #include "ir_return.h"
 #include "ir_assignment.h"
 #include "ir_array_slice.h"
@@ -617,6 +619,10 @@ code_block_to_ir(compilation_status_t *compile_status,
             ir_stmt = foreach_to_ir(compile_status,
                                     symbols,
                                     AST_FOREACH(stmt));
+        }
+        else if (AST_IS_BREAK(stmt))
+        {
+            ir_stmt = IR_STATMENT(ir_break_new(ast_node_get_line_num(stmt)));
         }
         else if (AST_IS_RETURN(stmt))
         {

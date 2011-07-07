@@ -31,6 +31,7 @@ unknow_usr_type: unknow_usr_type.d
 enum_init_err: enum_init_err.d
 structs: structs.d
 inc_dec_ops: inc_dec_ops.d
+inv_break: inv_break.d
 
 %.d: %.inv_d
 	cp $? $@

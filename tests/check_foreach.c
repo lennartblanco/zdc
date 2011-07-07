@@ -15,6 +15,9 @@ call_foreach_value_auto_type(int arg);
 int
 call_run_foreach_index_auto_type(int arg);
 
+unsigned
+foreach_break(int num);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -183,6 +186,14 @@ main()
          : "=a"(res));
     check_int("foreach_bool_arry([true, false, true, false, false, false])",
               res, 11 + 13);
+
+    /* foreach_break() tests */
+    check_uint("foreach_break(0)", foreach_break(0), 4);
+    check_uint("foreach_break(8)", foreach_break(8), 3);
+    check_uint("foreach_break(1)", foreach_break(1), 2);
+    check_uint("foreach_break(7)", foreach_break(7), 1);
+    check_uint("foreach_break(2)", foreach_break(2), 0);
+    check_uint("foreach_break(-1)", foreach_break(-1), 4);
 
     check_exit();
 }

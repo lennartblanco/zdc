@@ -85,6 +85,47 @@ bool invoke_while_nested(uint test_num)
     return while_nested(a);
 }
 
+// test break statment inside a while-loop
+extern (C) int
+while_break(int break_val)
+{
+  int i;
+
+  while (i < 10)
+  {
+    i = i + 1;
+    if (i == break_val)
+    {
+      break;
+    }
+  }
+
+  return i;
+}
+
+// test break inside nested while loop
+extern (C)
+int while_nested_break(bool do_break)
+{
+  bool loop = true;
+
+  while (loop)
+  {
+    while (loop)
+    {
+      // check that break aborts the inner loop
+      if (do_break)
+      {
+        break;
+      }
+      return 1;
+    }
+    loop = false;
+  }
+
+  return 2;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

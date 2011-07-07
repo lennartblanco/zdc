@@ -114,6 +114,25 @@ uint foreach_bool_arry(bool[6] add_op)
    return res;
 }
 
+// test break statment inside a foreach
+extern (C)
+uint foreach_break(int num)
+{
+  int[] arr = [2, 7, 1, 8];
+  uint cntr = 0;
+
+  foreach (n; arr)
+  {
+    if (n == num)
+    {
+      break;
+    }
+
+    cntr = cntr + 1;
+  }
+  return cntr;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

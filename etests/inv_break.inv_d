@@ -1,0 +1,11 @@
+void func1()
+{
+  break;
+}
+
+void func2()
+{
+  int a;
+
+  if (a != 2) { break; }
+}

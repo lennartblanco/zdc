@@ -1,7 +1,7 @@
 #ifndef IR_WHILE_INC_X
 #define IR_WHILE_INC_X
 
-#include "ir_statment.h"
+#include "ir_loop.h"
 #include "ir_code_block.h"
 
 /*---------------------------------------------------------------------------*
@@ -27,15 +27,16 @@
 
 typedef struct
 {
-    IrStatment     parent;
+    IrLoop           parent;
     /* private */
-    IrExpression *loop_condition;
-    IrCodeBlock   *body;
+    IrExpression    *loop_condition;
+    IrCodeBlock     *body;
+    iml_operation_t *end_label;
 } IrWhile;
 
 typedef struct
 {
-    IrStatmentClass parent_class;
+    IrLoopClass parent_class;
 } IrWhileClass;
 
 /*---------------------------------------------------------------------------*

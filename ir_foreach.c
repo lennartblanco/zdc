@@ -35,7 +35,7 @@ ir_foreach_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_STATMENT,
+      type = g_type_register_static(IR_TYPE_LOOP,
                                     "IrForeachType",
                                     &info, 0);
     }

@@ -1,7 +1,7 @@
 #ifndef IR_FOREACH_INC_X
 #define IR_FOREACH_INC_X
 
-#include "ir_statment.h"
+#include "ir_loop.h"
 #include "ir_variable.h"
 #include "ir_code_block.h"
 #include "ir_array_slice.h"
@@ -29,7 +29,7 @@
 
 typedef struct
 {
-    IrStatment          parent;
+    IrLoop              parent;
 
     /* private */
     IrVariable         *index;
@@ -40,7 +40,7 @@ typedef struct
 
 typedef struct
 {
-    IrStatmentClass parent_class;
+    IrLoopClass parent_class;
 } IrForeachClass;
 
 /*---------------------------------------------------------------------------*

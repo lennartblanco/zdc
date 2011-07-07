@@ -12,6 +12,13 @@ call_while_loc_vars(int arg1, unsigned arg2);
 bool
 invoke_while_nested(unsigned test_num);
 
+int
+while_break(int break_val);
+
+int
+while_nested_break(bool do_break);
+
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -41,6 +48,15 @@ main()
     check_bool("invoke_while_nested(2)", invoke_while_nested(2), false);
     check_bool("invoke_while_nested(3)", invoke_while_nested(3), false);
     check_bool("invoke_while_nested(4)", invoke_while_nested(4), true);
+
+    /* while_break() tests */
+    check_int("while_break(0)", while_break(0), 10);
+    check_int("while_break(20)", while_break(20), 10);
+    check_int("while_break(6)", while_break(6), 6);
+
+    /* while_nested_break() tests */
+    check_int("while_nested_break(false)", while_nested_break(false), 1);
+    check_int("while_nested_break(true)", while_nested_break(true), 2);
 
     check_exit();
 }

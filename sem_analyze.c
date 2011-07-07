@@ -19,6 +19,7 @@ semantic_analyze(const char *source_file,
     compilation_status_t comp_stat;
 
     /* set-up compilation status struct */
+    comp_stat.loop = NULL;
     comp_stat.source_file = source_file;
     comp_stat.backend = backend;
     comp_stat.errors_count = 0;

@@ -1,6 +1,8 @@
 #ifndef IML_VARIABLE_INC_X
 #define IML_VARIABLE_INC_X
 
+#include <stdbool.h>
+
 #include "iml_operand.h"
 
 #include <stdio.h>

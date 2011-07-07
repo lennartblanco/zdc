@@ -4,6 +4,7 @@
 #include "auxil.h"
 #include "ast_module.h"
 #include "ir_module.h"
+#include "ir_loop.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -11,10 +12,18 @@
 
 typedef struct compilation_status_s
 {
-    IrModule   *module;              /** current module */
-    IrFunctionDef *function;         /** current function */
-    const char *source_file;         /** current source file name */
-    arch_backend_t *backend;         /** backend hooks */
+    /** current module under validation */
+    IrModule   *module;
+    /** current function under validation */
+    IrFunctionDef *function;
+    /**
+     * current loop under validation, NULL if no loop is currently validated
+     */
+    IrLoop *loop;
+    /** current source file name */
+    const char *source_file;
+    /** backend hooks */
+    arch_backend_t *backend;
     guint errors_count;
 } compilation_status_t;
 

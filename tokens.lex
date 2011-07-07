@@ -53,6 +53,7 @@ hex    0[xX][[:xdigit:]]+
 "alias"  { return TOK_ALIAS; }
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }
+"break"  { return TOK_BREAK; }
 "ushort" { return TOK_USHORT; }
 "struct" { return TOK_STRUCT; }
 "return" { return TOK_RETURN; }

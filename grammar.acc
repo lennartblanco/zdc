@@ -38,7 +38,7 @@ AstModule *module;
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
-       TOK_RETURN, TOK_EXTERN,
+       TOK_BREAK, TOK_RETURN, TOK_EXTERN,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
@@ -360,6 +360,7 @@ non_empty_statment<stmt> :
 |   if_else_block<stmt>
 |   foreach_block<stmt>
 |   while_block<stmt>
+|   break_statment<stmt>
 |   expression_statment<stmt>
 |   return_stmt<stmt>
 ;
@@ -543,6 +544,14 @@ while_block<x> :
     {
         (*x).statment =
             AST_STATMENT(ast_while_new(exp.expression, code.code_block));
+    }
+;
+
+break_statment<x> :
+    TOK_BREAK
+    {
+        (*x).statment =
+            AST_STATMENT(ast_break_new(yypos));
     }
 ;
 

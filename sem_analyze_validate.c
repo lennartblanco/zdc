@@ -20,6 +20,7 @@
 #include "ir_if_else.h"
 #include "ir_while.h"
 #include "ir_foreach.h"
+#include "ir_break.h"
 #include "ir_array_cell.h"
 #include "ir_property.h"
 #include "ir_enum_member.h"
@@ -1395,6 +1396,7 @@ validate_while(compilation_status_t *compile_status,
     loop_end =
         iml_operation_new(iml_label,
                           ir_module_gen_label(compile_status->module));
+    ir_loop_set_exit_label(IR_LOOP(while_statment), loop_end);
 
     /* label the start of loop */
     ir_function_def_add_operation(compile_status->function, loop_start);
@@ -1411,8 +1413,15 @@ validate_while(compilation_status_t *compile_status,
                               iml_constant_new_8b(1),
                               iml_operation_get_operand(loop_end, 1)));
 
-    /* validate while body, and all iml operations */
+    /*
+     * validate while body, and generate iml operations
+     */
+    IrLoop *prev_loop = compile_status->loop;
+    compile_status->loop = IR_LOOP(while_statment);
+
     validate_code_block(compile_status, ir_while_get_body(while_statment));
+
+    compile_status->loop = prev_loop;
 
     /* jump to loop start */
     ir_function_def_add_operation(
@@ -1524,13 +1533,50 @@ validate_foreach(compilation_status_t *compile_status,
     /*
      * validate and insert iml operations for foreach body
      */
+
+    /* generate and store loop exit label */
+    iml_operation_t *exit_label =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    ir_loop_set_exit_label(IR_LOOP(foreach), exit_label);
+
+    /* set current loop as this foreach-loop */
+    IrLoop *prev_loop = compile_status->loop;
+    compile_status->loop = IR_LOOP(foreach);
+
     validate_code_block(compile_status, ir_foreach_get_body(foreach));
+
+    /* restore previous loop statment */
+    compile_status->loop = prev_loop;
 
     /* insert iml operations for foreach tail */
     iml_add_foreach_tail(compile_status->function,
                          index,
                          length,
                          loop_label);
+    /* insert loop exit label */
+    ir_function_def_add_operation(compile_status->function, exit_label);
+}
+
+static void
+validate_break(compilation_status_t *compile_status,
+               sym_table_t *sym_table,
+               IrBreak *break_stmt)
+{
+    if (compile_status->loop == NULL)
+    {
+        compile_error(compile_status,
+                      break_stmt,
+                      "break is not inside a loop\n");
+        return;
+    }
+
+    iml_operation_t *break_label =
+            ir_loop_get_exit_label(compile_status->loop);
+    ir_function_def_add_operation(
+            compile_status->function,
+            iml_operation_new(iml_jmp,
+                              iml_operation_get_operand(break_label, 1)));
 }
 
 static void
@@ -1572,6 +1618,10 @@ validate_statment(compilation_status_t *compile_status,
     else if (IR_IS_FOREACH(statment))
     {
         validate_foreach(compile_status, sym_table, IR_FOREACH(statment));
+    }
+    else if (IR_IS_BREAK(statment))
+    {
+        validate_break(compile_status, sym_table, IR_BREAK(statment));
     }
     else if (IR_IS_EXPRESSION(statment))
     {
@@ -2360,6 +2410,7 @@ sem_analyze_validate(compilation_status_t *compile_status,
         validate_function_decl(compile_status, IR_FUNCTION_DECL(i->data));
     }
 
+    /* validate function definitions */
     i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
     {
