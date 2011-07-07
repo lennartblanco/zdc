@@ -9,6 +9,12 @@ call_while_tst2(int arg);
 unsigned
 call_while_loc_vars(int arg1, unsigned arg2);
 
+unsigned
+while_true(unsigned a, unsigned b);
+
+int
+while_false(int a, int b);
+
 bool
 invoke_while_nested(unsigned test_num);
 
@@ -41,6 +47,15 @@ main()
     check_uint("while_loc_vars(0, 0)", call_while_loc_vars(0, 0), 0);
     check_uint("while_loc_vars(10, 1)", call_while_loc_vars(10, 1), 10);
     check_uint("while_loc_vars(15, 6)", call_while_loc_vars(15, 6), 18);
+
+    /* while_true() tests */
+    check_uint("while_true(20,5)", while_true(20, 5), 20/5);
+    check_uint("while_true(2, 7)", while_true(2, 7), 2/7);
+    check_uint("while_true(16, 3)", while_true(16, 3), 16/3);
+
+    /* while_false() tests */
+    check_int("while_false(2, 7)", while_false(2,7), 2);
+    check_int("while_false(0, 2000)", while_false(0, 2000), 0);
 
     /* while_nested() tests */
     check_bool("invoke_while_nested(0)", invoke_while_nested(0), true);

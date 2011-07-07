@@ -1400,18 +1400,48 @@ validate_while(compilation_status_t *compile_status,
 
     /* label the start of loop */
     ir_function_def_add_operation(compile_status->function, loop_start);
-    /* insert iml operation for validation of loop condition */
-    condition_eval_res = iml_add_expression_eval(compile_status->function,
-                                                 condition,
-                                                 NULL);
 
-    /* jump over loop body unless condition evaluates to true */
-    ir_function_def_add_operation(
-            compile_status->function,
+    /* figure out the jump operation to issue after condition evaluation */
+    iml_operation_t *jump_op;
+    if (ir_expression_is_constant(condition))
+    {
+        /*
+         * a constant expression,
+         * this is either an eternal loop or the loop which is always skipped
+         */
+        assert(IR_IS_BASIC_CONSTANT(condition));
+        if (ir_basic_constant_get_bool(IR_BASIC_CONSTANT(condition)))
+        {
+            /* eternal loop, no jump instruction needed */
+            jump_op = NULL;
+        }
+        else
+        {
+            /* just skip the loop body */
+            jump_op =
+                iml_operation_new(iml_jmp,
+                                  iml_operation_get_operand(loop_end, 1));
+        }
+    }
+    else
+    {
+        /* insert iml operation for validation of loop condition */
+        condition_eval_res = iml_add_expression_eval(compile_status->function,
+                                                     condition,
+                                                     NULL);
+        /* jump past the loop body if condition evaluates to false */
+        jump_op =
             iml_operation_new(iml_jmpneq,
                               condition_eval_res,
                               iml_constant_new_8b(1),
-                              iml_operation_get_operand(loop_end, 1)));
+                              iml_operation_get_operand(loop_end, 1));
+    }
+
+    /* add jump operation if needed */
+    if (jump_op != NULL)
+    {
+        ir_function_def_add_operation(compile_status->function, jump_op);
+    }
 
     /*
      * validate while body, and generate iml operations

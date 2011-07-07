@@ -39,6 +39,41 @@ while_loc_vars(int idx, uint step)
   return i;
 }
 
+
+// test while-loop over constant condition
+extern (C) uint
+while_true(uint a, uint b)
+{
+
+   // a simple division algorithm
+   int r = 0;
+
+   while (true)
+   {
+      if (a < b)
+      {
+        break;
+      }
+      a = a - b;
+      r = r + 1;
+   }
+
+   return r;
+}
+
+// test a loop with canstant false condition
+extern (C) int
+while_false(int a, int b)
+{
+   while (false)
+   {
+      /* we should never get here */
+      return b;
+   }
+
+   return a;
+}
+
 //
 // test nested while-loops
 //
