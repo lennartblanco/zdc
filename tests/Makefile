@@ -24,7 +24,7 @@ check_implicit_cast: implicit_cast.o check_utils.o check_implicit_cast.c
 check_bool_op: bool_op.o check_utils.o check_bool_op.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_uint_op: uint_op.o check_utils.o check_uint_op.c
+check_uint_op: uint_op.o check_utils.o check_uint_op.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_nested_blocks: nested_blocks.o check_utils.o check_nested_blocks.c
