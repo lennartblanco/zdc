@@ -6,7 +6,6 @@
   </runner>
   <skip>
     <test>arithm</test>
-    <test>dyn_array</test>
     <test>stat_array</test>
     <test>uint_op</test>
     <test>properties</test>

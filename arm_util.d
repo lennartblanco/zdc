@@ -166,11 +166,16 @@ gen_move_from_reg(File asmfile, string src_reg, ImlVariable *destination)
  * @param asmfile the file where to write generated code
  * @param operand the operand to be copied to a register
  * @param register the register where operand can be stored
+ * @param force move the operand to specified register even if it is already
+ *              stored in a register
  *
  * @return the register where operand is stored
  */
 string
-store_in_reg(File asmfile, ImlOperand *operand, string register)
+store_in_reg(File asmfile,
+             ImlOperand *operand,
+             string register,
+             bool force = false)
 {
     if (iml_is_constant(operand))
     {
@@ -180,7 +185,7 @@ store_in_reg(File asmfile, ImlOperand *operand, string register)
     {
         assert(iml_is_variable(operand));
         char *reg = iml_variable_get_register(cast(ImlVariable*)operand);
-        if (reg == null)
+        if (reg == null || force)
         {
             gen_move_to_reg(asmfile, register, operand);
         }

@@ -441,8 +441,6 @@ load_to_regs(File asmfile,
              out string dest_reg,
              out bool store_res)
 {
-    char *res_reg = iml_variable_get_register(res);
-
     string pick_left_reg()
     {
         if (mul_style)
@@ -455,7 +453,6 @@ load_to_regs(File asmfile,
             {
                 return TEMP_REG2;
             }
-            assert(false);
         }
         else
         {
@@ -482,43 +479,30 @@ load_to_regs(File asmfile,
     }
 
     /* pick the destination register */
-    if (res_reg == null)
+    if (iml_variable_get_register(res) == null)
     {
         dest_reg = TEMP_REG1;
         store_res = true;
     }
     else
     {
-        dest_reg = to!string(res_reg);
+        dest_reg = to!string(iml_variable_get_register(res));
         store_res = false;
     }
 
     /* make sure left operand is loaded into a register */
-    if (iml_is_constant(left))
+    bool force = false;
+    if (mul_style && iml_is_variable(left))
     {
-        left_reg = pick_left_reg();
-        asmfile.writefln("    mov %s, #%s",
-                         left_reg,
-                         iml_constant_get_val_32b(cast(ImlConstant*)left));
+        /*
+         * for mul-style operation, we must make sure that
+         * destination register and left register are different
+         */
+        force =
+          dest_reg == to!string(
+                        iml_variable_get_register(cast(ImlVariable*)left));
     }
-    else
-    {
-        assert(iml_is_variable(left));
-        ImlVariable *var = cast(ImlVariable *)left;
-        char *reg = iml_variable_get_register(var);
-
-        if (reg == null)
-        {
-            left_reg = pick_left_reg();
-            asmfile.writefln("    ldr %s, [fp, #%s]",
-                             left_reg,
-                             iml_variable_get_frame_offset(var));
-        }
-        else
-        {
-            left_reg = to!string(reg);
-        }
-    }
+    left_reg = store_in_reg(asmfile, left, pick_left_reg(), force);
 
     /* figure out right operand expression */
     if (iml_is_constant(right))
