@@ -10,22 +10,22 @@
  *---------------------------------------------------------------------------*/
 
 static void
-dt_basic_type_class_init(gpointer klass, gpointer dummy);
+dt_basic_class_init(gpointer klass, gpointer dummy);
 
 static guint
-dt_basic_type_get_size(DtDataType *self);
+dt_basic_get_size(DtDataType *self);
 
 static char *
-dt_basic_type_get_string(DtDataType *self);
+dt_basic_get_string(DtDataType *self);
 
 static char *
-dt_basic_type_get_mangled(DtDataType *self);
+dt_basic_get_mangled(DtDataType *self);
 
 static IrExpression *
-dt_basic_type_get_init(DtDataType *self);
+dt_basic_get_init(DtDataType *self);
 
 static bool
-dt_basic_type_is_same(DtDataType *self, DtDataType *type);
+dt_basic_is_same(DtDataType *self, DtDataType *type);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -42,7 +42,7 @@ dt_basic_get_type(void)
         sizeof (DtBasicClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        dt_basic_type_class_init,   /* class_init */
+        dt_basic_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (DtBasic),
@@ -108,7 +108,7 @@ dt_basic_is_signed(DtBasic *self)
  *---------------------------------------------------------------------------*/
 
 static char *
-dt_basic_type_get_string(DtDataType *self)
+dt_basic_get_string(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
@@ -150,7 +150,7 @@ dt_basic_type_get_string(DtDataType *self)
 }
 
 static guint
-dt_basic_type_get_size(DtDataType *self)
+dt_basic_get_size(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
@@ -174,7 +174,7 @@ dt_basic_type_get_size(DtDataType *self)
 }
 
 static char *
-dt_basic_type_get_mangled(DtDataType *self)
+dt_basic_get_mangled(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
@@ -206,7 +206,7 @@ dt_basic_type_get_mangled(DtDataType *self)
 }
 
 static IrExpression *
-dt_basic_type_get_init(DtDataType *self)
+dt_basic_get_init(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
@@ -234,7 +234,7 @@ dt_basic_type_get_init(DtDataType *self)
 }
 
 static bool
-dt_basic_type_is_same(DtDataType *self, DtDataType *type)
+dt_basic_is_same(DtDataType *self, DtDataType *type)
 {
     assert(dt_is_basic(self));
     assert(DT_IS_DATA_TYPE(type));
@@ -249,12 +249,12 @@ dt_basic_type_is_same(DtDataType *self, DtDataType *type)
 }
 
 static void
-dt_basic_type_class_init(gpointer klass, gpointer dummy)
+dt_basic_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_size = dt_basic_type_get_size;
-    ((DtDataTypeClass *)klass)->get_string = dt_basic_type_get_string;
-    ((DtDataTypeClass *)klass)->get_mangled = dt_basic_type_get_mangled;
-    ((DtDataTypeClass *)klass)->get_init = dt_basic_type_get_init;
-    ((DtDataTypeClass *)klass)->is_same = dt_basic_type_is_same;
+    ((DtDataTypeClass *)klass)->get_size = dt_basic_get_size;
+    ((DtDataTypeClass *)klass)->get_string = dt_basic_get_string;
+    ((DtDataTypeClass *)klass)->get_mangled = dt_basic_get_mangled;
+    ((DtDataTypeClass *)klass)->get_init = dt_basic_get_init;
+    ((DtDataTypeClass *)klass)->is_same = dt_basic_is_same;
 }
 
