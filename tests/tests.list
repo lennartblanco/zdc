@@ -32,3 +32,4 @@ foreach
 str_literals
 pointers
 incdec_ops
+cond

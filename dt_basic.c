@@ -248,13 +248,23 @@ dt_basic_is_same(DtDataType *self, DtDataType *type)
            DT_BASIC(type)->data_type;
 }
 
+static bool
+dt_basic_is_integral(DtDataType *self)
+{
+    assert(dt_is_basic(self));
+
+    /* currently only void basic type is not integral */
+    return DT_BASIC(self)->data_type != void_type;
+}
+
 static void
 dt_basic_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_size = dt_basic_get_size;
-    ((DtDataTypeClass *)klass)->get_string = dt_basic_get_string;
-    ((DtDataTypeClass *)klass)->get_mangled = dt_basic_get_mangled;
-    ((DtDataTypeClass *)klass)->get_init = dt_basic_get_init;
-    ((DtDataTypeClass *)klass)->is_same = dt_basic_is_same;
+    DT_DATA_TYPE_CLASS(klass)->get_size = dt_basic_get_size;
+    DT_DATA_TYPE_CLASS(klass)->get_string = dt_basic_get_string;
+    DT_DATA_TYPE_CLASS(klass)->get_mangled = dt_basic_get_mangled;
+    DT_DATA_TYPE_CLASS(klass)->get_init = dt_basic_get_init;
+    DT_DATA_TYPE_CLASS(klass)->is_same = dt_basic_is_same;
+    DT_DATA_TYPE_CLASS(klass)->is_integral = dt_basic_is_integral;
 }
 

@@ -58,6 +58,24 @@ types_pointer_arithm_conv(IrExpression *left,
                           IrExpression *right,
                           IrExpression **res_left,
                           IrExpression **res_right);
+/**
+ * Find common type for type1 and type2, using this algorithm:
+ *
+ * - if type1 is same as type2, return that type
+ * - if type1 or type2 is void, return void type
+ * - if both  type1 and type2 are integral types, first promote anything smaller
+ *     than 32-bit to int, then return the larger type, with a preference
+ *     for unsigned type if tied in size (not implemented)
+ * - else try implicitly converting type1 to type2's type and type2 to type1's
+ *     type; if exactly one of these succeeds, retutn the type of the
+ *     successful conversion target (not implemented)
+ *
+ * - otherwise no common type can be found
+ *
+ * @return the common type or NULL if no common type can be found
+ */
+DtDataType *
+types_find_common(DtDataType *type1, DtDataType *type2);
 
 /**
  * Returns true if data_type represent basic type void,

@@ -740,6 +740,25 @@ types_usual_arithm_conv(IrExpression *left,
     return true;
 }
 
+DtDataType *
+types_find_common(DtDataType *type1, DtDataType *type2)
+{
+    if (dt_data_type_is_same(type1, type2))
+    {
+        return type1;
+    }
+
+    if (types_is_void(type1) || types_is_void(type2))
+    {
+        return types_get_void_type();
+    }
+
+    if (dt_data_type_is_integral(type1) && dt_data_type_is_integral(type2))
+    {
+        assert(false); /* not implmented */
+    }
+    assert(false); /* not implmented */
+}
 
 bool
 types_is_void(DtDataType *data_type)

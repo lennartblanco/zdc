@@ -42,6 +42,7 @@ typedef struct
     guint (*get_size) (DtDataType *self);
     IrExpression * (*get_init) (DtDataType *self);
     bool (*is_same) (DtDataType *self, DtDataType *type);
+    bool (*is_integral) (DtDataType *self);
 } DtDataTypeClass;
 
 typedef enum basic_data_type_e
@@ -102,5 +103,11 @@ dt_data_type_get_init(DtDataType *self);
  */
 bool
 dt_data_type_is_same(DtDataType *self, DtDataType *type);
+
+/**
+ * @return true if this is an integral type, false otherwise
+ */
+bool
+dt_data_type_is_integral(DtDataType *self);
 
 #endif /* DT_DATA_TYPE_INC_X */

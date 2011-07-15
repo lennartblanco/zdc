@@ -53,3 +53,11 @@ void func6()
 inv_type1 *func7();
 
 void func8(inv_type2);
+
+void void_func() { }
+
+void inv_cond()
+{
+  /* void is not valid type for conditional expression */
+  int x = void_func() ? 1 : 2;
+}

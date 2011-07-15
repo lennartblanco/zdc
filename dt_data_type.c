@@ -104,3 +104,17 @@ dt_data_type_is_same(DtDataType *self, DtDataType *type)
     return DT_DATA_TYPE_GET_CLASS(self)->is_same(self, type);
 }
 
+bool
+dt_data_type_is_integral(DtDataType *self)
+{
+    assert(DT_IS_DATA_TYPE(self));
+
+    /* by default a data type is not integral */
+    if (DT_DATA_TYPE_GET_CLASS(self)->is_integral == NULL)
+    {
+        /* method not overridden, return default value */
+        return false;
+    }
+
+    return DT_DATA_TYPE_GET_CLASS(self)->is_integral(self);
+}

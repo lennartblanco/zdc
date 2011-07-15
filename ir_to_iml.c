@@ -2,6 +2,7 @@
 #include "ir_basic_constant.h"
 #include "ir_array_cell.h"
 #include "ir_array_slice.h"
+#include "ir_conditional.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_ptr_dref.h"
@@ -55,6 +56,11 @@ static ImlOperand *
 iml_add_struct_member_eval(IrFunctionDef *function,
                            IrStructMember *ptr_dref,
                            ImlVariable *res);
+
+static ImlOperand *
+iml_add_conditional_eval(IrFunctionDef *function,
+                         IrConditional *cond,
+                         ImlVariable *res);
 
 static ImlOperand *
 iml_add_property_eval(IrFunctionDef *function,
@@ -197,6 +203,12 @@ iml_add_expression_eval(IrFunctionDef *function,
         res = iml_add_struct_member_eval(function,
                                          IR_STRUCT_MEMBER(ir_expression),
                                          dest);
+    }
+    else if (IR_IS_CONDITIONAL(ir_expression))
+    {
+        res = iml_add_conditional_eval(function,
+                                       IR_CONDITIONAL(ir_expression),
+                                       dest);
     }
     else
     {
@@ -1036,6 +1048,75 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
 
     /* pointer expression operand not needed any more */
     iml_func_frame_unused_oper(frame, ptr_exp);
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_conditional_eval(IrFunctionDef *function,
+                         IrConditional *cond,
+                         ImlVariable *res)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_CONDITIONAL(cond));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    ImlVariable *cond_var;
+
+    /* figure out where to store the result */
+    if (res == NULL)
+    {
+        iml_data_type_t res_type;
+
+        res_type =
+            dt_to_iml_type(
+                ir_expression_get_data_type(IR_EXPRESSION(cond)));
+        res = iml_func_frame_get_temp(frame, res_type);
+    }
+
+    /* generate labels */
+    IrModule *mod = ir_symbol_get_parent_module(IR_SYMBOL(function));
+    char *skip_label = ir_module_gen_label(mod);
+    char *end_label = ir_module_gen_label(mod);
+
+    /* evaluate condition expression */
+    cond_var =
+        IML_VARIABLE(iml_add_expression_eval(function,
+                                             ir_conditional_get_cond(cond),
+                                             NULL));
+
+    /* insert jump to false evaluation operation */
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_jmpneq,
+                                                    cond_var,
+                                                    iml_constant_new_8b(1),
+                                                    skip_label));
+
+    /* evalute true expression */
+    iml_add_expression_eval(function,
+                            ir_conditional_get_true(cond),
+                            res);
+
+    /* insert skip false evaluation jump */
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_jmp,
+                                                    end_label));
+
+    /* insert skip label */
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_label, skip_label));
+
+    /* evaluate false expression */
+    iml_add_expression_eval(function,
+                            ir_conditional_get_false(cond),
+                            res);
+
+    /* insert end label */
+    ir_function_def_add_operation(function,
+                                  iml_operation_new(iml_label, end_label));
+
+    /* free conditional variable if it was temporary */
+    iml_func_frame_unused_oper(frame, IML_OPERAND(cond_var));
 
     return IML_OPERAND(res);
 }

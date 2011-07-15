@@ -10,6 +10,7 @@
 #include "dt_name.h"
 #include "dt_static_array.h"
 #include "ast_return.h"
+#include "ast_conditional.h"
 #include "ast_binary_operation.h"
 #include "ast_unary_operation.h"
 #include "ast_int_constant.h"
@@ -643,7 +644,20 @@ assignment<n> :
 ;
 
 expression<n> :
+    conditional_expression<n>
+;
+
+conditional_expression<n> :
     oror_expression<n>
+|   oror_expression<cond> '?'
+        expression<true_exp> ':' conditional_expression<false_exp>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_conditional_new(cond.expression,
+                                               true_exp.expression,
+                                               false_exp.expression,
+                                               yypos));
+    }
 ;
 
 oror_expression<n> :

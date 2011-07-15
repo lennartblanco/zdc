@@ -8,6 +8,7 @@
 #include "ast_return.h"
 #include "ast_function_call.h"
 #include "ast_assignment.h"
+#include "ast_conditional.h"
 #include "ast_binary_operation.h"
 #include "ast_array_literal.h"
 #include "ast_string_literal.h"
@@ -34,6 +35,7 @@
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
 #include "ir_array_cell.h"
+#include "ir_conditional.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_basic_constant.h"
@@ -921,6 +923,42 @@ binary_op_to_ir(compilation_status_t *compile_status,
     assert(false);
 }
 
+static IrExpression *
+ast_conditional_to_ir(compilation_status_t *compile_status,
+                      sym_table_t *symbols,
+                      AstConditional *ast_cond)
+{
+    IrExpression *cond;
+    IrExpression *true_exp;
+    IrExpression *false_exp;
+
+    cond =
+        expression_to_ir(compile_status,
+                         symbols,
+                         ast_conditional_get_cond(ast_cond));
+    true_exp =
+        expression_to_ir(compile_status,
+                         symbols,
+                         ast_conditional_get_true(ast_cond));
+
+    false_exp =
+        expression_to_ir(compile_status,
+                         symbols,
+                         ast_conditional_get_false(ast_cond));
+
+    if (cond == NULL || true_exp == NULL || false_exp == NULL)
+    {
+        /* error(s) converting sub-expression to ir, bail out */
+        return NULL;
+    }
+
+    return
+        IR_EXPRESSION(
+            ir_conditional_new(cond,
+                               true_exp,
+                               false_exp,
+                               ast_node_get_line_num(AST_NODE(ast_cond))));
+}
 
 /**
  * Convert AST unary operation to IR form.
@@ -1280,6 +1318,14 @@ expression_to_ir(compilation_status_t *compile_status,
         }
 
         return IR_EXPRESSION(symb);
+    }
+    else if (AST_IS_CONDITIONAL(ast_expression))
+    {
+        AstConditional *cond;
+
+        cond = AST_CONDITIONAL(ast_expression);
+
+        return ast_conditional_to_ir(compile_status, symbols, cond);
     }
     else if (AST_IS_UNARY_OPERATION(ast_expression))
     {

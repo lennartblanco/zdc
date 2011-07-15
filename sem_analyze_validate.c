@@ -13,6 +13,7 @@
 #include "ir_return.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
+#include "ir_conditional.h"
 #include "ir_array_slice.h"
 #include "ir_array_literal.h"
 #include "ir_basic_constant.h"
@@ -1020,6 +1021,83 @@ validate_ptr_dref(compilation_status_t *compile_status,
     return IR_EXPRESSION(ptr_dref);
 }
 
+static IrExpression *
+validate_conditional(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrConditional *cond)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_CONDITIONAL(cond));
+
+    IrExpression *eval;
+    IrExpression *true_exp;
+    IrExpression *false_exp;
+
+    eval = validate_expression(compile_status,
+                               sym_table,
+                               ir_conditional_get_cond(cond));
+    true_exp = validate_expression(compile_status,
+                                   sym_table,
+                                   ir_conditional_get_true(cond));
+    false_exp = validate_expression(compile_status,
+                                    sym_table,
+                                    ir_conditional_get_false(cond));
+
+    if (eval == NULL || true_exp == NULL || false_exp == NULL)
+    {
+        /* invalid subexpressions, bail out */
+        return NULL;
+    }
+
+    /* check that eval condition can be converted to bool type */
+    IrExpression *temp = eval;
+    eval = types_implicit_conv(types_get_bool_type(), eval);
+    if (eval == NULL)
+    {
+        compile_error(compile_status,
+                      temp,
+                      "can not convert '%s' to bool type\n",
+                      dt_data_type_get_string(
+                          ir_expression_get_data_type(temp)));
+        return NULL;
+    }
+
+    /*
+     * figure out the data type for this conditional expression
+     */
+    DtDataType *true_type = ir_expression_get_data_type(true_exp);
+    DtDataType *false_type = ir_expression_get_data_type(false_exp);
+    DtDataType *common = types_find_common(true_type, false_type);
+
+    if (common == NULL)
+    {
+        compile_error(compile_status,
+                      cond,
+                      "incompatible types for conditional '%s' and '%s'\n",
+                      dt_data_type_get_string(true_type),
+                      dt_data_type_get_string(false_type));
+        return NULL;
+    }
+
+    /*
+     * insert casts if needed
+     */
+    if (!dt_data_type_is_same(common, true_type))
+    {
+        true_exp = IR_EXPRESSION(ir_cast_new(common, true_exp));
+    }
+
+    if (!dt_data_type_is_same(common, false_type))
+    {
+        false_exp = IR_EXPRESSION(ir_cast_new(common, false_exp));
+    }
+
+
+    ir_conditional_set_expressions(cond, eval, true_exp, false_exp);
+
+    return IR_EXPRESSION(cond);
+}
 
 static IrExpression *
 validate_expression(compilation_status_t *compile_status,
@@ -1086,6 +1164,13 @@ validate_expression(compilation_status_t *compile_status,
             validate_ptr_dref(compile_status,
                               sym_table,
                               IR_PTR_DREF(expression));
+    }
+    else if (IR_IS_CONDITIONAL(expression))
+    {
+        expression =
+            validate_conditional(compile_status,
+                                 sym_table,
+                                 IR_CONDITIONAL(expression));
     }
 
     return expression;

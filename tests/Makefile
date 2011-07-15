@@ -96,6 +96,9 @@ check_incdec_ops: incdec_ops.o check_utils.o check_incdec_ops.c $(ARCH_SPECIFIC)
 check_hex: hex.o check_utils.o check_hex.c
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_cond: cond.o check_utils.o check_cond.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_eels: check_eels.sh eels
 	cp $< $@
 
@@ -125,5 +128,5 @@ check_implicit_cast check_module_test check_nested_blocks check_pkg_name_tst \
 check_stat_array check_dyn_array check_uint_op check_while_loop eels \
 check_properties check_uninit_vars check_char_literals check_immutable \
 str_literals check_enums check_pointers check_arithm check_alias check_struct \
-check_incdec_ops check_hex check_basic_types
+check_incdec_ops check_hex check_basic_types check_cond
 	rm -rf build
