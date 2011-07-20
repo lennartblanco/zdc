@@ -154,10 +154,10 @@ dt_pointer_get_size(DtDataType *self)
 static void
 dt_pointer_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_string = dt_pointer_get_string;
-    ((DtDataTypeClass *)klass)->get_mangled = dt_pointer_get_mangled;
-    ((DtDataTypeClass *)klass)->get_init = dt_pointer_get_init;
-    ((DtDataTypeClass *)klass)->is_same = dt_pointer_is_same;
-    ((DtDataTypeClass *)klass)->get_size = dt_pointer_get_size;
+    DT_DATA_TYPE_CLASS(klass)->get_string = dt_pointer_get_string;
+    DT_DATA_TYPE_CLASS(klass)->get_mangled = dt_pointer_get_mangled;
+    DT_DATA_TYPE_CLASS(klass)->get_init = dt_pointer_get_init;
+    DT_DATA_TYPE_CLASS(klass)->is_same = dt_pointer_is_same;
+    DT_DATA_TYPE_CLASS(klass)->get_size = dt_pointer_get_size;
 }
 

@@ -187,7 +187,7 @@ dt_user_type_class_init(gpointer klass, gpointer dummy)
     /*
      * install default virtual methods implementations
      */
-     ((DtDataTypeClass *)klass)->get_string = dt_user_get_string;
-     ((DtDataTypeClass *)klass)->get_mangled = dt_user_get_mangled;
-     ((DtDataTypeClass *)klass)->is_same = dt_user_is_same;
+    DT_DATA_TYPE_CLASS(klass)->get_string = dt_user_get_string;
+    DT_DATA_TYPE_CLASS(klass)->get_mangled = dt_user_get_mangled;
+    DT_DATA_TYPE_CLASS(klass)->is_same = dt_user_is_same;
 }

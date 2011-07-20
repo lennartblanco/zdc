@@ -85,6 +85,6 @@ dt_user_type_get_string(DtDataType *self)
 static void
 dt_user_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_string = dt_user_type_get_string;
+    DT_DATA_TYPE_CLASS(klass)->get_string = dt_user_type_get_string;
 }
 

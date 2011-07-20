@@ -125,7 +125,7 @@ dt_enum_get_init(DtDataType *self)
 static void
 dt_enum_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtUserClass *)klass)->get_mangled_prefix = dt_enum_get_mangled_prefix;
-    ((DtDataTypeClass *)klass)->get_size = dt_enum_get_size;
-    ((DtDataTypeClass *)klass)->get_init = dt_enum_get_init;
+    DT_USER_CLASS(klass)->get_mangled_prefix = dt_enum_get_mangled_prefix;
+    DT_DATA_TYPE_CLASS(klass)->get_size = dt_enum_get_size;
+    DT_DATA_TYPE_CLASS(klass)->get_init = dt_enum_get_init;
 }

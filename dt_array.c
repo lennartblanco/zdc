@@ -139,9 +139,9 @@ dt_array_type_get_init(DtDataType *self)
 static void
 dt_array_type_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtDataTypeClass *)klass)->get_size = dt_array_type_get_size;
-    ((DtDataTypeClass *)klass)->get_string = dt_array_type_get_string;
-    ((DtDataTypeClass *)klass)->get_mangled = dt_array_type_get_mangled;
-    ((DtDataTypeClass *)klass)->get_init = dt_array_type_get_init;
+    DT_DATA_TYPE_CLASS(klass)->get_size = dt_array_type_get_size;
+    DT_DATA_TYPE_CLASS(klass)->get_string = dt_array_type_get_string;
+    DT_DATA_TYPE_CLASS(klass)->get_mangled = dt_array_type_get_mangled;
+    DT_DATA_TYPE_CLASS(klass)->get_init = dt_array_type_get_init;
 }
 

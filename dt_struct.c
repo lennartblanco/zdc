@@ -127,6 +127,6 @@ dt_struct_get_mangled_prefix(DtUser *self)
 static void
 dt_struct_class_init(gpointer klass, gpointer dummy)
 {
-    ((DtUserClass *)klass)->get_mangled_prefix = dt_struct_get_mangled_prefix;
-    ((DtDataTypeClass *)klass)->get_size = dt_struct_get_size;
+    DT_USER_CLASS(klass)->get_mangled_prefix = dt_struct_get_mangled_prefix;
+    DT_DATA_TYPE_CLASS(klass)->get_size = dt_struct_get_size;
 }
