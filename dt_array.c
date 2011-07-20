@@ -136,6 +136,23 @@ dt_array_type_get_init(DtDataType *self)
     return IR_EXPRESSION(ir_null_new());
 }
 
+static bool
+dt_array_is_same(DtDataType *self, DtDataType *type)
+{
+    assert(DT_IS_ARRAY(self));
+    assert(DT_IS_DATA_TYPE(type));
+
+    if (!DT_IS_ARRAY(type))
+    {
+        return false;
+    }
+
+    return
+        dt_data_type_is_same(dt_array_get_element_type(DT_ARRAY(self)),
+                             dt_array_get_element_type(DT_ARRAY(type)));
+
+}
+
 static void
 dt_array_type_class_init(gpointer klass, gpointer dummy)
 {
@@ -143,5 +160,6 @@ dt_array_type_class_init(gpointer klass, gpointer dummy)
     DT_DATA_TYPE_CLASS(klass)->get_string = dt_array_type_get_string;
     DT_DATA_TYPE_CLASS(klass)->get_mangled = dt_array_type_get_mangled;
     DT_DATA_TYPE_CLASS(klass)->get_init = dt_array_type_get_init;
+    DT_DATA_TYPE_CLASS(klass)->is_same = dt_array_is_same;
 }
 
