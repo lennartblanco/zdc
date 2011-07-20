@@ -65,7 +65,7 @@ dt_array_new(DtDataType *data_type)
 }
 
 DtDataType *
-dt_array_get_data_type(DtArray *self)
+dt_array_get_element_type(DtArray *self)
 {
     assert(DT_IS_ARRAY(self));
 
@@ -95,7 +95,7 @@ dt_array_type_get_string(DtDataType *self)
     {
         arry->string_of =
             g_strdup_printf("%s[]", 
-                dt_data_type_get_string(dt_array_get_data_type(arry)));
+                dt_data_type_get_string(dt_array_get_element_type(arry)));
 
     }
 
@@ -113,7 +113,7 @@ dt_array_type_get_mangled(DtDataType *self)
     {
         arry->mangled_name =
             g_strdup_printf("A%s", 
-                dt_data_type_get_mangled(dt_array_get_data_type(arry)));
+                dt_data_type_get_mangled(dt_array_get_element_type(arry)));
 
     }
 

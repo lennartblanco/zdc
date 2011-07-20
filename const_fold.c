@@ -564,7 +564,7 @@ cfold_cast_array_literal(DtArray *target_type,
     GSList *new_array_vals = NULL;
     GSList *i;
 
-    element_target_type = dt_array_get_data_type(target_type);
+    element_target_type = dt_array_get_element_type(target_type);
     /* only arrays literals of basic types supported */
     assert(dt_is_basic(element_target_type));
 

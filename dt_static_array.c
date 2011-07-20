@@ -71,7 +71,7 @@ dt_static_array_get_data_type(DtStaticArray *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_array_get_data_type(DT_ARRAY(self));
+    return dt_array_get_element_type(DT_ARRAY(self));
 }
 
 guint32

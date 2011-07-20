@@ -1303,7 +1303,7 @@ validate_assignment(compilation_status_t *compile_status,
         DtDataType *array_element_type;
 
         array_element_type =
-            dt_array_get_data_type(DT_ARRAY(target_type));
+            dt_array_get_element_type(DT_ARRAY(target_type));
         converted_value = types_implicit_conv(array_element_type, value);
     }
     if (converted_value == NULL)
@@ -1586,7 +1586,7 @@ validate_foreach(compilation_status_t *compile_status,
                       dt_data_type_get_string(aggr_type));
         return;
     }
-    aggr_element_type = dt_array_get_data_type(DT_ARRAY(aggr_type));
+    aggr_element_type = dt_array_get_element_type(DT_ARRAY(aggr_type));
     /* only foreach over aggregates over basic types is supported */
     assert(dt_is_basic(aggr_element_type));
 
@@ -1884,7 +1884,7 @@ validate_code_block(compilation_status_t *compile_status,
             DtDataType *array_element_type;
  
             array_element_type =
-                dt_array_get_data_type(DT_ARRAY(var_type));
+                dt_array_get_element_type(DT_ARRAY(var_type));
             conv_initializer =
                 types_implicit_conv(array_element_type, initializer);
         }

@@ -50,7 +50,7 @@ implicit_conv_to_int_array_type(DtArray *target_type,
     DtBasic *element_type;
 
     /* only arrays over basic types as source expression are supported */
-    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(source_type)));
+    element_type = DT_BASIC(dt_array_get_element_type(DT_ARRAY(source_type)));
 
     switch (dt_basic_get_data_type(element_type))
     {
@@ -77,7 +77,7 @@ implicit_conv_to_uint_array_type(DtArray *target_type,
     DtBasic *element_type;
 
     /* only arrays over basic types as source expression are supported */
-    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(source_type)));
+    element_type = DT_BASIC(dt_array_get_element_type(DT_ARRAY(source_type)));
 
     switch (dt_basic_get_data_type(element_type))
     {
@@ -106,7 +106,7 @@ implicit_conv_to_bool_array_type(DtArray *target_type,
     DtBasic *element_type;
 
     /* only arrays over basic types as source expression are supported */
-    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(source_type)));
+    element_type = DT_BASIC(dt_array_get_element_type(DT_ARRAY(source_type)));
 
     switch (dt_basic_get_data_type(element_type))
     {
@@ -132,7 +132,7 @@ implicit_conv_to_char_array_type(DtArray *target_type,
     DtBasic *element_type;
 
     /* only arrays over basic types as source expression are supported */
-    element_type = DT_BASIC(dt_array_get_data_type(DT_ARRAY(source_type)));
+    element_type = DT_BASIC(dt_array_get_element_type(DT_ARRAY(source_type)));
 
     switch (dt_basic_get_data_type(element_type))
     {
@@ -205,7 +205,7 @@ types_arrays_implicit_conv(DtArray *target_type,
 
     bdt =
         dt_basic_get_data_type(
-            DT_BASIC(dt_array_get_data_type(trg_arry_type)));
+            DT_BASIC(dt_array_get_element_type(trg_arry_type)));
     switch (bdt)
     {
         case int_type:

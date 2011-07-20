@@ -55,7 +55,7 @@ dt_array_get_length(DtArray *self);
  * Get element data type
  */
 DtDataType *
-dt_array_get_data_type(DtArray *self);
+dt_array_get_element_type(DtArray *self);
 
 /**
  * @return element's storage size in bytes

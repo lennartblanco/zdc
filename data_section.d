@@ -42,7 +42,7 @@ gen_array_literal_data(File output, IrArrayLiteral *array_literal)
     array_type =
         cast(DtArray*)
             ir_expression_get_data_type(cast(IrExpression*)array_literal);
-    element_type = dt_array_get_data_type(array_type);
+    element_type = dt_array_get_element_type(array_type);
 
     /* only array literal over basic data types are expected here */
     assert(dt_is_basic(element_type));

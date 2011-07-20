@@ -122,7 +122,7 @@ ir_array_cell_do_get_data_type(IrExpression *self)
         array_data_type =
             DT_ARRAY(
                 ir_expression_get_data_type(IR_EXPRESSION(cell->array)));
-        cell->data_type = dt_array_get_data_type(array_data_type);
+        cell->data_type = dt_array_get_element_type(array_data_type);
     }
 
     return cell->data_type;

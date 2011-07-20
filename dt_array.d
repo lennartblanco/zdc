@@ -5,5 +5,5 @@ struct DtArray;
 extern (C)
 {
     DtDataType *
-    dt_array_get_data_type(DtArray *self);
+    dt_array_get_element_type(DtArray *self);
 }
