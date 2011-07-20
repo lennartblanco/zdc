@@ -1096,7 +1096,7 @@ validate_conditional(compilation_status_t *compile_status,
 
     ir_conditional_set_expressions(cond, eval, true_exp, false_exp);
 
-    return IR_EXPRESSION(cond);
+    return cfold_conditional(cond);
 }
 
 static IrExpression *

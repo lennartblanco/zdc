@@ -7,6 +7,7 @@
 
 #include "ir_expression.h"
 #include "ir_binary_operation.h"
+#include "ir_conditional.h"
 #include "ir_cast.h"
 
 /*---------------------------------------------------------------------------*
@@ -36,6 +37,12 @@ cfold_bin_conditional(IrBinaryOperation *bin_op);
  */
 IrExpression *
 cfold_bin_icomp(IrBinaryOperation *bin_op);
+
+/**
+ * Perform constant folding on conditional expression.
+ */
+IrExpression *
+cfold_conditional(IrConditional *cond);
 
 IrExpression *
 cfold_cast(IrCast *cast_exp);

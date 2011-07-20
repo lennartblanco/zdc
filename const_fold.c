@@ -173,6 +173,27 @@ cfold_bin_icomp(IrBinaryOperation *bin_op)
 }
 
 IrExpression *
+cfold_conditional(IrConditional *cond)
+{
+    assert(IR_IS_CONDITIONAL(cond));
+
+    IrExpression *exp = ir_conditional_get_cond(cond);
+
+    if (!ir_expression_is_constant(exp))
+    {
+        /* can't fold anything */
+        return IR_EXPRESSION(cond);
+    }
+
+    assert(IR_IS_BASIC_CONSTANT(exp));
+    if (ir_basic_constant_get_bool(IR_BASIC_CONSTANT(exp)))
+    {
+        return ir_conditional_get_true(cond);
+    }
+    return ir_conditional_get_false(cond);
+}
+
+IrExpression *
 cfold_cast(IrCast *cast_exp)
 {
     assert(IR_IS_CAST(cast_exp));
