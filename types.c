@@ -569,7 +569,7 @@ types_integer_promotion(IrExpression *expression)
         case char_type:
         case bool_type:
             res_exp =
-                IR_EXPRESSION(ir_cast_new(types_get_int_type(), expression));
+                cfold_cast(ir_cast_new(types_get_int_type(), expression));
             break;
         case void_type:
             res_exp = NULL;
