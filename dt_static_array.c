@@ -46,7 +46,7 @@ dt_static_array_get_type(void)
         NULL    /* instance_init */
       };
       type = g_type_register_static(DT_TYPE_ARRAY,
-                                    "DtStaticArrayTypeType",
+                                    "DtStaticArrayType",
                                     &info, 0);
     }
     return type;

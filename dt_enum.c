@@ -39,7 +39,7 @@ dt_enum_get_type(void)
         NULL    /* instance_init */
       };
       type = g_type_register_static(DT_TYPE_USER,
-                                    "DtEnumTypeType",
+                                    "DtEnumType",
                                     &info, 0);
     }
     return type;

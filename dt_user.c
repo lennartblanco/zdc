@@ -45,7 +45,7 @@ dt_user_get_type(void)
         NULL    /* instance_init */
       };
       type = g_type_register_static(DT_TYPE_DATA_TYPE,
-                                    "DtUserTypeType",
+                                    "DtUserType",
                                     &info, 0);
     }
     return type;
