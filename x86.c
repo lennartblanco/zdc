@@ -572,8 +572,9 @@ compile_copy(FILE *out, iml_operation_t *op)
                     dst_reg);
         }
     }
-    else if (iml_is_variable(src))
+    else
     {
+        assert(iml_is_variable(src));
         const char *src_reg;
 
         src_reg = iml_variable_get_register(IML_VARIABLE(src));
