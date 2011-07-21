@@ -539,6 +539,40 @@ compile_return(FILE *out, const char *return_label, iml_operation_t *op)
     fprintf(out, "    jmp %s\n", return_label);
 }
 
+/**
+ * Generate code for iml_copy operation where source and destination
+ * are blob variables.
+ */
+static void
+compile_blob_copy(FILE *out, ImlVariable *src, ImlVariable *dst)
+{
+    assert(out);
+    assert(iml_is_variable(src));
+    assert(iml_is_variable(dst));
+
+    /* both variables should be stored in the function frame */
+    assert(iml_variable_get_register(src) == NULL);
+    assert(iml_variable_get_register(dst) == NULL);
+
+    gint src_offset = iml_variable_get_frame_offset(src);
+    gint dst_offset = iml_variable_get_frame_offset(dst);
+    guint size = iml_variable_get_size(dst);
+    guint i;
+
+    assert(size == iml_variable_get_size(src));
+    assert(size % 4 == 0); /* only blobs of 4*n bytes supported for now */
+
+    /* copy src blob to dst blob, 4 bytes at a time via temporary register */
+    for (i = 0; i < size; i += 4)
+    {
+        fprintf(out,
+                "    movl %d(%%ebp), %%"TEMP_REG1_NAME"\n"
+                "    movl %%"TEMP_REG1_NAME", %d(%%ebp)\n",
+                src_offset + i,
+                dst_offset + i);
+    }
+}
+
 static void
 compile_copy(FILE *out, iml_operation_t *op)
 {
@@ -549,6 +583,17 @@ compile_copy(FILE *out, iml_operation_t *op)
 
     src = iml_operation_get_operand(op, 1);
     dst = IML_VARIABLE(iml_operation_get_operand(op, 2));
+
+    if (iml_variable_get_data_type(dst) == iml_blob)
+    {
+        /* only blob variable to variable copy implemented */
+        assert(iml_is_variable(src));
+        compile_blob_copy(out, IML_VARIABLE(src), dst);
+        return;
+    }
+
+    assert(iml_variable_get_size(dst) <= 4);
+
     dst_reg = iml_variable_get_register(dst);
 
     if (iml_is_constant(src))
