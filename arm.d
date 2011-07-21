@@ -401,6 +401,8 @@ compile_copy(File asmfile, iml_operation *op)
     }
     else
     {
+        assert(iml_variable_get_size(dest) <= 4,
+               "only 1-4 bytes wide copy implemented");
         gen_move_to_reg(asmfile, TEMP_REG1, src);
         asmfile.writefln("    str %s, [fp, #%s]",
                          TEMP_REG1,
