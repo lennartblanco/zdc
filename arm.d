@@ -1040,10 +1040,28 @@ compile_mset(File asmfile, iml_operation *op)
     uint num = cast(uint)iml_operation_get_operand(op, 2);
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
 
-    assert(iml_operand_get_data_type(src) == iml_data_type._32b,
-           "only 32-bit mset implemented");
     assert(iml_variable_get_data_type(dest) == iml_data_type.blob,
            "only mset to blob variables implemented");
+
+    uint size;
+    string suffix;
+    switch (iml_operand_get_data_type(src))
+    {
+        case iml_data_type._32b:
+            size = 4;
+            suffix = "";
+            break;
+        case iml_data_type._16b:
+            size = 2;
+            suffix = "h";
+            break;
+        case iml_data_type._8b:
+            size = 1;
+            suffix = "b";
+            break;
+        default:
+            assert(false, "unsupported mset data type");
+    }
 
     /* store source value in register */
     string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
@@ -1051,8 +1069,9 @@ compile_mset(File asmfile, iml_operation *op)
 
     for (uint i = 0; i < num; i += 1)
     {
-        asmfile.writefln("    str %s, [fp, #%s]",
+        asmfile.writefln("    str%s %s, [fp, #%s]",
+                         suffix,
                          src_reg,
-                         (dest_offset + cast(int)(i * 4)));
+                         (dest_offset + cast(int)(i * size)));
     }
 }

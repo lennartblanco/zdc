@@ -6,7 +6,6 @@
   </runner>
   <skip>
     <test>arithm</test>
-    <test>stat_array</test>
     <test>properties</test>
     <test>struct</test>
     <test>foreach</test>

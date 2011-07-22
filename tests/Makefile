@@ -42,7 +42,7 @@ check_extern_c: extern_c.o check_utils.o check_extern_c.c
 check_while_loop: while_loop.o check_utils.o check_while_loop.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_stat_array: stat_array.o check_utils.o check_stat_array.c
+check_stat_array: stat_array.o check_utils.o check_stat_array.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_dyn_array: dyn_array.o check_utils.o check_dyn_array.c $(ARCH_SPECIFIC)
