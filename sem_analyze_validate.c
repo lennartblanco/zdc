@@ -1638,22 +1638,23 @@ validate_foreach(compilation_status_t *compile_status,
         }
     }
 
-    /* insert iml operations for foreach head */
-    iml_add_foreach_head(compile_status->function,
-                         foreach,
-                         &index,
-                         &length,
-                         &loop_label);
-
-    /*
-     * validate and insert iml operations for foreach body
-     */
-
     /* generate and store loop exit label */
     iml_operation_t *exit_label =
         iml_operation_new(iml_label,
                           ir_module_gen_label(compile_status->module));
     ir_loop_set_exit_label(IR_LOOP(foreach), exit_label);
+
+    /* insert iml operations for foreach head */
+    iml_add_foreach_head(compile_status->function,
+                         foreach,
+                         &index,
+                         &length,
+                         &loop_label,
+                         exit_label);
+
+    /*
+     * validate and insert iml operations for foreach body
+     */
 
     /* set current loop as this foreach-loop */
     IrLoop *prev_loop = compile_status->loop;

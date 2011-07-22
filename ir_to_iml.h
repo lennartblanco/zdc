@@ -41,7 +41,8 @@ iml_add_foreach_head(IrFunctionDef *function,
                      IrForeach *foreach,
                      ImlVariable **index,
                      ImlVariable **length,
-                     iml_operation_t **loop_head);
+                     iml_operation_t **loop_head,
+                     iml_operation_t *loop_end);
 
 void
 iml_add_foreach_tail(IrFunctionDef *function,

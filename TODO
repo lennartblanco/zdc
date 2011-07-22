@@ -136,20 +136,3 @@ where is dmd will print following nice error message:
 $ dmd foo-bar.d
 foo-bar.d: Error: module foo-bar has non-identifier characters in filename, use module declaration instead
 
-* following code is not compiled correctly
-
-int main()
-{
-  int[] x;
-  int num;
-
-  foreach (c; x)
-  {
-    num = num + c;
-  }
-
-  return num;
-}
-
-the generated binary will segfault, instead of exiting with return code 0.
-(The generated code will try to execute foreach body without checking the size of the array)

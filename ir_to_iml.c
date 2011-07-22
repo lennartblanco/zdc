@@ -415,7 +415,8 @@ iml_add_foreach_head(IrFunctionDef *function,
                      IrForeach *foreach,
                      ImlVariable **index,
                      ImlVariable **length,
-                     iml_operation_t **loop_head)
+                     iml_operation_t **loop_head,
+                     iml_operation_t *loop_end)
 {
     IrExpression *ir_aggregate;
     DtArray *aggregate_type;
@@ -480,6 +481,14 @@ iml_add_foreach_head(IrFunctionDef *function,
                                   IR_SYMBOL(function))));
     ir_function_def_add_operation(function, *loop_head);
 
+    /* generate iml to jump to loop head if index is less then length */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_jmpugreatereq,
+                          *index,
+                          *length,
+                          iml_operation_get_operand(loop_end, 1)));
+
     /* generate iml for assigning value variable with aggregates element */
     ir_function_def_add_operation(
         function,
@@ -503,12 +512,10 @@ iml_add_foreach_tail(IrFunctionDef *function,
                                                     iml_constant_new_32b(1),
                                                     index));
 
-    /* generate iml to jump to loop head if index is less then length */
+    /* generate iml to jump to loop head */
     ir_function_def_add_operation(
         function,
-        iml_operation_new(iml_jmpuless,
-                          index,
-                          length,
+        iml_operation_new(iml_jmp,
                           iml_operation_get_operand(loop_label, 1)));
 }
 
