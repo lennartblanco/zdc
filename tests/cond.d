@@ -9,6 +9,7 @@ extern (C)
     return i > 0 ? i : 0 - i;
   }
 
+  // test constant conditional expressions
   int const_cond(int n)
   {
     if (n == 0)
@@ -28,5 +29,22 @@ extern (C)
       return 'x' == 'b' ? -4 : 400;
     }
     return 0;
+  }
+
+  // test conditional expression of array type
+  int array_cond(uint idx)
+  {
+    int[] a = [1, 20, 300, 4000, 50000];
+    int[] r;
+
+    r = idx < a.length ? a[0..idx] : a;
+
+    int q;
+    foreach (n; r)
+    {
+       q = q + n;
+    }
+
+    return q;
   }
 }
