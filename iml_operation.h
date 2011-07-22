@@ -47,6 +47,7 @@ typedef enum iml_opcode_e
     iml_jmp,
     iml_jmpneq,
     iml_jmpuless,
+    iml_jmpugreatereq,
     iml_call,
     iml_call_c,
     iml_return,

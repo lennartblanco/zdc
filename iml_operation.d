@@ -36,6 +36,7 @@ enum iml_opcode
     jmp,
     jmpneq,
     jmpuless,
+    jmpugreatereq,
     call,
     call_c,
     ret,

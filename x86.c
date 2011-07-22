@@ -1735,6 +1735,9 @@ compile_jmpcond(FILE *out, iml_operation_t *op)
         case iml_jmpuless:
             op_cond = "b";
             break;
+        case iml_jmpugreatereq:
+            op_cond = "ge";
+            break;
         default:
             /* unexpected opcode */
             assert(false);
@@ -2048,6 +2051,7 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_jmpneq:
             case iml_jmpuless:
+            case iml_jmpugreatereq:
                 compile_jmpcond(params->out, op);
                 break;
             case iml_call:

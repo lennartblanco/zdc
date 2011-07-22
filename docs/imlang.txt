@@ -134,6 +134,9 @@ jmpneq left, right, label
 jmpuless left, right, label
   jump to label if left < right (unsigned comparison)
 
+jmpugreatereq left, right, label
+  jump to label if left >= right (unsigned comparison)
+
 call function_name, (arg0, arg1, ..., argN) [ => res ]
  call a function
    - if no res variable is specified, then this is a call to void function

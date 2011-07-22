@@ -113,6 +113,7 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_ugreatereq:
         case iml_jmpneq:
         case iml_jmpuless:
+        case iml_jmpugreatereq:
         case iml_call:
         case iml_call_c:
         case iml_set:
@@ -251,6 +252,7 @@ iml_operation_print(iml_operation_t *self,
             break;
         case iml_jmpneq:
         case iml_jmpuless:
+        case iml_jmpugreatereq:
             print_jmpcond_op(self, out, indention);
             break;
         case iml_call:
@@ -496,6 +498,9 @@ print_jmpcond_op(iml_operation_t *op, FILE *out, int indention)
             break;
         case iml_jmpuless:
             op_name = "jmpuless";
+            break;
+        case iml_jmpugreatereq:
+            op_name = "jmpugreatereq";
             break;
         default:
             /* unexpected opcode */
