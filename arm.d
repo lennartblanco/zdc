@@ -319,6 +319,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                 break;
             case iml_opcode.jmpneq:
             case iml_opcode.jmpuless:
+            case iml_opcode.jmpugreatereq:
                 compile_jmpcond(asmfile, op);
                 break;
             case iml_opcode.set:
@@ -752,6 +753,9 @@ compile_jmpcond(File asmfile, iml_operation *op)
             break;
         case iml_opcode.jmpuless:
             cond = "lo";
+            break;
+        case iml_opcode.jmpugreatereq:
+            cond = "hs";
             break;
         default:
             assert(false, "unexpected opcode");
