@@ -396,7 +396,34 @@ compile_copy(File asmfile, iml_operation *op)
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
     char *reg = iml_variable_get_register(dest);
 
-    if (reg != null)
+    void blob_copy()
+    {
+        assert(iml_is_variable(src),
+                "constant blobs not as source not supported");
+        ImlVariable *src_var = cast(ImlVariable*)src;
+
+        /* both variables should be stored in the function frame */
+        assert(iml_variable_get_register(src_var) == null);
+        assert(iml_variable_get_register(dest) == null);
+
+        int src_offset = iml_variable_get_frame_offset(src_var);
+        int dest_offset = iml_variable_get_frame_offset(dest);
+        uint size = iml_variable_get_size(dest);
+
+        assert(size == iml_variable_get_size(src_var));
+        assert(size == 8); /* only blobs of 8 bytes supported for now */
+
+        /* copy the 8-byte blob via r0+r1 registers */
+        asmfile.writefln("    ldrd r0, [fp, #%s]\n"
+                         "    strd r0, [fp, #%s]",
+                         src_offset, dest_offset);
+    }
+
+    if (iml_operand_get_data_type(src) == iml_data_type.blob)
+    {
+       blob_copy();
+    }
+    else if (reg != null)
     {
         gen_move_to_reg(asmfile, to!string(reg), src);
     }
