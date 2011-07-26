@@ -190,7 +190,7 @@ parse_march_option(string option)
 {
     string arch;
 
-    int eqsign = indexOf(option, '=');
+    auto eqsign = indexOf(option, '=');
 
     if (eqsign > -1)
     {
