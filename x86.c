@@ -126,7 +126,7 @@ assign_dparams_locations(iml_func_frame_t *frame)
     if (parameters != NULL)
     {
         ImlVariable *param;
-        guint params_offset = 8;
+        gint params_offset = 8;
         parameters = g_slist_reverse(g_slist_copy(parameters));
 
         /*
