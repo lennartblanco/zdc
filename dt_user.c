@@ -85,7 +85,7 @@ dt_user_get_mangled(DtDataType *self)
     {
         user_type->mangled_name =
             g_strdup_printf(
-                    "%s%s%d%s",
+                    "%s%s%zu%s",
                     dt_user_get_mangled_prefix(user_type),
                     ir_module_get_mangled_name(user_type->parent_module),
                     strlen(user_type->name), user_type->name);
