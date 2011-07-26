@@ -9,6 +9,7 @@
 #include "dt_pointer.h"
 #include "dt_name.h"
 #include "dt_static_array.h"
+#include "ast_alias.h"
 #include "ast_return.h"
 #include "ast_conditional.h"
 #include "ast_binary_operation.h"
@@ -17,6 +18,7 @@
 #include "ast_uint_constant.h"
 #include "ast_bool_constant.h"
 #include "ast_char_constant.h"
+#include "ast_string_literal.h"
 #include "ast_array_cell_ref.h"
 #include "ast_array_slice_ref.h"
 #include "ast_function_decl.h"
@@ -30,6 +32,7 @@
 #include "ast_array_literal.h"
 #include "ast_while.h"
 #include "ast_foreach.h"
+#include "ast_break.h"
 
 #include <assert.h>
 
