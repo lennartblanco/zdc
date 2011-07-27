@@ -24,7 +24,7 @@
   (G_TYPE_CHECK_CLASS_TYPE ((klass), AST_TYPE_WHILE))
 
 #define AST_WHILE_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_WHILE, AstForeachClass))
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_WHILE, AstWhileClass))
 
 typedef struct
 {
