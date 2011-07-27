@@ -751,7 +751,7 @@ while_to_ir(compilation_status_t *compile_status,
     IrExpression *condition =
         expression_to_ir(compile_status, parent_symbols, ast_condition);
 
-    code_block_to_ir(compile_status,  ast_while_get_body(ast_while), body);    
+    code_block_to_ir(compile_status, ast_while_get_body(ast_while), body);
 
     return IR_STATMENT(ir_while_new(condition, body));
 }
