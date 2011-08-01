@@ -32,6 +32,7 @@ enum_init_err: enum_init_err.d
 structs: structs.d
 inc_dec_ops: inc_dec_ops.d
 inv_break: inv_break.d
+for_loop: for_loop.d
 
 %.d: %.inv_d
 	cp $? $@

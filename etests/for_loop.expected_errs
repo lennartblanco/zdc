@@ -1,0 +1,9 @@
+for_loop.d:9: error: illegal type in initializer assignment
+for_loop.d:14: error: can't assign expression of type void to lvalue of int type
+for_loop.d:18: error: illegal type in initializer assignment
+for_loop.d:30: error: can not convert for condition to bool type
+for_loop.d:34: error: can not convert for condition to bool type
+for_loop.d:46: error: illegal types in arithmetic operation
+for_loop.d:50: error: 'i' must be of array type, not int
+for_loop.d:62: error: invalid call to function 'void_func()', expected 0 arguments, got 2
+for_loop.d:67: error: illegal type in initializer assignment

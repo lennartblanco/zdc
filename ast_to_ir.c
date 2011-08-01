@@ -3,6 +3,7 @@
 #include "ast_variable_definition.h"
 #include "ast_if_else.h"
 #include "ast_while.h"
+#include "ast_for.h"
 #include "ast_foreach.h"
 #include "ast_break.h"
 #include "ast_return.h"
@@ -28,6 +29,7 @@
 #include "ir_if_block.h"
 #include "ir_variable.h"
 #include "ir_while.h"
+#include "ir_for.h"
 #include "ir_foreach.h"
 #include "ir_break.h"
 #include "ir_return.h"
@@ -91,6 +93,11 @@ static IrStatment *
 while_to_ir(compilation_status_t *compile_status,
             sym_table_t *parent_symbols,
             AstWhile *ast_while);
+
+static IrStatment *
+for_to_ir(compilation_status_t *compile_status,
+          sym_table_t *parent_symbols,
+          AstFor *ast_for);
 
 static IrStatment *
 foreach_to_ir(compilation_status_t *compile_status,
@@ -616,6 +623,12 @@ code_block_to_ir(compilation_status_t *compile_status,
                                   symbols,
                                   AST_WHILE(stmt));
         }
+        else if (AST_IS_FOR(stmt))
+        {
+            ir_stmt = for_to_ir(compile_status,
+                                symbols,
+                                AST_FOR(stmt));
+        }
         else if (AST_IS_FOREACH(stmt))
         {
             ir_stmt = foreach_to_ir(compile_status,
@@ -754,6 +767,40 @@ while_to_ir(compilation_status_t *compile_status,
     code_block_to_ir(compile_status, ast_while_get_body(ast_while), body);
 
     return IR_STATMENT(ir_while_new(condition, body));
+}
+
+static IrStatment *
+for_to_ir(compilation_status_t *compile_status,
+          sym_table_t *parent_symbols,
+          AstFor *ast_for)
+{
+    assert(AST_IS_FOR(ast_for));
+    AstExpression *ast_exp;
+
+    /* convert loop init code block to ir */
+    IrCodeBlock *init = ir_code_block_new(parent_symbols);
+    code_block_to_ir(compile_status, ast_for_get_init(ast_for), init);
+    sym_table_t *loop_symbols = ir_code_block_get_symbols(init);
+
+    /* convert loop test expression to ir */
+    IrExpression *test = NULL;
+    if ((ast_exp = ast_for_get_test(ast_for)) != NULL)
+    {
+        test = expression_to_ir(compile_status, loop_symbols, ast_exp);
+    }
+
+    /* convert loop step expression to ir */
+    IrExpression *step = NULL;
+    if ((ast_exp = ast_for_get_step(ast_for)) != NULL)
+    {
+        step = expression_to_ir(compile_status, loop_symbols, ast_exp);
+    }
+
+    /* convert loop body to ir */
+    IrCodeBlock *body = ir_code_block_new(loop_symbols);
+    code_block_to_ir(compile_status, ast_for_get_body(ast_for), body);
+
+    return IR_STATMENT(ir_for_new(init, test, step, body));
 }
 
 static IrStatment *

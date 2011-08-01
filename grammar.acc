@@ -31,6 +31,7 @@
 #include "ast_if_else.h"
 #include "ast_array_literal.h"
 #include "ast_while.h"
+#include "ast_for.h"
 #include "ast_foreach.h"
 #include "ast_break.h"
 
@@ -41,7 +42,7 @@ AstModule *module;
 
 %token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
-       TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE,
+       TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
        TOK_BREAK, TOK_RETURN, TOK_EXTERN,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
@@ -186,7 +187,7 @@ struct_body_declarations<members> :
     {
         (*members).list = NULL;
     }
-    ( var_definition<defs>
+    ( var_definitions<defs>
         {
             (*members).list = g_slist_concat((*members).list,
                                              defs.list);
@@ -329,6 +330,13 @@ scope_statment<code_block> :
                                          stmt.statment);
         }
     }
+|   var_definitions<stmts>
+    {
+        (*code_block).code_block = ast_code_block_new();
+
+        ast_code_block_add_statments((*code_block).code_block,
+                                     stmts.list);
+    }
 |   block_statment<code_block>
 ;
 
@@ -342,7 +350,7 @@ statments_list<code> :
         }
     }
     ( statments_list<code> )?
-|   var_definition<stmts>
+|   var_definitions<stmts>
     {
         ast_code_block_add_statments((*code).code_block,
                                      stmts.list);
@@ -363,6 +371,7 @@ non_empty_statment<stmt> :
     assignment<stmt>
 |   if_else_block<stmt>
 |   foreach_block<stmt>
+|   for_block<stmt>
 |   while_block<stmt>
 |   break_statment<stmt>
 |   expression_statment<stmt>
@@ -551,6 +560,32 @@ while_block<x> :
     }
 ;
 
+for_block<x> :
+    {
+        test.expression = NULL;
+        step.expression = NULL;
+    }
+    TOK_FOR '(' for_init<init>
+                (expression<test>)? ';'
+                (expression<step>)? ')'
+            scope_statment<body>
+    {
+        (*x).statment =
+            AST_STATMENT(ast_for_new(init.code_block,
+                                     test.expression,
+                                     step.expression,
+                                     body.code_block));
+    }
+;
+
+for_init<code> :
+    ';'
+    {
+        (*code).code_block = ast_code_block_new();
+    }
+|   scope_statment<code>
+;
+
 break_statment<x> :
     TOK_BREAK
     {
@@ -604,7 +639,7 @@ var_declaration<n> :
    }
 ;
 
-var_definition<n> :
+var_definitions<n> :
    { (*n).list = NULL; }
    type<t> def_init<name, e>
    {

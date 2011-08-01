@@ -33,3 +33,4 @@ str_literals
 pointers
 incdec_ops
 cond
+for_loop

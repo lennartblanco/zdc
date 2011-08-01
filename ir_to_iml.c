@@ -519,6 +519,76 @@ iml_add_foreach_tail(IrFunctionDef *function,
                           iml_operation_get_operand(loop_label, 1)));
 }
 
+void
+iml_add_for_head(IrFunctionDef *function,
+                 IrExpression *test,
+                 iml_operation_t *loop_head,
+                 iml_operation_t *loop_end)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_EXPRESSION(test) || test == NULL);
+    assert(loop_head);
+    assert(loop_end);
+
+    /* insert loop head label */
+    ir_function_def_add_operation(function, loop_head);
+
+    if (test == NULL)
+    {
+        /* if there is no loop test expression, then we are done */
+        return;
+    }
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    /* generate code for evaluating loop test expression */
+    ImlVariable *test_res = iml_func_frame_get_temp(frame, iml_8b);
+    iml_add_expression_eval(function, test, test_res);
+
+    /* skip loop body if test expression evaluates to false */
+    ir_function_def_add_operation(
+            function,
+            iml_operation_new(iml_jmpneq,
+                              test_res,
+                              iml_constant_new_8b(1),
+                              iml_operation_get_operand(loop_end, 1)));
+
+    /* mark test expression result variable as unused */
+    iml_func_frame_unused_oper(frame, IML_OPERAND(test_res));
+}
+
+void
+iml_add_for_tail(IrFunctionDef *function,
+                 IrExpression *step,
+                 iml_operation_t *loop_head,
+                 iml_operation_t *loop_end)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_EXPRESSION(step) || step == NULL);
+    assert(loop_head);
+    assert(loop_end);
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    if (step != NULL)
+    {
+        /* generate code to evaluate loop step expression */
+        ImlOperand *tmp = iml_add_expression_eval(function, step, NULL);
+        /* mark step expression result variable as unused */
+        iml_func_frame_unused_oper(frame, tmp);
+    }
+
+
+    /* generate code to jump to loop start */
+    ir_function_def_add_operation(
+            function,
+            iml_operation_new(iml_jmp,
+                              iml_operation_get_operand(loop_head, 1)));
+
+    /* insert loop end label */
+    ir_function_def_add_operation(function, loop_end);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

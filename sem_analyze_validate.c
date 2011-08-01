@@ -20,6 +20,7 @@
 #include "ir_cast.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
+#include "ir_for.h"
 #include "ir_foreach.h"
 #include "ir_break.h"
 #include "ir_array_cell.h"
@@ -1099,11 +1100,19 @@ validate_conditional(compilation_status_t *compile_status,
     return cfold_conditional(cond);
 }
 
+/**
+ * Validate the expression. The expression may be transformed during
+ * validation, for example implicit cast are converted to explicit.
+ *
+ * @return the validated expression or NULL if the expression is invalid
+ */
 static IrExpression *
 validate_expression(compilation_status_t *compile_status,
                     sym_table_t *sym_table,
                     IrExpression *expression)
 {
+    assert(IR_IS_EXPRESSION(expression));
+
     if (IR_IS_BINARY_OPERATION(expression))
     {
         expression =
@@ -1549,6 +1558,87 @@ validate_while(compilation_status_t *compile_status,
 }
 
 static void
+validate_for(compilation_status_t *compile_status,
+             sym_table_t *sym_table,
+             IrFor *for_loop)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_FOR(for_loop));
+
+    /* validate and generate iml for init code */
+    IrCodeBlock *init = ir_for_get_init(for_loop);
+    validate_code_block(compile_status, init);
+
+    /* generate iml labels for start and end of the loop operations */
+    iml_operation_t *loop_start =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    iml_operation_t *loop_end =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    ir_loop_set_exit_label(IR_LOOP(for_loop), loop_end);
+
+
+    IrExpression *test = ir_for_get_test(for_loop);
+    if (test != NULL)
+    {
+        test = validate_expression(compile_status,
+                                   ir_code_block_get_symbols(init),
+                                   test);
+        if (test == NULL)
+        {
+            /* invalid test expression, bail out */
+            return;
+        }
+
+        /* insert implicit conversion to boolean type */
+        test = types_implicit_conv(types_get_bool_type(), test);
+        if (test == NULL)
+        {
+            compile_error(compile_status,
+                          ir_for_get_test(for_loop),
+                          "can not convert for condition to bool type\n");
+            return;
+        }
+    }
+
+    /* generate for-lopp head's iml */
+    if (compile_status->errors_count == 0)
+    {
+        iml_add_for_head(compile_status->function, test, loop_start, loop_end);
+    }
+
+
+    IrExpression *step = ir_for_get_step(for_loop);
+    if (step != NULL)
+    {
+        step = validate_expression(compile_status,
+                                   ir_code_block_get_symbols(init),
+                                   step);
+        if (step == NULL)
+        {
+            /* invalid step expression, bail out */
+            return;
+        }
+    }
+
+    /*
+     * validate while body, and generate iml operations
+     */
+    IrLoop *prev_loop = compile_status->loop;
+    compile_status->loop = IR_LOOP(for_loop);
+    validate_code_block(compile_status, ir_for_get_body(for_loop));
+    compile_status->loop = prev_loop;
+
+    if (compile_status->errors_count == 0)
+    {
+        iml_add_for_tail(compile_status->function,
+                         step, loop_start, loop_end);
+    }
+}
+
+static void
 validate_foreach(compilation_status_t *compile_status,
                  sym_table_t *sym_table,
                  IrForeach *foreach)
@@ -1730,6 +1820,10 @@ validate_statment(compilation_status_t *compile_status,
     else if (IR_IS_WHILE(statment))
     {
         validate_while(compile_status, sym_table, IR_WHILE(statment));
+    }
+    else if (IR_IS_FOR(statment))
+    {
+        validate_for(compile_status, sym_table, IR_FOR(statment));
     }
     else if (IR_IS_FOREACH(statment))
     {

@@ -1,0 +1,70 @@
+void void_func() { }
+
+void func1()
+{
+  /*
+   * invalid for init code
+   */
+
+  for (int i = void_func(); ; )
+  {
+  }
+
+  int j;
+  for (j = void_func(); j < 10 ; )
+  {
+  }
+
+  for (int k = void_func(); k < 10 ; k++)
+  {
+  }
+
+}
+
+void func2()
+{
+  /*
+   * invalid for loop test expressions
+   */
+
+  for (; void_func(); )
+  {
+  }
+
+  for (int i = 0; [1, 2, 4]; )
+  {
+  }
+}
+
+void func3()
+{
+    /*
+     * invalid for step expression
+     */
+
+    int x;
+    for (; ; x + void_func())
+    {
+    }
+
+    for (int i; i < 10; i[10])
+    {
+    }
+}
+
+void func4()
+{
+    /*
+     * invalid code in for loop body
+     */
+   for (int i = 0; i < 10; i++)
+   {
+      void_func(i, i + 1);
+   }
+
+   for (;;)
+   {
+     bool b = [1, 2, 4];
+   }
+}
+

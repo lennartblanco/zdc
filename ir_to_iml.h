@@ -50,4 +50,16 @@ iml_add_foreach_tail(IrFunctionDef *function,
                      ImlVariable *length,
                      iml_operation_t *loop_label);
 
+void
+iml_add_for_head(IrFunctionDef *function,
+                 IrExpression *test,
+                 iml_operation_t *loop_head,
+                 iml_operation_t *loop_end);
+
+void
+iml_add_for_tail(IrFunctionDef *function,
+                 IrExpression *step,
+                 iml_operation_t *loop_head,
+                 iml_operation_t *loop_end);
+
 #endif /* IR_TO_IML_INC_X */
