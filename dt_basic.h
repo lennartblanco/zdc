@@ -52,4 +52,68 @@ dt_basic_get_data_type(DtBasic *self);
 bool
 dt_basic_is_signed(DtBasic *self);
 
+/**
+ * Returns true if data_type represent basic type void,
+ * false otherwise.
+ */
+bool
+dt_basic_is_void(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type bool,
+ * false otherwise.
+ */
+bool
+dt_basic_is_bool(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type char,
+ * false otherwise.
+ */
+bool
+dt_basic_is_char(DtDataType *data_type);
+
+
+/**
+ * Returns true if data_type represent basic type int,
+ * false otherwise.
+ */
+bool
+dt_basic_is_int(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type uint,
+ * false otherwise.
+ */
+bool
+dt_basic_is_uint(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type short,
+ * false otherwise.
+ */
+bool
+dt_basic_is_short(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type ushort,
+ * false otherwise.
+ */
+bool
+dt_basic_is_ushort(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type byte,
+ * false otherwise.
+ */
+bool
+dt_basic_is_byte(DtDataType *data_type);
+
+/**
+ * Returns true if data_type represent basic type ubyte,
+ * false otherwise.
+ */
+bool
+dt_basic_is_ubyte(DtDataType *data_type);
+
 #endif /* DT_BASIC_INC_X */

@@ -10,7 +10,7 @@ import iml_func_frame;
 import iml_operation;
 import iml_variable;
 import iml_constant;
-import types;
+import dt_basic;
 private import arm_util;
 
 enum TEMP_REG1 = "ip";
@@ -174,7 +174,7 @@ gen_text_prelude(File asmfile, sym_table *sym_table)
      * otherwise exit with code 0
      */
     bool exit_code_returned = 
-        types_is_int(ir_function_def_get_return_type(main_func));
+        dt_basic_is_int(ir_function_def_get_return_type(main_func));
 
     string main_mangled_name =
         to!string(ir_function_get_mangled_name(cast(IrFunction *) main_func));

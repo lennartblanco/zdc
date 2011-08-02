@@ -503,7 +503,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     data_type = ir_expression_get_data_type(left);
 
     /* left operand can not be of void type */
-    if (types_is_void(data_type))
+    if (dt_basic_is_void(data_type))
     {
         compile_error(compile_status,
                       IR_NODE(bin_op),
@@ -512,7 +512,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     }
 
     /* if left operand is not bool, cast to bool */
-    if (!types_is_bool(data_type))
+    if (!dt_basic_is_bool(data_type))
     {
         left = cfold_cast(ir_cast_new(types_get_bool_type(), left));
     }
@@ -524,8 +524,8 @@ validate_bin_conditional(compilation_status_t *compile_status,
 
 
     /* if right operand is not of void or bool type, cast to bool */
-    if (!types_is_void(data_type) &&
-        !types_is_bool(data_type))
+    if (!dt_basic_is_void(data_type) &&
+        !dt_basic_is_bool(data_type))
     {
         right = cfold_cast(ir_cast_new(types_get_bool_type(), right));
     }
@@ -1232,7 +1232,7 @@ validate_return(compilation_status_t *compile_status,
     else
     {
         /* a return statment without an expression specified */
-        if (!types_is_void(func_return_type))
+        if (!dt_basic_is_void(func_return_type))
         {
             compile_error(compile_status,
                           IR_NODE(ret),
@@ -1716,8 +1716,8 @@ validate_foreach(compilation_status_t *compile_status,
         {
             ir_variable_set_data_type(var, types_get_uint_type());
         }
-        else if (!types_is_int(var_type) &&
-                 !types_is_uint(var_type))
+        else if (!dt_basic_is_int(var_type) &&
+                 !dt_basic_is_uint(var_type))
         {
             compile_error(compile_status,
                           IR_NODE(var),
@@ -2122,7 +2122,7 @@ validate_function_def(compilation_status_t *compile_status,
     /*
      * For void function, add an implicit return statement if needed
      */
-    if (types_is_void(ir_function_def_get_return_type(func_def)))
+    if (dt_basic_is_void(ir_function_def_get_return_type(func_def)))
     {
         GSList *p;
         IrStatment *last_statment = NULL;
@@ -2487,8 +2487,8 @@ validate_entry_point(compilation_status_t *compile_status,
     }
 
     main_ret_type = ir_function_get_return_type(main_func);
-    if (!types_is_void(main_ret_type) &&
-        !types_is_int(main_ret_type))
+    if (!dt_basic_is_void(main_ret_type) &&
+        !dt_basic_is_int(main_ret_type))
     {
        compile_error(compile_status,
                      IR_NODE(main_func),

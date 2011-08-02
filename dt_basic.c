@@ -27,6 +27,9 @@ dt_basic_get_init(DtDataType *self);
 static bool
 dt_basic_is_same(DtDataType *self, DtDataType *type);
 
+static bool
+dt_basic_is_type(DtDataType *type, basic_data_type_t basic_type);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -101,6 +104,60 @@ dt_basic_is_signed(DtBasic *self)
     }
 
     return is_signed;
+}
+
+bool
+dt_basic_is_void(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, void_type);
+}
+
+bool
+dt_basic_is_bool(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, bool_type);
+}
+
+bool
+dt_basic_is_char(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, char_type);
+}
+
+bool
+dt_basic_is_int(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, int_type);
+}
+
+bool
+dt_basic_is_uint(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, uint_type);
+}
+
+bool
+dt_basic_is_short(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, short_type);
+}
+
+bool
+dt_basic_is_ushort(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, ushort_type);
+}
+
+bool
+dt_basic_is_byte(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, byte_type);
+}
+
+bool
+dt_basic_is_ubyte(DtDataType *data_type)
+{
+    return dt_basic_is_type(data_type, ubyte_type);
 }
 
 /*---------------------------------------------------------------------------*
@@ -268,3 +325,13 @@ dt_basic_class_init(gpointer klass, gpointer dummy)
     DT_DATA_TYPE_CLASS(klass)->is_integral = dt_basic_is_integral;
 }
 
+static bool
+dt_basic_is_type(DtDataType *type, basic_data_type_t basic_type)
+{
+    if (!dt_is_basic(type))
+    {
+        return false;
+    }
+
+    return dt_basic_get_data_type(DT_BASIC(type)) == basic_type;
+}

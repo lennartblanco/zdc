@@ -673,7 +673,7 @@ types_usual_arithm_conv(IrExpression *left,
      */
 
     left_type = ir_expression_get_data_type(left);
-    if (types_is_void(left_type))
+    if (dt_basic_is_void(left_type))
     {
         /* converting void types is illegal */
         return false;
@@ -685,7 +685,7 @@ types_usual_arithm_conv(IrExpression *left,
 
     right_type = ir_expression_get_data_type(right);
     /* only conversions of basic types is implemented */
-    if (types_is_void(right_type))
+    if (dt_basic_is_void(right_type))
     {
         /* converting void types is illegal */
         return false;
@@ -718,14 +718,14 @@ types_usual_arithm_conv(IrExpression *left,
         return true;
     }
 
-    if (types_is_uint(left_type) && types_is_int(right_type))
+    if (dt_basic_is_uint(left_type) && dt_basic_is_int(right_type))
     {
         /* right operand need to be converted to unsigned */
         *res_right = 
             IR_EXPRESSION(ir_cast_new(types_get_uint_type(), *res_right));
 
     }
-    else if (types_is_int(left_type) && types_is_uint(right_type))
+    else if (dt_basic_is_int(left_type) && dt_basic_is_uint(right_type))
     {
         /* left operand need to be converted to unsigned */
         *res_left =
@@ -748,7 +748,7 @@ types_find_common(DtDataType *type1, DtDataType *type2)
         return type1;
     }
 
-    if (types_is_void(type1) || types_is_void(type2))
+    if (dt_basic_is_void(type1) || dt_basic_is_void(type2))
     {
         return types_get_void_type();
     }
@@ -758,106 +758,6 @@ types_find_common(DtDataType *type1, DtDataType *type2)
         assert(false); /* not implmented */
     }
     assert(false); /* not implmented */
-}
-
-bool
-types_is_void(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == void_type;
-}
-
-bool
-types_is_bool(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == bool_type;
-}
-
-bool
-types_is_char(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == char_type;
-}
-
-
-bool
-types_is_int(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == int_type;
-}
-
-bool
-types_is_uint(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == uint_type;
-}
-
-bool
-types_is_short(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == short_type;
-}
-
-bool
-types_is_ushort(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == ushort_type;
-}
-
-bool
-types_is_byte(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == byte_type;
-}
-
-bool
-types_is_ubyte(DtDataType *data_type)
-{
-    if (!dt_is_basic(data_type))
-    {
-        return false;
-    }
-
-    return dt_basic_get_data_type(DT_BASIC(data_type)) == ubyte_type;
 }
 
 DtDataType *
@@ -990,12 +890,12 @@ types_is_literal_0or1(IrExpression *expression)
 
     DtDataType *exp_type = ir_expression_get_data_type(expression);
 
-    if (types_is_int(exp_type))
+    if (dt_basic_is_int(exp_type))
     {
          gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
          res = (val == 0 || val == 1);
     }
-    else if (types_is_uint(exp_type))
+    else if (dt_basic_is_uint(exp_type))
     {
          guint32 val =
              ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));

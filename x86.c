@@ -339,7 +339,7 @@ text_prelude(x86_comp_params_t *params, sym_table_t *sym_table)
          * otherwise exit with code 0
          */
         exit_code_returned = 
-            types_is_int(ir_function_get_return_type(main_func));
+            dt_basic_is_int(ir_function_get_return_type(main_func));
 
         fprintf(params->out,
                 ".globl _init\n"

@@ -324,7 +324,7 @@ iml_add_func_call_eval(IrFunctionDef *function,
 
 
     if (res == NULL &&
-        !types_is_void(ir_expression_get_data_type(IR_EXPRESSION(func_call))))
+        !dt_basic_is_void(ir_expression_get_data_type(IR_EXPRESSION(func_call))))
     {
         res = iml_func_frame_get_temp(frame, iml_32b);
     }
@@ -739,42 +739,42 @@ ir_constant_to_iml(IrConstant *constant)
     DtDataType *exp_type =
         ir_expression_get_data_type(IR_EXPRESSION(constant));
 
-    if (types_is_int(exp_type))
+    if (dt_basic_is_int(exp_type))
     {
         type = iml_32b;
         v32 = ir_basic_constant_get_int(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_uint(exp_type))
+    else if (dt_basic_is_uint(exp_type))
     {
         type = iml_32b;
         v32 = ir_basic_constant_get_uint(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_short(exp_type))
+    else if (dt_basic_is_short(exp_type))
     {
         type = iml_16b;
         v16 = ir_basic_constant_get_short(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_ushort(exp_type))
+    else if (dt_basic_is_ushort(exp_type))
     {
         type = iml_16b;
         v16 = ir_basic_constant_get_ushort(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_byte(exp_type))
+    else if (dt_basic_is_byte(exp_type))
     {
         type = iml_8b;
         v8 = ir_basic_constant_get_byte(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_ubyte(exp_type))
+    else if (dt_basic_is_ubyte(exp_type))
     {
         type = iml_8b;
         v8 = ir_basic_constant_get_ubyte(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_char(exp_type))
+    else if (dt_basic_is_char(exp_type))
     {
         type = iml_8b;
         v8 = ir_basic_constant_get_char(IR_BASIC_CONSTANT(constant));
     }
-    else if (types_is_bool(exp_type))
+    else if (dt_basic_is_bool(exp_type))
     {
         type = iml_8b;
         v8 = ir_basic_constant_get_bool(IR_BASIC_CONSTANT(constant));

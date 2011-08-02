@@ -9,4 +9,7 @@ extern (C)
 
     basic_data_type
     dt_basic_get_data_type(DtBasic *self);
+
+    bool
+    dt_basic_is_int(DtDataType *data_type);
 }
