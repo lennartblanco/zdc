@@ -62,6 +62,26 @@ iml_constant_new_32b(guint32 val);
 ImlConstant *
 iml_constant_new_ptr(const gchar *label);
 
+/**
+ * Get singleton object for a constant used to represent boolean true value.
+ *
+ * @return singleton 8-bit '1' constant.
+ */
+ImlConstant *
+iml_constant_true();
+
+/**
+ * Get singleton object for a 32-bit '0' constant.
+ */
+ImlConstant *
+iml_constant_zero_32b();
+
+/**
+ * Get singleton object for a 32-bit '1' constant.
+ */
+ImlConstant *
+iml_constant_one_32b();
+
 guint8
 iml_constant_get_val_8b(ImlConstant *self);
 

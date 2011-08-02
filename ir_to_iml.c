@@ -441,7 +441,7 @@ iml_add_foreach_head(IrFunctionDef *function,
 
     ir_function_def_add_operation(function,
                                   iml_operation_new(iml_copy,
-                                                    iml_constant_new_32b(0),
+                                                    iml_constant_zero_32b(),
                                                     *index));
 
     /* set-up value variable */
@@ -460,7 +460,7 @@ iml_add_foreach_head(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                                   iml_operation_new(iml_getelm,
                                                     aggregate,
-                                                    iml_constant_new_32b(0),
+                                                    iml_constant_zero_32b(),
                                                     4,
                                                     *length));
 
@@ -469,7 +469,7 @@ iml_add_foreach_head(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                                   iml_operation_new(iml_getelm,
                                                     aggregate,
-                                                    iml_constant_new_32b(1),
+                                                    iml_constant_one_32b(),
                                                     4,
                                                     aggr_ptr));
 
@@ -509,7 +509,7 @@ iml_add_foreach_tail(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                                   iml_operation_new(iml_add,
                                                     index,
-                                                    iml_constant_new_32b(1),
+                                                    iml_constant_one_32b(),
                                                     index));
 
     /* generate iml to jump to loop head */
@@ -550,7 +550,7 @@ iml_add_for_head(IrFunctionDef *function,
             function,
             iml_operation_new(iml_jmpneq,
                               test_res,
-                              iml_constant_new_8b(1),
+                              iml_constant_true(),
                               iml_operation_get_operand(loop_end, 1)));
 
     /* mark test expression result variable as unused */
@@ -898,7 +898,7 @@ iml_add_X_op_eval(IrFunctionDef *function,
     }
     else
     {
-        mod_constant = iml_constant_new_32b(1);
+        mod_constant = iml_constant_one_32b();
     }
 
     /*
@@ -1073,7 +1073,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
         ir_function_def_add_operation(function,
                                   iml_operation_new(iml_getelm,
                                                     src,
-                                                    iml_constant_new_32b(1),
+                                                    iml_constant_one_32b(),
                                                     4,
                                                     ptr));
 
@@ -1166,7 +1166,7 @@ iml_add_conditional_eval(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                                   iml_operation_new(iml_jmpneq,
                                                     cond_var,
-                                                    iml_constant_new_8b(1),
+                                                    iml_constant_true(),
                                                     skip_label));
 
     /* evalute true expression */
@@ -1267,7 +1267,7 @@ iml_add_property_eval(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_getelm,
                                                 src,
-                                                iml_constant_new_32b(0),
+                                                iml_constant_zero_32b(),
                                                 4,
                                                 res));
 
@@ -1364,14 +1364,14 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     op = iml_operation_new(iml_setelm,
                            length,
                            res,
-                           iml_constant_new_32b(0),
+                           iml_constant_zero_32b(),
                            4);
     ir_function_def_add_operation(function, op);
 
     op = iml_operation_new(iml_setelm,
                            ptr,
                            res,
-                           iml_constant_new_32b(1),
+                           iml_constant_one_32b(),
                            4);
     ir_function_def_add_operation(function, op);
 
@@ -1449,7 +1449,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
                               iml_operation_new(iml_setelm,
                                                 length,
                                                 res,
-                                                iml_constant_new_32b(0),
+                                                iml_constant_zero_32b(),
                                                 4));
 
 
@@ -1471,11 +1471,11 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     {
         /* dynamic array sliced */
         ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    array,
-                                                    iml_constant_new_32b(1),
-                                                    4,
-                                                    start_ptr));
+                                      iml_operation_new(iml_getelm,
+                                                        array,
+                                                        iml_constant_one_32b(),
+                                                        4,
+                                                        start_ptr));
     }
 
     /* multiply slice start with element size if needed */
@@ -1516,7 +1516,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
                                   iml_operation_new(iml_setelm,
                                                     start_ptr,
                                                     res,
-                                                    iml_constant_new_32b(1),
+                                                    iml_constant_one_32b(),
                                                     4));
 
     /* mark operands as unused */
@@ -1540,7 +1540,7 @@ add_array_assignment(IrFunctionDef *function,
         /* handle the special case of null assignment */
         ir_function_def_add_operation(function,
                                   iml_operation_new(iml_mset,
-                                                    iml_constant_new_32b(0),
+                                                    iml_constant_zero_32b(),
                                                     2,
                                                     dest));
     }
@@ -1609,7 +1609,7 @@ add_static_array_assignment(IrFunctionDef *function,
         ir_function_def_add_operation(function,
                                   iml_operation_new(iml_getelm,
                                                     rvalue,
-                                                    iml_constant_new_32b(1),
+                                                    iml_constant_one_32b(),
                                                     4,
                                                     src_ptr));
 
@@ -1681,7 +1681,7 @@ add_array_cell_assignment(IrFunctionDef *function,
         ir_function_def_add_operation(function,
                                   iml_operation_new(iml_getelm,
                                                     dest,
-                                                    iml_constant_new_32b(1),
+                                                    iml_constant_one_32b(),
                                                     4,
                                                     ptr));
 
@@ -1727,7 +1727,7 @@ add_array_slice_assignment(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_getelm,
                                                 src,
-                                                iml_constant_new_32b(1),
+                                                iml_constant_one_32b(),
                                                 4,
                                                 src_ptr));
 
@@ -1736,7 +1736,7 @@ add_array_slice_assignment(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_getelm,
                                                 src,
-                                                iml_constant_new_32b(0),
+                                                iml_constant_zero_32b(),
                                                 4,
                                                 length));
 
@@ -1756,7 +1756,7 @@ add_array_slice_assignment(IrFunctionDef *function,
     ir_function_def_add_operation(function,
                               iml_operation_new(iml_getelm,
                                                 dest,
-                                                iml_constant_new_32b(1),
+                                                iml_constant_one_32b(),
                                                 4,
                                                 dest_ptr));
 
@@ -1778,10 +1778,11 @@ add_pointer_assignment(IrFunctionDef *function,
     if (IR_IS_NULL(value))
     {
         /* handle the special case of null assignment */
-        ir_function_def_add_operation(function,
-                                     iml_operation_new(iml_copy,
-                                                       iml_constant_new_32b(0),
-                                                       dest));
+        ir_function_def_add_operation(
+            function,
+            iml_operation_new(iml_copy,
+                              iml_constant_zero_32b(),
+                              dest));
     }
     else
     {

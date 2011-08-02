@@ -105,6 +105,39 @@ iml_constant_new_ptr(const gchar *label)
     return obj;
 }
 
+ImlConstant *
+iml_constant_true()
+{
+    static ImlConstant *constant = NULL;
+    if (constant == NULL)
+    {
+        constant = iml_constant_new_8b(1);
+    }
+    return constant;
+}
+
+ImlConstant *
+iml_constant_zero_32b()
+{
+    static ImlConstant *constant = NULL;
+    if (constant == NULL)
+    {
+        constant = iml_constant_new_32b(0);
+    }
+    return constant;
+}
+
+ImlConstant *
+iml_constant_one_32b()
+{
+    static ImlConstant *constant = NULL;
+    if (constant == NULL)
+    {
+        constant = iml_constant_new_32b(1);
+    }
+    return constant;
+}
+
 guint8
 iml_constant_get_val_8b(ImlConstant *self)
 {
