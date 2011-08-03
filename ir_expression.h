@@ -42,6 +42,7 @@ typedef struct
   DtDataType * (*do_get_data_type) (IrExpression *self);
   bool (*do_is_constant) (IrExpression *self);
   bool (*do_is_lvalue) (IrExpression *self);
+  bool (*has_effect) (IrExpression *self);
 } IrExpressionClass;
 
 /*---------------------------------------------------------------------------*
@@ -62,5 +63,16 @@ ir_expression_is_constant(IrExpression *self);
 
 bool
 ir_expression_is_lvalue(IrExpression *self);
+
+/**
+ * Checks if the expression has effect. For example:
+ *
+ * foo++; has effect
+ * foo + 2 has not effect
+ *
+ * Expressions that have effect can be used as stand alone statements.
+  */
+bool
+ir_expression_has_effect(IrExpression *self);
 
 #endif /* IR_EXPRESSION_INC_X */

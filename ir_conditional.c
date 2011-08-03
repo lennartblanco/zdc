@@ -107,11 +107,24 @@ ir_conditional_set_expressions(IrConditional *self,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static bool
+ir_conditional_has_effect(IrExpression *self)
+{
+    assert(IR_IS_CONDITIONAL(self));
+    IrConditional *cond = IR_CONDITIONAL(self);
+
+    return
+        ir_expression_has_effect(cond->true_exp) &&
+        ir_expression_has_effect(cond->false_exp);
+}
+
 static void
 ir_conditional_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_conditional_do_get_data_type;
+    ((IrExpressionClass *)klass)->has_effect =
+        ir_conditional_has_effect;
 }
 
 static DtDataType *

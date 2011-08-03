@@ -20,6 +20,9 @@ ir_expression_do_is_constant(IrExpression *self);
 static bool
 ir_expression_do_is_lvalue(IrExpression *self);
 
+static bool
+ir_expression_do_has_effect(IrExpression *self);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -73,6 +76,14 @@ ir_expression_is_lvalue(IrExpression *self)
     return IR_EXPRESSION_GET_CLASS(self)->do_is_lvalue(self);
 }
 
+bool
+ir_expression_has_effect(IrExpression *self)
+{
+    assert(IR_IS_EXPRESSION(self));
+
+    return IR_EXPRESSION_GET_CLASS(self)->has_effect(self);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -88,6 +99,9 @@ ir_expression_class_init(gpointer klass, gpointer dummy)
 
     IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
         ir_expression_do_is_lvalue;
+
+    IR_EXPRESSION_CLASS(klass)->has_effect =
+        ir_expression_do_has_effect;
 }
 
 static DtDataType *
@@ -113,6 +127,16 @@ ir_expression_do_is_constant(IrExpression *self)
  */
 static bool
 ir_expression_do_is_lvalue(IrExpression *self)
+{
+    return false;
+}
+
+/**
+ * Default implementation of 'has_effect()' method. By default
+ * expression has no effect.
+ */
+static bool
+ir_expression_do_has_effect(IrExpression *self)
 {
     return false;
 }

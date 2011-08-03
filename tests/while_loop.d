@@ -55,7 +55,7 @@ while_true(uint a, uint b)
         break;
       }
       a = a - b;
-      r = r + 1;
+      r++;
    }
 
    return r;
@@ -91,7 +91,7 @@ bool while_nested(char[] arr)
       {
          return false;
       }
-      j = j + 1;
+      ++j;
     }
   }
 

@@ -31,6 +31,16 @@ extern (C)
     return 0;
   }
 
+  int cond_statement(bool inc)
+  {
+    int x = 10;
+
+    // test using conditional expression as a statement
+    inc ? x++ : x--;
+
+    return x;
+  }
+
   // test conditional expression of array type
   int array_cond(uint idx)
   {

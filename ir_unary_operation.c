@@ -86,11 +86,41 @@ ir_unary_operation_set_operand(IrUnaryOperation *self,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static bool
+ir_unary_operation_has_effect(IrExpression *self)
+{
+    assert(IR_IS_UNARY_OPERATION(self));
+
+    bool has_effect;
+
+    switch (ir_unary_operation_get_operation(IR_UNARY_OPERATION(self)))
+    {
+        case ast_arithm_neg_op:     /*  -(exp)  */
+        case ast_bool_neg_op:       /*  !(exp)  */
+            has_effect = false;
+            break;
+        case ast_pre_inc_op:        /*  ++(exp) */
+        case ast_pre_dec_op:        /*  --(exp) */
+        case ast_post_inc_op:       /* (exp)++ */
+        case ast_post_dec_op:       /* (exp)-- */
+            has_effect = true;
+            break;
+        default:
+            /* unexpected operation type */
+            assert(false);
+    }
+
+    return has_effect;
+}
+
 static void
 ir_unary_operation_class_init(gpointer klass, gpointer dummy)
 {
     ((IrExpressionClass *)klass)->do_get_data_type =
         ir_unary_operation_do_get_data_type;
+
+    ((IrExpressionClass *)klass)->has_effect =
+            ir_unary_operation_has_effect;
 }
 
 static DtDataType *

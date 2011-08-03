@@ -54,3 +54,14 @@ void ptr_cmp() // invalid pointer comparisons
   if (iptr < bptr) { }
 }
 
+void no_effect_exprs()
+{
+  int a;
+  // expressions without no effect used as statments
+  a + 10;
+  20 + 2;
+  a == (a--) + 1;
+  a > 1 ? 10 : a--;
+  a > 1 ? a++ : a;
+}
+

@@ -1789,9 +1789,24 @@ validate_statment(compilation_status_t *compile_status,
     }
     else if (IR_IS_EXPRESSION(statment))
     {
-        compile_error(compile_status,
-                      IR_NODE(statment),
-                      "expression have no effect\n");
+        IrExpression *exp =
+            validate_expression(compile_status,
+                                sym_table,
+                                IR_EXPRESSION(statment));
+        if (exp == NULL)
+        {
+            /* invalid expression, bail out */
+            return;
+        }
+
+        if (!ir_expression_has_effect(exp))
+        {
+            compile_error(compile_status,
+                          IR_NODE(statment),
+                          "expression have no effect\n");
+            return;
+        }
+        iml_add_expression_eval(compile_status->function, exp, NULL);
     }
 }
 

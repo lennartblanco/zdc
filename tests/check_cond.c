@@ -7,6 +7,9 @@ int
 const_cond(int n);
 
 int
+cond_statement(bool inc);
+
+int
 array_cond(unsigned idx);
 
 /*---------------------------------------------------------------------------*
@@ -27,6 +30,10 @@ main()
     check_int("const_cond(2)", const_cond(2), 300);
     check_int("const_cond(3)", const_cond(3), 400);
     check_int("const_cond(4)", const_cond(4), 0);
+
+    /* cond_statement() tests */
+    check_int("cond_statement(true)", cond_statement(true), 11);
+    check_int("cond_statement(false)", cond_statement(false), 9);
 
     /* array_cond() tests */
     check_int("array_cond(0)", array_cond(0), 0);
