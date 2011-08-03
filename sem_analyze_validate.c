@@ -1457,7 +1457,6 @@ validate_while(compilation_status_t *compile_status,
                IrWhile *while_statment)
 {
     IrExpression *condition;
-    ImlOperand *condition_eval_res;
     iml_operation_t *loop_start;
     iml_operation_t *loop_end;
 
@@ -1492,50 +1491,11 @@ validate_while(compilation_status_t *compile_status,
                           ir_module_gen_label(compile_status->module));
     ir_loop_set_exit_label(IR_LOOP(while_statment), loop_end);
 
-    /* label the start of loop */
-    ir_function_def_add_operation(compile_status->function, loop_start);
-
-    /* figure out the jump operation to issue after condition evaluation */
-    iml_operation_t *jump_op;
-    if (ir_expression_is_constant(condition))
-    {
-        /*
-         * a constant expression,
-         * this is either an eternal loop or the loop which is always skipped
-         */
-        assert(IR_IS_BASIC_CONSTANT(condition));
-        if (ir_basic_constant_get_bool(IR_BASIC_CONSTANT(condition)))
-        {
-            /* eternal loop, no jump instruction needed */
-            jump_op = NULL;
-        }
-        else
-        {
-            /* just skip the loop body */
-            jump_op =
-                iml_operation_new(iml_jmp,
-                                  iml_operation_get_operand(loop_end, 1));
-        }
-    }
-    else
-    {
-        /* insert iml operation for validation of loop condition */
-        condition_eval_res = iml_add_expression_eval(compile_status->function,
-                                                     condition,
-                                                     NULL);
-        /* jump past the loop body if condition evaluates to false */
-        jump_op =
-            iml_operation_new(iml_jmpneq,
-                              condition_eval_res,
-                              iml_constant_new_8b(1),
-                              iml_operation_get_operand(loop_end, 1));
-    }
-
-    /* add jump operation if needed */
-    if (jump_op != NULL)
-    {
-        ir_function_def_add_operation(compile_status->function, jump_op);
-    }
+    /* generate iml for the loop head */
+    iml_add_while_head(compile_status->function,
+                       condition,
+                       loop_start,
+                       loop_end);
 
     /*
      * validate while body, and generate iml operations
@@ -1547,14 +1507,8 @@ validate_while(compilation_status_t *compile_status,
 
     compile_status->loop = prev_loop;
 
-    /* jump to loop start */
-    ir_function_def_add_operation(
-            compile_status->function,
-            iml_operation_new(iml_jmp,
-                              iml_operation_get_operand(loop_start, 1)));
-
-    /* and loop end label */
-    ir_function_def_add_operation(compile_status->function, loop_end);
+    /* generate iml for the loop tail */
+    iml_add_while_tail(compile_status->function, loop_start, loop_end);
 }
 
 static void

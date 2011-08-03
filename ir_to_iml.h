@@ -37,6 +37,17 @@ iml_add_func_call_eval(IrFunctionDef *function,
                        ImlVariable *res);
 
 void
+iml_add_while_head(IrFunctionDef *function,
+                   IrExpression *condition,
+                   iml_operation_t *loop_head,
+                   iml_operation_t *loop_end);
+
+void
+iml_add_while_tail(IrFunctionDef *function,
+                   iml_operation_t *loop_head,
+                   iml_operation_t *loop_end);
+
+void
 iml_add_foreach_head(IrFunctionDef *function,
                      IrForeach *foreach,
                      ImlVariable **index,

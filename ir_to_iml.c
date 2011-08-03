@@ -411,6 +411,82 @@ iml_add_assignment(IrFunctionDef *function,
 }
 
 void
+iml_add_while_head(IrFunctionDef *function,
+                   IrExpression *condition,
+                   iml_operation_t *loop_head,
+                   iml_operation_t *loop_end)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_EXPRESSION(condition));
+    assert(loop_head);
+    assert(loop_end);
+
+    /* label the start of loop */
+    ir_function_def_add_operation(function, loop_head);
+
+    /* figure out the jump operation to issue after condition evaluation */
+    iml_operation_t *jump_op;
+    if (ir_expression_is_constant(condition))
+    {
+        /*
+         * a constant expression,
+         * this is either an eternal loop or the loop which is always skipped
+         */
+        assert(IR_IS_BASIC_CONSTANT(condition));
+        if (ir_basic_constant_get_bool(IR_BASIC_CONSTANT(condition)))
+        {
+            /* eternal loop, no jump instruction needed */
+            jump_op = NULL;
+        }
+        else
+        {
+            /* just skip the loop body */
+            jump_op =
+                iml_operation_new(iml_jmp,
+                                  iml_operation_get_operand(loop_end, 1));
+        }
+    }
+    else
+    {
+        /* insert iml operation for validation of loop condition */
+        ImlOperand *condition_eval_res =
+            iml_add_expression_eval(function, condition, NULL);
+
+        /* jump past the loop body if condition evaluates to false */
+        jump_op =
+            iml_operation_new(iml_jmpneq,
+                              condition_eval_res,
+                              iml_constant_new_8b(1),
+                              iml_operation_get_operand(loop_end, 1));
+    }
+
+    /* add jump operation if needed */
+    if (jump_op != NULL)
+    {
+        ir_function_def_add_operation(function, jump_op);
+    }
+}
+
+void
+iml_add_while_tail(IrFunctionDef *function,
+                   iml_operation_t *loop_head,
+                   iml_operation_t *loop_end)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(loop_head);
+    assert(loop_end);
+
+    /* jump to loop start */
+    ir_function_def_add_operation(
+            function,
+            iml_operation_new(iml_jmp,
+                              iml_operation_get_operand(loop_head, 1)));
+
+    /* and loop end label */
+    ir_function_def_add_operation(function, loop_end);
+}
+
+void
 iml_add_foreach_head(IrFunctionDef *function,
                      IrForeach *foreach,
                      ImlVariable **index,
