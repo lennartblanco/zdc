@@ -188,7 +188,7 @@ ir_function_def_get_operations(IrFunctionDef *self)
 static void
 ir_function_def_class_init(gpointer klass, gpointer foo)
 {
-    ((IrNodeClass *)klass)->do_print = ir_function_def_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_function_def_do_print;
 }
 
 static void

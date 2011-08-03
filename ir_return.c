@@ -95,5 +95,5 @@ ir_return_do_print(IrNode *self, FILE *out, int indention)
 static void
 ir_return_class_init(gpointer klass, gpointer foo)
 {
-    ((IrNodeClass *)klass)->do_print = ir_return_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_return_do_print;
 }

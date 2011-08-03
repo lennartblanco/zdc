@@ -102,9 +102,9 @@ ir_array_cell_set_index(IrArrayCell *self, IrExpression *index)
 static void
 ir_array_cell_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_array_cell_do_get_data_type;
-    ((IrExpressionClass *)klass)->do_is_lvalue =
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
         ir_array_cell_do_is_lvalue;
 }
 

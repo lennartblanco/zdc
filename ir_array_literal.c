@@ -145,10 +145,10 @@ ir_array_literal_get_data_label(IrArrayLiteral *self)
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrNodeClass *)klass)->do_print = ir_array_literal_do_print;
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_NODE_CLASS(klass)->do_print = ir_array_literal_do_print;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_array_literal_do_get_data_type;
-    ((IrExpressionClass *)klass)->do_is_constant =
+    IR_EXPRESSION_CLASS(klass)->do_is_constant =
         ir_array_literal_do_is_constant;
 }
 

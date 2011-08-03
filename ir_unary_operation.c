@@ -116,10 +116,10 @@ ir_unary_operation_has_effect(IrExpression *self)
 static void
 ir_unary_operation_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_unary_operation_do_get_data_type;
 
-    ((IrExpressionClass *)klass)->has_effect =
+    IR_EXPRESSION_CLASS(klass)->has_effect =
             ir_unary_operation_has_effect;
 }
 

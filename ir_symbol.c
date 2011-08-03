@@ -189,7 +189,7 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
     /*
      * set default implementation of print() method for a symbol
      */
-    ((IrNodeClass *)klass)->do_print = ir_symbol_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_symbol_do_print;
 }
 
 static void

@@ -102,5 +102,5 @@ ir_while_do_print(IrNode *self, FILE *out, int indention)
 static void
 ir_while_class_init(gpointer klass, gpointer foo)
 {
-    ((IrNodeClass *)klass)->do_print = ir_while_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_while_do_print;
 }

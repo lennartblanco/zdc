@@ -226,7 +226,7 @@ ir_function_class_init(gpointer klass, gpointer foo)
                                     pspec);
 
 
-    ((IrNodeClass *)klass)->do_print = ir_function_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_function_do_print;
 }
 
 static void

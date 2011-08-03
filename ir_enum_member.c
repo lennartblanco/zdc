@@ -84,8 +84,8 @@ ir_enum_member_set_value(IrEnumMember *self, IrExpression *value)
 static void
 ir_enum_member_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrNodeClass *)klass)->do_print = ir_enum_member_do_print;
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_NODE_CLASS(klass)->do_print = ir_enum_member_do_print;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_enum_member_do_get_data_type;
 
 }

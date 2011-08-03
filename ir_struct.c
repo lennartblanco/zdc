@@ -97,6 +97,6 @@ ir_struct_do_get_data_type(IrExpression *self)
 static void
 ir_struct_class_init(gpointer klass, gpointer foo)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_struct_do_get_data_type;
 }

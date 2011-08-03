@@ -182,7 +182,7 @@ ir_enum_do_get_data_type(IrExpression *self)
 static void
 ir_enum_class_init(gpointer klass, gpointer foo)
 {
-    ((IrNodeClass *)klass)->do_print = ir_enum_do_print;
-    ((IrExpressionClass *)klass)->do_get_data_type = ir_enum_do_get_data_type;
+    IR_NODE_CLASS(klass)->do_print = ir_enum_do_print;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type = ir_enum_do_get_data_type;
 }
 

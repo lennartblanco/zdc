@@ -114,7 +114,7 @@ ir_node_class_init(gpointer klass, gpointer foo)
                                     pspec);
 
     /* install default implementation of print method */
-    ((IrNodeClass *)klass)->do_print = ir_node_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_node_do_print;
 }
 
 static void

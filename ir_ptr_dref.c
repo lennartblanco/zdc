@@ -112,8 +112,8 @@ ir_ptr_dref_do_is_lvalue(IrExpression *self)
 static void
 ir_ptr_dref_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_ptr_dref_do_get_data_type;
-    ((IrExpressionClass *)klass)->do_is_lvalue =
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
         ir_ptr_dref_do_is_lvalue;
 }

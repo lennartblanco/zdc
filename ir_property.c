@@ -112,8 +112,8 @@ ir_property_get_id(IrProperty *self)
 static void
 ir_property_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
-                                             ir_property_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_property_do_get_data_type;
 }
 
 static DtDataType *

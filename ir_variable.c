@@ -135,10 +135,10 @@ ir_variable_set_initializer(IrVariable *self, IrExpression *initializer)
 static void
 ir_variable_class_init(gpointer klass, gpointer foo)
 {
-    ((IrNodeClass *)klass)->do_print = ir_variable_do_print;
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_NODE_CLASS(klass)->do_print = ir_variable_do_print;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_variable_do_get_data_type;
-    ((IrExpressionClass *)klass)->do_is_lvalue =
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
         ir_variable_do_is_lvalue;
 }
 

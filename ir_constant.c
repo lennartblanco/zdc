@@ -46,7 +46,7 @@ ir_constant_get_type(void)
 static void
 ir_constant_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_is_constant =
+    IR_EXPRESSION_CLASS(klass)->do_is_constant =
         ir_constant_do_is_constant;
 }
 

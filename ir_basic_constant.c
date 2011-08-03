@@ -218,7 +218,7 @@ ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
 static void
 ir_basic_constant_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_basic_constant_do_get_data_type;
 }
 

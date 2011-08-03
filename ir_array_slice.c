@@ -133,10 +133,10 @@ ir_array_slice_set_end(IrArraySlice *self,
 static void
 ir_array_slice_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_NODE_CLASS(klass)->do_print = ir_array_slice_do_print;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_array_slice_do_get_data_type;
-    ((IrNodeClass *)klass)->do_print = ir_array_slice_do_print;
-    ((IrExpressionClass *)klass)->do_is_lvalue = ir_array_slice_do_is_lvalue;
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue = ir_array_slice_do_is_lvalue;
 }
 
 static DtDataType *

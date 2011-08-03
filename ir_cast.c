@@ -83,10 +83,9 @@ ir_cast_get_value(IrCast *self)
 static void
 ir_cast_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type = ir_cast_do_get_data_type;
-    ((IrExpressionClass *)klass)->do_is_constant = ir_cast_do_is_constant;
-
-    ((IrNodeClass *)klass)->do_print = ir_cast_do_print;
+    IR_NODE_CLASS(klass)->do_print = ir_cast_do_print;
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type = ir_cast_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->do_is_constant = ir_cast_do_is_constant;
 }
 
 static DtDataType *

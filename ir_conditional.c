@@ -121,9 +121,9 @@ ir_conditional_has_effect(IrExpression *self)
 static void
 ir_conditional_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_conditional_do_get_data_type;
-    ((IrExpressionClass *)klass)->has_effect =
+    IR_EXPRESSION_CLASS(klass)->has_effect =
         ir_conditional_has_effect;
 }
 
