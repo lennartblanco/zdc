@@ -80,13 +80,13 @@ ir_expression_is_lvalue(IrExpression *self)
 static void
 ir_expression_class_init(gpointer klass, gpointer dummy)
 {
-    ((IrExpressionClass *)klass)->do_get_data_type =
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_expression_do_get_data_type;
 
-    ((IrExpressionClass *)klass)->do_is_constant =
+    IR_EXPRESSION_CLASS(klass)->do_is_constant =
         ir_expression_do_is_constant;
 
-    ((IrExpressionClass *)klass)->do_is_lvalue =
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
         ir_expression_do_is_lvalue;
 }
 
