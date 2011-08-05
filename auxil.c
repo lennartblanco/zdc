@@ -2,7 +2,6 @@
 
 #include "auxil.h"
 #include "parser.h"
-#include "x86.h"
 #include "sym_table.h"
 #include "sem_analyze.h"
 
