@@ -136,3 +136,24 @@ where is dmd will print following nice error message:
 $ dmd foo-bar.d
 foo-bar.d: Error: module foo-bar has non-identifier characters in filename, use module declaration instead
 
+* shadowing of variables in foreach loops is not detected, e.g. following code does not generate a compile error:
+
+void func1()
+{
+  int i;
+  int[] arr;
+
+  foreach(i; arr)
+  {
+  }
+
+  foreach(i; 1..10)
+  {
+  }
+}
+
+Here is dmd error message:
+
+err.d(6): Error: shadowing declaration err.func1.i is deprecated
+err.d(10): Error: shadowing declaration err.func1.i is deprecated
+
