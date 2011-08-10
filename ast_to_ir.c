@@ -5,6 +5,7 @@
 #include "ast_while.h"
 #include "ast_for.h"
 #include "ast_foreach.h"
+#include "ast_foreach_range.h"
 #include "ast_break.h"
 #include "ast_return.h"
 #include "ast_function_call.h"
@@ -31,6 +32,7 @@
 #include "ir_while.h"
 #include "ir_for.h"
 #include "ir_foreach.h"
+#include "ir_foreach_range.h"
 #include "ir_break.h"
 #include "ir_return.h"
 #include "ir_assignment.h"
@@ -103,6 +105,11 @@ static IrStatment *
 foreach_to_ir(compilation_status_t *compile_status,
               sym_table_t *parent_symbols,
               AstForeach *ast_foreach);
+
+static IrStatment *
+foreach_range_to_ir(compilation_status_t *compile_status,
+                    sym_table_t *parent_symbols,
+                    AstForeachRange *ast_foreach_range);
 
 static IrStatment *
 return_to_ir(compilation_status_t *compile_status,
@@ -635,6 +642,12 @@ code_block_to_ir(compilation_status_t *compile_status,
                                     symbols,
                                     AST_FOREACH(stmt));
         }
+        else if (AST_IS_FOREACH_RANGE(stmt))
+        {
+            ir_stmt = foreach_range_to_ir(compile_status,
+                                          symbols,
+                                          AST_FOREACH_RANGE(stmt));
+        }
         else if (AST_IS_BREAK(stmt))
         {
             ir_stmt = IR_STATMENT(ir_break_new(ast_node_get_line_num(stmt)));
@@ -667,17 +680,18 @@ code_block_to_ir(compilation_status_t *compile_status,
         }
         else
         {
-            /* unexpected statment type */
+            /* unexpected statement type */
             assert(false);
         }
 
-        if (ir_stmt == NULL)
+        if (ir_stmt != NULL)
         {
-            /* semantic error found, bail out */
-            return;
+            /*
+             * if statement was successfully converted,
+             * add it to the code block
+             */
+            ir_code_block_add_statment(ir_code_block, ir_stmt);
         }
-        ir_code_block_add_statment(ir_code_block, ir_stmt);
-        /** @todo delete the stmt node here */
     }
 }
 
@@ -861,6 +875,57 @@ foreach_to_ir(compilation_status_t *compile_status,
                              ast_node_get_line_num(ast_foreach));
 
     return IR_STATMENT(foreach);
+}
+
+static IrStatment *
+foreach_range_to_ir(compilation_status_t *compile_status,
+                    sym_table_t *parent_symbols,
+                    AstForeachRange *ast_foreach_range)
+{
+    assert(compile_status);
+    assert(parent_symbols);
+    assert(AST_IS_FOREACH_RANGE(ast_foreach_range));
+
+    AstVariableDeclaration *ast_index =
+        ast_foreach_range_get_index(ast_foreach_range);
+
+    /* convert index variable to ir */
+    IrVariable *index =
+        ir_variable_new(ast_variable_declaration_get_data_type(ast_index),
+                        ast_variable_declaration_get_name(ast_index),
+                        NULL,
+                        ast_node_get_line_num(ast_index));
+
+    /* store index variable in foreach's local symbols table */
+    sym_table_t *loop_symbols = sym_table_new(parent_symbols);
+    sym_table_add_symbol(loop_symbols, IR_SYMBOL(index));
+
+    /* conver lower expression to ir */
+    IrExpression *lower_exp =
+        expression_to_ir(compile_status,
+                         parent_symbols,
+                         ast_foreach_range_get_lower_exp(ast_foreach_range));
+
+    /* conver upper expression to ir */
+    IrExpression *upper_exp =
+        expression_to_ir(compile_status,
+                         parent_symbols,
+                         ast_foreach_range_get_upper_exp(ast_foreach_range));
+
+    /* convert foreach body to ir */
+    IrCodeBlock *body = ir_code_block_new(loop_symbols);
+    code_block_to_ir(compile_status,
+                     ast_foreach_range_get_body(ast_foreach_range),
+                     body);
+
+    if (lower_exp == NULL || upper_exp == NULL)
+    {
+        /* invalid lower/upper expressions, bail out */
+        return NULL;
+    }
+
+    return
+        IR_STATMENT(ir_foreach_range_new(index, lower_exp, upper_exp, body));
 }
 
 /**
@@ -1363,7 +1428,6 @@ expression_to_ir(compilation_status_t *compile_status,
                           "reference to unknown symbol '%s'\n",
                           ast_ident_get_name(ident));
         }
-
         return IR_EXPRESSION(symb);
     }
     else if (AST_IS_CONDITIONAL(ast_expression))

@@ -61,6 +61,31 @@ iml_add_foreach_tail(IrFunctionDef *function,
                      ImlVariable *length,
                      iml_operation_t *loop_label);
 
+/**
+ * Generate head iml operation for an foreach loop over a range, e.g.
+ *   foreach(i; lower..upper) { }
+ *
+ * @param index         the loop's index variable
+ * @param lower_exp the loop's range lower expressions
+ * @param loop_test_exp a boolean expression for testing if
+ *                       the loop should be aborted
+ * @return the temporary opperand used by generated iml code,
+ *         this operand must be passed on to iml_add_foreach_range_tail()
+ */
+ImlOperand *
+iml_add_foreach_range_head(IrFunctionDef *function,
+                           IrVariable *index,
+                           IrExpression *lower_exp,
+                           IrExpression *loop_test_exp,
+                           iml_operation_t *loop_head,
+                           iml_operation_t *loop_end);
+void
+iml_add_foreach_range_tail(IrFunctionDef *function,
+                           IrExpression *inc_exp,
+                           ImlOperand *head_temp_op,
+                           iml_operation_t *loop_head,
+                           iml_operation_t *loop_end);
+
 void
 iml_add_for_head(IrFunctionDef *function,
                  IrExpression *test,

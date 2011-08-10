@@ -33,6 +33,7 @@
 #include "ast_while.h"
 #include "ast_for.h"
 #include "ast_foreach.h"
+#include "ast_foreach_range.h"
 #include "ast_break.h"
 
 #include <assert.h>
@@ -371,6 +372,7 @@ non_empty_statment<stmt> :
     assignment<stmt>
 |   if_else_block<stmt>
 |   foreach_block<stmt>
+|   foreach_range_statment<stmt>
 |   for_block<stmt>
 |   while_block<stmt>
 |   break_statment<stmt>
@@ -501,34 +503,17 @@ else_statment<code>:
 foreach_block<x> :
     TOK_FOREACH '('
       {
-          idx_type.data_type = NULL;
-          idx_name.text = NULL;
+          idx_var.variable_declaration = NULL;
           val_type.data_type = NULL;
           val_name.text = NULL;
       }
-      ( ( type<idx_type> )?  TOK_IDENT<idx_name> ',' )? 
+      ( foreach_type<idx_var> ',' )?
       ( type<val_type> )? TOK_IDENT<val_name> ';' 
       (
         expression<aggregate>
       ) ')' scope_statment<code>
     {
-        AstVariableDeclaration *index = NULL;
         AstVariableDeclaration *value;
-
-        /* 
-         * build index variable declaration node if specified 
-         */
-        if (idx_name.text != NULL)
-        {
-            if (idx_type.data_type == NULL)
-            {
-                /* if no type is specified handle as auto type */
-                idx_type.data_type = DT_DATA_TYPE(dt_auto_new());
-            }
-            index = ast_variable_declaration_new(idx_type.data_type,
-                                                 idx_name.text,
-                                                 yypos);
-        }
 
         /* 
          * build value variable declaration node if specified 
@@ -545,10 +530,45 @@ foreach_block<x> :
         /* build foreach ast node */
         (*x).statment =
             AST_STATMENT(
-                ast_foreach_new(index, value,
+                ast_foreach_new(idx_var.variable_declaration,
+                                value,
                                 aggregate.expression,
                                 code.code_block,
                                 yypos));
+    }
+;
+
+foreach_range_statment<stmt> :
+    TOK_FOREACH '(' foreach_type<idx_var> ';'
+                    expression<lower_exp> '.' '.'
+                    expression<upper_exp>
+                ')'
+                scope_statment<body>
+    {
+        (*stmt).statment =
+            AST_STATMENT(
+                ast_foreach_range_new(idx_var.variable_declaration,
+                                      lower_exp.expression,
+                                      upper_exp.expression,
+                                      body.code_block));
+    }
+;
+
+foreach_type<var> :
+{
+    var_type.data_type = NULL;
+}
+    ( type<var_type> )?  TOK_IDENT<var_name>
+    {
+        if (var_type.data_type == NULL)
+        {
+            /* if no type is specified handle as auto type */
+            var_type.data_type = DT_DATA_TYPE(dt_auto_new());
+        }
+        (*var).variable_declaration =
+            ast_variable_declaration_new(var_type.data_type,
+                                         var_name.text,
+                                         yypos);
     }
 ;
 

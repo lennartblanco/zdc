@@ -15,6 +15,8 @@ entry_point: entry_point.d
 bin_ops: bin_ops.d
 exprs: exprs.d
 foreach: foreach.d
+foreach_range: foreach_range.d
+foreach_range_symbs: foreach_range_symbs.d
 module_syntx_err1: module_syntx_err1.d
 module_syntx_err2: module_syntx_err2.d
 imprt_not_found: imprt_not_found.d

@@ -1,0 +1,2 @@
+foreach_range.d:5: error: can't use void expression in foreach
+foreach_range.d:9: error: can't use void expression in foreach

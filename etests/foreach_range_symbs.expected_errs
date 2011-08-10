@@ -1,0 +1,3 @@
+foreach_range_symbs.d:3: error: reference to unknown symbol 'a'
+foreach_range_symbs.d:3: error: reference to unknown symbol 'b'
+foreach_range_symbs.d:7: error: reference to unknown symbol 'c'

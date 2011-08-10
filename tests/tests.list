@@ -29,6 +29,7 @@ enums
 struct
 alias
 foreach
+foreach_range
 str_literals
 pointers
 incdec_ops

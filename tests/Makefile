@@ -54,6 +54,9 @@ check_dyn_array: dyn_array.o check_utils.o check_dyn_array.c $(ARCH_SPECIFIC)
 check_foreach: foreach.o check_utils.o check_foreach.c
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_foreach_range: foreach_range.o check_utils.o check_foreach_range.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_module_test: module_test.o check_utils.o check_module_test.c
 	$(CC) $(CFLAGS) -o $@ $^
 

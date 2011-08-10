@@ -1,0 +1,12 @@
+void vfunc() { }
+
+void func2()
+{
+  foreach(i; vfunc()..10)
+  {
+  }
+
+  foreach (i; 1..vfunc())
+  {
+  }
+}

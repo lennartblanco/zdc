@@ -22,6 +22,7 @@
 #include "ir_while.h"
 #include "ir_for.h"
 #include "ir_foreach.h"
+#include "ir_foreach_range.h"
 #include "ir_break.h"
 #include "ir_array_cell.h"
 #include "ir_property.h"
@@ -1719,6 +1720,141 @@ validate_foreach(compilation_status_t *compile_status,
 }
 
 static void
+validate_foreach_range(compilation_status_t *compile_status,
+                       sym_table_t *sym_table,
+                       IrForeachRange *foreach)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_FOREACH_RANGE(foreach));
+
+    /*
+     * validate lower and upper expressions
+     */
+    IrExpression *lower_exp =
+        validate_expression(compile_status,
+                            sym_table,
+                            ir_foreach_range_get_lower_exp(foreach));
+
+    IrExpression *upper_exp =
+        validate_expression(compile_status,
+                            sym_table,
+                            ir_foreach_range_get_upper_exp(foreach));
+
+    if (lower_exp == NULL || upper_exp == NULL)
+    {
+        /* invalid upper of lower expression, bail out */
+        return;
+    }
+
+    /*
+     * find lower and upper expressions common type
+     */
+    DtDataType *lower_type = ir_expression_get_data_type(lower_exp);
+    DtDataType *upper_type = ir_expression_get_data_type(upper_exp);
+    DtDataType *common_type = types_find_common(lower_type, upper_type);
+
+    if (common_type == NULL)
+    {
+        /* failed to find common type, bail out with compiler error */
+        assert(false); /* not implemented */
+    }
+    else if (dt_basic_is_void(common_type))
+    {
+        compile_error(compile_status,
+                      lower_exp,
+                      "can't use void expression in foreach\n");
+        return;
+    }
+
+    /* cast lower expression to common type if needed */
+    if (!dt_data_type_is_same(common_type, lower_type))
+    {
+        lower_exp = IR_EXPRESSION(ir_cast_new(common_type, lower_exp));
+    }
+
+    /* cast upper expression to common type if needed */
+    if (!dt_data_type_is_same(common_type, upper_type))
+    {
+        upper_exp = IR_EXPRESSION(ir_cast_new(common_type, upper_exp));
+    }
+
+    /* set or check index variable's data type */
+    IrVariable *index = ir_foreach_range_get_index(foreach);
+    DtDataType *index_type = ir_variable_get_data_type(index);
+    if (DT_IS_AUTO(index_type))
+    {
+        ir_variable_set_data_type(index, common_type);
+    }
+    else if (!dt_data_type_is_same(common_type, index_type))
+    {
+        /* check if common_type and index_type are compatible */
+        assert(false); /* not implemented */
+    }
+
+    /* allocate a slot in function frame for loop's index variable */
+    add_to_func_frame(compile_status->function, index, false);
+
+    /* generate iml labels for start and end of the loop operations */
+    iml_operation_t *loop_start =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    iml_operation_t *loop_end =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    ir_loop_set_exit_label(IR_LOOP(foreach), loop_end);
+
+    /* synthesize looping test expression */
+    IrExpression *loop_test_exp =
+        IR_EXPRESSION(ir_binary_operation_new(ast_less_op,
+                                              IR_EXPRESSION(index),
+                                              upper_exp,
+                                              0));
+    loop_test_exp =
+        validate_expression(compile_status,  sym_table, loop_test_exp);
+    assert(loop_test_exp != NULL);
+
+
+    /* generate loop's head iml code */
+    ImlOperand *head_temp_op =
+        iml_add_foreach_range_head(compile_status->function,
+                                   index,
+                                   lower_exp,
+                                   loop_test_exp,
+                                   loop_start,
+                                   loop_end);
+
+    /*
+     * validate and insert iml operations for foreach body
+     */
+
+    /* set current loop as this foreach-loop */
+    IrLoop *prev_loop = compile_status->loop;
+    compile_status->loop = IR_LOOP(foreach);
+
+    validate_code_block(compile_status, ir_foreach_range_get_body(foreach));
+
+    /* restore previous loop statment */
+    compile_status->loop = prev_loop;
+
+    /* synthesize loop index variable increment expression */
+    IrExpression *index_inc_exp =
+            IR_EXPRESSION(ir_unary_operation_new(ast_pre_inc_op,
+                                                 IR_EXPRESSION(index),
+                                                 0));
+    index_inc_exp =
+            validate_expression(compile_status,  sym_table, index_inc_exp);
+    assert(index_inc_exp != NULL);
+
+    /* generate iml for loop's tail */
+    iml_add_foreach_range_tail(compile_status->function,
+                               index_inc_exp,
+                               head_temp_op,
+                               loop_start,
+                               loop_end);
+}
+
+static void
 validate_break(compilation_status_t *compile_status,
                sym_table_t *sym_table,
                IrBreak *break_stmt)
@@ -1783,6 +1919,12 @@ validate_statment(compilation_status_t *compile_status,
     {
         validate_foreach(compile_status, sym_table, IR_FOREACH(statment));
     }
+    else if (IR_IS_FOREACH_RANGE(statment))
+    {
+        validate_foreach_range(compile_status,
+                               sym_table,
+                               IR_FOREACH_RANGE(statment));
+    }
     else if (IR_IS_BREAK(statment))
     {
         validate_break(compile_status, sym_table, IR_BREAK(statment));
@@ -1807,6 +1949,11 @@ validate_statment(compilation_status_t *compile_status,
             return;
         }
         iml_add_expression_eval(compile_status->function, exp, NULL);
+    }
+    else
+    {
+        /* unexpected statment */
+        assert(false);
     }
 }
 

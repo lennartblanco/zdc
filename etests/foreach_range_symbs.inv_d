@@ -1,0 +1,11 @@
+void func1()
+{
+  foreach(i; a..b)
+  {
+  }
+
+  foreach(i; c..10)
+  {
+  }
+}
+

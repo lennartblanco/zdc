@@ -595,6 +595,70 @@ iml_add_foreach_tail(IrFunctionDef *function,
                           iml_operation_get_operand(loop_label, 1)));
 }
 
+ImlOperand *
+iml_add_foreach_range_head(IrFunctionDef *function,
+                           IrVariable *index,
+                           IrExpression *lower_exp,
+                           IrExpression *loop_test_exp,
+                           iml_operation_t *loop_head,
+                           iml_operation_t *loop_end)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_VARIABLE(index));
+    assert(IR_IS_EXPRESSION(lower_exp));
+    assert(IR_IS_EXPRESSION(loop_test_exp));
+    assert(loop_head);
+    assert(loop_end);
+
+    /* assign lower expression result to index variable */
+    iml_add_assignment(function, IR_EXPRESSION(index), lower_exp);
+
+    /* insert loop head label */
+    ir_function_def_add_operation(function, loop_head);
+
+    /* evaluate upper expressions */
+    ImlOperand *loop_test_res =
+        iml_add_expression_eval(function, loop_test_exp, NULL);
+
+    ir_function_def_add_operation(function,
+        iml_operation_new(iml_jmpneq,
+                          loop_test_res,
+                          iml_constant_true(),
+                          iml_operation_get_operand(loop_end, 1)));
+
+    return loop_test_res;
+}
+
+void
+iml_add_foreach_range_tail(IrFunctionDef *function,
+                           IrExpression *inc_exp,
+                           ImlOperand *head_temp_op,
+                           iml_operation_t *loop_head,
+                           iml_operation_t *loop_end)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_EXPRESSION(inc_exp));
+    assert(IML_IS_OPERAND(head_temp_op));
+    assert(loop_head);
+    assert(loop_end);
+
+    /* generate iml for loop's index increment expression */
+    ImlOperand *tmp = iml_add_expression_eval(function, inc_exp, NULL);
+
+    /* generate jump to the loop's head */
+    ir_function_def_add_operation(function,
+        iml_operation_new(iml_jmp,
+                          iml_operation_get_operand(loop_head, 1)));
+
+    /* insert loop end label */
+    ir_function_def_add_operation(function, loop_end);
+
+    /* mark possible temp variables used in the loop as unused */
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+    iml_func_frame_unused_oper(frame, tmp);
+    iml_func_frame_unused_oper(frame, head_temp_op);
+}
+
 void
 iml_add_for_head(IrFunctionDef *function,
                  IrExpression *test,
