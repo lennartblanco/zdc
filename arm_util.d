@@ -78,6 +78,27 @@ mult_as_shift(uint mult)
 }
 
 /**
+ * Figure out suitable suffix to ldr and str operations depending
+ * on the size of the operand.
+ */
+string
+access_operation_suffix(ImlOperand *operand)
+{
+    switch (iml_operand_get_data_type(operand))
+    {
+        case iml_data_type._32b:
+        case iml_data_type.ptr:
+            return "";
+        case iml_data_type._16b:
+            return "h";
+        case iml_data_type._8b:
+            return "b";
+        default:
+            assert(false, "unexpected operand data type");
+    }
+}
+
+/**
  * Generate assembly to move an operand into specified register. The operand's
  * value can optionally be multiplied by an 2^x value.
  *

@@ -916,31 +916,16 @@ compile_setelm(File asmfile, iml_operation *op)
     ImlOperand *index = cast(ImlOperand *)iml_operation_get_operand(op, 3);
     uint size = cast(uint)iml_operation_get_operand(op, 4);
 
-    string op_suffix;
-
-    switch (iml_operand_get_data_type(src))
-    {
-        case iml_data_type._32b:
-        case iml_data_type.ptr:
-            op_suffix = "";
-            break;
-        case iml_data_type._16b:
-            op_suffix = "h";
-            break;
-        case iml_data_type._8b:
-            op_suffix = "b";
-            break;
-        default:
-            assert(false, "unexpected source data type");
-    }
-
     string addr_exp =
         get_addr_exp(asmfile, dest, index, size, TEMP_REG1, TEMP_REG2);
 
     /* make sure source operand is placed in a register */
     string src_reg = store_in_reg(asmfile, src, TEMP_REG2);
 
-    asmfile.writefln("    str%s %s, [%s]", op_suffix, src_reg, addr_exp);
+    asmfile.writefln("    str%s %s, [%s]",
+                     access_operation_suffix(src),
+                     src_reg,
+                     addr_exp);
 }
 
 private void
@@ -952,24 +937,6 @@ compile_getelm(File asmfile, iml_operation *op)
     ImlOperand *index = cast(ImlOperand *)iml_operation_get_operand(op, 2);
     uint size = cast(uint)iml_operation_get_operand(op, 3);
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 4);
-
-    string op_suffix;
-
-    switch (iml_variable_get_data_type(dest))
-    {
-        case iml_data_type._32b:
-        case iml_data_type.ptr:
-            op_suffix = "";
-            break;
-        case iml_data_type._16b:
-            op_suffix = "h";
-            break;
-        case iml_data_type._8b:
-            op_suffix = "b";
-            break;
-        default:
-            assert(false, "unexpected destination data type");
-    }
 
     string addr_exp =
         get_addr_exp(asmfile, src, index, size, TEMP_REG1, TEMP_REG2);
@@ -984,7 +951,10 @@ compile_getelm(File asmfile, iml_operation *op)
     {
         reg = TEMP_REG1;
     }
-    asmfile.writefln("    ldr%s %s, [%s]", op_suffix, reg, addr_exp);
+    asmfile.writefln("    ldr%s %s, [%s]",
+                     access_operation_suffix(cast(ImlOperand*)dest),
+                     reg,
+                     addr_exp);
     if (dest_reg == null)
     {
         gen_move_from_reg(asmfile, TEMP_REG1, dest);
