@@ -849,12 +849,11 @@ compile_set(File asmfile, iml_operation *op)
     assert(iml_operation_get_opcode(op) == iml_opcode.set);
     ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
     ImlOperand *dest = cast(ImlOperand *)iml_operation_get_operand(op, 2);
-    ImlConstant *offset = cast(ImlConstant *)iml_operation_get_operand(op, 3);
+    ImlOperand *offset = cast(ImlOperand *)iml_operation_get_operand(op, 3);
 
     assert(iml_operand_get_data_type(src) == iml_data_type._32b ||
            iml_operand_get_data_type(src) == iml_data_type.ptr,
            "only 32-bit set is implemented");
-    assert(offset == null, "set offset not implemented");
 
     /* make sure source operand is placed in a register */
     string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
@@ -872,8 +871,6 @@ private void
 compile_get(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.get);
-    assert(iml_operation_get_operand(op, 2) == null,
-           "get offset not implemented");
 
     /* make sure address value is stored in the register */
     string addr_reg =
@@ -896,7 +893,7 @@ compile_get(File asmfile, iml_operation *op)
         dest_reg = TEMP_REG2;
     }
 
-    ImlConstant *offset = cast(ImlConstant *)iml_operation_get_operand(op, 2);
+    ImlOperand *offset = cast(ImlOperand *)iml_operation_get_operand(op, 2);
     asmfile.writefln("    ldr %s, [%s%s]",
                      dest_reg,
                      addr_reg,

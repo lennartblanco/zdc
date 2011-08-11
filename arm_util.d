@@ -207,14 +207,18 @@ store_in_reg(File asmfile,
  *         is specified
  */
 string
-get_offset_expression(ImlConstant *offset)
+get_offset_expression(ImlOperand *offset)
 {
-    if (offset == null || iml_constant_get_val_32b(offset) == 0)
+    assert(offset == null || iml_is_constant(offset),
+           "only constant offsets implemented");
+    ImlConstant *const_offset = cast(ImlConstant*)offset;
+
+    if (offset == null || iml_constant_get_val_32b(const_offset) == 0)
     {
         return "";
     }
 
-    return ", #" ~ to!string(iml_constant_get_val_32b(offset));
+    return ", #" ~ to!string(iml_constant_get_val_32b(const_offset));
 }
 
 /**
