@@ -69,7 +69,7 @@ check_vars: vars.o check_utils.o check_vars.c
 check_char_literals: char_literals.o check_utils.o check_char_literals.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_properties: properties.o check_utils.o check_properties.c
+check_properties: properties.o check_utils.o check_properties.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_immutable: immutable.o check_utils.o check_immutable.c $(ARCH_SPECIFIC)

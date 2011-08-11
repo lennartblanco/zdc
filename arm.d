@@ -301,6 +301,12 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.or:
                 compile_binop(asmfile, op);
                 break;
+            case iml_opcode.sdiv:
+            case iml_opcode.udiv:
+            case iml_opcode.smod:
+            case iml_opcode.umod:
+                compile_divmod(asmfile, op);
+                break;
             case iml_opcode.sless:
             case iml_opcode.uless:
             case iml_opcode.slesseq:
@@ -630,6 +636,47 @@ compile_binop(File asmfile, iml_operation *op)
     {
         gen_move_from_reg(asmfile, dest_reg, res);
     }
+}
+
+private void
+compile_divmod(File asmfile, iml_operation *op)
+{
+    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
+    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
+    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+
+    string func;
+    string res_reg;
+    switch (iml_operation_get_opcode(op))
+    {
+        case iml_opcode.sdiv:
+            func = "__aeabi_idiv";
+            res_reg = "r0";
+            break;
+        case iml_opcode.udiv:
+            func = "__aeabi_uidiv";
+            res_reg = "r0";
+            break;
+        case iml_opcode.smod:
+            func = "__aeabi_idivmod";
+            res_reg = "r1";
+            break;
+        case iml_opcode.umod:
+            func = "__aeabi_uidivmod";
+            res_reg = "r1";
+            break;
+        default:
+                assert(false,
+                       "unexpected iml opcode '" ~
+                          to!string(iml_operation_get_opcode(op)) ~ "'");
+    }
+
+    gen_move_to_reg(asmfile, "r0", left);
+    gen_move_to_reg(asmfile, "r1", right);
+
+    asmfile.writefln("    bl %s", func);
+
+    gen_move_from_reg(asmfile, res_reg, res);
 }
 
 private void
