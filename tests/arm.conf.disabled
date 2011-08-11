@@ -5,7 +5,6 @@
    <type>qemu-user</type>
   </runner>
   <skip>
-    <test>struct</test>
     <test>foreach</test>
     <test>str_literals</test>
     <test>pointers</test>

@@ -851,17 +851,14 @@ compile_set(File asmfile, iml_operation *op)
     ImlOperand *dest = cast(ImlOperand *)iml_operation_get_operand(op, 2);
     ImlOperand *offset = cast(ImlOperand *)iml_operation_get_operand(op, 3);
 
-    assert(iml_operand_get_data_type(src) == iml_data_type._32b ||
-           iml_operand_get_data_type(src) == iml_data_type.ptr,
-           "only 32-bit set is implemented");
-
     /* make sure source operand is placed in a register */
     string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
 
     /* make sure destination operand is placed in a register */
     string dest_reg = store_in_reg(asmfile, dest, TEMP_REG2);
 
-    asmfile.writefln("    str %s, [%s%s]",
+    asmfile.writefln("    str%s %s, [%s%s]",
+                     access_operation_suffix(src),
                      src_reg,
                      dest_reg,
                      get_offset_expression(offset));
@@ -881,12 +878,6 @@ compile_get(File asmfile, iml_operation *op)
     /* figure out the register where to load the value */
     ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
 
-    assert(iml_operand_get_data_type(cast(ImlOperand*)dest) ==
-                                                    iml_data_type._32b ||
-           iml_operand_get_data_type(cast(ImlOperand*)dest) ==
-                                                    iml_data_type.ptr,
-           "only 32-bit get is implemented");
-
     string dest_reg = to!string(iml_variable_get_register(dest));
     if (dest_reg == null)
     {
@@ -894,7 +885,8 @@ compile_get(File asmfile, iml_operation *op)
     }
 
     ImlOperand *offset = cast(ImlOperand *)iml_operation_get_operand(op, 2);
-    asmfile.writefln("    ldr %s, [%s%s]",
+    asmfile.writefln("    ldr%s %s, [%s%s]",
+                     access_operation_suffix(cast(ImlOperand*)dest),
                      dest_reg,
                      addr_reg,
                      get_offset_expression(offset));
