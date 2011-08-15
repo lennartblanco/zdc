@@ -41,7 +41,8 @@
 AstModule *module;
 }
 
-%token TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
+%token TOK_DOTDOT,
+       TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
        TOK_BREAK, TOK_RETURN, TOK_EXTERN,
@@ -540,7 +541,7 @@ foreach_block<x> :
 
 foreach_range_statment<stmt> :
     TOK_FOREACH '(' foreach_type<idx_var> ';'
-                    expression<lower_exp> '.' '.'
+                    expression<lower_exp> TOK_DOTDOT
                     expression<upper_exp>
                 ')'
                 scope_statment<body>
@@ -972,7 +973,7 @@ array_slice<n> :
         start.expression = NULL;
         end.expression = NULL;
     }
-    '[' (expression<start> '.' '.' expression<end>)? ']'
+    '[' (expression<start> TOK_DOTDOT expression<end>)? ']'
     {
         (*n).expression =
             AST_EXPRESSION(ast_array_slice_ref_new(array.expression,

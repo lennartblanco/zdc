@@ -39,6 +39,7 @@ hex    0[xX][[:xdigit:]]+
 "%"      { return '%'; }
 "?"      { return '?'; }
 "if"     { return TOK_IF; }
+".."     { return TOK_DOTDOT; }
 "int"    { return TOK_INT; }
 "for"    { return TOK_FOR; }
 "char"   { return TOK_CHAR; }
