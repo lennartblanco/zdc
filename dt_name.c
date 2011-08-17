@@ -46,9 +46,10 @@ dt_name_new(gchar *name, guint line_number)
 {
     DtName *obj;
 
-    obj = g_object_new(DT_TYPE_NAME, NULL);
+    obj = g_object_new(DT_TYPE_NAME,
+                       "dt-data-type-line-number", line_number,
+                       NULL);
     obj->name = g_strdup(name);
-    obj->line_number = line_number;
 
     return obj;
 }
@@ -59,14 +60,6 @@ dt_name_get_name(DtName *self)
     assert(DT_IS_NAME(self));
 
     return self->name;
-}
-
-guint
-dt_name_get_line_num(DtName *self)
-{
-    assert(DT_IS_NAME(self));
-
-    return self->line_number;
 }
 
 /*---------------------------------------------------------------------------*

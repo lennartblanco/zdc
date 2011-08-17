@@ -393,7 +393,7 @@ type<x> :
     type<t> '[' TOK_INT_CONST<num> ']'
     {
         (*x).data_type =
-            DT_DATA_TYPE(dt_static_array_new(t.data_type, num.integer));
+            DT_DATA_TYPE(dt_static_array_new(t.data_type, num.integer, yypos));
     }
 |   type<t> '[' ']'
     {

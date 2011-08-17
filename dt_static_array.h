@@ -24,6 +24,8 @@
 #define DT_STATIC_ARRAY_TYPE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_STATIC_ARRAY, DtStaticArrayClass))
 
+#define DT_STATIC_ARRAY_MAX_SIZE ((16 * 1024 * 1024) - 1)
+
 typedef struct
 {
     DtArray parent;
@@ -46,7 +48,7 @@ GType
 dt_static_array_get_type(void);
 
 DtStaticArray *
-dt_static_array_new(DtDataType *data_type, guint32 length);
+dt_static_array_new(DtDataType *data_type, guint32 length, guint line_number);
 
 DtDataType *
 dt_static_array_get_data_type(DtStaticArray *self);

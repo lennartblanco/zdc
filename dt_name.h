@@ -36,7 +36,6 @@ typedef struct
 
     /* private */
     gchar *name;
-    guint line_number;
 } DtName;
 
 typedef struct
@@ -56,8 +55,5 @@ dt_name_new(gchar *name, guint line_number);
 
 gchar *
 dt_name_get_name(DtName *self);
-
-guint
-dt_name_get_line_num(DtName *self);
 
 #endif /* DT_NAME_INC_X */

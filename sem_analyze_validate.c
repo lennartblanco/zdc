@@ -2007,6 +2007,17 @@ validate_type(compilation_status_t *compile_status,
 
         dt_pointer_set_base_type(ptr_type, base_type);
     }
+    else if (DT_IS_STATIC_ARRAY_TYPE(type))
+    {
+        if (dt_data_type_get_size(type) > DT_STATIC_ARRAY_MAX_SIZE)
+        {
+            compile_error(compile_status,
+                          type,
+                          "static array length %d exceeds limit\n",
+                          dt_static_array_get_length(DT_STATIC_ARRAY(type)));
+            return NULL;
+        }
+    }
 
     return validated_type;
 }

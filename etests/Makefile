@@ -3,6 +3,7 @@ all:
 
 syntx_err: syntx_err.d
 array_slice: array_slice.d
+stat_array: stat_array.d
 assignment: assignment.d
 unknown_symb: unknown_symb.d
 sym_clash: sym_clash.d

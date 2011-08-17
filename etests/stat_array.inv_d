@@ -1,0 +1,7 @@
+void func1()
+{
+  int[4194304] arr1;
+  bool[16777216] arr2;
+
+  uint[4194306] arr3;
+}

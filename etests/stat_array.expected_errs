@@ -1,0 +1,3 @@
+stat_array.d:3: error: static array length 4194304 exceeds limit
+stat_array.d:4: error: static array length 16777216 exceeds limit
+stat_array.d:6: error: static array length 4194306 exceeds limit

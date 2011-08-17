@@ -30,6 +30,7 @@ struct _DtDataType
 
     /* private */
     bool immutable;
+    guint line_number;
 };
 
 typedef struct
@@ -109,5 +110,8 @@ dt_data_type_is_same(DtDataType *self, DtDataType *type);
  */
 bool
 dt_data_type_is_integral(DtDataType *self);
+
+guint
+dt_data_type_get_line_num(DtDataType *self);
 
 #endif /* DT_DATA_TYPE_INC_X */
