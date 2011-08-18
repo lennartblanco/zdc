@@ -29,7 +29,8 @@ iml_add_assignment(IrFunctionDef *function,
 ImlOperand *
 iml_add_expression_eval(IrFunctionDef *function,
                         IrExpression *ir_expression,
-                        ImlVariable *dest);
+                        ImlVariable *dest,
+                        bool discard_result);
 
 ImlOperand *
 iml_add_func_call_eval(IrFunctionDef *function,

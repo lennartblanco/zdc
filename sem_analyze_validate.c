@@ -1226,7 +1226,8 @@ validate_return(compilation_status_t *compile_status,
          */
         ImlOperand *ret_val = iml_add_expression_eval(compile_status->function,
                                                       conv_exp,
-                                                      NULL);
+                                                      NULL,
+                                                      false);
         ir_function_def_add_operation(compile_status->function,
                                   iml_operation_new(iml_return, ret_val));
     }
@@ -1372,7 +1373,8 @@ validate_if_block(compilation_status_t *compile_status,
     /* generate iml operation for validation of condition expression */
     condition_eval_res = iml_add_expression_eval(compile_status->function,
                                                  condition,
-                                                 NULL);
+                                                 NULL,
+                                                 false);
 
     /*
      * add conditional jump operation if
@@ -1948,7 +1950,7 @@ validate_statment(compilation_status_t *compile_status,
                           "expression have no effect\n");
             return;
         }
-        iml_add_expression_eval(compile_status->function, exp, NULL);
+        iml_add_expression_eval(compile_status->function, exp, NULL, true);
     }
     else
     {
