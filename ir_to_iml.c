@@ -995,9 +995,9 @@ iml_add_neg_op_eval(IrFunctionDef *function,
 
 static ImlOperand *
 iml_add_incdec_op_eval(IrFunctionDef *function,
-                    IrUnaryOperation *op,
-                    ImlVariable *res,
-                    bool discard_result)
+                       IrUnaryOperation *op,
+                       ImlVariable *res,
+                       bool discard_result)
 {
     assert(IR_IS_FUNCTION_DEF(function));
     assert(IR_IS_UNARY_OPERATION(op));
