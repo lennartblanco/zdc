@@ -994,7 +994,7 @@ iml_add_neg_op_eval(IrFunctionDef *function,
 }
 
 static ImlOperand *
-iml_add_X_op_eval(IrFunctionDef *function,
+iml_add_incdec_op_eval(IrFunctionDef *function,
                     IrUnaryOperation *op,
                     ImlVariable *res,
                     bool discard_result)
@@ -1112,7 +1112,7 @@ iml_add_unary_op_eval(IrFunctionDef *function,
         case ast_pre_dec_op:
         case ast_post_inc_op:
         case ast_post_dec_op:
-            return iml_add_X_op_eval(function, op, res, discard_result);
+            return iml_add_incdec_op_eval(function, op, res, discard_result);
         default:
             /* unexpected unary operation */
             assert(false);
