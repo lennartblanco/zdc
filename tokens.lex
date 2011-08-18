@@ -42,6 +42,7 @@ hex    0[xX][[:xdigit:]]+
 ".."     { return TOK_DOTDOT; }
 "int"    { return TOK_INT; }
 "for"    { return TOK_FOR; }
+"cast"   { return TOK_CAST; }
 "char"   { return TOK_CHAR; }
 "uint"   { return TOK_UINT; }
 "auto"   { return TOK_AUTO; }

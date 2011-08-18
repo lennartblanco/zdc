@@ -23,6 +23,7 @@
 #include "ast_array_slice_ref.h"
 #include "ast_function_decl.h"
 #include "ast_assignment.h"
+#include "ast_cast.h"
 #include "ast_postfix_exp.h"
 #include "ast_struct.h"
 #include "ast_enum.h"
@@ -46,7 +47,7 @@ AstModule *module;
        TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
-       TOK_BREAK, TOK_RETURN, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
+       TOK_BREAK, TOK_RETURN, TOK_CAST, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
@@ -893,6 +894,11 @@ unary_expression<n> :
     {
         (*n).expression =
             AST_EXPRESSION(ast_ptr_dref_new(x.expression, yypos));
+    }
+|   TOK_CAST '(' type<t> ')' unary_expression<exp>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_cast_new(t.data_type, exp.expression));
     }
 |   postfix_expression<n>
 ;

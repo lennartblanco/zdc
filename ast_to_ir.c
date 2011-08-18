@@ -21,6 +21,7 @@
 #include "ast_uint_constant.h"
 #include "ast_postfix_exp.h"
 #include "ast_ptr_dref.h"
+#include "ast_cast.h"
 #include "ast_alias.h"
 #include "ast_enum.h"
 #include "ast_enum_member.h"
@@ -40,6 +41,7 @@
 #include "ir_array_literal.h"
 #include "ir_array_cell.h"
 #include "ir_conditional.h"
+#include "ir_cast.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_basic_constant.h"
@@ -1311,6 +1313,31 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+cast_to_ir(compilation_status_t *compile_status,
+           sym_table_t *symbols,
+           AstCast *ast_cast)
+{
+    assert(compile_status);
+    assert(symbols);
+    assert(AST_IS_CAST(ast_cast));
+
+    IrExpression *exp =
+        expression_to_ir(compile_status,
+                         symbols,
+                         ast_cast_get_value(ast_cast));
+
+    if (exp == NULL)
+    {
+        /* invalid expression, bail out */
+        return NULL;
+    }
+
+    return
+        IR_EXPRESSION(
+            ir_cast_new(ast_cast_get_target_type(ast_cast), exp));
+}
+
+static IrExpression *
 postfix_exp_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstPostfixExp *ast_postfix)
@@ -1478,6 +1505,12 @@ expression_to_ir(compilation_status_t *compile_status,
 
         func_call = AST_FUNCTION_CALL(ast_expression);
         return func_call_to_ir(compile_status, symbols, func_call);
+    }
+    else if (AST_IS_CAST(ast_expression))
+    {
+        return cast_to_ir(compile_status,
+                          symbols,
+                          AST_CAST(ast_expression));
     }
     else if (AST_IS_POSTFIX_EXP(ast_expression))
     {

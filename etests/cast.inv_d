@@ -1,0 +1,6 @@
+void func1()
+{
+  int c;
+
+  c = cast(int)x; // cast of unknown symbol
+}

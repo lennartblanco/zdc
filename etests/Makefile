@@ -15,6 +15,7 @@ arry_literal: arry_literal.d
 entry_point: entry_point.d
 bin_ops: bin_ops.d
 exprs: exprs.d
+cast: cast.d
 foreach: foreach.d
 foreach_range: foreach_range.d
 foreach_range_symbs: foreach_range_symbs.d
