@@ -12,6 +12,9 @@
  *---------------------------------------------------------------------------*/
 
 static int
+load_module_imports(AstModule *ast_module, GSList *import_paths);
+
+static int
 parse_import(AstImport *import, GSList *import_paths, GError **error);
 
 /*---------------------------------------------------------------------------*
@@ -27,7 +30,6 @@ compile_file(const char* input_file,
     AstModule *ast_module;
     GError *error = NULL;
     IrModule *ir_module;
-    GSList *i;
 
     /*
      * Parse the input source file
@@ -48,35 +50,11 @@ compile_file(const char* input_file,
     /*
      * Parse module's imports
      */
-    i = ast_module_get_imports(ast_module);
-    for (; i != NULL; i = g_slist_next(i))
+    if (load_module_imports(ast_module, settings.import_paths) != 0)
     {
-        if (parse_import(i->data, settings.import_paths, &error) != 0)
-        {
-            char *path = ast_import_get_path(i->data);
-            switch (error->code)
-            {
-                case PARSER_FILE_READ_ERROR:
-                    fprintf(stderr, "%s:%u: cannot import module '%s': %s\n",
-                            input_file,
-                            ast_node_get_line_num(i->data),
-                            path,
-                            error->message);
-                    break;
-                case PARSER_SYNTAX_ERROR:
-                    fprintf(stderr, "%s:%u: failed to import module '%s'\n",
-                            input_file, ast_node_get_line_num(i->data), path);
-                    break;
-                default:
-                    /* unexpected error code */
-                    assert(false);
-            }
-            g_free(path);
-            g_error_free(error);
-            /* failed to import module */
-            return -1;
-       }
+        return -1;
     }
+
     if (settings.print_ast)
     {
         ast_node_print(AST_NODE(ast_module), stdout, 0);
@@ -124,6 +102,46 @@ compile_file(const char* input_file,
  *---------------------------------------------------------------------------*/
 
 static int
+load_module_imports(AstModule *ast_module, GSList *import_paths)
+{
+    GSList *i = ast_module_get_imports(ast_module);
+    GError *error = NULL;
+
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        if (parse_import(i->data, import_paths, &error) != 0)
+        {
+            char *path = ast_import_get_path(i->data);
+            switch (error->code)
+            {
+                case PARSER_FILE_READ_ERROR:
+                    fprintf(stderr, "%s:%u: cannot import module '%s': %s\n",
+                            ast_module_get_source_file(ast_module),
+                            ast_node_get_line_num(i->data),
+                            path,
+                            error->message);
+                    break;
+                case PARSER_SYNTAX_ERROR:
+                    fprintf(stderr, "%s:%u: failed to import module '%s'\n",
+                            ast_module_get_source_file(ast_module),
+                            ast_node_get_line_num(i->data),
+                            path);
+                    break;
+                default:
+                    /* unexpected error code */
+                    assert(false);
+            }
+            g_free(path);
+            g_error_free(error);
+            /* failed to import module */
+            return -1;
+       }
+    }
+
+    return 0;
+}
+
+static int
 parse_import(AstImport *import, GSList *import_paths, GError **error)
 {
     GSList *i;
@@ -169,6 +187,23 @@ parse_import(AstImport *import, GSList *import_paths, GError **error)
         goto exit_parse_import;
     }
     ast_import_set_module(import, module);
+
+    i = ast_module_get_imports(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        AstImport *imp = AST_IMPORT(i->data);
+        if (ast_import_is_private(imp))
+        {
+            /* skip private imports */
+            continue;
+        }
+
+        if (parse_import(imp, import_paths, &loc_err) != 0)
+        {
+            /* error handling not implemented */
+            assert(false);
+        }
+    }
 
 exit_parse_import:
     g_string_free(file_path, true);

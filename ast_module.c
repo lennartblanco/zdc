@@ -86,6 +86,15 @@ ast_module_set_source_file(AstModule *self, const char *source_file)
     self->source_file = strdup(source_file);
 }
 
+const char *
+ast_module_get_source_file(AstModule *self)
+{
+    assert(AST_IS_MODULE(self));
+    assert(self->source_file);
+
+    return self->source_file;
+}
+
 void
 ast_module_set_package(AstModule *self, GSList *package_names)
 {

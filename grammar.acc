@@ -35,6 +35,7 @@
 #include "ast_foreach.h"
 #include "ast_foreach_range.h"
 #include "ast_break.h"
+#include "ast_import.h"
 
 #include <assert.h>
 
@@ -45,7 +46,7 @@ AstModule *module;
        TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
-       TOK_BREAK, TOK_RETURN, TOK_EXTERN,
+       TOK_BREAK, TOK_RETURN, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
        TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
@@ -89,15 +90,27 @@ declaration<module> :
 ;
 
 import_declaration<module> :
+    {
+        bool private = true;
+    }
+    ( TOK_PUBLIC
+        {
+            private = false;
+        }
+     | TOK_PRIVATE
+        {
+            private = true;
+        }
+    )?
     TOK_IMPORT module_name<fq_name>
     {
         ast_module_add_import((*module).module,
-                              ast_import_new(fq_name.list, yypos));
+                              ast_import_new(private, fq_name.list, yypos));
     }
     ( ',' module_name<fq_name>
         {
             ast_module_add_import((*module).module,
-                                  ast_import_new(fq_name.list, yypos));
+                                  ast_import_new(private, fq_name.list, yypos));
         }
     )*
     ';'

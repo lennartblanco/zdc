@@ -237,6 +237,23 @@ import_module(compilation_status_t *compile_status,
     }
 
     sym_table_add_import(sym_table, imports);
+
+    /* handle public imports */
+    i = ast_module_get_imports(ast_module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        AstImport *imp = AST_IMPORT(i->data);
+
+        if (ast_import_is_private(imp))
+        {
+            continue;
+        }
+
+        import_module(compile_status,
+                      sym_table,
+                      ast_import_get_module(imp));
+    }
+
 }
 
 IrModule *
@@ -355,7 +372,6 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
      * Handle imports
      */
     i = ast_module_get_imports(ast_module);
-
     for (; i != NULL; i = g_slist_next(i))
     {
         import_module(compile_status,

@@ -1,6 +1,8 @@
 #ifndef AST_IMPORT_INC_X
 #define AST_IMPORT_INC_X
 
+#include <stdbool.h>
+
 #include "ast_types.h"
 #include "ast_node.h"
 
@@ -41,7 +43,7 @@ ast_import_get_type(void);
  * @param module_name the imported module's fully qualified name
  */
 AstImport *
-ast_import_new(GSList *module_name, guint line_number);
+ast_import_new(bool private, GSList *module_name, guint line_number);
 
 /**
  * Get the relative path to imported modules source file.
@@ -52,6 +54,9 @@ ast_import_new(GSList *module_name, guint line_number);
  */
 char *
 ast_import_get_path(AstImport *self);
+
+bool
+ast_import_is_private(AstImport *self);
 
 void
 ast_import_set_module(AstImport *self, AstModule *parsed_module);

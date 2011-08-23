@@ -63,6 +63,8 @@ hex    0[xX][[:xdigit:]]+
 "extern" { return TOK_EXTERN; }
 "module" { return TOK_MODULE; }
 "import" { return TOK_IMPORT; }
+"public" { return TOK_PUBLIC; }
+"private" { return TOK_PRIVATE; }
 "foreach" { return TOK_FOREACH; }
 "immutable" { return TOK_IMMUTABLE; }
 [[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }

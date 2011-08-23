@@ -12,6 +12,7 @@ struct _AstImport
     AstNode    parent;
 
     /* private */
+    bool private; /** is import private or public ? */
     GSList  *module_name;
     /** the module ast that is imported */
     AstModule *module;
@@ -57,7 +58,7 @@ ast_import_get_type(void)
 }
 
 AstImport *
-ast_import_new(GSList *module_name, guint line_number)
+ast_import_new(bool private, GSList *module_name, guint line_number)
 {
     assert(g_slist_length(module_name) >= 1);
 
@@ -67,6 +68,7 @@ ast_import_new(GSList *module_name, guint line_number)
                        "ast-node-line-number", line_number,
                        NULL);
 
+    obj->private = private;
     obj->module_name = module_name;
 
     return obj;
@@ -91,6 +93,14 @@ ast_import_get_path(AstImport *self)
     }
 
     return g_string_free(path, FALSE);
+}
+
+bool
+ast_import_is_private(AstImport *self)
+{
+    assert(AST_IS_IMPORT(self));
+
+    return self->private;
 }
 
 void
