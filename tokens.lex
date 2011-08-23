@@ -67,7 +67,7 @@ hex    0[xX][[:xdigit:]]+
 "private" { return TOK_PRIVATE; }
 "foreach" { return TOK_FOREACH; }
 "immutable" { return TOK_IMMUTABLE; }
-[[:alpha:]][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
+[[:alpha:]_][[:alnum:]_]* { yylval.text = strdup(yytext); return TOK_IDENT; }
 [0-9]+ {
 
     yylval.integer = g_ascii_strtoull(yytext, NULL, 10);

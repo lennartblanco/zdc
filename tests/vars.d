@@ -5,9 +5,9 @@
 
 bool uninit_bool()
 {
-    bool x;
+    bool _x;
 
-    return x;
+    return _x;
 }
 
 char uninit_char()
