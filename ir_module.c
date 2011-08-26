@@ -199,27 +199,26 @@ ir_module_add_const_data(IrModule *self, IrExpression *const_expr)
     assert(IR_IS_MODULE(self));
     assert(IR_IS_EXPRESSION(const_expr));
 
-    IrArrayLiteral *array_literal;
     char *label;
 
-    if (!ir_is_array_literal(const_expr) ||
+    if (!IR_IS_LITERAL(const_expr) ||
         !ir_expression_is_constant(const_expr))
     {
         /* only constant array literal expression are stored in data section */
         return;
     }
 
-    array_literal = IR_ARRAY_LITERAL(const_expr);
+    IrLiteral *literal = IR_LITERAL(const_expr);
 
     /* assign data section label if needed */
-    if ((label = ir_array_literal_get_data_label(array_literal)) == NULL)
+    if ((label = ir_literal_get_data_label(literal)) == NULL)
     {
         label = ir_module_gen_label(self);
-        ir_array_literal_set_data_label(array_literal, label);
+        ir_literal_set_data_label(literal, label);
     }
 
     /* store in data section list */
-    g_hash_table_insert(self->data_section, label, array_literal);
+    g_hash_table_insert(self->data_section, label, literal);
 }
 
 GList *

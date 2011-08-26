@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <string.h>
 
 #include "dt_basic.h"
 #include "ir_array_literal.h"
@@ -45,7 +44,7 @@ ir_array_literal_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_EXPRESSION,
+      type = g_type_register_static(IR_TYPE_LITERAL,
                                     "IrArrayLiteralType",
                                     &info, 0);
     }
@@ -119,23 +118,6 @@ ir_array_literal_get_size(IrArrayLiteral *self)
           ir_array_literal_do_get_data_type(IR_EXPRESSION(self)))) *
                                                  g_slist_length(self->values);
            
-}
-
-void
-ir_array_literal_set_data_label(IrArrayLiteral *self, char *label)
-{
-    assert(ir_is_array_literal(self));
-    assert(label || strlen(label) > 0);
-
-    self->data_label = g_strdup(label);
-}
-
-char *
-ir_array_literal_get_data_label(IrArrayLiteral *self)
-{
-    assert(ir_is_array_literal(self));
-
-    return self->data_label;
 }
 
 /*---------------------------------------------------------------------------*

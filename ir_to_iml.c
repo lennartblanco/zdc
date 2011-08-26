@@ -99,6 +99,11 @@ add_pointer_assignment(IrFunctionDef *function,
                        IrExpression *value);
 
 static void
+add_struct_assignment(IrFunctionDef *function,
+                      IrVariable *lvalue,
+                      IrExpression *value);
+
+static void
 add_ptr_dref_assignment(IrFunctionDef *function,
                         IrPtrDref *lvalue,
                         IrExpression *value);
@@ -392,6 +397,10 @@ iml_add_assignment(IrFunctionDef *function,
         else if (DT_IS_POINTER(var_type))
         {
             add_pointer_assignment(function, IR_VARIABLE(lvalue), value);
+        }
+        else if (DT_IS_STRUCT(var_type))
+        {
+            add_struct_assignment(function, IR_VARIABLE(lvalue), value);
         }
         else
         {
@@ -1479,7 +1488,7 @@ iml_add_array_literal_eval(IrFunctionDef *function,
          * allocated memory
          */
 
-        const char *label = ir_array_literal_get_data_label(expr);
+        const char *label = ir_literal_get_data_label(IR_LITERAL(expr));
         assert(label != NULL); /* should be stored in data section */
 
         op = iml_operation_new_call_c("memcpy",
@@ -1967,6 +1976,49 @@ add_pointer_assignment(IrFunctionDef *function,
     {
         iml_add_expression_eval(function, value, dest, false);
     }
+}
+
+static void
+add_struct_assignment(IrFunctionDef *function,
+                      IrVariable *lvalue,
+                      IrExpression *value)
+{
+    assert(IR_IS_FUNCTION_DEF(function));
+    assert(IR_IS_VARIABLE(lvalue));
+    assert(IR_IS_EXPRESSION(value));
+
+    /* only assignment of struct literals implemented */
+    assert(ir_is_struct_literal(value));
+
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    ImlVariable *lval = ir_variable_get_location(lvalue);
+    ImlVariable *lval_ptr =
+        iml_func_frame_get_temp(frame, iml_ptr);
+
+    /* generate code to store pointer to the stuct in a temp variable */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_getaddr, lval, lval_ptr));
+
+    /*
+     *  generate code to call memcpy to copy struct literal from
+     *  .data section address to struct's memory
+     */
+    char *label = ir_literal_get_data_label(IR_LITERAL(value));
+    ImlConstant *size = iml_constant_new_32b(iml_variable_get_size(lval));
+
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new_call_c("memcpy",
+                                 NULL,
+                                 lval_ptr,
+                                 iml_constant_new_ptr(label),
+                                 size,
+                                 NULL));
+
+    /* release temp variable */
+    iml_func_frame_unused_oper(frame, IML_OPERAND(lval_ptr));
 }
 
 static void

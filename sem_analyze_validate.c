@@ -2027,6 +2027,7 @@ validate_type(compilation_status_t *compile_status,
 
 static IrVariable *
 validate_variable(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
                   IrVariable *variable)
 {
     assert(compile_status);
@@ -2034,6 +2035,9 @@ validate_variable(compilation_status_t *compile_status,
 
     DtDataType *type;
 
+    /*
+     * validate variable's type
+     */
     type = validate_type(compile_status,
                          ir_variable_get_data_type(variable));
     if (type == NULL)
@@ -2042,6 +2046,55 @@ validate_variable(compilation_status_t *compile_status,
         return NULL;
     }
     ir_variable_set_data_type(variable, type);
+
+    /*
+     * validate variable's init expression
+     */
+    IrExpression *initializer = ir_variable_get_initializer(variable);
+    if (initializer != NULL)
+    {
+        assert(sym_table);
+        initializer =
+            validate_expression(compile_status, sym_table, initializer);
+
+        if (initializer == NULL)
+        {
+            /*
+             * initializer expression is invalid
+             */
+            return NULL;
+        }
+
+        IrExpression *conv_initializer =
+            types_implicit_conv(type, initializer);
+        if (conv_initializer == NULL && DT_IS_ARRAY(type))
+        {
+            /*
+             * Handle the special case of array initialization from a scalar,
+             * check if scalar can be implicitly converted to array's
+             * element data type
+             */
+            DtDataType *array_element_type;
+
+            array_element_type = dt_array_get_element_type(DT_ARRAY(type));
+            conv_initializer =
+                types_implicit_conv(array_element_type, initializer);
+        }
+        if (conv_initializer == NULL)
+        {
+            compile_error(compile_status,
+                          variable,
+                          "illegal type in initializer assignment\n");
+            return NULL;
+        }
+        ir_variable_set_initializer(variable, conv_initializer);
+    }
+    else
+    {
+        /* default init expression */
+        ir_variable_set_initializer(variable,
+                                    dt_data_type_get_init(type));
+    }
 
     return variable;
 }
@@ -2064,69 +2117,13 @@ validate_code_block(compilation_status_t *compile_status,
 
     for (i = local_vars; i != NULL; i = g_slist_next(i))
     {
-        IrVariable *var;
-        IrExpression *initializer;
-        IrExpression *conv_initializer;
-        DtDataType *var_type;
-
-        var = validate_variable(compile_status, IR_VARIABLE(i->data));
-        if (var == NULL)
+        if (validate_variable(compile_status,
+                              sym_table,
+                              IR_VARIABLE(i->data)) == NULL)
         {
             /* invalid variable definition */
             continue;
         }
-
-        initializer = ir_variable_get_initializer(var);
-        var_type = ir_variable_get_data_type(var);
-
-        /* no initializer expression, skip */
-        if (initializer == NULL)
-        {
-            continue;
-        }
-
-        initializer = 
-            validate_expression(compile_status, sym_table, initializer);
-
-        if (initializer == NULL)
-        {
-            /* 
-             * initializer expression was invalid,
-             * skip to next variable
-             */
-            continue;
-        }
-
-        conv_initializer = types_implicit_conv(var_type, initializer);
-        if (conv_initializer == NULL && DT_IS_ARRAY(var_type))
-        {
-            /*
-             * Handle the special case of array initialization from a scalar,
-             * check if scalar can be implicitly converted to array's 
-             * element data type
-             */
-            DtDataType *array_element_type;
- 
-            array_element_type =
-                dt_array_get_element_type(DT_ARRAY(var_type));
-            conv_initializer =
-                types_implicit_conv(array_element_type, initializer);
-        }
-        if (conv_initializer == NULL)
-        {
-            compile_error(compile_status,
-                          var,
-                          "illegal type in initializer assignment\n");
-            continue;
-        }
-        ir_variable_set_initializer(var, conv_initializer);
-        ir_module_add_const_data(compile_status->module, conv_initializer);
-
-        /*
-         * now we know that variable and it's initializer expression are valid
-         * add the variable to function's frame and it's initializer to
-         * expression to operations list
-         */
     }
 
     /*
@@ -2144,13 +2141,7 @@ validate_code_block(compilation_status_t *compile_status,
 
             /* generate iml code for default initialization of the variable */
             IrExpression *init_exp = ir_variable_get_initializer(variable);
-
-            if (init_exp == NULL)
-            {
-                init_exp =
-                    dt_data_type_get_init(ir_variable_get_data_type(variable));
-            }
-
+            ir_module_add_const_data(compile_status->module, init_exp);
             iml_add_assignment(compile_status->function,
                                IR_EXPRESSION(variable),
                                init_exp);
@@ -2201,7 +2192,7 @@ validate_function_decl(compilation_status_t *compile_status,
     GSList *i = ir_function_get_parameters(IR_FUNCTION(func_decl));
     for (; i != NULL; i = g_slist_next(i))
     {
-        validate_variable(compile_status, IR_VARIABLE(i->data));
+        validate_variable(compile_status, NULL, IR_VARIABLE(i->data));
     }
 }
 
@@ -2225,7 +2216,7 @@ validate_function_def(compilation_status_t *compile_status,
     {
         IrVariable *var;
 
-        var = validate_variable(compile_status, IR_VARIABLE(i->data));
+        var = validate_variable(compile_status, NULL, IR_VARIABLE(i->data));
         if (var == NULL)
         {
             /* invalid parameter */
@@ -2563,24 +2554,32 @@ validate_struct(compilation_status_t *compile_status,
 
     DtStruct *struct_type;
     GSList *i;
+    sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
+    GSList *members_init = NULL;
 
     struct_type = ir_struct_get_data_type(ir_struct);
     for (i = ir_struct_get_members(ir_struct); i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_VARIABLE(i->data));
-        IrVariable *var = IR_VARIABLE(i->data);
-        DtDataType *type = ir_variable_get_data_type(var);
 
-        type = validate_type(compile_status, type);
-        if (type == NULL)
+        IrVariable *var = validate_variable(compile_status,
+                                            sym_table,
+                                            IR_VARIABLE(i->data));
+        if (var == NULL)
         {
-            /* invalid type, skip to next member */
+            /* invalid member, skip to next member */
             continue;
         }
 
-        ir_variable_set_data_type(var, type);
-        dt_struct_add_member(struct_type, type, ir_variable_get_name(var));
+        dt_struct_add_member(struct_type,
+                             ir_variable_get_data_type(var),
+                             ir_variable_get_name(var));
+        members_init = g_slist_prepend(members_init,
+                                       ir_variable_get_initializer(var));
     }
+
+    dt_struct_set_init(struct_type,
+                       ir_struct_literal_new(g_slist_reverse(members_init)));
 }
 
 

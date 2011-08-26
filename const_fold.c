@@ -586,8 +586,9 @@ cfold_cast_array_literal(DtArray *target_type,
                                 g_slist_reverse(new_array_vals));
 
     /* preserve data section label, if it's set */
-    ir_array_literal_set_data_label(new_array_lit,
-                                   ir_array_literal_get_data_label(array_lit));
+    ir_literal_set_data_label(IR_LITERAL(new_array_lit),
+                              ir_literal_get_data_label(
+                                  IR_LITERAL(array_lit)));
 
     return IR_EXPRESSION(new_array_lit);
 }

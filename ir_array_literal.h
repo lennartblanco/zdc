@@ -2,7 +2,7 @@
 #define IR_ARRAY_LITERAL_INC_X
 
 #include "dt_array.h"
-#include "ir_expression.h"
+#include "ir_literal.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -24,7 +24,7 @@
 
 typedef struct
 {
-    IrExpression parent;
+    IrLiteral parent;
 
     /* private */
     DtArray *data_type;
@@ -34,7 +34,7 @@ typedef struct
 
 typedef struct
 {
-    IrExpressionClass parent_class;
+    IrLiteralClass parent_class;
 } IrArrayLiteralClass;
 
 /*---------------------------------------------------------------------------*
@@ -70,18 +70,5 @@ ir_array_literal_get_length(IrArrayLiteral *self);
  */
 guint
 ir_array_literal_get_size(IrArrayLiteral *self);
-
-/**
- * assign a label in .data section for this array literal
- */
-void
-ir_array_literal_set_data_label(IrArrayLiteral *self, char *label);
-
-/**
- * @return this array literal's label in .data section, or NULL if
- *         no label have been assigned
- */
-char *
-ir_array_literal_get_data_label(IrArrayLiteral *self);
 
 #endif /* IR_ARRAY_LITERAL_INC_X */

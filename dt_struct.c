@@ -61,8 +61,18 @@ dt_struct_new(gchar *name, IrModule *parent_module)
 
     obj->size = 0;
     obj->members = g_hash_table_new(g_str_hash, g_str_equal);
+    obj->init = NULL;
 
     return obj;
+}
+
+void
+dt_struct_set_init(DtStruct *self, IrStructLiteral *init)
+{
+    assert(DT_IS_STRUCT(self));
+    assert(ir_is_struct_literal(init));
+
+    self->init = init;
 }
 
 void
@@ -116,6 +126,15 @@ dt_struct_get_size(DtDataType *self)
     return DT_STRUCT(self)->size;
 }
 
+static IrExpression *
+dt_struct_get_init(DtDataType *self)
+{
+    assert(DT_IS_STRUCT(self));
+    assert(ir_is_struct_literal(DT_STRUCT(self)->init));
+
+    return IR_EXPRESSION(DT_STRUCT(self)->init);
+}
+
 static gchar *
 dt_struct_get_mangled_prefix(DtUser *self)
 {
@@ -129,4 +148,5 @@ dt_struct_class_init(gpointer klass, gpointer dummy)
 {
     DT_USER_CLASS(klass)->get_mangled_prefix = dt_struct_get_mangled_prefix;
     DT_DATA_TYPE_CLASS(klass)->get_size = dt_struct_get_size;
+    DT_DATA_TYPE_CLASS(klass)->get_init = dt_struct_get_init;
 }
