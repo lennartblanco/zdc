@@ -154,3 +154,12 @@ Here is dmd error message:
 err.d(6): Error: shadowing declaration err.func1.i is deprecated
 err.d(10): Error: shadowing declaration err.func1.i is deprecated
 
+* the code below fails an assertion
+
+int foo(uint idx)
+{
+  byte[] i = [10, 20, 30, 40];
+
+  return i[idx];
+}
+
