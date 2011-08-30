@@ -26,6 +26,9 @@ int
 orange_def(unsigned int);
 
 int
+orange_locvar(int a, int b, char c);
+
+int
 call_orangize(struct orange *arg);
 
 unsigned
@@ -57,6 +60,11 @@ test_orange()
     check_int("orange_def(2)", orange_def(2), 0xff);
     check_int("orange_def(3)", orange_def(3), 100);
     check_int("orange_def(4)", orange_def(4), -1);
+
+    /* orange_locvar() tests */
+    check_int("orange_locvar(10, 12, '+')", orange_locvar(10, 12, '+'), 10+12);
+    check_int("orange_locvar(-3, 0, '+')", orange_locvar(-3, 0, '+'), -3);
+    check_int("orange_locvar(3, 13, '?')", orange_locvar(3, 13, '?'), 100);
 
     /* orangize() tests */
     struct orange o;

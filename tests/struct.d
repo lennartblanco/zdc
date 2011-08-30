@@ -38,6 +38,23 @@ orange_def(uint n)
   return -1;
 }
 
+extern (C) int
+orange_locvar(int a, int b, char c)
+{
+  orange o;
+
+  o.a = a;
+  o.b = b;
+  o.c = c;
+
+  if (o.c == '+')
+  {
+    return o.a + o.b;
+  }
+
+  return o.d;
+}
+
 int
 orangize(orange *orng)
 {
