@@ -1,7 +1,8 @@
 struct orange
 {
-  int a, b;
+  int a = 2, b;
   char c;
+  uint d = 100;
 }
 
 alias void* ptr;
@@ -21,6 +22,20 @@ extern (C) uint
 orange_sizeof()
 {
     return orange.sizeof;
+}
+
+extern (C) int
+orange_def(uint n)
+{
+  /* test default initialization of a struct */
+  orange o;
+
+  if (n == 0) { return o.a; }
+  if (n == 1) { return o.b; }
+  if (n == 2) { return o.c; }
+  if (n == 3) { return o.d; }
+
+  return -1;
 }
 
 int

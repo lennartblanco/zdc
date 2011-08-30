@@ -1396,6 +1396,19 @@ iml_add_struct_member_eval(IrFunctionDef *function,
                                    NULL,
                                    false);
 
+    /* if base expression is of blob type, get a pointer to it */
+    if (iml_operand_get_data_type(base) == iml_blob)
+    {
+        /* replace base operand with a pointer to it */
+        ImlVariable *base_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+
+        ir_function_def_add_operation(function,
+            iml_operation_new(iml_getaddr, base, base_ptr));
+
+        iml_func_frame_unused_oper(frame, base);
+        base = IML_OPERAND(base_ptr);
+    }
+
     /* figure out where to store the result */
     if (res == NULL)
     {

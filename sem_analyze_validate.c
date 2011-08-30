@@ -922,8 +922,22 @@ validate_dot_variable(compilation_status_t *compile_status,
     assert(IR_IS_IDENT(right));
 
     DtDataType *type = ir_expression_get_data_type(left);
-    if (DT_IS_POINTER(type) &&
-        DT_IS_STRUCT(dt_pointer_get_base_type(DT_POINTER(type))))
+    if (DT_IS_STRUCT(type))
+    {
+        DtStruct *dt_struct;
+        IrStructMember *mbr;
+
+        dt_struct = DT_STRUCT(type);
+        mbr = dt_struct_get_member(dt_struct,
+                                   ir_ident_get_name(IR_IDENT(right)));
+        if (mbr != NULL)
+        {
+            ir_struct_member_set_base(mbr, left);
+            return IR_EXPRESSION(mbr);
+        }
+    }
+    else if (DT_IS_POINTER(type) &&
+             DT_IS_STRUCT(dt_pointer_get_base_type(DT_POINTER(type))))
     {
         DtStruct *dt_struct;
         IrStructMember *mbr;

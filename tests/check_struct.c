@@ -8,6 +8,7 @@ struct orange
   int a;
   int b;
   char c;
+  int d;
 };
 
 struct list
@@ -20,6 +21,9 @@ struct list
 
 unsigned
 orange_sizeof();
+
+int
+orange_def(unsigned int);
 
 int
 call_orangize(struct orange *arg);
@@ -44,7 +48,15 @@ void
 test_orange()
 {
     /* orange_sizeof() test */
-    check_uint("orange_sizeof()", orange_sizeof(), 9);
+    check_uint("orange_sizeof()", orange_sizeof(), 13);
+
+    /* orange_def() tests */
+    check_int("orange_def(-1)", orange_def(-1), -1);
+    check_int("orange_def(0)", orange_def(0), 2);
+    check_int("orange_def(1)", orange_def(1), 0);
+    check_int("orange_def(2)", orange_def(2), 0xff);
+    check_int("orange_def(3)", orange_def(3), 100);
+    check_int("orange_def(4)", orange_def(4), -1);
 
     /* orangize() tests */
     struct orange o;
