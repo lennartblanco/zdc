@@ -2120,6 +2120,7 @@ validate_code_block(compilation_status_t *compile_status,
     sym_table_t *sym_table;
     GSList *i;
     GSList *local_vars;
+    bool add_vars_to_frame = true;
 
     sym_table = ir_code_block_get_symbols(code_block);
 
@@ -2136,6 +2137,7 @@ validate_code_block(compilation_status_t *compile_status,
                               IR_VARIABLE(i->data)) == NULL)
         {
             /* invalid variable definition */
+            add_vars_to_frame = false;
             continue;
         }
     }
@@ -2144,7 +2146,7 @@ validate_code_block(compilation_status_t *compile_status,
      * if no errors are detected so far,
      * add local variables for function frame
      */
-    if (compile_status->errors_count == 0)
+    if (add_vars_to_frame)
     {
         for (i = local_vars; i != NULL; i = g_slist_next(i))
         {
