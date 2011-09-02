@@ -51,7 +51,7 @@ check_stat_array: stat_array.o check_utils.o check_stat_array.c $(ARCH_SPECIFIC)
 check_dyn_array: dyn_array.o check_utils.o check_dyn_array.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_foreach: foreach.o check_utils.o check_foreach.c
+check_foreach: foreach.o check_utils.o check_foreach.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_foreach_range: foreach_range.o check_utils.o check_foreach_range.c

@@ -18,6 +18,12 @@ call_run_foreach_index_auto_type(int arg);
 unsigned
 foreach_break(int num);
 
+int
+call_foreach_body_loc_vars(unsigned int testno);
+
+unsigned int
+call_foreach_bool_arry(unsigned int testno);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -90,102 +96,47 @@ main()
               -1);
 
     /* foreach_body_loc_vars() tests */
-    asm ("    pushl $0\n"
-         "    pushl $0\n"
-         "    pushl $0\n"
-         "    pushl $0\n"
-         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
-         : "=a"(res));
     check_int("foreach_body_loc_vars([0 0 0 0])",
-              res, 19341 + 19341 + 19341 + 19341);
+              call_foreach_body_loc_vars(0),
+              19341 + 19341 + 19341 + 19341);
 
-    asm ("    pushl $3\n"
-         "    pushl $5\n"
-         "    pushl $4\n"
-         "    pushl $2\n"
-         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
-         : "=a"(res));
     check_int("foreach_body_loc_vars([2 4 5 3])",
-              res, 48352 + 49081 + 23112 + 28360);
+              call_foreach_body_loc_vars(1),
+              48352 + 49081 + 23112 + 28360);
 
-    asm ("    pushl $12\n"
-         "    pushl $13\n"
-         "    pushl $14\n"
-         "    pushl $15\n"
-         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
-         : "=a"(res));
     check_int("foreach_body_loc_vars([15 14 13 12])",
-              res, 41092 + 56732 + 38528 + 37889);
+              call_foreach_body_loc_vars(2),
+              41092 + 56732 + 38528 + 37889);
 
-    asm ("    pushl $3\n"
-         "    pushl $18\n"
-         "    pushl $1\n"
-         "    pushl $0\n"
-         "    call _D7foreach21foreach_body_loc_varsFG4kZi\n"
-         : "=a"(res));
     check_int("foreach_body_loc_vars([0 1 18 3])",
-              res, -1);
+              call_foreach_body_loc_vars(3),
+              -1);
+
+    check_int("call_foreach_body_loc_vars(4)",
+              call_foreach_body_loc_vars(4),
+              -2);
 
     /* foreach_bool_arry() tests */
-    asm ("    subl $6, %%esp\n"
-         "    movb $0, 0(%%esp)\n"
-         "    movb $0, 1(%%esp)\n"
-         "    movb $0, 2(%%esp)\n"
-         "    movb $0, 3(%%esp)\n"
-         "    movb $0, 4(%%esp)\n"
-         "    movb $0, 5(%%esp)\n"
-         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
-         : "=a"(res));
     check_int("foreach_bool_arry([false, false, false, false, false, false])",
-              res, 0);
+              call_foreach_bool_arry(0), 0);
 
-    asm ("    subl $6, %%esp\n"
-         "    movb $1, 0(%%esp)\n"
-         "    movb $1, 1(%%esp)\n"
-         "    movb $1, 2(%%esp)\n"
-         "    movb $1, 3(%%esp)\n"
-         "    movb $1, 4(%%esp)\n"
-         "    movb $1, 5(%%esp)\n"
-         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
-         : "=a"(res));
     check_int("foreach_bool_arry([true, true, true, true, true, true])",
-              res, 11 + 12 + 13 + 14 + 15 + 16);
+              call_foreach_bool_arry(1),
+              11 + 12 + 13 + 14 + 15 + 16);
 
-    asm ("    subl $6, %%esp\n"
-         "    movb $0, 0(%%esp)\n"
-         "    movb $0, 1(%%esp)\n"
-         "    movb $1, 2(%%esp)\n"
-         "    movb $0, 3(%%esp)\n"
-         "    movb $0, 4(%%esp)\n"
-         "    movb $1, 5(%%esp)\n"
-         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
-         : "=a"(res));
     check_int("foreach_bool_arry([false, false, true, false, false, true])",
-              res, 13 + 16);
+              call_foreach_bool_arry(2),
+              13 + 16);
 
-    asm ("    subl $6, %%esp\n"
-         "    movb $1, 0(%%esp)\n"
-         "    movb $0, 1(%%esp)\n"
-         "    movb $0, 2(%%esp)\n"
-         "    movb $1, 3(%%esp)\n"
-         "    movb $0, 4(%%esp)\n"
-         "    movb $1, 5(%%esp)\n"
-         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
-         : "=a"(res));
     check_int("foreach_bool_arry([true, false, false, true, false, true])",
-              res, 11 + 14 + 16);
+              call_foreach_bool_arry(3),
+              11 + 14 + 16);
 
-    asm ("    subl $6, %%esp\n"
-         "    movb $1, 0(%%esp)\n"
-         "    movb $0, 1(%%esp)\n"
-         "    movb $1, 2(%%esp)\n"
-         "    movb $0, 3(%%esp)\n"
-         "    movb $0, 4(%%esp)\n"
-         "    movb $0, 5(%%esp)\n"
-         "    call _D7foreach17foreach_bool_arryFG6bZk\n"
-         : "=a"(res));
     check_int("foreach_bool_arry([true, false, true, false, false, false])",
-              res, 11 + 13);
+              call_foreach_bool_arry(4),
+              11 + 13);
+
+    check_int("call_foreach_bool_arry(5)", call_foreach_bool_arry(5), -1);
 
     /* foreach_break() tests */
     check_uint("foreach_break(0)", foreach_break(0), 4);

@@ -80,7 +80,7 @@ int run_foreach_index_auto_type(int needle)
 }
 
 int
-foreach_body_loc_vars(uint[4] idxs)
+foreach_body_loc_vars(uint[] idxs)
 {
     int sum;
     int[16] nums = 
@@ -101,7 +101,8 @@ foreach_body_loc_vars(uint[4] idxs)
    return sum;
 }
 
-uint foreach_bool_arry(bool[6] add_op)
+uint
+foreach_bool_arry(bool[] add_op)
 {
    uint res;
    uint[6] vals = [11, 12, 13, 14, 15, 16];
@@ -166,5 +167,55 @@ extern (C)
   call_run_foreach_index_auto_type(int arg)
   {
     return run_foreach_index_auto_type(arg);
+  }
+
+  int
+  call_foreach_body_loc_vars(uint testno)
+  {
+    if (0 == testno)
+    {
+      return foreach_body_loc_vars([0, 0, 0, 0]);
+    }
+    else if (1 == testno)
+    {
+      return foreach_body_loc_vars([3, 5, 4, 2]);
+    }
+    else if (2 == testno)
+    {
+      return foreach_body_loc_vars([12, 13, 14, 15]);
+    }
+    else if (3 == testno)
+    {
+      return foreach_body_loc_vars([3, 18, 1, 0]);
+    }
+
+    return -2;
+  }
+
+  uint
+  call_foreach_bool_arry(uint testno)
+  {
+    if (0 == testno)
+    {
+      return foreach_bool_arry([false, false, false, false, false, false]);
+    }
+    else if (1 == testno)
+    {
+      return foreach_bool_arry([true, true, true, true, true, true]);
+    }
+    else if (2 == testno)
+    {
+      return foreach_bool_arry([false, false, true, false, false, true]);
+    }
+    else if (3 == testno)
+    {
+      return foreach_bool_arry([true, false, false, true, false, true]);
+    }
+    else if (4 == testno)
+    {
+      return foreach_bool_arry([true, false, true, false, false, false]);
+    }
+
+    return -1;
   }
 }
