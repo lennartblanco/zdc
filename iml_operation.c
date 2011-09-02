@@ -82,7 +82,6 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg3 = va_arg(argp, void *);
             break;
         case iml_copy:
-        case iml_cast:
         case iml_ineg:
         case iml_bneg:
         case iml_getaddr:
@@ -204,7 +203,6 @@ iml_operation_print(iml_operation_t *self,
             print_return_op(self, out, indention);
             break;
         case iml_copy:
-        case iml_cast:
         case iml_ineg:
         case iml_bneg:
         case iml_getaddr:
@@ -283,9 +281,6 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention)
     {
         case iml_copy:
             op_name = "copy";
-            break;
-        case iml_cast:
-            op_name = "cast";
             break;
         case iml_ineg:
             op_name = "ineg";

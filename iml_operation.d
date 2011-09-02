@@ -40,7 +40,6 @@ enum iml_opcode
     call,
     call_c,
     ret,
-    cast_op,
     label
 };
 

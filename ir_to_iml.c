@@ -1172,25 +1172,7 @@ iml_add_binary_op_eval(IrFunctionDef *function,
 static ImlOperand *
 iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest)
 {
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
-    iml_data_type_t iml_type;
-    ImlOperand *src;
-
-    src = iml_add_expression_eval(function, ir_cast_get_value(cast),
-                                  NULL,
-                                  false);
-
-    iml_type = dt_to_iml_type(ir_cast_get_target_type(cast));
-
-    if (dest == NULL)
-    {
-        dest = iml_func_frame_get_temp(frame, iml_type);
-    }
-
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_cast, src, dest));
-
-    return IML_OPERAND(dest);
+    assert(false); /* not implemented */
 }
 
 static ImlOperand *

@@ -281,12 +281,6 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                             i.next() == null);
                 break;
             case iml_opcode.copy:
-                /*
-                 * currently variables of all supported iml types are
-                 * stored as 32-bit integers,
-                 * thus iml_cast is equivalent to iml_copy operation
-                 */
-            case iml_opcode.cast_op:
                 compile_copy(asmfile, op);
                 break;
             case iml_opcode.call_c:

@@ -51,7 +51,6 @@ typedef enum iml_opcode_e
     iml_call,
     iml_call_c,
     iml_return,
-    iml_cast,
     iml_label
 } iml_opcode_t;
 
