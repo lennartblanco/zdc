@@ -7,7 +7,6 @@
   <skip>
     <test>foreach</test>
     <test>str_literals</test>
-    <test>pointers</test>
     <test>eels</test>
   </skip>
 </test-target>
