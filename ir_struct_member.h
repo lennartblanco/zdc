@@ -1,7 +1,7 @@
 #ifndef IR_STRUCT_MEMBER_INC_X
 #define IR_STRUCT_MEMBER_INC_X
 
-	#include "ir_expression.h"
+#include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
