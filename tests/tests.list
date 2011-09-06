@@ -2,6 +2,7 @@ empty
 only_comments
 rets
 comments
+cast
 hex
 vars
 extern_c

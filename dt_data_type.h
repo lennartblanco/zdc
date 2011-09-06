@@ -56,7 +56,8 @@ typedef enum basic_data_type_e
     short_type,              /* int 16-bit signed */
     ushort_type,             /* int 16-bit unsigned */
     int_type,                /* int 32-bit signed */
-    uint_type                /* int 32-bit unsigned */
+    uint_type,               /* int 32-bit unsigned */
+    last_basic_type          /* number of basic types defined */
 } basic_data_type_t;
 
 /*---------------------------------------------------------------------------*

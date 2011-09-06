@@ -18,6 +18,27 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                             static table                                  *
+ *---------------------------------------------------------------------------*/
+
+/**
+ * cast operations table for basic data types
+ */
+static iml_opcode_t basic_cast_ops[last_basic_type][last_basic_type] =
+{
+           /* void char bool byte ubyte short ushort int uint */
+ /*  void  */ {-1, -1, -1, -1, -1, -1, -1, -1, -1},
+ /*  char  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
+ /*  bool  */ {-1, -1, iml_copy, -1, -1, -1, -1, -1, -1},
+ /*  byte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
+ /* ubyte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
+ /* short  */ {-1, -1, -1, -1, -1, iml_copy, iml_copy, -1, -1},
+ /* ushort */ {-1, -1, -1, -1, -1, iml_copy, iml_copy, -1, -1},
+ /*  int   */ {-1, -1, -1, -1, -1, -1, -1, iml_copy, iml_copy},
+ /*  uint  */ {-1, -1, -1, -1, -1, -1, -1, iml_copy, iml_copy}
+};
+
+/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -1169,9 +1190,50 @@ iml_add_binary_op_eval(IrFunctionDef *function,
     return IML_OPERAND(res);
 }
 
+static iml_opcode_t
+get_cast_opcode(IrCast *cast)
+{
+    DtDataType *src_type =
+        ir_expression_get_data_type(ir_cast_get_value(cast));
+    DtDataType *target_type = ir_cast_get_target_type(cast);
+
+    if (dt_is_basic(target_type))
+    {
+        if (dt_is_basic(src_type))
+        {
+            basic_data_type_t src_bdt =
+                dt_basic_get_data_type(DT_BASIC(src_type));
+            basic_data_type_t trgt_bdt =
+                dt_basic_get_data_type(DT_BASIC(target_type));
+
+            assert(basic_cast_ops[trgt_bdt][src_bdt] != -1);
+            return basic_cast_ops[trgt_bdt][src_bdt];
+        }
+        else
+        {
+            /* unexpected source data type */
+            assert(false);
+        }
+    }
+
+    /* unexpected target data type */
+    assert(false);
+}
+
 static ImlOperand *
 iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest)
 {
+    iml_opcode_t cast_op = get_cast_opcode(cast);
+
+    ImlOperand *src =
+        iml_add_expression_eval(function,
+                                ir_cast_get_value(cast),
+                                NULL,
+                                false);
+    if (cast_op == iml_copy)
+    {
+        return src;
+    }
     assert(false); /* not implemented */
 }
 

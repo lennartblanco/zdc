@@ -1,0 +1,32 @@
+cast(trgt_type)src
+
+
+        | bool  |  char  |  byte  |  ubyte  |  short  |  ushort  |  int   |  uint  | pointer <-- typeof(src)
+   --------------------------------------------------------------------------------------------
+   bool | copy  | nbconv | nbconv | nbconv  | nbconv  |  nbconv  | nbconv | nbconv | pbconv
+   --------------------------------------------------------------------------------------------
+   char | copy  |  copy  | copy   | copy    | trunc   |  trunc   | trunc  | trunc  | trunc
+   --------------------------------------------------------------------------------------------
+   byte | copy  |  copy  | copy   | copy    | trunc   |  trunc   | trunc  | trunc  | trunc
+   --------------------------------------------------------------------------------------------
+  ubyte | copy  |  copy  | copy   | copy    | trunc   |  trunc   | trunc  | trunc  | trunc
+   --------------------------------------------------------------------------------------------
+  short | zpad  |  zpad  | sigext | zpad    | copy    |  copy    | trunc  | trunc  | trunc
+   --------------------------------------------------------------------------------------------
+ ushort | zpad  |  zpad  | sigext | zpad    | copy    |  copy    | trunc  | trunc  | trunc
+   --------------------------------------------------------------------------------------------
+    int | zpad  |  zpad  | sigext | zpad    | sigext  |  zpad    | copy   | copy   | copy
+   --------------------------------------------------------------------------------------------
+   uint | zpad  |  zpad  | sigext | zpad    | sigext  |  zpad    | copy   | copy   | copy
+   --------------------------------------------------------------------------------------------
+pointer | zpad  |  zpad  | sigext | zpad    | sigext  |  zpad    | copy   | copy   | copy
+   ^
+trgt_type
+
+
+copy - bit copy
+nbconv - numeric to boolean conversation, (src == 0) ? 0 : 1
+pbconv - pointer to boolean conversation, (src == null) ? 0 : 1
+zpad - zero pad, copy lower bits as is, set higher bits to 0 
+sigext - sign extend
+trunc - truncate, copy only the lower bits

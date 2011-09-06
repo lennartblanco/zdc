@@ -105,6 +105,9 @@ check_hex: hex.o check_utils.o check_hex.c
 check_cond: cond.o check_utils.o check_cond.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_cast: cast.o check_utils.o check_cast.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_eels: check_eels.sh eels
 	cp $< $@
 
