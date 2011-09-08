@@ -151,3 +151,14 @@ int foo(uint idx)
   return i[idx];
 }
 
+* following valid code generated a compile warning
+
+foo.d:
+1:void foo()
+2:{
+3:  char a;
+4:  a = 100;
+5:}
+
+$ ./xdc foo.d
+foo.d:4: error: can't assign expression of type int to lvalue of char type
