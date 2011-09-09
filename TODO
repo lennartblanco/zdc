@@ -1,3 +1,21 @@
+* following code is not compiler correctly
+
+void
+main()
+{
+  short s = -5;
+
+  if (cast(bool)(s+5)) {
+    putchar('e'); putchar('r'); putchar('r');
+  }
+  else {
+    putchar('o'); putchar('k');
+  }
+  putchar('\n');
+}
+
+expected output when running above is 'ok', when compiled with xdc, the output is 'err'
+
 * following (probably, check the specs, but both dmd and gdc accept it) correct D code is rejected with
 compile errors by xdc:
 
