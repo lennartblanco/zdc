@@ -120,6 +120,17 @@ bneg value => res
  logical negation
   - non of the operans can be constants
 
+bconv value => res
+  convert to bool, if value == 0, set res to 0, otherwise set res to 1
+  - value variable of 8b, 16b, 32b or ptr type
+  - res variable of 8b type
+
+zpad value => res
+  zero-pad value to res, copy lower bits as is, set higher bits to 0
+  - value constant or variable of 8b or 16b
+  - res variable of 16b, 32b or ptr type
+  value's size must be smaller then res
+
 return [value]
   return from function
    - if value operand specified, return with value

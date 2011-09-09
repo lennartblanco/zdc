@@ -7,9 +7,103 @@ extern (C)
   /* casts to bool */
 
   bool
-  bool_to_bool(bool arg)
+  cast_to_bool(uint testno)
   {
-    return cast(bool)arg;
+    /* bool to bool */
+    if (0 == testno)
+    {
+      bool b = true;
+      return cast(bool)b;
+    }
+    else if (1 == testno)
+    {
+      bool b = false;
+      return cast(bool)b;
+    }
+    /* byte to bool */
+    else if (2 == testno)
+    {
+      byte b;
+      return cast(bool)b;
+    }
+    else if (3 == testno)
+    {
+      byte b = -10;
+      return cast(bool)b;
+    }
+    /* char to bool */
+    else if (4 == testno)
+    {
+      char c;
+      return cast(bool)c;
+    }
+    else if (5 == testno)
+    {
+      char c = '\0';
+      return cast(bool)c;
+    }
+    /* ubyte to bool */
+    else if (6 == testno)
+    {
+      ubyte u;
+      return cast(bool)u++;
+    }
+    else if (7 == testno)
+    {
+      ubyte u;
+      return cast(bool)++u;
+    }
+    else if (8 == testno)
+    {
+      ubyte u = 10;
+      return cast(bool)u;
+    }
+    /* short to bool */
+    else if (9 == testno)
+    {
+      short s = 10;
+      return cast(bool)s;
+    }
+    else if (10 == testno)
+    {
+      short s;
+      return cast(bool)s;
+    }
+    /* ushort to bool */
+    else if (11 == testno)
+    {
+      ushort s = 42;
+      return cast(bool)s;
+    }
+    else if (12 == testno)
+    {
+      ushort s = 0;
+      return cast(bool)s;
+    }
+    /* int to bool */
+    else if (13 == testno)
+    {
+      int i = -20;
+      return cast(bool)(i+20);
+    }
+    else if (14 == testno)
+    {
+      int i = -20;
+      return cast(bool)i;
+    }
+    /* uint to bool */
+    else if (15 == testno)
+    {
+      uint u;
+      return cast(bool)u;
+    }
+    else if (16 == testno)
+    {
+      uint u = 314;
+      return cast(bool)u;
+    }
+
+    return false;
   }
 
   /* casts to char */

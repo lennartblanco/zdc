@@ -81,9 +81,11 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg2 = GUINT_TO_POINTER(va_arg(argp, guint));
             op->arg3 = va_arg(argp, void *);
             break;
+        case iml_zpad:
         case iml_copy:
         case iml_ineg:
         case iml_bneg:
+        case iml_bconv:
         case iml_getaddr:
             op->arg1 = va_arg(argp, void *);
             assert(op->arg1);
@@ -202,9 +204,11 @@ iml_operation_print(iml_operation_t *self,
         case iml_return:
             print_return_op(self, out, indention);
             break;
+        case iml_zpad:
         case iml_copy:
         case iml_ineg:
         case iml_bneg:
+        case iml_bconv:
         case iml_getaddr:
             print_binary_op(self, out, indention);
             break;
@@ -279,6 +283,9 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention)
 
     switch (op->opcode)
     {
+        case iml_zpad:
+            op_name = "zpad";
+            break;
         case iml_copy:
             op_name = "copy";
             break;
@@ -287,6 +294,9 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention)
             break;
         case iml_bneg:
             op_name = "bneg";
+            break;
+        case iml_bconv:
+            op_name = "bconv";
             break;
         case iml_getaddr:
             op_name = "getaddr";

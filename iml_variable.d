@@ -1,4 +1,4 @@
-import iml_operand;
+public import iml_operand;
 
 struct ImlVariable;
 

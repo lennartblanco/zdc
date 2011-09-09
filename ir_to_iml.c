@@ -29,12 +29,12 @@ static iml_opcode_t basic_cast_ops[last_basic_type][last_basic_type] =
            /* void char bool byte ubyte short ushort int uint */
  /*  void  */ {-1, -1, -1, -1, -1, -1, -1, -1, -1},
  /*  char  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
- /*  bool  */ {-1, -1, iml_copy, -1, -1, -1, -1, -1, -1},
+ /*  bool  */ {-1, iml_bconv, iml_copy, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv},
  /*  byte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
  /* ubyte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
  /* short  */ {-1, -1, -1, -1, -1, iml_copy, iml_copy, -1, -1},
  /* ushort */ {-1, -1, -1, -1, -1, iml_copy, iml_copy, -1, -1},
- /*  int   */ {-1, -1, -1, -1, -1, -1, -1, iml_copy, iml_copy},
+ /*  int   */ {-1, -1, iml_zpad, -1, -1, -1, -1, iml_copy, iml_copy},
  /*  uint  */ {-1, -1, -1, -1, -1, -1, -1, iml_copy, iml_copy}
 };
 
@@ -1234,7 +1234,20 @@ iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest)
     {
         return src;
     }
-    assert(false); /* not implemented */
+
+    if (dest == NULL)
+    {
+        dest =
+            iml_func_frame_get_temp(
+                ir_function_def_get_frame(function),
+                dt_to_iml_type(ir_cast_get_target_type(cast)));
+    }
+
+    ir_function_def_add_operation(function,
+                                   iml_operation_new(cast_op,
+                                                     src,
+                                                     dest));
+    return IML_OPERAND(dest);
 }
 
 static ImlOperand *

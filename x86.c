@@ -33,6 +33,13 @@ typedef struct x86_comp_params_s
 #define TEMP_REG2_BYTE_NAME "al"
 
 /*---------------------------------------------------------------------------*
+ *                   functions imported from x86.d                           *
+ *---------------------------------------------------------------------------*/
+
+void
+x86_compile_bconv(FILE *output, iml_operation_t *op);
+
+/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -1984,6 +1991,7 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 compile_return(params->out, return_label, op);
                 break;
             case iml_copy:
+            case iml_zpad:
                 compile_copy(params->out, op);
                 break;
             case iml_mset:
@@ -2023,6 +2031,9 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
             case iml_ineg:
             case iml_bneg:
                 compile_neg(params->out, op);
+                break;
+            case iml_bconv:
+                x86_compile_bconv(params->out, op);
                 break;
             case iml_equal:
             case iml_nequal:

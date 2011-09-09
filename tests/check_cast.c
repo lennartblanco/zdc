@@ -1,7 +1,7 @@
 #include "check_utils.h"
 
 bool
-bool_to_bool(bool);
+cast_to_bool(unsigned int);
 
 char
 bool_to_char(bool);
@@ -48,9 +48,25 @@ cast_to_uint(unsigned int);
 int
 main()
 {
-    /* bool_to_bool() tests */
-    check_bool("bool_to_bool(true)", bool_to_bool(true), true);
-    check_bool("bool_to_bool(false)", bool_to_bool(false), false);
+    /* cast_to_booll() tests */
+    check_bool("cast_to_bool(0)", cast_to_bool(0), true);
+    check_bool("cast_to_bool(1)", cast_to_bool(1), false);
+    check_bool("cast_to_bool(2)", cast_to_bool(2), false);
+    check_bool("cast_to_bool(3)", cast_to_bool(3), true);
+    check_bool("cast_to_bool(4)", cast_to_bool(4), true);
+    check_bool("cast_to_bool(5)", cast_to_bool(5), false);
+    check_bool("cast_to_bool(6)", cast_to_bool(6), false);
+    check_bool("cast_to_bool(7)", cast_to_bool(7), true);
+    check_bool("cast_to_bool(8)", cast_to_bool(8), true);
+    check_bool("cast_to_bool(9)", cast_to_bool(9), true);
+    check_bool("cast_to_bool(10)", cast_to_bool(10), false);
+    check_bool("cast_to_bool(11)", cast_to_bool(11), true);
+    check_bool("cast_to_bool(12)", cast_to_bool(12), false);
+    check_bool("cast_to_bool(13)", cast_to_bool(13), false);
+    check_bool("cast_to_bool(14)", cast_to_bool(14), true);
+    check_bool("cast_to_bool(15)", cast_to_bool(15), false);
+    check_bool("cast_to_bool(16)", cast_to_bool(16), true);
+    check_bool("cast_to_bool(100)", cast_to_bool(100), false);
 
     /* bool_to_char() tests */
     check_char("bool_to_char(true)", bool_to_char(true), '\1');

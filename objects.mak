@@ -1,4 +1,5 @@
-X86_TRGT_OBJS := x86.o
+X86_TRGT_COBJS := x86.o
+X86_TRGT_DOBJS := x86-d.o
 
 ARM_TRGT_OBJS := arm-d.o arm_util-d.o
 
@@ -31,9 +32,9 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ir_function_decl.o ir_property.o ir_struct.o ir_struct_member.o      \
          ir_struct_literal.o ir_dot.o ir_ident.o  iml_operation.o             \
          iml_func_frame.o iml_operand.o iml_variable.o iml_constant.o         \
-         ir_to_iml.o                                                          \
-         $(X86_TRGT_OBJS)
+         ir_to_iml.o
+
 
 # all objects generated both from C and D source files
-OBJS := $(COBJS) $(ARM_TRGT_OBJS)                                             \
+OBJS := $(COBJS) $(X86_TRGT_COBJS) $(X86_TRGT_DOBJS) $(ARM_TRGT_OBJS)         \
          GList-d.o GSList-d.o ui-d.o iml_operation-d.o data_section-d.o
