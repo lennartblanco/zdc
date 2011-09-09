@@ -81,3 +81,10 @@ void ubyte_errs()
   v5 = i;
   v5 = u;
 }
+
+int bool_err()
+{
+   bool b = 2;
+
+   return b;
+}

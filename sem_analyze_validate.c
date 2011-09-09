@@ -1235,15 +1235,20 @@ validate_return(compilation_status_t *compile_status,
             return;
         }
 
-        /*
-         * valid return statement, add iml operations
-         */
-        ImlOperand *ret_val = iml_add_expression_eval(compile_status->function,
-                                                      conv_exp,
-                                                      NULL,
-                                                      false);
-        ir_function_def_add_operation(compile_status->function,
-                                  iml_operation_new(iml_return, ret_val));
+        if (compile_status->errors_count == 0)
+        {
+            /*
+             * valid return statement, add iml operations
+             */
+            ImlOperand *ret_val =
+                iml_add_expression_eval(compile_status->function,
+                                        conv_exp,
+                                        NULL,
+                                        false);
+            ir_function_def_add_operation(compile_status->function,
+                                          iml_operation_new(iml_return,
+                                                            ret_val));
+        }
     }
     else
     {
