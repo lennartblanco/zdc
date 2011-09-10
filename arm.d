@@ -281,6 +281,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
                             i.next() == null);
                 break;
             case iml_opcode.copy:
+            case iml_opcode.zpad:
                 compile_copy(asmfile, op);
                 break;
             case iml_opcode.call_c:
@@ -316,6 +317,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.ineg:
             case iml_opcode.bneg:
                 compile_neg(asmfile, op);
+                break;
+            case iml_opcode.bconv:
+                compile_bconv(asmfile, op);
                 break;
             case iml_opcode.jmpneq:
             case iml_opcode.jmpuless:
@@ -708,6 +712,29 @@ compile_neg(File asmfile, iml_operation *op)
     if (reg == null)
     {
         gen_move_from_reg(asmfile, res_reg_name, res);
+    }
+}
+
+private void
+compile_bconv(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.bconv);
+
+    ImlOperand *val = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+
+    string val_reg = store_in_reg(asmfile, val, TEMP_REG1);
+    string res_reg = store_in_reg(asmfile, cast(ImlOperand *)res, TEMP_REG2);
+
+    asmfile.writefln("    cmp %s, #0\n"
+                     "    moveq %s, #0\n"
+                     "    movne %s, #1",
+                     val_reg, res_reg, res_reg);
+
+    if (iml_variable_get_register(res) == null)
+    {
+        asmfile.writefln("    str %s, [fp, #%s]",
+                         res_reg, iml_variable_get_frame_offset(res));
     }
 }
 
