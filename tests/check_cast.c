@@ -117,10 +117,22 @@ main()
     check_short("cast_to_short(1)", cast_to_short(1), 10);
     check_short("cast_to_short(2)", cast_to_short(2), 100);
     check_short("cast_to_short(3)", cast_to_short(3), -2);
-    check_short("cast_to_short(4)", cast_to_short(4), -1);
+    check_short("cast_to_short(4)", cast_to_short(4), 1);
+    check_short("cast_to_short(5)", cast_to_short(5), 0);
+    check_short("cast_to_short(6)", cast_to_short(6), 0xff);
+    check_short("cast_to_short(7)", cast_to_short(7), 109);
+    check_short("cast_to_short(8)", cast_to_short(8), 0);
+    check_short("cast_to_short(9)", cast_to_short(9), 110);
+    check_short("cast_to_short(100)", cast_to_short(100), -1);
 
     /* cast_to_ushort() tests */
-    check_ushort("cast_to_ushort(4)", cast_to_ushort(4), 65535);
+    check_ushort("cast_to_ushort(100)", cast_to_ushort(100), 65535);
+    check_ushort("cast_to_ushort(9)", cast_to_ushort(9), 123);
+    check_ushort("cast_to_ushort(8)", cast_to_ushort(8), 23);
+    check_ushort("cast_to_ushort(7)", cast_to_ushort(7), 32);
+    check_ushort("cast_to_ushort(6)", cast_to_ushort(6), 0xff);
+    check_ushort("cast_to_ushort(5)", cast_to_ushort(5), 0);
+    check_ushort("cast_to_ushort(4)", cast_to_ushort(4), 1);
     check_ushort("cast_to_ushort(3)", cast_to_ushort(3), 257);
     check_ushort("cast_to_ushort(2)", cast_to_ushort(2), 0);
     check_ushort("cast_to_ushort(1)", cast_to_ushort(1), 123);
@@ -131,14 +143,30 @@ main()
     check_int("cast_to_int(1)", cast_to_int(1), -302);
     check_int("cast_to_int(2)", cast_to_int(2), 7);
     check_int("cast_to_int(3)", cast_to_int(3), -2);
-    check_int("cast_to_int(4)", cast_to_int(4), -1);
+    check_int("cast_to_int(4)", cast_to_int(4), 1);
+    check_int("cast_to_int(5)", cast_to_int(5), 0);
+    check_int("cast_to_int(6)", cast_to_int(6), 10);
+    check_int("cast_to_int(7)", cast_to_int(7), 0xff);
+    check_int("cast_to_int(8)", cast_to_int(8), 3);
+    check_int("cast_to_int(9)", cast_to_int(9), 254);
+    check_int("cast_to_int(10)", cast_to_int(10), 300);
+    check_int("cast_to_int(11)", cast_to_int(11), 257);
+    check_int("cast_to_int(100)", cast_to_int(100), -1);
 
     /* cast_to_uint() tests */
     check_uint("cast_to_uint(0)", cast_to_uint(0), 32000);
     check_uint("cast_to_uint(1)", cast_to_uint(1), 4294967293);
     check_uint("cast_to_uint(2)", cast_to_uint(2), 3);
     check_uint("cast_to_uint(3)", cast_to_uint(3), 2147483650);
-    check_uint("cast_to_uint(4)", cast_to_uint(4), 0);
+    check_uint("cast_to_uint(4)", cast_to_uint(4), 1);
+    check_uint("cast_to_uint(5)", cast_to_uint(5), 0);
+    check_uint("cast_to_uint(6)", cast_to_uint(6), 0xff);
+    check_uint("cast_to_uint(7)", cast_to_uint(7), 102);
+    check_uint("cast_to_uint(8)", cast_to_uint(8), 254);
+    check_uint("cast_to_uint(9)", cast_to_uint(9), 56);
+    check_uint("cast_to_uint(10)", cast_to_uint(10), 1234);
+    check_uint("cast_to_uint(11)", cast_to_uint(11), 0);
+    check_uint("cast_to_uint(100)", cast_to_uint(100), 0);
 
     check_exit();
 }

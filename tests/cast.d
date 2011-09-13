@@ -245,6 +245,42 @@ extern (C)
       return cast(short)s;
     }
 
+    /* bool to short */
+    else if (4 == testno)
+    {
+      bool b = true;
+      return cast(short)b;
+    }
+    else if (5 == testno)
+    {
+      bool b = false;
+      return cast(short)b;
+    }
+
+    /* char to short */
+    else if (6 == testno)
+    {
+      char c;
+      return cast(short)c;
+    }
+    else if (7 == testno)
+    {
+      char c = 'm';
+      return cast(short)c;
+    }
+
+    /* ubyte to short */
+    else if (8 == testno)
+    {
+      ubyte b;
+      return cast(short)b;
+    }
+    else if (9 == testno)
+    {
+      ubyte b = 110;
+      return cast(short)b;
+    }
+
     return -1;
   }
 
@@ -274,6 +310,43 @@ extern (C)
       ushort u = 257;
       return cast(ushort)u;
     }
+
+    /* bool to ushort */
+    else if (4 == testno)
+    {
+      bool b = true;
+      return cast(ushort)b;
+    }
+    else if (5 == testno)
+    {
+      bool b = false;
+      return cast(ushort)b;
+    }
+
+    /* char to ushort */
+    else if (6 == testno)
+    {
+      char c;
+      return cast(ushort)c;
+    }
+    else if (7 == testno)
+    {
+      char c = ' ';
+      return cast(ushort)c;
+    }
+
+    /* ubyte to ushort */
+    else if (8 == testno)
+    {
+      ubyte b = 23;
+      return cast(ushort)b;
+    }
+    else if (9 == testno)
+    {
+      ubyte b = 123;
+      return cast(ushort)b;
+    }
+
     return 65535;
   }
 
@@ -304,6 +377,55 @@ extern (C)
       uint u = 4294967294;
       return cast(int)u;
     }
+
+    /* bool to int */
+    else if (4 == testno)
+    {
+      bool b = true;
+      return cast(int)b;
+    }
+    else if (5 == testno)
+    {
+      bool b = false;
+      return cast(int)b;
+    }
+
+    /* char to int */
+    else if (6 == testno)
+    {
+      char c = '\n';
+      return cast(int)c;
+    }
+    else if (7 == testno)
+    {
+      char c;
+      return cast(int)c;
+    }
+
+    /* ubyte to int */
+    else if (8 == testno)
+    {
+      ubyte b = 3;
+      return cast(int)b;
+    }
+    else if (9 == testno)
+    {
+      ubyte b = 254;
+      return cast(int)b;
+    }
+
+    /* ushort to int */
+    else if (10 == testno)
+    {
+      ushort s = 300;
+      return cast(int)s;
+    }
+    else if (11 == testno)
+    {
+      ushort s = 257;
+      return cast(int)s;
+    }
+
     return -1;
   }
 
@@ -333,6 +455,54 @@ extern (C)
     {
       uint u = 2147483650;
       return cast(uint)u;
+    }
+
+    /* bool to uint */
+    else if (4 == testno)
+    {
+      bool b = true;
+      return cast(uint)b;
+    }
+    else if (5 == testno)
+    {
+      bool b = false;
+      return cast(uint)b;
+    }
+
+    /* char to uint */
+    else if (6 == testno)
+    {
+      char c;
+      return cast(uint)c;
+    }
+    else if (7 == testno)
+    {
+      char c = 'f';
+      return cast(uint)c;
+    }
+
+    /* ubyte to uint */
+    else if (8 == testno)
+    {
+      ubyte b = 254;
+      return cast(uint)b;
+    }
+    else if (9 == testno)
+    {
+      ubyte b = 56;
+      return cast(uint)b;
+    }
+
+    /* ushort to uint */
+    else if (10 == testno)
+    {
+      ushort b = 1234;
+      return cast(uint)b;
+    }
+    else if (11 == testno)
+    {
+      ushort b;
+      return cast(uint)b;
     }
 
     return 0;

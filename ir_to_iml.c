@@ -32,10 +32,10 @@ static iml_opcode_t basic_cast_ops[last_basic_type][last_basic_type] =
  /*  bool  */ {-1, iml_bconv, iml_copy, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv},
  /*  byte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
  /* ubyte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, -1, -1, -1, -1},
- /* short  */ {-1, -1, -1, -1, -1, iml_copy, iml_copy, -1, -1},
- /* ushort */ {-1, -1, -1, -1, -1, iml_copy, iml_copy, -1, -1},
- /*  int   */ {-1, -1, iml_zpad, -1, -1, -1, -1, iml_copy, iml_copy},
- /*  uint  */ {-1, -1, -1, -1, -1, -1, -1, iml_copy, iml_copy}
+ /* short  */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, iml_copy, iml_copy, -1, -1},
+ /* ushort */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, iml_copy, iml_copy, -1, -1},
+ /*  int   */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, -1, iml_zpad, iml_copy, iml_copy},
+ /*  uint  */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, -1, iml_zpad, iml_copy, iml_copy}
 };
 
 /*---------------------------------------------------------------------------*
