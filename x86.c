@@ -39,6 +39,9 @@ typedef struct x86_comp_params_s
 void
 x86_compile_bconv(FILE *output, iml_operation_t *op);
 
+void
+x86_compile_trunc(FILE *output, iml_operation_t *op);
+
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -68,6 +71,33 @@ x86_init(arch_backend_t *backend)
     backend->get_registers = get_registers;
     backend->assign_var_locations = assign_var_locations;
     backend->gen_code = gen_code;
+}
+
+/**
+ * Generate assembly that will move value in the register
+ * to specified variable.
+ */
+void
+x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
+{
+    assert(IML_VARIABLE(var));
+
+    const char *var_reg = iml_variable_get_register(var);
+
+    if (var_reg == NULL)
+    {
+        fprintf(out,
+                "    movl %%%s, %d(%%ebp)\n",
+                src_reg,
+                iml_variable_get_frame_offset(var));
+    }
+    else
+    {
+        fprintf(out,
+                "    movl %%%s, %%%s\n",
+                src_reg,
+                var_reg);
+    }
 }
 
 /*---------------------------------------------------------------------------*
@@ -471,33 +501,6 @@ move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
 }
 
 /**
- * Generate assembly that will move value in the register
- * to specified variable.
- */
-static void
-move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
-{
-    assert(IML_VARIABLE(var));
-
-    const char *var_reg = iml_variable_get_register(var);
-
-    if (var_reg == NULL)
-    {
-        fprintf(out,
-                "    movl %%%s, %d(%%ebp)\n",
-                src_reg,
-                iml_variable_get_frame_offset(var));
-    }
-    else
-    {
-        fprintf(out,
-                "    movl %%%s, %%%s\n",
-                src_reg,
-                var_reg);
-    }
-}
-
-/**
  * Generate assembly that will move operand value to an frame offset.
  */
 static void
@@ -652,7 +655,7 @@ compile_copy(FILE *out, iml_operation_t *op)
         }
         else
         {
-            move_from_reg(out, src_reg, dst);
+            x86_move_from_reg(out, src_reg, dst);
         }
     }
 }
@@ -1260,7 +1263,7 @@ compile_getaddr(FILE *out, iml_operation_t *op)
     /* move address to result pointer variable if needed */
     if (reg == NULL)
     {
-        move_from_reg(out, reg_name, ptr);
+        x86_move_from_reg(out, reg_name, ptr);
     }
 }
 
@@ -1393,7 +1396,7 @@ compile_mult(FILE *out, iml_operation_t *op)
     fprintf(out,
             "    %smul %%" TEMP_REG1_NAME "\n",
             iml_operation_get_opcode(op) == iml_smult ? "i" : "");
-    move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
+    x86_move_from_reg(out, "eax", iml_operation_get_operand(op, 3));
 }
 
 static void
@@ -1470,7 +1473,7 @@ compile_divmod(FILE *out, iml_operation_t *op)
         }
     }
 
-    move_from_reg(out, res_reg, res);
+    x86_move_from_reg(out, res_reg, res);
 }
 
 
@@ -1913,7 +1916,7 @@ compile_call(FILE *out, iml_operation_t *op)
     res = iml_operation_get_operand(op, 3);
     if (res != NULL)
     {
-        move_from_reg(out, "eax", res);
+        x86_move_from_reg(out, "eax", res);
     }
 }
 
@@ -2034,6 +2037,9 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
                 break;
             case iml_bconv:
                 x86_compile_bconv(params->out, op);
+                break;
+            case iml_trunc:
+                x86_compile_trunc(params->out, op);
                 break;
             case iml_equal:
             case iml_nequal:
