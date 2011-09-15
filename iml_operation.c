@@ -82,6 +82,7 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg3 = va_arg(argp, void *);
             break;
         case iml_zpad:
+        case iml_trunc:
         case iml_copy:
         case iml_ineg:
         case iml_bneg:
@@ -204,6 +205,7 @@ iml_operation_print(iml_operation_t *self,
         case iml_return:
             print_return_op(self, out, indention);
             break;
+        case iml_trunc:
         case iml_zpad:
         case iml_copy:
         case iml_ineg:
@@ -285,6 +287,9 @@ print_binary_op(iml_operation_t *op, FILE *out, int indention)
     {
         case iml_zpad:
             op_name = "zpad";
+            break;
+        case iml_trunc:
+            op_name = "trunc";
             break;
         case iml_copy:
             op_name = "copy";

@@ -131,6 +131,11 @@ zpad value => res
   - res variable of 16b, 32b or ptr type
   value's size must be smaller then res
 
+trunc value => res
+  truncate, copy only the lower bits
+  - value variable of 16b, 32b or ptr type
+  - res variable of 8b or 16b type
+
 return [value]
   return from function
    - if value operand specified, return with value
