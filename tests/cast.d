@@ -107,62 +107,205 @@ extern (C)
   }
 
   /* casts to char */
-
   char
-  bool_to_char(bool arg)
+  cast_to_char(uint testno)
   {
-    return cast(char)arg;
-  }
+    char res;
 
-  char
-  char_to_char(char arg)
-  {
-    return cast(char)arg;
-  }
+    /* bool to char */
+    if (testno == 0)
+    {
+      bool b = true;
+      res = cast(char)b;
+    }
+    else if (testno == 1)
+    {
+      bool b = false;
+      res = cast(char)b;
+    }
 
-  char
-  byte_to_char(byte arg)
-  {
-    char r = cast(char)arg;
-    return r;
-  }
+    /* char to char */
+    else if (testno == 2)
+    {
+      char c;
+      res = cast(char)c;
+    }
+    else if (testno == 3)
+    {
+      char c = '\n';
+      res = cast(char)c;
+    }
+    else if (testno == 4)
+    {
+      char c = 'b';
+      res = cast(char)c;
+    }
 
-  char
-  ubyte_to_char(ubyte arg)
-  {
-    return cast(char)arg;
+    /* byte to char */
+    else if (testno == 5)
+    {
+      byte b = 42;
+      res = cast(char)b;
+    }
+    else if (testno == 6)
+    {
+      byte b = -1;
+      res = cast(char)b;
+    }
+
+    /* ubyte to char */
+    else if (testno == 7)
+    {
+      ubyte b = 127;
+      res = cast(char)b;
+    }
+    else if (testno == 8)
+    {
+      ubyte b = 39;
+      res = cast(char)b;
+    }
+
+    /* short to char */
+    else if (testno == 9)
+    {
+      short s = 0x2A40;
+      res = cast(char)s;
+    }
+    else if (testno == 10)
+    {
+      short s = -30100;
+      res = cast(char)s;
+    }
+
+    /* ushort to char */
+    else if (testno == 11)
+    {
+      short u = 1024 + 32;
+      res = cast(char)u;
+    }
+
+    /* int to char */
+    else if (testno == 12)
+    {
+      int i = -3;
+      res = cast(char)i;
+    }
+    /* uint to char */
+    else if (testno == 13)
+    {
+      uint i = 0xaabbcc30;
+      res = cast(char)i;
+    }
+
+    return res;
   }
 
   /* casts to byte */
-
   byte
-  bool_to_byte(bool arg)
+  cast_to_byte(uint testno)
   {
-    byte r = cast(byte)arg;
+    byte res;
 
-    return r;
-  }
+    /* bool to byte */
+    if (testno == 0)
+    {
+       bool b = true;
+       res = cast(byte)b;
+    }
+    else if (testno == 1)
+    {
+       bool b = false;
+       res = cast(byte)b;
+    }
 
-  byte
-  char_to_byte(char arg)
-  {
-    return cast(byte)arg;
-  }
+    /* char to byte */
+    else if (testno == 2)
+    {
+       char c = '#';
+       res = cast(byte)c;
+    }
+    else if (testno == 3)
+    {
+       char c = 'm';
+       res = cast(byte)c;
+    }
 
-  byte
-  byte_to_byte(byte arg)
-  {
-    return cast(byte)arg;
-  }
+    /* byte to byte */
+    else if (testno == 4)
+    {
+       byte b = -9;
+       res = cast(byte)b;
+    }
+    else if (testno == 5)
+    {
+       byte b = 102;
+       res = cast(byte)b;
+    }
 
-  byte
-  ubyte_to_byte(ubyte arg)
-  {
-    return cast(byte)arg;
+    /* ubyte to ubyte */
+    else if (testno == 6)
+    {
+       ubyte b = 67;
+       res = cast(byte)b;
+    }
+    else if (testno == 7)
+    {
+       ubyte b = 199;
+       res = cast(byte)b;
+    }
+
+    /* short to byte */
+    else if (testno == 8)
+    {
+      short s;
+      res = cast(byte)s;
+    }
+    else if (testno == 9)
+    {
+      short s = 0x1234;
+      res = cast(byte)s;
+    }
+
+    /* ushort to byte */
+    else if (testno == 10)
+    {
+      ushort s = 127;
+      res = cast(byte)s;
+    }
+    else if (testno == 11)
+    {
+      ushort s = 130;
+      res = cast(byte)s;
+    }
+
+    /* int to byte */
+    else if (testno == 12)
+    {
+      int i = -1;
+      res = cast(byte)i;
+    }
+    else if (testno == 13)
+    {
+      int i = 42;
+      res = cast(byte)i;
+    }
+
+    /* uint  to byte */
+    else if (testno == 14)
+    {
+      uint u = 120;
+      res = cast(byte)u;
+    }
+    else if (testno == 15)
+    {
+      uint u = 0x11223344;
+      res = cast(byte)u;
+    }
+
+    return res;
   }
 
   /* casts to ubyte */
-
   ubyte
   cast_to_ubyte(uint testno)
   {
@@ -212,7 +355,55 @@ extern (C)
     {
       ubyte b = 42;
       return cast(ubyte)b;
-    }   
+    }
+
+    /* short to ubyte */
+    else if (8 == testno)
+    {
+      short s = -3;
+      return cast(ubyte)s;
+    }
+    else if (9 == testno)
+    {
+      short s = 31;
+      return cast(ubyte)s;
+    }
+
+    /* ushort to ubyte */
+    else if (10 == testno)
+    {
+      ushort u;
+      return cast(ubyte)u;
+    }
+    else if (11 == testno)
+    {
+      ushort u = 0xaaf0;
+      return cast(ubyte)u;
+    }
+
+    /* int to ubyte */
+    else if (12 == testno)
+    {
+      int i = 243;
+      return cast(ubyte)i;
+    }
+    else if (13 == testno)
+    {
+      int i = 258;
+      return cast(ubyte)i;
+    }
+
+    /* uint to ubyte */
+    else if (14 == testno)
+    {
+      uint i = 123;
+      return cast(ubyte)i;
+    }
+    else if (15 == testno)
+    {
+      int i = 0xffffff06;
+      return cast(ubyte)i;
+    }
 
     return 255;
   }
@@ -281,6 +472,30 @@ extern (C)
       return cast(short)b;
     }
 
+    /* int to short */
+    else if (10 == testno)
+    {
+      int i = -200;
+      return cast(short)i;
+    }
+    else if (11 == testno)
+    {
+      int i = 0x89abcdef;
+      return cast(short)i;
+    }
+
+    /* uint to short */
+    else if (12 == testno)
+    {
+      uint u = 14234;
+      return cast(short)u;
+    }
+    else if (13 == testno)
+    {
+      uint u = 32769;
+      return cast(short)u;
+    }
+
     return -1;
   }
 
@@ -345,6 +560,30 @@ extern (C)
     {
       ubyte b = 123;
       return cast(ushort)b;
+    }
+
+    /* int to ushort */
+    else if (10 == testno)
+    {
+      int i = 23000;
+      return cast(ushort)i;
+    }
+    else if (11 == testno)
+    {
+      int i = 65538;
+      return cast(ushort)i;
+    }
+
+    /* uint to ushort */
+    else if (12 == testno)
+    {
+      uint u = 67;
+      return cast(ushort)u;
+    }
+    else if (13 == testno)
+    {
+      uint u = 0xffff000f;
+      return cast(ushort)u;
     }
 
     return 65535;

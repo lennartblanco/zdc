@@ -4,28 +4,10 @@ bool
 cast_to_bool(unsigned int);
 
 char
-bool_to_char(bool);
-
-char
-char_to_char(char);
-
-char
-byte_to_char(signed char);
-
-char
-ubyte_to_char(unsigned char);
+cast_to_char(unsigned int);
 
 signed char
-bool_to_byte(bool);
-
-signed char
-char_to_byte(char);
-
-signed char
-byte_to_byte(signed char);
-
-signed char
-ubyte_to_byte(unsigned char);
+cast_to_byte(unsigned int);
 
 unsigned char
 cast_to_ubyte(unsigned int);
@@ -68,38 +50,41 @@ main()
     check_bool("cast_to_bool(16)", cast_to_bool(16), true);
     check_bool("cast_to_bool(100)", cast_to_bool(100), false);
 
-    /* bool_to_char() tests */
-    check_char("bool_to_char(true)", bool_to_char(true), '\1');
-    check_char("bool_to_char(false)", bool_to_char(false), '\0');
+    /* cast_to_char() tests */
+    check_char("cast_to_char(0)", cast_to_char(0), '\1');
+    check_char("cast_to_char(1)", cast_to_char(1), '\0');
+    check_char("cast_to_char(2)", cast_to_char(2), 255);
+    check_char("cast_to_char(3)", cast_to_char(3), '\n');
+    check_char("cast_to_char(4)", cast_to_char(4), 'b');
+    check_char("cast_to_char(5)", cast_to_char(5), '*');
+    check_char("cast_to_char(6)", cast_to_char(6), 255);
+    check_char("cast_to_char(7)", cast_to_char(7), 127);
+    check_char("cast_to_char(8)", cast_to_char(8), '\'');
+    check_char("cast_to_char(9)", cast_to_char(9), '@');
+    check_char("cast_to_char(10)", cast_to_char(10), 'l');
+    check_char("cast_to_char(11)", cast_to_char(11), ' ');
+    check_char("cast_to_char(12)", cast_to_char(12), 253);
+    check_char("cast_to_char(13)", cast_to_char(13), '0');
+    check_char("cast_to_char(100)", cast_to_char(100), 255);
 
-    /* char_to_char() tests */
-    check_char("char_to_char('\\0')", char_to_char('\0'), '\0');
-    check_char("char_to_char('b')", char_to_char('b'), 'b');
-    check_char("char_to_char('\\n')", char_to_char('\n'), '\n');
-
-    /* byte_to_char() tests */
-    check_char("byte_to_char(42)", byte_to_char(42), '*');
-    check_char("byte_to_char(130)", byte_to_char(130), (char)130);
-
-    /* ubyte_to_char() tests */
-    check_char("ubyte_to_char(0)", ubyte_to_char(0), '\0');
-    check_char("ubyte_to_char(32)", ubyte_to_char(32), ' ');
-
-    /* bool_to_byte() tests */
-    check_byte("bool_to_byte(true)", bool_to_byte(true), 1);
-    check_byte("bool_to_byte(false)", bool_to_byte(false), 0);
-
-    /* char_to_byte() tests */
-    check_byte("char_to_byte('#')", '#', 35);
-    check_byte("char_to_byte('m')", 'm', 109);
-
-    /* byte_to_byte() tests */
-    check_byte("byte_to_byte(-9)", byte_to_byte(-9), -9);
-    check_byte("byte_to_byte(102)", byte_to_byte(102), 102);
-
-    /* ubyte_to_byte() tests */
-    check_byte("ubyte_to_byte(67)", ubyte_to_byte(67), 67);
-    check_byte("ubyte_to_byte(199)", ubyte_to_byte(199), -57);
+    /* cast_to_byte() tests */
+    check_byte("cast_to_byte(0)", cast_to_byte(0), 1);
+    check_byte("cast_to_byte(1)", cast_to_byte(1), 0);
+    check_byte("cast_to_byte(2)", cast_to_byte(2), 35);
+    check_byte("cast_to_byte(3)", cast_to_byte(3), 109);
+    check_byte("cast_to_byte(4)", cast_to_byte(4), -9);
+    check_byte("cast_to_byte(5)", cast_to_byte(5), 102);
+    check_byte("cast_to_byte(6)", cast_to_byte(6), 67);
+    check_byte("cast_to_byte(7)", cast_to_byte(7), -57);
+    check_byte("cast_to_byte(8)", cast_to_byte(8), 0);
+    check_byte("cast_to_byte(9)", cast_to_byte(9), 0x34);
+    check_byte("cast_to_byte(10)", cast_to_byte(10), 127);
+    check_byte("cast_to_byte(11)", cast_to_byte(11), -126);
+    check_byte("cast_to_byte(12)", cast_to_byte(12), -1);
+    check_byte("cast_to_byte(13)", cast_to_byte(13), 42);
+    check_byte("cast_to_byte(14)", cast_to_byte(14), 120);
+    check_byte("cast_to_byte(15)", cast_to_byte(15), 0x44);
+    check_byte("cast_to_byte(100)", cast_to_byte(100), 0);
 
     /* cast_to_ubyte() tests */
     check_ubyte("cast_to_ubyte(0)", cast_to_ubyte(0), 0);
@@ -110,7 +95,15 @@ main()
     check_ubyte("cast_to_ubyte(5)", cast_to_ubyte(5), 0);
     check_ubyte("cast_to_ubyte(6)", cast_to_ubyte(6), 0);
     check_ubyte("cast_to_ubyte(7)", cast_to_ubyte(7), 42);
-    check_ubyte("cast_to_ubyte(8)", cast_to_ubyte(8), 255);
+    check_ubyte("cast_to_ubyte(8)", cast_to_ubyte(8), 253);
+    check_ubyte("cast_to_ubyte(9)", cast_to_ubyte(9), 31);
+    check_ubyte("cast_to_ubyte(10)", cast_to_ubyte(10), 0);
+    check_ubyte("cast_to_ubyte(11)", cast_to_ubyte(11), 240);
+    check_ubyte("cast_to_ubyte(12)", cast_to_ubyte(12), 243);
+    check_ubyte("cast_to_ubyte(13)", cast_to_ubyte(13), 2);
+    check_ubyte("cast_to_ubyte(14)", cast_to_ubyte(14), 123);
+    check_ubyte("cast_to_ubyte(15)", cast_to_ubyte(15), 6);
+    check_ubyte("cast_to_ubyte(100)", cast_to_ubyte(100), 255);
 
     /* cast_to_short() tests */
     check_short("cast_to_short(0)", cast_to_short(0), -10);
@@ -123,10 +116,18 @@ main()
     check_short("cast_to_short(7)", cast_to_short(7), 109);
     check_short("cast_to_short(8)", cast_to_short(8), 0);
     check_short("cast_to_short(9)", cast_to_short(9), 110);
+    check_short("cast_to_short(10)", cast_to_short(10), -200);
+    check_short("cast_to_short(11)", cast_to_short(11), 0xcdef);
+    check_short("cast_to_short(12)", cast_to_short(12), 14234);
+    check_short("cast_to_short(13)", cast_to_short(13), -32767);
     check_short("cast_to_short(100)", cast_to_short(100), -1);
 
     /* cast_to_ushort() tests */
     check_ushort("cast_to_ushort(100)", cast_to_ushort(100), 65535);
+    check_ushort("cast_to_ushort(13)", cast_to_ushort(13), 0xf);
+    check_ushort("cast_to_ushort(12)", cast_to_ushort(12), 67);
+    check_ushort("cast_to_ushort(11)", cast_to_ushort(11), 2);
+    check_ushort("cast_to_ushort(10)", cast_to_ushort(10), 23000);
     check_ushort("cast_to_ushort(9)", cast_to_ushort(9), 123);
     check_ushort("cast_to_ushort(8)", cast_to_ushort(8), 23);
     check_ushort("cast_to_ushort(7)", cast_to_ushort(7), 32);
