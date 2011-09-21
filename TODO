@@ -1,4 +1,4 @@
-* following code is not compiler correctly
+* following code is not compiled correctly
 
 void
 main()
@@ -15,6 +15,21 @@ main()
 }
 
 expected output when running above is 'ok', when compiled with xdc, the output is 'err'
+
+* following code fails an assertion
+
+byte f() {
+  byte r;
+  if (true) {
+    byte b = 199;
+    r = cast(byte)b;
+  }
+}
+
+$ xdc err.d
+err.d:4: error: illegal type in initializer assignment
+xdc: ir_to_iml.c:264: iml_add_expression_eval: Assertion `res != ((void *)0)' failed.
+Aborted
 
 * following (probably, check the specs, but both dmd and gdc accept it) correct D code is rejected with
 compile errors by xdc:
