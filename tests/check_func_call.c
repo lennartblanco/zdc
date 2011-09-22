@@ -45,6 +45,21 @@ call_unnamed_arg4(int arg1, int arg2, int arg3);
 int
 call_func_5args(int a, int b, int x, int z, int n);
 
+int
+call_outside_func();
+
+/*---------------------------------------------------------------------------*
+ *                       function called from func_call.d                    *
+ *---------------------------------------------------------------------------*/
+
+int outside_func_res = -1;
+
+int
+_D9func_call12outside_funcFZi()
+{
+    return outside_func_res;
+}
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -122,6 +137,11 @@ main()
     check_int("func_5args(0, 5, 3, 1, 6)",
               call_func_5args(0, 5, 3, 1, 6),
               0 * 5 + 3 * 1 - 6);
+
+    /* call_outside_func() tests */
+    check_int("call_outside_func()", call_outside_func(), outside_func_res);
+    outside_func_res = 20;
+    check_int("call_outside_func()", call_outside_func(), outside_func_res);
 
     check_exit();
 }

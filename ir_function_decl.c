@@ -36,6 +36,7 @@ IrFunctionDecl *
 ir_function_decl_new(DtDataType *return_type,
                      char *name,
                      GSList *parameters,
+                     IrModule *parent_module,
                      ir_linkage_type_t linkage_type,
                      guint line_number)
 {
@@ -48,6 +49,7 @@ ir_function_decl_new(DtDataType *return_type,
                        "ir-symbol-name", name,
                        "ir-function-linkage-type", linkage_type,
                        "ir-node-line-number", line_number,
+                       "ir-symbol-parent-module", parent_module,
                        NULL);
    
     ir_function_set_return_type(IR_FUNCTION(obj), return_type);

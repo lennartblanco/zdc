@@ -68,7 +68,7 @@ struct_to_ir(compilation_status_t *compile_status,
              AstStruct *ast_struct);
 
 static IrFunctionDecl *
-func_decl_to_ir(AstFunctionDecl *ast_func_decl);
+func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module);
 
 /**
  * convert AST representation of a function definition to IR form.
@@ -207,7 +207,7 @@ import_module(compilation_status_t *compile_status,
     {
         IrFunctionDecl *ir_func_decl;
 
-        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data));
+        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
         if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_decl)) != 0)
         {
             compile_error(compile_status,
@@ -276,7 +276,8 @@ sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
     {
         IrFunctionDecl *ir_func_decl;
 
-        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data));
+        ir_func_decl =
+            func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
         if (!ir_module_add_function_decl(module, ir_func_decl))
         {
             compile_error(compile_status,
@@ -528,7 +529,7 @@ parse_linkage_type(const char *linkage_name)
 }
 
 static IrFunctionDecl *
-func_decl_to_ir(AstFunctionDecl *ast_func_decl)
+func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module)
 {
     assert(AST_IS_FUNCTION_DECL(ast_func_decl));
 
@@ -546,6 +547,7 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl)
         ir_function_decl_new(ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
                              parameters,
+                             parent_module,
                              linkage_type,
                              ast_node_get_line_num(ast_func_decl));
 

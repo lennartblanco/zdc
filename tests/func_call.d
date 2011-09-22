@@ -88,6 +88,14 @@ int func_5args(int a, int b, int x, int z, int n)
   return a * b + x * z - n;
 }
 
+int outside_func();
+
+// test calling function defined somewhere else
+extern (C) int call_outside_func()
+{
+  return outside_func();
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

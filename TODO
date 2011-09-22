@@ -65,18 +65,6 @@ err.d(11): Error: cannot implicitly convert expression (t) of type int to int[5u
 
 * the code below fails an assertion
 
-int foo();
-
-void main()
-{
-  foo();
-}
-
-$ ./xdc tst.d
-xdc: ir_symbol.c:104: ir_symbol_get_parent_module: Assertion `(((__extension__ ({ GTypeInstance *__inst = (GTypeInstance*) ((self->parent_module)); GType __t = (ir_module_get_type()); gboolean __r; if (__inst && __inst->g_class && __inst->g_class->g_type == __t) __r = (!(0)); else __r = g_type_check_instance_is_a (__inst, __t); __r; }))))' failed.
-
-* the code below fails an assertion
-
 void foo(int arg)
 {
 
