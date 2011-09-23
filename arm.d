@@ -284,6 +284,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.zpad:
                 compile_copy(asmfile, op);
                 break;
+            case iml_opcode.trunc:
+                compile_trunc(asmfile, op);
+                break;
             case iml_opcode.call_c:
             case iml_opcode.call:
                 compile_call(asmfile, op);
@@ -439,6 +442,46 @@ compile_copy(File asmfile, iml_operation *op)
         asmfile.writefln("    str %s, [fp, #%s]",
                          TEMP_REG1,
                          iml_variable_get_frame_offset(dest));
+    }
+}
+
+private void
+compile_trunc(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.trunc);
+    assert(iml_is_variable(iml_operation_get_operand(op, 1)));
+    assert(iml_is_variable(iml_operation_get_operand(op, 2)));
+
+    ImlVariable *val = cast(ImlVariable *)iml_operation_get_operand(op, 1);
+    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+
+    string val_reg = store_in_reg(asmfile, cast(ImlOperand*)val, TEMP_REG1);
+
+    string res_reg = to!string(iml_variable_get_register(res));
+    if (res_reg == null)
+    {
+        res_reg = TEMP_REG2;
+    }
+
+    string bit_mask;
+    switch (iml_variable_get_data_type(res))
+    {
+        case iml_data_type._8b:
+            bit_mask = "#0xffffff00";
+            break;
+        case iml_data_type._16b:
+            asmfile.writefln("    ldr %s, =0xffff0000", res_reg);
+            bit_mask = res_reg;
+            break;
+        default:
+            assert(false, "unexpected result data type");
+    }
+
+    asmfile.writefln("    bic %s, %s, %s",
+                     res_reg, val_reg, bit_mask);
+    if (iml_variable_get_register(res) == null)
+    {
+        gen_move_from_reg(asmfile, res_reg, res);
     }
 }
 
