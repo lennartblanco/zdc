@@ -39,6 +39,7 @@ typedef enum iml_opcode_e
     iml_ugreatereq,
     iml_bconv,
     iml_zpad,
+    iml_sigext,
     iml_trunc,
     iml_copy,
     iml_mset,

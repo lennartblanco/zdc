@@ -28,6 +28,7 @@ enum iml_opcode
     ugreatereq,
     bconv,
     zpad,
+    sigext,
     trunc,
     copy,
     mset,

@@ -131,6 +131,11 @@ zpad value => res
   - res variable of 16b, 32b or ptr type
   value's size must be smaller then res
 
+sigext value => res
+  signextend value to res size and store in res
+  - value variable of 8b or 16b type
+  - res variable of 16b, 32b or ptr type
+
 trunc value => res
   truncate, copy only the lower bits
   - value variable of 16b, 32b or ptr type
