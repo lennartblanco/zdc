@@ -1191,12 +1191,8 @@ iml_add_binary_op_eval(IrFunctionDef *function,
 }
 
 static iml_opcode_t
-get_cast_opcode(IrCast *cast)
+get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
 {
-    DtDataType *src_type =
-        ir_expression_get_data_type(ir_cast_get_value(cast));
-    DtDataType *target_type = ir_cast_get_target_type(cast);
-
     if (dt_is_basic(target_type))
     {
         if (dt_is_basic(src_type))
@@ -1208,6 +1204,11 @@ get_cast_opcode(IrCast *cast)
 
             assert(basic_cast_ops[trgt_bdt][src_bdt] != -1);
             return basic_cast_ops[trgt_bdt][src_bdt];
+        }
+        else if (DT_IS_ENUM(src_type))
+        {
+            return get_cast_opcode(dt_enum_get_base_type(DT_ENUM(src_type)),
+                                   target_type);
         }
         else
         {
@@ -1223,7 +1224,9 @@ get_cast_opcode(IrCast *cast)
 static ImlOperand *
 iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest)
 {
-    iml_opcode_t cast_op = get_cast_opcode(cast);
+    iml_opcode_t cast_op =
+        get_cast_opcode(ir_expression_get_data_type(ir_cast_get_value(cast)),
+                        ir_cast_get_target_type(cast));
 
     ImlOperand *src =
         iml_add_expression_eval(function,
