@@ -496,6 +496,19 @@ extern (C)
       return cast(short)u;
     }
 
+    /* byte to short */
+    else if (14 == testno)
+    {
+      byte b = -10;
+      return cast(short)b;
+    }
+    else if (15 == testno)
+    {
+      byte b = 34;
+      return cast(short)b;
+    }
+
+
     return -1;
   }
 
@@ -586,6 +599,18 @@ extern (C)
       return cast(ushort)u;
     }
 
+    /* byte to ushort */
+    else if (14 == testno)
+    {
+      byte b = -7;
+      return cast(ushort)b;
+    }
+    else if (15 == testno)
+    {
+      byte b = 4;
+      return cast(ushort)b;
+    }
+
     return 65535;
   }
 
@@ -663,6 +688,30 @@ extern (C)
     {
       ushort s = 257;
       return cast(int)s;
+    }
+
+    /* byte to int */
+    else if (12 == testno)
+    {
+      byte b = -100;
+      return cast(int)b;
+    }
+    else if (13 == testno)
+    {
+      byte b = 56;
+      return cast(int)b;
+    }
+
+    /* short to int */
+    else if (14 == testno)
+    {
+      short c = -9;
+      return cast(int)c;
+    }
+    else if (15 == testno)
+    {
+      short c = 9;
+      return cast(int)c;
     }
 
     return -1;
@@ -743,6 +792,31 @@ extern (C)
       ushort b;
       return cast(uint)b;
     }
+
+    /* byte to uint */
+    else if (12 == testno)
+    {
+      byte b = -120;
+      return cast(uint)b;
+    }
+    else if (13 == testno)
+    {
+      byte b = 119;
+      return cast(uint)b;
+    }
+
+    /* short to uint */
+    else if (14 == testno)
+    {
+      short c = 1234;
+      return cast(uint)c;
+    }
+    else if (15 == testno)
+    {
+      short c = -1;
+      return cast(uint)c;
+    }
+
 
     return 0;
   }

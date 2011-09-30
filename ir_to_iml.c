@@ -32,10 +32,10 @@ static iml_opcode_t basic_cast_ops[last_basic_type][last_basic_type] =
  /*  bool  */ {-1, iml_bconv, iml_copy, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv},
  /*  byte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
  /* ubyte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
- /* short  */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
- /* ushort */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
- /*  int   */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, -1, iml_zpad, iml_copy, iml_copy},
- /*  uint  */ {-1, iml_zpad, iml_zpad, -1, iml_zpad, -1, iml_zpad, iml_copy, iml_copy}
+ /* short  */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
+ /* ushort */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
+ /*  int   */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy},
+ /*  uint  */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy}
 };
 
 /*---------------------------------------------------------------------------*
