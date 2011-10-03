@@ -287,6 +287,9 @@ compile_function_def(File asmfile, IrFunctionDef *func)
             case iml_opcode.trunc:
                 compile_trunc(asmfile, op);
                 break;
+            case iml_opcode.sigext:
+                compile_sigext(asmfile, op);
+                break;
             case iml_opcode.call_c:
             case iml_opcode.call:
                 compile_call(asmfile, op);
@@ -479,6 +482,67 @@ compile_trunc(File asmfile, iml_operation *op)
 
     asmfile.writefln("    bic %s, %s, %s",
                      res_reg, val_reg, bit_mask);
+    if (iml_variable_get_register(res) == null)
+    {
+        gen_move_from_reg(asmfile, res_reg, res);
+    }
+}
+
+private void
+compile_sigext(File asmfile, iml_operation *op)
+{
+    assert(iml_operation_get_opcode(op) == iml_opcode.sigext);
+    assert(iml_is_variable(iml_operation_get_operand(op, 1)));
+    assert(iml_is_variable(iml_operation_get_operand(op, 2)));
+
+    ImlVariable *val = cast(ImlVariable *)iml_operation_get_operand(op, 1);
+    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+
+    /* make sure val operand is stored in a register */
+    string val_reg = store_in_reg(asmfile, cast(ImlOperand*)val, TEMP_REG1);
+
+    /* if result is stored in frame offset, use temporary register */
+    string res_reg = to!string(iml_variable_get_register(res));
+    if (res_reg == null)
+    {
+        res_reg = TEMP_REG2;
+    }
+
+    /* pick instraction to use for sign extension */
+    string inst;
+    if (iml_variable_get_data_type(val) == iml_data_type._8b)
+    {
+        if (iml_variable_get_data_type(res) == iml_data_type._16b)
+        {
+            /*
+             * the val register bits 23:16 should be zero, so
+             * the result register bits 31:16 will be set to zero thus
+             * the 8-bit value will be correctly sign extended to 16-bit
+             */
+            inst = "sxtb16";
+        }
+        else
+        {
+            assert(iml_variable_get_data_type(res) == iml_data_type._32b ||
+                   iml_variable_get_data_type(res) == iml_data_type.ptr);
+            inst = "sxtb";
+        }
+    }
+    else
+    {
+        assert(iml_variable_get_data_type(val) == iml_data_type._16b);
+        assert(iml_variable_get_data_type(res) == iml_data_type._32b ||
+                iml_variable_get_data_type(res) == iml_data_type.ptr);
+        inst = "sxth";
+    }
+
+    asmfile.writefln("    %s %s, %s",
+                     inst, res_reg, val_reg);
+
+    /*
+     * if temporary register for result was used, make sure the result
+     * is stored in the frame offset
+     */
     if (iml_variable_get_register(res) == null)
     {
         gen_move_from_reg(asmfile, res_reg, res);
