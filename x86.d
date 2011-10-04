@@ -154,7 +154,6 @@ x86_compile_sigext(FILE *output, iml_operation *op)
             default:
                 assert(false, "unexpected register '" ~ register ~ "'");
         }
-        writefln("low name get_8bit %s register '%s' -> %s", get_8bit, register, res);
         return res;
     }
 
