@@ -1,3 +1,10 @@
+* following code fails an assertion
+
+void main() { bool x = cast(bool)main(); }
+
+$ ./xdc err.d
+xdc: ir_to_iml.c:1216: get_cast_opcode: Assertion `0' failed.
+
 * following correct code generates a compile error
 
 void main()
