@@ -166,7 +166,8 @@ get_default_backend()
 string
 get_usage_message(string progname)
 {
-    return "usage: %s [OPTION]... [SOURCE_FILES]...\n" ~ progname ~
+    return "usage: " ~ progname ~ " [OPTION]... [SOURCE_FILES]...\n"
+           "\n"
            "Compile specified D source file(s).\n"
             "\n"
             "Options:\n"
