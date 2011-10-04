@@ -377,6 +377,8 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     }
     asmfile.writefln("    ldmfd sp, {%sfp, sp, pc}",
                      preserved_regs);
+    /* dump contents of the literal pool */
+    asmfile.writefln("    .pool\n");
 }
 
 
