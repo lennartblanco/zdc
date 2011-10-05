@@ -43,6 +43,7 @@ typedef struct
     guint (*get_size) (DtDataType *self);
     IrExpression * (*get_init) (DtDataType *self);
     bool (*is_same) (DtDataType *self, DtDataType *type);
+    bool (*is_impl_conv) (DtDataType *self, DtDataType *type);
     bool (*is_integral) (DtDataType *self);
 } DtDataTypeClass;
 
@@ -111,6 +112,12 @@ dt_data_type_is_same(DtDataType *self, DtDataType *type);
  */
 bool
 dt_data_type_is_integral(DtDataType *self);
+
+/**
+ * @return true if type can be implicitly converted to self, false otherwise
+ */
+bool
+dt_data_type_is_impl_conv(DtDataType *self, DtDataType *type);
 
 guint
 dt_data_type_get_line_num(DtDataType *self);

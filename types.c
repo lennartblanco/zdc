@@ -502,45 +502,14 @@ IrExpression *
 types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)
 {
-    IrExpression *res;
-
-    if (dt_is_basic(target_type))
+    if (!dt_data_type_is_impl_conv(target_type,
+                                   ir_expression_get_data_type(expression)))
     {
-        res = implicit_conv_to_basic_type(target_type, expression);
-    }
-    else if (DT_IS_ARRAY(target_type))
-    {
-        res = types_arrays_implicit_conv(DT_ARRAY(target_type), expression);
-    }
-    else if (DT_IS_ENUM(target_type))
-    {
-        if (dt_data_type_is_same(target_type,
-                                 ir_expression_get_data_type(expression)))
-        {
-            res = expression;
-        }
-        else
-        {
-            res = NULL;
-        }
-    }
-    else if (DT_IS_POINTER(target_type))
-    {
-        res = implicit_conv_to_pointer(DT_POINTER(target_type),
-                                       expression);
-    }
-    else
-    {
-        /* unexpected target type */
-        assert(false);
+        /* can't implicitly convert expression to target type */
+        return NULL;
     }
 
-    if (IR_IS_CAST(res))
-    {
-        res = cfold_cast(IR_CAST(res));
-    }
-
-    return res;
+    return cfold_cast(ir_cast_new(target_type, expression));
 }
 
 IrExpression *

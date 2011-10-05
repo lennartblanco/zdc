@@ -135,6 +135,21 @@ dt_data_type_is_integral(DtDataType *self)
     return DT_DATA_TYPE_GET_CLASS(self)->is_integral(self);
 }
 
+bool
+dt_data_type_is_impl_conv(DtDataType *self, DtDataType *type)
+{
+    assert(DT_IS_DATA_TYPE(self));
+    assert(DT_IS_DATA_TYPE(type));
+
+    if (dt_data_type_is_same(self, type))
+    {
+        /* all types are always implicitly convertable to them selfs */
+        return true;
+    }
+    assert(DT_DATA_TYPE_GET_CLASS(self)->is_impl_conv != NULL);
+    return DT_DATA_TYPE_GET_CLASS(self)->is_impl_conv(self, type);
+}
+
 guint
 dt_data_type_get_line_num(DtDataType *self)
 {
