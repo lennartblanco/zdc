@@ -30,3 +30,32 @@ pbconv - pointer to boolean conversation, (src == null) ? 0 : 1
 zpad - zero pad, copy lower bits as is, set higher bits to 0 
 sigext - sign extend
 trunc - truncate, copy only the lower bits
+
+
+implicit conversions
+
+T1 x;
+T2 y = x;
+
+        | void  | bool | char | byte | ubyte | short | ushort | int | uint    <--- T1
+   ------------------------------------------------------------------------
+   void |  n/a  | n/a  | n/a  | n/a  |  n/a  |  n/a  |  n/a   | n/a | n/a
+   ------------------------------------------------------------------------
+   bool |  no   | yes  | no   |  no  |  no   |  no   |   no   | no  | no
+   ------------------------------------------------------------------------
+   char |  no   | yes  | yes  |  yes |  yes  |  no   |   no   | no  | no
+   ------------------------------------------------------------------------
+   byte |  no   | yes  | yes  |  yes |  yes  |  no   |   no   | no  | no
+   ------------------------------------------------------------------------
+  ubyte |  no   | yes  | yes  |  yes |  yes  |  no   |   no   | no  | no
+   ------------------------------------------------------------------------
+  short |  no   | yes  | yes  |  yes |  yes  |  yes  |   yes  | no  | no
+   ------------------------------------------------------------------------
+ ushort |  no   | yes  | yes  |  yes |  yes  |  yes  |   yes  | no  | no
+   ------------------------------------------------------------------------
+    int |  no   | yes  | yes  |  yes |  yes  |  yes  |   yes  | yes | yes
+   ------------------------------------------------------------------------
+   uint |  no   | yes  | yes  |  yes |  yes  |  yes  |   yes  | yes | yes
+
+    ^
+    T2
