@@ -1,4 +1,5 @@
 #include "dt_data_type.h"
+#include "dt_enum.h"
 
 #include <assert.h>
 
@@ -136,18 +137,28 @@ dt_data_type_is_integral(DtDataType *self)
 }
 
 bool
-dt_data_type_is_impl_conv(DtDataType *self, DtDataType *type)
+dt_data_type_is_impl_conv(DtDataType *self, IrExpression *expression)
 {
     assert(DT_IS_DATA_TYPE(self));
-    assert(DT_IS_DATA_TYPE(type));
+    assert(IR_IS_EXPRESSION(expression));
 
-    if (dt_data_type_is_same(self, type))
+    DtDataType *expr_type = ir_expression_get_data_type(expression);
+
+    if (dt_data_type_is_same(self, expr_type))
     {
-        /* all types are always implicitly convertable to them selfs */
+        /* all types are always implicitly convertible to them self */
         return true;
     }
+    else if (DT_IS_ENUM(expr_type) &&
+             dt_data_type_is_same(self,
+                                  dt_enum_get_base_type(DT_ENUM(expr_type))))
+    {
+        /* enum type are implicitly convertible to it's base type */
+        return true;
+    }
+
     assert(DT_DATA_TYPE_GET_CLASS(self)->is_impl_conv != NULL);
-    return DT_DATA_TYPE_GET_CLASS(self)->is_impl_conv(self, type);
+    return DT_DATA_TYPE_GET_CLASS(self)->is_impl_conv(self, expression);
 }
 
 guint

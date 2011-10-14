@@ -10,7 +10,8 @@
  *---------------------------------------------------------------------------*/
 
 /**
- * table of allowed implicit casts between basic types
+ * table of allowed implicit casts between basic types, where there is
+ * no need to check value ranges
  *
  * column index is the source type, row index is target type,
  * if cell at impl_convs[target_type][source_type] == true, then implicit
@@ -130,6 +131,50 @@ dt_basic_is_signed(DtBasic *self)
     }
 
     return is_signed;
+}
+
+UtRange *
+dt_basic_get_value_range(DtBasic *self)
+{
+    assert(dt_is_basic(self));
+    static UtRange *type_ranges[last_basic_type] =
+        {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    if (type_ranges[self->data_type] == NULL)
+    {
+        switch (self->data_type)
+        {
+            case bool_type:
+                type_ranges[self->data_type] = ut_range_new(0, 1);
+                break;
+            case char_type:
+                type_ranges[self->data_type] = ut_range_new(0, 255);
+                break;
+            case byte_type:
+                type_ranges[self->data_type] = ut_range_new(-128, 127);
+                break;
+            case ubyte_type:
+                type_ranges[self->data_type] = ut_range_new(0, 255);
+                break;
+            case short_type:
+                type_ranges[self->data_type] = ut_range_new(-32768, 32767);
+                break;
+            case ushort_type:
+                type_ranges[self->data_type] = ut_range_new(0, 65535);
+                break;
+            case int_type:
+                type_ranges[self->data_type] =
+                                     ut_range_new(-2147483647 - 1, 2147483647);
+                break;
+            case uint_type:
+                type_ranges[self->data_type] = ut_range_new(0, 4294967295u);
+                break;
+            default:
+                /* unexpected data type */
+                assert(false);
+        }
+    }
+
+    return type_ranges[self->data_type];
 }
 
 bool
@@ -341,19 +386,40 @@ dt_basic_is_integral(DtDataType *self)
 }
 
 static bool
-dt_basic_is_impl_conv(DtDataType *self, DtDataType *type)
+dt_basic_is_impl_conv(DtDataType *self, IrExpression *expression)
 {
     assert(dt_is_basic(self));
-    assert(DT_IS_DATA_TYPE(type));
+    assert(IR_IS_EXPRESSION(expression));
 
-    if (!dt_is_basic(type))
+    DtDataType *expr_type = ir_expression_get_data_type(expression);
+
+    if (!dt_is_basic(expr_type))
     {
+        /* only basic types are implicitly convertible to basic types */
         return false;
     }
 
-    return
-        impl_convs[dt_basic_get_data_type(DT_BASIC(self))]
-                  [dt_basic_get_data_type(DT_BASIC(type))];
+    if (dt_basic_is_void(expr_type))
+    {
+        /*
+         *  handle the special case void type,
+         * void types can't be converted to any basic types
+         */
+        return false;
+    }
+
+    if (impl_convs[dt_basic_get_data_type(DT_BASIC(self))]
+                  [dt_basic_get_data_type(DT_BASIC(expr_type))])
+    {
+        /* a narrow type is converted to wider type */
+        return true;
+    }
+
+    /* check is expression value range fits into target type */
+    UtRange *type_range = dt_basic_get_value_range(DT_BASIC(self));
+    UtRange *exp_range = ir_expression_get_value_range(expression);
+
+    return ut_range_includes(type_range, exp_range);
 }
 
 static void

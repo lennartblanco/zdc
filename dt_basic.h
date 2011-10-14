@@ -52,6 +52,9 @@ dt_basic_get_data_type(DtBasic *self);
 bool
 dt_basic_is_signed(DtBasic *self);
 
+UtRange *
+dt_basic_get_value_range(DtBasic *self);
+
 /**
  * Returns true if data_type represent basic type void,
  * false otherwise.

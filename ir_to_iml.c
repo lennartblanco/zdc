@@ -1216,6 +1216,10 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
             assert(false);
         }
     }
+    else if (DT_IS_ARRAY(target_type))
+    {
+        return iml_copy;
+    }
 
     /* unexpected target data type */
     assert(false);

@@ -502,8 +502,14 @@ IrExpression *
 types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)
 {
-    if (!dt_data_type_is_impl_conv(target_type,
-                                   ir_expression_get_data_type(expression)))
+    if (dt_data_type_is_same(target_type,
+                             ir_expression_get_data_type(expression)))
+    {
+        /* no cast is needed */
+        return expression;
+    }
+
+    if (!dt_data_type_is_impl_conv(target_type, expression))
     {
         /* can't implicitly convert expression to target type */
         return NULL;
