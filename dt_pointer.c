@@ -151,6 +151,15 @@ dt_pointer_get_size(DtDataType *self)
     return 4;
 }
 
+static bool
+dt_pointer_is_impl_conv(DtDataType *self, IrExpression *expression)
+{
+    assert(DT_IS_POINTER(self));
+    assert(IR_IS_EXPRESSION(expression));
+
+    return false;
+}
+
 static void
 dt_pointer_class_init(gpointer klass, gpointer dummy)
 {
@@ -159,5 +168,6 @@ dt_pointer_class_init(gpointer klass, gpointer dummy)
     DT_DATA_TYPE_CLASS(klass)->get_init = dt_pointer_get_init;
     DT_DATA_TYPE_CLASS(klass)->is_same = dt_pointer_is_same;
     DT_DATA_TYPE_CLASS(klass)->get_size = dt_pointer_get_size;
+    DT_DATA_TYPE_CLASS(klass)->is_impl_conv = dt_pointer_is_impl_conv;
 }
 
