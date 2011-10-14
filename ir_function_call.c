@@ -12,9 +12,6 @@
 static void
 ir_function_call_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_function_call_do_get_data_type(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -118,6 +115,14 @@ ir_function_call_get_name(IrFunctionCall *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static DtDataType *
+ir_function_call_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_FUNCTION_CALL(self));
+
+    return IR_FUNCTION_CALL(self)->return_type;
+}
+
 static UtRange *
 ir_function_call_get_value_range(IrExpression *self)
 {
@@ -135,10 +140,4 @@ ir_function_call_class_init(gpointer klass, gpointer dummy)
         ir_function_call_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->get_value_range =
         ir_function_call_get_value_range;
-}
-
-static DtDataType *
-ir_function_call_do_get_data_type(IrExpression *self)
-{
-  return IR_FUNCTION_CALL(self)->return_type;
 }
