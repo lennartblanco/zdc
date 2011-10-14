@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "ir_expression.h"
+#include "dt_basic.h"
 
 #include <assert.h>
 
@@ -82,6 +83,17 @@ ir_expression_has_effect(IrExpression *self)
     assert(IR_IS_EXPRESSION(self));
 
     return IR_EXPRESSION_GET_CLASS(self)->has_effect(self);
+}
+
+UtRange *
+ir_expression_get_value_range(IrExpression *self)
+{
+    assert(IR_IS_EXPRESSION(self));
+    /* value ranges are only defined for expressions of basic type */
+    assert(dt_is_basic(ir_expression_get_data_type(self)));
+    assert(IR_EXPRESSION_GET_CLASS(self)->get_value_range);
+
+    return IR_EXPRESSION_GET_CLASS(self)->get_value_range(self);
 }
 
 /*---------------------------------------------------------------------------*

@@ -29,6 +29,7 @@ typedef struct
     IrConstant parent;
     /* private */
     basic_data_type_t type;
+    UtRange *value_range;
     union {
         gint32 int_val;
         guint32 uint_val;

@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "ir_function_call.h"
+#include "dt_basic.h"
 
 #include <assert.h>
 
@@ -117,11 +118,23 @@ ir_function_call_get_name(IrFunctionCall *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static UtRange *
+ir_function_call_get_value_range(IrExpression *self)
+{
+    assert(IR_IS_FUNCTION_CALL(self));
+
+    IrFunctionCall *fcall = IR_FUNCTION_CALL(self);
+
+    return dt_basic_get_value_range(DT_BASIC(fcall->return_type));
+}
+
 static void
 ir_function_call_class_init(gpointer klass, gpointer dummy)
 {
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_function_call_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->get_value_range =
+        ir_function_call_get_value_range;
 }
 
 static DtDataType *

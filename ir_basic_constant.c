@@ -182,6 +182,7 @@ ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
                        line_number, NULL);
 
     obj->type = type;
+    obj->value_range = NULL;
     switch (type)
     {
         case int_type:
@@ -215,11 +216,57 @@ ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
     return obj;
 }
 
+static UtRange *
+ir_basic_constant_get_value_range(IrExpression *self)
+{
+    assert(IR_IS_BASIC_CONSTANT(self));
+
+    if (IR_BASIC_CONSTANT(self)->value_range == NULL)
+    {
+        IrBasicConstant *bc = IR_BASIC_CONSTANT(self);
+        gint64 val;
+        switch (bc->type)
+        {
+            case int_type:
+                val = bc->int_val;
+                break;
+            case uint_type:
+                val = bc->uint_val;
+                break;
+            case short_type:
+                val = bc->short_val;
+                break;
+            case ushort_type:
+                val = bc->ushort_val;
+                break;
+            case byte_type:
+                val = bc->byte_val;
+                break;
+            case ubyte_type:
+                val = bc->ubyte_val;
+                break;
+            case char_type:
+                val = bc->char_val;
+                break;
+            case bool_type:
+                val = bc->bool_val;
+                break;
+            default:
+                assert(false); /* unexpected basic data type */
+        }
+        bc->value_range = ut_range_new(val, val);
+    }
+
+    return IR_BASIC_CONSTANT(self)->value_range;
+}
+
 static void
 ir_basic_constant_class_init(gpointer klass, gpointer dummy)
 {
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_basic_constant_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->get_value_range =
+        ir_basic_constant_get_value_range;
 }
 
 static DtDataType *

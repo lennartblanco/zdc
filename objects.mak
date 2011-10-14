@@ -5,7 +5,7 @@ ARM_TRGT_OBJS := arm-d.o arm_util-d.o
 
 # objects generated from C source files
 COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
-         errors.o types.o types_arrays.o const_fold.o                         \
+         ut_range.o errors.o types.o types_arrays.o const_fold.o              \
          ast_to_ir.o sem_analyze.o sem_analyze_validate.o                     \
          ast_node.o ast_module.o  ast_array_literal.o ast_code_block.o        \
          ast_statment.o ast_function_def.o ast_function_decl.o                \

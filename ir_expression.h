@@ -8,6 +8,7 @@
 #include "dt_types.h"
 #include "ir_statment.h"
 #include "dt_data_type.h"
+#include "ut_range.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -43,6 +44,7 @@ typedef struct
   bool (*do_is_constant) (IrExpression *self);
   bool (*do_is_lvalue) (IrExpression *self);
   bool (*has_effect) (IrExpression *self);
+  UtRange * (*get_value_range) (IrExpression *self);
 } IrExpressionClass;
 
 /*---------------------------------------------------------------------------*
@@ -74,5 +76,8 @@ ir_expression_is_lvalue(IrExpression *self);
   */
 bool
 ir_expression_has_effect(IrExpression *self);
+
+UtRange *
+ir_expression_get_value_range(IrExpression *self);
 
 #endif /* IR_EXPRESSION_INC_X */
