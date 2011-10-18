@@ -1,0 +1,12 @@
+void func1() { }
+void func2(int arg) { }
+int func3() { return 0; }
+
+int
+invalid_func_calls()
+{
+  /* function calls with missing arguments list */
+  func1;
+  func2;
+  return func3;
+}

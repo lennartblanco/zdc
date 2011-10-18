@@ -1472,6 +1472,16 @@ expression_to_ir(compilation_status_t *compile_status,
                           ident,
                           "reference to unknown symbol '%s'\n",
                           ast_ident_get_name(ident));
+            return NULL;
+        }
+        if (IR_IS_FUNCTION(symb))
+        {
+            compile_error(compile_status,
+                          ident,
+                          "invalid call to function '%s',"
+                          " expected arguments\n",
+                          ast_ident_get_name(ident));
+            return NULL;
         }
         return IR_EXPRESSION(symb);
     }

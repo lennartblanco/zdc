@@ -1,4 +1,3 @@
 invalid_returns.d:5: error: return expression have incompatible type
 invalid_returns.d:11: error: return expression have incompatible type
 invalid_returns.d:22: error: return expression of type int expected
-invalid_returns.d:28: error: return expression have incompatible type

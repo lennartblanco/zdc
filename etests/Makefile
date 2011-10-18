@@ -37,6 +37,7 @@ structs: structs.d
 inc_dec_ops: inc_dec_ops.d
 inv_break: inv_break.d
 for_loop: for_loop.d
+invalid_func_calls: invalid_func_calls.d
 
 %.d: %.inv_d
 	cp $? $@

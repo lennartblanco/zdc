@@ -22,8 +22,3 @@ no_value_return()
     return;
 }
 
-int
-return_of_func_symb()
-{
-    return ret_int;
-}

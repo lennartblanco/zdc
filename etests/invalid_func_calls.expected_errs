@@ -1,0 +1,3 @@
+invalid_func_calls.d:9: error: invalid call to function 'func1', expected arguments
+invalid_func_calls.d:10: error: invalid call to function 'func2', expected arguments
+invalid_func_calls.d:11: error: invalid call to function 'func3', expected arguments
