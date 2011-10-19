@@ -1,6 +1,7 @@
 #include <strings.h>
 
 #include "ir_variable.h"
+#include "dt_basic.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -159,6 +160,17 @@ ir_variable_do_is_lvalue(IrExpression *self)
     return true;
 }
 
+static UtRange *
+ir_variable_get_value_range(IrExpression *self)
+{
+    assert(IR_IS_VARIABLE(self));
+
+    DtDataType *type = ir_expression_get_data_type(self);
+    assert(dt_is_basic(type));
+
+    return dt_basic_get_value_range(DT_BASIC(type));
+}
+
 static void
 ir_variable_class_init(gpointer klass, gpointer foo)
 {
@@ -167,4 +179,7 @@ ir_variable_class_init(gpointer klass, gpointer foo)
         ir_variable_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
         ir_variable_do_is_lvalue;
+    IR_EXPRESSION_CLASS(klass)->get_value_range =
+        ir_variable_get_value_range;
+
 }
