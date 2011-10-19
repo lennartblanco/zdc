@@ -31,6 +31,9 @@ orange_locvar(int a, int b, char c);
 int
 call_orangize(struct orange *arg);
 
+int
+orange_address_of(int b, char c, bool via_ptr);
+
 unsigned
 list_sizeof();
 
@@ -83,6 +86,17 @@ test_orange()
     o.b = 0;
     o.c = '?';
     check_int("orangize({0, 0, '?'})", call_orangize(&o), -1);
+
+    /* orange_address_of() tests */
+    check_int("orange_address_of(10, '+', false)",
+              orange_address_of(10, '+', false), 2 + 10);
+    check_int("orange_address_of(-2, '-', false)",
+              orange_address_of(-2, '-', false), 2 - (-2));
+    check_int("orange_address_of(-10, '+', true)",
+              orange_address_of(-10, '+', true), 2 + (-10));
+    check_int("orange_address_of(200, '?', true)",
+              orange_address_of(200, '?', true), -1);
+
 }
 
 void

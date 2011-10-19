@@ -28,6 +28,7 @@
 #include "ast_struct.h"
 #include "ast_enum.h"
 #include "ast_ptr_dref.h"
+#include "ast_address_of.h"
 #include "ast_function_call.h"
 #include "ast_if_else.h"
 #include "ast_array_literal.h"
@@ -894,6 +895,11 @@ unary_expression<n> :
     {
         (*n).expression =
             AST_EXPRESSION(ast_ptr_dref_new(x.expression, yypos));
+    }
+|   '&' unary_expression<x>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_address_of_new(x.expression, yypos));
     }
 |   TOK_CAST '(' type<t> ')' unary_expression<exp>
     {

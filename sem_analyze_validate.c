@@ -29,6 +29,7 @@
 #include "ir_enum_member.h"
 #include "ir_dot.h"
 #include "ir_ptr_dref.h"
+#include "ir_address_of.h"
 #include "ir_ident.h"
 #include "ir_to_iml.h"
 #include "const_fold.h"
@@ -1038,6 +1039,39 @@ validate_ptr_dref(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+validate_address_of(compilation_status_t *compile_status,
+                    sym_table_t *sym_table,
+                    IrAddressOf *address_of)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_ADDRESS_OF(address_of));
+
+    IrExpression *exp = ir_address_of_get_expression(address_of);
+
+    /* validate operand expression */
+    exp = validate_expression(compile_status, sym_table, exp);
+    if (exp == NULL)
+    {
+        /* invalid expression dereferenced */
+        return NULL;
+    }
+    ir_address_of_set_expression(address_of, exp);
+
+    /* check that operand is an lvalue */
+    if (!ir_expression_is_lvalue(exp))
+    {
+        compile_error(compile_status,
+                      exp,
+                      "& expects a lvalue operand\n");
+        return NULL;
+    }
+
+    return IR_EXPRESSION(address_of);
+}
+
+
+static IrExpression *
 validate_conditional(compilation_status_t *compile_status,
                      sym_table_t *sym_table,
                      IrConditional *cond)
@@ -1188,6 +1222,13 @@ validate_expression(compilation_status_t *compile_status,
             validate_ptr_dref(compile_status,
                               sym_table,
                               IR_PTR_DREF(expression));
+    }
+    else if (IR_IS_ADDRESS_OF(expression))
+    {
+        expression =
+            validate_address_of(compile_status,
+                                sym_table,
+                                IR_ADDRESS_OF(expression));
     }
     else if (IR_IS_CONDITIONAL(expression))
     {

@@ -21,6 +21,7 @@
 #include "ast_uint_constant.h"
 #include "ast_postfix_exp.h"
 #include "ast_ptr_dref.h"
+#include "ast_address_of.h"
 #include "ast_cast.h"
 #include "ast_alias.h"
 #include "ast_enum.h"
@@ -47,6 +48,7 @@
 #include "ir_basic_constant.h"
 #include "ir_property.h"
 #include "ir_ptr_dref.h"
+#include "ir_address_of.h"
 #include "ir_enum_member.h"
 #include "ir_struct.h"
 #include "ir_dot.h"
@@ -1388,6 +1390,31 @@ ptr_dref_exp_to_ir(compilation_status_t *compile_status,
                             ast_node_get_line_num(AST_NODE(ast_ptr_dref))));
 }
 
+static IrExpression *
+address_of_to_ir(compilation_status_t *compile_status,
+                 sym_table_t *symbols,
+                 AstAddressOf *ast_addr_of)
+{
+    assert(AST_IS_ADDRESS_OF(ast_addr_of));
+
+    IrExpression *expr;
+
+    expr = expression_to_ir(compile_status,
+                            symbols,
+                            ast_address_of_get_expression(ast_addr_of));
+    if (expr == NULL)
+    {
+        /* invalid expression, bail out */
+        return NULL;
+    }
+
+    return
+        IR_EXPRESSION(
+            ir_address_of_new(expr,
+                              ast_node_get_line_num(AST_NODE(ast_addr_of))));
+}
+
+
 /**
  * Convert AST expression to IR form.
  */
@@ -1533,6 +1560,12 @@ expression_to_ir(compilation_status_t *compile_status,
         return ptr_dref_exp_to_ir(compile_status,
                                   symbols,
                                   AST_PTR_DREF(ast_expression));
+    }
+    else if (AST_IS_ADDRESS_OF(ast_expression))
+    {
+        return address_of_to_ir(compile_status,
+                                symbols,
+                                AST_ADDRESS_OF(ast_expression));
     }
 
     /* unexpected expression type */

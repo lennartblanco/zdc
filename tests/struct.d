@@ -70,6 +70,22 @@ orangize(orange *orng)
   return -1;
 }
 
+extern (C) int
+orange_address_of(int b, char c, bool via_ptr)
+{
+  orange o;
+  orange *ptr = &o;
+
+  o.b = b;
+  ptr.c = c;
+
+  if (via_ptr)
+  {
+    return orangize(ptr);
+  }
+  return orangize(&o);
+}
+
 extern (C) uint
 list_sizeof()
 {

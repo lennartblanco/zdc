@@ -6,6 +6,7 @@
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_ptr_dref.h"
+#include "ir_address_of.h"
 #include "ir_property.h"
 #include "ir_cast.h"
 #include "ir_null.h"
@@ -73,6 +74,11 @@ static ImlOperand *
 iml_add_ptr_dref_eval(IrFunctionDef *function,
                       IrPtrDref *ptr_dref,
                       ImlVariable *res);
+
+static ImlOperand *
+iml_add_address_of_eval(IrFunctionDef *function,
+                        IrAddressOf *addr_of,
+                        ImlVariable *res);
 
 static ImlOperand *
 iml_add_struct_member_eval(IrFunctionDef *function,
@@ -228,6 +234,12 @@ iml_add_expression_eval(IrFunctionDef *function,
         res = iml_add_ptr_dref_eval(function,
                                     IR_PTR_DREF(ir_expression),
                                     dest);
+    }
+    else if (IR_IS_ADDRESS_OF(ir_expression))
+    {
+        res = iml_add_address_of_eval(function,
+                                      IR_ADDRESS_OF(ir_expression),
+                                      dest);
     }
     else if (IR_IS_ENUM_MEMBER(ir_expression))
     {
@@ -1366,6 +1378,46 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
 
     /* pointer expression operand not needed any more */
     iml_func_frame_unused_oper(frame, ptr_exp);
+
+    return IML_OPERAND(res);
+}
+
+static ImlOperand *
+iml_add_address_of_eval(IrFunctionDef *function,
+                        IrAddressOf *addr_of,
+                        ImlVariable *res)
+{
+    assert(IR_IS_ADDRESS_OF(addr_of));
+
+    ImlVariable *addr_exp;
+    iml_func_frame_t *frame = ir_function_def_get_frame(function);
+
+    /* add iml to evaluate &-operand expression */
+    addr_exp =
+        IML_VARIABLE(
+            iml_add_expression_eval(function,
+                                    ir_address_of_get_expression(addr_of),
+                                    NULL,
+                                    false));
+
+    /* figure out where to store the result */
+    if (res == NULL)
+    {
+        res = iml_func_frame_get_temp(frame, iml_ptr);
+    }
+
+    /* the variable must by stored in the frame offset */
+    assert(iml_variable_get_register(addr_exp) == NULL);
+    /* only address of blob variables supperted for now */
+    assert(iml_variable_get_data_type(addr_exp) == iml_blob);
+
+    /* add iml to fetch the value from the address to the result variable */
+    ir_function_def_add_operation(
+        function,
+        iml_operation_new(iml_getaddr, addr_exp, res));
+
+    /* pointer expression operand not needed any more */
+    iml_func_frame_unused_oper(frame, IML_OPERAND(addr_exp));
 
     return IML_OPERAND(res);
 }

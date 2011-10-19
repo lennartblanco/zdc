@@ -1,0 +1,9 @@
+void func1()
+{
+  void *ptr;
+  int i;
+
+  ptr = &(5 + func1()); /* & over invalid expression */
+  ptr = &10;            /* & over non-lvalue expression */
+  ptr = &i;             /* int* to void* assigment */
+}
