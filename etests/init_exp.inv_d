@@ -88,3 +88,11 @@ int bool_err()
 
    return b;
 }
+
+byte func() {
+  byte r;
+  {
+    byte b = 199;
+    r = b;
+  }
+}

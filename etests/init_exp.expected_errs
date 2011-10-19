@@ -30,3 +30,4 @@ init_exp.d:78: error: illegal type in initializer assignment
 init_exp.d:81: error: can't assign expression of type int to lvalue of ubyte type
 init_exp.d:82: error: can't assign expression of type uint to lvalue of ubyte type
 init_exp.d:87: error: illegal type in initializer assignment
+init_exp.d:95: error: illegal type in initializer assignment

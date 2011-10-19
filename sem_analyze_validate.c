@@ -1349,7 +1349,10 @@ validate_assignment(compilation_status_t *compile_status,
     }
 
     /* valid assignment, add iml operations */
-    iml_add_assignment(compile_status->function, lvalue, converted_value);
+    if (compile_status->errors_count == 0)
+    {
+        iml_add_assignment(compile_status->function, lvalue, converted_value);
+    }
 }
 
 /**
