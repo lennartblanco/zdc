@@ -7,12 +7,6 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static guint
-dt_enum_get_size(DtDataType *self);
-
-static IrExpression *
-dt_enum_get_init(DtDataType *self);
-
 static void
 dt_enum_class_init(gpointer klass, gpointer dummy);
 
