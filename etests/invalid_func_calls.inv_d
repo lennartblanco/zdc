@@ -9,4 +9,5 @@ invalid_func_calls()
   func1;
   func2;
   return func3;
+  func1 = 2;
 }
