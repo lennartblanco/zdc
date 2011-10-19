@@ -5,17 +5,6 @@ void main() { bool x = cast(bool)main(); }
 $ ./xdc err.d
 xdc: ir_to_iml.c:1216: get_cast_opcode: Assertion `0' failed.
 
-* following correct code generates a compile error
-
-void main()
-{
-  byte b = -2;
-  short i = b;
-}
-
-$ ./xdc wee.d
-wee.d:4: error: illegal type in initializer assignment
-
 * following code is not compiled correctly
 
 void
