@@ -116,10 +116,20 @@ dt_enum_get_init(DtDataType *self)
     return IR_EXPRESSION(DT_ENUM(self)->first_member);
 }
 
+static bool
+dt_enum_is_impl_conv(DtDataType *self, IrExpression *expression)
+{
+    assert(DT_IS_ENUM(self));
+    assert(IR_IS_EXPRESSION(expression));
+
+    return false;
+}
+
 static void
 dt_enum_class_init(gpointer klass, gpointer dummy)
 {
     DT_USER_CLASS(klass)->get_mangled_prefix = dt_enum_get_mangled_prefix;
     DT_DATA_TYPE_CLASS(klass)->get_size = dt_enum_get_size;
     DT_DATA_TYPE_CLASS(klass)->get_init = dt_enum_get_init;
+    DT_DATA_TYPE_CLASS(klass)->is_impl_conv = dt_enum_is_impl_conv;
 }
