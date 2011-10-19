@@ -37,7 +37,7 @@ void func4()
 
 void func5()
 {
-  char_arg_func(30u);
+  char_arg_func(1030u);
 }
 
 enum tstenum { a, b, c }
