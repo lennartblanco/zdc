@@ -32,7 +32,7 @@ void invl_idx_var_type()
   }
 }
 
-//err.d:x: error: can not convert if condition to bool type
+//err.d:x: error: return expression of type int expected
 int
 foreach_err_in_body(int needle, int[6] haystack)
 {
@@ -40,10 +40,7 @@ foreach_err_in_body(int needle, int[6] haystack)
 
    foreach (i, int v; haystack[])
    {
-       if (v + needle)
-       {
-           pos = i;
-       }
+       return;
    }
    return pos;
 }

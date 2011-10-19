@@ -1,5 +1,5 @@
 foreach.d:7: error: expected array type for slice expression, got bool
 foreach.d:20: error: value variable type does not match aggregate element type
 foreach.d:29: error: invalid index variable 'i' type, expected int or uint
-foreach.d:43: error: can not convert if condition to bool type
-foreach.d:58: error: 'int' is not an aggregate type
+foreach.d:43: error: return expression of type int expected
+foreach.d:55: error: 'int' is not an aggregate type
