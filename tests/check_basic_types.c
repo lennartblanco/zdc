@@ -12,9 +12,6 @@ call_byte_vars(unsigned);
 unsigned char
 call_ubyte_vars(unsigned);
 
-int
-misc_to_int(unsigned);
-
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -60,15 +57,6 @@ main()
     check_ubyte("ubyte_vars(4)", call_ubyte_vars(4), 3);
     check_ubyte("ubyte_vars(5)", call_ubyte_vars(5), 111);
     check_ubyte("ubyte_vars(6)", call_ubyte_vars(6), 20);
-
-    /* misc_to_int() tests */
-    check_int("misc_to_int(-1)", misc_to_int(-1), -1);
-    check_int("misc_to_int(0)", misc_to_int(0), 3);
-    check_int("misc_to_int(1)", misc_to_int(1), 1);
-    check_int("misc_to_int(2)", misc_to_int(2), 4);
-    check_int("misc_to_int(3)", misc_to_int(3), 1);
-    check_int("misc_to_int(4)", misc_to_int(4), 5);
-    check_int("misc_to_int(5)", misc_to_int(5), -1);
 
     check_exit();
 }

@@ -27,6 +27,8 @@ call_char_to_uint(char arg1);
 unsigned
 call_char_lit_to_uint();
 
+int
+misc_to_int(unsigned);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -69,6 +71,15 @@ main()
 
     /* char_lit_to_uint() test */
     check_uint("char_lit_to_uint()", call_char_lit_to_uint(), (unsigned)'Z');
+
+    /* misc_to_int() tests */
+    check_int("misc_to_int(-1)", misc_to_int(-1), -1);
+    check_int("misc_to_int(0)", misc_to_int(0), 3);
+    check_int("misc_to_int(1)", misc_to_int(1), 1);
+    check_int("misc_to_int(2)", misc_to_int(2), 4);
+    check_int("misc_to_int(3)", misc_to_int(3), 1);
+    check_int("misc_to_int(4)", misc_to_int(4), 5);
+    check_int("misc_to_int(5)", misc_to_int(5), -1);
 
     check_exit();
 }

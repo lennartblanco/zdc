@@ -59,6 +59,45 @@ uint char_lit_to_uint()
     return res;
 }
 
+extern (C) int
+misc_to_int(uint i)
+{
+  int res = -1;
+
+  if (i == 0)
+  {
+    byte v = 3;
+
+    res = v;
+  }
+  else if (i == 1)
+  {
+    ubyte v = 1;
+
+    res = v;
+  }
+  else if (i == 2)
+  {
+    short v = 4;
+
+    res = v;
+  }
+  else if (i == 3)
+  {
+    ushort v = 1;
+
+    res = v;
+  }
+  else if (i == 4)
+  {
+    uint v = 5;
+
+    res = v;
+  }
+
+  return res;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
