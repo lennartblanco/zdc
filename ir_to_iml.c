@@ -13,6 +13,7 @@
 #include "iml_constant.h"
 #include "iml_variable.h"
 #include "types.h"
+#include "dt_void.h"
 #include "dt_pointer.h"
 #include "dt_static_array.h"
 
@@ -27,16 +28,15 @@
  */
 static iml_opcode_t basic_cast_ops[last_basic_type][last_basic_type] =
 {
-           /* void char bool byte ubyte short ushort int uint */
- /*  void  */ {-1, -1, -1, -1, -1, -1, -1, -1, -1},
- /*  char  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
- /*  bool  */ {-1, iml_bconv, iml_copy, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv},
- /*  byte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
- /* ubyte  */ {-1, iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
- /* short  */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
- /* ushort */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
- /*  int   */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy},
- /*  uint  */ {-1, iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy}
+           /* char bool byte ubyte short ushort int uint */
+ /*  char  */ {iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
+ /*  bool  */ {iml_bconv, iml_copy, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv, iml_bconv},
+ /*  byte  */ {iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
+ /* ubyte  */ {iml_copy, iml_copy, iml_copy, iml_copy, iml_trunc, iml_trunc, iml_trunc, iml_trunc},
+ /* short  */ {iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
+ /* ushort */ {iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy, iml_trunc, iml_trunc},
+ /*  int   */ {iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy},
+ /*  uint  */ {iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy}
 };
 
 /*---------------------------------------------------------------------------*
@@ -375,7 +375,7 @@ iml_add_func_call_eval(IrFunctionDef *function,
 
 
     if (res == NULL &&
-        !dt_basic_is_void(ir_expression_get_data_type(IR_EXPRESSION(func_call))))
+        !DT_IS_VOID(ir_expression_get_data_type(IR_EXPRESSION(func_call))))
     {
         res = iml_func_frame_get_temp(frame, iml_32b);
     }
@@ -1214,7 +1214,6 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
             basic_data_type_t trgt_bdt =
                 dt_basic_get_data_type(DT_BASIC(target_type));
 
-            assert(basic_cast_ops[trgt_bdt][src_bdt] != -1);
             return basic_cast_ops[trgt_bdt][src_bdt];
         }
         else if (DT_IS_ENUM(src_type))

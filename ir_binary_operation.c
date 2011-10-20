@@ -1,5 +1,6 @@
 #include "ir_binary_operation.h"
 #include "types.h"
+#include "dt_void.h"
 #include "dt_pointer.h"
 #include "utils.h"
 
@@ -251,7 +252,7 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
 static DtDataType *
 ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self)
 {
-    if (dt_basic_is_void(ir_expression_get_data_type(self->right)))
+    if (DT_IS_VOID(ir_expression_get_data_type(self->right)))
     {
         return types_get_void_type();
     }

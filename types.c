@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "types.h"
+#include "dt_void.h"
 #include "dt_enum.h"
 #include "dt_array.h"
 #include "dt_static_array.h"
@@ -67,9 +68,6 @@ types_integer_promotion(IrExpression *expression)
         case ushort_type:
             res_exp =
                 cfold_cast(ir_cast_new(types_get_int_type(), expression));
-            break;
-        case void_type:
-            res_exp = NULL;
             break;
         case int_type:
         case uint_type:
@@ -170,7 +168,7 @@ types_usual_arithm_conv(IrExpression *left,
      */
 
     left_type = ir_expression_get_data_type(left);
-    if (dt_basic_is_void(left_type))
+    if (DT_IS_VOID(left_type))
     {
         /* converting void types is illegal */
         return false;
@@ -182,7 +180,7 @@ types_usual_arithm_conv(IrExpression *left,
 
     right_type = ir_expression_get_data_type(right);
     /* only conversions of basic types is implemented */
-    if (dt_basic_is_void(right_type))
+    if (DT_IS_VOID(right_type))
     {
         /* converting void types is illegal */
         return false;
@@ -245,7 +243,7 @@ types_find_common(DtDataType *type1, DtDataType *type2)
         return type1;
     }
 
-    if (dt_basic_is_void(type1) || dt_basic_is_void(type2))
+    if (DT_IS_VOID(type1) || DT_IS_VOID(type2))
     {
         return types_get_void_type();
     }
@@ -369,7 +367,7 @@ types_get_void_type()
 
    if (void_data_type == NULL)
    {
-      void_data_type = DT_DATA_TYPE(dt_basic_new(void_type));
+      void_data_type = DT_DATA_TYPE(dt_void_new());
    }
 
    return void_data_type;

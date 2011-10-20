@@ -19,16 +19,15 @@
  */
 static bool impl_convs[last_basic_type][last_basic_type] =
 {
-             /* void  char   bool   byte   ubyte  short  ushort int    uint */
- /*  void  */ {false, false, false, false, false, false, false, false, false},
- /*  char  */ {false, true,  true,  true,  true,  false, false, false, false},
- /*  bool  */ {false, false, true,  false, false, false, false, false, false},
- /*  byte  */ {false, true,  true,  true,  true,  false, false, false, false},
- /* ubyte  */ {false, true,  true,  true,  true,  false, false, false, false},
- /* short  */ {false, true,  true,  true,  true,  true,  true,  false, false},
- /* ushort */ {false, true,  true,  true,  true,  true,  true,  false, false},
- /*  int   */ {false, true,  true,  true,  true,  true,  true,  true,  true},
- /*  uint  */ {false, true,  true,  true,  true,  true,  true,  true,  true}
+            /* char   bool   byte   ubyte  short  ushort int    uint */
+ /*  char  */ {true,  true,  true,  true,  false, false, false, false},
+ /*  bool  */ {false, true,  false, false, false, false, false, false},
+ /*  byte  */ {true,  true,  true,  true,  false, false, false, false},
+ /* ubyte  */ {true,  true,  true,  true,  false, false, false, false},
+ /* short  */ {true,  true,  true,  true,  true,  true,  false, false},
+ /* ushort */ {true,  true,  true,  true,  true,  true,  false, false},
+ /*  int   */ {true,  true,  true,  true,  true,  true,  true,  true},
+ /*  uint  */ {true,  true,  true,  true,  true,  true,  true,  true}
 };
 
 
@@ -138,7 +137,7 @@ dt_basic_get_value_range(DtBasic *self)
 {
     assert(dt_is_basic(self));
     static UtRange *type_ranges[last_basic_type] =
-        {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+        {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     if (type_ranges[self->data_type] == NULL)
     {
         switch (self->data_type)
@@ -175,12 +174,6 @@ dt_basic_get_value_range(DtBasic *self)
     }
 
     return type_ranges[self->data_type];
-}
-
-bool
-dt_basic_is_void(DtDataType *data_type)
-{
-    return dt_basic_is_type(data_type, void_type);
 }
 
 bool
@@ -261,9 +254,6 @@ dt_basic_get_string(DtDataType *self)
         case ubyte_type:
             str = "ubyte";
             break;
-        case void_type:
-            str = "void";
-            break;
         case bool_type:
             str = "bool";
             break;
@@ -320,8 +310,6 @@ dt_basic_get_mangled(DtDataType *self)
             return "g";
         case ubyte_type:
             return "h";
-        case void_type:
-            return "v";
         case bool_type:
             return "b";
         case char_type:
@@ -381,8 +369,8 @@ dt_basic_is_integral(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
-    /* currently only void basic type is not integral */
-    return DT_BASIC(self)->data_type != void_type;
+    /* currently all supported basic types are integral */
+    return true;
 }
 
 static bool
@@ -396,15 +384,6 @@ dt_basic_is_impl_conv(DtDataType *self, IrExpression *expression)
     if (!dt_is_basic(expr_type))
     {
         /* only basic types are implicitly convertible to basic types */
-        return false;
-    }
-
-    if (dt_basic_is_void(expr_type))
-    {
-        /*
-         *  handle the special case void type,
-         * void types can't be converted to any basic types
-         */
         return false;
     }
 

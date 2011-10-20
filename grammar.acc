@@ -5,6 +5,7 @@
 
 #include "yystype_def.h"
 #include "dt_auto.h"
+#include "dt_void.h"
 #include "dt_basic.h"
 #include "dt_pointer.h"
 #include "dt_name.h"
@@ -423,6 +424,10 @@ type<x> :
     {
         (*x).data_type = DT_DATA_TYPE(dt_auto_new());
     }
+|   TOK_VOID
+    {
+        (*x).data_type = DT_DATA_TYPE(dt_void_new());
+    }
 |   TOK_IMMUTABLE type<t>
     {
         dt_data_type_set_immutable(t.data_type, true);
@@ -440,11 +445,7 @@ type<x> :
 ;
 
 basic_type<x> :
-    TOK_VOID
-    {
-        (*x).data_type = DT_DATA_TYPE(dt_basic_new(void_type));
-    }
-|   TOK_UINT
+    TOK_UINT
     {
         (*x).data_type = DT_DATA_TYPE(dt_basic_new(uint_type));
     }

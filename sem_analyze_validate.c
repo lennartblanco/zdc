@@ -5,6 +5,7 @@
 #include "dt_pointer.h"
 #include "types.h"
 #include "dt_auto.h"
+#include "dt_void.h"
 #include "dt_static_array.h"
 #include "dt_pointer.h"
 #include "ir_function.h"
@@ -505,7 +506,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     data_type = ir_expression_get_data_type(left);
 
     /* left operand can not be of void type */
-    if (dt_basic_is_void(data_type))
+    if (DT_IS_VOID(data_type))
     {
         compile_error(compile_status,
                       IR_NODE(bin_op),
@@ -526,7 +527,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
 
 
     /* if right operand is not of void or bool type, cast to bool */
-    if (!dt_basic_is_void(data_type) &&
+    if (!DT_IS_VOID(data_type) &&
         !dt_basic_is_bool(data_type))
     {
         right = cfold_cast(ir_cast_new(types_get_bool_type(), right));
@@ -1293,8 +1294,8 @@ validate_return(compilation_status_t *compile_status,
     }
     else
     {
-        /* a return statment without an expression specified */
-        if (!dt_basic_is_void(func_return_type))
+        /* a return statement without an expression specified */
+        if (!DT_IS_VOID(func_return_type))
         {
             compile_error(compile_status,
                           IR_NODE(ret),
@@ -1824,7 +1825,7 @@ validate_foreach_range(compilation_status_t *compile_status,
         /* failed to find common type, bail out with compiler error */
         assert(false); /* not implemented */
     }
-    else if (dt_basic_is_void(common_type))
+    else if (DT_IS_VOID(common_type))
     {
         compile_error(compile_status,
                       lower_exp,
@@ -2307,7 +2308,7 @@ validate_function_def(compilation_status_t *compile_status,
     /*
      * For void function, add an implicit return statement if needed
      */
-    if (dt_basic_is_void(ir_function_def_get_return_type(func_def)))
+    if (DT_IS_VOID(ir_function_def_get_return_type(func_def)))
     {
         GSList *p;
         IrStatment *last_statment = NULL;
@@ -2680,7 +2681,7 @@ validate_entry_point(compilation_status_t *compile_status,
     }
 
     main_ret_type = ir_function_get_return_type(main_func);
-    if (!dt_basic_is_void(main_ret_type) &&
+    if (!DT_IS_VOID(main_ret_type) &&
         !dt_basic_is_int(main_ret_type))
     {
        compile_error(compile_status,
