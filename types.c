@@ -61,6 +61,10 @@ types_integer_promotion(IrExpression *expression)
     switch (exp_data_type) {
         case char_type:
         case bool_type:
+        case byte_type:
+        case ubyte_type:
+        case short_type:
+        case ushort_type:
             res_exp =
                 cfold_cast(ir_cast_new(types_get_int_type(), expression));
             break;

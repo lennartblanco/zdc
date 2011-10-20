@@ -13,6 +13,7 @@ while_loop
 func_call
 fact
 basic_types
+int_promotion
 implicit_cast
 bool_op
 arithm
