@@ -1,3 +1,16 @@
+* compiling following code for arm architecture generates invalid assembly:
+
+bool foo()
+{
+  int i;
+  return i == 314;
+}
+
+./xdc --march=arm err.d
+err.s: Assembler messages:
+err.s:16: Error: invalid constant (13a) after fixup
+error assembling 'err.s'
+
 * following code fails an assertion
 
 void main() { bool x = cast(bool)main(); }
