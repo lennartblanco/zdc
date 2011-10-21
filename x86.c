@@ -30,6 +30,7 @@ typedef struct x86_comp_params_s
 
 #define TEMP_REG1_NAME "ecx"
 #define TEMP_REG2_NAME "eax"
+#define TEMP_REG2_WORD_NAME "ax"
 #define TEMP_REG2_BYTE_NAME "al"
 
 /*---------------------------------------------------------------------------*
@@ -926,11 +927,15 @@ compile_set(FILE *out, iml_operation_t *op)
         offset_str = "";
     }
 
-    switch (iml_operand_get_data_type(src))
+    iml_data_type_t src_type = iml_operand_get_data_type(src);
+    switch (src_type)
     {
         case iml_32b:
         case iml_ptr:
             mov_suffix = "l";
+            break;
+        case iml_16b:
+            mov_suffix = "w";
             break;
         case iml_8b:
             mov_suffix = "b";
@@ -965,7 +970,7 @@ compile_set(FILE *out, iml_operation_t *op)
         assert(iml_is_variable(src));
         const char *src_reg;
 
-        if (iml_operand_get_data_type(src) == iml_8b)
+        if (src_type == iml_8b || src_type == iml_16b)
         {
             /*
              * handle the special case of 8-bit write.
@@ -978,7 +983,9 @@ compile_set(FILE *out, iml_operation_t *op)
                     TEMP_REG2_NAME,
                     TEMP_REG2_NAME);
             x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
-            src_reg = TEMP_REG2_BYTE_NAME;
+            src_reg =
+                (src_type == iml_8b) ?
+                    TEMP_REG2_BYTE_NAME : TEMP_REG2_WORD_NAME;
         }
         else
         {
@@ -1042,6 +1049,9 @@ compile_get(FILE *out, iml_operation_t *op)
         case iml_32b:
         case iml_ptr:
             mov_suffix = "l";
+            break;
+        case iml_16b:
+            mov_suffix = "zwl";
             break;
         case iml_8b:
             mov_suffix = "zbl";
