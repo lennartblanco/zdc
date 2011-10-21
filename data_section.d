@@ -15,14 +15,22 @@ get_data_section_string(DtBasic *exp_type,
 {
     switch (dt_basic_get_data_type(exp_type))
     {
+        case basic_data_type.bool_type:
+            return to!string(cast(int)ir_basic_constant_get_bool(exp));
+        case basic_data_type.char_type:
+            return to!string(cast(int)ir_basic_constant_get_char(exp));
+        case basic_data_type.byte_type:
+            return to!string(ir_basic_constant_get_byte(exp));
+        case basic_data_type.ubyte_type:
+            return to!string(ir_basic_constant_get_ubyte(exp));
+        case basic_data_type.short_type:
+            return to!string(ir_basic_constant_get_short(exp));
+        case basic_data_type.ushort_type:
+            return to!string(ir_basic_constant_get_ushort(exp));
         case basic_data_type.int_type:
             return to!string(ir_basic_constant_get_int(exp));
         case basic_data_type.uint_type:
             return to!string(ir_basic_constant_get_uint(exp));
-        case basic_data_type.bool_type:
-            return to!string(cast(int)ir_basic_constant_get_bool(exp));
-        case basic_data_type.char_type:
-            return to!string(ir_basic_constant_get_char(exp));
         default:
             assert(false, "unexpected data type");
     }
@@ -35,7 +43,12 @@ get_type_directive(DtBasic *type)
     {
         case basic_data_type.bool_type:
         case basic_data_type.char_type:
+        case basic_data_type.byte_type:
+        case basic_data_type.ubyte_type:
             return ".byte";
+        case basic_data_type.ushort_type:
+        case basic_data_type.short_type:
+            return ".short";
         case basic_data_type.int_type:
         case basic_data_type.uint_type:
             return ".int";

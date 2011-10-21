@@ -46,6 +46,12 @@ call_list_get_payload(struct list *arg);
 struct list *
 call_list_prepend(struct list *arg1, void *arg2);
 
+int
+all_types_get_def_val(unsigned testno);
+
+bool
+test_all_types_set_val();
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -140,11 +146,30 @@ test_list()
     free(p);
 }
 
+void
+test_all_types()
+{
+    /* all_types_get_def_val() tests */
+    check_int("all_types_get_def_val(100)", all_types_get_def_val(100), -1);
+    check_int("all_types_get_def_val(0)", all_types_get_def_val(0), 'a');
+    check_int("all_types_get_def_val(1)", all_types_get_def_val(1), true);
+    check_int("all_types_get_def_val(2)", all_types_get_def_val(2), -2);
+    check_int("all_types_get_def_val(3)", all_types_get_def_val(3), 202);
+    check_int("all_types_get_def_val(4)", all_types_get_def_val(4), -5);
+    check_int("all_types_get_def_val(5)", all_types_get_def_val(5), 30000);
+    check_int("all_types_get_def_val(6)", all_types_get_def_val(6), -3);
+    check_int("all_types_get_def_val(7)", all_types_get_def_val(7), 0);
+
+    /* test_all_types_set_val() tests */
+    check_bool("test_all_types_set_val()", test_all_types_set_val(), true);
+}
+
 int
 main()
 {
     test_orange();
     test_list();
+    test_all_types();
 
     check_exit();
 }
