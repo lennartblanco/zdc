@@ -27,6 +27,9 @@ cast_to_uint(unsigned int);
 void *
 cast_to_void_ptr(unsigned int);
 
+int *
+cast_to_int_ptr(unsigned int);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -197,6 +200,15 @@ main()
     check_pointer("cast_to_void_ptr(8)", cast_to_void_ptr(8), 0xAABB);
     check_pointer("cast_to_void_ptr(9)", cast_to_void_ptr(9), 0x4);
     check_pointer("cast_to_void_ptr(10)", cast_to_void_ptr(10), 0x10);
+
+    /* cast_to_int_ptr */
+    check_pointer("cast_to_int_ptr(100)", cast_to_int_ptr(100), 0x0);
+    check_pointer("cast_to_int_ptr(0)", cast_to_int_ptr(0), 0x1);
+    check_pointer("cast_to_int_ptr(1)", cast_to_int_ptr(1), 0x51);
+    check_pointer("cast_to_int_ptr(2)", cast_to_int_ptr(2), 0xFF);
+    check_pointer("cast_to_int_ptr(3)", cast_to_int_ptr(3), 0x7B);
+    check_pointer("cast_to_int_ptr(4)", cast_to_int_ptr(4), 0xCDEF);
+    check_pointer("cast_to_int_ptr(5)", cast_to_int_ptr(5), 0xFEDC);
 
     check_exit();
 }

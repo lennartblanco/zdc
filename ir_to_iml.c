@@ -1252,6 +1252,10 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
                            dt_basic_get_data_type(DT_BASIC(src_type));
             return basic_to_ptr_cast_ops[src_bdt];
         }
+        else if (DT_IS_POINTER(src_type))
+        {
+            return iml_copy;
+        }
         else
         {
             /* unexpected source data type */

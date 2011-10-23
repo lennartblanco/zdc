@@ -897,5 +897,52 @@ extern (C)
 
     return p;
   }
+
+  /* cast to int* */
+  int *
+  cast_to_int_ptr(uint testno)
+  {
+    int *p;
+
+    /* bool to int* */
+    if (0 == testno)
+    {
+      p = cast(int*)true;
+    }
+
+    /* char to int* */
+    else if (1 == testno)
+    {
+      p = cast(int*)'Q';
+    }
+    else if (2 == testno)
+    {
+      char c;
+      p = cast(int*)c;
+    }
+
+    /* uint to int* */
+    else if (3 == testno)
+    {
+      uint u = 123;
+      p = cast(int*)u;
+    }
+
+    /* void* to int* */
+    else if (4 == testno)
+    {
+      void *v = cast(void*)0xcdef;
+      p = cast(int*)v;
+    }
+
+    /* short* to int* */
+    else if (5 == testno)
+    {
+      short *s = cast(short*)0xfedc;
+      p = cast(int*)s;
+    }
+
+    return p;
+  }
 }
 
