@@ -39,6 +39,19 @@ static iml_opcode_t basic_cast_ops[last_basic_type][last_basic_type] =
  /*  uint  */ {iml_zpad, iml_zpad, iml_sigext, iml_zpad, iml_sigext, iml_zpad, iml_copy, iml_copy}
 };
 
+static iml_opcode_t basic_to_ptr_cast_ops[last_basic_type] =
+{
+    iml_zpad,   /* char */
+    iml_zpad,   /* bool */
+    iml_sigext, /* byte */
+    iml_zpad,   /* ubyte */
+    iml_sigext, /* short */
+    iml_zpad,   /* ushort */
+    iml_copy,   /* int */
+    iml_copy    /* uint */
+};
+
+
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -1230,6 +1243,20 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
     else if (DT_IS_ARRAY(target_type))
     {
         return iml_copy;
+    }
+    else if (DT_IS_POINTER(target_type))
+    {
+        if (dt_is_basic(src_type))
+        {
+            basic_data_type_t src_bdt =
+                           dt_basic_get_data_type(DT_BASIC(src_type));
+            return basic_to_ptr_cast_ops[src_bdt];
+        }
+        else
+        {
+            /* unexpected source data type */
+            assert(false);
+        }
     }
 
     /* unexpected target data type */

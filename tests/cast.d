@@ -820,5 +820,82 @@ extern (C)
 
     return 0;
   }
+
+  /* cast to void* */
+  void *
+  cast_to_void_ptr(uint testno)
+  {
+    void *p = cast(void*)-1;
+
+    /* bool to void* */
+    if (0 == testno)
+    {
+      p = cast(void*)true;
+    }
+    else if (1 == testno)
+    {
+      bool b = false;
+      p = cast(void*)b;
+    }
+
+    /* char to void* */
+    else if (2 == testno)
+    {
+      p = cast(void*)'R';
+    }
+    else if (3 == testno)
+    {
+      char c;
+      p = cast(void*)c;
+    }
+
+    /* byte to void* */
+    else if (4 == testno)
+    {
+      byte b = 32;
+      p = cast(void*)b;
+    }
+
+    /* ubyte to void* */
+    else if (5 == testno)
+    {
+      ubyte b = 65;
+      p = cast(void*)b;
+    }
+
+    /* short to void* */
+    else if (6 == testno)
+    {
+      short s = -5;
+      p = cast(void*)s;
+    }
+
+    /* ushort to void* */
+    else if (7 == testno)
+    {
+      ushort s = 15;
+      p = cast(void*)s;
+    }
+
+    /* int to void* */
+    else if (8 == testno)
+    {
+      p = cast(void*)0xaabb;
+    }
+    else if (9 == testno)
+    {
+      int i = 4;
+      p = cast(void*)i;
+    }
+
+    /* uint to void* */
+    else if (10 == testno)
+    {
+      uint u = 16;
+      p = cast(void*)u;
+    }
+
+    return p;
+  }
 }
 
