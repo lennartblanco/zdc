@@ -2,4 +2,4 @@ address_of.d:6: error: illegal types in arithmetic operation
 address_of.d:6: error: invalid assignment expression
 address_of.d:7: error: & expects a lvalue operand
 address_of.d:7: error: invalid assignment expression
-address_of.d:8: error: can't assign expression of type int* to lvalue of void* type
+address_of.d:8: error: can't assign expression of type int* to lvalue of bool* type

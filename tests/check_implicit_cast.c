@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "check_utils.h"
 
 int
@@ -26,6 +27,9 @@ call_char_to_uint(char arg1);
 
 unsigned
 call_char_lit_to_uint();
+
+void*
+call_int_ptr_to_void_ptr(int *p);
 
 int
 misc_to_int(unsigned);
@@ -71,6 +75,14 @@ main()
 
     /* char_lit_to_uint() test */
     check_uint("char_lit_to_uint()", call_char_lit_to_uint(), (unsigned)'Z');
+
+    /* call_int_ptr_to_void_ptr() tests */
+    check_pointer("int_ptr_to_void_ptr(NULL)",
+                  call_int_ptr_to_void_ptr(NULL),
+                  NULL);
+    check_pointer("int_ptr_to_void_ptr(0xf0f1)",
+                  call_int_ptr_to_void_ptr(0xf0f1),
+                  0xf0f1);
 
     /* misc_to_int() tests */
     check_int("misc_to_int(-1)", misc_to_int(-1), -1);

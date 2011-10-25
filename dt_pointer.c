@@ -1,4 +1,5 @@
 #include "dt_pointer.h"
+#include "dt_void.h"
 #include "ir_null.h"
 
 #include <assert.h>
@@ -156,6 +157,12 @@ dt_pointer_is_impl_conv(DtDataType *self, IrExpression *expression)
 {
     assert(DT_IS_POINTER(self));
     assert(IR_IS_EXPRESSION(expression));
+
+    if (DT_IS_VOID(dt_pointer_get_base_type(DT_POINTER(self))))
+    {
+        /* all pointer types are implicitly convertible to void* */
+        return DT_IS_POINTER(ir_expression_get_data_type(expression));
+    }
 
     return false;
 }

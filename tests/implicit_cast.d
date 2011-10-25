@@ -59,6 +59,15 @@ uint char_lit_to_uint()
     return res;
 }
 
+void* int_ptr_to_void_ptr(int *p)
+{
+    void* res;
+
+    res = p;
+
+    return res;
+}
+
 extern (C) int
 misc_to_int(uint i)
 {
@@ -155,5 +164,10 @@ extern (C)
   call_char_lit_to_uint()
   {
       return char_lit_to_uint();
+  }
+
+  void* call_int_ptr_to_void_ptr(int *p)
+  {
+      return int_ptr_to_void_ptr(p);
   }
 }
