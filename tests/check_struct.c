@@ -60,7 +60,7 @@ void
 test_orange()
 {
     /* orange_sizeof() test */
-    check_uint("orange_sizeof()", orange_sizeof(), 13);
+    check_uint("orange_sizeof()", orange_sizeof(), 16);
 
     /* orange_def() tests */
     check_int("orange_def(-1)", orange_def(-1), -1);
@@ -109,7 +109,7 @@ void
 test_list()
 {
     /* list_sizeof() test */
-    check_uint("list_sizeof()", list_sizeof(), 13);
+    check_uint("list_sizeof()", list_sizeof(), 16);
 
     /* list_get_next() tests */
     struct list l;

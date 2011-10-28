@@ -3,22 +3,14 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                             type definitions                              *
- *---------------------------------------------------------------------------*/
-
-typedef struct
-{
-    DtDataType *type;
-    gchar *name;
-    guint offset;
-} struct_member;
-
-/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
 static void
 dt_struct_class_init(gpointer klass, gpointer dummy);
+
+static
+guint get_align_padding(int addr, int alignment);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -60,40 +52,38 @@ dt_struct_new(gchar *name, IrModule *parent_module)
                        NULL);
 
     obj->size = 0;
-    obj->members = g_hash_table_new(g_str_hash, g_str_equal);
+    obj->members = NULL;
+    obj->members_table = g_hash_table_new(g_str_hash, g_str_equal);
     obj->init = NULL;
 
     return obj;
 }
 
 void
-dt_struct_set_init(DtStruct *self, IrStructLiteral *init)
+dt_struct_add_member(DtStruct *self, IrVariable *var)
 {
     assert(DT_IS_STRUCT(self));
-    assert(ir_is_struct_literal(init));
+    assert(IR_IS_VARIABLE(var));
 
-    self->init = init;
-}
+    /* calculate required padding */
+    guint type_size = dt_data_type_get_size(ir_variable_get_data_type(var));
+    guint padding = get_align_padding(self->size + type_size, 4);
 
-void
-dt_struct_add_member(DtStruct *self,
-                     DtDataType *member_type,
-                     const gchar *member_name)
-{
-    assert(DT_IS_STRUCT(self));
-    assert(DT_IS_DATA_TYPE(self));
-    assert(member_name);
+    /* create struct member object */
+    IrStructMember *member =
+        ir_struct_member_new(ir_variable_get_data_type(var),
+                             self->size,
+                             padding,
+                             ir_variable_get_initializer(var));
 
-    struct_member *member;
+    /* store struct member in the table and sequential list */
+    g_hash_table_insert(self->members_table,
+                        g_strdup(ir_variable_get_name(var)),
+                        member);
+    self->members = g_slist_append(self->members, member);
 
-    member = g_malloc(sizeof(*member));
-    member->type = member_type;
-    member->name = g_strdup(member_name);
-    member->offset = self->size;
-
-    g_hash_table_insert(self->members, member->name, member);
-
-    self->size += dt_data_type_get_size(member_type);
+    /* update struct size */
+    self->size += type_size + padding;
 }
 
 IrStructMember *
@@ -102,16 +92,7 @@ dt_struct_get_member(DtStruct *self, const gchar *name)
     assert(DT_IS_STRUCT(self));
     assert(name);
 
-    struct_member *inter_member;
-
-    inter_member = g_hash_table_lookup(self->members, name);
-    if (inter_member == NULL)
-    {
-        /* member not found */
-        return NULL;
-    }
-
-    return ir_struct_member_new(inter_member->type, inter_member->offset);
+    return g_hash_table_lookup(self->members_table, name);
 }
 
 /*---------------------------------------------------------------------------*
@@ -130,9 +111,13 @@ static IrExpression *
 dt_struct_get_init(DtDataType *self)
 {
     assert(DT_IS_STRUCT(self));
-    assert(ir_is_struct_literal(DT_STRUCT(self)->init));
+    DtStruct *dt_struct = DT_STRUCT(self);
+    if (dt_struct->init == NULL)
+    {
+        dt_struct->init = ir_struct_literal_new(dt_struct->members);
+    }
 
-    return IR_EXPRESSION(DT_STRUCT(self)->init);
+    return IR_EXPRESSION(dt_struct->init);
 }
 
 static gchar *
@@ -149,4 +134,15 @@ dt_struct_class_init(gpointer klass, gpointer dummy)
     DT_USER_CLASS(klass)->get_mangled_prefix = dt_struct_get_mangled_prefix;
     DT_DATA_TYPE_CLASS(klass)->get_size = dt_struct_get_size;
     DT_DATA_TYPE_CLASS(klass)->get_init = dt_struct_get_init;
+}
+
+/**
+ * Calculated the number of padding bytes that need to be inserted to
+ * align an address to specified alignment.
+ */
+static
+guint get_align_padding(int addr, int alignment)
+{
+  int mod = addr % alignment;
+  return mod == 0 ? 0 : alignment - mod;
 }

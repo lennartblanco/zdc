@@ -1,13 +1,14 @@
 import std.stdio;
+import std.conv;
 import ir_literal;
 import ir_array_literal;
 import ir_struct_literal;
+import ir_struct_member;
 import ir_module;
 import ir_expression;
 import ir_basic_constant;
 import dt_array;
 import dt_basic;
-import std.conv;
 
 private string
 get_data_section_string(DtBasic *exp_type,
@@ -59,6 +60,25 @@ get_type_directive(DtBasic *type)
     }
 }
 
+/**
+ * Generate the padding bytes directive string.
+ *
+ * @param padding_bytes number of padding bytes
+ */
+private string
+get_padding_string(uint padding_bytes)
+{
+    assert(padding_bytes > 0);
+
+    string padding_string = ".byte ";
+    for (uint i = 0; i < padding_bytes; i += 1)
+    {
+        padding_string ~= "0, ";
+    }
+
+    return padding_string[0..$-2]; /* chop off last ', ' */
+}
+
 private void
 gen_array_literal_data(File output, IrArrayLiteral *array_literal)
 {
@@ -97,14 +117,23 @@ gen_struct_literal_data(File output, IrStructLiteral *struct_literal)
     output.writeln();
     for (; i != null; i = i.next())
     {
-        IrExpression *member = cast(IrExpression *)i.data;
-        DtDataType *type = ir_expression_get_data_type(member);
+        IrStructMember *member = cast(IrStructMember *)i.data;
+        IrExpression *init = ir_struct_member_get_init(member);
+        DtDataType *type =
+            ir_expression_get_data_type(cast(IrExpression*)member);
         assert(dt_is_basic(type), "only basic types in structs supported");
 
         output.writefln("  %s %s",
                         get_type_directive(cast(DtBasic*)type),
                         get_data_section_string(cast(DtBasic*)type,
-                                                cast(IrBasicConstant*)member));
+                                                cast(IrBasicConstant*)init));
+
+        /* insert padding zero bytes if needed */
+        int padding;
+        if ((padding = ir_struct_member_get_padding(member)) > 0)
+        {
+            output.writefln("  %s", get_padding_string(padding));
+        }
     }
 }
 

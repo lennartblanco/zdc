@@ -4,6 +4,7 @@
 #include "dt_user.h"
 #include "ir_struct_literal.h"
 #include "ir_struct_member.h"
+#include "ir_variable.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -33,7 +34,8 @@ typedef struct
     /* private */
     IrStructLiteral *init;
     guint size;
-    GHashTable *members;
+    GSList *members;             /* members in order */
+    GHashTable *members_table;   /* members by name */
 } DtStruct;
 
 typedef struct
@@ -51,16 +53,8 @@ dt_struct_get_type(void);
 DtStruct *
 dt_struct_new(gchar *name, IrModule *parent_module);
 
-/**
- * Set this struct type's default initialization value.
- */
 void
-dt_struct_set_init(DtStruct *self, IrStructLiteral *init);
-
-void
-dt_struct_add_member(DtStruct *self,
-                     DtDataType *member_type,
-                     const gchar *member_name);
+dt_struct_add_member(DtStruct *self, IrVariable *var);
 
 /**
  * Look-up struct member by name.

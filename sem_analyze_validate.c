@@ -2621,7 +2621,6 @@ validate_struct(compilation_status_t *compile_status,
     DtStruct *struct_type;
     GSList *i;
     sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
-    GSList *members_init = NULL;
 
     struct_type = ir_struct_get_data_type(ir_struct);
     for (i = ir_struct_get_members(ir_struct); i != NULL; i = g_slist_next(i))
@@ -2637,15 +2636,8 @@ validate_struct(compilation_status_t *compile_status,
             continue;
         }
 
-        dt_struct_add_member(struct_type,
-                             ir_variable_get_data_type(var),
-                             ir_variable_get_name(var));
-        members_init = g_slist_prepend(members_init,
-                                       ir_variable_get_initializer(var));
+        dt_struct_add_member(struct_type, var);
     }
-
-    dt_struct_set_init(struct_type,
-                       ir_struct_literal_new(g_slist_reverse(members_init)));
 }
 
 
