@@ -195,7 +195,7 @@ sym_table_print(sym_table_t *table, FILE *out)
 static GQuark
 sym_table_error_quark(void)
 {
-    return g_quark_from_static_string ("xdc-sym-table-error-quark");
+    return g_quark_from_static_string ("zdc-sym-table-error-quark");
 }
 
 

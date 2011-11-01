@@ -107,6 +107,6 @@ yywrap(void)
 GQuark
 parser_error_quark(void)
 {
-    return g_quark_from_static_string ("xdc-parser-error-quark");
+    return g_quark_from_static_string ("zdc-parser-error-quark");
 }
 

@@ -1,4 +1,4 @@
-XDC=../xdc
+ZDC=../zdc
 
 check_empty: empty.o check_utils.o check_empty.c
 	$(CC) $(CFLAGS) -o $@ $^
@@ -117,14 +117,14 @@ check_eels: check_eels.sh eels
 check_str_literals: check_str_literals.sh str_literals
 	cp $< $@
 
-eels: eels.d $(XDC)
-	$(XDC) -o $@ $(DFLAGS) $<
+eels: eels.d $(ZDC)
+	$(ZDC) -o $@ $(DFLAGS) $<
 
-str_literals: str_literals.d $(XDC)  $(ARCH_SPECIFIC)
-	$(XDC) -o $@ $(DFLAGS) $<
+str_literals: str_literals.d $(ZDC)  $(ARCH_SPECIFIC)
+	$(ZDC) -o $@ $(DFLAGS) $<
 
-%.o: %.d $(XDC)
-	$(XDC) -o $@ $(DFLAGS) -c $<
+%.o: %.d $(ZDC)
+	$(ZDC) -o $@ $(DFLAGS) -c $<
 
 check_utils.o: check_utils.c
 	$(CC) $(CFLAGS) -c $?

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-XDC="../xdc"
+ZDC="../zdc"
 
 run_test()
 {
@@ -22,7 +22,7 @@ run_test()
 
   make $test_name > /dev/null
 
-  $XDC $test_source_file 2> "errors_log" && 
+  $ZDC $test_source_file 2> "errors_log" &&
   {
     echo -n "no errors reported ";
     return 1;

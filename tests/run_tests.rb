@@ -186,7 +186,7 @@ class TestTarget
 
     "make VPATH=#{source_dir} " +
          (cc != nil ? "CC=#{cc} " : "") +
-         "XDC=#{source_dir}/../xdc " +
+         "ZDC=#{source_dir}/../zdc " +
          "CFLAGS=\"-g #{cflags}\" " +
          "DFLAGS=\"--march=#{@arch} -I#{source_dir}\" " +
          (arch_specific != nil ? "ARCH_SPECIFIC=#{arch_specific} " : "") +

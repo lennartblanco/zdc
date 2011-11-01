@@ -3,7 +3,7 @@ include config.default
 -include config
 
 ACCENT := tools/bin/accent
-PROG := xdc
+PROG := zdc
 #CFLAGS += -Werror
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 BLD_DIR := build

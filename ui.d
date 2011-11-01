@@ -159,9 +159,9 @@ get_default_backend()
 }
 
 /**
- * Get the usage help message for xdc to stdout.
+ * Get the usage help message for zdc to stdout.
  *
- * @param progname the command issued to invoke xdc binary
+ * @param progname the command issued to invoke zdc binary
  */
 string
 get_usage_message(string progname)

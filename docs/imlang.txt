@@ -1,7 +1,7 @@
 Intermediate language
 =====================
 
-This document describes the intermediate language used in XDC compiler. The front-end converts the source code into an intermediate representation, which is then passed to the assembly generating back-end (x86 or ARM). Each function's body is expressed with assembly-like operations from the intermediate language described below.
+This document describes the intermediate language used in ZDC compiler. The front-end converts the source code into an intermediate representation, which is then passed to the assembly generating back-end (x86 or ARM). Each function's body is expressed with assembly-like operations from the intermediate language described below.
 
 Data types
 ----------
