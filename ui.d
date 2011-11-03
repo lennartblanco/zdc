@@ -3,10 +3,11 @@
  * Handle command line arguments and run compilation
  * with required options on provided source files.
  */
-import config;
 import std.stdio;
 import std.string;
 import std.conv;
+import ver;
+import config;
 import GSList;
 import auxil;
 import arm;
@@ -159,6 +160,15 @@ get_default_backend()
 }
 
 /**
+ * Get long name of this compiler, including version numner.
+ */
+string
+get_long_name()
+{
+    return "zdc D compiler, version " ~ VERSION ~ ".";
+}
+
+/**
  * Get the usage help message for zdc to stdout.
  *
  * @param progname the command issued to invoke zdc binary
@@ -166,7 +176,8 @@ get_default_backend()
 string
 get_usage_message(string progname)
 {
-    return "usage: " ~ progname ~ " [OPTION]... [SOURCE_FILES]...\n"
+    return get_long_name() ~ "\n\n"
+           "usage: " ~ progname ~ " [OPTION]... [SOURCE_FILES]...\n"
            "\n"
            "Compile specified D source file(s).\n"
             "\n"
@@ -183,6 +194,7 @@ get_usage_message(string progname)
             "                     unit.\n"
             "  --print-ir         Output Intermediate Represantation of each\n"
             "                     compile unit.\n"
+            "  --version          Print compiler's version\n"
             "  --help, -?, -h     Print this help message.";
 }
 
@@ -250,6 +262,10 @@ parse_command_arguments(string[] args, ref command_options options)
                 arg == "-h")
             {
                 throw new CommandOptionException(get_usage_message(args[0]), 0);
+            }
+            else if (arg == "--version")
+            {
+                throw new CommandOptionException(get_long_name(), 0);
             }
             else if (arg[0..2] == "-I")
             {
