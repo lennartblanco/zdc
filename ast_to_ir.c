@@ -188,77 +188,14 @@ if_else_to_ir(compilation_status_t *compile_status,
 static GSList *
 func_params_to_ir(GSList *ast_func_params);
 
-/*---------------------------------------------------------------------------*
- *                           exported functions                              *
- *---------------------------------------------------------------------------*/
-
-
 static void
 import_module(compilation_status_t *compile_status,
               sym_table_t *sym_table,
-              AstModule *ast_module)
-{
-    sym_table_t *imports;
-    GSList *i;
-    IrModule *module;
+              AstModule *ast_module);
 
-    module = ir_module_new(ast_module_get_package(ast_module));
-    imports = ir_module_get_symbols(module);
-
-    /* add imported function declarations to sym table */
-    i = ast_module_get_function_decls(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDecl *ir_func_decl;
-
-        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
-        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_decl)) != 0)
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_decl),
-                          "redeclaration of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
-        }
-    }
-
-    /* add imported function definitions to sym table */
-    i = ast_module_get_function_defs(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDef *ir_func_def;
-
-        ir_func_def = func_def_to_ir(compile_status,
-                                     AST_FUNCTION_DEF(i->data),
-                                     module,
-                                     false);
-        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_def)) != 0)
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_def),
-                          "redifinition of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
-        }
-    }
-
-    sym_table_add_import(sym_table, imports);
-
-    /* handle public imports */
-    i = ast_module_get_imports(ast_module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        AstImport *imp = AST_IMPORT(i->data);
-
-        if (ast_import_is_private(imp))
-        {
-            continue;
-        }
-
-        import_module(compile_status,
-                      sym_table,
-                      ast_import_get_module(imp));
-    }
-
-}
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
 
 IrModule *
 ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
@@ -389,6 +326,73 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static void
+import_module(compilation_status_t *compile_status,
+              sym_table_t *sym_table,
+              AstModule *ast_module)
+{
+    sym_table_t *imports;
+    GSList *i;
+    IrModule *module;
+
+    module = ir_module_new(ast_module_get_package(ast_module));
+    imports = ir_module_get_symbols(module);
+
+    /* add imported function declarations to sym table */
+    i = ast_module_get_function_decls(ast_module);
+    for (;i != NULL; i = i->next)
+    {
+        IrFunctionDecl *ir_func_decl;
+
+        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
+        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_decl)) != 0)
+        {
+            compile_error(compile_status,
+                          IR_NODE(ir_func_decl),
+                          "redeclaration of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+        }
+    }
+
+    /* add imported function definitions to sym table */
+    i = ast_module_get_function_defs(ast_module);
+    for (;i != NULL; i = i->next)
+    {
+        IrFunctionDef *ir_func_def;
+
+        ir_func_def = func_def_to_ir(compile_status,
+                                     AST_FUNCTION_DEF(i->data),
+                                     module,
+                                     false);
+        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_def)) != 0)
+        {
+            compile_error(compile_status,
+                          IR_NODE(ir_func_def),
+                          "redifinition of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+        }
+    }
+
+    sym_table_add_import(sym_table, imports);
+
+    /* handle public imports */
+    i = ast_module_get_imports(ast_module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        AstImport *imp = AST_IMPORT(i->data);
+
+        if (ast_import_is_private(imp))
+        {
+            continue;
+        }
+
+        import_module(compile_status,
+                      sym_table,
+                      ast_import_get_module(imp));
+    }
+
+}
 
 static IrEnumMember *
 enum_member_to_ir(compilation_status_t *compile_status,
