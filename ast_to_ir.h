@@ -9,9 +9,10 @@
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
+/**
+ * Convert AST representation of a module definition to IR form.
+ */
 IrModule *
-sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
-                             AstModule *ast_module);
-
+ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module);
 
 #endif /* AST_TO_IR_INC_X */

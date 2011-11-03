@@ -261,8 +261,7 @@ import_module(compilation_status_t *compile_status,
 }
 
 IrModule *
-sem_analyze_ast_module_to_ir(compilation_status_t *compile_status,
-                             AstModule *ast_module)
+ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
 {
     IrModule *module;
     GSList *i;

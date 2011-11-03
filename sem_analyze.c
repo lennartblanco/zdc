@@ -24,7 +24,7 @@ semantic_analyze(const char *source_file,
     comp_stat.backend = backend;
     comp_stat.errors_count = 0;
 
-    module = sem_analyze_ast_module_to_ir(&comp_stat, ast_module);
+    module = ast_module_to_ir(&comp_stat, ast_module);
 
     /* if there were errors while converting to IR, return failure result */
     if (comp_stat.errors_count > 0)
