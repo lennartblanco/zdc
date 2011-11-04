@@ -384,6 +384,7 @@ import_module(compilation_status_t *compile_status,
 
         if (ast_import_is_private(imp))
         {
+            /* skip private imports */
             continue;
         }
 
