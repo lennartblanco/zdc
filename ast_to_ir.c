@@ -193,6 +193,11 @@ import_module(compilation_status_t *compile_status,
               sym_table_t *sym_table,
               AstModule *ast_module);
 
+static void
+process_user_types(compilation_status_t *compile_status,
+                   IrModule *module,
+                   GSList *user_types);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -207,6 +212,17 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
     module = ir_module_new(ast_module_get_package(ast_module));
     compile_status->module = module;
     module_sym_table = ir_module_get_symbols(module);
+
+    /*
+     * Handle imports
+     */
+    i = ast_module_get_imports(ast_module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        import_module(compile_status,
+                      module_sym_table,
+                      ast_import_get_module(i->data));
+    }
 
     /*
      * store all function declarations in module's symbol table
@@ -227,11 +243,47 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
         }
     }
 
+    /* process all user defined types */
+    process_user_types(compile_status,
+                       module,
+                       ast_module_get_user_types(ast_module));
+
     /*
-     * process all user defined types
+     * convert all function definitions to IR form and store them
+     * in module's symbol table
      */
-    i = ast_module_get_user_types(ast_module);
-    for (; i != NULL; i = i->next)
+    i = ast_module_get_function_defs(ast_module);
+    for (;i != NULL; i = i->next)
+    {
+        IrFunctionDef *ir_func_def;
+
+        ir_func_def = func_def_to_ir(compile_status,
+                                     AST_FUNCTION_DEF(i->data),
+                                     module,
+                                     true);
+        if (!ir_module_add_function_def(module, ir_func_def))
+        {
+            compile_error(compile_status,
+                          IR_NODE(ir_func_def),
+                          "redifinition of function '%s'\n",
+                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+        }
+    }
+
+    return module;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static void
+process_user_types(compilation_status_t *compile_status,
+                   IrModule *module,
+                   GSList *user_types)
+{
+    GSList *i;
+    for (i = user_types; i != NULL; i = i->next)
     {
         AstUserType *user_type = AST_USER_TYPE(i->data);
 
@@ -240,7 +292,7 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
             IrEnum *ir_enum;
 
             ir_enum = enum_to_ir(compile_status,
-                                 module_sym_table,
+                                 ir_module_get_symbols(module),
                                  AST_ENUM(i->data));
             if (!ir_module_add_enum(module, ir_enum))
             {
@@ -286,46 +338,7 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
             assert(false);
         }
     }
-
-    /*
-     * convert all function definitions to IR form and store them
-     * in module's symbol table
-     */
-    i = ast_module_get_function_defs(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDef *ir_func_def;
-
-        ir_func_def = func_def_to_ir(compile_status,
-                                     AST_FUNCTION_DEF(i->data),
-                                     module,
-                                     true);
-        if (!ir_module_add_function_def(module, ir_func_def))
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_def),
-                          "redifinition of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
-        }
-    }
-
-    /*
-     * Handle imports
-     */
-    i = ast_module_get_imports(ast_module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        import_module(compile_status,
-                      module_sym_table,
-                      ast_import_get_module(i->data));
-    }
-
-    return module;
 }
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
 
 static void
 import_module(compilation_status_t *compile_status,
@@ -373,6 +386,11 @@ import_module(compilation_status_t *compile_status,
                           ir_function_get_name(IR_FUNCTION(ir_func_def)));
         }
     }
+
+    /* process all user defined types */
+    process_user_types(compile_status,
+                       module,
+                       ast_module_get_user_types(ast_module));
 
     sym_table_add_import(sym_table, imports);
 

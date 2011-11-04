@@ -10,6 +10,9 @@ int
 call_run_hex_int(bool arg);
 
 int
+call_get_hex_bit_mask();
+
+int
 call_run_imp_func1(bool flag);
 
 bool
@@ -31,6 +34,9 @@ main()
     /* run_hex_int() tests */
     check_int("run_hex_int(true)", call_run_hex_int(true), 0);
     check_int("run_hex_int(false)", call_run_hex_int(false), -1);
+
+    /* call_get_hex_bit_mask() test */
+    check_int("get_hex_bit_mask()", call_get_hex_bit_mask(), 0x00000F0F);
 
     /* run_imp_func1() tests */
     check_int("run_imp_func1(true)", call_run_imp_func1(true), 314);

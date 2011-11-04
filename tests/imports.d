@@ -27,6 +27,12 @@ run_hex_int(bool flag)
   return hex_int(flag ? 0 : -1);
 }
 
+/* use anon enum imported from hex module */
+int get_hex_bit_mask()
+{
+   return BIT_MASK;
+}
+
 int
 run_imp_func1(bool flag)
 {
@@ -65,6 +71,12 @@ extern (C)
   call_run_hex_int(bool arg)
   {
     return run_hex_int(arg);
+  }
+
+  int
+  call_get_hex_bit_mask()
+  {
+    return get_hex_bit_mask();
   }
 
   int
