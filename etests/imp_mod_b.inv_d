@@ -6,3 +6,9 @@ int func_b()
 void func_x()
 {
 }
+
+struct oink
+{
+  bool flag;
+  char c;
+}

@@ -16,4 +16,7 @@ main()
   func_a();   // unambigiously resolves to imp_mod_a.func_a()
   func_b();   // unambigiously resolves to imp_mod_b.func_b()
   func_x();   // imp_mod_a.func_x() or imp_mod_b.func_x() ?
+
+  // ambigious struct reference
+  oink v; // imp_mod_a.oink or imp_mod_b.oink ?
 }

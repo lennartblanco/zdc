@@ -34,10 +34,6 @@ compile_error(compilation_status_t *compile_status,
     {
         line_num = ast_node_get_line_num(error_node);
     }
-    else if (DT_IS_DATA_TYPE(error_node))
-    {
-        line_num = dt_data_type_get_line_num(error_node);
-    }
     else
     {
         /* unexpected error node type */

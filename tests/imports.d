@@ -2,6 +2,7 @@ import fact;
 import rets, neg;
 private import hex;
 import import_proxy;
+import imported;
 
 int
 run_fact(bool both)
@@ -27,10 +28,22 @@ run_hex_int(bool flag)
   return hex_int(flag ? 0 : -1);
 }
 
-/* use anon enum imported from hex module */
+/* test using anonymous enum imported from hex module */
 int get_hex_bit_mask()
 {
    return BIT_MASK;
+}
+
+/* test using imported struct type (lemon struct from imported module) */
+uint lemon_sizeof()
+{
+   return lemon.sizeof;
+}
+
+void age_lemon(lemon *l, uint years)
+{
+  l.age = l.age + years;
+  l.bitterness = l.age * 3;
 }
 
 int
@@ -77,6 +90,21 @@ extern (C)
   call_get_hex_bit_mask()
   {
     return get_hex_bit_mask();
+  }
+
+  uint
+  call_lemon_sizeof()
+  {
+    return lemon_sizeof();
+  }
+
+  bool
+  call_age_lemon()
+  {
+    lemon l;
+
+    age_lemon(&l, 10);
+    return l.age == 10 && l.bitterness == 30;
   }
 
   int

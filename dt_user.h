@@ -33,8 +33,6 @@ typedef struct
     DtDataType parent;
 
     /* private */
-    gchar *name;
-    IrModule *parent_module;
     char *mangled_name;
 } DtUser;
 

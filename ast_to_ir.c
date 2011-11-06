@@ -190,7 +190,7 @@ func_params_to_ir(GSList *ast_func_params);
 
 static void
 import_module(compilation_status_t *compile_status,
-              sym_table_t *sym_table,
+              IrModule *parent_module,
               AstModule *ast_module);
 
 static void
@@ -219,9 +219,7 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
     i = ast_module_get_imports(ast_module);
     for (; i != NULL; i = g_slist_next(i))
     {
-        import_module(compile_status,
-                      module_sym_table,
-                      ast_import_get_module(i->data));
+        import_module(compile_status, module, ast_import_get_module(i->data));
     }
 
     /*
@@ -283,6 +281,10 @@ process_user_types(compilation_status_t *compile_status,
                    GSList *user_types)
 {
     GSList *i;
+
+    IrModule *old_module = compile_status->module;
+    compile_status->module = module;
+
     for (i = user_types; i != NULL; i = i->next)
     {
         AstUserType *user_type = AST_USER_TYPE(i->data);
@@ -338,11 +340,13 @@ process_user_types(compilation_status_t *compile_status,
             assert(false);
         }
     }
+
+    compile_status->module = old_module;
 }
 
 static void
 import_module(compilation_status_t *compile_status,
-              sym_table_t *sym_table,
+              IrModule *parent_module,
               AstModule *ast_module)
 {
     sym_table_t *imports;
@@ -392,7 +396,7 @@ import_module(compilation_status_t *compile_status,
                        module,
                        ast_module_get_user_types(ast_module));
 
-    sym_table_add_import(sym_table, imports);
+    ir_module_add_import(parent_module, module);
 
     /* handle public imports */
     i = ast_module_get_imports(ast_module);
@@ -407,7 +411,7 @@ import_module(compilation_status_t *compile_status,
         }
 
         import_module(compile_status,
-                      sym_table,
+                      parent_module,
                       ast_import_get_module(imp));
     }
 
@@ -1511,16 +1515,30 @@ expression_to_ir(compilation_status_t *compile_status,
     {
         AstIdent *ident;
         IrSymbol *symb;
+        GError *err = NULL;
 
         ident = AST_IDENT(ast_expression);
-        symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), NULL);
+        symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), &err);
 
         if (symb == NULL)
         {
-            compile_error(compile_status,
-                          ident,
-                          "reference to unknown symbol '%s'\n",
-                          ast_ident_get_name(ident));
+            switch (err->code)
+            {
+                case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
+                    compile_error(compile_status,
+                                  ident,
+                                  "reference to unknown symbol '%s'\n",
+                                  ast_ident_get_name(ident));
+                    break;
+                case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
+                    compile_error(compile_status,
+                                  ident,
+                                  "ambiguous reference '%s', matches: %s\n",
+                                  ast_ident_get_name(ident),  err->message);
+                    break;
+                default:
+                    assert(false); /* unexpected error code */
+            }
             return NULL;
         }
         if (IR_IS_FUNCTION(symb))

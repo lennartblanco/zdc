@@ -49,8 +49,8 @@ dt_enum_new(gchar *name,
     DtEnum *obj;
 
     obj = g_object_new(DT_TYPE_ENUM,
-                       "dt-user-name", name,
-                       "dt-user-parent-module", parent_module,
+                       "ir-symbol-name", name,
+                       "ir-symbol-parent-module", parent_module,
                        NULL);
 
     obj->base_type = base_type;

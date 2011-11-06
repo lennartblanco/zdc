@@ -6,3 +6,8 @@ int func_a()
 void func_x()
 {
 }
+
+struct oink
+{
+  int a;
+}

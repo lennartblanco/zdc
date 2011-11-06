@@ -47,8 +47,8 @@ dt_struct_new(gchar *name, IrModule *parent_module)
     DtStruct *obj;
 
     obj = g_object_new(DT_TYPE_STRUCT,
-                       "dt-user-name", name,
-                       "dt-user-parent-module", parent_module,
+                       "ir-symbol-name", name,
+                       "ir-symbol-parent-module", parent_module,
                        NULL);
 
     obj->size = 0;

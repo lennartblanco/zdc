@@ -7,7 +7,6 @@
 #include "ir_types.h"
 #include "dt_types.h"
 #include "ir_statment.h"
-#include "dt_data_type.h"
 #include "ut_range.h"
 
 /*---------------------------------------------------------------------------*

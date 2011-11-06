@@ -154,13 +154,14 @@ validate_enum(compilation_status_t *compile_status,
  * Look-up the user defined data type in current module. If no data type
  * with provided name is found, a compile error is printed.
  *
- * @param compile_status the lexical scope where to look for the type
+ * @param sym_table the lexical scope where to look for the type
  * @param user_type the placeholder object for user defined type
  *
  * @return the data type found or NULL if failed to look-up data type
  */
 static DtDataType *
 resolve_user_type(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
                   DtName *user_type);
 
 /*---------------------------------------------------------------------------*
@@ -747,10 +748,20 @@ validate_sizeof_property(compilation_status_t *compile_status,
     assert(IR_IS_PROPERTY(prop));
     assert(ir_property_get_id(prop) == ir_prop_sizeof);
 
+    IrExpression *exp;
     DtDataType *exp_type;
     IrBasicConstant *size_exp;
 
-    exp_type = ir_expression_get_data_type(ir_property_get_expression(prop));
+    exp = ir_property_get_expression(prop);
+    if (DT_IS_DATA_TYPE(exp))
+    {
+        /* sizeof property of a data type */
+        exp_type = DT_DATA_TYPE(exp);
+    }
+    else
+    {
+        exp_type = ir_expression_get_data_type(exp);
+    }
 
     size_exp = ir_basic_constant_new_uint(dt_data_type_get_size(exp_type),
                                           ir_node_get_line_num(prop));
@@ -973,8 +984,9 @@ validate_dot(compilation_status_t *compile_status,
     /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
 
-    if (IR_IS_ENUM(left))
+    if (DT_IS_ENUM(left))
     {
+        assert(false);
         IrEnumMember *mbr;
 
         mbr = ir_enum_get_member(IR_ENUM(left),
@@ -2025,25 +2037,47 @@ validate_statment(compilation_status_t *compile_status,
 
 static DtDataType *
 resolve_user_type(compilation_status_t *compile_status,
+                  sym_table_t *sym_table,
                   DtName *user_type)
 {
-    DtDataType *type;
+    GError *error = NULL;
+    IrSymbol *type;
 
-    type = ir_module_get_user_type(compile_status->module, user_type);
+    type = sym_table_get_symbol(sym_table,
+                                dt_name_get_name(user_type),
+                                &error);
     if (type == NULL)
     {
-        /* failed to look-up the data type */
+        switch (error->code)
+        {
+            case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
+                /* failed to look-up the data type */
+                compile_error(compile_status,
+                              user_type,
+                              "unknown data type '%s'\n",
+                              dt_name_get_name(user_type));
+                break;
+            default:
+                assert(false); /* unexpected error code */
+
+        }
+        return NULL;
+    }
+    else if (!DT_IS_DATA_TYPE(type))
+    {
         compile_error(compile_status,
                       user_type,
-                      "unknown data type '%s'\n",
+                      "'%s' is not a type\n",
                       dt_name_get_name(user_type));
+        return NULL;
     }
 
-    return type;
+    return DT_DATA_TYPE(type);
 }
 
 static DtDataType *
 validate_type(compilation_status_t *compile_status,
+              sym_table_t *sym_table,
               DtDataType *type)
 {
     assert(compile_status);
@@ -2057,7 +2091,9 @@ validate_type(compilation_status_t *compile_status,
          * user defined type,
          * look-up the data type object with the specified name
          */
-        validated_type = resolve_user_type(compile_status, DT_NAME(type));
+        validated_type = resolve_user_type(compile_status,
+                                           sym_table,
+                                           DT_NAME(type));
     }
     else if (DT_IS_POINTER(type))
     {
@@ -2065,6 +2101,7 @@ validate_type(compilation_status_t *compile_status,
         DtPointer *ptr_type = DT_POINTER(type);
 
         base_type = validate_type(compile_status,
+                                  sym_table,
                                   dt_pointer_get_base_type(ptr_type));
         if (base_type == NULL)
         {
@@ -2103,6 +2140,7 @@ validate_variable(compilation_status_t *compile_status,
      * validate variable's type
      */
     type = validate_type(compile_status,
+                         sym_table,
                          ir_variable_get_data_type(variable));
     if (type == NULL)
     {
@@ -2246,7 +2284,11 @@ validate_function_decl(compilation_status_t *compile_status,
     DtDataType *type;
 
     /* validate return type */
+    sym_table_t *symbols =
+        ir_module_get_symbols(
+            ir_symbol_get_parent_module(IR_SYMBOL(func_decl)));
     type = validate_type(compile_status,
+                         symbols,
                          ir_function_get_return_type(IR_FUNCTION(func_decl)));
     if (type != NULL)
     {
@@ -2274,6 +2316,10 @@ validate_function_def(compilation_status_t *compile_status,
 
     compile_status->function = func_def;
 
+    sym_table_t *symbols =
+        ir_module_get_symbols(
+            ir_symbol_get_parent_module(IR_SYMBOL(func_def)));
+
     /*
      * validate parameter definitions and add parameters to function frame
      */
@@ -2282,7 +2328,7 @@ validate_function_def(compilation_status_t *compile_status,
     {
         IrVariable *var;
 
-        var = validate_variable(compile_status, NULL, IR_VARIABLE(i->data));
+        var = validate_variable(compile_status, symbols, IR_VARIABLE(i->data));
         if (var == NULL)
         {
             /* invalid parameter */
@@ -2295,6 +2341,7 @@ validate_function_def(compilation_status_t *compile_status,
     /* resolve possible user types in function return type */
     type = ir_function_def_get_return_type(func_def);
     type = validate_type(compile_status,
+                         symbols,
                          ir_function_def_get_return_type(func_def));
     if (type != NULL)
     {
@@ -2765,6 +2812,44 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
                                   ir_function_get_linkage(IR_FUNCTION(func)));
 }
 
+static void
+validate_user_types(compilation_status_t *compile_status, IrModule *module)
+{
+    assert(compile_status);
+    assert(IR_IS_MODULE(module));
+
+    /* validate enum definitions */
+    GSList *i;
+    for (i = ir_module_get_enums(module); i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_ENUM(i->data));
+        validate_enum(compile_status,
+                      IR_ENUM(i->data));
+    }
+
+    /* validate struct definitions */
+    for (i = ir_module_get_structs(module); i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_STRUCT(i->data));
+        validate_struct(compile_status, IR_STRUCT(i->data));
+    }
+}
+
+static void
+validate_imports(compilation_status_t *compile_status, IrModule *module)
+{
+    assert(compile_status);
+    assert(IR_IS_MODULE(module));
+
+    GSList *i;
+
+    for (i = ir_module_get_imports(module); i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_MODULE(i->data));
+        validate_user_types(compile_status, i->data);
+    }
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -2780,24 +2865,9 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
     compile_status->module = module;
 
+    validate_imports(compile_status, module);
     validate_entry_point(compile_status, module);
-
-    /* validate enum definitions */
-    i = ir_module_get_enums(module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        assert(IR_IS_ENUM(i->data));
-        validate_enum(compile_status,
-                      IR_ENUM(i->data));
-    }
-
-    /* validate struct definitions */
-    i = ir_module_get_structs(module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        assert(IR_IS_STRUCT(i->data));
-        validate_struct(compile_status, IR_STRUCT(i->data));
-    }
+    validate_user_types(compile_status, module);
 
     /* validate function declarations */
     i = ir_module_get_function_decls(module);

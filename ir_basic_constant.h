@@ -2,6 +2,7 @@
 #define IR_BASIC_CONSTANT_INC_X
 
 #include "ir_constant.h"
+#include "dt_data_type.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *

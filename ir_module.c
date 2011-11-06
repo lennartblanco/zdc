@@ -14,7 +14,7 @@ struct _IrModule
   /* private */
   GSList         *package_name;
   sym_table_t    *symbols;
-  GHashTable     *user_types;
+  GSList         *imports;
   GSList         *enums;
   GSList         *structs;
   GSList         *function_decls;
@@ -67,7 +67,7 @@ ir_module_new(GSList *package_name)
 
     obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
-    obj->user_types = g_hash_table_new(g_str_hash, g_str_equal);
+    obj->imports = NULL;
     obj->enums = NULL;
     obj->structs = NULL;
     obj->function_decls = NULL;
@@ -87,6 +87,24 @@ ir_module_get_symbols(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->symbols;
+}
+
+void
+ir_module_add_import(IrModule *self, IrModule *import)
+{
+    assert(IR_IS_MODULE(self));
+    assert(IR_IS_MODULE(import));
+
+    sym_table_add_import(self->symbols, ir_module_get_symbols(import));
+    self->imports = g_slist_prepend(self->imports, import);
+}
+
+GSList *
+ir_module_get_imports(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->imports;
 }
 
 bool
@@ -269,17 +287,8 @@ ir_module_add_enum(IrModule *self,
         /*
          * non-anonymous enum definition, store it in symbols table
          */
-        if (sym_table_add_symbol(self->symbols, IR_SYMBOL(ir_enum)) != 0)
-        {
-            return false;
-        }
-
-        /*
-         * store enum in the user type table
-         */
-        if (!add_user_type(self,
-                           ir_enum_get_tag(ir_enum),
-                           ir_enum_get_data_type(ir_enum)))
+        if (sym_table_add_symbol(self->symbols,
+                                 IR_SYMBOL(ir_enum_get_data_type(ir_enum)))!=0)
         {
             return false;
         }
@@ -310,14 +319,8 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct)
     /*
      * store struct in symbols table
      */
-    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(ir_struct)) != 0)
-    {
-        return false;
-    }
-
-    if (!add_user_type(self,
-                       ir_struct_get_name(ir_struct),
-                       ir_struct_get_data_type(ir_struct)))
+    if (sym_table_add_symbol(self->symbols,
+                             IR_SYMBOL(ir_struct_get_data_type(ir_struct)))!=0)
     {
         return false;
     }
@@ -334,17 +337,6 @@ ir_module_get_structs(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->structs;
-}
-
-DtDataType *
-ir_module_get_user_type(IrModule *self,
-                        DtName *user_type)
-{
-    assert(IR_IS_MODULE(self));
-    assert(DT_IS_NAME(user_type));
-
-    return g_hash_table_lookup(self->user_types,
-                               dt_name_get_name(user_type));
 }
 
 void
@@ -382,11 +374,13 @@ add_user_type(IrModule *self, gchar *type_name, void *type)
 {
     assert(IR_IS_MODULE(self));
 
-    if (g_hash_table_lookup(self->user_types, type_name) != NULL)
-    {
-        return false;
-    }
-    g_hash_table_insert(self->user_types, type_name, type);
-
-    return true;
+    assert(false); /* need to be ported or removed */
+//
+//    if (g_hash_table_lookup(self->user_types, type_name) != NULL)
+//    {
+//        return false;
+//    }
+//    g_hash_table_insert(self->user_types, type_name, type);
+//
+//    return true;
 }

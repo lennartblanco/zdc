@@ -1,4 +1,5 @@
 #include "ir_struct_member.h"
+#include "dt_data_type.h"
 
 #include <assert.h>
 

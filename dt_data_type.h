@@ -1,7 +1,7 @@
 #ifndef DT_DATA_TYPE_INC_X
 #define DT_DATA_TYPE_INC_X
 
-#include "ir_expression.h"
+#include "ir_symbol.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,16 +26,15 @@
 
 struct _DtDataType
 {
-    GObject parent;
+    IrSymbol parent;
 
     /* private */
     bool immutable;
-    guint line_number;
 };
 
 typedef struct
 {
-    GObjectClass parent_class;
+    IrSymbolClass parent_class;
 
     /* public virtual methods */
     char * (*get_mangled) (DtDataType *self);
@@ -117,8 +116,5 @@ dt_data_type_is_integral(DtDataType *self);
  */
 bool
 dt_data_type_is_impl_conv(DtDataType *self, IrExpression *expression);
-
-guint
-dt_data_type_get_line_num(DtDataType *self);
 
 #endif /* DT_DATA_TYPE_INC_X */

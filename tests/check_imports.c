@@ -12,6 +12,12 @@ call_run_hex_int(bool arg);
 int
 call_get_hex_bit_mask();
 
+unsigned
+call_lemon_sizeof();
+
+bool
+call_age_lemon();
+
 int
 call_run_imp_func1(bool flag);
 
@@ -35,8 +41,14 @@ main()
     check_int("run_hex_int(true)", call_run_hex_int(true), 0);
     check_int("run_hex_int(false)", call_run_hex_int(false), -1);
 
-    /* call_get_hex_bit_mask() test */
+    /* get_hex_bit_mask() test */
     check_int("get_hex_bit_mask()", call_get_hex_bit_mask(), 0x00000F0F);
+
+    /* lemon_sizeof() test */
+    check_uint("lemon_sizeof()", call_lemon_sizeof(), 8);
+
+    /* age_lemon() test */
+    check_bool("age_lemon()", call_age_lemon(), true);
 
     /* run_imp_func1() tests */
     check_int("run_imp_func1(true)", call_run_imp_func1(true), 314);

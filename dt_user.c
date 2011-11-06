@@ -6,16 +6,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                             type definitions                              *
- *---------------------------------------------------------------------------*/
-
-enum
-{
-    DT_USER_NAME = 1,
-    DT_USER_PARENT_MODULE
-};
-
-/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -69,7 +59,7 @@ dt_user_get_string(DtDataType *self)
 {
     assert(DT_IS_USER(self));
 
-    return DT_USER(self)->name;
+    return ir_symbol_get_name(IR_SYMBOL(self));
 }
 
 static char *
@@ -78,8 +68,10 @@ dt_user_get_mangled(DtDataType *self)
     assert(DT_IS_USER(self));
 
     DtUser *user_type = DT_USER(self);
+    const char *name = dt_user_get_string(self);
+    IrModule *parent_module = ir_symbol_get_parent_module(IR_SYMBOL(self));
 
-    assert(IR_IS_MODULE(user_type->parent_module));
+    assert(IR_IS_MODULE(parent_module));
 
     if (user_type->mangled_name == NULL)
     {
@@ -87,8 +79,8 @@ dt_user_get_mangled(DtDataType *self)
             g_strdup_printf(
                     "%s%s%zu%s",
                     dt_user_get_mangled_prefix(user_type),
-                    ir_module_get_mangled_name(user_type->parent_module),
-                    strlen(user_type->name), user_type->name);
+                    ir_module_get_mangled_name(parent_module),
+                    strlen(name), name);
     }
 
     return user_type->mangled_name;
@@ -110,80 +102,12 @@ dt_user_is_same(DtDataType *self, DtDataType *type)
      *        struct foo in module B
      */
 
-    DtUser *l = DT_USER(self);
-    DtUser *r = DT_USER(type);
-
-    return g_strcmp0(l->name, r->name) == 0;
-}
-
-static void
-dt_user_set_property(GObject *object,
-                     guint property_id,
-                     const GValue *value,
-                     GParamSpec *pspec)
-{
-    switch (property_id)
-    {
-        case DT_USER_NAME:
-            DT_USER(object)->name = g_value_dup_string(value);
-            break;
-        case DT_USER_PARENT_MODULE:
-            DT_USER(object)->parent_module = g_value_get_object(value);
-            break;
-        default:
-            /* unexpected property id */
-            assert(false);
-    }
-}
-
-static void
-dt_user_get_property(GObject *object,
-                     guint property_id,
-                     GValue *value,
-                     GParamSpec *pspec)
-{
-    /* not implemented */
-    assert(false);
+    return g_strcmp0(dt_user_get_string(self), dt_user_get_string(type)) == 0;
 }
 
 static void
 dt_user_type_class_init(gpointer klass, gpointer dummy)
 {
-    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    GParamSpec *pspec;
-
-    /*
-     * setup this structure for setting and getting properties
-     */
-    gobject_class->set_property = dt_user_set_property;
-    gobject_class->get_property = dt_user_get_property;
-
-    /*
-     * install 'name' property
-     */
-    pspec = g_param_spec_string("dt-user-name",
-                                "dt user name",
-                                "the name of the user type",
-                                "no-name-set" /* default value */,
-                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-
-    g_object_class_install_property(gobject_class,
-                                    DT_USER_NAME,
-                                    pspec);
-
-    /*
-     * install 'parent module' property
-     */
-    pspec = g_param_spec_object("dt-user-parent-module",
-                                "dt user parent module",
-                                "the parent module of the user type",
-                                IR_TYPE_MODULE,
-                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-
-    g_object_class_install_property(gobject_class,
-                                    DT_USER_PARENT_MODULE,
-                                    pspec);
-
     /*
      * install default virtual methods implementations
      */

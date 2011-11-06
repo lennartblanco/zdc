@@ -1,4 +1,5 @@
 #include "ir_cast.h"
+#include "dt_data_type.h"
 #include "utils.h"
 
 #include <assert.h>

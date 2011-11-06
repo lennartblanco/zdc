@@ -60,7 +60,7 @@ int
 sym_table_add_symbol(sym_table_t* table, IrSymbol *symbol)
 {
     assert(table);
-    assert(symbol);
+    assert(IR_IS_SYMBOL(symbol));
 
     gpointer p;
 

@@ -61,3 +61,8 @@ void inv_cond()
   /* void is not valid type for conditional expression */
   int x = void_func() ? 1 : 2;
 }
+
+void func7()
+{
+  void_func x; /* function name used as a type */
+}

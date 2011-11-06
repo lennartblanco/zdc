@@ -47,7 +47,7 @@ dt_name_new(gchar *name, guint line_number)
     DtName *obj;
 
     obj = g_object_new(DT_TYPE_NAME,
-                       "dt-data-type-line-number", line_number,
+                       "ir-node-line-number", line_number,
                        NULL);
     obj->name = g_strdup(name);
 
