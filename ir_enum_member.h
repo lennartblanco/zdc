@@ -2,7 +2,7 @@
 #define IR_ENUM_MEMBER_INC_X
 
 #include "ir_types.h"
-#include "ir_enum.h"
+#include "dt_enum.h"
 #include "ir_symbol.h"
 
 /*---------------------------------------------------------------------------*
@@ -34,7 +34,7 @@ struct _IrEnumMember
      * private 
      */
     IrExpression  *value;
-    IrEnum *enum_def;
+    DtEnum *enum_type;
 };
 
 typedef struct
@@ -50,7 +50,7 @@ GType
 ir_enum_member_get_type(void);
 
 IrEnumMember *
-ir_enum_member_new(IrEnum *enum_def, gchar *name, IrExpression *value);
+ir_enum_member_new(DtEnum *enum_type, gchar *name, IrExpression *value);
 
 IrExpression *
 ir_enum_member_get_value(IrEnumMember *self);

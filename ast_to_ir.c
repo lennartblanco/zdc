@@ -62,8 +62,8 @@
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
-static IrEnum *
-enum_to_ir(compilation_status_t *compile_status,
+static DtEnum *
+enum_to_dt(compilation_status_t *compile_status,
            sym_table_t *symbols,
            AstEnum *ast_enum);
 
@@ -291,15 +291,15 @@ process_user_types(compilation_status_t *compile_status,
 
         if (AST_IS_ENUM(user_type))
         {
-            IrEnum *ir_enum;
+            DtEnum *dt_enum;
 
-            ir_enum = enum_to_ir(compile_status,
+            dt_enum = enum_to_dt(compile_status,
                                  ir_module_get_symbols(module),
                                  AST_ENUM(i->data));
-            if (!ir_module_add_enum(module, ir_enum))
+            if (!ir_module_add_enum(module, dt_enum))
             {
                 compile_error(compile_status,
-                              IR_NODE(ir_enum),
+                              dt_enum,
                               "enum declaration conflicts with"
                               " other user type '%s' definition\n",
                               ast_enum_get_tag(AST_ENUM(i->data)));
@@ -420,7 +420,7 @@ import_module(compilation_status_t *compile_status,
 static IrEnumMember *
 enum_member_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
-                  IrEnum *enum_def,
+                  DtEnum *enum_def,
                   AstEnumMember *ast_member)
 {
     IrExpression *member_val = NULL;
@@ -439,16 +439,16 @@ enum_member_to_ir(compilation_status_t *compile_status,
                               member_val);
 }
 
-static IrEnum *
-enum_to_ir(compilation_status_t *compile_status,
+static DtEnum *
+enum_to_dt(compilation_status_t *compile_status,
            sym_table_t *symbols,
            AstEnum *ast_enum)
 {
-    IrEnum *enum_def;
+    DtEnum *enum_def;
     GSList *i;
     GSList *ir_enum_members = NULL;
 
-    enum_def = ir_enum_new(ast_enum_get_tag(ast_enum),
+    enum_def = dt_enum_new(ast_enum_get_tag(ast_enum),
                            ast_enum_get_base_type(ast_enum),
                            compile_status->module,
                            ast_node_get_line_num(ast_enum));
@@ -461,7 +461,7 @@ enum_to_ir(compilation_status_t *compile_status,
                                                             enum_def,
                                                             i->data));
     }
-    ir_enum_set_members(enum_def, g_slist_reverse(ir_enum_members));
+    dt_enum_set_members(enum_def, g_slist_reverse(ir_enum_members));
 
 
     return enum_def;

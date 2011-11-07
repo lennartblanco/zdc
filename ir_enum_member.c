@@ -46,7 +46,7 @@ ir_enum_member_get_type(void)
 }
 
 IrEnumMember *
-ir_enum_member_new(IrEnum *enum_def, gchar *name, IrExpression *value)
+ir_enum_member_new(DtEnum *enum_type, gchar *name, IrExpression *value)
 {
     IrEnumMember *obj;
 
@@ -54,7 +54,7 @@ ir_enum_member_new(IrEnum *enum_def, gchar *name, IrExpression *value)
                        "ir-symbol-name", name,
                        NULL);
 
-    obj->enum_def = enum_def;
+    obj->enum_type = enum_type;
     obj->value = value;
 
     return obj;
@@ -96,12 +96,12 @@ ir_enum_member_do_get_data_type(IrExpression *self)
     assert(IR_IS_ENUM_MEMBER(self));
     IrEnumMember *enum_member = IR_ENUM_MEMBER(self);
 
-    if (ir_enum_is_anonymous(enum_member->enum_def))
+    if (dt_enum_is_anonymous(enum_member->enum_type))
     {
         return ir_expression_get_data_type(enum_member->value);
     }
 
-    return DT_DATA_TYPE(ir_enum_get_data_type(enum_member->enum_def));
+    return DT_DATA_TYPE(enum_member->enum_type);
 }
 
 static void

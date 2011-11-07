@@ -8,6 +8,7 @@
 #include "dt_void.h"
 #include "dt_static_array.h"
 #include "dt_pointer.h"
+#include "dt_enum.h"
 #include "ir_function.h"
 #include "ir_assignment.h"
 #include "ir_function_call.h"
@@ -148,7 +149,7 @@ validate_code_block(compilation_status_t *compile_status,
 
 static void
 validate_enum(compilation_status_t *compile_status,
-              IrEnum *enum_def);
+              DtEnum *enum_def);
 
 /**
  * Look-up the user defined data type in current module. If no data type
@@ -986,10 +987,9 @@ validate_dot(compilation_status_t *compile_status,
 
     if (DT_IS_ENUM(left))
     {
-        assert(false);
         IrEnumMember *mbr;
 
-        mbr = ir_enum_get_member(IR_ENUM(left),
+        mbr = dt_enum_get_member(DT_ENUM(left),
                                  ir_ident_get_name(IR_IDENT(right)));
         if (mbr == NULL)
         {
@@ -2540,9 +2540,9 @@ validate_array_literal(compilation_status_t *compile_status,
 
 static void
 validate_enum(compilation_status_t *compile_status,
-              IrEnum *enum_def)
+              DtEnum *enum_def)
 {
-    assert(IR_IS_ENUM(enum_def));
+    assert(DT_IS_ENUM(enum_def));
 
     GSList *members;
     GSList *i;
@@ -2559,7 +2559,7 @@ validate_enum(compilation_status_t *compile_status,
     }
 
     sym_table = ir_module_get_symbols(compile_status->module);
-    members = ir_enum_get_members(enum_def);
+    members = dt_enum_get_members(enum_def);
     first_member_init = ir_enum_member_get_value(members->data);
 
     /*
@@ -2602,7 +2602,7 @@ validate_enum(compilation_status_t *compile_status,
     /*
      * figure out enum's base type
      */
-    base_type = ir_enum_get_base_type(enum_def);
+    base_type = dt_enum_get_base_type(enum_def);
     if (base_type == NULL)
     {
         /*
@@ -2618,7 +2618,7 @@ validate_enum(compilation_status_t *compile_status,
             /* use default int base type */
             base_type = types_get_int_type();
         }
-        ir_enum_set_base_type(enum_def, base_type);
+        dt_enum_set_base_type(enum_def, base_type);
     }
 
     /*
@@ -2822,9 +2822,9 @@ validate_user_types(compilation_status_t *compile_status, IrModule *module)
     GSList *i;
     for (i = ir_module_get_enums(module); i != NULL; i = g_slist_next(i))
     {
-        assert(IR_IS_ENUM(i->data));
+        assert(DT_IS_ENUM(i->data));
         validate_enum(compile_status,
-                      IR_ENUM(i->data));
+                      DT_ENUM(i->data));
     }
 
     /* validate struct definitions */

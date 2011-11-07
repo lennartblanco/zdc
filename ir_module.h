@@ -6,11 +6,11 @@
 
 #include "sym_table.h"
 #include "dt_name.h"
+#include "dt_enum.h"
 #include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
 #include "ir_array_literal.h"
-#include "ir_enum.h"
 #include "ir_struct.h"
 
 /*---------------------------------------------------------------------------*
@@ -122,7 +122,7 @@ ir_module_add_type_alias(IrModule *self,
  */
 bool
 ir_module_add_enum(IrModule *self,
-                   IrEnum *ir_enum);
+                   DtEnum *dt_enum);
 
 /**
  * @return enum declaration in this module, as a list of IrEnum objects

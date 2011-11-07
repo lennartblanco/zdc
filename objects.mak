@@ -23,11 +23,11 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          dt_enum.o dt_struct.o dt_array.o dt_static_array.o dt_name.o         \
          ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_literal.o       \
          ir_enum_member.o ir_code_block.o ir_statment.o ir_cast.o             \
-         ir_constant.o ir_enum.o ir_null.o ir_basic_constant.o                \
-         ir_binary_operation.o ir_conditional.o ir_unary_operation.o          \
-         ir_module.o ir_if_else.o ir_if_block.o ir_loop.o ir_while.o ir_for.o \
-         ir_foreach.o ir_foreach_range.o ir_break.o ir_expression.o           \
-         ir_return.o ir_function_call.o ir_assignment.o ir_array_literal.o    \
+         ir_constant.o ir_null.o ir_basic_constant.o ir_binary_operation.o    \
+         ir_conditional.o ir_unary_operation.o ir_module.o ir_if_else.o       \
+         ir_if_block.o ir_loop.o ir_while.o ir_for.o ir_foreach.o             \
+         ir_foreach_range.o ir_break.o ir_expression.o ir_return.o            \
+         ir_function_call.o ir_assignment.o ir_array_literal.o                \
          ir_array_slice.o ir_array_cell.o ir_ptr_dref.o ir_address_of.o       \
          ir_function_def.o ir_function_decl.o ir_property.o ir_struct.o       \
          ir_struct_member.o ir_struct_literal.o ir_dot.o ir_ident.o           \

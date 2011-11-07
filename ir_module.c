@@ -261,18 +261,18 @@ ir_module_add_type_alias(IrModule *self,
 
 bool
 ir_module_add_enum(IrModule *self,
-                   IrEnum *ir_enum)
+                   DtEnum *dt_enum)
 {
     assert(IR_IS_MODULE(self));
-    assert(IR_IS_ENUM(ir_enum));
+    assert(DT_IS_ENUM(dt_enum));
 
-    if (ir_enum_is_anonymous(ir_enum))
+    if (dt_enum_is_anonymous(dt_enum))
     {
         /*
          * for anonymous enum definitions,
          * store enum members in the symbol table
          */
-        GSList *i = ir_enum_get_members(ir_enum);
+        GSList *i = dt_enum_get_members(dt_enum);
 
         for (; i != NULL; i = g_slist_next(i))
         {
@@ -288,13 +288,13 @@ ir_module_add_enum(IrModule *self,
          * non-anonymous enum definition, store it in symbols table
          */
         if (sym_table_add_symbol(self->symbols,
-                                 IR_SYMBOL(ir_enum_get_data_type(ir_enum)))!=0)
+                                 IR_SYMBOL(dt_enum)) != 0)
         {
             return false;
         }
     }
     /* add it to the module's enum's list */
-    self->enums = g_slist_prepend(self->enums, ir_enum);
+    self->enums = g_slist_prepend(self->enums, dt_enum);
 
     return true;
 }

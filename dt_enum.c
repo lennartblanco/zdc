@@ -42,7 +42,8 @@ dt_enum_get_type(void)
 DtEnum *
 dt_enum_new(gchar *name,
             DtDataType *base_type,
-            IrModule *parent_module)
+            IrModule *parent_module,
+            guint line_number)
 {
     assert(IR_IS_MODULE(parent_module));
 
@@ -51,22 +52,64 @@ dt_enum_new(gchar *name,
     obj = g_object_new(DT_TYPE_ENUM,
                        "ir-symbol-name", name,
                        "ir-symbol-parent-module", parent_module,
+                       "ir-node-line-number", line_number,
                        NULL);
 
     obj->base_type = base_type;
-    obj->first_member = NULL;
+    obj->members = NULL;
 
     return obj;
 }
 
-void
-dt_enum_set_first_member(DtEnum *self,
-                         IrEnumMember *first_member)
+gchar *
+dt_enum_get_tag(DtEnum *self)
 {
     assert(DT_IS_ENUM(self));
-    assert(IR_IS_ENUM_MEMBER(first_member));
 
-    self->first_member = first_member;
+    return ir_symbol_get_name(IR_SYMBOL(self));
+}
+
+bool
+dt_enum_is_anonymous(DtEnum *self)
+{
+    assert(DT_IS_ENUM(self));
+
+    return dt_enum_get_tag(self) == NULL;
+}
+
+void
+dt_enum_set_members(DtEnum *self, GSList *members)
+{
+    assert(DT_IS_ENUM(self));
+    assert(members);
+
+    self->members = members;
+}
+
+GSList *
+dt_enum_get_members(DtEnum *self)
+{
+    assert(DT_IS_ENUM(self));
+
+    return self->members;
+}
+
+IrEnumMember *
+dt_enum_get_member(DtEnum *self, const gchar *enum_member_name)
+{
+    assert(DT_IS_ENUM(self));
+    assert(enum_member_name);
+    GSList *i;
+
+    for (i = self->members; i != NULL; i = g_slist_next(i))
+    {
+        if (g_strcmp0(ir_symbol_get_name(i->data), enum_member_name) == 0)
+        {
+            return i->data;
+        }
+    }
+
+    return NULL;
 }
 
 DtDataType *
@@ -111,9 +154,10 @@ static IrExpression *
 dt_enum_get_init(DtDataType *self)
 {
     assert(DT_IS_ENUM(self));
-    assert(IR_IS_EXPRESSION(DT_ENUM(self)->first_member));
+    assert(IR_IS_EXPRESSION(DT_ENUM(self)->members->data));
 
-    return IR_EXPRESSION(DT_ENUM(self)->first_member);
+    /* init expression is first member */
+    return IR_EXPRESSION(DT_ENUM(self)->members->data);
 }
 
 static bool

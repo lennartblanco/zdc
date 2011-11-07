@@ -31,7 +31,7 @@ struct _DtEnum
 
     /* private */
     DtDataType *base_type;
-    IrEnumMember *first_member;
+    GSList *members;
 };
 
 typedef struct
@@ -49,11 +49,26 @@ dt_enum_get_type(void);
 DtEnum *
 dt_enum_new(gchar *name,
             DtDataType *base_type,
-            IrModule *parent_module);
+            IrModule *parent_module,
+            guint line_number);
+
+gchar *
+dt_enum_get_tag(DtEnum *self);
+
+bool
+dt_enum_is_anonymous(DtEnum *self);
 
 void
-dt_enum_set_first_member(DtEnum *self,
-                         IrEnumMember *first_member);
+dt_enum_set_members(DtEnum *self, GSList *members);
+
+/**
+ * @return enum members as a list of IrEnumMember objects
+ */
+GSList *
+dt_enum_get_members(DtEnum *self);
+
+IrEnumMember *
+dt_enum_get_member(DtEnum *self, const gchar *enum_member_name);
 
 DtDataType *
 dt_enum_get_base_type(DtEnum *self);
