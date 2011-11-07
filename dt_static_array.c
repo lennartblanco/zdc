@@ -58,7 +58,7 @@ dt_static_array_new(DtDataType *data_type, guint32 length, guint line_number)
     DtStaticArray *obj;
 
     obj = g_object_new(DT_TYPE_STATIC_ARRAY,
-                       "dt-data-type-line-number", line_number,
+                       "ir-node-line-number", line_number,
                        NULL);
     DT_ARRAY(obj)->data_type = data_type;
     obj->length = length;
