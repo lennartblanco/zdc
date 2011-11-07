@@ -46,6 +46,14 @@ void age_lemon(lemon *l, uint years)
   l.bitterness = l.age * 3;
 }
 
+/* test using imported type alias (orange) */
+uint orange_alias(orange a)
+{
+  orange res = 100 - a;
+
+  return res;
+}
+
 int
 run_imp_func1(bool flag)
 {
@@ -105,6 +113,11 @@ extern (C)
 
     age_lemon(&l, 10);
     return l.age == 10 && l.bitterness == 30;
+  }
+
+  uint call_orange_alias(orange a)
+  {
+    return orange_alias(a);
   }
 
   int

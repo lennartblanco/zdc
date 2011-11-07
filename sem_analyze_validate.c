@@ -2071,6 +2071,10 @@ resolve_user_type(compilation_status_t *compile_status,
                       dt_name_get_name(user_type));
         return NULL;
     }
+    else if (DT_IS_ALIAS(type))
+    {
+        return dt_alias_get_aliased_type(DT_ALIAS(type));
+    }
 
     return DT_DATA_TYPE(type);
 }

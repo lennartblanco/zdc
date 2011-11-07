@@ -18,6 +18,9 @@ call_lemon_sizeof();
 bool
 call_age_lemon();
 
+unsigned
+call_orange_alias(unsigned a);
+
 int
 call_run_imp_func1(bool flag);
 
@@ -49,6 +52,10 @@ main()
 
     /* age_lemon() test */
     check_bool("age_lemon()", call_age_lemon(), true);
+
+    /* orange_alias() tests */
+    check_uint("orange_alias(5)", call_orange_alias(5), 100 - 5);
+    check_uint("orange_alias(43)", call_orange_alias(43), 100 - 43);
 
     /* run_imp_func1() tests */
     check_int("run_imp_func1(true)", call_run_imp_func1(true), 314);

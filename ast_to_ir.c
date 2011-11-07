@@ -323,15 +323,16 @@ process_user_types(compilation_status_t *compile_status,
         }
         else if (AST_IS_ALIAS(user_type))
         {
-            DtDataType *alias_type = ast_alias_get_data_type(i->data);
-            gchar *alias_name = ast_alias_get_name(i->data);
+            DtAlias *alias =
+                dt_alias_new(ast_alias_get_data_type(i->data),
+                             ast_alias_get_name(i->data));
 
-            if (!ir_module_add_type_alias(module, alias_type, alias_name)) {
+            if (!ir_module_add_type_alias(module, alias)) {
                         compile_error(compile_status,
                                       i->data,
                                       "alias conflicts with"
                                       " other user type '%s' definition\n",
-                                      alias_name);
+                                      dt_alias_get_name(alias));
             }
         }
         else

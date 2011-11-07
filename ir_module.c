@@ -26,13 +26,6 @@ struct _IrModule
 };
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static bool
-add_user_type(IrModule *self, gchar *type_name, void *type);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -249,14 +242,12 @@ ir_module_get_data_section(IrModule *self)
 
 bool
 ir_module_add_type_alias(IrModule *self,
-                         DtDataType *data_type,
-                         gchar *alias_name)
+                         DtAlias *alias)
 {
     assert(IR_IS_MODULE(self));
-    assert(DT_IS_DATA_TYPE(data_type));
-    assert(alias_name);
+    assert(DT_IS_ALIAS(alias));
 
-    return add_user_type(self, alias_name, data_type);
+    return sym_table_add_symbol(self->symbols, IR_SYMBOL(alias)) == 0;
 }
 
 bool
@@ -363,24 +354,4 @@ ir_module_print(IrModule *self, FILE *out, int indention)
         ir_node_print(IR_NODE(p->data), out, indention + 2);
     }
     g_list_free(p);
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static bool
-add_user_type(IrModule *self, gchar *type_name, void *type)
-{
-    assert(IR_IS_MODULE(self));
-
-    assert(false); /* need to be ported or removed */
-//
-//    if (g_hash_table_lookup(self->user_types, type_name) != NULL)
-//    {
-//        return false;
-//    }
-//    g_hash_table_insert(self->user_types, type_name, type);
-//
-//    return true;
 }

@@ -7,6 +7,7 @@
 #include "sym_table.h"
 #include "dt_name.h"
 #include "dt_enum.h"
+#include "dt_alias.h"
 #include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
@@ -114,8 +115,7 @@ ir_module_get_data_section(IrModule *self);
  */
 bool
 ir_module_add_type_alias(IrModule *self,
-                         DtDataType *data_type,
-                         gchar *alias_name);
+                         DtAlias *alias);
 
 /**
  * @return false if this enum definition conflicts with some other user type

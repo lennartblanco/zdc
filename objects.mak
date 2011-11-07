@@ -20,7 +20,8 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ast_alias.o ast_enum.o ast_enum_member.o ast_struct.o ast_ptr_dref.o \
          ast_address_of.o ast_cast.o ast_conditional.o                        \
          dt_data_type.o dt_auto.o dt_void.o dt_basic.o dt_pointer.o dt_user.o \
-         dt_enum.o dt_struct.o dt_array.o dt_static_array.o dt_name.o         \
+         dt_alias.o dt_enum.o dt_struct.o dt_array.o dt_static_array.o        \
+         dt_name.o                                                            \
          ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_literal.o       \
          ir_enum_member.o ir_code_block.o ir_statment.o ir_cast.o             \
          ir_constant.o ir_null.o ir_basic_constant.o ir_binary_operation.o    \
