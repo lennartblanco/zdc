@@ -2312,7 +2312,7 @@ validate_function_decl(compilation_status_t *compile_status,
     GSList *i = ir_function_get_parameters(IR_FUNCTION(func_decl));
     for (; i != NULL; i = g_slist_next(i))
     {
-        validate_variable(compile_status, NULL, IR_VARIABLE(i->data));
+        validate_variable(compile_status, symbols, IR_VARIABLE(i->data));
     }
 }
 
