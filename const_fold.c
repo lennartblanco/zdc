@@ -406,6 +406,10 @@ cfold_cast_basic_type(DtDataType *target_type,
         {
             res = (gint32)ir_basic_constant_get_char(IR_BASIC_CONSTANT(val));
         }
+        else if (dt_basic_is_ubyte(val_type))
+        {
+            res = (gint32)ir_basic_constant_get_ubyte(IR_BASIC_CONSTANT(val));
+        }
         else
         {
             /* unexpected value type */
