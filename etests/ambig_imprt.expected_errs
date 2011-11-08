@@ -1,1 +1,2 @@
+ambig_imprt.d:21: error: ambiguous type name 'oink', matches: imp_mod_a.oink, imp_mod_b.oink
 ambig_imprt.d:18: error: ambiguous function call 'func_x', matches: imp_mod_a.func_x, imp_mod_b.func_x

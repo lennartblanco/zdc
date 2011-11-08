@@ -2057,6 +2057,14 @@ resolve_user_type(compilation_status_t *compile_status,
                               "unknown data type '%s'\n",
                               dt_name_get_name(user_type));
                 break;
+            case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
+                /* ambiguous type name */
+                compile_error(compile_status,
+                              user_type,
+                              "ambiguous type name '%s', matches: %s\n",
+                              dt_name_get_name(user_type),
+                              error->message);
+                break;
             default:
                 assert(false); /* unexpected error code */
 
