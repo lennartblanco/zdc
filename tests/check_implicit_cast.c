@@ -86,12 +86,14 @@ main()
 
     /* misc_to_int() tests */
     check_int("misc_to_int(-1)", misc_to_int(-1), -1);
+    check_int("misc_to_int(100)", misc_to_int(100), -1);
     check_int("misc_to_int(0)", misc_to_int(0), 3);
     check_int("misc_to_int(1)", misc_to_int(1), 1);
     check_int("misc_to_int(2)", misc_to_int(2), 4);
     check_int("misc_to_int(3)", misc_to_int(3), 1);
     check_int("misc_to_int(4)", misc_to_int(4), 5);
-    check_int("misc_to_int(5)", misc_to_int(5), -1);
+    check_int("misc_to_int(5)", misc_to_int(5), 112);
+    check_int("misc_to_int(6)", misc_to_int(6), 112 + 2);
 
     check_exit();
 }

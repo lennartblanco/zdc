@@ -615,11 +615,7 @@ validate_ind_dec_ops(compilation_status_t *compile_status,
     }
     else
     {
-        /* any non-basic type convertible to int is valid */
-        if (types_implicit_conv(types_get_int_type(), exp) == NULL)
-        {
-            goto invalid_type;
-        }
+        goto invalid_type;
     }
 
 valid_exp:

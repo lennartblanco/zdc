@@ -21,8 +21,8 @@ IrExpression *
 types_implicit_conv(DtDataType *target_type,
                     IrExpression *expression)
 {
-    if (dt_data_type_is_same(target_type,
-                             ir_expression_get_data_type(expression)))
+    DtDataType *exp_type = ir_expression_get_data_type(expression);
+    if (dt_data_type_is_same(target_type, exp_type))
     {
         /* no cast is needed */
         return expression;
@@ -30,6 +30,19 @@ types_implicit_conv(DtDataType *target_type,
 
     if (!dt_data_type_is_impl_conv(target_type, expression))
     {
+        if (DT_IS_ENUM(exp_type))
+        {
+            /*
+             * check if enum's base type is implicitly
+             * convertible to target type
+             */
+            IrExpression *cast_exp =
+                IR_EXPRESSION(
+                    ir_cast_new(dt_enum_get_base_type(DT_ENUM(exp_type)),
+                                expression));
+            return types_implicit_conv(target_type, cast_exp);
+        }
+
         /* can't implicitly convert expression to target type */
         return NULL;
     }

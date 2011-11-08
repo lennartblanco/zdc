@@ -68,6 +68,8 @@ void* int_ptr_to_void_ptr(int *p)
     return res;
 }
 
+enum UBYTE_TEST : ubyte { A = 112, B, C }
+
 extern (C) int
 misc_to_int(uint i)
 {
@@ -103,6 +105,17 @@ misc_to_int(uint i)
 
     res = v;
   }
+
+  /* test implicit casts of ubyte enum to int */
+  else if (i == 5)
+  {
+    res = UBYTE_TEST.A;
+  }
+  else if (i == 6)
+  {
+    res = UBYTE_TEST.C;
+  }
+
 
   return res;
 }
