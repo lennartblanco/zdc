@@ -424,7 +424,7 @@ iml_add_assignment(IrFunctionDef *function,
 
         var_type = ir_expression_get_data_type(lvalue);
 
-        if (dt_is_basic(var_type) || DT_IS_ENUM(var_type))
+        if (dt_is_basic(var_type) || dt_is_enum(var_type))
         {
             iml_add_expression_eval(
                     function,
@@ -828,7 +828,7 @@ dt_to_iml_type(DtDataType *dt_type)
     {
         iml_type = iml_blob;
     }
-    else if (DT_IS_ENUM(dt_type))
+    else if (dt_is_enum(dt_type))
     {
         return dt_to_iml_type(
                   dt_enum_get_base_type(DT_ENUM(dt_type)));
@@ -1229,7 +1229,7 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
 
             return basic_cast_ops[trgt_bdt][src_bdt];
         }
-        else if (DT_IS_ENUM(src_type))
+        else if (dt_is_enum(src_type))
         {
             return get_cast_opcode(dt_enum_get_base_type(DT_ENUM(src_type)),
                                    target_type);

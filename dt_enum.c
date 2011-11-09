@@ -39,6 +39,12 @@ dt_enum_get_type(void)
     return type;
 }
 
+bool
+dt_is_enum(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE((obj), DT_TYPE_ENUM);
+}
+
 DtEnum *
 dt_enum_new(gchar *name,
             DtDataType *base_type,
@@ -64,7 +70,7 @@ dt_enum_new(gchar *name,
 gchar *
 dt_enum_get_tag(DtEnum *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
 
     return ir_symbol_get_name(IR_SYMBOL(self));
 }
@@ -72,7 +78,7 @@ dt_enum_get_tag(DtEnum *self)
 bool
 dt_enum_is_anonymous(DtEnum *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
 
     return dt_enum_get_tag(self) == NULL;
 }
@@ -80,7 +86,7 @@ dt_enum_is_anonymous(DtEnum *self)
 void
 dt_enum_set_members(DtEnum *self, GSList *members)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
     assert(members);
 
     self->members = members;
@@ -89,7 +95,7 @@ dt_enum_set_members(DtEnum *self, GSList *members)
 GSList *
 dt_enum_get_members(DtEnum *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
 
     return self->members;
 }
@@ -97,7 +103,7 @@ dt_enum_get_members(DtEnum *self)
 IrEnumMember *
 dt_enum_get_member(DtEnum *self, const gchar *enum_member_name)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
     assert(enum_member_name);
     GSList *i;
 
@@ -115,7 +121,7 @@ dt_enum_get_member(DtEnum *self, const gchar *enum_member_name)
 DtDataType *
 dt_enum_get_base_type(DtEnum *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
 
     return self->base_type;
 }
@@ -123,7 +129,7 @@ dt_enum_get_base_type(DtEnum *self)
 void
 dt_enum_set_base_type(DtEnum *self, DtDataType *base_type)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
     assert(DT_IS_DATA_TYPE(base_type));
 
     self->base_type = base_type;
@@ -136,7 +142,7 @@ dt_enum_set_base_type(DtEnum *self, DtDataType *base_type)
 static char *
 dt_enum_get_mangled_prefix(DtUser *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
 
     return "E";
 }
@@ -144,7 +150,7 @@ dt_enum_get_mangled_prefix(DtUser *self)
 static guint
 dt_enum_get_size(DtDataType *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
     assert(DT_IS_DATA_TYPE(DT_ENUM(self)->base_type));
 
     return dt_data_type_get_size(DT_ENUM(self)->base_type);
@@ -153,7 +159,7 @@ dt_enum_get_size(DtDataType *self)
 static IrExpression *
 dt_enum_get_init(DtDataType *self)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
     assert(IR_IS_EXPRESSION(DT_ENUM(self)->members->data));
 
     /* init expression is first member */
@@ -163,7 +169,7 @@ dt_enum_get_init(DtDataType *self)
 static bool
 dt_enum_is_impl_conv(DtDataType *self, IrExpression *expression)
 {
-    assert(DT_IS_ENUM(self));
+    assert(dt_is_enum(self));
     assert(IR_IS_EXPRESSION(expression));
 
     return false;

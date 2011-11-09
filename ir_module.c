@@ -255,7 +255,7 @@ ir_module_add_enum(IrModule *self,
                    DtEnum *dt_enum)
 {
     assert(IR_IS_MODULE(self));
-    assert(DT_IS_ENUM(dt_enum));
+    assert(dt_is_enum(dt_enum));
 
     if (dt_enum_is_anonymous(dt_enum))
     {

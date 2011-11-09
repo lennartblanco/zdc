@@ -60,15 +60,16 @@ void
 test_orange()
 {
     /* orange_sizeof() test */
-    check_uint("orange_sizeof()", orange_sizeof(), 16);
+    check_uint("orange_sizeof()", orange_sizeof(), 20);
 
     /* orange_def() tests */
     check_int("orange_def(-1)", orange_def(-1), -1);
+    check_int("orange_def(100)", orange_def(100), -1);
     check_int("orange_def(0)", orange_def(0), 2);
     check_int("orange_def(1)", orange_def(1), 0);
     check_int("orange_def(2)", orange_def(2), 0xff);
     check_int("orange_def(3)", orange_def(3), 100);
-    check_int("orange_def(4)", orange_def(4), -1);
+    check_int("orange_def(4)", orange_def(4), 10);
 
     /* orange_locvar() tests */
     check_int("orange_locvar(10, 12, '+')", orange_locvar(10, 12, '+'), 10+12);

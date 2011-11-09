@@ -30,7 +30,7 @@ types_implicit_conv(DtDataType *target_type,
 
     if (!dt_data_type_is_impl_conv(target_type, expression))
     {
-        if (DT_IS_ENUM(exp_type))
+        if (dt_is_enum(exp_type))
         {
             /*
              * check if enum's base type is implicitly
@@ -60,7 +60,7 @@ types_integer_promotion(IrExpression *expression)
 
     exp_type = ir_expression_get_data_type(expression);
 
-    if (DT_IS_ENUM(exp_type))
+    if (dt_is_enum(exp_type))
     {
         exp_type = dt_enum_get_base_type(DT_ENUM(exp_type));
     }

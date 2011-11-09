@@ -1,8 +1,11 @@
+enum speed { slow = 10, fast, swoosh }
+
 struct orange
 {
   int a = 2, b;
   char c;
   uint d = 100;
+  speed e;
 }
 
 alias void* ptr;
@@ -34,6 +37,7 @@ orange_def(uint n)
   if (n == 1) { return o.b; }
   if (n == 2) { return o.c; }
   if (n == 3) { return o.d; }
+  if (n == 4) { return o.e; }
 
   return -1;
 }

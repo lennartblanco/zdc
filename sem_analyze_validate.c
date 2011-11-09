@@ -981,7 +981,7 @@ validate_dot(compilation_status_t *compile_status,
     /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
 
-    if (DT_IS_ENUM(left))
+    if (dt_is_enum(left))
     {
         IrEnumMember *mbr;
 
@@ -2550,7 +2550,7 @@ static void
 validate_enum(compilation_status_t *compile_status,
               DtEnum *enum_def)
 {
-    assert(DT_IS_ENUM(enum_def));
+    assert(dt_is_enum(enum_def));
 
     GSList *members;
     GSList *i;
@@ -2830,7 +2830,7 @@ validate_user_types(compilation_status_t *compile_status, IrModule *module)
     GSList *i;
     for (i = ir_module_get_enums(module); i != NULL; i = g_slist_next(i))
     {
-        assert(DT_IS_ENUM(i->data));
+        assert(dt_is_enum(i->data));
         validate_enum(compile_status,
                       DT_ENUM(i->data));
     }

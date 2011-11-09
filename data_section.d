@@ -7,56 +7,87 @@ import ir_struct_member;
 import ir_module;
 import ir_expression;
 import ir_basic_constant;
+import ir_enum_member;
+import dt_data_type;
 import dt_array;
+import dt_enum;
 import dt_basic;
 
 private string
-get_data_section_string(DtBasic *exp_type,
-                        IrBasicConstant *exp)
+get_data_section_string(DtDataType *exp_type,
+                        IrExpression *exp)
 {
-    switch (dt_basic_get_data_type(exp_type))
+    if (dt_is_basic(exp_type))
     {
-        case basic_data_type.bool_type:
-            return to!string(cast(int)ir_basic_constant_get_bool(exp));
-        case basic_data_type.char_type:
-            return to!string(cast(int)ir_basic_constant_get_char(exp));
-        case basic_data_type.byte_type:
-            return to!string(ir_basic_constant_get_byte(exp));
-        case basic_data_type.ubyte_type:
-            return to!string(ir_basic_constant_get_ubyte(exp));
-        case basic_data_type.short_type:
-            return to!string(ir_basic_constant_get_short(exp));
-        case basic_data_type.ushort_type:
-            return to!string(ir_basic_constant_get_ushort(exp));
-        case basic_data_type.int_type:
-            return to!string(ir_basic_constant_get_int(exp));
-        case basic_data_type.uint_type:
-            return to!string(ir_basic_constant_get_uint(exp));
-        default:
-            assert(false, "unexpected data type");
+        IrBasicConstant *bconst = cast(IrBasicConstant *)exp;
+
+        switch (dt_basic_get_data_type(cast(DtBasic*)exp_type))
+        {
+            case basic_data_type.bool_type:
+                return to!string(cast(int)ir_basic_constant_get_bool(bconst));
+            case basic_data_type.char_type:
+                return to!string(cast(int)ir_basic_constant_get_char(bconst));
+            case basic_data_type.byte_type:
+                return to!string(ir_basic_constant_get_byte(bconst));
+            case basic_data_type.ubyte_type:
+                return to!string(ir_basic_constant_get_ubyte(bconst));
+            case basic_data_type.short_type:
+                return to!string(ir_basic_constant_get_short(bconst));
+            case basic_data_type.ushort_type:
+                return to!string(ir_basic_constant_get_ushort(bconst));
+            case basic_data_type.int_type:
+                return to!string(ir_basic_constant_get_int(bconst));
+            case basic_data_type.uint_type:
+                return to!string(ir_basic_constant_get_uint(bconst));
+            default:
+                assert(false, "unexpected data type" ~
+                       to!string(
+                           dt_basic_get_data_type(cast(DtBasic*)exp_type)));
+        }
+    }
+    else if (dt_is_enum(exp_type))
+    {
+        IrExpression *e = ir_enum_member_get_value(cast(IrEnumMember *)exp);
+
+        return get_data_section_string(ir_expression_get_data_type(e), e);
+    }
+    else
+    {
+        assert(false, "unexpected data type");
     }
 }
 
 private string
-get_type_directive(DtBasic *type)
+get_type_directive(DtDataType *type)
 {
-    switch (dt_basic_get_data_type(type))
+    if (dt_is_basic(type))
     {
-        case basic_data_type.bool_type:
-        case basic_data_type.char_type:
-        case basic_data_type.byte_type:
-        case basic_data_type.ubyte_type:
-            return ".byte";
-        case basic_data_type.ushort_type:
-        case basic_data_type.short_type:
-            return ".short";
-        case basic_data_type.int_type:
-        case basic_data_type.uint_type:
-            return ".int";
-        default:
-            assert(false,
-                   "unexpected data type " ~
-                    to!string(dt_basic_get_data_type(type)));
+        switch (dt_basic_get_data_type(cast(DtBasic*)type))
+        {
+            case basic_data_type.bool_type:
+            case basic_data_type.char_type:
+            case basic_data_type.byte_type:
+            case basic_data_type.ubyte_type:
+                return ".byte";
+            case basic_data_type.ushort_type:
+            case basic_data_type.short_type:
+                return ".short";
+            case basic_data_type.int_type:
+            case basic_data_type.uint_type:
+                return ".int";
+            default:
+                assert(false,
+                       "unexpected basic data type " ~
+                       to!string(dt_basic_get_data_type(cast(DtBasic*)type)));
+        }
+    }
+    else if (dt_is_enum(type))
+    {
+        return get_type_directive(dt_enum_get_base_type(cast(DtEnum*)type));
+    }
+    else
+    {
+        assert(false, "unexpected data type");
     }
 }
 
@@ -96,7 +127,7 @@ gen_array_literal_data(File output, IrArrayLiteral *array_literal)
     assert(dt_is_basic(element_type));
 
     /* write array data type */
-    output.writef("%s ", get_type_directive(cast(DtBasic*)element_type));
+    output.writef("%s ", get_type_directive(element_type));
 
     /* write value of each array element */
     for (GSList *i = ir_array_literal_get_values(array_literal);
@@ -104,8 +135,8 @@ gen_array_literal_data(File output, IrArrayLiteral *array_literal)
          i = i.next())
     {
         output.writef("%s%s",
-                      get_data_section_string(cast(DtBasic*)element_type,
-                                              cast(IrBasicConstant*)i.data),
+                      get_data_section_string(cast(DtDataType*)element_type,
+                                              cast(IrExpression*)i.data),
                       i.next() != null ? ", " : "\n");
     }
 }
@@ -121,12 +152,10 @@ gen_struct_literal_data(File output, IrStructLiteral *struct_literal)
         IrExpression *init = ir_struct_member_get_init(member);
         DtDataType *type =
             ir_expression_get_data_type(cast(IrExpression*)member);
-        assert(dt_is_basic(type), "only basic types in structs supported");
 
         output.writefln("  %s %s",
-                        get_type_directive(cast(DtBasic*)type),
-                        get_data_section_string(cast(DtBasic*)type,
-                                                cast(IrBasicConstant*)init));
+                        get_type_directive(type),
+                        get_data_section_string(type, init));
 
         /* insert padding zero bytes if needed */
         int padding;
