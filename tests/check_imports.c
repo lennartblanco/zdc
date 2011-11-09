@@ -21,11 +21,34 @@ call_age_lemon();
 unsigned
 call_orange_alias(unsigned a);
 
+bool
+call_comp_lemons(unsigned age, int bit);
+
+int
+call_get_lemon_bpy(unsigned age, int bit);
+
 int
 call_run_imp_func1(bool flag);
 
 bool
 call_run_invert(bool arg);
+
+/*---------------------------------------------------------------------------*
+ *               extern (C) function called from tests                       *
+ *---------------------------------------------------------------------------*/
+
+struct lemon
+{
+  unsigned age;
+  int bitterness;
+};
+
+void
+ext_init_lemon(struct lemon *l)
+{
+  l->age = 44;
+  l->bitterness = 132;
+}
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -56,6 +79,14 @@ main()
     /* orange_alias() tests */
     check_uint("orange_alias(5)", call_orange_alias(5), 100 - 5);
     check_uint("orange_alias(43)", call_orange_alias(43), 100 - 43);
+
+    /* comp_lemons() tests */
+    check_bool("comp_lemons(10, 11)", call_comp_lemons(10, 11), false);
+    check_bool("comp_lemons(44, 132)", call_comp_lemons(44, 132), true);
+
+    /* get_lemon_bpy() tests */
+    check_int("get_lemon_bpy(7, 21)", call_get_lemon_bpy(7, 21), 21/7);
+    check_int("get_lemon_bpy(1, 42)", call_get_lemon_bpy(1, 42), 42/1);
 
     /* run_imp_func1() tests */
     check_int("run_imp_func1(true)", call_run_imp_func1(true), 314);

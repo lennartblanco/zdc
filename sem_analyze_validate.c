@@ -2844,6 +2844,37 @@ validate_user_types(compilation_status_t *compile_status, IrModule *module)
 }
 
 static void
+validate_func_decls(compilation_status_t *compile_status,
+                    IrModule *module)
+{
+    GSList *i;
+
+    i = ir_module_get_function_decls(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        validate_function_decl(compile_status, IR_FUNCTION_DECL(i->data));
+    }
+}
+
+static void
+validate_func_defs(compilation_status_t *compile_status,
+                   IrModule *module)
+{
+    GSList *i;
+
+    i = ir_module_get_function_defs(module);
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        IrFunctionDef *func_def = IR_FUNCTION_DEF(i->data);
+
+        validate_function_def(compile_status, func_def);
+        if (compile_status->errors_count == 0) {
+            assign_registers(func_def, compile_status->backend);
+        }
+    }
+}
+
+static void
 validate_imports(compilation_status_t *compile_status, IrModule *module)
 {
     assert(compile_status);
@@ -2855,6 +2886,8 @@ validate_imports(compilation_status_t *compile_status, IrModule *module)
     {
         assert(IR_IS_MODULE(i->data));
         validate_user_types(compile_status, i->data);
+        validate_func_decls(compile_status, i->data);
+        validate_func_defs(compile_status, i->data);
     }
 }
 
@@ -2876,24 +2909,17 @@ sem_analyze_validate(compilation_status_t *compile_status,
     validate_imports(compile_status, module);
     validate_entry_point(compile_status, module);
     validate_user_types(compile_status, module);
+    validate_func_decls(compile_status, module);
+    validate_func_defs(compile_status, module);
 
-    /* validate function declarations */
-    i = ir_module_get_function_decls(module);
-    for (; i != NULL; i = g_slist_next(i))
+    /* if all code is valid, do register allocation for all functions */
+    if (compile_status->errors_count == 0)
     {
-        validate_function_decl(compile_status, IR_FUNCTION_DECL(i->data));
-    }
-
-    /* validate function definitions */
-    i = ir_module_get_function_defs(module);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        IrFunctionDef *func_def = IR_FUNCTION_DEF(i->data);
-
-        validate_function_def(compile_status, func_def);
-        if (compile_status->errors_count == 0) {
-            assign_registers(func_def, compile_status->backend);
+        i = ir_module_get_function_defs(module);
+        for (; i != NULL; i = g_slist_next(i))
+        {
+            assign_registers(IR_FUNCTION_DEF(i->data),
+                             compile_status->backend);
         }
     }
 }
-

@@ -364,7 +364,7 @@ import_module(compilation_status_t *compile_status,
         IrFunctionDecl *ir_func_decl;
 
         ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
-        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_decl)) != 0)
+        if (!ir_module_add_function_decl(module, ir_func_decl))
         {
             compile_error(compile_status,
                           IR_NODE(ir_func_decl),
@@ -383,7 +383,7 @@ import_module(compilation_status_t *compile_status,
                                      AST_FUNCTION_DEF(i->data),
                                      module,
                                      false);
-        if (sym_table_add_symbol(imports, IR_SYMBOL(ir_func_def)) != 0)
+        if (!ir_module_add_function_def(module, ir_func_def))
         {
             compile_error(compile_status,
                           IR_NODE(ir_func_def),

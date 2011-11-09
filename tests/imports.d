@@ -54,6 +54,27 @@ uint orange_alias(orange a)
   return res;
 }
 
+/* test using imported function declaration with user type */
+bool comp_lemons(uint age, int bit)
+{
+  lemon l;
+
+  ext_init_lemon(&l);
+
+  return l.age == age && l.bitterness == bit;
+}
+
+/* test using imported function definition with user type */
+int get_lemon_bpy(uint age, int bit)
+{
+  lemon lem;
+
+  lem.age = age;
+  lem.bitterness = bit;
+
+  return bit_per_years(&lem);
+}
+
 int
 run_imp_func1(bool flag)
 {
@@ -115,9 +136,22 @@ extern (C)
     return l.age == 10 && l.bitterness == 30;
   }
 
-  uint call_orange_alias(orange a)
+  uint
+  call_orange_alias(orange a)
   {
     return orange_alias(a);
+  }
+
+  bool
+  call_comp_lemons(uint age, int bit)
+  {
+    return comp_lemons(age, bit);
+  }
+
+  int
+  call_get_lemon_bpy(uint age, int bit)
+  {
+    return get_lemon_bpy(age, bit);
   }
 
   int

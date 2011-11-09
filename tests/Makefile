@@ -63,7 +63,7 @@ check_module_test: module_test.o check_utils.o check_module_test.c
 check_pkg_name_tst: pkg_name_tst.o check_utils.o check_pkg_name_tst.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_imports: imports.o fact.o rets.o neg.o hex.o import_proxy.o bool_op.o check_utils.o check_imports.c
+check_imports: imports.o fact.o rets.o neg.o hex.o import_proxy.o bool_op.o imported.o check_utils.o check_imports.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_vars: vars.o check_utils.o check_vars.c
