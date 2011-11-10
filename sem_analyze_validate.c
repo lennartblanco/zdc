@@ -2829,12 +2829,7 @@ validate_func_defs(compilation_status_t *compile_status,
     i = ir_module_get_function_defs(module);
     for (; i != NULL; i = g_slist_next(i))
     {
-        IrFunctionDef *func_def = IR_FUNCTION_DEF(i->data);
-
-        validate_function_def(compile_status, func_def);
-        if (compile_status->errors_count == 0) {
-            assign_registers(func_def, compile_status->backend);
-        }
+        validate_function_def(compile_status, i->data);
     }
 }
 
