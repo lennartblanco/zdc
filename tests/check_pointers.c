@@ -16,6 +16,9 @@ call_compare(int arg1, int arg2, bool *arg3, bool *arg4);
 void
 call_divide(int arg1, int arg2, int *arg3, int *arg4);
 
+int
+addr_of_int(int a, int b, bool ret_divident);
+
 unsigned
 call_uint_ptr_dref(unsigned *arg1, int arg2);
 
@@ -76,6 +79,12 @@ main()
     call_divide(13, -15, &q, &r);
     check_cond("divide(13, -20, &quotient, &reminder)",
                q == (13 / -15) && r == (13 % -15));
+
+    /* addr_of_int() tests */
+    check_int("addr_of_int(31, 10, true)", addr_of_int(31, 10, true), 31 / 10);
+    check_int("addr_of_int(31, 10, false)", addr_of_int(31, 10, false), 31 % 10);
+    check_int("addr_of_int(27, 3, true)", addr_of_int(27, 3, true), 27 / 3);
+    check_int("addr_of_int(27, 3, false)", addr_of_int(27, 3, false), 27 % 3);
 
     /* compare() tests */
     bool equal = false;

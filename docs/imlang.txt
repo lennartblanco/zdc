@@ -183,9 +183,9 @@ set <src> => <addr>[+<offset>]
     - <offset> must be contant of variable of 32b,
         it's value will be evaluated as unsigned integer
 
-getaddr blob => addr
-  get the address of the blob variable and store it in a pointer variable
-   - blob is a variable of blob type
+getaddr var => addr
+  get the address of a variable and store it in a pointer variable
+   - blob is a variable of any type
    - add is a variable of pointer type
 
 setelm src => dest(index*size)

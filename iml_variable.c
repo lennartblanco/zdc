@@ -64,6 +64,7 @@ iml_variable_new(iml_data_type_t data_type, const gchar *name)
 
     obj->datatype = data_type;
     obj->reg = NULL;
+    obj->is_mem_pinned = false;
     if (name == NULL)
     {
         obj->name = g_strdup_printf("[temp%u]", temp_var_names_cntr++);
@@ -127,9 +128,26 @@ iml_variable_is_temp(ImlVariable *self)
 }
 
 void
+iml_variable_set_mem_pinned(ImlVariable *self)
+{
+    assert(iml_is_variable(self));
+
+    self->is_mem_pinned = true;
+}
+
+bool
+iml_variable_is_mem_pinned(ImlVariable *self)
+{
+    assert(iml_is_variable(self));
+
+    return self->is_mem_pinned;
+}
+
+void
 iml_variable_set_register(ImlVariable *self, const char *reg)
 {
     assert(iml_is_variable(self));
+    assert(!self->is_mem_pinned);
     assert(reg);
 
     self->reg = reg;
@@ -214,6 +232,7 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
                    type_str,
                    blob_size_str != NULL ? blob_size_str : "",
                    var->name);
+    g_free(blob_size_str);
 
     if (var->reg != NULL) {
         fprintf(out, " [%s]", var->reg);
@@ -223,7 +242,10 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
        fprintf(out, " [%04d]", var->frame_offset);
     }
 
-    g_free(blob_size_str);
+    if (var->is_mem_pinned)
+    {
+        fprintf(out, " {pinned}");
+    }
 }
 
 static void

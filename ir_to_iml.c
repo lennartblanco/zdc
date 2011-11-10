@@ -1436,11 +1436,6 @@ iml_add_address_of_eval(IrFunctionDef *function,
         res = iml_func_frame_get_temp(frame, iml_ptr);
     }
 
-    /* the variable must by stored in the frame offset */
-    assert(iml_variable_get_register(addr_exp) == NULL);
-    /* only address of blob variables supperted for now */
-    assert(iml_variable_get_data_type(addr_exp) == iml_blob);
-
     /* add iml to fetch the value from the address to the result variable */
     ir_function_def_add_operation(
         function,

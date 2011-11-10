@@ -1085,7 +1085,7 @@ compile_getaddr(File asmfile, iml_operation *op)
     ImlVariable *var = cast(ImlVariable *)iml_operation_get_operand(op, 1);
     ImlVariable *addr = cast(ImlVariable *)iml_operation_get_operand(op, 2);
 
-    assert(iml_variable_get_data_type(var) == iml_data_type.blob);
+    assert(iml_variable_is_mem_pinned(var));
     assert(iml_variable_get_data_type(addr) == iml_data_type.ptr);
 
     char *addr_reg = iml_variable_get_register(addr);

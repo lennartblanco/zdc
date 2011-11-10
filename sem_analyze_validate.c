@@ -2757,9 +2757,12 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
     vars = iml_func_frame_get_locals(frame);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        if (iml_variable_get_data_type(i->data) == iml_blob)
+        ImlVariable *var = IML_VARIABLE(i->data);
+
+        if (iml_variable_is_mem_pinned(var) ||
+            iml_variable_get_data_type(var) == iml_blob)
         {
-            /* don't assign registers to blob variables */
+            /* don't assign registers to memory pinned and blob variables */
             continue;
         }
 
@@ -2769,7 +2772,7 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
         regs = g_slist_remove(regs, reg);
 
         /* assign the register to the variable */
-        iml_variable_set_register(i->data, reg);
+        iml_variable_set_register(var, reg);
         used_regs = g_slist_prepend(used_regs, (gpointer)reg);
     }
 

@@ -31,6 +31,28 @@ divide(int divident, int divisor,
   *reminder = divident % divisor;
 }
 
+/* test &-operator on basic data type variables */
+extern (C) int
+addr_of_int(int a, int b, bool ret_divident)
+{
+  int q;
+  int r;
+  int *res_ptr;
+
+  divide(a, b, &q, &r);
+
+  if (ret_divident)
+  {
+    res_ptr = &q;
+  }
+  else
+  {
+    res_ptr = &r;
+  }
+
+  return *res_ptr;
+}
+
 void
 compare(int left, int right,
         bool *equal,

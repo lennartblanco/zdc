@@ -53,6 +53,11 @@ print_call_op(iml_operation_t *op, FILE *out, int indention);
 static void
 print_return_op(iml_operation_t *op, FILE *out, int indention);
 
+static void
+init_getaddr_op(iml_operation_t *op,
+                ImlVariable *var,
+                ImlVariable *addr);
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -88,7 +93,6 @@ iml_operation_new(iml_opcode_t operation, ...)
         case iml_ineg:
         case iml_bneg:
         case iml_bconv:
-        case iml_getaddr:
             op->arg1 = va_arg(argp, void *);
             assert(op->arg1);
             op->arg2 = va_arg(argp, void *);
@@ -136,6 +140,13 @@ iml_operation_new(iml_opcode_t operation, ...)
             op->arg2 = va_arg(argp, void *);
             op->arg3 = GUINT_TO_POINTER(va_arg(argp, guint));
             op->arg4 = va_arg(argp, void *);
+            break;
+        case iml_getaddr:
+            {
+                ImlVariable *var = va_arg(argp, ImlVariable*);
+                ImlVariable *addr = va_arg(argp, ImlVariable*);
+                init_getaddr_op(op, var, addr);
+            }
             break;
         default:
             /* unexpected opcode */
@@ -557,4 +568,19 @@ print_call_op(iml_operation_t *op, FILE *out, int indention)
     }
 
     fprintf(out, "\n");
+}
+
+static void
+init_getaddr_op(iml_operation_t *op,
+                ImlVariable *var,
+                ImlVariable *addr)
+{
+    assert(op);
+    assert(iml_is_variable(var));
+    assert(iml_is_variable(addr));
+
+    op->arg1 = var;
+    op->arg2 = addr;
+    /* the variable must be stored in memory, pin it to memory */
+    iml_variable_set_mem_pinned(var);
 }

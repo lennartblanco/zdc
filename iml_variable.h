@@ -37,6 +37,9 @@ typedef struct
 
     /* size on stack, used by blob variables */
     guint size;
+
+    bool is_mem_pinned;
+
     /*
      * the register allocation, or NULL if no register is allocated
      * for this variable
@@ -72,6 +75,7 @@ iml_is_variable(void *obj);
 ImlVariable *
 iml_variable_new(iml_data_type_t data_type, const gchar *name);
 
+
 /**
  * create new blob variable
  *
@@ -100,6 +104,21 @@ iml_variable_get_size(ImlVariable *self);
  */
 bool
 iml_variable_is_temp(ImlVariable *self);
+
+/**
+ * Mark this variable as pinned to memory. That is the
+ * variable must be stored in frame offset, not in register.
+ */
+void
+iml_variable_set_mem_pinned(ImlVariable *self);
+
+/**
+ * Check if variable is pinned to memory.
+ *
+ * @return true if variable is pinned, false otherwise
+ */
+bool
+iml_variable_is_mem_pinned(ImlVariable *self);
 
 void
 iml_variable_set_register(ImlVariable *self, const char *reg);

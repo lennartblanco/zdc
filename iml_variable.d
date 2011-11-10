@@ -7,6 +7,9 @@ extern (C)
     bool
     iml_is_variable(void *obj);
 
+    bool
+    iml_variable_is_mem_pinned(ImlVariable *self);
+
     char *
     iml_variable_get_register(ImlVariable *self);
 

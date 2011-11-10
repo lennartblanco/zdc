@@ -1198,14 +1198,14 @@ compile_getaddr(FILE *out, iml_operation_t *op)
     assert(out);
     assert(iml_operation_get_opcode(op) == iml_getaddr);
 
-    ImlVariable *blob = IML_VARIABLE(iml_operation_get_operand(op, 1));
+    ImlVariable *var = IML_VARIABLE(iml_operation_get_operand(op, 1));
     ImlVariable *ptr = IML_VARIABLE(iml_operation_get_operand(op, 2));
     const char *reg;
     const gchar *reg_name;
 
 
-    assert(iml_variable_get_data_type(blob) ==  iml_blob);
-    assert(iml_variable_get_data_type(ptr) ==  iml_ptr);
+    assert(iml_variable_is_mem_pinned(var));
+    assert(iml_variable_get_data_type(ptr) == iml_ptr);
 
     /* check if we need to use a temporary register */
     reg = iml_variable_get_register(ptr);
@@ -1222,7 +1222,7 @@ compile_getaddr(FILE *out, iml_operation_t *op)
     /* generate code the code for storing blob address in to a register */
     fprintf(out,
             "    lea %d(%%ebp), %%%s\n",
-            iml_variable_get_frame_offset(blob),
+            iml_variable_get_frame_offset(var),
             reg_name);
 
     /* move address to result pointer variable if needed */
