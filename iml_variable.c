@@ -110,7 +110,7 @@ iml_variable_get_size(ImlVariable *self)
         case iml_32b:
         case iml_16b:
         case iml_8b:
-            /* all variables are store as 32-bit values for now */
+            /* all variables are stored as 32-bit values for now */
             return 4;
     }
 

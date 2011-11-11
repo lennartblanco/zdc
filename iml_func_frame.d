@@ -9,7 +9,7 @@ extern (C)
     iml_func_frame_get_parameters(iml_func_frame *self);
 
     GSList *
-    iml_func_frame_get_locals(iml_func_frame *self, iml_data_type vars_type);
+    iml_func_frame_get_locals(iml_func_frame *self);
 
     void
     iml_func_frame_set_size(iml_func_frame *self, uint stack_size);

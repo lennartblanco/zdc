@@ -104,10 +104,8 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
         }
     }
 
-    void assign_offset(iml_data_type vars_type)
+    void assign_loc_vars_offset(GSList *variables)
     {
-        GSList *variables = iml_func_frame_get_locals(frame, vars_type);
-
         for (auto i = variables; i != null; i = i.next())
         {
             ImlVariable *var = cast(ImlVariable*)i.data;
@@ -124,11 +122,7 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
     offset = start_offset = get_start_offset();
 
     assign_params_offset(iml_func_frame_get_parameters(frame));
-    assign_offset(iml_data_type._32b);
-    assign_offset(iml_data_type._16b);
-    assign_offset(iml_data_type._8b);
-    assign_offset(iml_data_type.ptr);
-    assign_offset(iml_data_type.blob);
+    assign_loc_vars_offset(iml_func_frame_get_locals(frame));
 
     iml_func_frame_set_size(frame, start_offset - offset);
 }

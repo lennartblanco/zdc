@@ -294,57 +294,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
      * assign offset location to local variables that
      * have not been assigned a register
      */
-    i = iml_func_frame_get_locals(frame, iml_32b);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        ImlVariable *var = IML_VARIABLE(i->data);
-
-        if (iml_variable_get_register(var) == NULL)
-        {
-            offset -= 4;
-            iml_variable_set_frame_offset(var, offset);
-        }
-    }
-
-    i = iml_func_frame_get_locals(frame, iml_16b);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        ImlVariable *var = IML_VARIABLE(i->data);
-
-        if (iml_variable_get_register(var) == NULL)
-        {
-            offset -= 4;
-            iml_variable_set_frame_offset(var, offset);
-        }
-    }
-
-    i = iml_func_frame_get_locals(frame, iml_8b);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        ImlVariable *var = IML_VARIABLE(i->data);
-
-        if (iml_variable_get_register(var) == NULL)
-        {
-            offset -= 4;
-            iml_variable_set_frame_offset(var, offset);
-        }
-    }
-
-    i = iml_func_frame_get_locals(frame, iml_ptr);
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        ImlVariable *var = IML_VARIABLE(i->data);
-
-        if (iml_variable_get_register(var) == NULL)
-        {
-            offset -= 4;
-            iml_variable_set_frame_offset(var, offset);
-        }
-    }
-
-
-    /* assign offset locations to blob variables */
-    i = iml_func_frame_get_locals(frame, iml_blob);
+    i = iml_func_frame_get_locals(frame);
     for (; i != NULL; i = g_slist_next(i))
     {
         ImlVariable *var = IML_VARIABLE(i->data);

@@ -29,8 +29,7 @@ iml_func_frame_add_local(iml_func_frame_t *self, ImlVariable *variable);
  * get a list of local variables of given data type
  */
 GSList *
-iml_func_frame_get_locals(iml_func_frame_t *self,
-                          iml_data_type_t vars_type);
+iml_func_frame_get_locals(iml_func_frame_t *self);
 
 /**
  * add function parameter

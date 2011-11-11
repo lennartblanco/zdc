@@ -2753,52 +2753,16 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
     /* only use preserved register for now */
     regs = preserved_regs;
 
-    /* assign registers to 32b variables */
-    vars = iml_func_frame_get_locals(frame, iml_32b);
+    /* assign registers to variables */
+    vars = iml_func_frame_get_locals(frame);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        const char *reg = regs->data;
+        if (iml_variable_get_data_type(i->data) == iml_blob)
+        {
+            /* don't assign registers to blob variables */
+            continue;
+        }
 
-        /* remove register from the list of available */
-        regs = g_slist_remove(regs, reg);
-
-        /* assign the register to the variable */
-        iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
-    }
-
-    /* assign registers to 16b variables */
-    vars = iml_func_frame_get_locals(frame, iml_16b);
-    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
-    {
-        const char *reg = regs->data;
-
-        /* remove register from the list of available */
-        regs = g_slist_remove(regs, reg);
-
-        /* assign the register to the variable */
-        iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
-    }
-
-    /* assign registers to 8b variables */
-    vars = iml_func_frame_get_locals(frame, iml_8b);
-    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
-    {
-        const char *reg = regs->data;
-
-        /* remove register from the list of available */
-        regs = g_slist_remove(regs, reg);
-
-        /* assign the register to the variable */
-        iml_variable_set_register(i->data, reg);
-        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
-    }
-
-    /* assign registers to pointer variables */
-    vars = iml_func_frame_get_locals(frame, iml_ptr);
-    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
-    {
         const char *reg = regs->data;
 
         /* remove register from the list of available */
