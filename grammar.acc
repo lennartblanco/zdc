@@ -301,19 +301,21 @@ module_name<fq_name> :
 ;
 
 func_params<params> :
-    func_param<n> ',' func_params<l>
-    {
-        (*params).list = g_slist_prepend(l.list, n.variable_declaration);
-    }
-|   func_param<n>
-    {
-        (*params).list = NULL;
-        (*params).list = g_slist_prepend((*params).list, n.variable_declaration);
-    }
-|   null
     {
         (*params).list = NULL;
     }
+    ( func_param<n>
+        {
+          (*params).list =
+              g_slist_prepend((*params).list, n.variable_declaration);
+        }
+      ( ',' func_param<l>
+          {
+              (*params).list =
+                  g_slist_append((*params).list, l.variable_declaration);
+          }
+      )*
+    )?
 ;
 
 func_param<param> :
