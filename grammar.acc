@@ -655,7 +655,7 @@ func_call<n> :
 ;
 
 func_call_args<n> :
-|  expression<x> 
+   expression<x>
    { 
        (*n).list = g_slist_append((*n).list, x.expression);
    }
