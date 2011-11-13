@@ -38,7 +38,7 @@ GType
 ir_function_def_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -214,4 +214,3 @@ ir_function_def_do_print(IrNode *self, FILE *out, int indention)
         iml_operation_print(i->data, out, indention + 4);
     }
 }
-

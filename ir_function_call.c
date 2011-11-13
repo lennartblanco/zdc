@@ -20,7 +20,7 @@ GType
 ir_function_call_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -109,7 +109,6 @@ ir_function_call_get_name(IrFunctionCall *self)
 
     return self->name;
 }
-
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *

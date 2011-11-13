@@ -70,7 +70,6 @@ ir_for_get_test(IrFor *self)
     return self->test;
 }
 
-
 IrExpression *
 ir_for_get_step(IrFor *self)
 {
@@ -79,7 +78,6 @@ ir_for_get_step(IrFor *self)
     return self->step;
 }
 
-
 IrCodeBlock *
 ir_for_get_body(IrFor *self)
 {
@@ -87,4 +85,3 @@ ir_for_get_body(IrFor *self)
 
     return self->body;
 }
-

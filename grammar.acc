@@ -159,7 +159,7 @@ enum_members<l> :
     enum_member<f> 
     {
         (*l).list = g_slist_prepend((*l).list, f.enum_member);
-    } 
+    }
     ( ',' enum_member<n> 
       {
           (*l).list = g_slist_prepend((*l).list, n.enum_member);
@@ -486,12 +486,12 @@ if_else_block<x>:
     if_statment<n>
     {
         ast_if_else_add_if_else_block((*x).if_else, n.if_block);
-    } 
+    }
     ( if_else_statment<m>
         {
             ast_if_else_add_if_else_block((*x).if_else, m.if_block);
         } 
-    )* 
+    )*
     ( else_statment<l>
         {
             ast_if_else_set_else_block((*x).if_else, l.code_block);
@@ -525,7 +525,7 @@ foreach_block<x> :
           val_name.text = NULL;
       }
       ( foreach_type<idx_var> ',' )?
-      ( type<val_type> )? TOK_IDENT<val_name> ';' 
+      ( type<val_type> )? TOK_IDENT<val_name> ';'
       (
         expression<aggregate>
       ) ')' scope_statment<code>
@@ -533,7 +533,7 @@ foreach_block<x> :
         AstVariableDeclaration *value;
 
         /* 
-         * build value variable declaration node if specified 
+         * build value variable declaration node if specified
          */
         if (val_type.data_type == NULL)
         {
@@ -543,7 +543,7 @@ foreach_block<x> :
         value = ast_variable_declaration_new(val_type.data_type,
                                              val_name.text,
                                              yypos);
- 
+
         /* build foreach ast node */
         (*x).statment =
             AST_STATMENT(
@@ -659,18 +659,18 @@ func_call_args<n> :
    { 
        (*n).list = g_slist_append((*n).list, x.expression);
    }
-|  expression<x> 
+|  expression<x>
    {
        (*n).list = g_slist_append((*n).list, x.expression);
        y = *n;
    }
-   ',' func_call_args<y> 
+   ',' func_call_args<y>
 ;
 
 var_declaration<n> :
-   type<t> TOK_IDENT<x> 
-   { 
-       (*n).variable_declaration = 
+   type<t> TOK_IDENT<x>
+   {
+       (*n).variable_declaration =
            ast_variable_declaration_new(t.data_type, x.text, yypos);
        free(x.text);
    }
@@ -757,10 +757,10 @@ andand_expression<n> :
                                                   yypos));
     }
 |   eq_expression<n>
-;  
+;
 
 eq_expression<n> :
-    rel_expression<l> '=''=' rel_expression<r> 
+    rel_expression<l> '=''=' rel_expression<r>
     {
         (*n).expression =
           AST_EXPRESSION(ast_binary_operation_new(ast_equal_op,
@@ -768,27 +768,27 @@ eq_expression<n> :
                                                   r.expression,
                                                   yypos));
     }
-|   rel_expression<l> '!''=' rel_expression<r> 
+|   rel_expression<l> '!''=' rel_expression<r>
     {
       (*n).expression =
           AST_EXPRESSION(ast_binary_operation_new(ast_not_equal_op,
                                                   l.expression,
                                                   r.expression,
-                                                  yypos)); 
+                                                  yypos));
     }
 |   rel_expression<n>
 ;
 
 rel_expression<n> :
-    add_expression<l> '<' add_expression<r> 
-    { 
+    add_expression<l> '<' add_expression<r>
+    {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
     }
-|   add_expression<l> '>' add_expression<r> 
+|   add_expression<l> '>' add_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
@@ -796,7 +796,7 @@ rel_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
-|   add_expression<l> '<''=' add_expression<r> 
+|   add_expression<l> '<''=' add_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
@@ -804,7 +804,7 @@ rel_expression<n> :
                                                     r.expression,
                                                     yypos));
     }
-|   add_expression<l> '>''=' add_expression<r> 
+|   add_expression<l> '>''=' add_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
@@ -816,7 +816,7 @@ rel_expression<n> :
 ;
 
 add_expression<n> :
-    add_expression<l> '+' mult_expression<r> 
+    add_expression<l> '+' mult_expression<r>
     {
         (*n).expression =
             AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
@@ -1023,7 +1023,7 @@ array_literal<n> :
     {
         ast_array_literal_add_value(AST_ARRAY_LITERAL((*n).expression),
                                     nth.expression);
-    }   
-    )* 
+    }
+    )*
     ']'
 ;

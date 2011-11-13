@@ -25,7 +25,7 @@ GType
 iml_constant_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -45,7 +45,6 @@ iml_constant_get_type(void)
     }
     return type;
 }
-
 
 bool
 iml_is_constant(void *obj)

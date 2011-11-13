@@ -50,5 +50,4 @@ ir_struct_literal_new(GSList *members);
 GSList *
 ir_struct_literal_get_members(IrStructLiteral *self);
 
-
 #endif /* IR_STRUCT_LITERAL_INC_X */

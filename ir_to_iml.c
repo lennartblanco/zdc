@@ -51,7 +51,6 @@ static iml_opcode_t basic_to_ptr_cast_ops[last_basic_type] =
     iml_copy    /* uint */
 };
 
-
 /*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
@@ -1623,7 +1622,6 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     guint element_size;
     iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
-
     /*
      * generate code to allocate memory for array literal
      */
@@ -1889,8 +1887,6 @@ add_array_assignment(IrFunctionDef *function,
     }
 
 }
-
-
 
 static void
 add_static_array_assignment(IrFunctionDef *function,

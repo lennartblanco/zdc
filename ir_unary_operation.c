@@ -20,7 +20,7 @@ GType
 ir_unary_operation_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -130,6 +130,6 @@ ir_unary_operation_do_get_data_type(IrExpression *self)
     IrExpression *operand;
 
     operand = ir_unary_operation_get_operand(op);
-  
+
     return ir_expression_get_data_type(operand);
 }

@@ -24,7 +24,7 @@
 #define IR_IF_BLOCK_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_IF_BLOCK, IrIfBlockClass))
 
-typedef struct 
+typedef struct
 {
   GObject        parent;
   /* private */
@@ -32,7 +32,7 @@ typedef struct
   IrCodeBlock   *body;
 } IrIfBlock;
 
-typedef struct 
+typedef struct
 {
   GObjectClass parent_class;
 } IrIfBlockClass;
@@ -58,6 +58,5 @@ ir_if_block_get_body(IrIfBlock *self);
 
 void
 ir_if_block_print(IrIfBlock *self, FILE *out, int indention);
-
 
 #endif /* IR_IF_BLOCK_INC_X */

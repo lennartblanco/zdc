@@ -24,12 +24,12 @@
 #define IR_STATMENT_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_STATMENT, IrStatmentClass))
 
-typedef struct 
+typedef struct
 {
   IrNode parent;
 } IrStatment;
 
-typedef struct 
+typedef struct
 {
   IrNodeClass parent_class;
 } IrStatmentClass;

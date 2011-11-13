@@ -64,7 +64,6 @@ ir_function_def_get_name(IrFunctionDef *self);
 
 /**
  * Get the function formal parameters.
-
  */
 GSList *
 ir_function_def_get_parameters(IrFunctionDef *self);

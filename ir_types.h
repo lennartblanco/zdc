@@ -9,5 +9,3 @@ typedef struct _IrEnum IrEnum;
 typedef struct _IrEnumMember IrEnumMember;
 
 #endif /* IR_TYPES_INC_X */
-
-

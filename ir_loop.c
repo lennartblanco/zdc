@@ -47,5 +47,3 @@ ir_loop_get_exit_label(IrLoop *self)
 
     return self->end_label;
 }
-
-

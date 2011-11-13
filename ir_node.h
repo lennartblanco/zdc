@@ -25,14 +25,14 @@
 #define IR_NODE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_NODE, IrNodeClass))
 
-typedef struct 
+typedef struct
 {
   GObject parent;
   /* private */
   guint line_number;
 } IrNode;
 
-typedef struct 
+typedef struct
 {
   GObjectClass parent_class;
   /* public virtual methods */

@@ -37,7 +37,7 @@ struct _IrSymbol
   IrModule *parent_module;
 };
 
-typedef struct 
+typedef struct
 {
   IrExpressionClass parent_class;
 } IrSymbolClass;

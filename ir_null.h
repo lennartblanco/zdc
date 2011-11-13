@@ -44,5 +44,4 @@ ir_null_get_type(void);
 IrNull *
 ir_null_new();
 
-
 #endif /* IR_NULL_INC_X */

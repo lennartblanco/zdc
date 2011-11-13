@@ -32,7 +32,7 @@ struct _IrModule
 GType ir_module_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -184,7 +184,7 @@ ir_module_get_mangled_name(IrModule *self)
 
         for (i = self->package_name; i != NULL; i = g_slist_next(i))
         {
-           g_string_append_printf(str, "%zu%s", 
+           g_string_append_printf(str, "%zu%s",
                                   strlen(i->data), (char *)i->data);
         }
         self->mangled_name = g_string_free(str, FALSE);

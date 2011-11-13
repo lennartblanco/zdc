@@ -24,7 +24,7 @@ GType
 ir_enum_member_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -87,7 +87,6 @@ ir_enum_member_class_init(gpointer klass, gpointer dummy)
     IR_NODE_CLASS(klass)->do_print = ir_enum_member_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_enum_member_do_get_data_type;
-
 }
 
 static DtDataType *

@@ -44,7 +44,7 @@ GType
 ir_node_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -150,5 +150,3 @@ ir_node_do_print(IrNode *self, FILE *out, int indention)
     fprintf_indent(out, indention, "IrNode %s [%p]\n", 
                    g_type_name(G_TYPE_FROM_INSTANCE(self)), self);
 }
-
-

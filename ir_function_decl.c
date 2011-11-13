@@ -11,7 +11,7 @@ GType
 ir_function_decl_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -57,4 +57,3 @@ ir_function_decl_new(DtDataType *return_type,
     
     return obj;
 }
-
