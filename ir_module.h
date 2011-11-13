@@ -139,14 +139,6 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
 GSList *
 ir_module_get_structs(IrModule *self);
 
-///**
-// * Look-up the user defined type by it's name.
-// *
-// * @return the data type or NULL if no user type with provided name is defined.
-// */
-//DtDataType *
-//ir_module_get_user_type(IrModule *self,
-//                        DtName *user_type);
 void
 ir_module_print(IrModule *self, FILE *out, int indention);
 
