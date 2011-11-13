@@ -572,9 +572,9 @@ foreach_range_statment<stmt> :
 ;
 
 foreach_type<var> :
-{
-    var_type.data_type = NULL;
-}
+    {
+        var_type.data_type = NULL;
+    }
     ( type<var_type> )?  TOK_IDENT<var_name>
     {
         if (var_type.data_type == NULL)
