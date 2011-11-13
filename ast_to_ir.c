@@ -1441,6 +1441,53 @@ address_of_to_ir(compilation_status_t *compile_status,
                               ast_node_get_line_num(AST_NODE(ast_addr_of))));
 }
 
+static IrExpression *
+ident_to_ir(compilation_status_t *compile_status,
+            sym_table_t *symbols,
+            AstIdent *ident)
+{
+    assert(compile_status);
+    assert(symbols);
+    assert(AST_IS_IDENT(ident));
+
+    IrSymbol *symb;
+    GError *err = NULL;
+
+    symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), &err);
+    if (symb == NULL)
+    {
+        switch (err->code)
+        {
+            case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
+                compile_error(compile_status,
+                              ident,
+                              "reference to unknown symbol '%s'\n",
+                              ast_ident_get_name(ident));
+                break;
+            case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
+                compile_error(compile_status,
+                              ident,
+                              "ambiguous reference '%s', matches: %s\n",
+                              ast_ident_get_name(ident),  err->message);
+                break;
+            default:
+                assert(false); /* unexpected error code */
+        }
+        return NULL;
+    }
+
+    if (IR_IS_FUNCTION(symb))
+    {
+        compile_error(compile_status,
+                      ident,
+                      "invalid call to function '%s',"
+                      " expected arguments\n",
+                      ast_ident_get_name(ident));
+        return NULL;
+    }
+
+    return IR_EXPRESSION(symb);
+}
 
 /**
  * Convert AST expression to IR form.
@@ -1514,44 +1561,7 @@ expression_to_ir(compilation_status_t *compile_status,
     }
     else if (AST_IS_IDENT(ast_expression))
     {
-        AstIdent *ident;
-        IrSymbol *symb;
-        GError *err = NULL;
-
-        ident = AST_IDENT(ast_expression);
-        symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), &err);
-
-        if (symb == NULL)
-        {
-            switch (err->code)
-            {
-                case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
-                    compile_error(compile_status,
-                                  ident,
-                                  "reference to unknown symbol '%s'\n",
-                                  ast_ident_get_name(ident));
-                    break;
-                case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
-                    compile_error(compile_status,
-                                  ident,
-                                  "ambiguous reference '%s', matches: %s\n",
-                                  ast_ident_get_name(ident),  err->message);
-                    break;
-                default:
-                    assert(false); /* unexpected error code */
-            }
-            return NULL;
-        }
-        if (IR_IS_FUNCTION(symb))
-        {
-            compile_error(compile_status,
-                          ident,
-                          "invalid call to function '%s',"
-                          " expected arguments\n",
-                          ast_ident_get_name(ident));
-            return NULL;
-        }
-        return IR_EXPRESSION(symb);
+        return ident_to_ir(compile_status, symbols, AST_IDENT(ast_expression));
     }
     else if (AST_IS_CONDITIONAL(ast_expression))
     {
