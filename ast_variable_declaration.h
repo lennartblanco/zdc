@@ -47,7 +47,8 @@ GType
 ast_variable_declaration_get_type(void);
 
 AstVariableDeclaration *
-ast_variable_declaration_new(DtDataType *type,
+ast_variable_declaration_new(bool is_ref,
+                             DtDataType *type,
                              char *name,
                              guint line_number);
 

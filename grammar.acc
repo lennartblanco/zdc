@@ -50,7 +50,7 @@ AstModule *module;
        TOK_IDENT, TOK_TRUE, TOK_FALSE,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
        TOK_BREAK, TOK_RETURN, TOK_CAST, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
-       TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
+       TOK_REF, TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
        TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
 
@@ -542,7 +542,8 @@ foreach_block<x> :
             /* if not type is specified handle as auto type */
             val_type.data_type = DT_DATA_TYPE(dt_auto_new());
         }
-        value = ast_variable_declaration_new(val_type.data_type,
+        value = ast_variable_declaration_new(false,
+                                             val_type.data_type,
                                              val_name.text,
                                              yypos);
 
@@ -585,7 +586,8 @@ foreach_type<var> :
             var_type.data_type = DT_DATA_TYPE(dt_auto_new());
         }
         (*var).variable_declaration =
-            ast_variable_declaration_new(var_type.data_type,
+            ast_variable_declaration_new(false,
+                                         var_type.data_type,
                                          var_name.text,
                                          yypos);
     }
@@ -670,10 +672,13 @@ func_call_args<n> :
 ;
 
 var_declaration<n> :
-   type<t> TOK_IDENT<x>
+   {
+       bool ref = false;
+   }
+   ( TOK_REF { ref = true; })? type<t> TOK_IDENT<x>
    {
        (*n).variable_declaration =
-           ast_variable_declaration_new(t.data_type, x.text, yypos);
+           ast_variable_declaration_new(ref, t.data_type, x.text, yypos);
        free(x.text);
    }
 ;
