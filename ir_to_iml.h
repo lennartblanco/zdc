@@ -6,6 +6,7 @@
 #include "ir_function_call.h"
 #include "ir_foreach.h"
 #include "ir_variable.h"
+#include "ir_var_value.h"
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -75,7 +76,7 @@ iml_add_foreach_tail(IrFunctionDef *function,
  */
 ImlOperand *
 iml_add_foreach_range_head(IrFunctionDef *function,
-                           IrVariable *index,
+                           IrVarValue *index,
                            IrExpression *lower_exp,
                            IrExpression *loop_test_exp,
                            iml_operation_t *loop_head,

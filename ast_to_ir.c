@@ -53,6 +53,7 @@
 #include "ir_struct.h"
 #include "ir_dot.h"
 #include "ir_ident.h"
+#include "ir_var_value.h"
 #include "dt_basic.h"
 #include "errors.h"
 
@@ -1377,7 +1378,6 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     IrExpression *left;
     IrExpression *right;
 
-
     left = expression_to_ir(compile_status,
                             symbols,
                             ast_postfix_exp_get_expression(ast_postfix));
@@ -1484,6 +1484,12 @@ ident_to_ir(compilation_status_t *compile_status,
                       " expected arguments\n",
                       ast_ident_get_name(ident));
         return NULL;
+    }
+    else if (IR_IS_VARIABLE(symb))
+    {
+        return
+            IR_EXPRESSION(ir_var_value_new(IR_VARIABLE(symb),
+                                           ast_node_get_line_num(ident)));
     }
 
     return IR_EXPRESSION(symb);

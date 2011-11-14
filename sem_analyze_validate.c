@@ -33,6 +33,7 @@
 #include "ir_ptr_dref.h"
 #include "ir_address_of.h"
 #include "ir_ident.h"
+#include "ir_var_value.h"
 #include "ir_to_iml.h"
 #include "const_fold.h"
 #include "errors.h"
@@ -920,14 +921,14 @@ validate_dot_property(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-validate_dot_variable(compilation_status_t *compile_status,
+validate_dot_var_value(compilation_status_t *compile_status,
                       sym_table_t *sym_table,
                       IrExpression *left,
                       IrExpression *right)
 {
     assert(compile_status);
     assert(sym_table);
-    assert(IR_IS_VARIABLE(left));
+    assert(IR_IS_VAR_VALUE(left));
     /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
 
@@ -999,9 +1000,9 @@ validate_dot(compilation_status_t *compile_status,
             res = IR_EXPRESSION(mbr);
         }
     }
-    else if (IR_IS_VARIABLE(left))
+    else if (IR_IS_VAR_VALUE(left))
     {
-        res = validate_dot_variable(compile_status, sym_table, left, right);
+        res = validate_dot_var_value(compile_status, sym_table, left, right);
     }
     else
     {
@@ -1854,20 +1855,21 @@ validate_foreach_range(compilation_status_t *compile_status,
     }
 
     /* set or check index variable's data type */
-    IrVariable *index = ir_foreach_range_get_index(foreach);
-    DtDataType *index_type = ir_variable_get_data_type(index);
-    if (DT_IS_AUTO(index_type))
+    IrVarValue *idx_var_val = ir_foreach_range_get_index(foreach);
+    IrVariable *idx_var = ir_var_value_get_var(idx_var_val);
+    DtDataType *idx_type = ir_variable_get_data_type(idx_var);
+    if (DT_IS_AUTO(idx_type))
     {
-        ir_variable_set_data_type(index, common_type);
+        ir_variable_set_data_type(idx_var, common_type);
     }
-    else if (!dt_data_type_is_same(common_type, index_type))
+    else if (!dt_data_type_is_same(common_type, idx_type))
     {
         /* check if common_type and index_type are compatible */
         assert(false); /* not implemented */
     }
 
     /* allocate a slot in function frame for loop's index variable */
-    add_to_func_frame(compile_status->function, index, false);
+    add_to_func_frame(compile_status->function, idx_var, false);
 
     /* generate iml labels for start and end of the loop operations */
     iml_operation_t *loop_start =
@@ -1881,7 +1883,7 @@ validate_foreach_range(compilation_status_t *compile_status,
     /* synthesize looping test expression */
     IrExpression *loop_test_exp =
         IR_EXPRESSION(ir_binary_operation_new(ast_less_op,
-                                              IR_EXPRESSION(index),
+                                              IR_EXPRESSION(idx_var_val),
                                               upper_exp,
                                               0));
     loop_test_exp =
@@ -1892,7 +1894,7 @@ validate_foreach_range(compilation_status_t *compile_status,
     /* generate loop's head iml code */
     ImlOperand *head_temp_op =
         iml_add_foreach_range_head(compile_status->function,
-                                   index,
+                                   idx_var_val,
                                    lower_exp,
                                    loop_test_exp,
                                    loop_start,
@@ -1914,7 +1916,7 @@ validate_foreach_range(compilation_status_t *compile_status,
     /* synthesize loop index variable increment expression */
     IrExpression *index_inc_exp =
             IR_EXPRESSION(ir_unary_operation_new(ast_pre_inc_op,
-                                                 IR_EXPRESSION(index),
+                                                 IR_EXPRESSION(idx_var_val),
                                                  0));
     index_inc_exp =
             validate_expression(compile_status,  sym_table, index_inc_exp);
@@ -2252,10 +2254,12 @@ validate_code_block(compilation_status_t *compile_status,
                               false);
 
             /* generate iml code for default initialization of the variable */
+            IrVarValue *var_val =
+                ir_var_value_new(variable, ir_node_get_line_num(variable));
             IrExpression *init_exp = ir_variable_get_initializer(variable);
             ir_module_add_const_data(compile_status->module, init_exp);
             iml_add_assignment(compile_status->function,
-                               IR_EXPRESSION(variable),
+                               IR_EXPRESSION(var_val),
                                init_exp);
         }
     }

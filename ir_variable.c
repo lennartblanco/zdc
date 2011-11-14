@@ -152,14 +152,6 @@ ir_variable_do_get_data_type(IrExpression *self)
     return IR_VARIABLE(self)->type;
 }
 
-static bool
-ir_variable_do_is_lvalue(IrExpression *self)
-{
-    assert(IR_IS_VARIABLE(self));
-
-    return true;
-}
-
 static UtRange *
 ir_variable_get_value_range(IrExpression *self)
 {
@@ -177,9 +169,6 @@ ir_variable_class_init(gpointer klass, gpointer foo)
     IR_NODE_CLASS(klass)->do_print = ir_variable_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_variable_do_get_data_type;
-    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
-        ir_variable_do_is_lvalue;
     IR_EXPRESSION_CLASS(klass)->get_value_range =
         ir_variable_get_value_range;
-
 }

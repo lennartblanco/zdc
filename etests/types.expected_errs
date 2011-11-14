@@ -5,9 +5,9 @@ types.d:5: error: invalid assignment expression
 types.d:12: error: left operand can not be of void type
 types.d:12: error: invalid assignment expression
 types.d:17: error: can not convert to int type
-types.d:22: error: can not convert to bool type
-types.d:34: error: in function call to 'char_arg_func()', argument 1 of invalid type
-types.d:34: error: argument's type is 'char' got 'int'
+types.d:24: error: can not convert to bool type
+types.d:35: error: in function call to 'char_arg_func()', argument 1 of invalid type
+types.d:35: error: argument's type is 'char' got 'int'
 types.d:40: error: in function call to 'char_arg_func()', argument 1 of invalid type
 types.d:40: error: argument's type is 'char' got 'uint'
 types.d:49: error: can't assign expression of type int to lvalue of tstenum type

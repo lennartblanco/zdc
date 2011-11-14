@@ -1,0 +1,102 @@
+#include "ir_var_value.h"
+
+#include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_var_value_class_init(gpointer klass, gpointer dummy);
+
+/*---------------------------------------------------------------------------*
+ *                           exported functions                              *
+ *---------------------------------------------------------------------------*/
+
+GType
+ir_var_value_get_type(void)
+{
+    static GType type = 0;
+    if (type == 0)
+    {
+      static const GTypeInfo info =
+      {
+        sizeof (IrVarValueClass),
+        NULL,   /* base_init */
+        NULL,   /* base_finalize */
+        ir_var_value_class_init, /* class_init */
+        NULL,   /* class_finalize */
+        NULL,   /* class_data */
+        sizeof (IrVarValue),
+        0,      /* n_preallocs */
+        NULL    /* instance_init */
+      };
+      type = g_type_register_static(IR_TYPE_EXPRESSION,
+                                    "IrVarValueType",
+                                    &info, 0);
+    }
+    return type;
+}
+
+IrVarValue *
+ir_var_value_new(IrVariable *var, guint line_number)
+{
+    assert(IR_IS_VARIABLE(var));
+
+    IrVarValue *obj;
+
+    obj = g_object_new(IR_TYPE_VAR_VALUE,
+                       "ir-node-line-number", line_number,
+                       NULL);
+    obj->var = var;
+
+    return obj;
+}
+
+IrVariable *
+ir_var_value_get_var(IrVarValue *self)
+{
+    assert(IR_IS_VAR_VALUE(self));
+
+    return self->var;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static DtDataType *
+ir_var_value_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_VAR_VALUE(self));
+
+    return ir_variable_get_data_type(IR_VAR_VALUE(self)->var);
+}
+
+static bool
+ir_var_value_do_is_lvalue(IrExpression *self)
+{
+    assert(IR_IS_VAR_VALUE(self));
+
+    return true;
+}
+
+static UtRange *
+ir_var_value_get_value_range(IrExpression *self)
+{
+    assert(IR_IS_VAR_VALUE(self));
+
+    return
+        ir_expression_get_value_range(IR_EXPRESSION(IR_VAR_VALUE(self)->var));
+}
+
+static void
+ir_var_value_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_var_value_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
+        ir_var_value_do_is_lvalue;
+    IR_EXPRESSION_CLASS(klass)->get_value_range =
+        ir_var_value_get_value_range;
+}

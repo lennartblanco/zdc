@@ -189,10 +189,10 @@ iml_add_expression_eval(IrFunctionDef *function,
     {
         res = IML_OPERAND(ir_constant_to_iml(IR_CONSTANT(ir_expression)));
     }
-    else if (IR_IS_VARIABLE(ir_expression))
+    else if (IR_IS_VAR_VALUE(ir_expression))
     {
-        res =
-            IML_OPERAND(ir_variable_get_location(IR_VARIABLE(ir_expression)));
+        IrVariable *var = ir_var_value_get_var(IR_VAR_VALUE(ir_expression));
+        res = IML_OPERAND(ir_variable_get_location(var));
     }
     else if (IR_IS_UNARY_OPERATION(ir_expression))
     {
@@ -417,35 +417,36 @@ iml_add_assignment(IrFunctionDef *function,
     assert(ir_expression_is_lvalue(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
-    if (IR_IS_VARIABLE(lvalue))
+    if (IR_IS_VAR_VALUE(lvalue))
     {
         DtDataType *var_type;
 
         var_type = ir_expression_get_data_type(lvalue);
+        IrVariable *var = ir_var_value_get_var(IR_VAR_VALUE(lvalue));
 
         if (dt_is_basic(var_type) || dt_is_enum(var_type))
         {
             iml_add_expression_eval(
                     function,
                     value,
-                    ir_variable_get_location(IR_VARIABLE(lvalue)),
+                    ir_variable_get_location(var),
                     false);
         }
         else if (DT_IS_STATIC_ARRAY_TYPE(var_type))
         {
-            add_static_array_assignment(function, IR_VARIABLE(lvalue), value);
+            add_static_array_assignment(function, var, value);
         }
         else if (DT_IS_ARRAY(var_type))
         {
-            add_array_assignment(function, IR_VARIABLE(lvalue), value);
+            add_array_assignment(function, var, value);
         }
         else if (DT_IS_POINTER(var_type))
         {
-            add_pointer_assignment(function, IR_VARIABLE(lvalue), value);
+            add_pointer_assignment(function, var, value);
         }
         else if (DT_IS_STRUCT(var_type))
         {
-            add_struct_assignment(function, IR_VARIABLE(lvalue), value);
+            add_struct_assignment(function, var, value);
         }
         else
         {
@@ -666,14 +667,14 @@ iml_add_foreach_tail(IrFunctionDef *function,
 
 ImlOperand *
 iml_add_foreach_range_head(IrFunctionDef *function,
-                           IrVariable *index,
+                           IrVarValue *index,
                            IrExpression *lower_exp,
                            IrExpression *loop_test_exp,
                            iml_operation_t *loop_head,
                            iml_operation_t *loop_end)
 {
     assert(IR_IS_FUNCTION_DEF(function));
-    assert(IR_IS_VARIABLE(index));
+    assert(IR_IS_VAR_VALUE(index));
     assert(IR_IS_EXPRESSION(lower_exp));
     assert(IR_IS_EXPRESSION(loop_test_exp));
     assert(loop_head);
@@ -1585,9 +1586,10 @@ iml_add_property_eval(IrFunctionDef *function,
 
     /* only length property of variables implemented for now */
     assert(ir_property_get_id(prop) == ir_prop_length);
-    assert(IR_IS_VARIABLE(ir_property_get_expression(prop)));
+    assert(IR_IS_VAR_VALUE(ir_property_get_expression(prop)));
 
-    prop_exp = IR_VARIABLE(ir_property_get_expression(prop));
+    prop_exp =
+        ir_var_value_get_var(IR_VAR_VALUE(ir_property_get_expression(prop)));
     /* only length of dynamic array implemented for now */
     assert(DT_IS_ARRAY(ir_variable_get_data_type(prop_exp)));
 

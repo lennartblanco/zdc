@@ -3,6 +3,7 @@
 
 #include "ir_loop.h"
 #include "ir_code_block.h"
+#include "ir_var_value.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -30,7 +31,7 @@ typedef struct
     IrLoop           parent;
 
     /* private */
-    IrVariable      *index;
+    IrVarValue      *index;
     IrExpression    *lower_exp;
     IrExpression    *upper_exp;
     IrCodeBlock     *body;
@@ -54,7 +55,7 @@ ir_foreach_range_new(IrVariable *index,
                      IrExpression *upper_exp,
                      IrCodeBlock *body);
 
-IrVariable *
+IrVarValue *
 ir_foreach_range_get_index(IrForeachRange *self);
 
 IrExpression *

@@ -46,7 +46,7 @@ ir_foreach_range_new(IrVariable *index,
 
     obj = g_object_new(IR_TYPE_FOREACH_RANGE, NULL);
 
-    obj->index = index;
+    obj->index = ir_var_value_new(index, ir_node_get_line_num(index));
     obj->lower_exp = lower_exp;
     obj->upper_exp = upper_exp;
     obj->body = body;
@@ -54,7 +54,7 @@ ir_foreach_range_new(IrVariable *index,
     return obj;
 }
 
-IrVariable *
+IrVarValue *
 ir_foreach_range_get_index(IrForeachRange *self)
 {
     assert(IR_IS_FOREACH_RANGE(self));
