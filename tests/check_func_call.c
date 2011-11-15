@@ -45,6 +45,9 @@ call_unnamed_arg4(int arg1, int arg2, int arg3);
 int
 call_func_5args(int a, int b, int x, int z, int n);
 
+bool
+test_swap(int zoink, int ri);
+
 int
 call_outside_func();
 
@@ -137,6 +140,10 @@ main()
     check_int("func_5args(0, 5, 3, 1, 6)",
               call_func_5args(0, 5, 3, 1, 6),
               0 * 5 + 3 * 1 - 6);
+
+    /* test_swap() tests */
+    check_bool("test_swap(0, -1)", test_swap(0, -1), true);
+    check_bool("test_swap(3, 14)", test_swap(3, 14), true);
 
     /* call_outside_func() tests */
     check_int("call_outside_func()", call_outside_func(), outside_func_res);

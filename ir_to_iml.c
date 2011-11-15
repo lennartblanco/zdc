@@ -10,6 +10,7 @@
 #include "ir_property.h"
 #include "ir_cast.h"
 #include "ir_null.h"
+#include "ir_var_ref.h"
 #include "iml_constant.h"
 #include "iml_variable.h"
 #include "types.h"
@@ -84,7 +85,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
 
 static ImlOperand *
 iml_add_ptr_dref_eval(IrFunctionDef *function,
-                      IrPtrDref *ptr_dref,
+                      IrExpression *ref,
                       ImlVariable *res);
 
 static ImlOperand *
@@ -144,7 +145,7 @@ add_struct_assignment(IrFunctionDef *function,
 
 static void
 add_ptr_dref_assignment(IrFunctionDef *function,
-                        IrPtrDref *lvalue,
+                        IrExpression *lvalue,
                         IrExpression *value);
 
 static void
@@ -241,10 +242,10 @@ iml_add_expression_eval(IrFunctionDef *function,
                                        IR_ARRAY_SLICE(ir_expression),
                                        dest);
     }
-    else if (IR_IS_PTR_DREF(ir_expression))
+    else if (IR_IS_PTR_DREF(ir_expression) || IR_IS_VAR_REF(ir_expression))
     {
         res = iml_add_ptr_dref_eval(function,
-                                    IR_PTR_DREF(ir_expression),
+                                    ir_expression,
                                     dest);
     }
     else if (IR_IS_ADDRESS_OF(ir_expression))
@@ -308,7 +309,14 @@ add_to_func_frame(IrFunctionDef *parent_function,
 
     /* create IML variable of appropriate type */
     ir_datatype = ir_variable_get_data_type(variable);
-    iml_datatype = dt_to_iml_type(ir_datatype);
+    if (ir_variable_is_ref(variable))
+    {
+        iml_datatype = iml_ptr;
+    }
+    else
+    {
+        iml_datatype = dt_to_iml_type(ir_datatype);
+    }
 
     var_name = ir_variable_get_name(variable);
     if (var_name == NULL)
@@ -462,9 +470,9 @@ iml_add_assignment(IrFunctionDef *function,
     {
         add_array_slice_assignment(function, IR_ARRAY_SLICE(lvalue), value);
     }
-    else if (IR_IS_PTR_DREF(lvalue))
+    else if (IR_IS_PTR_DREF(lvalue) || IR_IS_VAR_REF(lvalue))
     {
-        add_ptr_dref_assignment(function, IR_PTR_DREF(lvalue), value);
+        add_ptr_dref_assignment(function, lvalue, value);
     }
     else if (IR_IS_STRUCT_MEMBER(lvalue))
     {
@@ -1376,19 +1384,32 @@ iml_add_array_cell_eval(IrFunctionDef *function,
 
 static ImlOperand *
 iml_add_ptr_dref_eval(IrFunctionDef *function,
-                      IrPtrDref *ptr_dref,
+                      IrExpression *ref,
                       ImlVariable *res)
 {
-    assert(IR_IS_PTR_DREF(ptr_dref));
+    assert(IR_IS_PTR_DREF(ref) || IR_IS_VAR_REF(ref));
 
     ImlOperand *ptr_exp;
     iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
     /* add iml to evaluate pointer expression */
-    ptr_exp = iml_add_expression_eval(function,
-                                      ir_ptr_dref_get_expression(ptr_dref),
-                                      NULL,
-                                      false);
+    if (IR_IS_PTR_DREF(ref))
+    {
+        ptr_exp =
+            iml_add_expression_eval(function,
+                                    ir_ptr_dref_get_expression(IR_PTR_DREF(ref)),
+                                    NULL,
+                                    false);
+    }
+    else
+    {
+        assert(IR_IS_VAR_REF(ref));
+
+        ptr_exp =
+            IML_OPERAND(
+                ir_variable_get_location(ir_var_ref_get_var(IR_VAR_REF(ref))));
+    }
+
 
     /* figure out where to store the result */
     if (res == NULL)
@@ -1397,7 +1418,7 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
 
         res_type =
             dt_to_iml_type(
-                ir_expression_get_data_type(IR_EXPRESSION(ptr_dref)));
+                ir_expression_get_data_type(IR_EXPRESSION(ref)));
         res = iml_func_frame_get_temp(frame, res_type);
     }
 
@@ -2175,11 +2196,11 @@ add_struct_assignment(IrFunctionDef *function,
 
 static void
 add_ptr_dref_assignment(IrFunctionDef *function,
-                        IrPtrDref *lvalue,
+                        IrExpression *lvalue,
                         IrExpression *value)
 {
     assert(IR_IS_FUNCTION_DEF(function));
-    assert(IR_IS_PTR_DREF(lvalue));
+    assert(IR_IS_PTR_DREF(lvalue) || IR_IS_VAR_REF(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
     iml_func_frame_t *frame = ir_function_def_get_frame(function);
@@ -2187,10 +2208,21 @@ add_ptr_dref_assignment(IrFunctionDef *function,
     ImlOperand *rval;
 
     /* generate iml operation to evaluate pointer expression */
-    lval = iml_add_expression_eval(function,
-                                   ir_ptr_dref_get_expression(lvalue),
-                                   NULL,
-                                   false);
+    if (IR_IS_PTR_DREF(lvalue))
+    {
+        lval = iml_add_expression_eval(function,
+                                       ir_ptr_dref_get_expression(
+                                                         IR_PTR_DREF(lvalue)),
+                                       NULL,
+                                       false);
+    }
+    else
+    {
+        assert(IR_IS_VAR_REF(lvalue));
+        lval =
+           IML_OPERAND(
+             ir_variable_get_location(ir_var_ref_get_var(IR_VAR_REF(lvalue))));
+    }
     /* generate iml operations to evaluate rvalue */
     rval = iml_add_expression_eval(function, value, NULL, false);
 

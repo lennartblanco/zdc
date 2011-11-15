@@ -88,6 +88,27 @@ int func_5args(int a, int b, int x, int z, int n)
   return a * b + x * z - n;
 }
 
+// test ref parameters
+void swap(ref int a, ref int b)
+{
+  int temp = a;
+
+  a = b; b = temp;
+}
+
+extern (C) bool
+test_swap(int zoink, int ri)
+{
+  int l1 = 102, r1 = -9;
+  int l2 = zoink, r2 = ri;
+
+  swap(l1, r1);
+  swap(l2, r2);
+
+  return (l1 == -9 && r1 == 102) &&
+         (l2 == ri && r2 == zoink);
+}
+
 int outside_func();
 
 // test calling function defined somewhere else

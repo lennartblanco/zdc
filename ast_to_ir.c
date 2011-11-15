@@ -54,6 +54,7 @@
 #include "ir_dot.h"
 #include "ir_ident.h"
 #include "ir_var_value.h"
+#include "ir_var_ref.h"
 #include "dt_basic.h"
 #include "errors.h"
 
@@ -1497,9 +1498,20 @@ ident_to_ir(compilation_status_t *compile_status,
     }
     else if (IR_IS_VARIABLE(symb))
     {
-        return
-            IR_EXPRESSION(ir_var_value_new(IR_VARIABLE(symb),
-                                           ast_node_get_line_num(ident)));
+        IrVariable *var = IR_VARIABLE(symb);
+
+        if (ir_variable_is_ref(var))
+        {
+            return
+                IR_EXPRESSION(ir_var_ref_new(IR_VARIABLE(var),
+                                             ast_node_get_line_num(ident)));
+        }
+        else
+        {
+            return
+                IR_EXPRESSION(ir_var_value_new(IR_VARIABLE(var),
+                                               ast_node_get_line_num(ident)));
+        }
     }
 
     return IR_EXPRESSION(symb);

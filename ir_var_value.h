@@ -30,7 +30,7 @@
   (G_TYPE_CHECK_CLASS_TYPE ((klass), IR_TYPE_VAR_VALUE))
 
 #define IR_VAR_VALUE_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_VAR_VALUE, IrDotClass))
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), IR_TYPE_VAR_VALUE, IrVarValueClass))
 
 typedef struct
 {
@@ -57,12 +57,5 @@ ir_var_value_new(IrVariable *var, guint line_number);
 
 IrVariable *
 ir_var_value_get_var(IrVarValue *self);
-
-/**
- * convenience wrapper around the contained variable's
- * ir_variable_is_ref() method
- */
-bool
-ir_var_value_is_ref(IrVarValue *self);
 
 #endif /* IR_VAR_VALUE_INC_X */
