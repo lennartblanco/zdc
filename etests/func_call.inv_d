@@ -48,3 +48,18 @@ void inv_stat_arry_calls()
   bool_stat_arry(false);
   int_stat_arry(10, t, 20);
 }
+
+void ref_func1(ref int a) {}
+void ref_func2(char x, ref bool b) { }
+
+void inv_ref_calls()
+{
+  /* non-lvalues used as arguments to ref function parameters */
+
+  ref_func1(10);
+  ref_func1(callee(1, 2));
+
+  int x;
+  ref_func2('X', false);
+  ref_func2('X', x != 23);
+}

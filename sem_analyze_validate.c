@@ -291,6 +291,22 @@ validate_function_call(compilation_status_t *compile_status,
             return NULL;
         }
 
+        if (ir_variable_is_ref(j->data))
+        {
+            if (!ir_expression_is_lvalue(exp))
+            {
+                compile_error(compile_status,
+                              exp,
+                              "argument %d to function '%s()' "
+                              "must be an lvalue\n",
+                              counter, func_name);
+                return NULL;
+            }
+            exp =
+                IR_EXPRESSION(
+                    ir_address_of_new(exp, ir_node_get_line_num(exp)));
+        }
+
         /* valid expression */
         validated_args = g_slist_prepend(validated_args, exp);
     }

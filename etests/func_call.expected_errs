@@ -7,3 +7,7 @@ func_call.d:48: error: in function call to 'bool_stat_arry()', argument 1 of inv
 func_call.d:48: error: argument's type is 'bool[3u]' got 'bool'
 func_call.d:49: error: in function call to 'int_stat_arry()', argument 2 of invalid type
 func_call.d:49: error: argument's type is 'int[5u]' got 'int'
+func_call.d:59: error: argument 1 to function 'ref_func1()' must be an lvalue
+func_call.d:60: error: argument 1 to function 'ref_func1()' must be an lvalue
+func_call.d:63: error: argument 2 to function 'ref_func2()' must be an lvalue
+func_call.d:64: error: argument 2 to function 'ref_func2()' must be an lvalue
