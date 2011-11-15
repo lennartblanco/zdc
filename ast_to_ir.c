@@ -505,6 +505,18 @@ struct_to_ir(compilation_status_t *compile_status,
                          symbols);
 }
 
+static IrVariable *
+var_decl_to_ir(AstVariableDeclaration *var_decl)
+{
+    assert(AST_IS_VARIABLE_DECLARATION(var_decl));
+
+    return
+        ir_variable_new(ast_variable_declaration_get_data_type(var_decl),
+                        ast_variable_declaration_get_name(var_decl),
+                        NULL,
+                        ast_node_get_line_num(var_decl));
+}
+
 static GSList *
 func_params_to_ir(GSList *ast_func_params)
 {
@@ -513,27 +525,9 @@ func_params_to_ir(GSList *ast_func_params)
 
     for (i = ast_func_params; i != NULL; i = g_slist_next(i))
     {
-        DtDataType *type;
-        char *name = NULL;
-        guint line_num = 0;
-
-        if (AST_IS_VARIABLE_DECLARATION(i->data))
-        {
-            AstVariableDeclaration *ast_var;
-            ast_var = AST_VARIABLE_DECLARATION(i->data);
-            type = ast_variable_declaration_get_data_type(ast_var);
-            name = ast_variable_declaration_get_name(ast_var);
-            line_num = ast_node_get_line_num(ast_var);
-        }
-        else
-        {
-            assert(DT_IS_DATA_TYPE(i->data));
-            /* an unnamed function parameter, where only type is specified */
-            type = i->data;
-        }
         parameters =
             g_slist_prepend(parameters,
-                            ir_variable_new(type, name, NULL, line_num));
+                            var_decl_to_ir(AST_VARIABLE_DECLARATION(i->data)));
     }
 
     return g_slist_reverse(parameters);
@@ -884,20 +878,11 @@ foreach_to_ir(compilation_status_t *compile_status,
     var = ast_foreach_get_index(ast_foreach);
     if (var != NULL)
     {
-        ir_index =
-          ir_variable_new(ast_variable_declaration_get_data_type(var),
-                          ast_variable_declaration_get_name(var),
-                          NULL,
-                          ast_node_get_line_num(var));
+        ir_index = var_decl_to_ir(var);
     }
 
     /* convert value variable to ir */
-    var = ast_foreach_get_value(ast_foreach);
-    ir_value =
-        ir_variable_new(ast_variable_declaration_get_data_type(var),
-                        ast_variable_declaration_get_name(var),
-                        NULL,
-                        ast_node_get_line_num(var));
+    ir_value = var_decl_to_ir(ast_foreach_get_value(ast_foreach));
 
     /* store index and value variables in foreach's local symbols table */
     loop_symbols = sym_table_new(parent_symbols);
@@ -936,15 +921,9 @@ foreach_range_to_ir(compilation_status_t *compile_status,
     assert(parent_symbols);
     assert(AST_IS_FOREACH_RANGE(ast_foreach_range));
 
-    AstVariableDeclaration *ast_index =
-        ast_foreach_range_get_index(ast_foreach_range);
-
     /* convert index variable to ir */
     IrVariable *index =
-        ir_variable_new(ast_variable_declaration_get_data_type(ast_index),
-                        ast_variable_declaration_get_name(ast_index),
-                        NULL,
-                        ast_node_get_line_num(ast_index));
+        var_decl_to_ir(ast_foreach_range_get_index(ast_foreach_range));
 
     /* store index variable in foreach's local symbols table */
     sym_table_t *loop_symbols = sym_table_new(parent_symbols);

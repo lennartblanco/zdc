@@ -58,7 +58,7 @@ ast_variable_declaration_new(bool is_ref,
                         "ast-node-line-number", line_number,
                         NULL);
     node->type = type;
-    node->name = strdup(name);
+    node->name = g_strdup(name);
 
     return node;
 }
