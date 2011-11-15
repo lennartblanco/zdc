@@ -58,4 +58,11 @@ ir_var_value_new(IrVariable *var, guint line_number);
 IrVariable *
 ir_var_value_get_var(IrVarValue *self);
 
+/**
+ * convenience wrapper around the contained variable's
+ * ir_variable_is_ref() method
+ */
+bool
+ir_var_value_is_ref(IrVarValue *self);
+
 #endif /* IR_VAR_VALUE_INC_X */

@@ -35,6 +35,7 @@ typedef struct
      * private 
      */
 
+    bool            is_ref;
     /* variables data type */
     DtDataType     *type;
     /* value to assign to variable when created */
@@ -64,7 +65,8 @@ ir_variable_get_type(void);
  *        to assign default type value
  */
 IrVariable *
-ir_variable_new(DtDataType *type, 
+ir_variable_new(bool is_ref,
+                DtDataType *type,
                 char *name,
                 IrExpression *initializer,
                 guint line_number);
@@ -95,5 +97,8 @@ ir_variable_get_initializer(IrVariable *self);
 
 void
 ir_variable_set_initializer(IrVariable *self, IrExpression *initializer);
+
+bool
+ir_variable_is_ref(IrVariable *self);
 
 #endif /* IR_VARIABLE_INC_X */

@@ -506,12 +506,43 @@ struct_to_ir(compilation_status_t *compile_status,
 }
 
 static IrVariable *
+var_def_to_ir(compilation_status_t *compile_status,
+              AstVariableDefinition *var_def,
+              sym_table_t *sym_table)
+{
+    /*
+     * put the variable definition into the local symbol table
+     */
+
+    DtDataType *var_data_type = ast_variable_definition_get_data_type(var_def);
+    AstExpression *ast_initializer =
+        ast_variable_definition_get_initializer(var_def);
+    IrExpression *initializer = NULL;
+
+    if (ast_initializer != NULL)
+    {
+        initializer =
+            expression_to_ir(compile_status, sym_table, ast_initializer);
+    }
+
+    IrVariable *sym =
+        ir_variable_new(false,
+                        var_data_type,
+                        ast_variable_definition_get_name(var_def),
+                        initializer,
+                        ast_node_get_line_num(var_def));
+
+    return sym;
+}
+
+static IrVariable *
 var_decl_to_ir(AstVariableDeclaration *var_decl)
 {
     assert(AST_IS_VARIABLE_DECLARATION(var_decl));
 
     return
-        ir_variable_new(ast_variable_declaration_get_data_type(var_decl),
+        ir_variable_new(ast_variable_declaration_is_ref(var_decl),
+                        ast_variable_declaration_get_data_type(var_decl),
                         ast_variable_declaration_get_name(var_decl),
                         NULL,
                         ast_node_get_line_num(var_decl));
@@ -1608,34 +1639,4 @@ expression_to_ir(compilation_status_t *compile_status,
     printf("%s\n", g_type_name(G_TYPE_FROM_INSTANCE(ast_expression)));
     g_assert_not_reached();
     return NULL;
-}
-
-
-static IrVariable *
-var_def_to_ir(compilation_status_t *compile_status,
-              AstVariableDefinition *var_def,
-              sym_table_t *sym_table)
-{
-    /*
-     * put the variable definition into the local symbol table
-     */
-
-    DtDataType *var_data_type = ast_variable_definition_get_data_type(var_def);
-    AstExpression *ast_initializer =
-        ast_variable_definition_get_initializer(var_def);
-    IrExpression *initializer = NULL;
-
-    if (ast_initializer != NULL)
-    {
-        initializer =
-            expression_to_ir(compile_status, sym_table, ast_initializer);
-    }
-
-    IrVariable *sym =
-        ir_variable_new(var_data_type,
-                        ast_variable_definition_get_name(var_def),
-                        initializer,
-                        ast_node_get_line_num(var_def));
-
-    return sym;
 }

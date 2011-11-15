@@ -30,8 +30,9 @@ typedef struct
     AstNode      parent;
 
     /* private */
+    bool         is_ref;
     DtDataType  *type;
-    char         *name;
+    char        *name;
 } AstVariableDeclaration;
 
 typedef struct
@@ -57,5 +58,8 @@ ast_variable_declaration_get_data_type(AstVariableDeclaration *self);
 
 char *
 ast_variable_declaration_get_name(AstVariableDeclaration *self);
+
+bool
+ast_variable_declaration_is_ref(AstVariableDeclaration *self);
 
 #endif /* AST_VARIABLE_DECLARATION_INC_X */

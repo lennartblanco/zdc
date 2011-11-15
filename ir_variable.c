@@ -46,7 +46,8 @@ ir_variable_get_type(void)
 }
 
 IrVariable *
-ir_variable_new(DtDataType *type,
+ir_variable_new(bool is_ref,
+                DtDataType *type,
                 char *name,
                 IrExpression *initializer,
                 guint line_number)
@@ -59,6 +60,8 @@ ir_variable_new(DtDataType *type,
                        "ir-node-line-number", line_number,
                        "ir-symbol-name", name,
                        NULL);
+
+    obj->is_ref = is_ref;
     obj->type = type;
     obj->initializer = initializer;
     return obj;
@@ -121,6 +124,14 @@ ir_variable_set_initializer(IrVariable *self, IrExpression *initializer)
     assert(IR_IS_EXPRESSION(initializer));
 
     self->initializer = initializer;
+}
+
+bool
+ir_variable_is_ref(IrVariable *self)
+{
+    assert(IR_IS_VARIABLE(self));
+
+    return self->is_ref;
 }
 
 /*---------------------------------------------------------------------------*

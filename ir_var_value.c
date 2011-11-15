@@ -61,6 +61,14 @@ ir_var_value_get_var(IrVarValue *self)
     return self->var;
 }
 
+bool
+ir_var_value_is_ref(IrVarValue *self)
+{
+    assert(IR_IS_VAR_VALUE(self));
+
+    return ir_variable_is_ref(self->var);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/

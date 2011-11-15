@@ -49,7 +49,6 @@ ast_variable_declaration_new(bool is_ref,
                              char *name,
                              guint line_number)
 {
-    assert(!is_ref); /* reference function parameters not implemented */
     assert(DT_IS_DATA_TYPE(type));
 
     AstVariableDeclaration *node;
@@ -57,12 +56,13 @@ ast_variable_declaration_new(bool is_ref,
     node = g_object_new(AST_TYPE_VARIABLE_DECLARATION,
                         "ast-node-line-number", line_number,
                         NULL);
+
+    node->is_ref = is_ref;
     node->type = type;
     node->name = g_strdup(name);
 
     return node;
 }
-
 
 DtDataType *
 ast_variable_declaration_get_data_type(AstVariableDeclaration *self)
@@ -78,6 +78,14 @@ ast_variable_declaration_get_name(AstVariableDeclaration *self)
     assert(AST_IS_VARIABLE_DECLARATION(self));
 
     return self->name;
+}
+
+bool
+ast_variable_declaration_is_ref(AstVariableDeclaration *self)
+{
+    assert(AST_IS_VARIABLE_DECLARATION(self));
+
+    return self->is_ref;
 }
 
 /*---------------------------------------------------------------------------*
