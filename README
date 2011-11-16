@@ -11,16 +11,18 @@ Building the zdc requires following tools:
 
   flex
   gcc
-  filepp
   dmd (Digital Mars D compiler, http://www.digitalmars.com/d/2.0/dmd-linux.html)
   GNU Make
 
 The glib2 library and it's header files must be also installed.
 
-To build compiler run 'make' from the same directory as this file. This will
-generate the zdc binary. The default build time configuration is stored in
-'config.default' file. To override default configuration add new setting to
-'config' file.
+To build compiler run 'make' from the same directory as this file.
+
+Successfull build will generate the zdc binary. When zdc binary is run directly,
+it will compile the code for x86 target. To build for other targets, use the
+generated symlinks. A symlink for each target listed in 'config' file will be
+generated. The zdc binary uses the invocation name to determine for which
+target to compile code.
 
 Runtime
 -------

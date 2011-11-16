@@ -1,10 +1,8 @@
 include objects.mak
-include config.default
--include config
 
 ACCENT := tools/bin/accent
 PROG := zdc
-#CFLAGS += -Werror
+TARGETS := $(patsubst $(PROG),,$(shell ./list_targets.d))
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 BLD_DIR := build
 DEP_DIR := $(BLD_DIR)
@@ -12,11 +10,12 @@ CFLAGS   += -MP -MD -MF $(DEP_DIR)/$(patsubst .%,_.%,$(subst /,_,$(patsubst %.os
 
 VPATH = $(BLD_DIR)
 
-.PHONY: docs
-
-all: $(PROG)
+all: $(TARGETS)
 
 -include $(shell mkdir -p $(DEP_DIR)) $(DEP_DIR)/*.dep
+
+$(TARGETS): $(PROG)
+	ln -s $< $@
 
 lex.h: lex.c
 
@@ -31,25 +30,12 @@ parser.o: lex.h parser.c
 	$(CC) $(CFLAGS) -c $< -o $(BLD_DIR)/$@
 
 %-d.o: %.d
-	dmd -debug -gc -of$(BLD_DIR)/$@ -c $<
+	dmd -debug -gc -J. -of$(BLD_DIR)/$@ -c $<
 
 yygrammar.h: yygrammar.c
 
 yygrammar.c: grammar.acc $(ACCENT)
 	$(ACCENT) grammar.acc
-
-ui-d.o: config.d
-
-config:
-	touch $@
-
-config.d: config config.d.in
-	filepp -DCONF_DEF_BACKEND=$(CONF_DEF_BACKEND) \
-           -DCONF_X86_AS_CMD=$(CONF_X86_AS_CMD) \
-           -DCONF_X86_LD_CMD=$(CONF_X86_LD_CMD) \
-           -DCONF_ARM_AS_CMD=$(CONF_ARM_AS_CMD) \
-           -DCONF_ARM_LD_CMD=$(CONF_ARM_LD_CMD) \
-           config.d.in > $@
 
 $(ACCENT):
 	mkdir -p tools/bin
@@ -84,4 +70,4 @@ clean:
 	make -C tests clean
 	make -C etests clean
 	rm -rf $(BLD_DIR)
-	rm -rf $(PROG) lex.c lex.h yygrammar.c yygrammar.h core *~ config.d
+	rm -rf $(PROG) $(TARGETS) *.d.deps lex.c lex.h yygrammar.c yygrammar.h core *~

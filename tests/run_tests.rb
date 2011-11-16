@@ -175,10 +175,12 @@ class TestTarget
 
     case @arch
       when "arm"
+        zdc="arm-linux-gnueabi-zdc"
         cc="arm-linux-gnueabi-gcc"
         cflags=""
         arch_specific="dummy_gc.o"
       when "x86"
+        zdc="zdc"
         cflags="-m32 -lgc"
       else
         fail "unexpected architecture '#{@arch}'"
@@ -186,9 +188,9 @@ class TestTarget
 
     "make VPATH=#{source_dir} " +
          (cc != nil ? "CC=#{cc} " : "") +
-         "ZDC=#{source_dir}/../zdc " +
+         "ZDC=#{source_dir}/../#{zdc} " +
          "CFLAGS=\"-g #{cflags}\" " +
-         "DFLAGS=\"--march=#{@arch} -I#{source_dir}\" " +
+         "DFLAGS=\"-I#{source_dir}\" " +
          (arch_specific != nil ? "ARCH_SPECIFIC=#{arch_specific} " : "") +
          "-f #{source_dir}/Makefile check_#{test} 2>&1"
   end

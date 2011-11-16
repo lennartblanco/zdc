@@ -7,16 +7,10 @@ import std.stdio;
 import std.string;
 import std.conv;
 import ver;
-import config;
 import GSList;
 import auxil;
 import arm;
-
-enum backend_e
-{
-    x86,
-    arm
-}
+import targets;
 
 enum compilation_stages
 {
@@ -38,7 +32,6 @@ struct compilation_settings
 
 struct command_options
 {
-    backend_e backend;
     compilation_stages last_compilation_stage;
     string[] source_files;
     string[] object_files;
@@ -73,26 +66,17 @@ extern (C) void x86_init(arch_backend *backend);
  * @return created object file name or null if assembler returned with error
  */
 string
-assemble_file(backend_e backend, string object_file_name, string assembly_file)
+assemble_file(string target_name, string object_file_name, string assembly_file)
 {
-    string command;
 
     if (object_file_name == null)
     {
         object_file_name = assembly_file[0..$-2] ~ ".o";
     }
 
-    switch (backend)
-    {
-        case backend_e.x86:
-            command = X86_AS_CMD;
-            break;
-        case backend_e.arm:
-            command = ARM_AS_CMD;
-            break;
-    }
-
-    command ~= " " ~ object_file_name ~ " " ~ assembly_file;
+    string command = get_target_asm_command(target_name,
+                                            assembly_file,
+                                            object_file_name);
 
     if (system(std.string.toStringz(command)) != 0)
     {
@@ -110,53 +94,26 @@ assemble_file(backend_e backend, string object_file_name, string assembly_file)
  * @param object_files the object file names to link
  * @return 0 if linked successfully, -1 if linker returned an error
  */
+
 int
-link_files(backend_e backend, string output_file, string[] object_files)
+link_files(string target_name, string output_file, string[] object_files)
 {
     string ofile = output_file;
-    string command;
-
-    switch (backend)
-    {
-        case backend_e.x86:
-            command = X86_LD_CMD;
-            break;
-        case backend_e.arm:
-            command = ARM_LD_CMD;
-            break;
-    }
 
     if (ofile == null)
     {
         ofile = object_files[0][0..$-2];
     }
 
-    command ~= " " ~ ofile;
-    foreach (file; object_files)
-    {
-      command ~= " " ~ file;
-    }
+    string command = get_target_link_command(target_name,
+                                             object_files,
+                                             ofile);
 
     if (system(std.string.toStringz(command)) != 0)
     {
         return -1;
     }
     return 0;
-}
-
-backend_e
-get_default_backend()
-{
-    switch (DEFAULT_BACKEND)
-    {
-        case "x86":
-            return backend_e.x86;
-        case "arm":
-            return backend_e.arm;
-        default:
-            assert(false, "unexpected default backend '" ~
-                          DEFAULT_BACKEND ~ "'");
-    }
 }
 
 /**
@@ -182,8 +139,6 @@ get_usage_message(string progname)
            "Compile specified D source file(s).\n"
             "\n"
             "Options:\n"
-            "  --march=arch,      Generate code for the specified architecture.\n"
-            "   or -march=arch    The choices for arch are 'arm' or 'x86'.\n"
             "  -o outfile         Place output in file outfile.\n"
             "  -S                 Generate assembly files only.\n"
             "  -c                 Compile only, do not link.\n"
@@ -198,36 +153,6 @@ get_usage_message(string progname)
             "  --help, -?, -h     Print this help message.";
 }
 
-backend_e
-parse_march_option(string option)
-{
-    string arch;
-
-    auto eqsign = indexOf(option, '=');
-
-    if (eqsign > -1)
-    {
-        arch = option[eqsign + 1..$];
-    }
-
-    if (eqsign == -1 || arch.length <= 0)
-    {
-        throw new Exception("no value provided for '" ~ option ~
-                            "' option");
-    }
-
-    switch (arch)
-    {
-        case "x86":
-            return backend_e.x86;
-        case "arm":
-            return backend_e.arm;
-        default:
-            throw new Exception("unsupported target architecture '" ~ arch ~
-                                "' specified");
-    }
-}
-
 /**
  * Parse the command line arguments.
  *
@@ -240,7 +165,6 @@ parse_command_arguments(string[] args, ref command_options options)
     options.last_compilation_stage = compilation_stages.link_stage;
     options.comp_settings.print_ast = false;
     options.comp_settings.print_ir = false;
-    options.backend = get_default_backend();
 
     /* parse command line options */
     for (int i = 1; i < args.length; i += 1)
@@ -316,11 +240,6 @@ parse_command_arguments(string[] args, ref command_options options)
             {
                 options.comp_settings.print_ir = true;
             }
-            else if ((arg.length >=6 && arg[0..6] == "-march") ||
-                     (arg.length >=7 && arg[0..7] == "--march"))
-            {
-                options.backend = parse_march_option(arg);
-            }
             else
             {
                 throw new
@@ -382,7 +301,7 @@ main(string[] args)
         return ex.exit_code;
     }
 
-
+    string target = get_target_name(args[0]);
 
     /* make sure output_file (-o) option makes sense */
     if (options.output_file != null &&
@@ -412,12 +331,12 @@ main(string[] args)
     }
 
     /* init arch specific backend */
-    switch (options.backend)
+    switch (get_target_backend(target))
     {
-        case backend_e.x86:
+        case backend.x86:
             x86_init(&options.comp_settings.backend);
             break;
-        case backend_e.arm:
+        case backend.arm:
             arm_init(&options.comp_settings.backend);
             break;
         default:
@@ -456,7 +375,7 @@ main(string[] args)
         /* unless -S flag is specified, assemble generated file */
         if (options.last_compilation_stage > compilation_stages.compile_stage)
         {
-            string obj_file = assemble_file(options.backend,
+            string obj_file = assemble_file(target,
                                             assembled_output_file,
                                             target_file);
             if (obj_file == null)
@@ -473,7 +392,7 @@ main(string[] args)
     {
         int r;
 
-        r = link_files(options.backend,
+        r = link_files(target,
                        options.output_file,
                        options.object_files);
         if (r != 0)

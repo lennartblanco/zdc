@@ -1,9 +1,0 @@
-CONF_DEF_BACKEND = "x86"
-
-# default x86 backend configuration
-CONF_X86_AS_CMD = "as --32 -g -o"
-CONF_X86_LD_CMD = "ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 /usr/lib/crt1.o -lc -lgc -o"
-
-# default arm backend configuration (linaro toolchain)
-CONF_ARM_AS_CMD = "arm-linux-gnueabi-as -g -o"
-CONF_ARM_LD_CMD = "arm-linux-gnueabi-ld -dynamic-linker /lib/ld-linux.so.3 /usr/arm-linux-gnueabi/lib/crt1.o -lc -lgc -o"
