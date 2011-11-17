@@ -15,7 +15,7 @@ all: $(TARGETS)
 -include $(shell mkdir -p $(DEP_DIR)) $(DEP_DIR)/*.dep
 
 $(TARGETS): $(PROG)
-	ln -s $< $@
+	ln -f -s $< $@
 
 lex.h: lex.c
 
