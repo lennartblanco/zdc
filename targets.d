@@ -35,14 +35,24 @@ get_target_asm_command(string target_name,
 
 string
 get_target_link_command(string target_name,
+                        string[] libs,
                         string[] obj_files,
                         string output_file)
 {
     linker linker = get_target(target_name)._toolchain._linker;
 
-    string command =
-        linker.prefix ~ " " ~ linker.output_flag ~ " " ~ output_file;
+    string command = linker.prefix;
 
+    /* add link flags */
+    foreach (lib; libs)
+    {
+        command ~= " " ~ linker.link_flag ~ lib;
+    }
+
+    /* add output file name option */
+    command ~= " " ~ linker.output_flag ~ " " ~ output_file;
+
+    /* add object files to link */
     foreach (obj; obj_files)
     {
         command ~= " " ~ obj;
@@ -68,6 +78,7 @@ struct toolchain
 struct linker
 {
     string prefix;
+    string link_flag;
     string output_flag;
 }
 

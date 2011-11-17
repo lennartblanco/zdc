@@ -33,6 +33,7 @@ struct compilation_settings
 struct command_options
 {
     compilation_stages last_compilation_stage;
+    string[] libs;
     string[] source_files;
     string[] object_files;
     string output_file;
@@ -96,7 +97,10 @@ assemble_file(string target_name, string object_file_name, string assembly_file)
  */
 
 int
-link_files(string target_name, string output_file, string[] object_files)
+link_files(string target_name,
+           string output_file,
+           string[] libs,
+           string[] object_files)
 {
     string ofile = output_file;
 
@@ -106,6 +110,7 @@ link_files(string target_name, string output_file, string[] object_files)
     }
 
     string command = get_target_link_command(target_name,
+                                             libs,
                                              object_files,
                                              ofile);
 
@@ -145,6 +150,7 @@ get_usage_message(string progname)
             "  -Ipath             Where to look for imported modules. When\n"
             "                     multiple -I are specified, the paths are\n"
             "                     search from left to right.\n"
+            "  -llib              Link generated binary to specified library.\n"
             "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
             "                     unit.\n"
             "  --print-ir         Output Intermediate Represantation of each\n"
@@ -211,6 +217,17 @@ parse_command_arguments(string[] args, ref command_options options)
                 options.comp_settings.import_paths =
                     g_slist_prepend(options.comp_settings.import_paths,
                                     cast(void*)toStringz(path));
+            }
+            else if (arg[0..2] == "-l")
+            {
+                string lib = arg["-l".length..$];
+
+                if (lib == "")
+                {
+                    throw new
+                      CommandOptionException("argument to -l is missing", -1);
+                }
+                options.libs ~= [lib];
             }
             else if (arg == "-o")
             {
@@ -394,6 +411,7 @@ main(string[] args)
 
         r = link_files(target,
                        options.output_file,
+                       options.libs,
                        options.object_files);
         if (r != 0)
         {

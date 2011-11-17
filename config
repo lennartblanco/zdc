@@ -6,6 +6,7 @@
                 linker("ld -m elf_i386 -dynamic-linker "
                        "/lib/ld-linux.so.2 "
                        "/usr/lib/crt1.o -lc -lgc",
+                       "-l",
                        "-o"))),
 
   "arm-linux-gnueabi-zdc" :
@@ -14,5 +15,6 @@
                 linker("arm-linux-gnueabi-ld -dynamic-linker "
                        "/lib/ld-linux.so.3 "
                        "/usr/arm-linux-gnueabi/lib/crt1.o -lc -lgc",
+                       "-l",
                        "-o")))
 ]
