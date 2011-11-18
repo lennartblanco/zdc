@@ -2,7 +2,7 @@ public import GSList;
 public import GList;
 public import sym_table;
 public import iml;
-public import dt_data_type;
+public import dt;
 
 /*---------------------------------------------------------------------------*
  *                          modile declarations                              *

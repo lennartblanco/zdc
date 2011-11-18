@@ -3,7 +3,7 @@ import std.conv;
 import auxil;
 import data_section;
 import ir;
-import dt_basic;
+import dt;
 import arm_util;
 
 enum TEMP_REG1 = "ip";

@@ -1,10 +1,7 @@
 import std.stdio;
 import std.conv;
 import ir;
-import dt_data_type;
-import dt_array;
-import dt_enum;
-import dt_basic;
+import dt;
 
 private string
 get_data_section_string(DtDataType *exp_type,
