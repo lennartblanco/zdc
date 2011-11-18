@@ -41,7 +41,7 @@ ir_struct_literal_get_type(void)
 bool
 ir_is_struct_literal(void *obj)
 {
-  return G_TYPE_CHECK_INSTANCE_TYPE(obj, IR_TYPE_STRUCT_LITERAL);
+    return G_TYPE_CHECK_INSTANCE_TYPE(obj, IR_TYPE_STRUCT_LITERAL);
 }
 
 IrStructLiteral *
