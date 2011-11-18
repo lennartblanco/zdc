@@ -117,7 +117,7 @@ dt_struct_get_init(DtDataType *self)
         dt_struct->init = ir_struct_literal_new(dt_struct->members);
     }
 
-    return IR_EXPRESSION(dt_struct->init);
+    return ir_expression(dt_struct->init);
 }
 
 static gchar *

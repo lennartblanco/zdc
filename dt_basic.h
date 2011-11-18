@@ -9,9 +9,6 @@
 
 #define DT_TYPE_BASIC dt_basic_get_type()
 
-#define DT_BASIC(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_BASIC, DtBasic))
-
 #define DT_BASIC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_BASIC, DtBasicClass))
 
@@ -42,6 +39,9 @@ dt_basic_get_type(void);
 
 bool
 dt_is_basic(void *obj);
+
+DtBasic *
+dt_basic(void *obj);
 
 DtBasic *
 dt_basic_new(basic_data_type_t data_type);

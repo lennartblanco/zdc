@@ -33,6 +33,9 @@ struct IrSymbol;
 
 extern (C)
 {
+    IrSymbol *
+    ir_symbol(void *obj);
+
     IrModule *
     ir_symbol_get_parent_module(IrSymbol *self);
 }
@@ -51,6 +54,9 @@ enum ir_linkage_type
 
 extern (C)
 {
+    IrFunction *
+    ir_function(void *obj);
+
     char *
     ir_function_get_mangled_name(IrFunction *self);
 }
@@ -63,6 +69,9 @@ struct IrFunctionDef;
 
 extern (C)
 {
+    IrFunctionDef *
+    ir_function_def(void *obj);
+
     char *
     ir_function_def_get_name(IrFunctionDef *self);
 
@@ -87,6 +96,9 @@ struct IrExpression;
 
 extern (C)
 {
+    IrExpression *
+    ir_expression(void *obj);
+
     DtDataType *
     ir_expression_get_data_type(IrExpression *self);
 }
@@ -99,6 +111,9 @@ struct IrLiteral;
 
 extern (C)
 {
+    IrLiteral *
+    ir_literal(void *obj);
+
     char *
     ir_literal_get_data_label(IrLiteral *self);
 }
@@ -111,6 +126,9 @@ struct IrBasicConstant;
 
 extern (C)
 {
+    IrBasicConstant *
+    ir_basic_constant(void *obj);
+
     bool
     ir_basic_constant_get_bool(IrBasicConstant *self);
 
@@ -147,6 +165,9 @@ extern (C)
     bool
     ir_is_array_literal(void *obj);
 
+    IrArrayLiteral *
+    ir_array_literal(void *obj);
+
     GSList *
     ir_array_literal_get_values(IrArrayLiteral *self);
 }
@@ -162,6 +183,9 @@ extern (C)
     bool
     ir_is_struct_literal(void *obj);
 
+    IrStructLiteral *
+    ir_struct_literal(void *obj);
+
     GSList *
     ir_struct_literal_get_members(IrStructLiteral *self);
 }
@@ -174,6 +198,9 @@ struct IrStructMember;
 
 extern (C)
 {
+    IrStructMember *
+    ir_struct_member(void *obj);
+
     IrExpression *
     ir_struct_member_get_init(IrStructMember *self);
 
@@ -189,6 +216,9 @@ struct IrEnumMember;
 
 extern (C)
 {
+    IrEnumMember *
+    ir_enum_member(void *obj);
+
     IrExpression *
     ir_enum_member_get_value(IrEnumMember *self);
 }

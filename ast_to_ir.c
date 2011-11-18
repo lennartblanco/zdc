@@ -239,7 +239,7 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
             compile_error(compile_status,
                           IR_NODE(ir_func_decl),
                           "redeclaration of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+                          ir_function_get_name(ir_function(ir_func_decl)));
         }
     }
 
@@ -266,7 +266,7 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
             compile_error(compile_status,
                           IR_NODE(ir_func_def),
                           "redifinition of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+                          ir_function_get_name(ir_function(ir_func_def)));
         }
     }
 
@@ -371,7 +371,7 @@ import_module(compilation_status_t *compile_status,
             compile_error(compile_status,
                           IR_NODE(ir_func_decl),
                           "redeclaration of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_decl)));
+                          ir_function_get_name(ir_function(ir_func_decl)));
         }
     }
 
@@ -390,7 +390,7 @@ import_module(compilation_status_t *compile_status,
             compile_error(compile_status,
                           IR_NODE(ir_func_def),
                           "redifinition of function '%s'\n",
-                          ir_function_get_name(IR_FUNCTION(ir_func_def)));
+                          ir_function_get_name(ir_function(ir_func_def)));
         }
     }
 
@@ -489,12 +489,12 @@ struct_to_ir(compilation_status_t *compile_status,
                 var_def_to_ir(compile_status,
                               AST_VARIABLE_DEFINITION(i->data),
                               symbols);
-        if (sym_table_add_symbol(symbols, IR_SYMBOL(var)) != 0)
+        if (sym_table_add_symbol(symbols, ir_symbol(var)) != 0)
         {
             compile_error(compile_status,
                           var,
                           "redeclaration of symbol '%s'\n",
-                          ir_symbol_get_name(IR_SYMBOL(var)));
+                          ir_symbol_get_name(ir_symbol(var)));
         }
 
         members = g_slist_prepend(members, var);
@@ -679,7 +679,7 @@ code_block_to_ir(compilation_status_t *compile_status,
                 compile_error(compile_status,
                               stmt,
                               "redeclaration of symbol '%s'\n",
-                              ir_symbol_get_name(IR_SYMBOL(var)));
+                              ir_symbol_get_name(ir_symbol(var)));
             }
 
             /* no IR statment to add, jump to next ast statment */
@@ -921,10 +921,10 @@ foreach_to_ir(compilation_status_t *compile_status,
 
     if (ir_index != NULL)
     {
-        sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_index));
+        sym_table_add_symbol(loop_symbols, ir_symbol(ir_index));
     }
 
-    sym_table_add_symbol(loop_symbols, IR_SYMBOL(ir_value));
+    sym_table_add_symbol(loop_symbols, ir_symbol(ir_value));
 
     /* convert foreach body to ir */
     body = ir_code_block_new(loop_symbols);
@@ -959,7 +959,7 @@ foreach_range_to_ir(compilation_status_t *compile_status,
 
     /* store index variable in foreach's local symbols table */
     sym_table_t *loop_symbols = sym_table_new(parent_symbols);
-    sym_table_add_symbol(loop_symbols, IR_SYMBOL(index));
+    sym_table_add_symbol(loop_symbols, ir_symbol(index));
 
     /* conver lower expression to ir */
     IrExpression *lower_exp =
@@ -1083,7 +1083,7 @@ binary_op_to_ir(compilation_status_t *compile_status,
         case ast_greater_or_eq_op:
         case ast_and_op:
         case ast_or_op:
-            return IR_EXPRESSION(ir_binary_operation_new(op,
+            return ir_expression(ir_binary_operation_new(op,
                                                          left,
                                                          right,
                                                          line_number));
@@ -1126,7 +1126,7 @@ ast_conditional_to_ir(compilation_status_t *compile_status,
     }
 
     return
-        IR_EXPRESSION(
+        ir_expression(
             ir_conditional_new(cond,
                                true_exp,
                                false_exp,
@@ -1153,7 +1153,7 @@ ast_unary_op_to_ir(compilation_status_t *compile_status,
                          ast_unary_operation_get_operand(ast_operation));
 
     return
-        IR_EXPRESSION(
+        ir_expression(
             ir_unary_operation_new(
                 op_type,
                 operand,
@@ -1183,7 +1183,7 @@ func_call_to_ir(compilation_status_t *compile_status,
     }
     ir_call_args = g_slist_reverse(ir_call_args);
 
-    return IR_EXPRESSION(ir_function_call_new(func_name,
+    return ir_expression(ir_function_call_new(func_name,
                                               ir_call_args,
                                               ast_node_get_line_num(func_call)));
 }
@@ -1213,7 +1213,7 @@ array_literal_to_ir(compilation_status_t *compile_status,
         ir_array_literal_add_value(ir_arry_literal, exp);
     }
 
-    return IR_EXPRESSION(ir_arry_literal);
+    return ir_expression(ir_arry_literal);
 }
 
 static IrExpression *
@@ -1246,7 +1246,7 @@ string_literal_to_ir(compilation_status_t *compile_status,
     arry_literal = ir_array_literal_new(0);
     ir_array_literal_set_values(arry_literal, g_slist_reverse(vals));
 
-    return IR_EXPRESSION(arry_literal);
+    return ir_expression(arry_literal);
 }
 
 static IrExpression *
@@ -1293,7 +1293,7 @@ array_slice_to_ir(compilation_status_t *compile_status,
     }
 
     line_number = ast_node_get_line_num(ast_arry_slice);
-    return IR_EXPRESSION(ir_array_slice_new(ir_array,
+    return ir_expression(ir_array_slice_new(ir_array,
                                             ir_start_idx,
                                             ir_end_idx,
                                             line_number));
@@ -1347,7 +1347,7 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
 
 
     return
-        IR_EXPRESSION(
+        ir_expression(
             ir_array_cell_new(IR_VARIABLE(array),
                               ir_index_exp,
                               ast_node_get_line_num(array_cell_ref)));
@@ -1374,7 +1374,7 @@ cast_to_ir(compilation_status_t *compile_status,
     }
 
     return
-        IR_EXPRESSION(
+        ir_expression(
             ir_cast_new(ast_cast_get_target_type(ast_cast), exp));
 }
 
@@ -1398,10 +1398,10 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
         return NULL;
     }
 
-    right = IR_EXPRESSION(ir_ident_new(ast_postfix_exp_get_name(ast_postfix),
+    right = ir_expression(ir_ident_new(ast_postfix_exp_get_name(ast_postfix),
                                        ast_node_get_line_num(ast_postfix)));
 
-    return IR_EXPRESSION(ir_dot_new(left,
+    return ir_expression(ir_dot_new(left,
                                     right,
                                     ast_node_get_line_num(ast_postfix)));
 }
@@ -1423,7 +1423,7 @@ ptr_dref_exp_to_ir(compilation_status_t *compile_status,
     }
 
     return
-        IR_EXPRESSION(
+        ir_expression(
             ir_ptr_dref_new(ptr_expr,
                             ast_node_get_line_num(AST_NODE(ast_ptr_dref))));
 }
@@ -1447,7 +1447,7 @@ address_of_to_ir(compilation_status_t *compile_status,
     }
 
     return
-        IR_EXPRESSION(
+        ir_expression(
             ir_address_of_new(expr,
                               ast_node_get_line_num(AST_NODE(ast_addr_of))));
 }
@@ -1503,18 +1503,18 @@ ident_to_ir(compilation_status_t *compile_status,
         if (ir_variable_is_ref(var))
         {
             return
-                IR_EXPRESSION(ir_var_ref_new(IR_VARIABLE(var),
+                ir_expression(ir_var_ref_new(IR_VARIABLE(var),
                                              ast_node_get_line_num(ident)));
         }
         else
         {
             return
-                IR_EXPRESSION(ir_var_value_new(IR_VARIABLE(var),
+                ir_expression(ir_var_value_new(IR_VARIABLE(var),
                                                ast_node_get_line_num(ident)));
         }
     }
 
-    return IR_EXPRESSION(symb);
+    return ir_expression(symb);
 }
 
 /**
@@ -1536,28 +1536,28 @@ expression_to_ir(compilation_status_t *compile_status,
         gint32 val;
 
         val = ast_int_constant_get_value(AST_INT_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_basic_constant_new_int(val, line_num));
+        return ir_expression(ir_basic_constant_new_int(val, line_num));
     }
     else if (AST_IS_UINT_CONSTANT(ast_expression))
     {
         guint32 val;
 
         val = ast_uint_constant_get_value(AST_UINT_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_basic_constant_new_uint(val, line_num));
+        return ir_expression(ir_basic_constant_new_uint(val, line_num));
     }
     else if (AST_IS_BOOL_CONSTANT(ast_expression))
     {
         bool val;
 
         val = ast_bool_constant_get_value(AST_BOOL_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_basic_constant_new_bool(val, line_num));
+        return ir_expression(ir_basic_constant_new_bool(val, line_num));
     }
     else if (AST_IS_CHAR_CONSTANT(ast_expression))
     {
         guint8 val;
 
         val = ast_char_constant_get_value(AST_CHAR_CONSTANT(ast_expression));
-        return IR_EXPRESSION(ir_basic_constant_new_char(val, line_num));
+        return ir_expression(ir_basic_constant_new_char(val, line_num));
     }
     else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {

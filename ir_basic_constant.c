@@ -49,6 +49,14 @@ ir_basic_constant_get_type(void)
 }
 
 IrBasicConstant *
+ir_basic_constant(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_BASIC_CONSTANT,
+                                      IrBasicConstant);
+}
+
+IrBasicConstant *
 ir_basic_constant_new_int(gint32 value, guint line_number)
 {
     return ir_basic_constant_new(int_type, &value, line_number);
@@ -221,9 +229,9 @@ ir_basic_constant_get_value_range(IrExpression *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
 
-    if (IR_BASIC_CONSTANT(self)->value_range == NULL)
+    if (ir_basic_constant(self)->value_range == NULL)
     {
-        IrBasicConstant *bc = IR_BASIC_CONSTANT(self);
+        IrBasicConstant *bc = ir_basic_constant(self);
         gint64 val;
         switch (bc->type)
         {
@@ -257,7 +265,7 @@ ir_basic_constant_get_value_range(IrExpression *self)
         bc->value_range = ut_range_new(val, val);
     }
 
-    return IR_BASIC_CONSTANT(self)->value_range;
+    return ir_basic_constant(self)->value_range;
 }
 
 static void
@@ -274,7 +282,7 @@ ir_basic_constant_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
 
-    switch (IR_BASIC_CONSTANT(self)->type)
+    switch (ir_basic_constant(self)->type)
     {
         case int_type:
             return types_get_int_type();

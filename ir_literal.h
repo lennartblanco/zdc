@@ -9,9 +9,6 @@
 
 #define IR_TYPE_LITERAL ir_literal_get_type()
 
-#define IR_LITERAL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_LITERAL, IrLiteral))
-
 #define IR_LITERAL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_LITERAL, IrLiteralClass))
 
@@ -43,6 +40,9 @@ typedef struct
 
 GType
 ir_literal_get_type(void);
+
+IrLiteral *
+ir_literal(void *obj);
 
 /**
  * assign a label in .data section for this literal

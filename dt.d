@@ -27,6 +27,9 @@ extern (C)
     bool
     dt_is_basic(void *obj);
 
+    DtBasic *
+    dt_basic(void *obj);
+
     basic_data_type
     dt_basic_get_data_type(DtBasic *self);
 
@@ -42,6 +45,9 @@ struct DtArray;
 
 extern (C)
 {
+    DtArray *
+    dt_array(void *obj);
+
     DtDataType *
     dt_array_get_element_type(DtArray *self);
 }
@@ -56,6 +62,9 @@ extern (C)
 {
     bool
     dt_is_enum(void *obj);
+
+    DtEnum *
+    dt_enum(void *obj);
 
     DtDataType *
     dt_enum_get_base_type(DtEnum *self);

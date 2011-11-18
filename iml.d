@@ -54,6 +54,9 @@ enum iml_opcode
 
 extern (C)
 {
+    iml_operation *
+    cast_iml_operation(void *obj);
+
     iml_opcode
     iml_operation_get_opcode(iml_operation *self);
 
@@ -86,6 +89,9 @@ extern (C)
 {
     iml_data_type
     iml_operand_get_data_type(ImlOperand *self);
+
+    ImlOperand *
+    iml_operand(void *obj);
 }
 
 /*---------------------------------------------------------------------------*
@@ -98,6 +104,9 @@ extern (C)
 {
     bool
     iml_is_constant(void *obj);
+
+    ImlConstant *
+    iml_constant(void *obj);
 
     uint
     iml_constant_get_val_32b(ImlConstant *self);
@@ -116,6 +125,9 @@ extern (C)
 {
     bool
     iml_is_variable(void *obj);
+
+    ImlVariable *
+    iml_variable(void *obj);
 
     bool
     iml_variable_is_mem_pinned(ImlVariable *self);

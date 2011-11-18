@@ -37,8 +37,8 @@ types_implicit_conv(DtDataType *target_type,
              * convertible to target type
              */
             IrExpression *cast_exp =
-                IR_EXPRESSION(
-                    ir_cast_new(dt_enum_get_base_type(DT_ENUM(exp_type)),
+                ir_expression(
+                    ir_cast_new(dt_enum_get_base_type(dt_enum(exp_type)),
                                 expression));
             return types_implicit_conv(target_type, cast_exp);
         }
@@ -62,7 +62,7 @@ types_integer_promotion(IrExpression *expression)
 
     if (dt_is_enum(exp_type))
     {
-        exp_type = dt_enum_get_base_type(DT_ENUM(exp_type));
+        exp_type = dt_enum_get_base_type(dt_enum(exp_type));
     }
 
     if (!(dt_is_basic(exp_type)))
@@ -70,7 +70,7 @@ types_integer_promotion(IrExpression *expression)
         return NULL;
     }
 
-    exp_data_type = dt_basic_get_data_type(DT_BASIC(exp_type));
+    exp_data_type = dt_basic_get_data_type(dt_basic(exp_type));
 
     switch (exp_data_type) {
         case char_type:
@@ -230,14 +230,14 @@ types_usual_arithm_conv(IrExpression *left,
     {
         /* right operand need to be converted to unsigned */
         *res_right = 
-            IR_EXPRESSION(ir_cast_new(types_get_uint_type(), *res_right));
+            ir_expression(ir_cast_new(types_get_uint_type(), *res_right));
 
     }
     else if (dt_basic_is_int(left_type) && dt_basic_is_uint(right_type))
     {
         /* left operand need to be converted to unsigned */
         *res_left =
-            IR_EXPRESSION(ir_cast_new(types_get_uint_type(), *res_left));
+            ir_expression(ir_cast_new(types_get_uint_type(), *res_left));
     }
     else
     {
@@ -400,13 +400,13 @@ types_is_literal_0or1(IrExpression *expression)
 
     if (dt_basic_is_int(exp_type))
     {
-         gint32 val = ir_basic_constant_get_int(IR_BASIC_CONSTANT(expression));
+         gint32 val = ir_basic_constant_get_int(ir_basic_constant(expression));
          res = (val == 0 || val == 1);
     }
     else if (dt_basic_is_uint(exp_type))
     {
          guint32 val =
-             ir_basic_constant_get_uint(IR_BASIC_CONSTANT(expression));
+             ir_basic_constant_get_uint(ir_basic_constant(expression));
          res = (val == 0 || val == 1);
     }
     else

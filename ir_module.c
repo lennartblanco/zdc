@@ -107,7 +107,7 @@ ir_module_add_function_decl(IrModule *self,
     assert(IR_IS_MODULE(self));
     assert(IR_IS_FUNCTION_DECL(function_decl));
 
-    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(function_decl)) == -1)
+    if (sym_table_add_symbol(self->symbols, ir_symbol(function_decl)) == -1)
     {
         return false;
     }
@@ -132,7 +132,7 @@ ir_module_add_function_def(IrModule *self,
     assert(IR_IS_MODULE(self));
     assert(IR_IS_FUNCTION_DEF(function_def));
 
-    if (sym_table_add_symbol(self->symbols, IR_SYMBOL(function_def)) == -1)
+    if (sym_table_add_symbol(self->symbols, ir_symbol(function_def)) == -1)
     {
         return false;
     }
@@ -219,7 +219,7 @@ ir_module_add_const_data(IrModule *self, IrExpression *const_expr)
         return;
     }
 
-    IrLiteral *literal = IR_LITERAL(const_expr);
+    IrLiteral *literal = ir_literal(const_expr);
 
     /* assign data section label if needed */
     if ((label = ir_literal_get_data_label(literal)) == NULL)
@@ -247,7 +247,7 @@ ir_module_add_type_alias(IrModule *self,
     assert(IR_IS_MODULE(self));
     assert(DT_IS_ALIAS(alias));
 
-    return sym_table_add_symbol(self->symbols, IR_SYMBOL(alias)) == 0;
+    return sym_table_add_symbol(self->symbols, ir_symbol(alias)) == 0;
 }
 
 bool
@@ -267,7 +267,7 @@ ir_module_add_enum(IrModule *self,
 
         for (; i != NULL; i = g_slist_next(i))
         {
-            if (sym_table_add_symbol(self->symbols, IR_SYMBOL(i->data)) != 0)
+            if (sym_table_add_symbol(self->symbols, ir_symbol(i->data)) != 0)
             {
                 return false;
             }
@@ -279,7 +279,7 @@ ir_module_add_enum(IrModule *self,
          * non-anonymous enum definition, store it in symbols table
          */
         if (sym_table_add_symbol(self->symbols,
-                                 IR_SYMBOL(dt_enum)) != 0)
+                                 ir_symbol(dt_enum)) != 0)
         {
             return false;
         }
@@ -311,7 +311,7 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct)
      * store struct in symbols table
      */
     if (sym_table_add_symbol(self->symbols,
-                             IR_SYMBOL(ir_struct_get_data_type(ir_struct)))!=0)
+                             ir_symbol(ir_struct_get_data_type(ir_struct)))!=0)
     {
         return false;
     }

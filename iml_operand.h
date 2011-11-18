@@ -19,9 +19,6 @@ typedef enum iml_data_type_e
 
 #define IML_TYPE_OPERAND iml_operand_get_type()
 
-#define IML_OPERAND(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IML_TYPE_OPERAND, ImlOperand))
-
 #define IML_OPERAND_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IML_TYPE_OPERAND, ImlOperandClass))
 
@@ -54,6 +51,9 @@ typedef struct
 
 GType
 iml_operand_get_type(void);
+
+ImlOperand *
+iml_operand(void *obj);
 
 /**
  * Get IML data type of this operand

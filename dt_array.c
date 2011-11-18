@@ -53,6 +53,12 @@ dt_array_get_type(void)
 }
 
 DtArray *
+dt_array(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), DT_TYPE_ARRAY, DtArray);
+}
+
+DtArray *
 dt_array_new(DtDataType *data_type)
 {
     DtArray *obj;
@@ -90,7 +96,7 @@ dt_array_type_get_string(DtDataType *self)
 {
     assert(DT_IS_ARRAY(self));
 
-    DtArray *arry = DT_ARRAY(self);
+    DtArray *arry = dt_array(self);
 
     if (arry->string_of == NULL)
     {
@@ -108,7 +114,7 @@ dt_array_type_get_mangled(DtDataType *self)
 {
     assert(DT_IS_ARRAY(self));
 
-    DtArray *arry = DT_ARRAY(self);
+    DtArray *arry = dt_array(self);
 
     if (arry->mangled_name == NULL)
     {
@@ -134,7 +140,7 @@ dt_array_type_get_init(DtDataType *self)
 {
     assert(DT_IS_ARRAY(self));
 
-    return IR_EXPRESSION(ir_null_new());
+    return ir_expression(ir_null_new());
 }
 
 static bool
@@ -149,8 +155,8 @@ dt_array_is_same(DtDataType *self, DtDataType *type)
     }
 
     return
-        dt_data_type_is_same(dt_array_get_element_type(DT_ARRAY(self)),
-                             dt_array_get_element_type(DT_ARRAY(type)));
+        dt_data_type_is_same(dt_array_get_element_type(dt_array(self)),
+                             dt_array_get_element_type(dt_array(type)));
 
 }
 
@@ -174,16 +180,14 @@ dt_array_is_impl_conv(DtDataType *self, IrExpression *expression)
      * if all array literal's values are implicitly convertable to
      * our element type, then the whole literal is convertable to this type
      */
-    DtDataType *element_type = dt_array_get_element_type(DT_ARRAY(self));
-    GSList *i = ir_array_literal_get_values(IR_ARRAY_LITERAL(expression));
+    DtDataType *element_type = dt_array_get_element_type(dt_array(self));
+    GSList *i = ir_array_literal_get_values(ir_array_literal(expression));
     for (; i != NULL; i = g_slist_next(i))
     {
-        if (!dt_data_type_is_impl_conv(element_type,
-                                       IR_EXPRESSION(i->data)))
+        if (!dt_data_type_is_impl_conv(element_type, ir_expression(i->data)))
         {
             return false;
         }
-
     }
 
     return true;

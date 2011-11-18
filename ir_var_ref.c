@@ -88,7 +88,7 @@ ir_var_ref_get_value_range(IrExpression *self)
     assert(IR_IS_VAR_REF(self));
 
     return
-        ir_expression_get_value_range(IR_EXPRESSION(IR_VAR_REF(self)->var));
+        ir_expression_get_value_range(ir_expression(IR_VAR_REF(self)->var));
 }
 
 static void

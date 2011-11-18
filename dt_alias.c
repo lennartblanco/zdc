@@ -53,7 +53,7 @@ dt_alias_get_name(DtAlias *self)
 {
     assert(DT_IS_ALIAS(self));
 
-    return ir_symbol_get_name(IR_SYMBOL(self));
+    return ir_symbol_get_name(ir_symbol(self));
 }
 
 DtDataType *

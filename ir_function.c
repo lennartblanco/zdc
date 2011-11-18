@@ -78,12 +78,18 @@ ir_function_get_type(void)
     return type;
 }
 
+IrFunction *
+ir_function(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_FUNCTION, IrFunction);
+}
+
 char *
 ir_function_get_name(IrFunction *self)
 {
     assert(IR_IS_FUNCTION(self));
 
-    return ir_symbol_get_name(IR_SYMBOL(self));
+    return ir_symbol_get_name(ir_symbol(self));
 }
 
 char *
@@ -173,7 +179,7 @@ ir_function_do_print(IrNode *self, FILE *out, int indention)
     assert(IR_IS_FUNCTION(self));
     assert(out);
 
-    IrFunction *func = IR_FUNCTION(self);
+    IrFunction *func = ir_function(self);
 
     fprintf_indent(out, indention,
             "function [%p]\n"
@@ -181,7 +187,7 @@ ir_function_do_print(IrNode *self, FILE *out, int indention)
             "  return_type: %s\n"
             "  parameters: ",
             self,
-            ir_symbol_get_name(IR_SYMBOL(func)),
+            ir_symbol_get_name(ir_symbol(func)),
             dt_data_type_get_string(func->return_type));
 
     if (func->parameters)
@@ -237,7 +243,7 @@ ir_function_set_property(GObject *object,
 {
     assert(IR_IS_FUNCTION(object));
 
-    IrFunction *func = IR_FUNCTION(object);
+    IrFunction *func = ir_function(object);
 
     /* we only have one property */
     assert(property_id == IR_FUNCTION_LINKAGE_TYPE);
@@ -268,9 +274,9 @@ get_d_mangled_name(IrFunction *self)
 
     g_string_append(str,
         ir_module_get_mangled_name(
-            ir_symbol_get_parent_module(IR_SYMBOL(self))));
+            ir_symbol_get_parent_module(ir_symbol(self))));
 
-    func_name = ir_function_get_name(IR_FUNCTION(self));
+    func_name = ir_function_get_name(ir_function(self));
     g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);
 
     i = ir_function_get_parameters(self);

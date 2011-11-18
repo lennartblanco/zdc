@@ -45,6 +45,14 @@ ir_is_struct_literal(void *obj)
 }
 
 IrStructLiteral *
+ir_struct_literal(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_STRUCT_LITERAL,
+                                      IrStructLiteral);
+}
+
+IrStructLiteral *
 ir_struct_literal_new(GSList *members)
 {
     IrStructLiteral *obj;

@@ -92,6 +92,12 @@ dt_is_basic(void *obj)
 }
 
 DtBasic *
+dt_basic(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_BASIC, DtBasic);
+}
+
+DtBasic *
 dt_basic_new(basic_data_type_t data_type)
 {
     DtBasic *basic_type;
@@ -234,7 +240,7 @@ dt_basic_get_string(DtDataType *self)
     assert(dt_is_basic(self));
 
     char *str;
-    switch (DT_BASIC(self)->data_type)
+    switch (dt_basic(self)->data_type)
     {
         case int_type:
             str = "int";
@@ -272,7 +278,7 @@ dt_basic_get_size(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
-    switch (DT_BASIC(self)->data_type)
+    switch (dt_basic(self)->data_type)
     {
         case int_type:
         case uint_type:
@@ -296,7 +302,7 @@ dt_basic_get_mangled(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
-    switch (DT_BASIC(self)->data_type)
+    switch (dt_basic(self)->data_type)
     {
         case int_type:
             return "i";
@@ -326,24 +332,24 @@ dt_basic_get_init(DtDataType *self)
 {
     assert(dt_is_basic(self));
 
-    switch (DT_BASIC(self)->data_type)
+    switch (dt_basic(self)->data_type)
     {
         case int_type:
-            return IR_EXPRESSION(ir_basic_constant_new_int(0, 0));
+            return ir_expression(ir_basic_constant_new_int(0, 0));
         case uint_type:
-            return IR_EXPRESSION(ir_basic_constant_new_uint(0, 0));
+            return ir_expression(ir_basic_constant_new_uint(0, 0));
         case short_type:
-            return IR_EXPRESSION(ir_basic_constant_new_short(0));
+            return ir_expression(ir_basic_constant_new_short(0));
         case ushort_type:
-            return IR_EXPRESSION(ir_basic_constant_new_ushort(0));
+            return ir_expression(ir_basic_constant_new_ushort(0));
         case bool_type:
-            return IR_EXPRESSION(ir_basic_constant_new_bool(false, 0));
+            return ir_expression(ir_basic_constant_new_bool(false, 0));
         case char_type:
-            return IR_EXPRESSION(ir_basic_constant_new_char(255, 0));
+            return ir_expression(ir_basic_constant_new_char(255, 0));
         case byte_type:
-            return IR_EXPRESSION(ir_basic_constant_new_byte(0));
+            return ir_expression(ir_basic_constant_new_byte(0));
         case ubyte_type:
-            return IR_EXPRESSION(ir_basic_constant_new_ubyte(0));
+            return ir_expression(ir_basic_constant_new_ubyte(0));
         default:
             assert(false);
     }
@@ -360,8 +366,7 @@ dt_basic_is_same(DtDataType *self, DtDataType *type)
         return false;
     }
 
-    return DT_BASIC(self)->data_type ==
-           DT_BASIC(type)->data_type;
+    return dt_basic(self)->data_type == dt_basic(type)->data_type;
 }
 
 static bool
@@ -387,15 +392,15 @@ dt_basic_is_impl_conv(DtDataType *self, IrExpression *expression)
         return false;
     }
 
-    if (impl_convs[dt_basic_get_data_type(DT_BASIC(self))]
-                  [dt_basic_get_data_type(DT_BASIC(expr_type))])
+    if (impl_convs[dt_basic_get_data_type(dt_basic(self))]
+                  [dt_basic_get_data_type(dt_basic(expr_type))])
     {
         /* a narrow type is converted to wider type */
         return true;
     }
 
     /* check is expression value range fits into target type */
-    UtRange *type_range = dt_basic_get_value_range(DT_BASIC(self));
+    UtRange *type_range = dt_basic_get_value_range(dt_basic(self));
     UtRange *exp_range = ir_expression_get_value_range(expression);
 
     return ut_range_includes(type_range, exp_range);
@@ -421,5 +426,5 @@ dt_basic_is_type(DtDataType *type, basic_data_type_t basic_type)
         return false;
     }
 
-    return dt_basic_get_data_type(DT_BASIC(type)) == basic_type;
+    return dt_basic_get_data_type(dt_basic(type)) == basic_type;
 }

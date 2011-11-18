@@ -61,7 +61,7 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
              i != null && cntr < 4;
              i = i.next(), cntr += 1)
         {
-            ImlVariable *var = cast(ImlVariable*)i.data;
+            ImlVariable *var = iml_variable(i.data);
 
             if (iml_variable_get_data_type(var) == iml_data_type.blob)
             {
@@ -90,10 +90,10 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
          */
         for (cntr = 4; i != null; i = i.next(), cntr += 4)
         {
-            assert(iml_variable_get_data_type(cast(ImlVariable*)i.data) !=
+            assert(iml_variable_get_data_type(iml_variable(i.data)) !=
                    iml_data_type.blob,
                    "blob function parameters not implemented");
-            iml_variable_set_frame_offset(cast(ImlVariable*)i.data, cntr);
+            iml_variable_set_frame_offset(iml_variable(i.data), cntr);
         }
     }
 
@@ -101,7 +101,7 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
     {
         for (auto i = variables; i != null; i = i.next())
         {
-            ImlVariable *var = cast(ImlVariable*)i.data;
+            ImlVariable *var = iml_variable(i.data);
 
             if (iml_variable_get_register(var) == null)
             {
@@ -132,7 +132,7 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
     GSList *funcs = ir_module_get_function_defs(ir_module);
     for (GSList *i = funcs; i != null; i = i.next())
     {
-        compile_function_def(f, cast(IrFunctionDef*)i.data);
+        compile_function_def(f, ir_function_def(i.data));
     }
 }
 
@@ -151,7 +151,7 @@ gen_text_prelude(File asmfile, sym_table *sym_table)
         return;
     }
 
-    IrFunctionDef *main_func = cast(IrFunctionDef*)symb;
+    IrFunctionDef *main_func = ir_function_def(symb);
 
     assert(ir_function_def_get_parameters(main_func) == null,
            "only entry point without arguments implemented");
@@ -164,7 +164,7 @@ gen_text_prelude(File asmfile, sym_table *sym_table)
         dt_basic_is_int(ir_function_def_get_return_type(main_func));
 
     string main_mangled_name =
-        to!string(ir_function_get_mangled_name(cast(IrFunction *) main_func));
+        to!string(ir_function_get_mangled_name(ir_function(main_func)));
     asmfile.writefln(
         "    .align 2\n"
         "    .global main\n"
@@ -191,13 +191,12 @@ compile_function_def(File asmfile, IrFunctionDef *func)
 
     GSList *i;
 
-    mangled_name =
-        to!string(ir_function_get_mangled_name(cast(IrFunction *) func));
+    mangled_name = to!string(ir_function_get_mangled_name(ir_function(func)));
 
     frame_size = iml_func_frame_get_size(frame);
 
     /* generate function return label */
-    parent_module = ir_symbol_get_parent_module(cast(IrSymbol *)func);
+    parent_module = ir_symbol_get_parent_module(ir_symbol(func));
     return_label = to!string(ir_module_gen_label(parent_module));
 
     /* get the list of regs that must be preserved */
@@ -227,7 +226,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
          i != null && cntr < 4;
          i = i.next())
     {
-        ImlVariable *var = cast(ImlVariable*)i.data;
+        ImlVariable *var = iml_variable(i.data);
 
         if (iml_variable_get_data_type(var) == iml_data_type.blob)
         {
@@ -249,7 +248,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
          i != null;
          i = i.next())
     {
-        iml_operation *op = cast(iml_operation *)i.data;
+        iml_operation *op = cast_iml_operation(i.data);
         iml_opcode opcode = iml_operation_get_opcode(op);
 
         /* annotate assembly file with compiled IML operations */
@@ -375,7 +374,7 @@ compile_ret(File asmfile,
             string return_label,
             bool is_last_op)
 {
-    ImlOperand *ret_value = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    ImlOperand *ret_value = iml_operand(iml_operation_get_operand(op, 1));
 
     if (ret_value != null)
     {
@@ -391,15 +390,15 @@ compile_ret(File asmfile,
 private void
 compile_copy(File asmfile, iml_operation *op)
 {
-    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
-    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlOperand *src = iml_operand(iml_operation_get_operand(op, 1));
+    ImlVariable *dest = iml_variable(iml_operation_get_operand(op, 2));
     char *reg = iml_variable_get_register(dest);
 
     void blob_copy()
     {
         assert(iml_is_variable(src),
                 "constant blobs not as source not supported");
-        ImlVariable *src_var = cast(ImlVariable*)src;
+        ImlVariable *src_var = iml_variable(src);
 
         /* both variables should be stored in the function frame */
         assert(iml_variable_get_register(src_var) == null);
@@ -444,10 +443,10 @@ compile_trunc(File asmfile, iml_operation *op)
     assert(iml_is_variable(iml_operation_get_operand(op, 1)));
     assert(iml_is_variable(iml_operation_get_operand(op, 2)));
 
-    ImlVariable *val = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlVariable *val = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
 
-    string val_reg = store_in_reg(asmfile, cast(ImlOperand*)val, TEMP_REG1);
+    string val_reg = store_in_reg(asmfile, iml_operand(val), TEMP_REG1);
 
     string res_reg = to!string(iml_variable_get_register(res));
     if (res_reg == null)
@@ -484,11 +483,11 @@ compile_sigext(File asmfile, iml_operation *op)
     assert(iml_is_variable(iml_operation_get_operand(op, 1)));
     assert(iml_is_variable(iml_operation_get_operand(op, 2)));
 
-    ImlVariable *val = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlVariable *val = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
 
     /* make sure val operand is stored in a register */
-    string val_reg = store_in_reg(asmfile, cast(ImlOperand*)val, TEMP_REG1);
+    string val_reg = store_in_reg(asmfile, iml_operand(val), TEMP_REG1);
 
     /* if result is stored in frame offset, use temporary register */
     string res_reg = to!string(iml_variable_get_register(res));
@@ -630,7 +629,7 @@ load_to_regs(File asmfile,
          */
         force =
           dest_reg == to!string(
-                        iml_variable_get_register(cast(ImlVariable*)left));
+                        iml_variable_get_register(iml_variable(left)));
     }
     left_reg = store_in_reg(asmfile, left, pick_left_reg(), force);
 
@@ -644,21 +643,19 @@ load_to_regs(File asmfile,
             right_exp = pick_right_reg();
             asmfile.writefln("    mov %s, #%s",
                              right_exp,
-                             iml_constant_get_val_32b(
-                                     cast(ImlConstant*)right));
+                             iml_constant_get_val_32b(iml_constant(right)));
         }
         else
         {
             right_exp =
-                "#" ~ to!string(
-                        iml_constant_get_val_32b(cast(ImlConstant*)right));
+                "#" ~ to!string(iml_constant_get_val_32b(iml_constant(right)));
         }
     }
     else
     {
         /* right operand is a variable, make sure it's loaded into register */
         assert(iml_is_variable(right));
-        ImlVariable *var = cast(ImlVariable *)right;
+        ImlVariable *var = iml_variable(right);
         char *reg = iml_variable_get_register(var);
 
         if (reg == null)
@@ -679,9 +676,9 @@ load_to_regs(File asmfile,
 private void
 compile_binop(File asmfile, iml_operation *op)
 {
-    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
-    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    ImlOperand *left = iml_operand(iml_operation_get_operand(op, 1));
+    ImlOperand *right = iml_operand(iml_operation_get_operand(op, 2));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 3));
     string inst;
     string dest_reg;
     string left_reg;
@@ -735,9 +732,9 @@ compile_binop(File asmfile, iml_operation *op)
 private void
 compile_divmod(File asmfile, iml_operation *op)
 {
-    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
-    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    ImlOperand *left = iml_operand(iml_operation_get_operand(op, 1));
+    ImlOperand *right = iml_operand(iml_operation_get_operand(op, 2));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 3));
 
     string func;
     string res_reg;
@@ -776,11 +773,11 @@ compile_divmod(File asmfile, iml_operation *op)
 private void
 compile_neg(File asmfile, iml_operation *op)
 {
-    ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlVariable *src = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
     string res_reg_name;
 
-    string src_reg = store_in_reg(asmfile, cast(ImlOperand*)src, TEMP_REG1);
+    string src_reg = store_in_reg(asmfile, iml_operand(src), TEMP_REG1);
 
     char *reg = iml_variable_get_register(res);
     if (reg != null)
@@ -790,7 +787,7 @@ compile_neg(File asmfile, iml_operation *op)
     else
     {
         res_reg_name =
-            gen_move_to_reg(asmfile, TEMP_REG2, cast(ImlOperand*)res);
+            gen_move_to_reg(asmfile, TEMP_REG2, iml_operand(res));
     }
 
     switch (iml_operation_get_opcode(op))
@@ -816,11 +813,11 @@ compile_bconv(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.bconv);
 
-    ImlOperand *val = cast(ImlOperand *)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlOperand *val = iml_operand(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
 
     string val_reg = store_in_reg(asmfile, val, TEMP_REG1);
-    string res_reg = store_in_reg(asmfile, cast(ImlOperand *)res, TEMP_REG2);
+    string res_reg = store_in_reg(asmfile, iml_operand(res), TEMP_REG2);
 
     asmfile.writefln("    cmp %s, #0\n"
                      "    moveq %s, #0\n"
@@ -837,9 +834,9 @@ compile_bconv(File asmfile, iml_operation *op)
 private void
 compile_icmp(File asmfile, iml_operation *op)
 {
-    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
-    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    ImlOperand *left = iml_operand(iml_operation_get_operand(op, 1));
+    ImlOperand *right = iml_operand(iml_operation_get_operand(op, 2));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 3));
     string dest_reg;
     string left_reg;
     string right_exp;
@@ -918,8 +915,8 @@ compile_icmp(File asmfile, iml_operation *op)
 private void
 compile_jmpcond(File asmfile, iml_operation *op)
 {
-    ImlOperand *left = cast(ImlOperand*)iml_operation_get_operand(op, 1);
-    ImlOperand *right = cast(ImlOperand*)iml_operation_get_operand(op, 2);
+    ImlOperand *left = iml_operand(iml_operation_get_operand(op, 1));
+    ImlOperand *right = iml_operand(iml_operation_get_operand(op, 2));
     string label = to!string(cast(char*)iml_operation_get_operand(op, 3));
 
     string left_reg = store_in_reg(asmfile, left, TEMP_REG1);
@@ -928,7 +925,7 @@ compile_jmpcond(File asmfile, iml_operation *op)
     if (iml_is_constant(right))
     {
         right_exp =
-            "#" ~ to!string(iml_constant_get_val_32b(cast(ImlConstant*)right));
+            "#" ~ to!string(iml_constant_get_val_32b(iml_constant(right)));
     }
     else
     {
@@ -964,9 +961,9 @@ private void
 compile_set(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.set);
-    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
-    ImlOperand *dest = cast(ImlOperand *)iml_operation_get_operand(op, 2);
-    ImlOperand *offset = cast(ImlOperand *)iml_operation_get_operand(op, 3);
+    ImlOperand *src = iml_operand(iml_operation_get_operand(op, 1));
+    ImlOperand *dest = iml_operand(iml_operation_get_operand(op, 2));
+    ImlOperand *offset = iml_operand(iml_operation_get_operand(op, 3));
 
     /* make sure source operand is placed in a register */
     string src_reg = store_in_reg(asmfile, src, TEMP_REG1);
@@ -989,11 +986,11 @@ compile_get(File asmfile, iml_operation *op)
     /* make sure address value is stored in the register */
     string addr_reg =
         store_in_reg(asmfile,
-                     cast(ImlOperand *)iml_operation_get_operand(op, 1),
+                     iml_operand(iml_operation_get_operand(op, 1)),
                      TEMP_REG1);
 
     /* figure out the register where to load the value */
-    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
+    ImlVariable *dest = iml_variable(iml_operation_get_operand(op, 3));
 
     string dest_reg = to!string(iml_variable_get_register(dest));
     if (dest_reg == null)
@@ -1001,9 +998,9 @@ compile_get(File asmfile, iml_operation *op)
         dest_reg = TEMP_REG2;
     }
 
-    ImlOperand *offset = cast(ImlOperand *)iml_operation_get_operand(op, 2);
+    ImlOperand *offset = iml_operand(iml_operation_get_operand(op, 2));
     asmfile.writefln("    ldr%s %s, [%s%s]",
-                     access_operation_suffix(cast(ImlOperand*)dest),
+                     access_operation_suffix(iml_operand(dest)),
                      dest_reg,
                      addr_reg,
                      get_offset_expression(offset));
@@ -1020,9 +1017,9 @@ compile_setelm(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.setelm);
 
-    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
-    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 2);
-    ImlOperand *index = cast(ImlOperand *)iml_operation_get_operand(op, 3);
+    ImlOperand *src = iml_operand(iml_operation_get_operand(op, 1));
+    ImlVariable *dest = iml_variable(iml_operation_get_operand(op, 2));
+    ImlOperand *index = iml_operand(iml_operation_get_operand(op, 3));
     uint size = cast(uint)iml_operation_get_operand(op, 4);
 
     string addr_exp =
@@ -1042,10 +1039,10 @@ compile_getelm(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.getelm);
 
-    ImlVariable *src = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    ImlOperand *index = cast(ImlOperand *)iml_operation_get_operand(op, 2);
+    ImlVariable *src = iml_variable(iml_operation_get_operand(op, 1));
+    ImlOperand *index = iml_operand(iml_operation_get_operand(op, 2));
     uint size = cast(uint)iml_operation_get_operand(op, 3);
-    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 4);
+    ImlVariable *dest = iml_variable(iml_operation_get_operand(op, 4));
 
     string addr_exp =
         get_addr_exp(asmfile, src, index, size, TEMP_REG1, TEMP_REG2);
@@ -1061,7 +1058,7 @@ compile_getelm(File asmfile, iml_operation *op)
         reg = TEMP_REG1;
     }
     asmfile.writefln("    ldr%s %s, [%s]",
-                     access_operation_suffix(cast(ImlOperand*)dest),
+                     access_operation_suffix(iml_operand(dest)),
                      reg,
                      addr_exp);
     if (dest_reg == null)
@@ -1075,8 +1072,8 @@ compile_getaddr(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.getaddr);
 
-    ImlVariable *var = cast(ImlVariable *)iml_operation_get_operand(op, 1);
-    ImlVariable *addr = cast(ImlVariable *)iml_operation_get_operand(op, 2);
+    ImlVariable *var = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *addr = iml_variable(iml_operation_get_operand(op, 2));
 
     assert(iml_variable_is_mem_pinned(var));
     assert(iml_variable_get_data_type(addr) == iml_data_type.ptr);
@@ -1097,12 +1094,12 @@ compile_call(File asmfile, iml_operation *op)
 {
     string func_name = to!string(cast(char*)iml_operation_get_operand(op, 1));
     GSList *args = cast(GSList *)iml_operation_get_operand(op, 2);
-    ImlVariable *ret = cast(ImlVariable*)iml_operation_get_operand(op, 3);
+    ImlVariable *ret = iml_variable(iml_operation_get_operand(op, 3));
 
     GSList *i = args;
     for (uint cntr = 0; i != null && cntr < 4; i = i.next())
     {
-        ImlOperand *oper = cast(ImlOperand*)i.data;
+        ImlOperand *oper = iml_operand(i.data);
 
         if (iml_operand_get_data_type(oper) == iml_data_type.blob)
         {
@@ -1112,7 +1109,7 @@ compile_call(File asmfile, iml_operation *op)
 
             /* only blob variable arguments expected */
             assert(iml_is_variable(oper));
-            ImlVariable *var = cast(ImlVariable*)oper;
+            ImlVariable *var = iml_variable(oper);
 
             asmfile.writefln("    add ip, fp, #%s\n"
                              "    ldmia ip, {%s}",
@@ -1133,7 +1130,7 @@ compile_call(File asmfile, iml_operation *op)
     {
         asmfile.writefln("    push {%s}",
                          store_in_reg(asmfile,
-                                      cast(ImlOperand*)i.data,
+                                      iml_operand(i.data),
                                       TEMP_REG1));
         args_stack_size += 4;
     }
@@ -1159,9 +1156,9 @@ compile_mset(File asmfile, iml_operation *op)
 {
     assert(iml_operation_get_opcode(op) == iml_opcode.mset);
 
-    ImlOperand *src = cast(ImlOperand *)iml_operation_get_operand(op, 1);
+    ImlOperand *src = iml_operand(iml_operation_get_operand(op, 1));
     uint num = cast(uint)iml_operation_get_operand(op, 2);
-    ImlVariable *dest = cast(ImlVariable *)iml_operation_get_operand(op, 3);
+    ImlVariable *dest = iml_variable(iml_operation_get_operand(op, 3));
 
     assert(iml_variable_get_data_type(dest) == iml_data_type.blob,
            "only mset to blob variables implemented");

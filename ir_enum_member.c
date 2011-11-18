@@ -46,6 +46,14 @@ ir_enum_member_get_type(void)
 }
 
 IrEnumMember *
+ir_enum_member(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_ENUM_MEMBER,
+                                      IrEnumMember);
+}
+
+IrEnumMember *
 ir_enum_member_new(DtEnum *enum_type, gchar *name, IrExpression *value)
 {
     IrEnumMember *obj;
@@ -93,7 +101,7 @@ static DtDataType *
 ir_enum_member_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ENUM_MEMBER(self));
-    IrEnumMember *enum_member = IR_ENUM_MEMBER(self);
+    IrEnumMember *enum_member = ir_enum_member(self);
 
     if (dt_enum_is_anonymous(enum_member->enum_type))
     {
@@ -109,7 +117,7 @@ ir_enum_member_do_print(IrNode *self, FILE *out, int indention)
     assert(IR_IS_ENUM_MEMBER(self));
     assert(out);
 
-    IrEnumMember *em = IR_ENUM_MEMBER(self);
+    IrEnumMember *em = ir_enum_member(self);
 
     fprintf_indent(out, indention,
                    "enum member\n"

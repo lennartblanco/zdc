@@ -53,6 +53,12 @@ ir_expression_get_type(void)
     return type;
 }
 
+IrExpression *
+ir_expression(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_EXPRESSION, IrExpression);
+}
+
 DtDataType *
 ir_expression_get_data_type(IrExpression *self)
 {

@@ -55,10 +55,8 @@ x86_compile_bconv(FILE *output, iml_operation *op)
     assert(iml_operation_get_opcode(op) == iml_opcode.bconv);
 
     File asmfile = File.wrapFile(output);
-    ImlVariable *val = cast(ImlVariable*)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 2);
-    assert(iml_is_variable(val));
-    assert(iml_is_variable(res));
+    ImlVariable *val = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
 
     string val_exp = get_variable_asm_expression(val);
     string res_exp = get_variable_asm_expression(res);
@@ -76,11 +74,8 @@ x86_compile_trunc(FILE *output, iml_operation *op)
     assert(iml_operation_get_opcode(op) == iml_opcode.trunc);
 
     File asmfile = File.wrapFile(output);
-    ImlVariable *val = cast(ImlVariable*)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 2);
-
-    assert(iml_is_variable(val));
-    assert(iml_is_variable(res));
+    ImlVariable *val = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
 
     string val_exp = get_variable_asm_expression(val);
     string res_reg = to!string(iml_variable_get_register(res));
@@ -158,10 +153,8 @@ x86_compile_sigext(FILE *output, iml_operation *op)
     assert(iml_operation_get_opcode(op) == iml_opcode.sigext);
 
     File asmfile = File.wrapFile(output);
-    ImlVariable *val = cast(ImlVariable*)iml_operation_get_operand(op, 1);
-    ImlVariable *res = cast(ImlVariable*)iml_operation_get_operand(op, 2);
-    assert(iml_is_variable(val));
-    assert(iml_is_variable(res));
+    ImlVariable *val = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 2));
 
     string val_suffix;
     switch (iml_variable_get_data_type(val))
@@ -204,7 +197,7 @@ x86_compile_sigext(FILE *output, iml_operation *op)
              * value registers low bits not accessable,
              * use temp register instead
              */
-            x86_move_to_reg(output, TEMP_REG1, cast(ImlOperand *)val);
+            x86_move_to_reg(output, TEMP_REG1, iml_operand(val));
             reg = val_suffix == "b" ? TEMP_REG1_BYTE : TEMP_REG1_WORD;
         }
         val_exp = "%" ~ reg;

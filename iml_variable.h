@@ -13,9 +13,6 @@
 
 #define IML_TYPE_VARIABLE iml_variable_get_type()
 
-#define IML_VARIABLE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IML_TYPE_VARIABLE, ImlVariable))
-
 #define IML_VARIABLE_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IML_TYPE_VARIABLE, ImlVariableClass))
 
@@ -67,6 +64,9 @@ iml_variable_get_type(void);
 
 bool
 iml_is_variable(void *obj);
+
+ImlVariable *
+iml_variable(void *obj);
 
 /**
  * @param name variable name to use when pretty printing,

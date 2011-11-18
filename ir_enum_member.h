@@ -11,9 +11,6 @@
 
 #define IR_TYPE_ENUM_MEMBER ir_enum_member_get_type()
 
-#define IR_ENUM_MEMBER(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_ENUM_MEMBER, IrEnumMember))
-
 #define IR_ENUM_MEMBER_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_ENUM_MEMBER, IrEnumMemberClass))
 
@@ -48,6 +45,9 @@ typedef struct
 
 GType
 ir_enum_member_get_type(void);
+
+IrEnumMember *
+ir_enum_member(void *obj);
 
 IrEnumMember *
 ir_enum_member_new(DtEnum *enum_type, gchar *name, IrExpression *value);

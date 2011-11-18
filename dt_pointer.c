@@ -124,7 +124,7 @@ dt_pointer_get_init(DtDataType *self)
 {
     assert(DT_IS_POINTER(self));
 
-    return IR_EXPRESSION(ir_null_new());
+    return ir_expression(ir_null_new());
 }
 
 static bool

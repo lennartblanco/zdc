@@ -9,9 +9,6 @@
 
 #define DT_TYPE_ARRAY dt_array_get_type()
 
-#define DT_ARRAY(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_ARRAY, DtArray))
-
 #define DT_ARRAY_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_ARRAY, DtArrayClass))
 
@@ -44,6 +41,9 @@ typedef struct
 
 GType
 dt_array_get_type(void);
+
+DtArray *
+dt_array(void *obj);
 
 DtArray *
 dt_array_new(DtDataType *data_type);

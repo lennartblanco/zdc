@@ -120,8 +120,8 @@ ir_array_cell_do_get_data_type(IrExpression *self)
         DtArray *array_data_type;
 
         array_data_type =
-            DT_ARRAY(
-                ir_expression_get_data_type(IR_EXPRESSION(cell->array)));
+            dt_array(
+                ir_expression_get_data_type(ir_expression(cell->array)));
         cell->data_type = dt_array_get_element_type(array_data_type);
     }
 

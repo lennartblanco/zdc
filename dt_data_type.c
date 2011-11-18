@@ -135,7 +135,7 @@ dt_data_type_is_impl_conv(DtDataType *self, IrExpression *expression)
     }
     else if (dt_is_enum(expr_type) &&
              dt_data_type_is_same(self,
-                                  dt_enum_get_base_type(DT_ENUM(expr_type))))
+                                  dt_enum_get_base_type(dt_enum(expr_type))))
     {
         /* enum type are implicitly convertible to it's base type */
         return true;

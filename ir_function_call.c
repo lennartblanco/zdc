@@ -129,7 +129,7 @@ ir_function_call_get_value_range(IrExpression *self)
 
     IrFunctionCall *fcall = IR_FUNCTION_CALL(self);
 
-    return dt_basic_get_value_range(DT_BASIC(fcall->return_type));
+    return dt_basic_get_value_range(dt_basic(fcall->return_type));
 }
 
 static void

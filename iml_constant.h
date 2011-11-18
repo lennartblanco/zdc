@@ -9,9 +9,6 @@
 
 #define IML_TYPE_CONSTANT iml_constant_get_type()
 
-#define IML_CONSTANT(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IML_TYPE_CONSTANT, ImlConstant))
-
 #define IML_CONSTANT_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IML_TYPE_CONSTANT, ImlConstantClass))
 
@@ -49,6 +46,9 @@ iml_constant_get_type(void);
 
 bool
 iml_is_constant(void *obj);
+
+ImlConstant *
+iml_constant(void *obj);
 
 ImlConstant *
 iml_constant_new_8b(guint8 val);

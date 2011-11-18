@@ -15,9 +15,6 @@
 
 #define IR_TYPE_EXPRESSION ir_expression_get_type()
 
-#define IR_EXPRESSION(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_EXPRESSION, IrExpression))
-
 #define IR_EXPRESSION_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_EXPRESSION, IrExpressionClass))
 
@@ -52,6 +49,9 @@ typedef struct
 
 GType
 ir_expression_get_type(void);
+
+IrExpression *
+ir_expression(void *obj);
 
 DtDataType *
 ir_expression_get_data_type(IrExpression *self);

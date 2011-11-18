@@ -65,6 +65,9 @@ typedef struct iml_operation_s iml_operation_t;
  *---------------------------------------------------------------------------*/
 
 iml_operation_t *
+cast_iml_operation(void *obj);
+
+iml_operation_t *
 iml_operation_new(iml_opcode_t operation, ...);
 
 /**

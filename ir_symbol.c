@@ -70,6 +70,12 @@ ir_symbol_get_type(void)
     return type;
 }
 
+IrSymbol *
+ir_symbol(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_SYMBOL, IrSymbol);
+}
+
 char *
 ir_symbol_get_name(IrSymbol *self)
 {
@@ -122,7 +128,7 @@ ir_symbol_set_property(GObject *object,
                        const GValue *value,
                        GParamSpec *pspec)
 {
-    IrSymbol *sym = IR_SYMBOL(object);
+    IrSymbol *sym = ir_symbol(object);
 
     switch (property_id)
     {
@@ -196,5 +202,5 @@ static void
 ir_symbol_do_print(IrNode *self, FILE *out, int indention)
 {
     fprintf_indent(out, indention, "symbol [%p] name: '%s'\n",
-                   self, IR_SYMBOL(self)->name);
+                   self, ir_symbol(self)->name);
 }

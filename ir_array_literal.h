@@ -10,9 +10,6 @@
 
 #define IR_TYPE_ARRAY_LITERAL ir_array_literal_get_type()
 
-#define IR_ARRAY_LITERAL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_ARRAY_LITERAL, IrArrayLiteral))
-
 #define IR_ARRAY_LITERAL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_ARRAY_LITERAL, IrArrayLiteralClass))
 
@@ -46,6 +43,9 @@ ir_array_literal_get_type(void);
 
 bool
 ir_is_array_literal(void *obj);
+
+IrArrayLiteral *
+ir_array_literal(void *obj);
 
 IrArrayLiteral *
 ir_array_literal_new(guint line_number);

@@ -46,6 +46,12 @@ dt_is_enum(void *obj)
 }
 
 DtEnum *
+dt_enum(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), DT_TYPE_ENUM, DtEnum);
+}
+
+DtEnum *
 dt_enum_new(gchar *name,
             DtDataType *base_type,
             IrModule *parent_module,
@@ -72,7 +78,7 @@ dt_enum_get_tag(DtEnum *self)
 {
     assert(dt_is_enum(self));
 
-    return ir_symbol_get_name(IR_SYMBOL(self));
+    return ir_symbol_get_name(ir_symbol(self));
 }
 
 bool
@@ -151,19 +157,19 @@ static guint
 dt_enum_get_size(DtDataType *self)
 {
     assert(dt_is_enum(self));
-    assert(DT_IS_DATA_TYPE(DT_ENUM(self)->base_type));
+    assert(DT_IS_DATA_TYPE(dt_enum(self)->base_type));
 
-    return dt_data_type_get_size(DT_ENUM(self)->base_type);
+    return dt_data_type_get_size(dt_enum(self)->base_type);
 }
 
 static IrExpression *
 dt_enum_get_init(DtDataType *self)
 {
     assert(dt_is_enum(self));
-    assert(IR_IS_EXPRESSION(DT_ENUM(self)->members->data));
+    assert(IR_IS_EXPRESSION(dt_enum(self)->members->data));
 
     /* init expression is first member */
-    return IR_EXPRESSION(DT_ENUM(self)->members->data);
+    return ir_expression(dt_enum(self)->members->data);
 }
 
 static bool

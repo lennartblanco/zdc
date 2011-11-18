@@ -9,9 +9,6 @@
 
 #define IR_TYPE_STRUCT_LITERAL ir_struct_literal_get_type()
 
-#define IR_STRUCT_LITERAL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_STRUCT_LITERAL, IrStructLiteral))
-
 #define IR_STRUCT_LITERAL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_STRUCT_LITERAL, IrStructLiteralClass))
 
@@ -43,6 +40,9 @@ ir_struct_literal_get_type(void);
 
 bool
 ir_is_struct_literal(void *obj);
+
+IrStructLiteral *
+ir_struct_literal(void *obj);
 
 IrStructLiteral *
 ir_struct_literal_new(GSList *members);

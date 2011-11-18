@@ -60,6 +60,14 @@ ir_function_def_get_type(void)
 }
 
 IrFunctionDef *
+ir_function_def(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_FUNCTION_DEF,
+                                      IrFunctionDef);
+}
+
+IrFunctionDef *
 ir_function_def_new(DtDataType *return_type,
                     char *name,
                     GSList *parameters,
@@ -84,8 +92,8 @@ ir_function_def_new(DtDataType *return_type,
     obj->frame = iml_func_frame_new();
     obj->operations = NULL;
     
-    ir_function_set_return_type(IR_FUNCTION(obj), return_type);
-    ir_function_set_parameters(IR_FUNCTION(obj), parameters);
+    ir_function_set_return_type(ir_function(obj), return_type);
+    ir_function_set_parameters(ir_function(obj), parameters);
 
     /*
      * set-up the symbol table containing function's parameters
@@ -98,7 +106,7 @@ ir_function_def_new(DtDataType *return_type,
         if (ir_variable_get_name(IR_VARIABLE(p->data)) != NULL)
         {
           /* add it to function's symbol table */
-          sym_table_add_symbol(obj->param_symbols, IR_SYMBOL(p->data));
+          sym_table_add_symbol(obj->param_symbols, ir_symbol(p->data));
         }
     }
 
@@ -112,7 +120,7 @@ ir_function_def_get_name(IrFunctionDef *self)
 {
     assert(IR_IS_FUNCTION_DEF(self));
 
-    return ir_function_get_name(IR_FUNCTION(self));
+    return ir_function_get_name(ir_function(self));
 }
 
 GSList *
@@ -120,7 +128,7 @@ ir_function_def_get_parameters(IrFunctionDef *self)
 {
     assert(IR_IS_FUNCTION_DEF(self));
 
-    return ir_function_get_parameters(IR_FUNCTION(self));
+    return ir_function_get_parameters(ir_function(self));
 }
 
 void
@@ -129,7 +137,7 @@ ir_function_def_set_return_type(IrFunctionDef *self, DtDataType *type)
     assert(IR_IS_FUNCTION_DEF(self));
     assert(DT_IS_DATA_TYPE(type));
 
-    ir_function_set_return_type(IR_FUNCTION(self), type);
+    ir_function_set_return_type(ir_function(self), type);
 }
 
 DtDataType *
@@ -137,7 +145,7 @@ ir_function_def_get_return_type(IrFunctionDef *self)
 {
     assert(IR_IS_FUNCTION_DEF(self));
 
-    return ir_function_get_return_type(IR_FUNCTION(self));
+    return ir_function_get_return_type(ir_function(self));
 }
 
 sym_table_t *
@@ -200,9 +208,9 @@ ir_function_def_do_print(IrNode *self, FILE *out, int indention)
     IrFunctionDef *func;
     GSList *i;
 
-    ir_function_print(IR_FUNCTION(self), out, indention);
+    ir_function_print(ir_function(self), out, indention);
 
-    func = IR_FUNCTION_DEF(self);
+    func = ir_function_def(self);
 
     fprintf_indent(out, indention + 2, "frame:\n");
     iml_func_frame_print(func->frame, out, indention + 2);

@@ -71,7 +71,7 @@ ir_struct_get_name(IrStruct *self)
 {
     assert(IR_IS_STRUCT(self));
 
-    return ir_symbol_get_name(IR_SYMBOL(self));
+    return ir_symbol_get_name(ir_symbol(self));
 }
 
 DtStruct *
@@ -79,7 +79,7 @@ ir_struct_get_data_type(IrStruct *self)
 {
     assert(IR_IS_STRUCT(self));
 
-    return DT_STRUCT(ir_expression_get_data_type(IR_EXPRESSION(self)));
+    return DT_STRUCT(ir_expression_get_data_type(ir_expression(self)));
 }
 
 /*---------------------------------------------------------------------------*

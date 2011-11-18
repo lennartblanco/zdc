@@ -10,9 +10,6 @@
 
 #define DT_TYPE_ENUM dt_enum_get_type()
 
-#define DT_ENUM(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), DT_TYPE_ENUM, DtEnum))
-
 #define DT_ENUM_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_ENUM, DtEnumClass))
 
@@ -45,6 +42,9 @@ dt_enum_get_type(void);
 
 bool
 dt_is_enum(void *obj);
+
+DtEnum *
+dt_enum(void *obj);
 
 DtEnum *
 dt_enum_new(gchar *name,

@@ -60,7 +60,7 @@ dt_static_array_new(DtDataType *data_type, guint32 length, guint line_number)
     obj = g_object_new(DT_TYPE_STATIC_ARRAY,
                        "ir-node-line-number", line_number,
                        NULL);
-    DT_ARRAY(obj)->data_type = data_type;
+    dt_array(obj)->data_type = data_type;
     obj->length = length;
     obj->string_of = NULL;
     obj->mangled_name = NULL;
@@ -73,7 +73,7 @@ dt_static_array_get_data_type(DtStaticArray *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_array_get_element_type(DT_ARRAY(self));
+    return dt_array_get_element_type(dt_array(self));
 }
 
 guint32
@@ -112,7 +112,7 @@ dt_static_array_type_get_size(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_data_type_get_size(DT_ARRAY(self)->data_type) *
+    return dt_data_type_get_size(dt_array(self)->data_type) *
                                         DT_STATIC_ARRAY(self)->length;
 }
 
@@ -144,7 +144,7 @@ dt_static_array_type_get_init(DtDataType *self)
 {
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
 
-    return dt_data_type_get_init(DT_ARRAY(self)->data_type);
+    return dt_data_type_get_init(dt_array(self)->data_type);
 }
 
 static void

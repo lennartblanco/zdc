@@ -33,6 +33,12 @@ ir_literal_get_type(void)
     return type;
 }
 
+IrLiteral *
+ir_literal(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_LITERAL, IrLiteral);
+}
+
 void
 ir_literal_set_data_label(IrLiteral *self, char *label)
 {

@@ -230,9 +230,9 @@ validate_function_call(compilation_status_t *compile_status,
     /* store linkage attribute type of the callee */
     ir_function_call_set_linkage(func_call,
                                  ir_function_get_linkage(
-                                     IR_FUNCTION(func_symb)));
+                                     ir_function(func_symb)));
 
-    formal_args = ir_function_get_parameters(IR_FUNCTION(func_symb));
+    formal_args = ir_function_get_parameters(ir_function(func_symb));
     func_call_args = ir_function_call_get_arguments(func_call);
 
     /*
@@ -266,7 +266,7 @@ validate_function_call(compilation_status_t *compile_status,
         /* validate expression */
         arg_exp = validate_expression(compile_status,
                                       sym_table,
-                                      IR_EXPRESSION(i->data));
+                                      ir_expression(i->data));
         if (arg_exp == NULL)
         {
             /* invalid argument expression, bail out */
@@ -303,7 +303,7 @@ validate_function_call(compilation_status_t *compile_status,
                 return NULL;
             }
             exp =
-                IR_EXPRESSION(
+                ir_expression(
                     ir_address_of_new(exp, ir_node_get_line_num(exp)));
         }
 
@@ -315,10 +315,10 @@ validate_function_call(compilation_status_t *compile_status,
     ir_function_call_set_arguments(func_call, g_slist_reverse(validated_args));
 
     /* store function call data type */
-    func_return_type = ir_function_get_return_type(IR_FUNCTION(func_symb));
+    func_return_type = ir_function_get_return_type(ir_function(func_symb));
     ir_function_call_set_return_type(func_call, func_return_type);
 
-    return IR_EXPRESSION(func_call);
+    return ir_expression(func_call);
 }
 
 /**
@@ -358,10 +358,10 @@ validate_pointer_arithm(compilation_status_t *compile_status,
     if (op == ast_plus_op)
     {
         right =
-            IR_EXPRESSION(
+            ir_expression(
                 ir_binary_operation_new(ast_mult_op,
                                         right,
-                                        IR_EXPRESSION(base_type_size),
+                                        ir_expression(base_type_size),
                                         0));
         right =
             validate_bin_arithm(compile_status,
@@ -375,18 +375,18 @@ validate_pointer_arithm(compilation_status_t *compile_status,
         if (DT_IS_POINTER(right_type))
         {
             left =
-                IR_EXPRESSION(
+                ir_expression(
                     ir_binary_operation_new(ast_minus_op, left, right, 0));
-            right = IR_EXPRESSION(base_type_size);
+            right = ir_expression(base_type_size);
             bin_op = ir_binary_operation_new(ast_division_op, left, right, 0);
         }
         else
         {
             right =
-                IR_EXPRESSION(
+                ir_expression(
                     ir_binary_operation_new(ast_mult_op,
                                             right,
-                                            IR_EXPRESSION(base_type_size),
+                                            ir_expression(base_type_size),
                                             0));
             right =
                 validate_bin_arithm(compile_status,
@@ -607,7 +607,7 @@ validate_ind_dec_ops(compilation_status_t *compile_status,
 
     if (dt_is_basic(exp_type))
     {
-        switch (dt_basic_get_data_type(DT_BASIC(exp_type)))
+        switch (dt_basic_get_data_type(dt_basic(exp_type)))
         {
             case char_type:
             case int_type:
@@ -686,7 +686,7 @@ validate_unary_op(compilation_status_t *compile_status,
     }
 
     ir_unary_operation_set_operand(operation, exp);
-    return IR_EXPRESSION(operation);
+    return ir_expression(operation);
 }
 
 static IrExpression *
@@ -702,7 +702,7 @@ validate_array_cell(compilation_status_t *compile_status,
     /*
      * check that referenced symbol is an array variable
      */
-    symb_type = ir_expression_get_data_type(IR_EXPRESSION(array_symb));
+    symb_type = ir_expression_get_data_type(ir_expression(array_symb));
     if (!DT_IS_ARRAY(symb_type))
     {
         compile_error(compile_status,
@@ -740,7 +740,7 @@ validate_array_cell(compilation_status_t *compile_status,
 
     ir_array_cell_set_index(cell, idx_exp);
 
-    return IR_EXPRESSION(cell);
+    return ir_expression(cell);
 }
 
 static IrExpression *
@@ -771,7 +771,7 @@ validate_sizeof_property(compilation_status_t *compile_status,
     size_exp = ir_basic_constant_new_uint(dt_data_type_get_size(exp_type),
                                           ir_node_get_line_num(prop));
 
-    return IR_EXPRESSION(size_exp);
+    return ir_expression(size_exp);
 }
 
 static IrExpression *
@@ -809,17 +809,17 @@ validate_length_property(compilation_status_t *compile_status,
 
     if (IR_IS_ENUM_MEMBER(exp))
     {
-      exp = ir_enum_member_get_value(IR_ENUM_MEMBER(exp));
+      exp = ir_enum_member_get_value(ir_enum_member(exp));
     }
 
     if (ir_is_array_literal(exp))
     {
         guint32 length;
 
-        length = ir_array_literal_get_length(IR_ARRAY_LITERAL(exp));
+        length = ir_array_literal_get_length(ir_array_literal(exp));
 
         return
-            IR_EXPRESSION(
+            ir_expression(
                 ir_basic_constant_new_int(length,
                                           ir_node_get_line_num(prop)));
     }
@@ -831,14 +831,14 @@ validate_length_property(compilation_status_t *compile_status,
             dt_static_array_get_length(DT_STATIC_ARRAY(exp_type));
 
         return
-            IR_EXPRESSION(
+            ir_expression(
                 ir_basic_constant_new_int(length,
                                           ir_node_get_line_num(prop)));
     }
     else if (DT_IS_ARRAY(exp_type))
     {
         /* run-time expression */
-        return IR_EXPRESSION(prop);
+        return ir_expression(prop);
     }
     else
     {
@@ -924,7 +924,7 @@ validate_dot_property(compilation_status_t *compile_status,
                       ir_ident_get_name(IR_IDENT(right)));
         return NULL;
     }
-    return IR_EXPRESSION(prop);
+    return ir_expression(prop);
 }
 
 static IrExpression *
@@ -951,7 +951,7 @@ validate_dot_var_value(compilation_status_t *compile_status,
         if (mbr != NULL)
         {
             ir_struct_member_set_base(mbr, left);
-            return IR_EXPRESSION(mbr);
+            return ir_expression(mbr);
         }
     }
     else if (DT_IS_POINTER(type) &&
@@ -966,7 +966,7 @@ validate_dot_var_value(compilation_status_t *compile_status,
         if (mbr != NULL)
         {
             ir_struct_member_set_base(mbr, left);
-            return IR_EXPRESSION(mbr);
+            return ir_expression(mbr);
         }
     }
 
@@ -993,7 +993,7 @@ validate_dot(compilation_status_t *compile_status,
     {
         IrEnumMember *mbr;
 
-        mbr = dt_enum_get_member(DT_ENUM(left),
+        mbr = dt_enum_get_member(dt_enum(left),
                                  ir_ident_get_name(IR_IDENT(right)));
         if (mbr == NULL)
         {
@@ -1004,7 +1004,7 @@ validate_dot(compilation_status_t *compile_status,
         }
         else
         {
-            res = IR_EXPRESSION(mbr);
+            res = ir_expression(mbr);
         }
     }
     else if (IR_IS_VAR_VALUE(left))
@@ -1052,7 +1052,7 @@ validate_ptr_dref(compilation_status_t *compile_status,
         return NULL;
     }
 
-    return IR_EXPRESSION(ptr_dref);
+    return ir_expression(ptr_dref);
 }
 
 static IrExpression *
@@ -1084,7 +1084,7 @@ validate_address_of(compilation_status_t *compile_status,
         return NULL;
     }
 
-    return IR_EXPRESSION(address_of);
+    return ir_expression(address_of);
 }
 
 
@@ -1152,12 +1152,12 @@ validate_conditional(compilation_status_t *compile_status,
      */
     if (!dt_data_type_is_same(common, true_type))
     {
-        true_exp = IR_EXPRESSION(ir_cast_new(common, true_exp));
+        true_exp = ir_expression(ir_cast_new(common, true_exp));
     }
 
     if (!dt_data_type_is_same(common, false_type))
     {
-        false_exp = IR_EXPRESSION(ir_cast_new(common, false_exp));
+        false_exp = ir_expression(ir_cast_new(common, false_exp));
     }
 
 
@@ -1212,7 +1212,7 @@ validate_expression(compilation_status_t *compile_status,
         expression =
             validate_array_literal(compile_status,
                                    sym_table,
-                                   IR_ARRAY_LITERAL(expression));
+                                   ir_array_literal(expression));
     }
     else if (IR_IS_ARRAY_SLICE(expression))
     {
@@ -1268,7 +1268,7 @@ validate_return(compilation_status_t *compile_status,
 
     ret_exp = ir_return_get_return_value(ret);
     func_return_type =
-        ir_function_get_return_type(IR_FUNCTION(compile_status->function));
+        ir_function_get_return_type(ir_function(compile_status->function));
 
     if (ret_exp != NULL)
     {
@@ -1371,7 +1371,7 @@ validate_assignment(compilation_status_t *compile_status,
     /*
      * check that lvalue and assign expression have compatible data types
      */
-    target_type = ir_expression_get_data_type(IR_EXPRESSION(lvalue));
+    target_type = ir_expression_get_data_type(ir_expression(lvalue));
     if (dt_data_type_is_immutalbe(target_type))
     {
         compile_error(compile_status,
@@ -1391,7 +1391,7 @@ validate_assignment(compilation_status_t *compile_status,
         DtDataType *array_element_type;
 
         array_element_type =
-            dt_array_get_element_type(DT_ARRAY(target_type));
+            dt_array_get_element_type(dt_array(target_type));
         converted_value = types_implicit_conv(array_element_type, value);
     }
     if (converted_value == NULL)
@@ -1713,7 +1713,7 @@ validate_foreach(compilation_status_t *compile_status,
                       dt_data_type_get_string(aggr_type));
         return;
     }
-    aggr_element_type = dt_array_get_element_type(DT_ARRAY(aggr_type));
+    aggr_element_type = dt_array_get_element_type(dt_array(aggr_type));
     /* only foreach over aggregates over basic types is supported */
     assert(dt_is_basic(aggr_element_type));
 
@@ -1730,8 +1730,8 @@ validate_foreach(compilation_status_t *compile_status,
     {
         /* only foreach over aggregates over basic types is supported */
         assert(dt_is_basic(var_type));
-        if (dt_basic_get_data_type(DT_BASIC(var_type)) !=
-            dt_basic_get_data_type(DT_BASIC(aggr_element_type)))
+        if (dt_basic_get_data_type(dt_basic(var_type)) !=
+            dt_basic_get_data_type(dt_basic(aggr_element_type)))
         {
             compile_error(compile_status,
                           IR_NODE(var),
@@ -1852,13 +1852,13 @@ validate_foreach_range(compilation_status_t *compile_status,
     /* cast lower expression to common type if needed */
     if (!dt_data_type_is_same(common_type, lower_type))
     {
-        lower_exp = IR_EXPRESSION(ir_cast_new(common_type, lower_exp));
+        lower_exp = ir_expression(ir_cast_new(common_type, lower_exp));
     }
 
     /* cast upper expression to common type if needed */
     if (!dt_data_type_is_same(common_type, upper_type))
     {
-        upper_exp = IR_EXPRESSION(ir_cast_new(common_type, upper_exp));
+        upper_exp = ir_expression(ir_cast_new(common_type, upper_exp));
     }
 
     /* set or check index variable's data type */
@@ -1889,8 +1889,8 @@ validate_foreach_range(compilation_status_t *compile_status,
 
     /* synthesize looping test expression */
     IrExpression *loop_test_exp =
-        IR_EXPRESSION(ir_binary_operation_new(ast_less_op,
-                                              IR_EXPRESSION(idx_var_val),
+        ir_expression(ir_binary_operation_new(ast_less_op,
+                                              ir_expression(idx_var_val),
                                               upper_exp,
                                               0));
     loop_test_exp =
@@ -1922,8 +1922,8 @@ validate_foreach_range(compilation_status_t *compile_status,
 
     /* synthesize loop index variable increment expression */
     IrExpression *index_inc_exp =
-            IR_EXPRESSION(ir_unary_operation_new(ast_pre_inc_op,
-                                                 IR_EXPRESSION(idx_var_val),
+            ir_expression(ir_unary_operation_new(ast_pre_inc_op,
+                                                 ir_expression(idx_var_val),
                                                  0));
     index_inc_exp =
             validate_expression(compile_status,  sym_table, index_inc_exp);
@@ -2017,7 +2017,7 @@ validate_statment(compilation_status_t *compile_status,
         IrExpression *exp =
             validate_expression(compile_status,
                                 sym_table,
-                                IR_EXPRESSION(statment));
+                                ir_expression(statment));
         if (exp == NULL)
         {
             /* invalid expression, bail out */
@@ -2195,7 +2195,7 @@ validate_variable(compilation_status_t *compile_status,
              */
             DtDataType *array_element_type;
 
-            array_element_type = dt_array_get_element_type(DT_ARRAY(type));
+            array_element_type = dt_array_get_element_type(dt_array(type));
             conv_initializer =
                 types_implicit_conv(array_element_type, initializer);
         }
@@ -2266,7 +2266,7 @@ validate_code_block(compilation_status_t *compile_status,
             IrExpression *init_exp = ir_variable_get_initializer(variable);
             ir_module_add_const_data(compile_status->module, init_exp);
             iml_add_assignment(compile_status->function,
-                               IR_EXPRESSION(var_val),
+                               ir_expression(var_val),
                                init_exp);
         }
     }
@@ -2305,18 +2305,18 @@ validate_function_decl(compilation_status_t *compile_status,
     /* validate return type */
     sym_table_t *symbols =
         ir_module_get_symbols(
-            ir_symbol_get_parent_module(IR_SYMBOL(func_decl)));
+            ir_symbol_get_parent_module(ir_symbol(func_decl)));
     type = validate_type(compile_status,
                          symbols,
-                         ir_function_get_return_type(IR_FUNCTION(func_decl)));
+                         ir_function_get_return_type(ir_function(func_decl)));
     if (type != NULL)
     {
-        ir_function_set_return_type(IR_FUNCTION(func_decl),
+        ir_function_set_return_type(ir_function(func_decl),
                                     type);
     }
 
     /* validate parameters */
-    GSList *i = ir_function_get_parameters(IR_FUNCTION(func_decl));
+    GSList *i = ir_function_get_parameters(ir_function(func_decl));
     for (; i != NULL; i = g_slist_next(i))
     {
         validate_variable(compile_status, symbols, IR_VARIABLE(i->data));
@@ -2337,7 +2337,7 @@ validate_function_def(compilation_status_t *compile_status,
 
     sym_table_t *symbols =
         ir_module_get_symbols(
-            ir_symbol_get_parent_module(IR_SYMBOL(func_def)));
+            ir_symbol_get_parent_module(ir_symbol(func_def)));
 
     /*
      * validate parameter definitions and add parameters to function frame
@@ -2431,7 +2431,7 @@ validate_array_slice(compilation_status_t *compile_status,
     exp = ir_array_slice_get_start(array_slice);
     if (exp == NULL)
     {
-        exp = IR_EXPRESSION(ir_basic_constant_new_uint(0, 0));
+        exp = ir_expression(ir_basic_constant_new_uint(0, 0));
     }
     else
     {
@@ -2466,12 +2466,12 @@ validate_array_slice(compilation_status_t *compile_status,
 
           end_idx =
               dt_static_array_get_length(DT_STATIC_ARRAY(array_type));
-          exp = IR_EXPRESSION(ir_basic_constant_new_uint(end_idx, 0));
+          exp = ir_expression(ir_basic_constant_new_uint(end_idx, 0));
         }
         else
         {
            /* slice over dynamic array */
-           exp = IR_EXPRESSION(
+           exp = ir_expression(
                    ir_property_new(ir_array_slice_get_array(array_slice),
                                    IR_PROP_LENGTH, 0));
         }
@@ -2496,7 +2496,7 @@ validate_array_slice(compilation_status_t *compile_status,
     }
     ir_array_slice_set_end(array_slice, exp);
 
-    return IR_EXPRESSION(array_slice);
+    return ir_expression(array_slice);
 }
 
 static IrExpression *
@@ -2552,9 +2552,9 @@ validate_array_literal(compilation_status_t *compile_status,
     ir_array_literal_set_values(array_literal, 
                                 g_slist_reverse(validated_values));
     ir_module_add_const_data(compile_status->module,
-                             IR_EXPRESSION(array_literal));
+                             ir_expression(array_literal));
 
-    return IR_EXPRESSION(array_literal);
+    return ir_expression(array_literal);
 }
 
 static void
@@ -2574,7 +2574,7 @@ validate_enum(compilation_status_t *compile_status,
 
     if (one == NULL)
     {
-        one = IR_EXPRESSION(ir_basic_constant_new_int(1, 0));
+        one = ir_expression(ir_basic_constant_new_int(1, 0));
     }
 
     sym_table = ir_module_get_symbols(compile_status->module);
@@ -2648,13 +2648,13 @@ validate_enum(compilation_status_t *compile_status,
         prev_member_value =
             cfold_cast(
                 ir_cast_new(base_type,
-                            IR_EXPRESSION(ir_basic_constant_new_int(0, 0))));
+                            ir_expression(ir_basic_constant_new_int(0, 0))));
         ir_enum_member_set_value(members->data, prev_member_value);
     }
 
     for (i = members; i != NULL; i = g_slist_next(i))
     {
-        IrEnumMember *member = IR_ENUM_MEMBER(i->data);
+        IrEnumMember *member = ir_enum_member(i->data);
         IrExpression *value = ir_enum_member_get_value(member);
 
         if (value == NULL)
@@ -2728,7 +2728,7 @@ validate_entry_point(compilation_status_t *compile_status,
         return;
     }
 
-    main_func = IR_FUNCTION(main_symb);
+    main_func = ir_function(main_symb);
     if (ir_function_get_parameters(main_func) != NULL)
     {
         compile_error(compile_status,
@@ -2768,7 +2768,7 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
     vars = iml_func_frame_get_locals(frame);
     for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
     {
-        ImlVariable *var = IML_VARIABLE(i->data);
+        ImlVariable *var = iml_variable(i->data);
 
         if (iml_variable_is_mem_pinned(var) ||
             iml_variable_get_data_type(var) == iml_blob)
@@ -2795,7 +2795,7 @@ assign_registers(IrFunctionDef *func, arch_backend_t *backend)
      * assigning locations to this frames variables
      */
     backend->assign_var_locations(frame,
-                                  ir_function_get_linkage(IR_FUNCTION(func)));
+                                  ir_function_get_linkage(ir_function(func)));
 }
 
 static void
@@ -2809,8 +2809,7 @@ validate_user_types(compilation_status_t *compile_status, IrModule *module)
     for (i = ir_module_get_enums(module); i != NULL; i = g_slist_next(i))
     {
         assert(dt_is_enum(i->data));
-        validate_enum(compile_status,
-                      DT_ENUM(i->data));
+        validate_enum(compile_status, dt_enum(i->data));
     }
 
     /* validate struct definitions */
@@ -2891,7 +2890,7 @@ sem_analyze_validate(compilation_status_t *compile_status,
         i = ir_module_get_function_defs(module);
         for (; i != NULL; i = g_slist_next(i))
         {
-            assign_registers(IR_FUNCTION_DEF(i->data),
+            assign_registers(ir_function_def(i->data),
                              compile_status->backend);
         }
     }

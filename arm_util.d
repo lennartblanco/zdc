@@ -116,7 +116,7 @@ gen_move_to_reg(File asmfile,
 {
     if (iml_is_constant(operand))
     {
-        ImlConstant *const_op = cast(ImlConstant *)operand;
+        ImlConstant *const_op = iml_constant(operand);
         if (iml_operand_get_data_type(operand) == iml_data_type.ptr)
         {
             assert(mult == 1); /* can't multiply label constants */
@@ -136,7 +136,7 @@ gen_move_to_reg(File asmfile,
         assert(iml_is_variable(operand));
 
         string shift_operand = mult_as_shift(mult);
-        ImlVariable *var = cast(ImlVariable *)operand;
+        ImlVariable *var = iml_variable(operand);
         char *reg = iml_variable_get_register(var);
 
         if (reg != null)
@@ -203,7 +203,7 @@ store_in_reg(File asmfile,
     else
     {
         assert(iml_is_variable(operand));
-        char *reg = iml_variable_get_register(cast(ImlVariable*)operand);
+        char *reg = iml_variable_get_register(iml_variable(operand));
         if (reg == null || force)
         {
             gen_move_to_reg(asmfile, register, operand);
@@ -230,7 +230,7 @@ get_offset_expression(ImlOperand *offset)
 {
     assert(offset == null || iml_is_constant(offset),
            "only constant offsets implemented");
-    ImlConstant *const_offset = cast(ImlConstant*)offset;
+    ImlConstant *const_offset = iml_constant(offset);
 
     if (offset == null || iml_constant_get_val_32b(const_offset) == 0)
     {
@@ -273,7 +273,7 @@ get_addr_exp(File asmfile,
         if (iml_is_constant(index))
         {
             assert(iml_operand_get_data_type(index) == iml_data_type._32b);
-            ImlConstant *const_idx = cast(ImlConstant *)index;
+            ImlConstant *const_idx = iml_constant(index);
             addr_exp = "fp, #" ~
                 to!string(base_offset +
                    cast(int)(iml_constant_get_val_32b(const_idx) * size));
@@ -296,11 +296,11 @@ get_addr_exp(File asmfile,
         assert(iml_variable_get_data_type(base) == iml_data_type.ptr);
 
         string base_reg =
-            store_in_reg(asmfile, cast(ImlOperand*)base, addr_reg);
+            store_in_reg(asmfile, iml_operand(base), addr_reg);
 
         if (iml_is_constant(index))
         {
-            ImlConstant *const_idx = cast(ImlConstant *)index;
+            ImlConstant *const_idx = iml_constant(index);
             int offset = cast(int)iml_constant_get_val_32b(const_idx) * size;
 
             addr_exp = base_reg ~
@@ -310,7 +310,7 @@ get_addr_exp(File asmfile,
         {
             assert(iml_is_variable(index));
 
-            ImlVariable *index_var = cast(ImlVariable *)index;
+            ImlVariable *index_var = iml_variable(index);
             string index_reg = store_in_reg(asmfile, index, temp_reg);
 
             asmfile.writefln("    add %s, %s, %s%s",

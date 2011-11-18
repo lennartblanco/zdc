@@ -84,7 +84,7 @@ x86_init(arch_backend_t *backend)
 void
 x86_move_from_reg(FILE *out, const char *src_reg, ImlVariable *var)
 {
-    assert(IML_VARIABLE(var));
+    assert(iml_is_variable(var));
 
     const char *var_reg = iml_variable_get_register(var);
 
@@ -117,13 +117,13 @@ x86_move_to_reg(FILE *out, const char *dest_reg, ImlOperand *oper)
     {
         fprintf(out,
                 "    movl $%d, %%%s\n",
-                iml_constant_get_val_32b(IML_CONSTANT(oper)),
+                iml_constant_get_val_32b(iml_constant(oper)),
                 dest_reg);
     }
     else
     {
         assert(iml_is_variable(oper));
-        ImlVariable *var = IML_VARIABLE(oper);
+        ImlVariable *var = iml_variable(oper);
         const char *reg = iml_variable_get_register(var);
 
         if (reg == NULL)
@@ -183,7 +183,7 @@ param_stored_in_reg(ImlVariable *param)
 {
     guint size;
 
-    if (iml_operand_get_data_type(IML_OPERAND(param)) != iml_blob)
+    if (iml_operand_get_data_type(iml_operand(param)) != iml_blob)
     {
         return true;
     }
@@ -236,7 +236,7 @@ assign_dparams_locations(iml_func_frame_t *frame)
              i = g_slist_next(i))
         {
             param = i->data;
-            iml_variable_set_frame_offset(IML_VARIABLE(i->data), params_offset);
+            iml_variable_set_frame_offset(iml_variable(i->data), params_offset);
             params_offset += iml_variable_get_size(param);
         }
 
@@ -263,7 +263,7 @@ assign_cparams_locations(iml_func_frame_t *frame)
         ImlVariable *param;
 
         param = i->data;
-        iml_variable_set_frame_offset(IML_VARIABLE(i->data), params_offset);
+        iml_variable_set_frame_offset(iml_variable(i->data), params_offset);
         params_offset += iml_variable_get_size(param);
     }
 
@@ -297,7 +297,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
     i = iml_func_frame_get_locals(frame);
     for (; i != NULL; i = g_slist_next(i))
     {
-        ImlVariable *var = IML_VARIABLE(i->data);
+        ImlVariable *var = iml_variable(i->data);
 
         if (iml_variable_get_register(var) == NULL)
         {
@@ -360,7 +360,7 @@ text_prelude(x86_comp_params_t *params, sym_table_t *sym_table)
         IrFunction *main_func;
         bool exit_code_returned;
 
-        main_func = IR_FUNCTION(main_symb);
+        main_func = ir_function(main_symb);
       
         /* only entry point without arguments supported */
         assert(ir_function_get_parameters(main_func) == NULL);
@@ -404,20 +404,20 @@ push_operand(FILE *out, ImlOperand *oper)
         {
             fprintf(out,
                     "    pushl $%s\n",
-                    iml_constant_get_val_ptr(IML_CONSTANT(oper)));
+                    iml_constant_get_val_ptr(iml_constant(oper)));
 
         }
         else
         {
             fprintf(out,
                     "    pushl $%d\n",
-                    iml_constant_get_val_32b(IML_CONSTANT(oper)));
+                    iml_constant_get_val_32b(iml_constant(oper)));
         }
     }
     else
     {
         assert(iml_is_variable(oper));
-        ImlVariable *var = IML_VARIABLE(oper);
+        ImlVariable *var = iml_variable(oper);
         const char *reg = iml_variable_get_register(var);
 
         size = iml_variable_get_size(var);
@@ -472,7 +472,7 @@ move_to_offset(FILE *out, guint frame_offset, ImlOperand *oper)
     else
     {
         assert(iml_is_variable(oper));
-        ImlVariable *var = IML_VARIABLE(oper);
+        ImlVariable *var = iml_variable(oper);
         const char *reg = iml_variable_get_register(var);
 
         if (reg == NULL)
@@ -548,13 +548,13 @@ compile_copy(FILE *out, iml_operation_t *op)
 
 
     src = iml_operation_get_operand(op, 1);
-    dst = IML_VARIABLE(iml_operation_get_operand(op, 2));
+    dst = iml_variable(iml_operation_get_operand(op, 2));
 
     if (iml_variable_get_data_type(dst) == iml_blob)
     {
         /* only blob variable to variable copy implemented */
         assert(iml_is_variable(src));
-        compile_blob_copy(out, IML_VARIABLE(src), dst);
+        compile_blob_copy(out, iml_variable(src), dst);
         return;
     }
 
@@ -564,7 +564,7 @@ compile_copy(FILE *out, iml_operation_t *op)
 
     if (iml_is_constant(src))
     {
-        ImlConstant *const_src = IML_CONSTANT(src);
+        ImlConstant *const_src = iml_constant(src);
 
         if (dst_reg == NULL)
         {
@@ -588,7 +588,7 @@ compile_copy(FILE *out, iml_operation_t *op)
         assert(iml_is_variable(src));
         const char *src_reg;
 
-        src_reg = iml_variable_get_register(IML_VARIABLE(src));
+        src_reg = iml_variable_get_register(iml_variable(src));
         if (src_reg == NULL)
         {
             if (dst_reg == NULL)
@@ -597,7 +597,7 @@ compile_copy(FILE *out, iml_operation_t *op)
                 fprintf(out,
                         "    movl %d(%%ebp), %%"TEMP_REG1_NAME"\n"
                         "    movl %%"TEMP_REG1_NAME", %d(%%ebp)\n",
-                        iml_variable_get_frame_offset(IML_VARIABLE(src)),
+                        iml_variable_get_frame_offset(iml_variable(src)),
                         iml_variable_get_frame_offset(dst));
             }
             else
@@ -605,7 +605,7 @@ compile_copy(FILE *out, iml_operation_t *op)
                 /* offset to register copy */
                 fprintf(out,
                         "    movl %d(%%ebp), %%%s\n",
-                        iml_variable_get_frame_offset(IML_VARIABLE(src)),
+                        iml_variable_get_frame_offset(iml_variable(src)),
                         dst_reg);
             }
         }
@@ -673,7 +673,7 @@ compile_setelm_blob(FILE *out, iml_operation_t *op)
     const char *index_reg;
     const gchar *move_suffix;
 
-    assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
+    assert(iml_operand_get_data_type(iml_operand(dest)) == iml_blob);
 
     /*
      * Generate code that will store array index into a register,
@@ -683,13 +683,13 @@ compile_setelm_blob(FILE *out, iml_operation_t *op)
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG1_NAME "\n",
-                iml_constant_get_val_32b(IML_CONSTANT(index)));
+                iml_constant_get_val_32b(iml_constant(index)));
         index_reg = TEMP_REG1_NAME;
     }
     else
     {
         assert(iml_is_variable(index));
-        ImlVariable *var = IML_VARIABLE(index);
+        ImlVariable *var = iml_variable(index);
         const char *reg = iml_variable_get_register(var);
 
         if (reg != NULL)
@@ -727,7 +727,7 @@ compile_setelm_blob(FILE *out, iml_operation_t *op)
         fprintf(out,
                 "    mov%s $%d, %d(%%ebp, %%%s, %u)\n",
                 move_suffix,
-                iml_constant_get_val_32b(IML_CONSTANT(src)),
+                iml_constant_get_val_32b(iml_constant(src)),
                 iml_variable_get_frame_offset(dest),
                 index_reg,
                 size);
@@ -774,7 +774,7 @@ x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
     const char *reg;
     const gchar *move_suffix;
 
-    assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr);
+    assert(iml_operand_get_data_type(iml_operand(dest)) == iml_ptr);
 
     /* move index value to a temp register */
     x86_move_to_reg(out, TEMP_REG1_NAME, index);
@@ -823,7 +823,7 @@ x86_compile_setelm_ptr(FILE *out, iml_operation_t *op)
     {
         fprintf(out,
                 "    mov%s $%d, (%%" TEMP_REG1_NAME ")\n",
-                move_suffix, iml_constant_get_val_32b(IML_CONSTANT(src)));
+                move_suffix, iml_constant_get_val_32b(iml_constant(src)));
     }
     else
     {
@@ -898,7 +898,7 @@ compile_set(FILE *out, iml_operation_t *op)
     reg = iml_variable_get_register(addr);
     if (reg == NULL)
     {
-        x86_move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
+        x86_move_to_reg(out, TEMP_REG1_NAME, iml_operand(addr));
         addr_reg = TEMP_REG1_NAME;
     }
     else
@@ -911,7 +911,7 @@ compile_set(FILE *out, iml_operation_t *op)
         fprintf(out,
                 "    mov%s $%d, %s(%%%s)\n",
                 mov_suffix,
-                iml_constant_get_val_32b(IML_CONSTANT(src)),
+                iml_constant_get_val_32b(iml_constant(src)),
                 offset_str,
                 addr_reg);
     }
@@ -932,17 +932,17 @@ compile_set(FILE *out, iml_operation_t *op)
                     "    xor %%%s, %%%s\n",
                     TEMP_REG2_NAME,
                     TEMP_REG2_NAME);
-            x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+            x86_move_to_reg(out, TEMP_REG2_NAME, iml_operand(src));
             src_reg =
                 (src_type == iml_8b) ?
                     TEMP_REG2_BYTE_NAME : TEMP_REG2_WORD_NAME;
         }
         else
         {
-            reg = iml_variable_get_register(IML_VARIABLE(src));
+            reg = iml_variable_get_register(iml_variable(src));
             if (reg == NULL)
             {
-               x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+               x86_move_to_reg(out, TEMP_REG2_NAME, iml_operand(src));
                src_reg = TEMP_REG2_NAME;
             }
             else
@@ -1014,7 +1014,7 @@ compile_get(FILE *out, iml_operation_t *op)
     reg = iml_variable_get_register(addr);
     if (reg == NULL)
     {
-        x86_move_to_reg(out, TEMP_REG1_NAME, IML_OPERAND(addr));
+        x86_move_to_reg(out, TEMP_REG1_NAME, iml_operand(addr));
         addr_reg = TEMP_REG1_NAME;
     }
     else
@@ -1056,14 +1056,14 @@ compile_setelm(FILE *out, iml_operation_t *op)
 {
     ImlVariable *dest = iml_operation_get_operand(op, 2);
 
-    if (iml_operand_get_data_type(IML_OPERAND(dest)) == iml_ptr)
+    if (iml_operand_get_data_type(iml_operand(dest)) == iml_ptr)
     {
         /* setfld with pointer destination variable */
         x86_compile_setelm_ptr(out, op);
     }
     else
     {
-        assert(iml_operand_get_data_type(IML_OPERAND(dest)) == iml_blob);
+        assert(iml_operand_get_data_type(iml_operand(dest)) == iml_blob);
 
         /* setfld with blob destination variable */
         compile_setelm_blob(out, op);
@@ -1093,13 +1093,13 @@ compile_getelm(FILE *out, iml_operation_t *op)
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG1_NAME "\n",
-                iml_constant_get_val_32b(IML_CONSTANT(index)));
+                iml_constant_get_val_32b(iml_constant(index)));
         index_reg = TEMP_REG1_NAME;
     }
     else
     {
         assert(iml_is_variable(index));
-        ImlVariable *var = IML_VARIABLE(index);
+        ImlVariable *var = iml_variable(index);
         const char *reg = iml_variable_get_register(var);
 
         if (reg != NULL)
@@ -1121,7 +1121,7 @@ compile_getelm(FILE *out, iml_operation_t *op)
      * figure out base register and offset depending on
      * the type of source operand
      */
-    if (iml_operand_get_data_type(IML_OPERAND(src)) == iml_ptr)
+    if (iml_operand_get_data_type(iml_operand(src)) == iml_ptr)
     {
         /* getfld with pointer source variable */
         const char *reg;
@@ -1132,7 +1132,7 @@ compile_getelm(FILE *out, iml_operation_t *op)
         if (reg == NULL)
         {
             /* move the pointer to a register */
-            x86_move_to_reg(out, TEMP_REG2_NAME, IML_OPERAND(src));
+            x86_move_to_reg(out, TEMP_REG2_NAME, iml_operand(src));
             base_reg = TEMP_REG2_NAME;
         }
         else
@@ -1144,7 +1144,7 @@ compile_getelm(FILE *out, iml_operation_t *op)
     }
     else
     {
-        assert(iml_operand_get_data_type(IML_OPERAND(src)) == iml_blob);
+        assert(iml_operand_get_data_type(iml_operand(src)) == iml_blob);
 
         /* getfld with blob source variable */
 
@@ -1198,8 +1198,8 @@ compile_getaddr(FILE *out, iml_operation_t *op)
     assert(out);
     assert(iml_operation_get_opcode(op) == iml_getaddr);
 
-    ImlVariable *var = IML_VARIABLE(iml_operation_get_operand(op, 1));
-    ImlVariable *ptr = IML_VARIABLE(iml_operation_get_operand(op, 2));
+    ImlVariable *var = iml_variable(iml_operation_get_operand(op, 1));
+    ImlVariable *ptr = iml_variable(iml_operation_get_operand(op, 2));
     const char *reg;
     const gchar *reg_name;
 
@@ -1244,7 +1244,7 @@ compile_binop(FILE *out, iml_operation_t *op)
 
     left = iml_operation_get_operand(op, 1);
     right = iml_operation_get_operand(op, 2);
-    res =  IML_VARIABLE(iml_operation_get_operand(op, 3));
+    res =  iml_variable(iml_operation_get_operand(op, 3));
     res_reg = iml_variable_get_register(res);
 
     switch (iml_operation_get_opcode(op))
@@ -1280,14 +1280,14 @@ compile_binop(FILE *out, iml_operation_t *op)
     {
         fprintf(out,
                 "    movl $%d, %%%s\n",
-                iml_constant_get_val_32b(IML_CONSTANT(left)),
+                iml_constant_get_val_32b(iml_constant(left)),
                 res_reg_name);
     }
     else
     {
         assert(iml_is_variable(left));
 
-        ImlVariable *var = IML_VARIABLE(left);
+        ImlVariable *var = iml_variable(left);
         const gchar *reg = iml_variable_get_register(var);
 
         if (reg == NULL)
@@ -1312,14 +1312,14 @@ compile_binop(FILE *out, iml_operation_t *op)
         fprintf(out,
                 "    %s $%d, %%%s\n",
                 op_name,
-                iml_constant_get_val_32b(IML_CONSTANT(right)),
+                iml_constant_get_val_32b(iml_constant(right)),
                 res_reg_name);
     }
     else
     {
         assert(iml_is_variable(right));
 
-        ImlVariable *var = IML_VARIABLE(right);
+        ImlVariable *var = iml_variable(right);
         const gchar *reg = iml_variable_get_register(var);
 
         if (reg == NULL)
@@ -1376,7 +1376,7 @@ compile_divmod(FILE *out, iml_operation_t *op)
 
     iml_opcode_t opcode = iml_operation_get_opcode(op);
     ImlOperand *right = iml_operation_get_operand(op, 2);
-    ImlVariable *res = IML_VARIABLE(iml_operation_get_operand(op, 3));
+    ImlVariable *res = iml_variable(iml_operation_get_operand(op, 3));
 
     switch (opcode)
     {
@@ -1419,7 +1419,7 @@ compile_divmod(FILE *out, iml_operation_t *op)
     else
     {
         assert(iml_is_variable(right));
-        ImlVariable *var = IML_VARIABLE(right);
+        ImlVariable *var = iml_variable(right);
 
         const gchar *reg = iml_variable_get_register(var);
         if (reg != NULL)
@@ -1468,8 +1468,8 @@ compile_neg(FILE *out, iml_operation_t *op)
             assert(false);
     }
 
-    oper = IML_OPERAND(iml_operation_get_operand(op, 1));
-    res = IML_VARIABLE(iml_operation_get_operand(op, 2));
+    oper = iml_operand(iml_operation_get_operand(op, 1));
+    res = iml_variable(iml_operation_get_operand(op, 2));
 
     res_reg = iml_variable_get_register(res);
     if (res_reg == NULL) {
@@ -1556,7 +1556,7 @@ compile_icmp(FILE *out, iml_operation_t *op)
     {
         const gchar *reg;
 
-        reg = iml_variable_get_register(IML_VARIABLE(arg1));
+        reg = iml_variable_get_register(iml_variable(arg1));
         if (reg != NULL)
         {
             arg1_reg = reg;
@@ -1571,7 +1571,7 @@ compile_icmp(FILE *out, iml_operation_t *op)
     {
         fprintf(out,
                 "    movl $%d, %%" TEMP_REG1_NAME "\n",
-                iml_constant_get_val_32b(IML_CONSTANT(arg2)));
+                iml_constant_get_val_32b(iml_constant(arg2)));
         arg2_reg = TEMP_REG1_NAME;
     }
     else
@@ -1579,7 +1579,7 @@ compile_icmp(FILE *out, iml_operation_t *op)
         assert(iml_is_variable(arg2));
         const gchar *reg;
 
-        reg = iml_variable_get_register(IML_VARIABLE(arg2));
+        reg = iml_variable_get_register(iml_variable(arg2));
         if (reg != NULL)
         {
             arg2_reg = reg;
@@ -1588,7 +1588,7 @@ compile_icmp(FILE *out, iml_operation_t *op)
         {
             fprintf(out,
                     "    movl %d(%%ebp), %%" TEMP_REG1_NAME "\n",
-                    iml_variable_get_frame_offset(IML_VARIABLE(arg2)));
+                    iml_variable_get_frame_offset(iml_variable(arg2)));
             arg2_reg = TEMP_REG1_NAME;
         }
     }
@@ -1609,14 +1609,14 @@ compile_icmp(FILE *out, iml_operation_t *op)
         fprintf(out,
                 "    cmpl %%%s, %d(%%ebp)\n",
                 arg1_reg,
-                iml_variable_get_frame_offset(IML_VARIABLE(arg2)));
+                iml_variable_get_frame_offset(iml_variable(arg2)));
     }
     else if (iml_is_constant(arg1))
     {
         assert(arg2_reg != NULL);
         fprintf(out,
                 "    cmpl $%d, %%%s\n",
-                iml_constant_get_val_32b(IML_CONSTANT(arg1)),
+                iml_constant_get_val_32b(iml_constant(arg1)),
                 arg2_reg);
     }
     else
@@ -1625,7 +1625,7 @@ compile_icmp(FILE *out, iml_operation_t *op)
         assert(arg2_reg != NULL);
         fprintf(out,
                 "    cmpl %d(%%ebp), %%%s\n",
-                iml_variable_get_frame_offset(IML_VARIABLE(arg1)),
+                iml_variable_get_frame_offset(iml_variable(arg1)),
                 arg2_reg);
     }
 
@@ -1732,14 +1732,14 @@ compile_jmpcond(FILE *out, iml_operation_t *op)
         {
             fprintf(out,
                     "    cmpl $%u, %d(%%ebp)\n",
-                    iml_constant_get_val_8b(IML_CONSTANT(arg1)),
+                    iml_constant_get_val_8b(iml_constant(arg1)),
                     iml_variable_get_frame_offset(arg2));
         }
         else
         {
             fprintf(out,
                     "    cmpl $%u, %%%s\n",
-                    iml_constant_get_val_8b(IML_CONSTANT(arg1)),
+                    iml_constant_get_val_8b(iml_constant(arg1)),
                     right_reg);
         }
     }
@@ -1749,7 +1749,7 @@ compile_jmpcond(FILE *out, iml_operation_t *op)
         const gchar *left_reg;
         const gchar *left_reg_name;
 
-        left_reg = iml_variable_get_register(IML_VARIABLE(arg1));
+        left_reg = iml_variable_get_register(iml_variable(arg1));
         if (left_reg != NULL)
         {
             left_reg_name = left_reg;
@@ -1795,12 +1795,12 @@ compile_dcall_args(FILE *out, GSList *arguments)
     {
         if (g_slist_next(i) != NULL || !param_stored_in_reg(i->data))
         {
-            args_stack_size += push_operand(out, IML_OPERAND(i->data));
+            args_stack_size += push_operand(out, iml_operand(i->data));
         }
         else
         {
             /* store last argument in eax */
-            x86_move_to_reg(out, "eax", IML_OPERAND(i->data));
+            x86_move_to_reg(out, "eax", iml_operand(i->data));
         }
     }
 
@@ -1829,7 +1829,7 @@ compile_ccall_args(FILE *out, GSList *arguments)
 
     for (i = args; i != NULL; i = g_slist_next(i))
     {
-      push_operand(out, IML_OPERAND(i->data));
+      push_operand(out, iml_operand(i->data));
       args_stack_size += 4;
     }
     g_slist_free(args);
@@ -1896,8 +1896,8 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     char *return_label;
 
 
-    linkage = ir_function_get_linkage(IR_FUNCTION(func_def));
-    func_name = ir_function_get_mangled_name(IR_FUNCTION(func_def));
+    linkage = ir_function_get_linkage(ir_function(func_def));
+    func_name = ir_function_get_mangled_name(ir_function(func_def));
     frame = ir_function_def_get_frame(func_def);
 
     /* generate function symbol declaration and function entry point label */

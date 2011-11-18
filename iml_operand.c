@@ -31,6 +31,12 @@ iml_operand_get_type(void)
     return type;
 }
 
+ImlOperand *
+iml_operand(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IML_TYPE_OPERAND, ImlOperand);
+}
+
 iml_data_type_t
 iml_operand_get_data_type(ImlOperand *self)
 {

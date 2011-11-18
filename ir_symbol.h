@@ -13,9 +13,6 @@
 
 #define IR_TYPE_SYMBOL ir_symbol_get_type()
 
-#define IR_SYMBOL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_SYMBOL, IrSymbol))
-
 #define IR_SYMBOL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_SYMBOL, IrSymbolClass))
 
@@ -48,6 +45,9 @@ typedef struct
 
 GType 
 ir_symbol_get_type(void);
+
+IrSymbol *
+ir_symbol(void *obj);
 
 /**
  * Get symbol's local name

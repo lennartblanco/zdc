@@ -59,7 +59,7 @@ dt_user_get_string(DtDataType *self)
 {
     assert(DT_IS_USER(self));
 
-    return ir_symbol_get_name(IR_SYMBOL(self));
+    return ir_symbol_get_name(ir_symbol(self));
 }
 
 static char *
@@ -69,7 +69,7 @@ dt_user_get_mangled(DtDataType *self)
 
     DtUser *user_type = DT_USER(self);
     const char *name = dt_user_get_string(self);
-    IrModule *parent_module = ir_symbol_get_parent_module(IR_SYMBOL(self));
+    IrModule *parent_module = ir_symbol_get_parent_module(ir_symbol(self));
 
     assert(IR_IS_MODULE(parent_module));
 

@@ -12,9 +12,6 @@
 
 #define IR_TYPE_FUNCTION ir_function_get_type()
 
-#define IR_FUNCTION(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_FUNCTION, IrFunction))
-
 #define IR_FUNCTION_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_FUNCTION, IrFunctionClass))
 
@@ -54,6 +51,9 @@ typedef struct
 
 GType
 ir_function_get_type(void);
+
+IrFunction *
+ir_function(void *obj);
 
 void
 ir_function_set_parameters(IrFunction *self, GSList *parameters);

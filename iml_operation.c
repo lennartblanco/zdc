@@ -63,6 +63,12 @@ init_getaddr_op(iml_operation_t *op,
  *---------------------------------------------------------------------------*/
 
 iml_operation_t *
+cast_iml_operation(void *obj)
+{
+    return obj;
+}
+
+iml_operation_t *
 iml_operation_new(iml_opcode_t operation, ...)
 {
     va_list argp;

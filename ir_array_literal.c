@@ -58,6 +58,14 @@ ir_is_array_literal(void *obj)
 }
 
 IrArrayLiteral *
+ir_array_literal(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_ARRAY_LITERAL,
+                                      IrArrayLiteral);
+}
+
+IrArrayLiteral *
 ir_array_literal_new(guint line_number)
 {
     IrArrayLiteral *obj;
@@ -114,8 +122,8 @@ ir_array_literal_get_size(IrArrayLiteral *self)
 
     return 
       dt_array_get_element_size(
-        DT_ARRAY(
-          ir_array_literal_do_get_data_type(IR_EXPRESSION(self)))) *
+        dt_array(
+          ir_array_literal_do_get_data_type(ir_expression(self)))) *
                                                  g_slist_length(self->values);
            
 }
@@ -139,7 +147,7 @@ ir_array_literal_do_get_data_type(IrExpression *self)
 {
     assert(ir_is_array_literal(self));
 
-    IrArrayLiteral *arr_literal = IR_ARRAY_LITERAL(self);
+    IrArrayLiteral *arr_literal = ir_array_literal(self);
     if (arr_literal->data_type == NULL)
     {
         IrExpression *first_val;
@@ -169,7 +177,7 @@ ir_array_literal_do_print(IrNode *self, FILE *out, int indention)
     GSList *i;
 
     fprintf_indent(out, indention, "[");
-    for (i = IR_ARRAY_LITERAL(self)->values; i != NULL; i = g_slist_next(i))
+    for (i = ir_array_literal(self)->values; i != NULL; i = g_slist_next(i))
     {
         ir_node_print(i->data, out, 0);
         if (g_slist_next(i) != NULL)
@@ -190,9 +198,9 @@ ir_array_literal_do_is_constant(IrExpression *self)
     /*
      * Check all literal value expression if they are compile-time constant
      */
-    for (i = IR_ARRAY_LITERAL(self)->values; i != NULL; i = g_slist_next(i))
+    for (i = ir_array_literal(self)->values; i != NULL; i = g_slist_next(i))
     {
-        if (!ir_expression_is_constant(IR_EXPRESSION(i->data)))
+        if (!ir_expression_is_constant(ir_expression(i->data)))
         {
             /*
              * found an non-constant value expression, this array literal

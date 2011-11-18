@@ -80,7 +80,7 @@ ir_code_block_add_local_var(IrCodeBlock *self, IrVariable *var)
 
     self->local_vars = g_slist_append(self->local_vars, var);
 
-    return sym_table_add_symbol(self->symbols, IR_SYMBOL(var));
+    return sym_table_add_symbol(self->symbols, ir_symbol(var));
 }
 
 /**

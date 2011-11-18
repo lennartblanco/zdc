@@ -9,9 +9,9 @@ get_data_section_string(DtDataType *exp_type,
 {
     if (dt_is_basic(exp_type))
     {
-        IrBasicConstant *bconst = cast(IrBasicConstant *)exp;
+        IrBasicConstant *bconst = ir_basic_constant(exp);
 
-        switch (dt_basic_get_data_type(cast(DtBasic*)exp_type))
+        switch (dt_basic_get_data_type(dt_basic(exp_type)))
         {
             case basic_data_type.bool_type:
                 return to!string(cast(int)ir_basic_constant_get_bool(bconst));
@@ -31,13 +31,12 @@ get_data_section_string(DtDataType *exp_type,
                 return to!string(ir_basic_constant_get_uint(bconst));
             default:
                 assert(false, "unexpected data type" ~
-                       to!string(
-                           dt_basic_get_data_type(cast(DtBasic*)exp_type)));
+                       to!string(dt_basic_get_data_type(dt_basic(exp_type))));
         }
     }
     else if (dt_is_enum(exp_type))
     {
-        IrExpression *e = ir_enum_member_get_value(cast(IrEnumMember *)exp);
+        IrExpression *e = ir_enum_member_get_value(ir_enum_member(exp));
 
         return get_data_section_string(ir_expression_get_data_type(e), e);
     }
@@ -52,7 +51,7 @@ get_type_directive(DtDataType *type)
 {
     if (dt_is_basic(type))
     {
-        switch (dt_basic_get_data_type(cast(DtBasic*)type))
+        switch (dt_basic_get_data_type(dt_basic(type)))
         {
             case basic_data_type.bool_type:
             case basic_data_type.char_type:
@@ -68,12 +67,12 @@ get_type_directive(DtDataType *type)
             default:
                 assert(false,
                        "unexpected basic data type " ~
-                       to!string(dt_basic_get_data_type(cast(DtBasic*)type)));
+                       to!string(dt_basic_get_data_type(dt_basic(type))));
         }
     }
     else if (dt_is_enum(type))
     {
-        return get_type_directive(dt_enum_get_base_type(cast(DtEnum*)type));
+        return get_type_directive(dt_enum_get_base_type(dt_enum(type)));
     }
     else
     {
@@ -109,8 +108,7 @@ gen_array_literal_data(File output, IrArrayLiteral *array_literal)
     basic_data_type element_basic_type;
 
     array_type =
-        cast(DtArray*)
-            ir_expression_get_data_type(cast(IrExpression*)array_literal);
+        dt_array(ir_expression_get_data_type(ir_expression(array_literal)));
     element_type = dt_array_get_element_type(array_type);
 
     /* only array literal over basic data types are expected here */
@@ -126,7 +124,7 @@ gen_array_literal_data(File output, IrArrayLiteral *array_literal)
     {
         output.writef("%s%s",
                       get_data_section_string(cast(DtDataType*)element_type,
-                                              cast(IrExpression*)i.data),
+                                              ir_expression(i.data)),
                       i.next() != null ? ", " : "\n");
     }
 }
@@ -138,10 +136,9 @@ gen_struct_literal_data(File output, IrStructLiteral *struct_literal)
     output.writeln();
     for (; i != null; i = i.next())
     {
-        IrStructMember *member = cast(IrStructMember *)i.data;
+        IrStructMember *member = ir_struct_member(i.data);
         IrExpression *init = ir_struct_member_get_init(member);
-        DtDataType *type =
-            ir_expression_get_data_type(cast(IrExpression*)member);
+        DtDataType *type = ir_expression_get_data_type(ir_expression(member));
 
         output.writefln("  %s %s",
                         get_type_directive(type),
@@ -184,16 +181,16 @@ add_literals(File output, IrModule *ir_module)
         /* output literal's label */
         output.writef("%s: ",
                       to!string(
-                      ir_literal_get_data_label(cast(IrLiteral*)i.data)));
+                          ir_literal_get_data_label(ir_literal(i.data))));
 
         /* output literal's data */
         if (ir_is_array_literal(i.data))
         {
-            gen_array_literal_data(output, cast(IrArrayLiteral*)i.data);
+            gen_array_literal_data(output, ir_array_literal(i.data));
         }
         else if (ir_is_struct_literal(i.data))
         {
-            gen_struct_literal_data(output, cast(IrStructLiteral*)i.data);
+            gen_struct_literal_data(output, ir_struct_literal(i.data));
         }
         else
         {

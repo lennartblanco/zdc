@@ -10,9 +10,6 @@
 
 #define IR_TYPE_BASIC_CONSTANT ir_basic_constant_get_type()
 
-#define IR_BASIC_CONSTANT(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_BASIC_CONSTANT, IrBasicConstant))
-
 #define IR_BASIC_CONSTANT_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_BASIC_CONSTANT, IrBasicConstantClass))
 
@@ -54,6 +51,9 @@ typedef struct
 
 GType
 ir_basic_constant_get_type(void);
+
+IrBasicConstant *
+ir_basic_constant(void *obj);
 
 IrBasicConstant *
 ir_basic_constant_new_int(gint32 value, guint line_number);

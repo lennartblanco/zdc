@@ -137,13 +137,13 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
     basic_data_type_t bdt;
     ast_binary_op_type_t op_type;
 
-    data_type = ir_expression_get_data_type(IR_EXPRESSION(self));
+    data_type = ir_expression_get_data_type(ir_expression(self));
     if (!dt_is_basic(data_type))
     {
         return false;
     }
 
-    bdt = dt_basic_get_data_type(DT_BASIC(data_type));
+    bdt = dt_basic_get_data_type(dt_basic(data_type));
 
     if (bdt != int_type && bdt != bool_type)
     {

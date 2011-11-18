@@ -53,6 +53,12 @@ iml_is_constant(void *obj)
 }
 
 ImlConstant *
+iml_constant(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IML_TYPE_CONSTANT, ImlConstant);
+}
+
+ImlConstant *
 iml_constant_new_8b(guint8 val)
 {
     ImlConstant *obj;
@@ -170,7 +176,7 @@ iml_constant_do_get_data_type(ImlOperand *self)
 {
     assert(iml_is_constant(self));
 
-    return IML_CONSTANT(self)->datatype;
+    return iml_constant(self)->datatype;
 }
 
 static void
@@ -178,7 +184,7 @@ iml_constant_do_print_short(ImlOperand *self, FILE *out, guint indention)
 {
     assert(iml_is_constant(self));
 
-    ImlConstant *constant = IML_CONSTANT(self);
+    ImlConstant *constant = iml_constant(self);
 
     if (constant->datatype == iml_ptr)
     {

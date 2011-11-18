@@ -40,6 +40,14 @@ ir_struct_member_get_type(void)
 }
 
 IrStructMember *
+ir_struct_member(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_STRUCT_MEMBER,
+                                      IrStructMember);
+}
+
+IrStructMember *
 ir_struct_member_new(DtDataType *type,
                      guint offset,
                      guint padding,
@@ -117,7 +125,7 @@ ir_struct_member_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_STRUCT_MEMBER(self));
 
-    return IR_STRUCT_MEMBER(self)->type;
+    return ir_struct_member(self)->type;
 }
 
 static void

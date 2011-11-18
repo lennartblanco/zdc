@@ -51,7 +51,13 @@ iml_variable_get_type(void)
 bool
 iml_is_variable(void *obj)
 {
-    return G_TYPE_CHECK_INSTANCE_TYPE ((obj), IML_TYPE_VARIABLE);
+    return G_TYPE_CHECK_INSTANCE_TYPE((obj), IML_TYPE_VARIABLE);
+}
+
+ImlVariable *
+iml_variable(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IML_TYPE_VARIABLE, ImlVariable);
 }
 
 ImlVariable *
@@ -95,7 +101,7 @@ iml_variable_get_data_type(ImlVariable *self)
 {
     assert(iml_is_variable(self));
 
-    return iml_operand_get_data_type(IML_OPERAND(self));
+    return iml_operand_get_data_type(iml_operand(self));
 }
 
 guint
@@ -187,7 +193,7 @@ iml_variable_do_get_data_type(ImlOperand *self)
 {
     assert(iml_is_variable(self));
 
-    return IML_VARIABLE(self)->datatype;
+    return iml_variable(self)->datatype;
 }
 
 static void
@@ -196,7 +202,7 @@ iml_variable_do_print(ImlOperand *self, FILE *out, guint indention)
     assert(iml_is_variable(self));
     assert(out);
 
-    ImlVariable *var = IML_VARIABLE(self);
+    ImlVariable *var = iml_variable(self);
     gchar *blob_size_str = NULL;
 
     char *type_str;
@@ -254,7 +260,7 @@ iml_variable_do_print_short(ImlOperand *self, FILE *out, guint indention)
     assert(iml_is_variable(self));
     assert(out);
 
-    fprintf(out, "%s", IML_VARIABLE(self)->name);
+    fprintf(out, "%s", iml_variable(self)->name);
 }
 
 static void

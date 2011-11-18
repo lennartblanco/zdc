@@ -135,13 +135,13 @@ iml_func_frame_unused_oper(iml_func_frame_t *self, ImlOperand *oper)
     ImlVariable *temp_var;
 
     if (!iml_is_variable(oper) ||
-        !iml_variable_is_temp(IML_VARIABLE(oper)))
+        !iml_variable_is_temp(iml_variable(oper)))
     {
         /* not a temporary variable, do nothing */
         return;
     }
 
-    temp_var = IML_VARIABLE(oper);
+    temp_var = iml_variable(oper);
 
     var_type = iml_variable_get_data_type(temp_var);
     vars = g_hash_table_lookup(self->unused_temp_vars,

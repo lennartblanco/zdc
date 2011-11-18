@@ -9,9 +9,6 @@
 
 #define IR_TYPE_STRUCT_MEMBER ir_struct_member_get_type()
 
-#define IR_STRUCT_MEMBER(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_STRUCT_MEMBER, IrStructMember))
-
 #define IR_STRUCT_MEMBER_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_STRUCT_MEMBER, IrStructMemberClass))
 
@@ -47,6 +44,9 @@ typedef struct
 
 GType
 ir_struct_member_get_type(void);
+
+IrStructMember *
+ir_struct_member(void *obj);
 
 /**
  * @param offset the members offset in the struct

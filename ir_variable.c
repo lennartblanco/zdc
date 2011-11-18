@@ -89,7 +89,7 @@ ir_variable_get_data_type(IrVariable *self)
 {
     assert(IR_IS_VARIABLE(self));
 
-    return ir_variable_do_get_data_type(IR_EXPRESSION(self));
+    return ir_variable_do_get_data_type(ir_expression(self));
 }
 
 void
@@ -106,7 +106,7 @@ ir_variable_get_name(IrVariable *self)
 {
     assert(IR_IS_VARIABLE(self));
 
-    return ir_symbol_get_name(IR_SYMBOL(self));
+    return ir_symbol_get_name(ir_symbol(self));
 }
 
 IrExpression *
@@ -146,7 +146,7 @@ ir_variable_do_print(IrNode *self, FILE *out, int indention)
     IrVariable *var = IR_VARIABLE(self);
     fprintf_indent(out, indention, "%s %s",
                    dt_data_type_get_string(var->type),
-                   ir_symbol_get_name(IR_SYMBOL(var)));
+                   ir_symbol_get_name(ir_symbol(var)));
 
     if (var->initializer != NULL)
     {
@@ -171,7 +171,7 @@ ir_variable_get_value_range(IrExpression *self)
     DtDataType *type = ir_expression_get_data_type(self);
     assert(dt_is_basic(type));
 
-    return dt_basic_get_value_range(DT_BASIC(type));
+    return dt_basic_get_value_range(dt_basic(type));
 }
 
 static void
