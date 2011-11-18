@@ -1,4 +1,4 @@
-public import ir_symbol;
+public import ir;
 public import GError;
 
 struct sym_table;

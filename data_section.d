@@ -1,13 +1,6 @@
 import std.stdio;
 import std.conv;
-import ir_literal;
-import ir_array_literal;
-import ir_struct_literal;
-import ir_struct_member;
-import ir_module;
-import ir_expression;
-import ir_basic_constant;
-import ir_enum_member;
+import ir;
 import dt_data_type;
 import dt_array;
 import dt_enum;

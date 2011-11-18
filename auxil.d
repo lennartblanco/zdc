@@ -1,6 +1,5 @@
 import std.c.stdio;
-import ir_module;
-import ir_function;
+import ir;
 import iml;
 
 /** see auxil.h for struct documentation */

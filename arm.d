@@ -2,9 +2,7 @@ import std.string;
 import std.conv;
 import auxil;
 import data_section;
-import ir_module;
-import ir_function;
-import ir_function_def;
+import ir;
 import dt_basic;
 import arm_util;
 
