@@ -1,8 +1,7 @@
 import std.c.stdio;
-import GSList;
 import ir_module;
 import ir_function;
-import iml_func_frame;
+import iml;
 
 /** see auxil.h for struct documentation */
 struct arch_backend

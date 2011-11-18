@@ -1,6 +1,5 @@
-public import GSList;
 public import dt_data_type;
-public import iml_func_frame;
+public import iml;
 
 struct IrFunctionDef;
 

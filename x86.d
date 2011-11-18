@@ -1,7 +1,5 @@
-import std.stdio;
 import std.conv;
-import iml_operation;
-import iml_variable;
+import iml;
 
 enum TEMP_REG1 = "ecx";
 enum TEMP_REG1_WORD = "cx";

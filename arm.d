@@ -1,4 +1,3 @@
-import std.stdio;
 import std.string;
 import std.conv;
 import auxil;
@@ -6,12 +5,8 @@ import data_section;
 import ir_module;
 import ir_function;
 import ir_function_def;
-import iml_func_frame;
-import iml_operation;
-import iml_variable;
-import iml_constant;
 import dt_basic;
-private import arm_util;
+import arm_util;
 
 enum TEMP_REG1 = "ip";
 enum TEMP_REG2 = "r0";
