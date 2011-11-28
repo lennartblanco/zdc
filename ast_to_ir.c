@@ -1348,7 +1348,7 @@ array_cell_ref_to_ir(compilation_status_t *compile_status,
 
     return
         ir_expression(
-            ir_array_cell_new(IR_VARIABLE(array),
+            ir_array_cell_new(ir_variable(array),
                               ir_index_exp,
                               ast_node_get_line_num(array_cell_ref)));
 }
@@ -1498,18 +1498,18 @@ ident_to_ir(compilation_status_t *compile_status,
     }
     else if (IR_IS_VARIABLE(symb))
     {
-        IrVariable *var = IR_VARIABLE(symb);
+        IrVariable *var = ir_variable(symb);
 
         if (ir_variable_is_ref(var))
         {
             return
-                ir_expression(ir_var_ref_new(IR_VARIABLE(var),
+                ir_expression(ir_var_ref_new(ir_variable(var),
                                              ast_node_get_line_num(ident)));
         }
         else
         {
             return
-                ir_expression(ir_var_value_new(IR_VARIABLE(var),
+                ir_expression(ir_var_value_new(ir_variable(var),
                                                ast_node_get_line_num(ident)));
         }
     }

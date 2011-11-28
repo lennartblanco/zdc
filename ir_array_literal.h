@@ -38,7 +38,7 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType 
+GType
 ir_array_literal_get_type(void);
 
 bool

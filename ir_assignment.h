@@ -10,9 +10,6 @@
 
 #define IR_TYPE_ASSIGNMENT ir_assignment_get_type()
 
-#define IR_ASSIGNMENT(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_ASSIGNMENT, IrAssignment))
-
 #define IR_ASSIGNMENT_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_ASSIGNMENT, IrAssignmentClass))
 
@@ -45,6 +42,9 @@ typedef struct
 
 GType
 ir_assignment_get_type(void);
+
+IrAssignment *
+ir_assignment(void *obj);
 
 IrAssignment *
 ir_assignment_new(IrExpression *lvalue,

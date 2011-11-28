@@ -1245,7 +1245,7 @@ validate_expression(compilation_status_t *compile_status,
         expression =
             validate_address_of(compile_status,
                                 sym_table,
-                                IR_ADDRESS_OF(expression));
+                                ir_address_of(expression));
     }
     else if (IR_IS_CONDITIONAL(expression))
     {
@@ -1980,7 +1980,7 @@ validate_statment(compilation_status_t *compile_status,
     {
         validate_assignment(compile_status,
                             sym_table,
-                            IR_ASSIGNMENT(statment));
+                            ir_assignment(statment));
     }
     else if (IR_IS_RETURN(statment))
     {
@@ -2239,7 +2239,7 @@ validate_code_block(compilation_status_t *compile_status,
     {
         if (validate_variable(compile_status,
                               sym_table,
-                              IR_VARIABLE(i->data)) == NULL)
+                              ir_variable(i->data)) == NULL)
         {
             /* invalid variable definition */
             add_vars_to_frame = false;
@@ -2255,7 +2255,7 @@ validate_code_block(compilation_status_t *compile_status,
     {
         for (i = local_vars; i != NULL; i = g_slist_next(i))
         {
-            IrVariable *variable = IR_VARIABLE(i->data);
+            IrVariable *variable = ir_variable(i->data);
             add_to_func_frame(compile_status->function,
                               variable,
                               false);
@@ -2319,7 +2319,7 @@ validate_function_decl(compilation_status_t *compile_status,
     GSList *i = ir_function_get_parameters(ir_function(func_decl));
     for (; i != NULL; i = g_slist_next(i))
     {
-        validate_variable(compile_status, symbols, IR_VARIABLE(i->data));
+        validate_variable(compile_status, symbols, ir_variable(i->data));
     }
 }
 
@@ -2347,7 +2347,7 @@ validate_function_def(compilation_status_t *compile_status,
     {
         IrVariable *var;
 
-        var = validate_variable(compile_status, symbols, IR_VARIABLE(i->data));
+        var = validate_variable(compile_status, symbols, ir_variable(i->data));
         if (var == NULL)
         {
             /* invalid parameter */
@@ -2695,7 +2695,7 @@ validate_struct(compilation_status_t *compile_status,
 
         IrVariable *var = validate_variable(compile_status,
                                             sym_table,
-                                            IR_VARIABLE(i->data));
+                                            ir_variable(i->data));
         if (var == NULL)
         {
             /* invalid member, skip to next member */

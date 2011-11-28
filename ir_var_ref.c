@@ -39,6 +39,12 @@ ir_var_ref_get_type(void)
 }
 
 IrVarRef *
+ir_var_ref(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_VAR_REF, IrVarRef);
+}
+
+IrVarRef *
 ir_var_ref_new(IrVariable *var, guint line_number)
 {
     assert(IR_IS_VARIABLE(var));
@@ -71,7 +77,7 @@ ir_var_ref_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_VAR_REF(self));
 
-    return ir_variable_get_data_type(IR_VAR_REF(self)->var);
+    return ir_variable_get_data_type(ir_var_ref(self)->var);
 }
 
 static bool
@@ -88,7 +94,7 @@ ir_var_ref_get_value_range(IrExpression *self)
     assert(IR_IS_VAR_REF(self));
 
     return
-        ir_expression_get_value_range(ir_expression(IR_VAR_REF(self)->var));
+        ir_expression_get_value_range(ir_expression(ir_var_ref(self)->var));
 }
 
 static void

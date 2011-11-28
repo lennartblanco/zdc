@@ -12,9 +12,6 @@
 
 #define IR_TYPE_VARIABLE ir_variable_get_type()
 
-#define IR_VARIABLE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_VARIABLE, IrVariable))
-
 #define IR_VARIABLE_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_VARIABLE, IrVariableClass))
 
@@ -55,6 +52,9 @@ typedef struct
 
 GType
 ir_variable_get_type(void);
+
+IrVariable *
+ir_variable(void *obj);
 
 /**
  * Create new IR variable object.

@@ -39,6 +39,12 @@ ir_var_value_get_type(void)
 }
 
 IrVarValue *
+ir_var_value(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_VAR_VALUE, IrVarValue);
+}
+
+IrVarValue *
 ir_var_value_new(IrVariable *var, guint line_number)
 {
     assert(IR_IS_VARIABLE(var));

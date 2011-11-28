@@ -32,6 +32,12 @@ ir_assignment_get_type(void)
 }
 
 IrAssignment *
+ir_assignment(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_ASSIGNMENT, IrAssignment);
+}
+
+IrAssignment *
 ir_assignment_new(IrExpression *lvalue,
                   IrExpression *value,
                   guint line_number)

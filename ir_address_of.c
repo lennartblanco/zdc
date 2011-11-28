@@ -40,6 +40,12 @@ ir_address_of_get_type(void)
 }
 
 IrAddressOf *
+ir_address_of(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_ADDRESS_OF, IrAddressOf);
+}
+
+IrAddressOf *
 ir_address_of_new(IrExpression *expression, guint line_number)
 {
     IrAddressOf *obj;
@@ -81,7 +87,7 @@ static DtDataType *
 ir_address_of_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_ADDRESS_OF(self));
-    IrAddressOf *addr_of = IR_ADDRESS_OF(self);
+    IrAddressOf *addr_of = ir_address_of(self);
 
     if (addr_of->type == NULL)
     {

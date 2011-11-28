@@ -18,7 +18,13 @@ ir_print_module(IrModule *mod)
          ir_function_call_get_type(): &print_function_call,
          ir_return_get_type(): &print_return,
          ir_foreach_get_type(): &print_foreach,
-         ir_basic_constant_get_type(): &print_basic_constant
+         ir_basic_constant_get_type(): &print_basic_constant,
+         ir_array_literal_get_type(): &print_array_literal,
+         ir_assignment_get_type(): &print_assignment,
+         ir_var_value_get_type(): &print_var_value,
+         ir_var_ref_get_type(): &print_var_ref,
+         ir_variable_get_type(): &print_variable,
+         ir_address_of_get_type(): &print_address_of
        ]);
     }
 
@@ -108,11 +114,22 @@ print_function_call(gt_dispatcher *dispatcher, GObject *obj, void *data)
 
     writefln("%sIrFunctionCall", get_prefix(l));
 
-    layout child_layout = layout(null, l.indent);
-    child_layout.last_node = l.last_node ~ [false];
+    layout cl = layout(null, l.indent);
+    cl.last_node = l.last_node ~ [false];
     writefln("%sname: %s",
-             get_prefix(&child_layout),
+             get_prefix(&cl),
              to!string(ir_function_call_get_name(fcall)));
+
+    cl.last_node = l.last_node ~ [true];
+    writefln("%sarguments", get_prefix(&cl));
+
+    for (GSList *i = ir_function_call_get_arguments(fcall);
+         i != null;
+         i = i.next)
+    {
+      cl.last_node = l.last_node ~ [true, i.next == null];
+      dispatcher.dispatch(g_object(i.data), &cl);
+    }
 }
 
 void
@@ -136,6 +153,86 @@ print_foreach(gt_dispatcher *dispatcher, GObject *obj, void *data)
 {
     layout *l = cast(layout*)data;
     writefln("%sIrForeach", get_prefix(l));
+}
+
+void
+print_assignment(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    writefln("%sIrAssignment", get_prefix(l));
+
+    IrAssignment *assignment = ir_assignment(obj);
+    layout cl;
+    cl.indent = l.indent;
+
+    /* print lvalue node */
+    cl.node_name = "lvalue";
+    cl.last_node = l.last_node ~ [false];
+    dispatcher.dispatch(g_object(ir_assignment_get_lvalue(assignment)), &cl);
+
+    /* print rvalue node */
+    cl.node_name = "value";
+    cl.last_node = l.last_node ~ [true];
+    dispatcher.dispatch(g_object(ir_assignment_get_value(assignment)), &cl);
+}
+
+void
+print_address_of(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    writefln("%sIrAddressOf", get_prefix(l));
+
+    IrAddressOf *addrof = ir_address_of(obj);
+
+    dispatcher.dispatch(g_object(ir_address_of_get_expression(addrof)),
+                        &layout("expression", l.indent, l.last_node ~ [true]));
+}
+
+void
+print_var_value(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    writefln("%sIrVarValue", get_prefix(l));
+
+    dispatcher.dispatch(g_object(ir_var_value_get_var(ir_var_value(obj))),
+                        &layout("var", l.indent, l.last_node ~ [true]));
+}
+
+void
+print_var_ref(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    writefln("%sIrVarRef", get_prefix(l));
+
+    dispatcher.dispatch(g_object(ir_var_ref_get_var(ir_var_ref(obj))),
+                        &layout("var", l.indent, l.last_node ~ [true]));
+}
+
+void
+print_variable(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    IrVariable *var = ir_variable(obj);
+
+    writefln("%sIrVariable '%s'",
+             get_prefix(l),
+             to!string(ir_variable_get_name(var)));
+}
+
+void
+print_array_literal(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    writefln("%sIrArrayLiteral", get_prefix(l));
+
+    layout cl = layout(null, l.indent, null);
+    for (GSList *i = ir_array_literal_get_values(ir_array_literal(obj));
+         i != null;
+         i = i.next)
+    {
+        cl.last_node = l.last_node ~ [i.next == null];
+        dispatcher.dispatch(g_object(i.data), &cl);
+    }
 }
 
 void

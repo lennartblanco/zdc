@@ -46,6 +46,12 @@ ir_variable_get_type(void)
 }
 
 IrVariable *
+ir_variable(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_VARIABLE, IrVariable);
+}
+
+IrVariable *
 ir_variable_new(bool is_ref,
                 DtDataType *type,
                 char *name,
@@ -143,7 +149,7 @@ ir_variable_do_print(IrNode *self, FILE *out, int indention)
 {
     assert(IR_IS_VARIABLE(self));
 
-    IrVariable *var = IR_VARIABLE(self);
+    IrVariable *var = ir_variable(self);
     fprintf_indent(out, indention, "%s %s",
                    dt_data_type_get_string(var->type),
                    ir_symbol_get_name(ir_symbol(var)));
@@ -160,7 +166,7 @@ ir_variable_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_VARIABLE(self));
 
-    return IR_VARIABLE(self)->type;
+    return ir_variable(self)->type;
 }
 
 static UtRange *

@@ -9,9 +9,6 @@
 
 #define IR_TYPE_ADDRESS_OF ir_address_of_get_type()
 
-#define IR_ADDRESS_OF(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_ADDRESS_OF, IrAddressOf))
-
 #define IR_ADDRESS_OF_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_ADDRESS_OF, IrAddressOfClass))
 
@@ -43,6 +40,9 @@ typedef struct
 
 GType
 ir_address_of_get_type(void);
+
+IrAddressOf *
+ir_address_of(void *obj);
 
 IrAddressOf *
 ir_address_of_new(IrExpression *expression, guint line_number);

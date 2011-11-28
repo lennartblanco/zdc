@@ -251,7 +251,7 @@ iml_add_expression_eval(IrFunctionDef *function,
     else if (IR_IS_ADDRESS_OF(ir_expression))
     {
         res = iml_add_address_of_eval(function,
-                                      IR_ADDRESS_OF(ir_expression),
+                                      ir_address_of(ir_expression),
                                       dest);
     }
     else if (IR_IS_ENUM_MEMBER(ir_expression))
@@ -1406,7 +1406,7 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
 
         ptr_exp =
             iml_operand(
-                ir_variable_get_location(ir_var_ref_get_var(IR_VAR_REF(ref))));
+                ir_variable_get_location(ir_var_ref_get_var(ir_var_ref(ref))));
     }
 
 
@@ -2220,7 +2220,7 @@ add_ptr_dref_assignment(IrFunctionDef *function,
         assert(IR_IS_VAR_REF(lvalue));
         lval =
            iml_operand(
-             ir_variable_get_location(ir_var_ref_get_var(IR_VAR_REF(lvalue))));
+             ir_variable_get_location(ir_var_ref_get_var(ir_var_ref(lvalue))));
     }
     /* generate iml operations to evaluate rvalue */
     rval = iml_add_expression_eval(function, value, NULL, false);

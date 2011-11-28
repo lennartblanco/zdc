@@ -168,6 +168,27 @@ extern (C)
 }
 
 /*---------------------------------------------------------------------------*
+ *                           assignment declarations                         *
+ *---------------------------------------------------------------------------*/
+
+struct IrAssignment;
+
+extern (C)
+{
+    GType
+    ir_assignment_get_type();
+
+    IrAssignment *
+    ir_assignment(void *obj);
+
+    IrExpression *
+    ir_assignment_get_lvalue(IrAssignment *self);
+
+    IrExpression *
+    ir_assignment_get_value(IrAssignment *self);
+}
+
+/*---------------------------------------------------------------------------*
  *                         function call declarations                        *
  *---------------------------------------------------------------------------*/
 
@@ -183,6 +204,81 @@ extern (C)
 
     char *
     ir_function_call_get_name(IrFunctionCall *self);
+
+    GSList *
+    ir_function_call_get_arguments(IrFunctionCall *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                           variable declarations                           *
+ *---------------------------------------------------------------------------*/
+
+struct IrVariable;
+
+extern (C)
+{
+    GType
+    ir_variable_get_type();
+
+    IrVariable *
+    ir_variable(void *obj);
+
+    char *
+    ir_variable_get_name(IrVariable *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                          var value declarations                           *
+ *---------------------------------------------------------------------------*/
+
+struct IrVarValue;
+
+extern (C)
+{
+    GType
+    ir_var_value_get_type();
+
+    IrVarValue *
+    ir_var_value(void *obj);
+
+    IrVariable *
+    ir_var_value_get_var(IrVarValue *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                        var reference declarations                         *
+ *---------------------------------------------------------------------------*/
+
+struct IrVarRef;
+
+extern (C)
+{
+    GType
+    ir_var_ref_get_type();
+
+    IrVarValue *
+    ir_var_ref(void *obj);
+
+    IrVariable *
+    ir_var_ref_get_var(IrVarValue *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                         address of declarations                           *
+ *---------------------------------------------------------------------------*/
+
+struct IrAddressOf;
+
+extern (C)
+{
+    GType
+    ir_address_of_get_type();
+
+    IrAddressOf *
+    ir_address_of(void *obj);
+
+    IrExpression *
+    ir_address_of_get_expression(IrAddressOf *self);
 }
 
 /*---------------------------------------------------------------------------*
@@ -247,6 +343,9 @@ struct IrArrayLiteral;
 
 extern (C)
 {
+    GType
+    ir_array_literal_get_type();
+
     bool
     ir_is_array_literal(void *obj);
 

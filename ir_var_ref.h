@@ -18,9 +18,6 @@
 
 #define IR_TYPE_VAR_REF ir_var_ref_get_type()
 
-#define IR_VAR_REF(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_VAR_REF, IrVarRef))
-
 #define IR_VAR_REF_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_VAR_REF, IrVarRefClass))
 
@@ -52,6 +49,9 @@ typedef struct
 
 GType
 ir_var_ref_get_type(void);
+
+IrVarRef *
+ir_var_ref(void *obj);
 
 IrVarRef *
 ir_var_ref_new(IrVariable *var, guint line_number);

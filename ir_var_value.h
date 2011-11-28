@@ -53,6 +53,9 @@ GType
 ir_var_value_get_type(void);
 
 IrVarValue *
+ir_var_value(void *obj);
+
+IrVarValue *
 ir_var_value_new(IrVariable *var, guint line_number);
 
 IrVariable *
