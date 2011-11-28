@@ -1,3 +1,16 @@
+* '\0' is not handled correctly when used in string literals, for example:
+
+int main()
+{
+  immutable(char)[] str = "hej\0san";
+
+  return str.length;
+}
+
+the above program should exit with code 7 (length of the array). When compiled
+with zdc, return code will be 3. The string literal will not be proccessed
+pass the '\0' escape sequence.
+
 * compiling following code for arm architecture generates invalid assembly:
 
 bool foo()
