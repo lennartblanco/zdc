@@ -179,24 +179,3 @@ Here is dmd error message:
 
 err.d(6): Error: shadowing declaration err.func1.i is deprecated
 err.d(10): Error: shadowing declaration err.func1.i is deprecated
-
-* the code below fails an assertion
-
-int foo(uint idx)
-{
-  byte[] i = [10, 20, 30, 40];
-
-  return i[idx];
-}
-
-* following valid code generated a compile warning
-
-foo.d:
-1:void foo()
-2:{
-3:  char a;
-4:  a = 100;
-5:}
-
-$ ./xdc foo.d
-foo.d:4: error: can't assign expression of type int to lvalue of char type
