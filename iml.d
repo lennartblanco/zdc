@@ -170,4 +170,7 @@ extern (C)
 
     GSList *
     iml_func_frame_get_used_regs(iml_func_frame *self);
+
+    void
+    iml_func_frame_print(iml_func_frame *self, FILE *output, int indention);
 }

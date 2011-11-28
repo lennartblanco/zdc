@@ -28,6 +28,7 @@ struct compilation_settings
     arch_backend         backend;
     bool                 print_ast;
     bool                 print_ir;
+    bool                 print_iml;
 }
 
 struct command_options
@@ -151,10 +152,12 @@ get_usage_message(string progname)
             "                     multiple -I are specified, the paths are\n"
             "                     search from left to right.\n"
             "  -llib              Link generated binary to specified library.\n"
-            "  --print-ast        Output Abstaract Syntax Tree for each compile\n"
+            "  --print-ast        Output Abstaract Syntax Tree for each module\n"
             "                     unit.\n"
             "  --print-ir         Output Intermediate Represantation of each\n"
-            "                     compile unit.\n"
+            "                     module.\n"
+            "  --print-iml        Output Itermidiate language code generated "
+            "                     for each module.\n"
             "  --version          Print compiler's version\n"
             "  --help, -?, -h     Print this help message.";
 }
@@ -171,6 +174,7 @@ parse_command_arguments(string[] args, ref command_options options)
     options.last_compilation_stage = compilation_stages.link_stage;
     options.comp_settings.print_ast = false;
     options.comp_settings.print_ir = false;
+    options.comp_settings.print_iml = false;
 
     /* parse command line options */
     for (int i = 1; i < args.length; i += 1)
@@ -256,6 +260,10 @@ parse_command_arguments(string[] args, ref command_options options)
             else if (arg == "--print-ir")
             {
                 options.comp_settings.print_ir = true;
+            }
+            else if (arg == "--print-iml")
+            {
+                options.comp_settings.print_iml = true;
             }
             else
             {

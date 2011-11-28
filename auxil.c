@@ -5,6 +5,7 @@
 #include "sym_table.h"
 #include "sem_analyze.h"
 #include "ir_printer.h"
+#include "iml_printer.h"
 
 #include <assert.h>
 
@@ -74,6 +75,11 @@ compile_file(const char* input_file,
     if (settings.print_ir)
     {
         ir_print_module(ir_module);
+    }
+
+    if (settings.print_iml)
+    {
+        iml_print_module(ir_module);
     }
 
     /*

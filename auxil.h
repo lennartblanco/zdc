@@ -42,6 +42,7 @@ typedef struct compilation_settings_s
     arch_backend_t backend;
     bool print_ast;
     bool print_ir;
+    bool print_iml;
 } compilation_settings_t;
 
 /*---------------------------------------------------------------------------*
