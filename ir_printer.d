@@ -238,6 +238,19 @@ print_array_literal(gt_dispatcher *dispatcher, GObject *obj, void *data)
 void
 print_basic_constant(gt_dispatcher *dispatcher, GObject *obj, void *data)
 {
+    string char_string(char c)
+    {
+        string[char] escape_chars =
+            ['\a' : "\\a", '\b' : "\\b", '\f' : "\\f", '\n' : "\\n",
+             '\r' : "\\r", '\t' : "\\t", '\v' : "\\v", '\0' : "\\0"];
+
+        if (c in escape_chars)
+        {
+            return escape_chars[c];
+        }
+        return [c];
+    }
+
     IrBasicConstant *bconst = ir_basic_constant(obj);
     DtBasic *type = dt_basic(ir_expression_get_data_type(ir_expression(obj)));
 
@@ -249,7 +262,7 @@ print_basic_constant(gt_dispatcher *dispatcher, GObject *obj, void *data)
             val = to!string(ir_basic_constant_get_bool(bconst));
             break;
         case basic_data_type.char_type:
-            val = to!string(ir_basic_constant_get_char(bconst));
+            val = char_string(ir_basic_constant_get_char(bconst));
             break;
         case basic_data_type.int_type:
             val = to!string(ir_basic_constant_get_int(bconst));
