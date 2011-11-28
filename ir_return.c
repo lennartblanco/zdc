@@ -43,6 +43,12 @@ ir_return_get_type(void)
 }
 
 IrReturn *
+ir_return(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_RETURN, IrReturn);
+}
+
+IrReturn *
 ir_return_new(IrExpression *return_value, guint line_number)
 {
     IrReturn *obj;
@@ -82,7 +88,7 @@ ir_return_do_print(IrNode *self, FILE *out, int indention)
     assert(IR_IS_RETURN(self));
     assert(out);
 
-    IrReturn *ret = IR_RETURN(self);
+    IrReturn *ret = ir_return(self);
 
     fprintf_indent(out, indention, "return [%p]\n", ret);
     if (ret->return_value != NULL)

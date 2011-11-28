@@ -211,7 +211,7 @@ iml_add_expression_eval(IrFunctionDef *function,
     else if (IR_IS_FUNCTION_CALL(ir_expression))
     {
         res = iml_add_func_call_eval(function,
-                                     IR_FUNCTION_CALL(ir_expression),
+                                     ir_function_call(ir_expression),
                                      dest);
     }
     else if (IR_IS_CAST(ir_expression))

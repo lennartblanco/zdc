@@ -1198,7 +1198,7 @@ validate_expression(compilation_status_t *compile_status,
         expression =
             validate_function_call(compile_status,
                                    sym_table,
-                                   IR_FUNCTION_CALL(expression));
+                                   ir_function_call(expression));
     }
     else if (IR_IS_ARRAY_CELL(expression))
     {
@@ -1967,13 +1967,13 @@ validate_statment(compilation_status_t *compile_status,
     {
          if (validate_function_call(compile_status,
                                     sym_table,
-                                    IR_FUNCTION_CALL(statment)) == NULL)
+                                    ir_function_call(statment)) == NULL)
          {
              /* invalid function call, bail out */
              return;
          }
          iml_add_func_call_eval(compile_status->function,
-                                IR_FUNCTION_CALL(statment),
+                                ir_function_call(statment),
                                 NULL);
     }
     else if (IR_IS_ASSIGNMENT(statment))
@@ -1984,7 +1984,7 @@ validate_statment(compilation_status_t *compile_status,
     }
     else if (IR_IS_RETURN(statment))
     {
-        validate_return(compile_status, sym_table, IR_RETURN(statment));
+        validate_return(compile_status, sym_table, ir_return(statment));
     }
     else if (IR_IS_IF_ELSE(statment))
     {
@@ -2279,7 +2279,7 @@ validate_code_block(compilation_status_t *compile_status,
     {
         if (IR_IS_CODE_BLOCK(i->data))
         {
-            validate_code_block(compile_status, IR_CODE_BLOCK(i->data));
+            validate_code_block(compile_status, ir_code_block(i->data));
         }
         else if (IR_IS_STATMENT(i->data))
         {

@@ -1,3 +1,4 @@
+public import GType;
 public import GSList;
 public import GList;
 public import sym_table;
@@ -12,6 +13,15 @@ struct IrModule;
 
 extern (C)
 {
+    GType
+    ir_module_get_type();
+
+    IrModule *
+    ir_module(void *obj);
+
+    char *
+    ir_module_get_fqname(IrModule *self);
+
     GSList *
     ir_module_get_function_defs(IrModule *self);
 
@@ -69,6 +79,9 @@ struct IrFunctionDef;
 
 extern (C)
 {
+    GType
+    ir_function_def_get_type();
+
     IrFunctionDef *
     ir_function_def(void *obj);
 
@@ -81,11 +94,62 @@ extern (C)
     DtDataType *
     ir_function_def_get_return_type(IrFunctionDef *self);
 
+    IrCodeBlock *
+    ir_function_def_get_body(IrFunctionDef *self);
+
     iml_func_frame *
     ir_function_def_get_frame(IrFunctionDef *self);
 
     GSList *
     ir_function_def_get_operations(IrFunctionDef *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                          code block declarations                          *
+ *---------------------------------------------------------------------------*/
+
+struct IrCodeBlock;
+
+extern (C)
+{
+    GType
+    ir_code_block_get_type();
+
+    IrCodeBlock *
+    ir_code_block(void *obj);
+
+    GSList *
+    ir_code_block_get_statments(IrCodeBlock *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                        return statment declarations                       *
+ *---------------------------------------------------------------------------*/
+
+struct IrReturn;
+
+extern (C)
+{
+    GType
+    ir_return_get_type();
+
+    IrReturn *
+    ir_return(void *obj);
+
+    IrExpression *
+    ir_return_get_return_value(IrReturn *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                          foreach loop declarations                        *
+ *---------------------------------------------------------------------------*/
+
+struct IrForeach;
+
+extern (C)
+{
+    GType
+    ir_foreach_get_type();
 }
 
 /*---------------------------------------------------------------------------*
@@ -101,6 +165,24 @@ extern (C)
 
     DtDataType *
     ir_expression_get_data_type(IrExpression *self);
+}
+
+/*---------------------------------------------------------------------------*
+ *                         function call declarations                        *
+ *---------------------------------------------------------------------------*/
+
+struct IrFunctionCall;
+
+extern (C)
+{
+    GType
+    ir_function_call_get_type();
+
+    IrFunctionCall *
+    ir_function_call(void *obj);
+
+    char *
+    ir_function_call_get_name(IrFunctionCall *self);
 }
 
 /*---------------------------------------------------------------------------*
@@ -126,6 +208,9 @@ struct IrBasicConstant;
 
 extern (C)
 {
+    GType
+    ir_basic_constant_get_type();
+
     IrBasicConstant *
     ir_basic_constant(void *obj);
 
@@ -222,5 +307,3 @@ extern (C)
     IrExpression *
     ir_enum_member_get_value(IrEnumMember *self);
 }
-
-

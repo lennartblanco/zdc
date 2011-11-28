@@ -42,6 +42,14 @@ ir_function_call_get_type(void)
 }
 
 IrFunctionCall *
+ir_function_call(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_FUNCTION_CALL,
+                                      IrFunctionCall);
+}
+
+IrFunctionCall *
 ir_function_call_new(char *name,
                      GSList *arguments,
                      guint line_number)
@@ -119,7 +127,7 @@ ir_function_call_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_FUNCTION_CALL(self));
 
-    return IR_FUNCTION_CALL(self)->return_type;
+    return ir_function_call(self)->return_type;
 }
 
 static UtRange *
@@ -127,7 +135,7 @@ ir_function_call_get_value_range(IrExpression *self)
 {
     assert(IR_IS_FUNCTION_CALL(self));
 
-    IrFunctionCall *fcall = IR_FUNCTION_CALL(self);
+    IrFunctionCall *fcall = ir_function_call(self);
 
     return dt_basic_get_value_range(dt_basic(fcall->return_type));
 }

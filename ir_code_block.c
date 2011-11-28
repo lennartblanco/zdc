@@ -36,6 +36,12 @@ ir_code_block_get_type(void)
 }
 
 IrCodeBlock *
+ir_code_block(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_CODE_BLOCK, IrCodeBlock);
+}
+
+IrCodeBlock *
 ir_code_block_new(sym_table_t *parent_sym_table)
 {
     IrCodeBlock *obj;

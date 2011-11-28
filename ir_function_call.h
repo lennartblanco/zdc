@@ -10,9 +10,6 @@
 
 #define IR_TYPE_FUNCTION_CALL ir_function_call_get_type()
 
-#define IR_FUNCTION_CALL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_FUNCTION_CALL, IrFunctionCall))
-
 #define IR_FUNCTION_CALL_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_FUNCTION_CALL, IrFunctionCallClass))
 
@@ -46,6 +43,9 @@ typedef struct
 
 GType 
 ir_function_call_get_type(void);
+
+IrFunctionCall *
+ir_function_call(void *obj);
 
 /**
  *

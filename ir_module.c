@@ -54,6 +54,12 @@ GType ir_module_get_type(void)
 }
 
 IrModule *
+ir_module(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_MODULE, IrModule);
+}
+
+IrModule *
 ir_module_new(GSList *package_name)
 {
     IrModule *obj;

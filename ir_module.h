@@ -20,9 +20,6 @@
 
 #define IR_TYPE_MODULE ir_module_get_type()
 
-#define IR_MODULE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_MODULE, IrModule))
-
 #define IR_MODULE_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_MODULE, IrModuleClass))
 
@@ -46,6 +43,9 @@ typedef struct
 
 GType 
 ir_module_get_type(void);
+
+IrModule *
+ir_module(void *obj);
 
 /**
  * Create a IR representation of a module.

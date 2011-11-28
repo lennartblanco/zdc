@@ -12,9 +12,6 @@
 
 #define IR_TYPE_CODE_BLOCK ir_code_block_get_type()
 
-#define IR_CODE_BLOCK(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_CODE_BLOCK, IrCodeBlock))
-
 #define IR_CODE_BLOCK_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_CODE_BLOCK, IrCodeBlockClass))
 
@@ -47,6 +44,9 @@ typedef struct
 
 GType 
 ir_code_block_get_type(void);
+
+IrCodeBlock *
+ir_code_block(void *obj);
 
 IrCodeBlock *
 ir_code_block_new(sym_table_t *parent_sym_table);
