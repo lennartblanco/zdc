@@ -1,6 +1,8 @@
 public import GSList;
 public import std.stdio;
 
+extern (C):
+
 /*---------------------------------------------------------------------------*
  *                        operation declarations                             *
  *---------------------------------------------------------------------------*/
@@ -52,23 +54,18 @@ enum iml_opcode
     label
 };
 
-extern (C)
-{
-    iml_operation *
-    cast_iml_operation(void *obj);
 
-    iml_opcode
-    iml_operation_get_opcode(iml_operation *self);
+iml_operation *
+cast_iml_operation(void *obj);
 
-    void *
-    iml_operation_get_operand(iml_operation *self,
-                              uint operand_num);
+iml_opcode
+iml_operation_get_opcode(iml_operation *self);
 
-    void
-    iml_operation_print(iml_operation *self,
-                        FILE *out_stream,
-                        int indention);
-}
+void *
+iml_operation_get_operand(iml_operation *self, uint operand_num);
+
+void
+iml_operation_print(iml_operation *self, FILE *out_stream, int indention);
 
 /*---------------------------------------------------------------------------*
  *                         operand declarations                              *
@@ -85,14 +82,11 @@ enum iml_data_type
     blob
 };
 
-extern (C)
-{
-    iml_data_type
-    iml_operand_get_data_type(ImlOperand *self);
+iml_data_type
+iml_operand_get_data_type(ImlOperand *self);
 
-    ImlOperand *
-    iml_operand(void *obj);
-}
+ImlOperand *
+iml_operand(void *obj);
 
 /*---------------------------------------------------------------------------*
  *                         constant declarations                             *
@@ -100,20 +94,17 @@ extern (C)
 
 struct ImlConstant;
 
-extern (C)
-{
-    bool
-    iml_is_constant(void *obj);
+bool
+iml_is_constant(void *obj);
 
-    ImlConstant *
-    iml_constant(void *obj);
+ImlConstant *
+iml_constant(void *obj);
 
-    uint
-    iml_constant_get_val_32b(ImlConstant *self);
+uint
+iml_constant_get_val_32b(ImlConstant *self);
 
-    char *
-    iml_constant_get_val_ptr(ImlConstant *self);
-}
+char *
+iml_constant_get_val_ptr(ImlConstant *self);
 
 /*---------------------------------------------------------------------------*
  *                        variable declarations                              *
@@ -121,32 +112,29 @@ extern (C)
 
 struct ImlVariable;
 
-extern (C)
-{
-    bool
-    iml_is_variable(void *obj);
+bool
+iml_is_variable(void *obj);
 
-    ImlVariable *
-    iml_variable(void *obj);
+ImlVariable *
+iml_variable(void *obj);
 
-    bool
-    iml_variable_is_mem_pinned(ImlVariable *self);
+bool
+iml_variable_is_mem_pinned(ImlVariable *self);
 
-    char *
-    iml_variable_get_register(ImlVariable *self);
+char *
+iml_variable_get_register(ImlVariable *self);
 
-    void
-    iml_variable_set_frame_offset(ImlVariable *self, int frame_offset);
+void
+iml_variable_set_frame_offset(ImlVariable *self, int frame_offset);
 
-    int
-    iml_variable_get_frame_offset(ImlVariable *self);
+int
+iml_variable_get_frame_offset(ImlVariable *self);
 
-    iml_data_type
-    iml_variable_get_data_type(ImlVariable *self);
+iml_data_type
+iml_variable_get_data_type(ImlVariable *self);
 
-    uint
-    iml_variable_get_size(ImlVariable *self);
-}
+uint
+iml_variable_get_size(ImlVariable *self);
 
 /*---------------------------------------------------------------------------*
  *                       function frame declarations                         *
@@ -154,23 +142,20 @@ extern (C)
 
 struct iml_func_frame;
 
-extern (C)
-{
-    GSList *
-    iml_func_frame_get_parameters(iml_func_frame *self);
+GSList *
+iml_func_frame_get_parameters(iml_func_frame *self);
 
-    GSList *
-    iml_func_frame_get_locals(iml_func_frame *self);
+GSList *
+iml_func_frame_get_locals(iml_func_frame *self);
 
-    void
-    iml_func_frame_set_size(iml_func_frame *self, uint stack_size);
+void
+iml_func_frame_set_size(iml_func_frame *self, uint stack_size);
 
-    uint
-    iml_func_frame_get_size(iml_func_frame *self);
+uint
+iml_func_frame_get_size(iml_func_frame *self);
 
-    GSList *
-    iml_func_frame_get_used_regs(iml_func_frame *self);
+GSList *
+iml_func_frame_get_used_regs(iml_func_frame *self);
 
-    void
-    iml_func_frame_print(iml_func_frame *self, FILE *output, int indention);
-}
+void
+iml_func_frame_print(iml_func_frame *self, FILE *output, int indention);

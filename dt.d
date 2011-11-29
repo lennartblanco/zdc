@@ -1,3 +1,5 @@
+extern (C):
+
 /*---------------------------------------------------------------------------*
  *                         data type declarations                            *
  *---------------------------------------------------------------------------*/
@@ -16,26 +18,26 @@ enum basic_data_type
     uint_type                /* int 32-bit unsigned */
 }
 
+char *
+dt_data_type_get_string(DtDataType *self);
+
 /*---------------------------------------------------------------------------*
  *                       basic data type declarations                        *
  *---------------------------------------------------------------------------*/
 
 struct DtBasic;
 
-extern (C)
-{
-    bool
-    dt_is_basic(void *obj);
+bool
+dt_is_basic(void *obj);
 
-    DtBasic *
-    dt_basic(void *obj);
+DtBasic *
+dt_basic(void *obj);
 
-    basic_data_type
-    dt_basic_get_data_type(DtBasic *self);
+basic_data_type
+dt_basic_get_data_type(DtBasic *self);
 
-    bool
-    dt_basic_is_int(DtDataType *data_type);
-}
+bool
+dt_basic_is_int(DtDataType *data_type);
 
 /*---------------------------------------------------------------------------*
  *                       array data type declarations                        *
@@ -43,14 +45,11 @@ extern (C)
 
 struct DtArray;
 
-extern (C)
-{
-    DtArray *
-    dt_array(void *obj);
+DtArray *
+dt_array(void *obj);
 
-    DtDataType *
-    dt_array_get_element_type(DtArray *self);
-}
+DtDataType *
+dt_array_get_element_type(DtArray *self);
 
 /*---------------------------------------------------------------------------*
  *                        enum data type declarations                        *
@@ -58,15 +57,11 @@ extern (C)
 
 struct DtEnum;
 
-extern (C)
-{
-    bool
-    dt_is_enum(void *obj);
+bool
+dt_is_enum(void *obj);
 
-    DtEnum *
-    dt_enum(void *obj);
+DtEnum *
+dt_enum(void *obj);
 
-    DtDataType *
-    dt_enum_get_base_type(DtEnum *self);
-}
-
+DtDataType *
+dt_enum_get_base_type(DtEnum *self);
