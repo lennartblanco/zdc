@@ -54,8 +54,8 @@ struct IrFunction;
 
 enum ir_linkage_type
 {
-  d_linkage,
-  c_linkage
+    d_linkage,
+    c_linkage
 }
 
 IrFunction *

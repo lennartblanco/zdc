@@ -26,8 +26,8 @@
 
 typedef enum ir_linkage_type_e
 {
-  ir_d_linkage,
-  ir_c_linkage
+    ir_d_linkage,
+    ir_c_linkage
 } ir_linkage_type_t;
 
 typedef struct
@@ -42,7 +42,7 @@ typedef struct
 
 typedef struct
 {
-  IrSymbolClass parent_class;
+    IrSymbolClass parent_class;
 } IrFunctionClass;
 
 /*---------------------------------------------------------------------------*

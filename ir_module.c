@@ -10,19 +10,19 @@
 
 struct _IrModule
 {
-  GObject        parent;
-  /* private */
-  GSList         *package_name;
-  sym_table_t    *symbols;
-  GSList         *imports;
-  GSList         *enums;
-  GSList         *structs;
-  GSList         *function_decls;
-  GSList         *function_defs;
-  guint           label_counter; /** used to generate module unique labels */
-  GHashTable     *data_section;  /** compile-time constant expressions */
-  char *fq_name;
-  char *mangled_name;
+    GObject        parent;
+    /* private */
+    GSList         *package_name;
+    sym_table_t    *symbols;
+    GSList         *imports;
+    GSList         *enums;
+    GSList         *structs;
+    GSList         *function_decls;
+    GSList         *function_defs;
+    guint           label_counter; /** used to generate module unique labels */
+    GHashTable     *data_section;  /** compile-time constant expressions */
+    char *fq_name;
+    char *mangled_name;
 };
 
 /*---------------------------------------------------------------------------*

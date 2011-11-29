@@ -34,7 +34,7 @@
 
 typedef struct 
 {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 } IrModuleClass;
 
 /*---------------------------------------------------------------------------*
@@ -75,8 +75,7 @@ ir_module_get_imports(IrModule *self);
  *         false if function with this name is already declared
  */
 bool
-ir_module_add_function_decl(IrModule *self,
-                            IrFunctionDecl *function_decl);
+ir_module_add_function_decl(IrModule *self, IrFunctionDecl *function_decl);
 
 GSList *
 ir_module_get_function_decls(IrModule *self);
@@ -86,8 +85,7 @@ ir_module_get_function_decls(IrModule *self);
  *         false if function with this name is already defined
  */
 bool
-ir_module_add_function_def(IrModule *self,
-                           IrFunctionDef *function_def);
+ir_module_add_function_def(IrModule *self, IrFunctionDef *function_def);
 
 GSList *
 ir_module_get_function_defs(IrModule *self);
@@ -121,8 +119,7 @@ ir_module_add_type_alias(IrModule *self,
  * @return false if this enum definition conflicts with some other user type
  */
 bool
-ir_module_add_enum(IrModule *self,
-                   DtEnum *dt_enum);
+ir_module_add_enum(IrModule *self, DtEnum *dt_enum);
 
 /**
  * @return enum declaration in this module, as a list of IrEnum objects
