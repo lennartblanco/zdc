@@ -5,10 +5,10 @@ extern (C)
 {
 
     GType
-    g_type_from_instance(GObject *obj);
+    g_type_from_instance(void *obj);
 
-    GObject *
-    g_object(void *obj);
+    bool
+    g_is_object(void *obj);
 
     char *
     g_type_name(GType type);

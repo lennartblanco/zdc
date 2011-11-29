@@ -7,7 +7,7 @@ public import GType;
 import std.stdio;
 import std.conv;
 
-alias void function(gt_dispatcher *, GObject *, void *) type_method;
+alias void function(gt_dispatcher *, void *obj, void *data) type_method;
 
 struct gt_dispatcher
 {
@@ -17,8 +17,9 @@ struct gt_dispatcher
     }
 
     void
-    dispatch(GObject *obj, void *data)
+    dispatch(void *obj, void *data)
     {
+        assert(g_is_object(obj));
         GType obj_type = g_type_from_instance(obj);
 
         assert(obj_type in type_methods,
