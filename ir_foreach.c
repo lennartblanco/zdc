@@ -43,6 +43,12 @@ ir_foreach_get_type(void)
 }
 
 IrForeach *
+ir_foreach(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_FOREACH, IrForeach);
+}
+
+IrForeach *
 ir_foreach_new(IrVariable *index,
                IrVariable *value,
                IrExpression *aggregate,
@@ -114,7 +120,7 @@ ir_foreach_do_print(IrNode *self, FILE *out, int indention)
     assert(IR_IS_FOREACH(self));
     assert(out);
 
-    IrForeach *foreach = IR_FOREACH(self);
+    IrForeach *foreach = ir_foreach(self);
 
     fprintf_indent(out, indention, "foreach [%p]\n  index: ", foreach);
     if (foreach->index == NULL)

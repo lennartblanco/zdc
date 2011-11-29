@@ -12,9 +12,6 @@
 
 #define IR_TYPE_FOREACH ir_foreach_get_type()
 
-#define IR_FOREACH(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_FOREACH, IrForeach))
-
 #define IR_FOREACH_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_FOREACH, IrForeachClass))
 
@@ -49,6 +46,9 @@ typedef struct
 
 GType
 ir_foreach_get_type(void);
+
+IrForeach *
+ir_foreach(void *obj);
 
 IrForeach *
 ir_foreach_new(IrVariable *index,

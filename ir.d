@@ -134,6 +134,18 @@ struct IrForeach;
 GType
 ir_foreach_get_type();
 
+IrForeach *
+ir_foreach(void *obj);
+
+IrVariable *
+ir_foreach_get_index(IrForeach *self);
+
+IrVariable *
+ir_foreach_get_value(IrForeach *self);
+
+IrCodeBlock *
+ir_foreach_get_body(IrForeach *self);
+
 /*---------------------------------------------------------------------------*
  *                          expression declarations                          *
  *---------------------------------------------------------------------------*/

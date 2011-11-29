@@ -2000,7 +2000,7 @@ validate_statment(compilation_status_t *compile_status,
     }
     else if (IR_IS_FOREACH(statment))
     {
-        validate_foreach(compile_status, sym_table, IR_FOREACH(statment));
+        validate_foreach(compile_status, sym_table, ir_foreach(statment));
     }
     else if (IR_IS_FOREACH_RANGE(statment))
     {

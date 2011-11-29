@@ -153,6 +153,29 @@ print_foreach(gt_dispatcher *dispatcher, GObject *obj, void *data)
 {
     layout *l = cast(layout*)data;
     writefln("%sIrForeach", get_prefix(l));
+
+    layout cl = layout(null, l.indent, null);
+    IrForeach *ir_foreach = ir_foreach(obj);
+
+    /* print index node */
+    IrVariable *var = ir_foreach_get_index(ir_foreach);
+    if (var != null)
+    {
+        cl.node_name = "index";
+        cl.last_node = l.last_node ~ [false];
+        dispatcher.dispatch(g_object(var), &cl);
+    }
+
+    /* print value node */
+    cl.node_name = "value";
+    cl.last_node = l.last_node ~ [false];
+    dispatcher.dispatch(g_object(ir_foreach_get_value(ir_foreach)), &cl);
+
+    /* print body subtree */
+    cl.node_name = "body";
+    cl.last_node = l.last_node ~ [true];
+    dispatcher.dispatch(g_object(ir_foreach_get_body(ir_foreach)), &cl);
+
 }
 
 void
