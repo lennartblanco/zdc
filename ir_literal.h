@@ -31,7 +31,7 @@ typedef struct
 
 typedef struct
 {
-  IrExpressionClass parent_class;
+    IrExpressionClass parent_class;
 } IrLiteralClass;
 
 /*---------------------------------------------------------------------------*

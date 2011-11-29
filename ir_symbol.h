@@ -27,16 +27,16 @@
 
 struct _IrSymbol
 {
-  IrExpression parent;
-  /* private */
-  char    *name;
-  char    *fq_name;
-  IrModule *parent_module;
+    IrExpression parent;
+    /* private */
+    char    *name;
+    char    *fq_name;
+    IrModule *parent_module;
 };
 
 typedef struct
 {
-  IrExpressionClass parent_class;
+    IrExpressionClass parent_class;
 } IrSymbolClass;
 
 /*---------------------------------------------------------------------------*

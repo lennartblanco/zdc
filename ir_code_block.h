@@ -26,16 +26,16 @@
 
 typedef struct 
 {
-  IrStatment parent;
-  /* private */
-  sym_table_t *symbols;
-  GSList      *statments;
-  GSList      *local_vars;
+    IrStatment parent;
+    /* private */
+    sym_table_t *symbols;
+    GSList      *statments;
+    GSList      *local_vars;
 } IrCodeBlock;
 
 typedef struct 
 {
-  IrStatmentClass parent_class;
+    IrStatmentClass parent_class;
 } IrCodeBlockClass;
 
 /*---------------------------------------------------------------------------*

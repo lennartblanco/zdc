@@ -26,12 +26,12 @@
 
 typedef struct
 {
-  IrNode parent;
+    IrNode parent;
 } IrStatment;
 
 typedef struct
 {
-  IrNodeClass parent_class;
+    IrNodeClass parent_class;
 } IrStatmentClass;
 
 /*---------------------------------------------------------------------------*

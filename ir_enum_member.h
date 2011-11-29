@@ -36,7 +36,7 @@ struct _IrEnumMember
 
 typedef struct
 {
-  IrSymbolClass parent_class;
+    IrSymbolClass parent_class;
 } IrEnumMemberClass;
 
 /*---------------------------------------------------------------------------*

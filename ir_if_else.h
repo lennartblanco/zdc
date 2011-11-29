@@ -36,7 +36,7 @@ typedef struct
 
 typedef struct
 {
-  IrStatmentClass parent_class;
+    IrStatmentClass parent_class;
 } IrIfElseClass;
 
 /*---------------------------------------------------------------------------*

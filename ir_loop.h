@@ -27,15 +27,15 @@
 
 typedef struct
 {
-  IrStatment parent;
+    IrStatment parent;
 
-  /* private */
-  iml_operation_t *end_label;
+    /* private */
+    iml_operation_t *end_label;
 } IrLoop;
 
 typedef struct
 {
-  IrStatmentClass parent_class;
+    IrStatmentClass parent_class;
 } IrLoopClass;
 
 /*---------------------------------------------------------------------------*

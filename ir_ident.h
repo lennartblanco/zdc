@@ -26,15 +26,15 @@
 
 typedef struct
 {
-  IrExpression parent;
+    IrExpression parent;
 
-  /* private */
-  gchar *name;
+    /* private */
+    gchar *name;
 } IrIdent;
 
 typedef struct
 {
-  IrExpressionClass parent_class;
+    IrExpressionClass parent_class;
 } IrIdentClass;
 
 /*---------------------------------------------------------------------------*

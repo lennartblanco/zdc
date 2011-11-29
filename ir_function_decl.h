@@ -32,7 +32,7 @@ typedef struct
 
 typedef struct
 {
-  IrFunctionClass parent_class;
+    IrFunctionClass parent_class;
 } IrFunctionDeclClass;
 
 /*---------------------------------------------------------------------------*

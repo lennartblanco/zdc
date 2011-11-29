@@ -29,18 +29,18 @@
 
 struct _IrExpression
 {
-  IrStatment parent;
+    IrStatment parent;
 };
 
 typedef struct 
 {
-  IrStatmentClass parent_class;
-  /* public virtual methods */
-  DtDataType * (*do_get_data_type) (IrExpression *self);
-  bool (*do_is_constant) (IrExpression *self);
-  bool (*do_is_lvalue) (IrExpression *self);
-  bool (*has_effect) (IrExpression *self);
-  UtRange * (*get_value_range) (IrExpression *self);
+    IrStatmentClass parent_class;
+    /* public virtual methods */
+    DtDataType * (*do_get_data_type) (IrExpression *self);
+    bool (*do_is_constant) (IrExpression *self);
+    bool (*do_is_lvalue) (IrExpression *self);
+    bool (*has_effect) (IrExpression *self);
+    UtRange * (*get_value_range) (IrExpression *self);
 } IrExpressionClass;
 
 /*---------------------------------------------------------------------------*

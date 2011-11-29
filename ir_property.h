@@ -30,9 +30,9 @@
 
 typedef enum ir_property_id_e
 {
-  ir_prop_init,
-  ir_prop_sizeof,
-  ir_prop_length
+    ir_prop_init,
+    ir_prop_sizeof,
+    ir_prop_length
 } ir_property_id_t;
 
 typedef struct

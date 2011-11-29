@@ -27,16 +27,16 @@
 
 typedef struct
 {
-  GObject parent;
-  /* private */
-  guint line_number;
+    GObject parent;
+    /* private */
+    guint line_number;
 } IrNode;
 
 typedef struct
 {
-  GObjectClass parent_class;
-  /* public virtual methods */
-  void (*do_print) (IrNode *self, FILE *out, int indention);
+    GObjectClass parent_class;
+    /* public virtual methods */
+    void (*do_print) (IrNode *self, FILE *out, int indention);
 } IrNodeClass;
 
 /*---------------------------------------------------------------------------*

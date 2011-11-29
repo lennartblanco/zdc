@@ -26,15 +26,15 @@
 
 typedef struct
 {
-  GObject        parent;
-  /* private */
-  IrExpression *condition;
-  IrCodeBlock   *body;
+    GObject        parent;
+    /* private */
+    IrExpression *condition;
+    IrCodeBlock   *body;
 } IrIfBlock;
 
 typedef struct
 {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 } IrIfBlockClass;
 
 /*---------------------------------------------------------------------------*
