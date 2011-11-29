@@ -50,6 +50,12 @@ ir_cast_get_type(void)
 }
 
 IrCast *
+ir_cast(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj), IR_TYPE_CAST, IrCast);
+}
+
+IrCast *
 ir_cast_new(DtDataType *target_type, IrExpression *value)
 {
     IrCast *obj;
@@ -94,7 +100,7 @@ ir_cast_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_CAST(self));
 
-    return IR_CAST(self)->target_type;
+    return ir_cast(self)->target_type;
 }
 
 bool
@@ -102,7 +108,7 @@ ir_cast_do_is_constant(IrExpression *self)
 {
     assert(IR_IS_CAST(self));
 
-    return ir_expression_is_constant(IR_CAST(self)->value);
+    return ir_expression_is_constant(ir_cast(self)->value);
 }
 
 static void
@@ -111,7 +117,7 @@ ir_cast_do_print(IrNode *self, FILE *out, int indention)
     assert(IR_IS_CAST(self));
     assert(out);
 
-    IrCast *cast = IR_CAST(self);
+    IrCast *cast = ir_cast(self);
 
     fprintf_indent(out, indention, "cast [%p]\n", cast);
     fprintf_indent(out, indention + 2, "target_type: %s\n",

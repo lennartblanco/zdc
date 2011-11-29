@@ -18,13 +18,14 @@ ir_print_module(IrModule *mod)
          ir_function_call_get_type(): &print_function_call,
          ir_return_get_type(): &print_return,
          ir_foreach_get_type(): &print_foreach,
-         ir_basic_constant_get_type(): &print_basic_constant,
          ir_array_literal_get_type(): &print_array_literal,
          ir_assignment_get_type(): &print_assignment,
          ir_var_value_get_type(): &print_var_value,
          ir_var_ref_get_type(): &print_var_ref,
          ir_variable_get_type(): &print_variable,
-         ir_address_of_get_type(): &print_address_of
+         ir_address_of_get_type(): &print_address_of,
+         ir_cast_get_type(): &print_cast,
+         ir_basic_constant_get_type(): &print_basic_constant
        ]);
     }
 
@@ -209,6 +210,22 @@ print_address_of(gt_dispatcher *dispatcher, GObject *obj, void *data)
 
     dispatcher.dispatch(g_object(ir_address_of_get_expression(addrof)),
                         &layout("expression", l.indent, l.last_node ~ [true]));
+}
+
+void
+print_cast(gt_dispatcher *dispatcher, GObject *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    IrCast *ir_cast = ir_cast(obj);
+
+    writefln("%sIrCast: '%s'",
+             get_prefix(l),
+             to!string(
+                 dt_data_type_get_string(ir_cast_get_target_type(ir_cast))));
+
+    /* print value node */
+    dispatcher.dispatch(g_object(ir_cast_get_value(ir_cast)),
+                        &layout("value", l.indent, l.last_node ~ [true]));
 }
 
 void

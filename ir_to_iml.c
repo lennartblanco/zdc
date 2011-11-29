@@ -216,7 +216,7 @@ iml_add_expression_eval(IrFunctionDef *function,
     }
     else if (IR_IS_CAST(ir_expression))
     {
-        res = iml_add_cast_eval(function, IR_CAST(ir_expression), dest);
+        res = iml_add_cast_eval(function, ir_cast(ir_expression), dest);
     }
     else if (IR_IS_ARRAY_CELL(ir_expression))
     {

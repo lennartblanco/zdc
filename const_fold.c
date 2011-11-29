@@ -53,7 +53,7 @@ cfold(IrExpression *exp)
     }
     else if (IR_IS_CAST(exp))
     {
-        return cfold_cast(IR_CAST(exp));
+        return cfold_cast(ir_cast(exp));
     }
     /* unsupported expression type */
     assert(false);

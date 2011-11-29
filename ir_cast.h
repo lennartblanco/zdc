@@ -9,9 +9,6 @@
 
 #define IR_TYPE_CAST ir_cast_get_type()
 
-#define IR_CAST(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_CAST, IrCast))
-
 #define IR_CAST_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_CAST, IrCastClass))
 
@@ -41,8 +38,11 @@ typedef struct
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-GType 
+GType
 ir_cast_get_type(void);
+
+IrCast *
+ir_cast(void *obj);
 
 /**
  * @param target_type the type to convert the value to

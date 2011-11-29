@@ -256,6 +256,24 @@ IrExpression *
 ir_address_of_get_expression(IrAddressOf *self);
 
 /*---------------------------------------------------------------------------*
+ *                       cast operation declarations                         *
+ *---------------------------------------------------------------------------*/
+
+struct IrCast;
+
+GType
+ir_cast_get_type();
+
+IrCast *
+ir_cast(void *obj);
+
+DtDataType *
+ir_cast_get_target_type(IrCast *self);
+
+IrExpression *
+ir_cast_get_value(IrCast *self);
+
+/*---------------------------------------------------------------------------*
  *                           literal declarations                            *
  *---------------------------------------------------------------------------*/
 
