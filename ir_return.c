@@ -4,16 +4,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_return_do_print(IrNode *self, FILE *out, int indention);
-
-static void
-ir_return_class_init(gpointer klass, gpointer foo);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -28,7 +18,7 @@ ir_return_get_type(void)
         sizeof (IrReturnClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_return_class_init, /* class_init */
+        NULL, /* class_init */
         NULL, /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrReturn),
@@ -75,31 +65,4 @@ ir_return_get_return_value(IrReturn *self)
     assert(IR_IS_RETURN(self));
 
     return self->return_value;
-}
-
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_return_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_RETURN(self));
-    assert(out);
-
-    IrReturn *ret = ir_return(self);
-
-    fprintf_indent(out, indention, "return [%p]\n", ret);
-    if (ret->return_value != NULL)
-    {
-        fprintf_indent(out, indention + 2, "return value:\n");
-        ir_node_print(IR_NODE(ret->return_value), out, indention + 4);
-    }    
-}
-
-static void
-ir_return_class_init(gpointer klass, gpointer foo)
-{
-    IR_NODE_CLASS(klass)->do_print = ir_return_do_print;
 }

@@ -81,7 +81,4 @@ ir_function_get_mangled_name(IrFunction *self);
 ir_linkage_type_t
 ir_function_get_linkage(IrFunction *self);
 
-void
-ir_function_print(IrFunction *self, FILE *out, int indention);
-
 #endif /* IR_FUNCTION_INC_X */

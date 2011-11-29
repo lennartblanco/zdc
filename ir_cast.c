@@ -17,9 +17,6 @@ ir_cast_do_get_data_type(IrExpression *self);
 bool
 ir_cast_do_is_constant(IrExpression *self);
 
-static void
-ir_cast_do_print(IrNode *self, FILE *out, int indention);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -90,7 +87,6 @@ ir_cast_get_value(IrCast *self)
 static void
 ir_cast_class_init(gpointer klass, gpointer dummy)
 {
-    IR_NODE_CLASS(klass)->do_print = ir_cast_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type = ir_cast_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->do_is_constant = ir_cast_do_is_constant;
 }
@@ -109,19 +105,4 @@ ir_cast_do_is_constant(IrExpression *self)
     assert(IR_IS_CAST(self));
 
     return ir_expression_is_constant(ir_cast(self)->value);
-}
-
-static void
-ir_cast_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_CAST(self));
-    assert(out);
-
-    IrCast *cast = ir_cast(self);
-
-    fprintf_indent(out, indention, "cast [%p]\n", cast);
-    fprintf_indent(out, indention + 2, "target_type: %s\n",
-                   dt_data_type_get_string(cast->target_type));
-    fprintf_indent(out, indention + 2, "value: ");
-    ir_node_print(IR_NODE(cast->value), out, 0);
 }

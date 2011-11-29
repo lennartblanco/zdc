@@ -38,9 +38,6 @@ ir_symbol_get_property(GObject *object,
                        GValue *value,
                        GParamSpec *pspec);
 
-static void
-ir_symbol_do_print(IrNode *self, FILE *out, int indention);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -191,16 +188,4 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
     g_object_class_install_property(gobject_class,
                                     IR_SYMBOL_PARENT_MODULE,
                                     pspec);
-
-    /*
-     * set default implementation of print() method for a symbol
-     */
-    IR_NODE_CLASS(klass)->do_print = ir_symbol_do_print;
-}
-
-static void
-ir_symbol_do_print(IrNode *self, FILE *out, int indention)
-{
-    fprintf_indent(out, indention, "symbol [%p] name: '%s'\n",
-                   self, ir_symbol(self)->name);
 }

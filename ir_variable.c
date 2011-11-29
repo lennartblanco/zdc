@@ -144,23 +144,6 @@ ir_variable_is_ref(IrVariable *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-ir_variable_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_VARIABLE(self));
-
-    IrVariable *var = ir_variable(self);
-    fprintf_indent(out, indention, "%s %s",
-                   dt_data_type_get_string(var->type),
-                   ir_symbol_get_name(ir_symbol(var)));
-
-    if (var->initializer != NULL)
-    {
-        fprintf(out, " = ");
-        ir_node_print(IR_NODE(var->initializer), out, indention + 2);
-    }
-}
-
 static DtDataType *
 ir_variable_do_get_data_type(IrExpression *self)
 {
@@ -183,7 +166,6 @@ ir_variable_get_value_range(IrExpression *self)
 static void
 ir_variable_class_init(gpointer klass, gpointer foo)
 {
-    IR_NODE_CLASS(klass)->do_print = ir_variable_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_variable_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->get_value_range =

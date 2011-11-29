@@ -335,29 +335,3 @@ ir_module_get_structs(IrModule *self)
 
     return self->structs;
 }
-
-void
-ir_module_print(IrModule *self, FILE *out, int indention)
-{
-    assert(IR_IS_MODULE(self));
-    assert(out);
-    assert(self->package_name);
-
-    GList *p;
-    GSList *i;
-
-    fprintf_indent(out, indention, "module [%p]:\n  package: ", self);
-
-    for (i = self->package_name; i != NULL; i = g_slist_next(i))
-    {
-       fprintf(out, "%s%s",
-               (char*)i->data, g_slist_next(i) != NULL ? "." : "\n");
-    }
-
-    p = sym_table_get_all_symbols(self->symbols);
-    for (; p != NULL; p = g_list_next(p))
-    {
-        ir_node_print(IR_NODE(p->data), out, indention + 2);
-    }
-    g_list_free(p);
-}

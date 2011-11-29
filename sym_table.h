@@ -70,13 +70,4 @@ sym_table_get_symbol(sym_table_t *table, const char *name, GError **error);
 GList *
 sym_table_get_all_symbols(sym_table_t* table);
 
-/**
- * Print contents of the symbol table to provided stream.
- *
- * @param table the table to print
- * @param out   the stream where to print the table
- */
-void
-sym_table_print(sym_table_t *table, FILE *out);
-
 #endif /* SYM_TABLE_INC_X */

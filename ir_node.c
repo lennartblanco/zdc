@@ -33,9 +33,6 @@ ir_node_get_property(GObject *object,
                      GValue *value,
                      GParamSpec *pspec);
 
-static void
-ir_node_do_print(IrNode *self, FILE *out, int indention);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -73,15 +70,6 @@ ir_node_get_line_num(void *self)
     return (IR_NODE(self)->line_number);
 }
 
-void
-ir_node_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_NODE(self));
-    assert(out);
-
-    IR_NODE_GET_CLASS(self)->do_print(self, out, indention);
-}
-
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -112,9 +100,6 @@ ir_node_class_init(gpointer klass, gpointer foo)
     g_object_class_install_property(gobject_class,
                                     IR_NDDE_LINE_NUMBER,
                                     pspec);
-
-    /* install default implementation of print method */
-    IR_NODE_CLASS(klass)->do_print = ir_node_do_print;
 }
 
 static void
@@ -139,14 +124,4 @@ ir_node_get_property(GObject *object,
 {
     /* not implemented */
     assert(false);
-}
-
-static void
-ir_node_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_NODE(self));
-    assert(out);
-
-    fprintf_indent(out, indention, "IrNode %s [%p]\n", 
-                   g_type_name(G_TYPE_FROM_INSTANCE(self)), self);
 }

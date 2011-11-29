@@ -13,9 +13,6 @@
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy);
 
-static void
-ir_array_literal_do_print(IrNode *self, FILE *out, int indention);
-
 static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self);
 
@@ -135,7 +132,6 @@ ir_array_literal_get_size(IrArrayLiteral *self)
 static void
 ir_array_literal_class_init(gpointer klass, gpointer dummy)
 {
-    IR_NODE_CLASS(klass)->do_print = ir_array_literal_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_array_literal_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->do_is_constant =
@@ -166,26 +162,6 @@ ir_array_literal_do_get_data_type(IrExpression *self)
         arr_literal->data_type = dt_array_new(first_val_type);
     }
     return DT_DATA_TYPE(arr_literal->data_type);
-}
-
-static void
-ir_array_literal_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(ir_is_array_literal(self));
-    assert(out);
-
-    GSList *i;
-
-    fprintf_indent(out, indention, "[");
-    for (i = ir_array_literal(self)->values; i != NULL; i = g_slist_next(i))
-    {
-        ir_node_print(i->data, out, 0);
-        if (g_slist_next(i) != NULL)
-        {
-            printf(", ");
-        }
-    }
-    fprintf(out, "]\n");
 }
 
 bool

@@ -136,9 +136,6 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
 GSList *
 ir_module_get_structs(IrModule *self);
 
-void
-ir_module_print(IrModule *self, FILE *out, int indention);
-
 /**
  * Get module's fully qualified name.
  */

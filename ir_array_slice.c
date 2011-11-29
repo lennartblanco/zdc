@@ -19,9 +19,6 @@ ir_array_slice_do_get_data_type(IrExpression *self);
 static bool
 ir_array_slice_do_is_lvalue(IrExpression *self);
 
-static void
-ir_array_slice_do_print(IrNode *self, FILE *out, int indention);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -133,7 +130,6 @@ ir_array_slice_set_end(IrArraySlice *self,
 static void
 ir_array_slice_class_init(gpointer klass, gpointer dummy)
 {
-    IR_NODE_CLASS(klass)->do_print = ir_array_slice_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_array_slice_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->do_is_lvalue = ir_array_slice_do_is_lvalue;
@@ -164,32 +160,4 @@ ir_array_slice_do_is_lvalue(IrExpression *self)
     assert(IR_IS_ARRAY_SLICE(self));
 
     return true;
-}
-
-static void
-ir_array_slice_do_print(IrNode *self, FILE *out, int indention)
-{
-/* needs to be ported */
-assert(false);
-//    assert(IR_IS_ARRAY_SLICE(self));
-//
-//    IrArraySlice *slice = IR_ARRAY_SLICE(self);
-//    fprintf(out, "(");
-//    if (slice->data_type != NULL)
-//    {
-//        fprintf(out, "%s", dt_data_type_get_string(slice->data_type));
-//    }
-//    else
-//    {
-//        fprintf(out, "?[?]");
-//    }
-//    fprintf(out, ") %s[", ir_lvalue_get_name(IR_LVALUE(slice)));
-//
-//    if (slice->start != NULL)
-//    {
-//        ir_node_print(IR_NODE(slice->start), out, 0);
-//        fprintf(out, "..");
-//        ir_node_print(IR_NODE(slice->end), out, 0);
-//    }
-//    fprintf(out, "]");
 }

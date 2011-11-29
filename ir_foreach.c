@@ -4,16 +4,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_foreach_do_print(IrNode *self, FILE *out, int indention);
-
-static void
-ir_foreach_class_init(gpointer klass, gpointer foo);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -28,7 +18,7 @@ ir_foreach_get_type(void)
         sizeof (IrForeachClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_foreach_class_init, /* class_init */
+        NULL,   /* class_init */
         NULL, /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrForeach),
@@ -108,39 +98,4 @@ ir_foreach_get_body(IrForeach *self)
     assert(IR_IS_FOREACH(self));
 
     return self->body;
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_foreach_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_FOREACH(self));
-    assert(out);
-
-    IrForeach *foreach = ir_foreach(self);
-
-    fprintf_indent(out, indention, "foreach [%p]\n  index: ", foreach);
-    if (foreach->index == NULL)
-    {
-        fprintf(out, "<none>");
-    }
-    else
-    {
-        ir_node_print(IR_NODE(foreach->index), out, indention);
-    }
-    fprintf_indent(out, indention, "\n  value: ");
-    ir_node_print(IR_NODE(foreach->value), out, indention);
-    fprintf_indent(out, indention, "\n  aggregate: ");
-    ir_node_print(IR_NODE(foreach->aggregate), out, indention);
-    fprintf_indent(out, indention, "\n");
-    ir_node_print(IR_NODE(foreach->body), out, indention + 2);
-}
-
-static void
-ir_foreach_class_init(gpointer klass, gpointer foo)
-{
-    IR_NODE_CLASS(klass)->do_print = ir_foreach_do_print;
 }

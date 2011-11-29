@@ -19,17 +19,6 @@ struct _IrFunctionDef
     IrCodeBlock  *body;
 };
 
-
-/*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_function_def_class_init(gpointer klass, gpointer foo);
-
-static void
-ir_function_def_do_print(IrNode *self, FILE *out, int indention);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -45,7 +34,7 @@ ir_function_def_get_type(void)
         sizeof (IrFunctionDefClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_function_def_class_init,  /* class_init */
+        NULL,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrFunctionDef),
@@ -187,38 +176,4 @@ ir_function_def_get_operations(IrFunctionDef *self)
     assert(IR_IS_FUNCTION_DEF(self));
 
     return self->operations;
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_function_def_class_init(gpointer klass, gpointer foo)
-{
-    IR_NODE_CLASS(klass)->do_print = ir_function_def_do_print;
-}
-
-static void
-ir_function_def_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_FUNCTION_DEF(self));
-    assert(out);
-
-    IrFunctionDef *func;
-    GSList *i;
-
-    ir_function_print(ir_function(self), out, indention);
-
-    func = ir_function_def(self);
-
-    fprintf_indent(out, indention + 2, "frame:\n");
-    iml_func_frame_print(func->frame, out, indention + 2);
-
-    fprintf_indent(out, indention + 2, "body:\n");
-
-    for (i = func->operations; i != NULL; i = g_slist_next(i))
-    {
-        iml_operation_print(i->data, out, indention + 4);
-    }
 }

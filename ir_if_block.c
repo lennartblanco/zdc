@@ -71,18 +71,3 @@ ir_if_block_get_body(IrIfBlock *self)
 
     return self->body;
 }
-
-
-void
-ir_if_block_print(IrIfBlock *self, FILE *out, int indention)
-{
-    assert(IR_IS_IF_BLOCK(self));
-    assert(out);
-
-    fprintf_indent(out, indention, 
-                   "if-block [%p]:\n condition: ", self);
-    ir_node_print(IR_NODE(self->condition), out, indention + 2);
-    fprintf(out, "\n");
-    fprintf_indent(out, indention, " body:\n");
-    ir_node_print(IR_NODE(self->body), out, indention + 2);
-}

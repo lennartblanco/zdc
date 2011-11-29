@@ -26,9 +26,6 @@ static void
 ir_function_class_init(gpointer klass, gpointer foo);
 
 static void
-ir_function_do_print(IrNode *self, FILE *out, int indention);
-
-static void
 ir_function_set_property(GObject *object,
                          guint property_id,
                          const GValue *value,
@@ -160,50 +157,9 @@ ir_function_get_return_type(IrFunction *self)
     return self->return_type;
 }
 
-void
-ir_function_print(IrFunction *self, FILE *out, int indention)
-{
-    assert(IR_IS_FUNCTION(self));
-    assert(out);
-
-    ir_function_do_print(IR_NODE(self), out, indention);
-}
-
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
-
-static void
-ir_function_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_FUNCTION(self));
-    assert(out);
-
-    IrFunction *func = ir_function(self);
-
-    fprintf_indent(out, indention,
-            "function [%p]\n"
-            "  name: '%s'\n"
-            "  return_type: %s\n"
-            "  parameters: ",
-            self,
-            ir_symbol_get_name(ir_symbol(func)),
-            dt_data_type_get_string(func->return_type));
-
-    if (func->parameters)
-    {
-      GSList *i = func->parameters;
-      for (;i != NULL; i = g_slist_next(i))
-      {
-          ir_node_print(IR_NODE(i->data), out, 0);
-          fprintf(out, "%s", g_slist_next(i) != NULL ? ", " : "\n");
-      }
-    }
-    else
-    {
-        fprintf(out, "(none)\n");
-    }
-}
 
 static void
 ir_function_class_init(gpointer klass, gpointer foo)
@@ -230,9 +186,6 @@ ir_function_class_init(gpointer klass, gpointer foo)
     g_object_class_install_property(gobject_class,
                                     IR_FUNCTION_LINKAGE_TYPE,
                                     pspec);
-
-
-    IR_NODE_CLASS(klass)->do_print = ir_function_do_print;
 }
 
 static void

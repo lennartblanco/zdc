@@ -56,7 +56,4 @@ ir_if_block_get_condition(IrIfBlock *self);
 IrCodeBlock *
 ir_if_block_get_body(IrIfBlock *self);
 
-void
-ir_if_block_print(IrIfBlock *self, FILE *out, int indention);
-
 #endif /* IR_IF_BLOCK_INC_X */

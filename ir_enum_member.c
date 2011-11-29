@@ -13,9 +13,6 @@ ir_enum_member_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_enum_member_do_get_data_type(IrExpression *self);
 
-static void
-ir_enum_member_do_print(IrNode *self, FILE *out, int indention);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -92,7 +89,6 @@ ir_enum_member_set_value(IrEnumMember *self, IrExpression *value)
 static void
 ir_enum_member_class_init(gpointer klass, gpointer dummy)
 {
-    IR_NODE_CLASS(klass)->do_print = ir_enum_member_do_print;
     IR_EXPRESSION_CLASS(klass)->do_get_data_type =
         ir_enum_member_do_get_data_type;
 }
@@ -109,27 +105,4 @@ ir_enum_member_do_get_data_type(IrExpression *self)
     }
 
     return DT_DATA_TYPE(enum_member->enum_type);
-}
-
-static void
-ir_enum_member_do_print(IrNode *self, FILE *out, int indention)
-{
-    assert(IR_IS_ENUM_MEMBER(self));
-    assert(out);
-
-    IrEnumMember *em = ir_enum_member(self);
-
-    fprintf_indent(out, indention,
-                   "enum member\n"
-                   "  value:\n");
-
-    if (em->value == NULL)
-    {
-        fprintf_indent(out, indention + 4, "unknown\n");
-    }
-    else
-    {
-        ir_node_print(IR_NODE(em->value), out, indention + 4);
-        fprintf_indent(out, 0, "\n");
-    }
 }
