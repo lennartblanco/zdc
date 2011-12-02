@@ -53,8 +53,6 @@
 #include "ir_struct.h"
 #include "ir_dot.h"
 #include "ir_ident.h"
-#include "ir_var_value.h"
-#include "ir_var_ref.h"
 #include "dt_basic.h"
 #include "errors.h"
 
@@ -1376,7 +1374,9 @@ cast_to_ir(compilation_status_t *compile_status,
 
     return
         ir_expression(
-            ir_cast_new(ast_cast_get_target_type(ast_cast), exp));
+            ir_cast_new(ast_cast_get_target_type(ast_cast),
+                        exp,
+                        ast_node_get_line_num(ast_cast)));
 }
 
 static IrExpression *
@@ -1392,15 +1392,17 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
 
     left = expression_to_ir(compile_status,
                             symbols,
-                            ast_postfix_exp_get_expression(ast_postfix));
-    if (left == NULL)
+                            ast_postfix_exp_get_left(ast_postfix));
+
+    right = expression_to_ir(compile_status,
+                             symbols,
+                             ast_postfix_exp_get_right(ast_postfix));
+
+    if (left == NULL || right == NULL)
     {
         /* invalid expression, bail out */
         return NULL;
     }
-
-    right = ir_expression(ir_ident_new(ast_postfix_exp_get_name(ast_postfix),
-                                       ast_node_get_line_num(ast_postfix)));
 
     return ir_expression(ir_dot_new(left,
                                     right,
@@ -1454,68 +1456,15 @@ address_of_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-ident_to_ir(compilation_status_t *compile_status,
-            sym_table_t *symbols,
-            AstIdent *ident)
+ident_to_ir(compilation_status_t *compile_status, AstIdent *ident)
 {
     assert(compile_status);
-    assert(symbols);
     assert(AST_IS_IDENT(ident));
 
-    IrSymbol *symb;
-    GError *err = NULL;
-
-    symb = sym_table_get_symbol(symbols, ast_ident_get_name(ident), &err);
-    if (symb == NULL)
-    {
-        switch (err->code)
-        {
-            case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
-                compile_error(compile_status,
-                              ident,
-                              "reference to unknown symbol '%s'\n",
-                              ast_ident_get_name(ident));
-                break;
-            case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
-                compile_error(compile_status,
-                              ident,
-                              "ambiguous reference '%s', matches: %s\n",
-                              ast_ident_get_name(ident),  err->message);
-                break;
-            default:
-                assert(false); /* unexpected error code */
-        }
-        return NULL;
-    }
-
-    if (IR_IS_FUNCTION(symb))
-    {
-        compile_error(compile_status,
-                      ident,
-                      "invalid call to function '%s',"
-                      " expected arguments\n",
-                      ast_ident_get_name(ident));
-        return NULL;
-    }
-    else if (IR_IS_VARIABLE(symb))
-    {
-        IrVariable *var = ir_variable(symb);
-
-        if (ir_variable_is_ref(var))
-        {
-            return
-                ir_expression(ir_var_ref_new(ir_variable(var),
-                                             ast_node_get_line_num(ident)));
-        }
-        else
-        {
-            return
-                ir_expression(ir_var_value_new(ir_variable(var),
-                                               ast_node_get_line_num(ident)));
-        }
-    }
-
-    return ir_expression(symb);
+    return
+        ir_expression(
+            ir_ident_new(ast_ident_get_name(ident),
+                         ast_node_get_line_num(ident)));
 }
 
 /**
@@ -1590,7 +1539,7 @@ expression_to_ir(compilation_status_t *compile_status,
     }
     else if (AST_IS_IDENT(ast_expression))
     {
-        return ident_to_ir(compile_status, symbols, AST_IDENT(ast_expression));
+        return ident_to_ir(compile_status, AST_IDENT(ast_expression));
     }
     else if (AST_IS_CONDITIONAL(ast_expression))
     {

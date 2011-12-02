@@ -49,10 +49,13 @@ ir_cast(void *obj);
  * @param value the expression to type convert
  */
 IrCast *
-ir_cast_new(DtDataType *target_type, IrExpression *value);
+ir_cast_new(DtDataType *target_type, IrExpression *value, guint line_number);
 
 DtDataType *
 ir_cast_get_target_type(IrCast *self);
+
+void
+ir_cast_set_value(IrCast *self, IrExpression *value);
 
 IrExpression *
 ir_cast_get_value(IrCast *self);

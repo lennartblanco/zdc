@@ -1,0 +1,19 @@
+void func3()
+{
+  a[19] = false;
+}
+
+void func4()
+{
+  int x;
+
+  x = lst[3];
+}
+
+void func5()
+{
+  int y;
+
+  y = func5[3];
+}
+

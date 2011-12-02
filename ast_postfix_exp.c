@@ -4,16 +4,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ast_postfix_exp_do_print(AstNode *self, FILE *out, int indention);
-
-static void
-ast_postfix_exp_class_init(gpointer klass, gpointer dummy);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -28,7 +18,7 @@ ast_postfix_exp_get_type(void)
         sizeof (AstPostfixExpClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ast_postfix_exp_class_init,   /* class_init */
+        NULL,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (AstPostfixExp),
@@ -43,59 +33,37 @@ ast_postfix_exp_get_type(void)
 }
 
 AstPostfixExp *
-ast_postfix_exp_new(AstExpression *exp,
-                    const char *name,
+ast_postfix_exp_new(AstExpression *left,
+                    AstExpression *right,
                     guint line_number)
 {
-    assert(AST_IS_EXPRESSION(exp));
-    assert(name);
+    assert(AST_IS_EXPRESSION(left));
+    assert(AST_IS_EXPRESSION(right));
 
     AstPostfixExp *obj;
 
     obj = g_object_new(AST_TYPE_POSTFIX_EXP,
                        "ast-node-line-number", line_number,
                        NULL);
-    obj->exp = exp;
-    obj->name = g_strdup(name);
+
+    obj->left = left;
+    obj->right = right;
 
     return obj;
 }
 
 AstExpression *
-ast_postfix_exp_get_expression(AstPostfixExp *self)
+ast_postfix_exp_get_left(AstPostfixExp *self)
 {
     assert(AST_IS_POSTFIX_EXP(self));
 
-    return self->exp;
+    return self->left;
 }
 
-const char *
-ast_postfix_exp_get_name(AstPostfixExp *self)
+AstExpression *
+ast_postfix_exp_get_right(AstPostfixExp *self)
 {
     assert(AST_IS_POSTFIX_EXP(self));
 
-    return self->name;
+    return self->right;
 }
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static void
-ast_postfix_exp_do_print(AstNode *self, FILE *out, int indention)
-{
-    assert(AST_IS_POSTFIX_EXP(self));
-
-    AstPostfixExp *postfix = AST_POSTFIX_EXP(self);
-
-    fprintf_indent(out, indention, "postfix_exp\n  exp:\n");
-    ast_node_print(AST_NODE(postfix->exp), out, indention + 4);
-    fprintf_indent(out, indention, "\n  name: %s\n", postfix->name);
-}
-
-static void
-ast_postfix_exp_class_init(gpointer klass, gpointer dummy)
-{
-    ((AstNodeClass *)klass)->do_print = ast_postfix_exp_do_print;
-}
-

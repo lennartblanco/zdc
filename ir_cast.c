@@ -53,11 +53,11 @@ ir_cast(void *obj)
 }
 
 IrCast *
-ir_cast_new(DtDataType *target_type, IrExpression *value)
+ir_cast_new(DtDataType *target_type, IrExpression *value, guint line_number)
 {
     IrCast *obj;
 
-    obj = g_object_new(IR_TYPE_CAST, NULL);
+    obj = g_object_new(IR_TYPE_CAST, "ir-node-line-number", line_number, NULL);
     obj->target_type = target_type;
     obj->value = value;
 
@@ -72,6 +72,15 @@ ir_cast_get_target_type(IrCast *self)
     return self->target_type;
 }
 
+void
+ir_cast_set_value(IrCast *self, IrExpression *value)
+{
+    assert(IR_IS_CAST(self));
+    assert(IR_IS_EXPRESSION(value));
+
+    self->value = value;
+}
+
 IrExpression *
 ir_cast_get_value(IrCast *self)
 {
@@ -79,6 +88,7 @@ ir_cast_get_value(IrCast *self)
 
     return self->value;
 }
+
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *

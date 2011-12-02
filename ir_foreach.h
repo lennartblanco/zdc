@@ -67,6 +67,9 @@ ir_foreach_get_index(IrForeach *self);
 IrVariable *
 ir_foreach_get_value(IrForeach *self);
 
+void
+ir_foreach_set_aggregate(IrForeach *self, IrExpression *aggregate);
+
 IrExpression *
 ir_foreach_get_aggregate(IrForeach *self);
 

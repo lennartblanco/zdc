@@ -1,1 +1,2 @@
 cast.d:5: error: reference to unknown symbol 'x'
+cast.d:5: error: invalid assignment expression

@@ -39,7 +39,8 @@ types_implicit_conv(DtDataType *target_type,
             IrExpression *cast_exp =
                 ir_expression(
                     ir_cast_new(dt_enum_get_base_type(dt_enum(exp_type)),
-                                expression));
+                                expression,
+                                0));
             return types_implicit_conv(target_type, cast_exp);
         }
 
@@ -47,7 +48,7 @@ types_implicit_conv(DtDataType *target_type,
         return NULL;
     }
 
-    return cfold_cast(ir_cast_new(target_type, expression));
+    return cfold_cast(ir_cast_new(target_type, expression, 0));
 }
 
 IrExpression *
@@ -80,7 +81,7 @@ types_integer_promotion(IrExpression *expression)
         case short_type:
         case ushort_type:
             res_exp =
-                cfold_cast(ir_cast_new(types_get_int_type(), expression));
+                cfold_cast(ir_cast_new(types_get_int_type(), expression, 0));
             break;
         case int_type:
         case uint_type:
@@ -230,14 +231,14 @@ types_usual_arithm_conv(IrExpression *left,
     {
         /* right operand need to be converted to unsigned */
         *res_right = 
-            ir_expression(ir_cast_new(types_get_uint_type(), *res_right));
+            ir_expression(ir_cast_new(types_get_uint_type(), *res_right, 0));
 
     }
     else if (dt_basic_is_int(left_type) && dt_basic_is_uint(right_type))
     {
         /* left operand need to be converted to unsigned */
         *res_left =
-            ir_expression(ir_cast_new(types_get_uint_type(), *res_left));
+            ir_expression(ir_cast_new(types_get_uint_type(), *res_left, 0));
     }
     else
     {

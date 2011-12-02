@@ -1,0 +1,3 @@
+unknown_array_symb.d:3: error: reference to unknown array symbol 'a'
+unknown_array_symb.d:10: error: reference to unknown array symbol 'lst'
+unknown_array_symb.d:17: error: reference to unknown array symbol 'func5'

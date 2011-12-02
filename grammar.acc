@@ -907,19 +907,19 @@ unary_expression<n> :
 |   TOK_CAST '(' type<t> ')' unary_expression<exp>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_cast_new(t.data_type, exp.expression));
+            AST_EXPRESSION(ast_cast_new(t.data_type, exp.expression, yypos));
     }
 |   postfix_expression<n>
 ;
 
 
 postfix_expression<n> :
-    postfix_expression<exp> '.' TOK_IDENT<name>
+    postfix_expression<left> '.' ident<right>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_postfix_exp_new(exp.expression,
-                                               name.text, yypos));
-        free(name.text);
+            AST_EXPRESSION(ast_postfix_exp_new(left.expression,
+                                               right.expression,
+                                               yypos));
     }
 |   postfix_expression<exp> '+' '+'
     {
@@ -969,12 +969,7 @@ primary<n> :
         (*n).expression =
             AST_EXPRESSION(ast_bool_constant_new(false, yypos));
     }
-|   TOK_IDENT<x>
-    {
-        (*n).expression =
-            AST_EXPRESSION(ast_ident_new(x.text, yypos));
-        free(x.text);
-    }
+|   ident<n>
 |   func_call<n>
 |   '(' expression<n> ')'
 |   TOK_IDENT<name> '[' expression<i> ']'
@@ -992,6 +987,14 @@ primary<n> :
         (*n).expression =
             AST_EXPRESSION(ast_string_literal_new(x.text,
                                                   yypos));
+    }
+;
+
+ident<i> :
+    TOK_IDENT<name>
+    {
+        (*i).expression =
+            AST_EXPRESSION(ast_ident_new(name.text, yypos));
     }
 ;
 

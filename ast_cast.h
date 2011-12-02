@@ -47,7 +47,7 @@ GType
 ast_cast_get_type(void);
 
 AstCast *
-ast_cast_new(DtDataType *target_type, AstExpression *value);
+ast_cast_new(DtDataType *target_type, AstExpression *value, guint line_number);
 
 DtDataType *
 ast_cast_get_target_type(AstCast *self);

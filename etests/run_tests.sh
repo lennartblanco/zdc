@@ -28,7 +28,7 @@ run_test()
     return 1;
   }
 
-  reported_errors_diff=$(diff -u errors_log $expected_errors_file)
+  reported_errors_diff=$(diff -u $expected_errors_file errors_log)
 
   if [ "$reported_errors_diff" != "" ]; then
      echo "expected errors missmatch";
@@ -43,6 +43,7 @@ run_test "syntx_err" && echo "          ok" || echo "FAILED"
 run_test "array_slice" && echo "        ok" || echo "FAILED"
 run_test "assignment" && echo "         ok" || echo "FAILED"
 run_test "unknown_symb" && echo "       ok" || echo "FAILED"
+run_test "unknown_array_symb" && echo " ok" || echo "FAILED"
 run_test "sym_clash" && echo "          ok" || echo "FAILED"
 run_test "func_call" && echo "          ok" || echo "FAILED"
 run_test "types" && echo "              ok" || echo "FAILED"

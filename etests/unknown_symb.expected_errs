@@ -1,8 +1,8 @@
 unknown_symb.d:3: error: reference to unknown symbol 'non_exist'
 unknown_symb.d:10: error: reference to unknown symbol 'asd'
-unknown_symb.d:15: error: reference to unknown array symbol 'a'
-unknown_symb.d:22: error: reference to unknown array symbol 'lst'
-unknown_symb.d:29: error: reference to unknown array symbol 'func5'
-unknown_symb.d:38: error: reference to unknown symbol 'bar'
-unknown_symb.d:43: error: reference to unknown symbol 'foo'
-unknown_symb.d:50: error: reference to unknown symbol 'dw'
+unknown_symb.d:10: error: invalid assignment expression
+unknown_symb.d:19: error: reference to unknown symbol 'bar'
+unknown_symb.d:24: error: reference to unknown symbol 'foo'
+unknown_symb.d:31: error: reference to unknown symbol 'dw'
+unknown_symb.d:31: error: invalid array literal value expression
+unknown_symb.d:31: error: invalid assignment expression

@@ -6,6 +6,7 @@ array_slice: array_slice.d
 stat_array: stat_array.d
 assignment: assignment.d
 unknown_symb: unknown_symb.d
+unknown_array_symb: unknown_array_symb.d
 sym_clash: sym_clash.d
 func_call: func_call.d
 types: types.d

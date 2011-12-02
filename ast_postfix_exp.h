@@ -29,8 +29,8 @@ typedef struct
     AstExpression parent;
 
     /* private */
-    AstExpression *exp;
-    const char *name;
+    AstExpression *left;
+    AstExpression *right;
 } AstPostfixExp;
 
 typedef struct
@@ -46,14 +46,14 @@ GType
 ast_postfix_exp_get_type(void);
 
 AstPostfixExp *
-ast_postfix_exp_new(AstExpression *exp,
-                    const char *name,
+ast_postfix_exp_new(AstExpression *left,
+                    AstExpression *right,
                     guint line_number);
 
 AstExpression *
-ast_postfix_exp_get_expression(AstPostfixExp *self);
+ast_postfix_exp_get_left(AstPostfixExp *self);
 
-const char *
-ast_postfix_exp_get_name(AstPostfixExp *self);
+AstExpression *
+ast_postfix_exp_get_right(AstPostfixExp *self);
 
 #endif /* AST_POSTFIX_EXP_INC_X */

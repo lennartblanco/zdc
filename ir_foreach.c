@@ -84,6 +84,15 @@ ir_foreach_get_value(IrForeach *self)
    return self->value;
 }
 
+void
+ir_foreach_set_aggregate(IrForeach *self, IrExpression *aggregate)
+{
+    assert(IR_IS_FOREACH(self));
+    assert(IR_IS_EXPRESSION(aggregate));
+
+    self->aggregate = aggregate;
+}
+
 IrExpression *
 ir_foreach_get_aggregate(IrForeach *self)
 {

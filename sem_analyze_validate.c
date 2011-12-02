@@ -34,6 +34,7 @@
 #include "ir_address_of.h"
 #include "ir_ident.h"
 #include "ir_var_value.h"
+#include "ir_var_ref.h"
 #include "ir_to_iml.h"
 #include "const_fold.h"
 #include "errors.h"
@@ -170,6 +171,69 @@ resolve_user_type(compilation_status_t *compile_status,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+static IrExpression *
+validate_ident(compilation_status_t *compile_status,
+               sym_table_t *sym_table,
+               IrIdent *ident)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_IDENT(ident));
+
+    IrSymbol *symb;
+    GError *err = NULL;
+
+    symb = sym_table_get_symbol(sym_table, ir_ident_get_name(ident), &err);
+    if (symb == NULL)
+    {
+        switch (err->code)
+        {
+            case SYM_TABLE_SYMBOL_NOT_FOUND_ERROR:
+                compile_error(compile_status,
+                              ident,
+                              "reference to unknown symbol '%s'\n",
+                              ir_ident_get_name(ident));
+                break;
+            case SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR:
+                compile_error(compile_status,
+                              ident,
+                              "ambiguous reference '%s', matches: %s\n",
+                              ir_ident_get_name(ident),  err->message);
+                break;
+            default:
+                assert(false); /* unexpected error code */
+        }
+        return NULL;
+    }
+
+    if (IR_IS_FUNCTION(symb))
+    {
+        compile_error(compile_status,
+                      ident,
+                      "invalid call to function '%s',"
+                      " expected arguments\n",
+                      ir_ident_get_name(ident));
+        return NULL;
+    }
+    else if (IR_IS_VARIABLE(symb))
+    {
+        IrVariable *var = ir_variable(symb);
+        if (ir_variable_is_ref(var))
+        {
+            return
+                ir_expression(ir_var_ref_new(ir_variable(var),
+                                             ir_node_get_line_num(ident)));
+        }
+        else
+        {
+            return
+                ir_expression(ir_var_value_new(ir_variable(var),
+                                               ir_node_get_line_num(ident)));
+        }
+    }
+
+    return ir_expression(symb);
+}
 
 static IrExpression *
 validate_function_call(compilation_status_t *compile_status,
@@ -527,7 +591,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     /* if left operand is not bool, cast to bool */
     if (!dt_basic_is_bool(data_type))
     {
-        left = cfold_cast(ir_cast_new(types_get_bool_type(), left));
+        left = cfold_cast(ir_cast_new(types_get_bool_type(), left, 0));
     }
 
     /*
@@ -540,7 +604,7 @@ validate_bin_conditional(compilation_status_t *compile_status,
     if (!DT_IS_VOID(data_type) &&
         !dt_basic_is_bool(data_type))
     {
-        right = cfold_cast(ir_cast_new(types_get_bool_type(), right));
+        right = cfold_cast(ir_cast_new(types_get_bool_type(), right, 0));
     }
 
     ir_binary_operation_set_left(bin_op, left);
@@ -610,6 +674,8 @@ validate_ind_dec_ops(compilation_status_t *compile_status,
         switch (dt_basic_get_data_type(dt_basic(exp_type)))
         {
             case char_type:
+            case byte_type:
+            case ubyte_type:
             case int_type:
             case uint_type:
                 goto valid_exp;
@@ -982,9 +1048,18 @@ validate_dot(compilation_status_t *compile_status,
     assert(sym_table);
     assert(IR_IS_DOT(dot));
 
-    IrExpression *left = ir_dot_get_left(dot);
+    IrExpression *left;
     IrExpression *right = ir_dot_get_right(dot);
     IrExpression *res;
+
+    left = validate_expression(compile_status,
+                               sym_table,
+                               ir_dot_get_left(dot));
+   if (left == NULL)
+   {
+       /* invalid left expression, bail out */
+       return NULL;
+   }
 
     /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
@@ -1152,18 +1227,40 @@ validate_conditional(compilation_status_t *compile_status,
      */
     if (!dt_data_type_is_same(common, true_type))
     {
-        true_exp = ir_expression(ir_cast_new(common, true_exp));
+        true_exp = ir_expression(ir_cast_new(common, true_exp, 0));
     }
 
     if (!dt_data_type_is_same(common, false_type))
     {
-        false_exp = ir_expression(ir_cast_new(common, false_exp));
+        false_exp = ir_expression(ir_cast_new(common, false_exp, 0));
     }
 
 
     ir_conditional_set_expressions(cond, eval, true_exp, false_exp);
 
     return cfold_conditional(cond);
+}
+
+static IrExpression *
+validate_cast(compilation_status_t *compile_status,
+              sym_table_t *sym_table,
+              IrCast *cast)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_CAST(cast));
+
+    IrExpression *val = validate_expression(compile_status,
+                                            sym_table,
+                                            ir_cast_get_value(cast));
+    if (val == NULL)
+    {
+        /* invalid expression to cast, bail out */
+        return NULL;
+    }
+
+    ir_cast_set_value(cast, val);
+    return ir_expression(cast);
 }
 
 /**
@@ -1179,7 +1276,12 @@ validate_expression(compilation_status_t *compile_status,
 {
     assert(IR_IS_EXPRESSION(expression));
 
-    if (IR_IS_BINARY_OPERATION(expression))
+    if (IR_IS_IDENT(expression))
+    {
+        expression =
+            validate_ident(compile_status, sym_table, IR_IDENT(expression));
+    }
+    else if (IR_IS_BINARY_OPERATION(expression))
     {
         expression =
             validate_binary_op(compile_status,
@@ -1253,6 +1355,12 @@ validate_expression(compilation_status_t *compile_status,
             validate_conditional(compile_status,
                                  sym_table,
                                  IR_CONDITIONAL(expression));
+    }
+    else if (IR_IS_CAST(expression))
+    {
+        expression = validate_cast(compile_status,
+                                   sym_table,
+                                   ir_cast(expression));
     }
 
     return expression;
@@ -1704,6 +1812,7 @@ validate_foreach(compilation_status_t *compile_status,
         /* invalid aggregate expression */
         return;
     }
+
     aggr_type = ir_expression_get_data_type(aggregate);
     if (!DT_IS_ARRAY(aggr_type))
     {
@@ -1713,6 +1822,9 @@ validate_foreach(compilation_status_t *compile_status,
                       dt_data_type_get_string(aggr_type));
         return;
     }
+
+    ir_foreach_set_aggregate(foreach, aggregate);
+
     aggr_element_type = dt_array_get_element_type(dt_array(aggr_type));
     /* only foreach over aggregates over basic types is supported */
     assert(dt_is_basic(aggr_element_type));
@@ -1852,13 +1964,13 @@ validate_foreach_range(compilation_status_t *compile_status,
     /* cast lower expression to common type if needed */
     if (!dt_data_type_is_same(common_type, lower_type))
     {
-        lower_exp = ir_expression(ir_cast_new(common_type, lower_exp));
+        lower_exp = ir_expression(ir_cast_new(common_type, lower_exp, 0));
     }
 
     /* cast upper expression to common type if needed */
     if (!dt_data_type_is_same(common_type, upper_type))
     {
-        upper_exp = ir_expression(ir_cast_new(common_type, upper_exp));
+        upper_exp = ir_expression(ir_cast_new(common_type, upper_exp, 0));
     }
 
     /* set or check index variable's data type */
@@ -2660,7 +2772,8 @@ validate_enum(compilation_status_t *compile_status,
         prev_member_value =
             cfold_cast(
                 ir_cast_new(base_type,
-                            ir_expression(ir_basic_constant_new_int(0, 0))));
+                            ir_expression(ir_basic_constant_new_int(0, 0)),
+                            0));
         ir_enum_member_set_value(members->data, prev_member_value);
     }
 
@@ -2681,7 +2794,7 @@ validate_enum(compilation_status_t *compile_status,
                             prev_member_value,
                             one,
                         0));
-            value = cfold_cast(ir_cast_new(base_type, value));
+            value = cfold_cast(ir_cast_new(base_type, value, 0));
 
             ir_enum_member_set_value(member, value);
         }

@@ -32,7 +32,7 @@ ast_cast_get_type(void)
 }
 
 AstCast *
-ast_cast_new(DtDataType *target_type, AstExpression *value)
+ast_cast_new(DtDataType *target_type, AstExpression *value, guint line_number)
 {
     assert(DT_IS_DATA_TYPE(target_type));
     assert(AST_IS_EXPRESSION(value));
@@ -40,6 +40,7 @@ ast_cast_new(DtDataType *target_type, AstExpression *value)
     AstCast *obj;
 
     obj = g_object_new(AST_TYPE_CAST,
+                       "ast-node-line-number", line_number,
                        NULL);
 
     obj->target_type = target_type;
