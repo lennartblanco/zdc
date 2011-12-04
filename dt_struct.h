@@ -2,9 +2,11 @@
 #define DT_STRUCT_INC_X
 
 #include "dt_user.h"
+#include "ir_ident.h"
 #include "ir_struct_literal.h"
 #include "ir_struct_member.h"
 #include "ir_variable.h"
+#include "ir_function_call.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -36,6 +38,7 @@ typedef struct
     guint size;
     GSList *members;             /* members in order */
     GHashTable *members_table;   /* members by name */
+    GHashTable *methods;         /* methods by name */
 } DtStruct;
 
 typedef struct
@@ -63,6 +66,12 @@ dt_struct_add_member(DtStruct *self, IrVariable *var);
  *         NULL of no member with specified name is found
  */
 IrStructMember *
-dt_struct_get_member(DtStruct *self, const gchar *name);
+dt_struct_get_member(DtStruct *self, IrIdent *name);
+
+void
+dt_struct_add_method(DtStruct *self, IrFunctionDef *method);
+
+IrFunctionDef *
+dt_struct_get_method(DtStruct *self, const char *method_name);
 
 #endif /* DT_STRUCT_INC_X */

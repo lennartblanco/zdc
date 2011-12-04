@@ -1,0 +1,3 @@
+struct_methods.d:8: error: reference to unknown symbol 'foo'
+struct_methods.d:11: error: method call on non-struct type 'bool'
+struct_methods.d:14: error: struct 'xb1' have no method 'hej'

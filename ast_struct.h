@@ -31,6 +31,7 @@ typedef struct
     /* private */
     gchar *name;
     GSList *members;
+    GSList *methods;
 } AstStruct;
 
 typedef struct
@@ -46,12 +47,18 @@ GType
 ast_struct_get_type(void);
 
 AstStruct *
-ast_struct_new(gchar *name, GSList *members, guint line_number);
+ast_struct_new(gchar *name,
+               GSList *members,
+               GSList *methods,
+               guint line_number);
 
 gchar *
 ast_struct_get_name(AstStruct *self);
 
 GSList *
 ast_struct_get_members(AstStruct *self);
+
+GSList *
+ast_struct_get_methods(AstStruct *self);
 
 #endif /* AST_STRUCT_INC_X */

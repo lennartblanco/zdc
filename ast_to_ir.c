@@ -28,6 +28,7 @@
 #include "ast_enum_member.h"
 #include "ast_struct.h"
 #include "ir_function_call.h"
+#include "ir_method_call.h"
 #include "ir_if_else.h"
 #include "ir_if_block.h"
 #include "ir_variable.h"
@@ -474,8 +475,10 @@ struct_to_ir(compilation_status_t *compile_status,
 {
     GSList *i;
     GSList *members = NULL;
+    GSList *methods = NULL;
     sym_table_t *symbols;
 
+    /* convert struct members to ir */
     symbols = sym_table_new(NULL);
     for (i = ast_struct_get_members(ast_struct);
          i != NULL;
@@ -498,8 +501,22 @@ struct_to_ir(compilation_status_t *compile_status,
         members = g_slist_prepend(members, var);
     }
 
+    /* convert struct methods to ir */
+    for (i = ast_struct_get_methods(ast_struct);
+         i != NULL;
+         i = g_slist_next(i))
+    {
+        IrFunctionDef *method =
+            func_def_to_ir(compile_status,
+                           AST_FUNCTION_DEF(i->data),
+                           compile_status->module,
+                           true);
+        methods = g_slist_prepend(methods, method);
+    }
+
     return ir_struct_new(ast_struct_get_name(ast_struct),
                          g_slist_reverse(members),
+                         methods,
                          compile_status->module,
                          symbols);
 }
@@ -1380,6 +1397,33 @@ cast_to_ir(compilation_status_t *compile_status,
 }
 
 static IrExpression *
+method_call_to_ir(compilation_status_t *compile_status,
+                  sym_table_t *symbols,
+                  AstExpression *ast_this,
+                  AstFunctionCall *right)
+{
+    assert(compile_status);
+    assert(symbols);
+    assert(AST_IS_EXPRESSION(ast_this));
+    assert(AST_IS_FUNCTION_CALL(right));
+
+    IrExpression *ir_this;
+    IrFunctionCall *call;
+
+    ir_this = expression_to_ir(compile_status, symbols, ast_this);
+    call = ir_function_call(func_call_to_ir(compile_status, symbols, right));
+    if (ir_this == NULL || call == NULL)
+    {
+        /* invalid this or function call expression, bail out */
+        return NULL;
+    }
+
+    return ir_expression(ir_method_call_new(ir_this,
+                                            ir_function_call_get_name(call),
+                                            ast_node_get_line_num(right)));
+}
+
+static IrExpression *
 postfix_exp_to_ir(compilation_status_t *compile_status,
                   sym_table_t *symbols,
                   AstPostfixExp *ast_postfix)
@@ -1387,16 +1431,22 @@ postfix_exp_to_ir(compilation_status_t *compile_status,
     assert(compile_status);
     assert(symbols);
     assert(AST_IS_POSTFIX_EXP(ast_postfix));
+    AstExpression *ast_left = ast_postfix_exp_get_left(ast_postfix);
+    AstExpression *ast_right = ast_postfix_exp_get_right(ast_postfix);
     IrExpression *left;
     IrExpression *right;
 
-    left = expression_to_ir(compile_status,
-                            symbols,
-                            ast_postfix_exp_get_left(ast_postfix));
+    if (AST_IS_FUNCTION_CALL(ast_right))
+    {
+        return method_call_to_ir(compile_status,
+                                 symbols,
+                                 ast_left,
+                                 AST_FUNCTION_CALL(ast_right));
+    }
 
-    right = expression_to_ir(compile_status,
-                             symbols,
-                             ast_postfix_exp_get_right(ast_postfix));
+    assert(AST_IS_IDENT(ast_right));
+    left = expression_to_ir(compile_status, symbols, ast_left);
+    right = expression_to_ir(compile_status, symbols, ast_right);
 
     if (left == NULL || right == NULL)
     {

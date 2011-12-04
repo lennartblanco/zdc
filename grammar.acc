@@ -190,25 +190,34 @@ enum_member<x> :
 ;
 
 struct_declaration<module> :
-    TOK_STRUCT TOK_IDENT<name> '{' struct_body_declarations<members> '}'
+    TOK_STRUCT TOK_IDENT<name>
+    '{' struct_body_declarations<members, methods> '}'
     {
         AstStruct *ast_struct;
 
-        ast_struct = ast_struct_new(name.text, members.list, yypos);
+        ast_struct =
+            ast_struct_new(name.text, members.list, methods.list, yypos);
         free(name.text);
 
         ast_module_add_user_type((*module).module, AST_USER_TYPE(ast_struct));
     }
 ;
 
-struct_body_declarations<members> :
+struct_body_declarations<members, methods> :
     {
         (*members).list = NULL;
+        (*methods).list = NULL;
     }
-    ( var_definitions<defs>
+    (
+        var_definitions<defs>
         {
             (*members).list = g_slist_concat((*members).list,
                                              defs.list);
+        }
+     |  func_definition<method>
+        {
+            (*methods).list = g_slist_prepend((*methods).list,
+                                              method.function_def);
         }
     )*
 ;
@@ -919,6 +928,13 @@ postfix_expression<n> :
         (*n).expression =
             AST_EXPRESSION(ast_postfix_exp_new(left.expression,
                                                right.expression,
+                                               yypos));
+    }
+|   postfix_expression<exp> '.' func_call<method>
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_postfix_exp_new(exp.expression,
+                                               method.expression,
                                                yypos));
     }
 |   postfix_expression<exp> '+' '+'

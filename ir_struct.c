@@ -42,6 +42,7 @@ ir_struct_get_type(void)
 IrStruct *
 ir_struct_new(gchar *name,
               GSList *members,
+              GSList *methods,
               IrModule *parent_module,
               sym_table_t *symbols)
 {
@@ -53,6 +54,7 @@ ir_struct_new(gchar *name,
 
     obj->data_type = dt_struct_new(name, parent_module);
     obj->members = members;
+    obj->methods = methods;
     obj->symbols = symbols;
 
     return obj;
@@ -64,6 +66,14 @@ ir_struct_get_members(IrStruct *self)
     assert(IR_IS_STRUCT(self));
 
     return self->members;
+}
+
+GSList *
+ir_struct_get_methods(IrStruct *self)
+{
+    assert(IR_IS_STRUCT(self));
+
+    return self->methods;
 }
 
 gchar *

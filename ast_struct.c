@@ -32,7 +32,10 @@ ast_struct_get_type(void)
 }
 
 AstStruct *
-ast_struct_new(gchar *name, GSList *members, guint line_number)
+ast_struct_new(gchar *name,
+               GSList *members,
+               GSList *methods,
+               guint line_number)
 {
     AstStruct *obj;
 
@@ -42,6 +45,7 @@ ast_struct_new(gchar *name, GSList *members, guint line_number)
 
     obj->name = g_strdup(name);
     obj->members = members;
+    obj->methods = methods;
 
     return obj;
 }
@@ -60,4 +64,12 @@ ast_struct_get_members(AstStruct *self)
     assert(AST_IS_STRUCT(self));
 
     return self->members;
+}
+
+GSList *
+ast_struct_get_methods(AstStruct *self)
+{
+    assert(AST_IS_STRUCT(self));
+
+    return self->methods;
 }

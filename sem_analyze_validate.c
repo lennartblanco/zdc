@@ -12,6 +12,7 @@
 #include "ir_function.h"
 #include "ir_assignment.h"
 #include "ir_function_call.h"
+#include "ir_method_call.h"
 #include "ir_return.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
@@ -383,6 +384,83 @@ validate_function_call(compilation_status_t *compile_status,
     ir_function_call_set_return_type(func_call, func_return_type);
 
     return ir_expression(func_call);
+}
+
+/**
+ * Check if type is a struct or pointer to struct type, e.g. if struct '.'
+ * operations can be used on an expression of specified type.
+ *
+ * @return NULL if not a struct type,
+ *         otherwise the refered struct type
+ */
+static DtStruct *
+get_struct_type(DtDataType *type)
+{
+    if (DT_IS_STRUCT(type))
+    {
+        return DT_STRUCT(type);
+    }
+    else if (DT_IS_POINTER(type))
+    {
+        return get_struct_type(dt_pointer_get_base_type(DT_POINTER(type)));
+    }
+    return NULL;
+}
+
+static IrExpression *
+validate_method_call(compilation_status_t *compile_status,
+                     sym_table_t *sym_table,
+                     IrMethodCall *method_call)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_METHOD_CALL(method_call));
+
+    IrExpression *exp;
+    DtStruct *struct_type;
+
+
+    /*
+     * validate this expression
+     */
+    exp = validate_expression(compile_status,
+                              sym_table,
+                              ir_method_call_get_this_exp(method_call));
+    if (exp == NULL)
+    {
+        /* invalid this expression, bail out */
+        return NULL;
+    }
+
+    /* check that this expression is of struct type */
+    struct_type = get_struct_type(ir_expression_get_data_type(exp));
+    if (struct_type == NULL)
+    {
+        compile_error(compile_status,
+                      exp,
+                      "method call on non-struct type '%s'\n",
+                      dt_data_type_get_string(
+                          ir_expression_get_data_type(exp)));
+        return NULL;
+    }
+
+    ir_method_call_set_this_exp(method_call, exp);
+
+    /* look-up called method */
+    IrFunctionDef *method =
+        dt_struct_get_method(struct_type,
+                             ir_method_call_get_name(method_call));
+    if (method == NULL)
+    {
+        compile_error(compile_status,
+                      method_call,
+                      "struct '%s' have no method '%s'\n",
+                      ir_symbol_get_name(ir_symbol(struct_type)),
+                      ir_method_call_get_name(method_call));
+        return NULL;
+    }
+
+    assert(false);
 }
 
 /**
@@ -995,40 +1073,19 @@ validate_dot_property(compilation_status_t *compile_status,
 
 static IrExpression *
 validate_dot_var_value(compilation_status_t *compile_status,
-                      sym_table_t *sym_table,
-                      IrExpression *left,
-                      IrExpression *right)
+                       sym_table_t *sym_table,
+                       IrExpression *left,
+                       IrIdent *right)
 {
     assert(compile_status);
     assert(sym_table);
     assert(IR_IS_VAR_VALUE(left));
-    /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
 
-    DtDataType *type = ir_expression_get_data_type(left);
-    if (DT_IS_STRUCT(type))
+    DtStruct *dt_struct = get_struct_type(ir_expression_get_data_type(left));
+    if (dt_struct != NULL)
     {
-        DtStruct *dt_struct;
-        IrStructMember *mbr;
-
-        dt_struct = DT_STRUCT(type);
-        mbr = dt_struct_get_member(dt_struct,
-                                   ir_ident_get_name(IR_IDENT(right)));
-        if (mbr != NULL)
-        {
-            ir_struct_member_set_base(mbr, left);
-            return ir_expression(mbr);
-        }
-    }
-    else if (DT_IS_POINTER(type) &&
-             DT_IS_STRUCT(dt_pointer_get_base_type(DT_POINTER(type))))
-    {
-        DtStruct *dt_struct;
-        IrStructMember *mbr;
-
-        dt_struct = DT_STRUCT(dt_pointer_get_base_type(DT_POINTER(type)));
-        mbr = dt_struct_get_member(dt_struct,
-                                   ir_ident_get_name(IR_IDENT(right)));
+        IrStructMember *mbr = dt_struct_get_member(dt_struct, right);
         if (mbr != NULL)
         {
             ir_struct_member_set_base(mbr, left);
@@ -1036,7 +1093,10 @@ validate_dot_var_value(compilation_status_t *compile_status,
         }
     }
 
-    return validate_dot_property(compile_status, sym_table, left, right);
+    return validate_dot_property(compile_status,
+                                 sym_table,
+                                 left,
+                                 ir_expression(right));
 }
 
 static IrExpression *
@@ -1055,14 +1115,12 @@ validate_dot(compilation_status_t *compile_status,
     left = validate_expression(compile_status,
                                sym_table,
                                ir_dot_get_left(dot));
-   if (left == NULL)
-   {
-       /* invalid left expression, bail out */
-       return NULL;
-   }
-
-    /* only identifiers supported as right operand to '.' operation */
     assert(IR_IS_IDENT(right));
+    if (left == NULL)
+    {
+        /* invalid left expression, bail out */
+        return NULL;
+    }
 
     if (dt_is_enum(left))
     {
@@ -1084,7 +1142,10 @@ validate_dot(compilation_status_t *compile_status,
     }
     else if (IR_IS_VAR_VALUE(left))
     {
-        res = validate_dot_var_value(compile_status, sym_table, left, right);
+        res = validate_dot_var_value(compile_status,
+                                     sym_table,
+                                     left,
+                                     IR_IDENT(right));
     }
     else
     {
@@ -1301,6 +1362,12 @@ validate_expression(compilation_status_t *compile_status,
             validate_function_call(compile_status,
                                    sym_table,
                                    ir_function_call(expression));
+    }
+    else if (IR_IS_METHOD_CALL(expression))
+    {
+        expression = validate_method_call(compile_status,
+                                          sym_table,
+                                          IR_METHOD_CALL(expression));
     }
     else if (IR_IS_ARRAY_CELL(expression))
     {
@@ -2813,6 +2880,7 @@ validate_struct(compilation_status_t *compile_status,
     GSList *i;
     sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
 
+    /* validate struct members */
     struct_type = ir_struct_get_data_type(ir_struct);
     for (i = ir_struct_get_members(ir_struct); i != NULL; i = g_slist_next(i))
     {
@@ -2828,6 +2896,16 @@ validate_struct(compilation_status_t *compile_status,
         }
 
         dt_struct_add_member(struct_type, var);
+    }
+
+    /* validate struct methods */
+    for (i = ir_struct_get_methods(ir_struct); i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_FUNCTION_DEF(i->data));
+
+        IrFunctionDef *method = ir_function_def(i->data);
+        validate_function_def(compile_status, method);
+        dt_struct_add_method(struct_type, method);
     }
 }
 

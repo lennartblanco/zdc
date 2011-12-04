@@ -32,6 +32,7 @@ typedef struct
     /* private */
     DtStruct *data_type;
     GSList *members;
+    GSList *methods;
     sym_table_t *symbols;
 } IrStruct;
 
@@ -50,6 +51,7 @@ ir_struct_get_type(void);
 IrStruct *
 ir_struct_new(gchar *name,
               GSList *members,
+              GSList *methods,
               IrModule *parent_module,
               sym_table_t *symbols);
 
@@ -58,6 +60,9 @@ ir_struct_set_members(IrStruct *self, GSList *members);
 
 GSList *
 ir_struct_get_members(IrStruct *self);
+
+GSList *
+ir_struct_get_methods(IrStruct *self);
 
 gchar *
 ir_struct_get_name(IrStruct *self);

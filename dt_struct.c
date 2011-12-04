@@ -1,4 +1,5 @@
 #include "dt_struct.h"
+#include "ir_function_def.h"
 
 #include <assert.h>
 
@@ -54,6 +55,7 @@ dt_struct_new(gchar *name, IrModule *parent_module)
     obj->size = 0;
     obj->members = NULL;
     obj->members_table = g_hash_table_new(g_str_hash, g_str_equal);
+    obj->methods =  g_hash_table_new(g_str_hash, g_str_equal);
     obj->init = NULL;
 
     return obj;
@@ -87,12 +89,32 @@ dt_struct_add_member(DtStruct *self, IrVariable *var)
 }
 
 IrStructMember *
-dt_struct_get_member(DtStruct *self, const gchar *name)
+dt_struct_get_member(DtStruct *self, IrIdent *name)
 {
     assert(DT_IS_STRUCT(self));
-    assert(name);
+    assert(IR_IS_IDENT(name));
 
-    return g_hash_table_lookup(self->members_table, name);
+    return g_hash_table_lookup(self->members_table, ir_ident_get_name(name));
+}
+
+void
+dt_struct_add_method(DtStruct *self, IrFunctionDef *method)
+{
+    assert(DT_IS_STRUCT(self));
+    assert(IR_IS_FUNCTION_DEF(method));
+
+    g_hash_table_insert(self->methods,
+                        ir_function_def_get_name(method),
+                        method);
+}
+
+IrFunctionDef *
+dt_struct_get_method(DtStruct *self, const char *method_name)
+{
+    assert(DT_IS_STRUCT(self));
+    assert(method_name);
+
+    return g_hash_table_lookup(self->methods, method_name);
 }
 
 /*---------------------------------------------------------------------------*

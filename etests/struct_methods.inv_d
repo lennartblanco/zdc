@@ -1,0 +1,15 @@
+struct xb1
+{
+  char a;
+}
+
+void func1()
+{
+  foo.hej();  /* method call on unknown symbol */
+
+  bool b;
+  b.meep();   /* method call on non-struct variable */
+
+  xb1 x;
+  x.hej();    /* call to unknown method */
+}
