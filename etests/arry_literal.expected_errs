@@ -1,2 +1,3 @@
 arry_literal.d:5: error: can not implicitly convert array literal value
 arry_literal.d:5: error: invalid assignment expression
+arry_literal.d:12: error: must be an lvalue

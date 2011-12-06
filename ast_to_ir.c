@@ -1243,7 +1243,8 @@ string_literal_to_ir(compilation_status_t *compile_status,
     }
 
     /* build IR array literal object */
-    arry_literal = ir_array_literal_new(0);
+    arry_literal =
+        ir_array_literal_new(ast_node_get_line_num(ast_str_literal));
     ir_array_literal_set_values(arry_literal, g_slist_reverse(vals));
 
     return ir_expression(arry_literal);
