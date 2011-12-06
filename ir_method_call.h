@@ -1,7 +1,7 @@
 #ifndef IR_METHOD_CALL_INC_X
 #define IR_METHOD_CALL_INC_X
 
-#include "ir_expression.h"
+#include "ir_call.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    IrExpression parent;
+    IrCall parent;
 
     /* private */
     IrExpression *this_exp;
@@ -35,7 +35,7 @@ typedef struct
 
 typedef struct
 {
-    IrExpressionClass parent_class;
+    IrCallClass parent_class;
 } IrMethodCallClass;
 
 /*---------------------------------------------------------------------------*
@@ -48,6 +48,7 @@ ir_method_call_get_type(void);
 IrMethodCall *
 ir_method_call_new(IrExpression *this_exp,
                    const char *method_name,
+                   GSList *arguments,
                    guint line_number);
 
 void

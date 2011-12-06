@@ -26,7 +26,7 @@ ir_method_call_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_EXPRESSION,
+      type = g_type_register_static(IR_TYPE_CALL,
                                     "IrMethodCallType",
                                     &info, 0);
     }
@@ -36,12 +36,14 @@ ir_method_call_get_type(void)
 IrMethodCall *
 ir_method_call_new(IrExpression *this_exp,
                    const char *method_name,
+                   GSList *arguments,
                    guint line_number)
 {
     IrMethodCall *obj;
 
     obj = g_object_new(IR_TYPE_METHOD_CALL,
                        "ir-node-line-number", line_number,
+                       "ir-call-arguments", arguments,
                        NULL);
 
     obj->this_exp = this_exp;

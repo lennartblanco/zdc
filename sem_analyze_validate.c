@@ -236,6 +236,113 @@ validate_ident(compilation_status_t *compile_status,
     return ir_expression(symb);
 }
 
+static IrCall *
+validate_call(compilation_status_t *compile_status,
+              sym_table_t *sym_table,
+              IrFunction *func,
+              IrCall *call)
+{
+    assert(compile_status);
+    assert(sym_table);
+    assert(IR_IS_FUNCTION(func));
+    assert(IR_IS_CALL(call));
+
+    GSList *params = ir_function_get_parameters(func);
+    GSList *args = ir_call_get_arguments(call);
+
+    /*
+     * check that function call have correct number of arguments
+     */
+    if (g_slist_length(params) != g_slist_length(args))
+    {
+        compile_error(compile_status,
+                      call,
+                      "invalid call to function '%s()', expected %d "
+                      "arguments, got %d\n",
+                      ir_symbol_get_name(ir_symbol(func)),
+                      g_slist_length(params),
+                      g_slist_length(args));
+        return NULL;
+    }
+
+    GSList *validated_args = NULL;
+    GSList *i;
+    GSList *j;
+    guint counter;
+
+    /*
+     * validate function call arguments
+     */
+    for (i = args, j = params, counter = 1;
+         i != NULL;
+         i = g_slist_next(i), j = g_slist_next(j), counter += 1)
+    {
+        IrExpression *arg_exp;
+        IrExpression *exp;
+        DtDataType *formal_arg_type;
+
+        assert(j != NULL);
+
+        /* validate expression */
+        arg_exp = validate_expression(compile_status,
+                                      sym_table,
+                                      ir_expression(i->data));
+        if (arg_exp == NULL)
+        {
+            /* invalid argument expression, bail out */
+            return NULL;
+        }
+
+        /* check if the type is compatible */
+        formal_arg_type = ir_variable_get_data_type(j->data);
+
+        exp = types_implicit_conv(formal_arg_type, arg_exp);
+        if (exp == NULL)
+        {
+            compile_error(compile_status,
+                          IR_NODE(arg_exp),
+                          "in function call to '%s()', argument %d of invalid type\n",
+                          ir_symbol_get_name(ir_symbol(func)),
+                          counter);
+            compile_error(compile_status,
+                          IR_NODE(arg_exp),
+                          "argument's type is '%s' got '%s'\n",
+                          dt_data_type_get_string(formal_arg_type),
+                          dt_data_type_get_string(ir_expression_get_data_type(arg_exp)));
+            return NULL;
+        }
+
+        if (ir_variable_is_ref(j->data))
+        {
+            if (!ir_expression_is_lvalue(exp))
+            {
+                compile_error(compile_status,
+                              exp,
+                              "argument %d to function '%s()' "
+                              "must be an lvalue\n",
+                              counter,
+                              ir_symbol_get_name(ir_symbol(func)));
+                return NULL;
+            }
+            exp =
+                ir_expression(
+                    ir_address_of_new(exp, ir_node_get_line_num(exp)));
+        }
+
+        /* valid expression */
+        validated_args = g_slist_prepend(validated_args, exp);
+    }
+
+    /* store validated call arguments */
+    ir_call_set_arguments(call, g_slist_reverse(validated_args));
+
+    /* store function call data type */
+    ir_call_set_return_type(call, ir_function_get_return_type(func));
+
+    return call;
+}
+
+
 static IrExpression *
 validate_function_call(compilation_status_t *compile_status,
                        sym_table_t *sym_table,
@@ -243,13 +350,6 @@ validate_function_call(compilation_status_t *compile_status,
 {
     IrSymbol *func_symb;
     char *func_name;
-    DtDataType *func_return_type;
-    GSList *formal_args;
-    GSList *func_call_args;
-    GSList *validated_args = NULL;
-    GSList *i;
-    GSList *j;
-    guint counter;
     GError *error = NULL;
 
     func_name = ir_function_call_get_name(func_call);
@@ -297,91 +397,14 @@ validate_function_call(compilation_status_t *compile_status,
                                  ir_function_get_linkage(
                                      ir_function(func_symb)));
 
-    formal_args = ir_function_get_parameters(ir_function(func_symb));
-    func_call_args = ir_function_call_get_arguments(func_call);
-
-    /*
-     * check that function call have correct number of arguments
-     */
-    if (g_slist_length(formal_args) != g_slist_length(func_call_args))
+    if (validate_call(compile_status,
+                           sym_table,
+                           ir_function(func_symb),
+                           IR_CALL(func_call)) == NULL)
     {
-        compile_error(compile_status,
-                      IR_NODE(func_call),
-                      "invalid call to function '%s()', expected %d "
-                      "arguments, got %d\n",
-                      func_name,
-                      g_slist_length(formal_args),
-                      g_slist_length(func_call_args));
+        /* invalid call arguments, bail out */
         return NULL;
     }
-
-    /*
-     * validate function call arguments
-     */
-    for (i = func_call_args, j = formal_args, counter = 1;
-         i != NULL;
-         i = g_slist_next(i), j = g_slist_next(j), counter += 1)
-    {
-        IrExpression *arg_exp;
-        IrExpression *exp;
-        DtDataType *formal_arg_type;
-
-        assert(j != NULL);
-
-        /* validate expression */
-        arg_exp = validate_expression(compile_status,
-                                      sym_table,
-                                      ir_expression(i->data));
-        if (arg_exp == NULL)
-        {
-            /* invalid argument expression, bail out */
-            return NULL;
-        }
-
-        /* check if the type is compatible */
-        formal_arg_type = ir_variable_get_data_type(j->data);
-
-        exp = types_implicit_conv(formal_arg_type, arg_exp);
-        if (exp == NULL)
-        {
-            compile_error(compile_status,
-                          IR_NODE(arg_exp),
-                          "in function call to '%s()', argument %d of invalid type\n",
-                          func_name, counter);
-            compile_error(compile_status,
-                          IR_NODE(arg_exp),
-                          "argument's type is '%s' got '%s'\n",
-                          dt_data_type_get_string(formal_arg_type),
-                          dt_data_type_get_string(ir_expression_get_data_type(arg_exp)));
-            return NULL;
-        }
-
-        if (ir_variable_is_ref(j->data))
-        {
-            if (!ir_expression_is_lvalue(exp))
-            {
-                compile_error(compile_status,
-                              exp,
-                              "argument %d to function '%s()' "
-                              "must be an lvalue\n",
-                              counter, func_name);
-                return NULL;
-            }
-            exp =
-                ir_expression(
-                    ir_address_of_new(exp, ir_node_get_line_num(exp)));
-        }
-
-        /* valid expression */
-        validated_args = g_slist_prepend(validated_args, exp);
-    }
-
-    /* store validated call arguments */
-    ir_function_call_set_arguments(func_call, g_slist_reverse(validated_args));
-
-    /* store function call data type */
-    func_return_type = ir_function_get_return_type(ir_function(func_symb));
-    ir_function_call_set_return_type(func_call, func_return_type);
 
     return ir_expression(func_call);
 }
@@ -460,7 +483,16 @@ validate_method_call(compilation_status_t *compile_status,
         return NULL;
     }
 
-    assert(false);
+    if (validate_call(compile_status,
+                           sym_table,
+                           ir_function(method),
+                           IR_CALL(method_call)) == NULL)
+    {
+        /* invalid call arguments, bail out */
+        return NULL;
+    }
+
+    return ir_expression(method_call);
 }
 
 /**

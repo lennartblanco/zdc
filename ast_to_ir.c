@@ -1418,9 +1418,11 @@ method_call_to_ir(compilation_status_t *compile_status,
         return NULL;
     }
 
-    return ir_expression(ir_method_call_new(ir_this,
-                                            ir_function_call_get_name(call),
-                                            ast_node_get_line_num(right)));
+    return
+        ir_expression(ir_method_call_new(ir_this,
+                                         ir_function_call_get_name(call),
+                                         ir_function_call_get_arguments(call),
+                                         ast_node_get_line_num(right)));
 }
 
 static IrExpression *

@@ -1,15 +1,19 @@
 struct xb1
 {
   char a;
+  void ybt(int c) {
+  }
 }
 
 void func1()
 {
-  foo.hej();  /* method call on unknown symbol */
+  foo.hej();    /* method call on unknown symbol */
 
   bool b;
-  b.meep();   /* method call on non-struct variable */
+  b.meep();     /* method call on non-struct variable */
 
   xb1 x;
-  x.hej();    /* call to unknown method */
+  x.hej();      /* call to unknown method */
+  x.ybt(1, 2);  /* wrong number of arguments */
+  x.ybt(&b);    /* argument of invalid data type */
 }

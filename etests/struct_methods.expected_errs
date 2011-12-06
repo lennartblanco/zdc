@@ -1,3 +1,6 @@
-struct_methods.d:8: error: reference to unknown symbol 'foo'
-struct_methods.d:11: error: method call on non-struct type 'bool'
-struct_methods.d:14: error: struct 'xb1' have no method 'hej'
+struct_methods.d:10: error: reference to unknown symbol 'foo'
+struct_methods.d:13: error: method call on non-struct type 'bool'
+struct_methods.d:16: error: struct 'xb1' have no method 'hej'
+struct_methods.d:17: error: invalid call to function 'ybt()', expected 1 arguments, got 2
+struct_methods.d:18: error: in function call to 'ybt()', argument 1 of invalid type
+struct_methods.d:18: error: argument's type is 'int' got 'bool*'

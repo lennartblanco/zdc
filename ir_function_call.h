@@ -1,7 +1,7 @@
 #ifndef IR_FUNCTION_CALL_INC_X
 #define IR_FUNCTION_CALL_INC_X
 
-#include "ir_expression.h"
+#include "ir_call.h"
 #include "ir_function.h"
 
 /*---------------------------------------------------------------------------*
@@ -24,17 +24,15 @@
 
 typedef struct
 {
-    IrExpression parent;
+    IrCall parent;
     /* private */
     char                 *name;
-    GSList               *arguments;
-    DtDataType           *return_type;
     ir_linkage_type_t    linkage;
 } IrFunctionCall;
 
 typedef struct
 {
-    IrExpressionClass parent_class;
+    IrCallClass parent_class;
 } IrFunctionCallClass;
 
 /*---------------------------------------------------------------------------*
@@ -58,21 +56,17 @@ ir_function_call_new(char *name,
                      guint line_number);
 
 void
-ir_function_call_set_return_type(IrFunctionCall *self,
-                                 DtDataType *return_type);
-
-void
 ir_function_call_set_linkage(IrFunctionCall *self,
                              ir_linkage_type_t linkage);
 
 ir_linkage_type_t
 ir_function_call_get_linkage(IrFunctionCall *self);
 
+/**
+ * convenience wrapper around ir_call_get_arguments()
+ */
 GSList *
 ir_function_call_get_arguments(IrFunctionCall *self);
-
-void
-ir_function_call_set_arguments(IrFunctionCall *self, GSList *arguments);
 
 char *
 ir_function_call_get_name(IrFunctionCall *self);

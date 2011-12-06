@@ -1,16 +1,8 @@
 #include <string.h>
 
 #include "ir_function_call.h"
-#include "dt_basic.h"
 
 #include <assert.h>
-
-/*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static void
-ir_function_call_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -27,14 +19,14 @@ ir_function_call_get_type(void)
         sizeof (IrFunctionCallClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_function_call_class_init, /* class_init */
+        NULL,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrFunctionCall),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_EXPRESSION,
+      type = g_type_register_static(IR_TYPE_CALL,
                                     "IrFunctionCallType",
                                     &info, 0);
     }
@@ -58,23 +50,13 @@ ir_function_call_new(char *name,
 
     obj = g_object_new(IR_TYPE_FUNCTION_CALL,
                        "ir-node-line-number", line_number,
+                       "ir-call-arguments", arguments,
                        NULL);
 
     obj->name = strdup(name);
-    obj->arguments = arguments;
-    obj->return_type = NULL;
     obj->linkage = ir_d_linkage;
 
     return obj;
-}
-
-void
-ir_function_call_set_return_type(IrFunctionCall *self,
-                                 DtDataType *return_type)
-{
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    self->return_type = return_type;
 }
 
 void
@@ -97,17 +79,7 @@ ir_function_call_get_linkage(IrFunctionCall *self)
 GSList *
 ir_function_call_get_arguments(IrFunctionCall *self)
 {
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    return self->arguments;
-}
-
-void
-ir_function_call_set_arguments(IrFunctionCall *self, GSList *arguments)
-{
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    self->arguments = arguments;
+    return ir_call_get_arguments(IR_CALL(self));
 }
 
 char *
@@ -116,35 +88,4 @@ ir_function_call_get_name(IrFunctionCall *self)
     assert(IR_IS_FUNCTION_CALL(self));
 
     return self->name;
-}
-
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static DtDataType *
-ir_function_call_do_get_data_type(IrExpression *self)
-{
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    return ir_function_call(self)->return_type;
-}
-
-static UtRange *
-ir_function_call_get_value_range(IrExpression *self)
-{
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    IrFunctionCall *fcall = ir_function_call(self);
-
-    return dt_basic_get_value_range(dt_basic(fcall->return_type));
-}
-
-static void
-ir_function_call_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_function_call_do_get_data_type;
-    IR_EXPRESSION_CLASS(klass)->get_value_range =
-        ir_function_call_get_value_range;
 }
