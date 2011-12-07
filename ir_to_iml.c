@@ -357,7 +357,6 @@ iml_add_func_call_eval(IrFunctionDef *function,
     iml_func_frame_t *frame;
     iml_operation_t *call_op;
     IrFunction *callee;
-    IrCodeBlock *body;
     iml_opcode_t opcode;
 
     switch (ir_function_call_get_linkage(func_call))
@@ -387,7 +386,6 @@ iml_add_func_call_eval(IrFunctionDef *function,
     }
     iml_args = g_slist_reverse(iml_args);
 
-    body = ir_function_def_get_body(function);
     callee =
         ir_function(
              sym_table_get_symbol(ir_code_block_get_symbols(body),
