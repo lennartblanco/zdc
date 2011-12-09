@@ -386,11 +386,7 @@ iml_add_func_call_eval(IrFunctionDef *function,
     }
     iml_args = g_slist_reverse(iml_args);
 
-    callee =
-        ir_function(
-             sym_table_get_symbol(ir_code_block_get_symbols(body),
-                                  ir_function_call_get_name(func_call), NULL));
-
+    callee = ir_call_get_function(IR_CALL(func_call));
 
     if (res == NULL &&
         !DT_IS_VOID(ir_expression_get_data_type(ir_expression(func_call))))

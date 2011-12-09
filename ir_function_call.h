@@ -27,7 +27,6 @@ typedef struct
     IrCall parent;
     /* private */
     char                 *name;
-    ir_linkage_type_t    linkage;
 } IrFunctionCall;
 
 typedef struct
@@ -54,10 +53,6 @@ IrFunctionCall *
 ir_function_call_new(char *name,
                      GSList *arguments,
                      guint line_number);
-
-void
-ir_function_call_set_linkage(IrFunctionCall *self,
-                             ir_linkage_type_t linkage);
 
 ir_linkage_type_t
 ir_function_call_get_linkage(IrFunctionCall *self);

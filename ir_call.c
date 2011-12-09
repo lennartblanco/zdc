@@ -48,6 +48,23 @@ ir_call_get_type(void)
     return type;
 }
 
+void
+ir_call_set_function(IrCall *self, IrFunction *function)
+{
+    assert(IR_IS_CALL(self));
+    assert(IR_IS_FUNCTION(function));
+
+    self->function = function;
+}
+
+IrFunction *
+ir_call_get_function(IrCall *self)
+{
+    assert(IR_IS_CALL(self));
+
+    return self->function;
+}
+
 GSList *
 ir_call_get_arguments(IrCall *self)
 {
@@ -62,14 +79,6 @@ ir_call_set_arguments(IrCall *self, GSList *arguments)
     assert(IR_IS_CALL(self));
 
     self->arguments = arguments;
-}
-
-void
-ir_call_set_return_type(IrCall *self, DtDataType *return_type)
-{
-    assert(IR_IS_CALL(self));
-
-    self->return_type = return_type;
 }
 
 /*---------------------------------------------------------------------------*
@@ -104,7 +113,7 @@ ir_call_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_CALL(self));
 
-    return IR_CALL(self)->return_type;
+    return ir_function_get_return_type(IR_CALL(self)->function);
 }
 
 static UtRange *
@@ -112,7 +121,7 @@ ir_call_get_value_range(IrExpression *self)
 {
     assert(IR_IS_CALL(self));
 
-    return dt_basic_get_value_range(dt_basic(IR_CALL(self)->return_type));
+    return dt_basic_get_value_range(dt_basic(ir_call_do_get_data_type(self)));
 }
 
 

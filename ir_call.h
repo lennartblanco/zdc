@@ -5,7 +5,7 @@
 #define IR_CALL_INC_X
 
 #include "ir_expression.h"
-//#include "ir_function.h"
+#include "ir_function.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -32,8 +32,8 @@ typedef struct
 {
     IrExpression parent;
     /* private */
+    IrFunction           *function;
     GSList               *arguments;
-    DtDataType           *return_type;
 } IrCall;
 
 typedef struct
@@ -55,6 +55,9 @@ void
 ir_call_set_arguments(IrCall *self, GSList *arguments);
 
 void
-ir_call_set_return_type(IrCall *self, DtDataType *return_type);
+ir_call_set_function(IrCall *self, IrFunction *function);
+
+IrFunction *
+ir_call_get_function(IrCall *self);
 
 #endif /* IR_CALL_INC_X */

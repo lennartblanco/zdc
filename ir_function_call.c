@@ -54,18 +54,8 @@ ir_function_call_new(char *name,
                        NULL);
 
     obj->name = strdup(name);
-    obj->linkage = ir_d_linkage;
 
     return obj;
-}
-
-void
-ir_function_call_set_linkage(IrFunctionCall *self,
-                             ir_linkage_type_t linkage)
-{
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    self->linkage = linkage;
 }
 
 ir_linkage_type_t
@@ -73,7 +63,7 @@ ir_function_call_get_linkage(IrFunctionCall *self)
 {
     assert(IR_IS_FUNCTION_CALL(self));
 
-    return self->linkage;
+    return ir_function_get_linkage(ir_call_get_function(IR_CALL(self)));
 }
 
 GSList *

@@ -239,14 +239,13 @@ validate_ident(compilation_status_t *compile_status,
 static IrCall *
 validate_call(compilation_status_t *compile_status,
               sym_table_t *sym_table,
-              IrFunction *func,
               IrCall *call)
 {
     assert(compile_status);
     assert(sym_table);
-    assert(IR_IS_FUNCTION(func));
     assert(IR_IS_CALL(call));
 
+    IrFunction *func = ir_call_get_function(call);
     GSList *params = ir_function_get_parameters(func);
     GSList *args = ir_call_get_arguments(call);
 
@@ -336,9 +335,6 @@ validate_call(compilation_status_t *compile_status,
     /* store validated call arguments */
     ir_call_set_arguments(call, g_slist_reverse(validated_args));
 
-    /* store function call data type */
-    ir_call_set_return_type(call, ir_function_get_return_type(func));
-
     return call;
 }
 
@@ -392,14 +388,11 @@ validate_function_call(compilation_status_t *compile_status,
         return NULL;
     }
 
-    /* store linkage attribute type of the callee */
-    ir_function_call_set_linkage(func_call,
-                                 ir_function_get_linkage(
-                                     ir_function(func_symb)));
+    /* store called function object */
+    ir_call_set_function(IR_CALL(func_call), ir_function(func_symb));
 
     if (validate_call(compile_status,
                            sym_table,
-                           ir_function(func_symb),
                            IR_CALL(func_call)) == NULL)
     {
         /* invalid call arguments, bail out */
@@ -482,11 +475,9 @@ validate_method_call(compilation_status_t *compile_status,
                       ir_method_call_get_name(method_call));
         return NULL;
     }
+    ir_call_set_function(IR_CALL(method_call), ir_function(method));
 
-    if (validate_call(compile_status,
-                           sym_table,
-                           ir_function(method),
-                           IR_CALL(method_call)) == NULL)
+    if (validate_call(compile_status, sym_table, IR_CALL(method_call)) == NULL)
     {
         /* invalid call arguments, bail out */
         return NULL;
