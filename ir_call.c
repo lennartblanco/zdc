@@ -73,12 +73,29 @@ ir_call_get_arguments(IrCall *self)
     return self->arguments;
 }
 
+IrExpression *
+ir_call_get_this_arg(IrCall *self)
+{
+    assert(IR_IS_CALL(self));
+    assert(IR_CALL_GET_CLASS(self)->do_get_this_arg);
+
+    return IR_CALL_GET_CLASS(self)->do_get_this_arg(self);
+}
+
 void
 ir_call_set_arguments(IrCall *self, GSList *arguments)
 {
     assert(IR_IS_CALL(self));
 
     self->arguments = arguments;
+}
+
+ir_linkage_type_t
+ir_call_get_linkage(IrCall *self)
+{
+    assert(IR_IS_CALL(self));
+
+    return ir_function_get_linkage(self->function);
 }
 
 /*---------------------------------------------------------------------------*

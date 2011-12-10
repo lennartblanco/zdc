@@ -208,11 +208,9 @@ iml_add_expression_eval(IrFunctionDef *function,
                                      IR_BINARY_OPERATION(ir_expression),
                                      dest);
     }
-    else if (IR_IS_FUNCTION_CALL(ir_expression))
+    else if (IR_IS_CALL(ir_expression))
     {
-        res = iml_add_func_call_eval(function,
-                                     ir_function_call(ir_expression),
-                                     dest);
+        res = iml_add_call_eval(function, IR_CALL(ir_expression), dest);
     }
     else if (IR_IS_CAST(ir_expression))
     {
@@ -347,9 +345,7 @@ add_to_func_frame(IrFunctionDef *parent_function,
 }
 
 ImlOperand *
-iml_add_func_call_eval(IrFunctionDef *function,
-                       IrFunctionCall *func_call,
-                       ImlVariable *res)
+iml_add_call_eval(IrFunctionDef *function, IrCall *call, ImlVariable *res)
 {
     GSList *iml_args = NULL;
     GSList *ir_args;
@@ -359,7 +355,7 @@ iml_add_func_call_eval(IrFunctionDef *function,
     IrFunction *callee;
     iml_opcode_t opcode;
 
-    switch (ir_function_call_get_linkage(func_call))
+    switch (ir_call_get_linkage(call))
     {
         case ir_d_linkage:
             opcode = iml_call;
@@ -374,8 +370,17 @@ iml_add_func_call_eval(IrFunctionDef *function,
 
     frame = ir_function_def_get_frame(function);
 
-    /* generate iml code for eveluation of call parameters */
-    ir_args = ir_function_call_get_arguments(func_call);
+    /*
+     * generate iml code for eveluation of call parameters
+     */
+    ir_args = ir_call_get_arguments(call);
+
+    /* add 'this' argument if present */
+    if (ir_call_get_this_arg(call) != NULL)
+    {
+        ir_args = g_slist_append(ir_args, ir_call_get_this_arg(call));
+    }
+
     for (i = ir_args; i != NULL; i = g_slist_next(i))
     {
         iml_args = g_slist_prepend(iml_args,
@@ -386,10 +391,10 @@ iml_add_func_call_eval(IrFunctionDef *function,
     }
     iml_args = g_slist_reverse(iml_args);
 
-    callee = ir_call_get_function(IR_CALL(func_call));
+    callee = ir_call_get_function(call);
 
     if (res == NULL &&
-        !DT_IS_VOID(ir_expression_get_data_type(ir_expression(func_call))))
+        !DT_IS_VOID(ir_expression_get_data_type(ir_expression(call))))
     {
         res = iml_func_frame_get_temp(frame, iml_32b);
     }

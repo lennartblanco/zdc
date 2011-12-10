@@ -34,9 +34,7 @@ iml_add_expression_eval(IrFunctionDef *function,
                         bool discard_result);
 
 ImlOperand *
-iml_add_func_call_eval(IrFunctionDef *function,
-                       IrFunctionCall *func_call,
-                       ImlVariable *res);
+iml_add_call_eval(IrFunctionDef *function, IrCall *call, ImlVariable *res);
 
 void
 iml_add_while_head(IrFunctionDef *function,

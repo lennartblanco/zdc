@@ -5,6 +5,13 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_function_call_class_init(gpointer klass, gpointer dummy);
+
+/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -19,7 +26,7 @@ ir_function_call_get_type(void)
         sizeof (IrFunctionCallClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL,   /* class_init */
+        ir_function_call_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrFunctionCall),
@@ -58,14 +65,6 @@ ir_function_call_new(char *name,
     return obj;
 }
 
-ir_linkage_type_t
-ir_function_call_get_linkage(IrFunctionCall *self)
-{
-    assert(IR_IS_FUNCTION_CALL(self));
-
-    return ir_function_get_linkage(ir_call_get_function(IR_CALL(self)));
-}
-
 GSList *
 ir_function_call_get_arguments(IrFunctionCall *self)
 {
@@ -78,4 +77,20 @@ ir_function_call_get_name(IrFunctionCall *self)
     assert(IR_IS_FUNCTION_CALL(self));
 
     return self->name;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static IrExpression *
+ir_function_get_this_arg(IrCall *self)
+{
+    return NULL;
+}
+
+static void
+ir_function_call_class_init(gpointer klass, gpointer dummy)
+{
+    IR_CALL_CLASS(klass)->do_get_this_arg = ir_function_get_this_arg;
 }

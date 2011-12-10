@@ -435,7 +435,6 @@ validate_method_call(compilation_status_t *compile_status,
     IrExpression *exp;
     DtStruct *struct_type;
 
-
     /*
      * validate this expression
      */
@@ -2174,9 +2173,7 @@ validate_statment(compilation_status_t *compile_status,
              /* invalid function call, bail out */
              return;
          }
-         iml_add_func_call_eval(compile_status->function,
-                                ir_function_call(statment),
-                                NULL);
+         iml_add_call_eval(compile_status->function, IR_CALL(statment), NULL);
     }
     else if (IR_IS_ASSIGNMENT(statment))
     {

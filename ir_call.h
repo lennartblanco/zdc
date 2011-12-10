@@ -39,6 +39,8 @@ typedef struct
 typedef struct
 {
     IrExpressionClass parent_class;
+    /* public virtual methods */
+    IrExpression * (*do_get_this_arg) (IrCall *self);
 } IrCallClass;
 
 /*---------------------------------------------------------------------------*
@@ -51,6 +53,9 @@ ir_call_get_type(void);
 GSList *
 ir_call_get_arguments(IrCall *self);
 
+IrExpression *
+ir_call_get_this_arg(IrCall *self);
+
 void
 ir_call_set_arguments(IrCall *self, GSList *arguments);
 
@@ -59,5 +64,9 @@ ir_call_set_function(IrCall *self, IrFunction *function);
 
 IrFunction *
 ir_call_get_function(IrCall *self);
+
+ir_linkage_type_t
+ir_call_get_linkage(IrCall *self);
+
 
 #endif /* IR_CALL_INC_X */

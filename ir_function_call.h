@@ -2,7 +2,6 @@
 #define IR_FUNCTION_CALL_INC_X
 
 #include "ir_call.h"
-#include "ir_function.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -53,10 +52,6 @@ IrFunctionCall *
 ir_function_call_new(char *name,
                      GSList *arguments,
                      guint line_number);
-
-ir_linkage_type_t
-ir_function_call_get_linkage(IrFunctionCall *self);
-
 /**
  * convenience wrapper around ir_call_get_arguments()
  */

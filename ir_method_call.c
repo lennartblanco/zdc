@@ -1,8 +1,17 @@
 #include <string.h>
 
 #include "ir_method_call.h"
+#include "ir_address_of.h"
+#include "dt_pointer.h"
 
 #include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_method_call_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -19,7 +28,7 @@ ir_method_call_get_type(void)
         sizeof (IrMethodCallClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL, /* class_init */
+        ir_method_call_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrMethodCall),
@@ -75,4 +84,29 @@ ir_method_call_get_name(IrMethodCall *self)
     assert(IR_IS_METHOD_CALL(self));
 
     return self->method_name;
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static IrExpression *
+ir_method_get_this_arg(IrCall *self)
+{
+    assert(IR_IS_METHOD_CALL(self));
+
+    IrExpression *this_arg = IR_METHOD_CALL(self)->this_exp;
+
+    if (!DT_IS_POINTER(ir_expression_get_data_type(this_arg)))
+    {
+        this_arg = ir_expression(ir_address_of_new(this_arg, 0));
+    }
+
+    return this_arg;
+}
+
+static void
+ir_method_call_class_init(gpointer klass, gpointer dummy)
+{
+    IR_CALL_CLASS(klass)->do_get_this_arg = ir_method_get_this_arg;
 }
