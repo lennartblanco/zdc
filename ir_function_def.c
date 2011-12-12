@@ -57,11 +57,12 @@ ir_function_def(void *obj)
 }
 
 IrFunctionDef *
-ir_function_def_new(DtDataType *return_type,
+ir_function_def_new(ir_linkage_type_t linkage_type,
+                    DtDataType *return_type,
                     char *name,
                     GSList *parameters,
                     IrModule *parent_module,
-                    ir_linkage_type_t linkage_type,
+                    IrScope *scope,
                     guint line_number)
 {
     assert(DT_IS_DATA_TYPE(return_type));
@@ -76,6 +77,7 @@ ir_function_def_new(DtDataType *return_type,
                        "ir-symbol-name", name,
                        "ir-function-linkage-type", linkage_type,
                        "ir-symbol-parent-module", parent_module,
+                       "ir-symbol-scope", scope,
                        NULL);
 
     obj->frame = iml_func_frame_new();

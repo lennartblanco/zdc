@@ -136,6 +136,9 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
 GSList *
 ir_module_get_structs(IrModule *self);
 
+IrScope *
+ir_module_get_scope(IrModule *self);
+
 /**
  * Get module's fully qualified name.
  */

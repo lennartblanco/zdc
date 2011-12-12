@@ -6,6 +6,7 @@
 
 #include "ir_types.h"
 #include "ir_expression.h"
+#include "ir_scope.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -32,6 +33,7 @@ struct _IrSymbol
     char    *name;
     char    *fq_name;
     IrModule *parent_module;
+    IrScope  *scope;
 };
 
 typedef struct
@@ -63,5 +65,8 @@ ir_symbol_get_fqname(IrSymbol *self);
 
 IrModule *
 ir_symbol_get_parent_module(IrSymbol *self);
+
+IrScope *
+ir_symbol_get_scope(IrSymbol *self);
 
 #endif /* IR_SYMBOL_INC_X */

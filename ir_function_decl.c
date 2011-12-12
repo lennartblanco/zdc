@@ -1,4 +1,5 @@
 #include "ir_function_decl.h"
+#include "ir_module.h"
 
 #include <assert.h>
 
@@ -33,11 +34,11 @@ ir_function_decl_get_type(void)
 }
 
 IrFunctionDecl *
-ir_function_decl_new(DtDataType *return_type,
+ir_function_decl_new(ir_linkage_type_t linkage_type,
+                     DtDataType *return_type,
                      char *name,
                      GSList *parameters,
                      IrModule *parent_module,
-                     ir_linkage_type_t linkage_type,
                      guint line_number)
 {
     assert(DT_IS_DATA_TYPE(return_type));
@@ -50,6 +51,7 @@ ir_function_decl_new(DtDataType *return_type,
                        "ir-function-linkage-type", linkage_type,
                        "ir-node-line-number", line_number,
                        "ir-symbol-parent-module", parent_module,
+                       "ir-symbol-scope", ir_module_get_scope(parent_module),
                        NULL);
    
     ir_function_set_return_type(ir_function(obj), return_type);

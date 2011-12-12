@@ -13,7 +13,8 @@
 enum
 {
     IR_SYMBOL_NAME = 1,
-    IR_SYMBOL_PARENT_MODULE
+    IR_SYMBOL_PARENT_MODULE,
+    IR_SYMBOL_SCOPE
 };
 
 /*---------------------------------------------------------------------------*
@@ -109,6 +110,14 @@ ir_symbol_get_parent_module(IrSymbol *self)
     return self->parent_module;
 }
 
+IrScope *
+ir_symbol_get_scope(IrSymbol *self)
+{
+    assert(IR_IS_SYMBOL(self));
+
+    return self->scope;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -134,6 +143,9 @@ ir_symbol_set_property(GObject *object,
             break;
         case IR_SYMBOL_PARENT_MODULE:
             sym->parent_module = g_value_get_object(value);
+            break;
+        case IR_SYMBOL_SCOPE:
+            sym->scope = g_value_get_object(value);
             break;
         default:
             /* unexpected property id */
@@ -188,4 +200,18 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
     g_object_class_install_property(gobject_class,
                                     IR_SYMBOL_PARENT_MODULE,
                                     pspec);
+
+    /*
+     * install 'scope' property
+     */
+    pspec = g_param_spec_object("ir-symbol-scope",
+                                "ir symbol scope",
+                                "the lexical scope where symbol is defined",
+                                IR_TYPE_SCOPE,
+                                G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+    g_object_class_install_property(gobject_class,
+                                    IR_SYMBOL_SCOPE,
+                                    pspec);
+
 }

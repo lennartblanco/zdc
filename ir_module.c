@@ -13,6 +13,7 @@ struct _IrModule
     GObject        parent;
     /* private */
     GSList         *package_name;
+    IrScope        *scope;
     sym_table_t    *symbols;
     GSList         *imports;
     GSList         *enums;
@@ -74,6 +75,7 @@ ir_module_new(GSList *package_name)
     obj->label_counter = 0;
     obj->data_section = g_hash_table_new(g_str_hash, g_str_equal);
     obj->package_name = package_name;
+    obj->scope = NULL;
     obj->fq_name = NULL;
     obj->mangled_name = NULL;
 
@@ -334,4 +336,17 @@ ir_module_get_structs(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->structs;
+}
+
+IrScope *
+ir_module_get_scope(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    if (self->scope == NULL)
+    {
+        self->scope = ir_scope_new_root(self->package_name);
+    }
+
+    return self->scope;
 }

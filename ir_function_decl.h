@@ -43,11 +43,11 @@ GType
 ir_function_decl_get_type(void);
 
 IrFunctionDecl *
-ir_function_decl_new(DtDataType *return_type,
+ir_function_decl_new(ir_linkage_type_t linkage_type,
+                     DtDataType *return_type,
                      char *name,
                      GSList *parameters,
                      IrModule *parent_module,
-                     ir_linkage_type_t linkage_type,
                      guint line_number);
 
 #endif /* IR_FUNCTION_DECL_INC_X */

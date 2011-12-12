@@ -51,11 +51,12 @@ ir_function_def(void *obj);
  * @return object representing an IR function
  */
 IrFunctionDef *
-ir_function_def_new(DtDataType *return_type,
+ir_function_def_new(ir_linkage_type_t linkage_type,
+                    DtDataType *return_type,
                     char *name,
                     GSList *parameters,
                     IrModule *parent_module,
-                    ir_linkage_type_t linkage_type,
+                    IrScope *scope,
                     guint line_number);
 
 char *

@@ -81,11 +81,13 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module);
  * @param convert convert_body if true, the function body will be converted
  *                             if false, the body will not be converted, only
  *                             function signature
+ * @param function's lexical scope, if NULL use parent module to derive scope
  */
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
                AstFunctionDef *ast_func_def,
                IrModule *parent_module,
+               IrScope *scope,
                bool convert_body);
 
 /**
@@ -259,6 +261,7 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
         ir_func_def = func_def_to_ir(compile_status,
                                      AST_FUNCTION_DEF(i->data),
                                      module,
+                                     NULL,
                                      true);
         if (!ir_module_add_function_def(module, ir_func_def))
         {
@@ -383,6 +386,7 @@ import_module(compilation_status_t *compile_status,
         ir_func_def = func_def_to_ir(compile_status,
                                      AST_FUNCTION_DEF(i->data),
                                      module,
+                                     NULL,
                                      false);
         if (!ir_module_add_function_def(module, ir_func_def))
         {
@@ -502,6 +506,9 @@ struct_to_ir(compilation_status_t *compile_status,
     }
 
     /* convert struct methods to ir */
+    IrScope *scope =
+            ir_scope_new_sub(ast_struct_get_name(ast_struct),
+                             ir_module_get_scope(compile_status->module));
     for (i = ast_struct_get_methods(ast_struct);
          i != NULL;
          i = g_slist_next(i))
@@ -510,6 +517,7 @@ struct_to_ir(compilation_status_t *compile_status,
             func_def_to_ir(compile_status,
                            AST_FUNCTION_DEF(i->data),
                            compile_status->module,
+                           scope,
                            true);
         methods = g_slist_prepend(methods, method);
     }
@@ -617,11 +625,11 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module)
         func_params_to_ir(ast_function_decl_get_parameters(ast_func_decl));
 
     func_decl = 
-        ir_function_decl_new(ast_function_decl_get_return_type(ast_func_decl),
+        ir_function_decl_new(linkage_type,
+                             ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
                              parameters,
                              parent_module,
-                             linkage_type,
                              ast_node_get_line_num(ast_func_decl));
 
     return func_decl;
@@ -631,8 +639,11 @@ static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
                AstFunctionDef *ast_func_def,
                IrModule *parent_module,
+               IrScope *scope,
                bool convert_body)
 {
+    assert(IR_IS_MODULE(parent_module));
+
     IrFunctionDef *ir_func;
     ir_linkage_type_t linkage_type;
     GSList *parameters;
@@ -643,12 +654,18 @@ func_def_to_ir(compilation_status_t *compile_status,
     parameters = 
         func_params_to_ir(ast_function_def_get_parameters(ast_func_def));
 
+    if (scope == NULL)
+    {
+        scope = ir_module_get_scope(parent_module);
+    }
+
     ir_func = 
-        ir_function_def_new(ast_function_def_get_return_type(ast_func_def),
+        ir_function_def_new(linkage_type,
+                            ast_function_def_get_return_type(ast_func_def),
                             ast_function_def_get_name(ast_func_def),
                             parameters,
                             parent_module,
-                            linkage_type,
+                            scope,
                             ast_node_get_line_num(ast_func_def));
 
     if (convert_body)

@@ -226,8 +226,8 @@ get_d_mangled_name(IrFunction *self)
     GString *str = g_string_new("_D");
 
     g_string_append(str,
-        ir_module_get_mangled_name(
-            ir_symbol_get_parent_module(ir_symbol(self))));
+        ir_scope_get_mangle_prefix(
+            ir_symbol_get_scope(ir_symbol(self))));
 
     func_name = ir_function_get_name(ir_function(self));
     g_string_append_printf(str, "%zu%sF", strlen(func_name), func_name);
