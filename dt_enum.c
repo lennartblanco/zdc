@@ -64,6 +64,7 @@ dt_enum_new(gchar *name,
     obj = g_object_new(DT_TYPE_ENUM,
                        "ir-symbol-name", name,
                        "ir-symbol-parent-module", parent_module,
+                       "ir-symbol-scope", ir_module_get_scope(parent_module),
                        "ir-node-line-number", line_number,
                        NULL);
 

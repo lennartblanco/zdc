@@ -68,18 +68,17 @@ dt_user_get_mangled(DtDataType *self)
     assert(DT_IS_USER(self));
 
     DtUser *user_type = DT_USER(self);
-    const char *name = dt_user_get_string(self);
-    IrModule *parent_module = ir_symbol_get_parent_module(ir_symbol(self));
-
-    assert(IR_IS_MODULE(parent_module));
 
     if (user_type->mangled_name == NULL)
     {
+        const char *name = dt_user_get_string(self);
+        IrScope *scope = ir_symbol_get_scope(ir_symbol(self));
+
         user_type->mangled_name =
             g_strdup_printf(
                     "%s%s%zu%s",
                     dt_user_get_mangled_prefix(user_type),
-                    ir_module_get_mangled_name(parent_module),
+                    ir_scope_get_mangle_prefix(scope),
                     strlen(name), name);
     }
 

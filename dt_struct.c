@@ -50,6 +50,7 @@ dt_struct_new(gchar *name, IrModule *parent_module)
     obj = g_object_new(DT_TYPE_STRUCT,
                        "ir-symbol-name", name,
                        "ir-symbol-parent-module", parent_module,
+                       "ir-symbol-scope", ir_module_get_scope(parent_module),
                        NULL);
 
     obj->size = 0;

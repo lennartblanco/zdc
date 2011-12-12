@@ -181,28 +181,6 @@ ir_module_get_fqname(IrModule *self)
 }
 
 char *
-ir_module_get_mangled_name(IrModule *self)
-{
-    assert(IR_IS_MODULE(self));
-
-    if (self->mangled_name == NULL)
-    {
-        GSList *i;
-        GString *str = g_string_new(NULL);
-
-        for (i = self->package_name; i != NULL; i = g_slist_next(i))
-        {
-           g_string_append_printf(str, "%zu%s",
-                                  strlen(i->data), (char *)i->data);
-        }
-        self->mangled_name = g_string_free(str, FALSE);
-    }
-
-
-    return self->mangled_name;
-}
-
-char *
 ir_module_gen_label(IrModule *self)
 {
     assert(IR_IS_MODULE(self));

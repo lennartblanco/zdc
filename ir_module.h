@@ -145,9 +145,6 @@ ir_module_get_scope(IrModule *self);
 char *
 ir_module_get_fqname(IrModule *self);
 
-char *
-ir_module_get_mangled_name(IrModule *self);
-
 /**
  * Generate a unique for this module label.
  */
