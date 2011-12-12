@@ -72,7 +72,7 @@ print_module(gt_dispatcher *dispatcher, void *obj, void *)
     IrModule *mod = ir_module(obj);
 
     writefln("IrModule: '%s'",
-             to!string(ir_module_get_fqname(mod)));
+             to!string(ir_scope_get_fqname(ir_module_get_scope(mod))));
 
     for (GSList *i = ir_module_get_function_defs(mod); i != null; i = i.next)
     {

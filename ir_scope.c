@@ -5,13 +5,6 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
- *                  local functions forward declaration                      *
- *---------------------------------------------------------------------------*/
-
-static char *
-package_names_prefix(GSList *names);
-
-/*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
@@ -47,7 +40,9 @@ ir_scope_new_root(GSList *names)
 
     obj = g_object_new(IR_TYPE_SCOPE, NULL);
 
-    obj->mangle_prefix = package_names_prefix(names);
+    obj->names = g_slist_copy(names);
+    obj->mangle_prefix = NULL;
+    obj->fq_name = NULL;
 
     return obj;
 }
@@ -55,20 +50,8 @@ ir_scope_new_root(GSList *names)
 IrScope *
 ir_scope_new_sub(const char *name, IrScope *parent)
 {
-    assert(name);
-    assert(IR_IS_SCOPE(parent));
-
-    IrScope *obj;
-
-    obj = g_object_new(IR_TYPE_SCOPE, NULL);
-
-    obj->mangle_prefix =
-            g_strdup_printf("%s%zu%s",
-                            ir_scope_get_mangle_prefix(parent),
-                            strlen(name),
-                            name);
-
-    return obj;
+    return ir_scope_new_root(g_slist_append(g_slist_copy(parent->names),
+                             (gpointer)name));
 }
 
 char *
@@ -76,23 +59,41 @@ ir_scope_get_mangle_prefix(IrScope *self)
 {
     assert(IR_IS_SCOPE(self));
 
+    if (self->mangle_prefix == NULL)
+    {
+        GSList *i;
+        GString *str = g_string_new(NULL);
+
+        for (i = self->names; i != NULL; i = g_slist_next(i))
+        {
+           g_string_append_printf(str, "%zu%s",
+                                  strlen(i->data),
+                                  (char *)i->data);
+        }
+        self->mangle_prefix = g_string_free(str, FALSE);
+    }
+
     return self->mangle_prefix;
 }
 
-/*---------------------------------------------------------------------------*
- *                             local functions                               *
- *---------------------------------------------------------------------------*/
-
-static char *
-package_names_prefix(GSList *names)
+char *
+ir_scope_get_fqname(IrScope *self)
 {
-    GSList *i;
-    GString *str = g_string_new(NULL);
+    assert(IR_IS_SCOPE(self));
 
-    for (i = names; i != NULL; i = g_slist_next(i))
+    if (self->fq_name == NULL)
     {
-       g_string_append_printf(str, "%zu%s", strlen(i->data), (char *)i->data);
-    }
+        GSList *i;
+        GString *str = g_string_new(NULL);
 
-    return g_string_free(str, FALSE);
+        for (i = self->names; i != NULL; i = g_slist_next(i))
+        {
+           g_string_append_printf(str, "%s%s",
+                                  (char *)i->data,
+                                  g_slist_next(i) != NULL ? "." : "");
+        }
+        self->fq_name = g_string_free(str, FALSE);
+
+    }
+    return self->fq_name;
 }

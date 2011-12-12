@@ -140,12 +140,6 @@ IrScope *
 ir_module_get_scope(IrModule *self);
 
 /**
- * Get module's fully qualified name.
- */
-char *
-ir_module_get_fqname(IrModule *self);
-
-/**
  * Generate a unique for this module label.
  */
 char *

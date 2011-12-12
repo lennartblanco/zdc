@@ -5,7 +5,8 @@ import ir;
 extern (C) void
 iml_print_module(IrModule *mod)
 {
-    writefln("Module: '%s'", to!string(ir_module_get_fqname(mod)));
+    writefln("Module: '%s'",
+             to!string(ir_scope_get_fqname(ir_module_get_scope(mod))));
 
     for (GSList *i = ir_module_get_function_defs(mod);
          i != null;

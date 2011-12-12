@@ -22,9 +22,6 @@ enum
  *---------------------------------------------------------------------------*/
 
 static void
-ir_symbol_init(IrSymbol *self, gpointer klass);
-
-static void
 ir_symbol_class_init(gpointer klass, gpointer foo);
 
 static void
@@ -59,7 +56,7 @@ ir_symbol_get_type(void)
         NULL,   /* class_data */
         sizeof (IrSymbol),
         0,      /* n_preallocs */
-        (GInstanceInitFunc) ir_symbol_init    /* instance_init */
+        NULL    /* instance_init */
       };
       type = g_type_register_static(IR_TYPE_EXPRESSION,
                                     "IrSymbolType",
@@ -86,12 +83,11 @@ char *
 ir_symbol_get_fqname(IrSymbol *self)
 {
     assert(IR_IS_SYMBOL(self));
-    assert(IR_IS_MODULE(self->parent_module));
+    assert(IR_IS_SCOPE(self->scope));
 
     if (self->fq_name == NULL)
     {
-        GString *str =
-            g_string_new(ir_module_get_fqname(self->parent_module));
+        GString *str = g_string_new(ir_scope_get_fqname(self->scope));
         g_string_append(str, ".");
         g_string_append(str, self->name);
 
@@ -121,12 +117,6 @@ ir_symbol_get_scope(IrSymbol *self)
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
-
-static void
-ir_symbol_init(IrSymbol *self, gpointer klass)
-{
-    self->fq_name = NULL;
-}
 
 static void
 ir_symbol_set_property(GObject *object,

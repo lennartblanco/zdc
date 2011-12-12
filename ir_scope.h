@@ -27,8 +27,11 @@
 typedef struct
 {
     GObject parent;
+
     /* private */
+    GSList *names;
     char *mangle_prefix;
+    char *fq_name;
 } IrScope;
 
 typedef struct
@@ -61,5 +64,8 @@ ir_scope_new_sub(const char *name, IrScope *parent);
 
 char *
 ir_scope_get_mangle_prefix(IrScope *self);
+
+char *
+ir_scope_get_fqname(IrScope *self);
 
 #endif /* IR_SCOPE_INC_X */

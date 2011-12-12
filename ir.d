@@ -19,8 +19,8 @@ ir_module_get_type();
 IrModule *
 ir_module(void *obj);
 
-char *
-ir_module_get_fqname(IrModule *self);
+IrScope *
+ir_module_get_scope(IrModule *self);
 
 GSList *
 ir_module_get_function_defs(IrModule *self);
@@ -33,6 +33,15 @@ ir_module_gen_label(IrModule *self);
 
 GList *
 ir_module_get_data_section(IrModule *self);
+
+/*---------------------------------------------------------------------------*
+ *                          scope  declarations                              *
+ *---------------------------------------------------------------------------*/
+
+struct IrScope;
+
+char *
+ir_scope_get_fqname(IrScope *self);
 
 /*---------------------------------------------------------------------------*
  *                           symbol declarations                             *

@@ -159,28 +159,6 @@ ir_module_get_function_defs(IrModule *self)
 }
 
 char *
-ir_module_get_fqname(IrModule *self)
-{
-    assert(IR_IS_MODULE(self));
-
-    if (self->fq_name == NULL)
-    {
-        GSList *i;
-        GString *str = g_string_new(NULL);
-
-        for (i = self->package_name; i != NULL; i = g_slist_next(i))
-        {
-           g_string_append_printf(str, "%s%s", 
-                                  (char *)i->data,
-                                  g_slist_next(i) != NULL ? "." : "");
-        }
-        self->fq_name = g_string_free(str, FALSE);
-    }
-
-    return self->fq_name;
-}
-
-char *
 ir_module_gen_label(IrModule *self)
 {
     assert(IR_IS_MODULE(self));
