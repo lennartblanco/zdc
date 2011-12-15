@@ -35,7 +35,7 @@ get_registers(GSList **scratch, GSList **preserved)
 }
 
 extern (C) void
-assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
+assign_var_locations(iml_function *func)
 {
     int start_offset;
     int offset;
@@ -44,7 +44,7 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
     {
         uint num_of_used_regs;
 
-        num_of_used_regs = g_slist_length(iml_func_frame_get_used_regs(frame));
+        num_of_used_regs = g_slist_length(iml_function_get_used_regs(func));
         return (num_of_used_regs + 3) * -4;
     }
 
@@ -114,10 +114,10 @@ assign_var_locations(iml_func_frame *frame, ir_linkage_type linkage)
 
     offset = start_offset = get_start_offset();
 
-    assign_params_offset(iml_func_frame_get_parameters(frame));
-    assign_loc_vars_offset(iml_func_frame_get_locals(frame));
+    assign_params_offset(iml_function_get_parameters(func));
+    assign_loc_vars_offset(iml_function_get_locals(func));
 
-    iml_func_frame_set_size(frame, start_offset - offset);
+    iml_function_set_frame_size(func, start_offset - offset);
 }
 
 extern (C) void
@@ -129,10 +129,10 @@ gen_code(IrModule *ir_module, FILE *out_stream, const char *source_file)
     data_section.add_literals(f, ir_module);
     gen_text_prelude(f, ir_module_get_symbols(ir_module));
 
-    GSList *funcs = ir_module_get_function_defs(ir_module);
+    GSList *funcs = ir_module_get_functions(ir_module);
     for (GSList *i = funcs; i != null; i = i.next())
     {
-        compile_function_def(f, ir_function_def(i.data));
+        compile_function(f, ir_module, cast_iml_function(i.data));
     }
 }
 
@@ -179,32 +179,27 @@ gen_text_prelude(File asmfile, sym_table *sym_table)
 }
 
 private void
-compile_function_def(File asmfile, IrFunctionDef *func)
+compile_function(File asmfile, IrModule *parent_module, iml_function *func)
 {
-    IrModule *parent_module;
-    string mangled_name;
     string return_label;
-    iml_func_frame *frame = ir_function_def_get_frame(func);
     string preserved_regs;
     uint frame_size;
     uint cntr;
 
     GSList *i;
 
-    mangled_name = to!string(ir_function_get_mangled_name(ir_function(func)));
-
-    frame_size = iml_func_frame_get_size(frame);
+    frame_size = iml_function_get_frame_size(func);
 
     /* generate function return label */
-    parent_module = ir_symbol_get_parent_module(ir_symbol(func));
     return_label = to!string(ir_module_gen_label(parent_module));
 
     /* get the list of regs that must be preserved */
-    preserved_regs = get_used_preserved_regs(frame);
+    preserved_regs = get_used_preserved_regs(func);
 
     /*
      * generate function prelude
      */
+    string mangled_name = to!string(iml_function_get_name(func));
     asmfile.writefln("    .align 2\n"
                      "    .global %s\n"
                      "    .type %s, %%function\n"
@@ -222,7 +217,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
     }
 
     /* store parameters in the function's frame */
-    for (i = iml_func_frame_get_parameters(frame), cntr = 0;
+    for (i = iml_function_get_parameters(func), cntr = 0;
          i != null && cntr < 4;
          i = i.next())
     {
@@ -244,7 +239,7 @@ compile_function_def(File asmfile, IrFunctionDef *func)
         }
     }
 
-    for (i = ir_function_def_get_operations(func);
+    for (i = iml_function_get_operations(func);
          i != null;
          i = i.next())
     {

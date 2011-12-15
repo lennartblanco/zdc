@@ -55,6 +55,7 @@ enum iml_opcode
 };
 
 
+/* a workaround for dmd bug(?) where cast(iml_operation*) does not work */
 iml_operation *
 cast_iml_operation(void *obj);
 
@@ -137,25 +138,35 @@ uint
 iml_variable_get_size(ImlVariable *self);
 
 /*---------------------------------------------------------------------------*
- *                       function frame declarations                         *
+ *                          function declarations                            *
  *---------------------------------------------------------------------------*/
 
-struct iml_func_frame;
+struct iml_function;
+
+/* a workaround for dmd bug(?) where cast(iml_function*) does not work */
+iml_function *
+cast_iml_function(void *obj);
+
+char *
+iml_function_get_name(iml_function *self);
 
 GSList *
-iml_func_frame_get_parameters(iml_func_frame *self);
+iml_function_get_parameters(iml_function *self);
 
 GSList *
-iml_func_frame_get_locals(iml_func_frame *self);
+iml_function_get_locals(iml_function *self);
 
 void
-iml_func_frame_set_size(iml_func_frame *self, uint stack_size);
+iml_function_set_frame_size(iml_function *self, uint stack_size);
 
 uint
-iml_func_frame_get_size(iml_func_frame *self);
+iml_function_get_frame_size(iml_function *self);
 
 GSList *
-iml_func_frame_get_used_regs(iml_func_frame *self);
+iml_function_get_used_regs(iml_function *self);
+
+GSList *
+iml_function_get_operations(iml_function *self);
 
 void
-iml_func_frame_print(iml_func_frame *self, FILE *output, int indention);
+iml_function_print(iml_function *self, FILE *output, int indention);

@@ -16,6 +16,8 @@ typedef struct compilation_status_s
     IrModule   *module;
     /** current function under validation */
     IrFunctionDef *function;
+    /** current iml function under generation */
+    iml_function_t *iml_func;
     /**
      * current loop under validation, NULL if no loop is currently validated
      */

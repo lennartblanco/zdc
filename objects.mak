@@ -33,7 +33,7 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ir_function_def.o ir_function_decl.o ir_property.o ir_struct.o       \
          ir_struct_member.o ir_struct_literal.o ir_dot.o ir_ident.o           \
          ir_var_value.o ir_var_ref.o ir_call.o ir_method_call.o ir_scope.o    \
-         iml_operation.o iml_func_frame.o iml_operand.o iml_variable.o        \
+         iml_operation.o iml_function.o iml_operand.o iml_variable.o          \
          iml_constant.o                                                       \
          ir_to_iml.o                                                          \
          GType.o

@@ -18,45 +18,45 @@
  *                              if not set, then the variable is local
  */
 void
-add_to_func_frame(IrFunctionDef *parent_function,
+add_to_func_frame(iml_function_t *function,
                   IrVariable *variable,
                   bool is_function_parameter);
 
 void
-iml_add_assignment(IrFunctionDef *function,
-                  IrExpression *lvalue,
-                  IrExpression *value);
+iml_add_assignment(iml_function_t *function,
+                   IrExpression *lvalue,
+                   IrExpression *value);
 
 ImlOperand *
-iml_add_expression_eval(IrFunctionDef *function,
+iml_add_expression_eval(iml_function_t *function,
                         IrExpression *ir_expression,
                         ImlVariable *dest,
                         bool discard_result);
 
 ImlOperand *
-iml_add_call_eval(IrFunctionDef *function, IrCall *call, ImlVariable *res);
+iml_add_call_eval(iml_function_t *function, IrCall *call, ImlVariable *res);
 
 void
-iml_add_while_head(IrFunctionDef *function,
+iml_add_while_head(iml_function_t *function,
                    IrExpression *condition,
                    iml_operation_t *loop_head,
                    iml_operation_t *loop_end);
 
 void
-iml_add_while_tail(IrFunctionDef *function,
+iml_add_while_tail(iml_function_t *function,
                    iml_operation_t *loop_head,
                    iml_operation_t *loop_end);
 
 void
-iml_add_foreach_head(IrFunctionDef *function,
+iml_add_foreach_head(iml_function_t *function,
                      IrForeach *foreach,
                      ImlVariable **index,
                      ImlVariable **length,
-                     iml_operation_t **loop_head,
+                     iml_operation_t *loop_head,
                      iml_operation_t *loop_end);
 
 void
-iml_add_foreach_tail(IrFunctionDef *function,
+iml_add_foreach_tail(iml_function_t *function,
                      ImlVariable *index,
                      ImlVariable *length,
                      iml_operation_t *loop_label);
@@ -73,27 +73,27 @@ iml_add_foreach_tail(IrFunctionDef *function,
  *         this operand must be passed on to iml_add_foreach_range_tail()
  */
 ImlOperand *
-iml_add_foreach_range_head(IrFunctionDef *function,
+iml_add_foreach_range_head(iml_function_t *function,
                            IrVarValue *index,
                            IrExpression *lower_exp,
                            IrExpression *loop_test_exp,
                            iml_operation_t *loop_head,
                            iml_operation_t *loop_end);
 void
-iml_add_foreach_range_tail(IrFunctionDef *function,
+iml_add_foreach_range_tail(iml_function_t *function,
                            IrExpression *inc_exp,
                            ImlOperand *head_temp_op,
                            iml_operation_t *loop_head,
                            iml_operation_t *loop_end);
 
 void
-iml_add_for_head(IrFunctionDef *function,
+iml_add_for_head(iml_function_t *function,
                  IrExpression *test,
                  iml_operation_t *loop_head,
                  iml_operation_t *loop_end);
 
 void
-iml_add_for_tail(IrFunctionDef *function,
+iml_add_for_tail(iml_function_t *function,
                  IrExpression *step,
                  iml_operation_t *loop_head,
                  iml_operation_t *loop_end);

@@ -2,7 +2,6 @@ public import GType;
 public import GSList;
 public import GList;
 public import sym_table;
-public import iml;
 public import dt;
 
 extern (C):
@@ -21,6 +20,9 @@ ir_module(void *obj);
 
 IrScope *
 ir_module_get_scope(IrModule *self);
+
+GSList *
+ir_module_get_functions(IrModule *self);
 
 GSList *
 ir_module_get_function_defs(IrModule *self);
@@ -96,12 +98,6 @@ ir_function_def_get_return_type(IrFunctionDef *self);
 
 IrCodeBlock *
 ir_function_def_get_body(IrFunctionDef *self);
-
-iml_func_frame *
-ir_function_def_get_frame(IrFunctionDef *self);
-
-GSList *
-ir_function_def_get_operations(IrFunctionDef *self);
 
 /*---------------------------------------------------------------------------*
  *                          code block declarations                          *

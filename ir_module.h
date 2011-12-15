@@ -13,6 +13,7 @@
 #include "ir_function_decl.h"
 #include "ir_array_literal.h"
 #include "ir_struct.h"
+#include "iml_function.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -79,6 +80,19 @@ ir_module_add_function_decl(IrModule *self, IrFunctionDecl *function_decl);
 
 GSList *
 ir_module_get_function_decls(IrModule *self);
+
+/**
+ * Add IML function's code to this module.
+ */
+void
+ir_module_add_function(IrModule *self, iml_function_t *function);
+
+/**
+ * Get IML code for all functions defined in this module.
+ * @return list of iml_func_frame_t objects
+ */
+GSList *
+ir_module_get_functions(IrModule *self);
 
 /**
  * @return true if function definition was successfully added,

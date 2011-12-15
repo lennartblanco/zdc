@@ -60,96 +60,98 @@ static ImlConstant *
 ir_constant_to_iml(IrConstant *constant);
 
 static ImlOperand *
-iml_add_unary_op_eval(IrFunctionDef *function,
+iml_add_unary_op_eval(iml_function_t *function,
                       IrUnaryOperation *op,
                       ImlVariable *res,
                       bool discard_result);
 
 static ImlOperand *
-iml_add_binary_op_eval(IrFunctionDef *function,
+iml_add_binary_op_eval(iml_function_t *function,
                        IrBinaryOperation *bin_op,
                        ImlVariable *res);
 
 static ImlOperand *
-iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest);
+iml_add_cast_eval(iml_function_t *function,
+                  IrCast *cast,
+                  ImlVariable *dest);
 
 static ImlOperand *
-iml_add_array_cell_eval(IrFunctionDef *function,
+iml_add_array_cell_eval(iml_function_t *function,
                         IrArrayCell *cell,
                         ImlVariable *res);
 
 static ImlOperand *
-iml_add_array_slice_eval(IrFunctionDef *function,
+iml_add_array_slice_eval(iml_function_t *function,
                          IrArraySlice *slice,
                          ImlVariable *res);
 
 static ImlOperand *
-iml_add_ptr_dref_eval(IrFunctionDef *function,
+iml_add_ptr_dref_eval(iml_function_t *function,
                       IrExpression *ref,
                       ImlVariable *res);
 
 static ImlOperand *
-iml_add_address_of_eval(IrFunctionDef *function,
+iml_add_address_of_eval(iml_function_t *function,
                         IrAddressOf *addr_of,
                         ImlVariable *res);
 
 static ImlOperand *
-iml_add_struct_member_eval(IrFunctionDef *function,
-                           IrStructMember *ptr_dref,
+iml_add_struct_member_eval(iml_function_t *function,
+                           IrStructMember *struct_member,
                            ImlVariable *res);
 
 static ImlOperand *
-iml_add_conditional_eval(IrFunctionDef *function,
+iml_add_conditional_eval(iml_function_t *function,
                          IrConditional *cond,
                          ImlVariable *res);
 
 static ImlOperand *
-iml_add_property_eval(IrFunctionDef *function,
+iml_add_property_eval(iml_function_t *function,
                       IrProperty *prop,
                       ImlVariable *res);
 
 static void
-add_array_cell_assignment(IrFunctionDef *function,
+add_array_cell_assignment(iml_function_t *function,
                           IrArrayCell *lvalue,
                           IrExpression *value);
 
 static void
-add_array_slice_assignment(IrFunctionDef *function,
+add_array_slice_assignment(iml_function_t *function,
                            IrArraySlice *lvalue,
                            IrExpression *value);
 
 static void
-add_array_assignment(IrFunctionDef *function,
+add_array_assignment(iml_function_t *function,
                      IrVariable *lvalue,
                      IrExpression *value);
 
 static void
-add_static_array_assignment(IrFunctionDef *function,
+add_static_array_assignment(iml_function_t *function,
                             IrVariable *lvalue,
                             IrExpression *value);
 
 static ImlOperand *
-iml_add_array_literal_eval(IrFunctionDef *function,
+iml_add_array_literal_eval(iml_function_t *function,
                            IrArrayLiteral *expr,
                            ImlVariable *res);
 
 static void
-add_pointer_assignment(IrFunctionDef *function,
+add_pointer_assignment(iml_function_t *function,
                        IrVariable *lvalue,
                        IrExpression *value);
 
 static void
-add_struct_assignment(IrFunctionDef *function,
+add_struct_assignment(iml_function_t *function,
                       IrVariable *lvalue,
                       IrExpression *value);
 
 static void
-add_ptr_dref_assignment(IrFunctionDef *function,
+add_ptr_dref_assignment(iml_function_t *function,
                         IrExpression *lvalue,
                         IrExpression *value);
 
 static void
-add_struct_member_assignment(IrFunctionDef *function,
+add_struct_member_assignment(iml_function_t *function,
                              IrStructMember *lvalue,
                              IrExpression *value);
 
@@ -174,12 +176,12 @@ dt_to_iml_type(DtDataType *dt_type);
  *         stored
  */
 ImlOperand *
-iml_add_expression_eval(IrFunctionDef *function,
+iml_add_expression_eval(iml_function_t *function,
                         IrExpression *ir_expression,
                         ImlVariable *dest,
                         bool discard_result)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_EXPRESSION(ir_expression));
     assert(dest == NULL || iml_is_variable(dest));
     assert((discard_result && dest == NULL) || !discard_result);
@@ -285,8 +287,8 @@ iml_add_expression_eval(IrFunctionDef *function,
     if (dest != NULL && res != iml_operand(dest))
     {
         assert(res != NULL);
-        ir_function_def_add_operation(function,
-                                      iml_operation_new(iml_copy, res, dest));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_copy, res, dest));
         res = iml_operand(dest);
     }
 
@@ -294,11 +296,11 @@ iml_add_expression_eval(IrFunctionDef *function,
 }
 
 void
-add_to_func_frame(IrFunctionDef *parent_function,
+add_to_func_frame(iml_function_t *function,
                   IrVariable *variable,
                   bool is_function_parameter)
 {
-    assert(IR_IS_FUNCTION_DEF(parent_function));
+    assert(function);
     assert(IR_IS_VARIABLE(variable));
 
     iml_data_type_t iml_datatype;
@@ -335,22 +337,20 @@ add_to_func_frame(IrFunctionDef *parent_function,
     }
 
     /* add IML variable to function frame */
-    iml_func_frame_t *frame = ir_function_def_get_frame(parent_function);
     if (is_function_parameter) {
-        iml_func_frame_add_parameter(frame, iml_var);
+        iml_function_add_parameter(function, iml_var);
     } else {
-        iml_func_frame_add_local(frame, iml_var);
+        iml_function_add_local(function, iml_var);
     }
     ir_variable_set_location(variable, iml_var);
 }
 
 ImlOperand *
-iml_add_call_eval(IrFunctionDef *function, IrCall *call, ImlVariable *res)
+iml_add_call_eval(iml_function_t *function, IrCall *call, ImlVariable *res)
 {
     GSList *iml_args = NULL;
     GSList *ir_args;
     GSList *i;
-    iml_func_frame_t *frame;
     iml_operation_t *call_op;
     IrFunction *callee;
     iml_opcode_t opcode;
@@ -367,8 +367,6 @@ iml_add_call_eval(IrFunctionDef *function, IrCall *call, ImlVariable *res)
             /* unexpected linkage */
             assert(false);
     }
-
-    frame = ir_function_def_get_frame(function);
 
     /*
      * generate iml code for eveluation of call parameters
@@ -396,30 +394,30 @@ iml_add_call_eval(IrFunctionDef *function, IrCall *call, ImlVariable *res)
     if (res == NULL &&
         !DT_IS_VOID(ir_expression_get_data_type(ir_expression(call))))
     {
-        res = iml_func_frame_get_temp(frame, iml_32b);
+        res = iml_function_get_temp(function, iml_32b);
     }
 
     call_op = iml_operation_new(opcode,
                                 ir_function_get_mangled_name(callee),
                                 iml_args,
                                 res);
-    ir_function_def_add_operation(function, call_op);
+    iml_function_add_operation(function, call_op);
 
     /* mark any variables used as function arguments as unused */
     for (i = iml_args; i != NULL; i = g_slist_next(i))
     {
-        iml_func_frame_unused_oper(frame, i->data);
+        iml_function_unused_oper(function, i->data);
     }
 
     return iml_operand(res);
 }
 
 void
-iml_add_assignment(IrFunctionDef *function,
+iml_add_assignment(iml_function_t *function,
                    IrExpression *lvalue,
                    IrExpression *value)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_EXPRESSION(lvalue));
     assert(ir_expression_is_lvalue(lvalue));
     assert(IR_IS_EXPRESSION(value));
@@ -488,18 +486,18 @@ iml_add_assignment(IrFunctionDef *function,
 }
 
 void
-iml_add_while_head(IrFunctionDef *function,
+iml_add_while_head(iml_function_t *function,
                    IrExpression *condition,
                    iml_operation_t *loop_head,
                    iml_operation_t *loop_end)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_EXPRESSION(condition));
     assert(loop_head);
     assert(loop_end);
 
     /* label the start of loop */
-    ir_function_def_add_operation(function, loop_head);
+    iml_function_add_operation(function, loop_head);
 
     /* figure out the jump operation to issue after condition evaluation */
     iml_operation_t *jump_op;
@@ -540,35 +538,35 @@ iml_add_while_head(IrFunctionDef *function,
     /* add jump operation if needed */
     if (jump_op != NULL)
     {
-        ir_function_def_add_operation(function, jump_op);
+        iml_function_add_operation(function, jump_op);
     }
 }
 
 void
-iml_add_while_tail(IrFunctionDef *function,
+iml_add_while_tail(iml_function_t *function,
                    iml_operation_t *loop_head,
                    iml_operation_t *loop_end)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(loop_head);
     assert(loop_end);
 
     /* jump to loop start */
-    ir_function_def_add_operation(
-            function,
-            iml_operation_new(iml_jmp,
-                              iml_operation_get_operand(loop_head, 1)));
+    iml_function_add_operation(
+        function,
+        iml_operation_new(iml_jmp,
+                          iml_operation_get_operand(loop_head, 1)));
 
     /* and loop end label */
-    ir_function_def_add_operation(function, loop_end);
+    iml_function_add_operation(function, loop_end);
 }
 
 void
-iml_add_foreach_head(IrFunctionDef *function,
+iml_add_foreach_head(iml_function_t *function,
                      IrForeach *foreach,
                      ImlVariable **index,
                      ImlVariable **length,
-                     iml_operation_t **loop_head,
+                     iml_operation_t *loop_head,
                      iml_operation_t *loop_end)
 {
     IrExpression *ir_aggregate;
@@ -578,7 +576,6 @@ iml_add_foreach_head(IrFunctionDef *function,
     IrVariable *ir_value;
     ImlVariable *value;
     ImlVariable *aggr_ptr;
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
     /* set-up index variable */
     ir_index = ir_foreach_get_index(foreach);
@@ -589,13 +586,13 @@ iml_add_foreach_head(IrFunctionDef *function,
     }
     else
     {
-        *index = iml_func_frame_get_temp(frame, iml_32b);
+        *index = iml_function_get_temp(function, iml_32b);
     }
 
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_copy,
-                                                    iml_constant_zero_32b(),
-                                                    *index));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_copy,
+                                                 iml_constant_zero_32b(),
+                                                 *index));
 
     /* set-up value variable */
     ir_value = ir_foreach_get_value(foreach);
@@ -609,33 +606,28 @@ iml_add_foreach_head(IrFunctionDef *function,
     aggregate = iml_add_expression_eval(function, ir_aggregate, NULL, false);
 
     /* store length of the aggregate array in a temp variable */
-    *length = iml_func_frame_get_temp(frame, iml_32b);
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    aggregate,
-                                                    iml_constant_zero_32b(),
-                                                    4,
-                                                    *length));
+    *length = iml_function_get_temp(function, iml_32b);
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_getelm,
+                                                 aggregate,
+                                                 iml_constant_zero_32b(),
+                                                 4,
+                                                 *length));
 
     /* store pointer to the start of aggregate array in a temp variable */
-    aggr_ptr = iml_func_frame_get_temp(frame, iml_ptr);
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    aggregate,
-                                                    iml_constant_one_32b(),
-                                                    4,
-                                                    aggr_ptr));
+    aggr_ptr = iml_function_get_temp(function, iml_ptr);
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_getelm,
+                                                 aggregate,
+                                                 iml_constant_one_32b(),
+                                                 4,
+                                                 aggr_ptr));
 
     /* insert loop label */
-    *loop_head =
-        iml_operation_new(iml_label,
-                          ir_module_gen_label(
-                              ir_symbol_get_parent_module(
-                                  ir_symbol(function))));
-    ir_function_def_add_operation(function, *loop_head);
+    iml_function_add_operation(function, loop_head);
 
     /* generate iml to jump to loop head if index is less then length */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_jmpugreatereq,
                           *index,
@@ -643,7 +635,7 @@ iml_add_foreach_head(IrFunctionDef *function,
                           iml_operation_get_operand(loop_end, 1)));
 
     /* generate iml for assigning value variable with aggregates element */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_getelm,
                           aggr_ptr,
@@ -653,34 +645,34 @@ iml_add_foreach_head(IrFunctionDef *function,
 }
 
 void
-iml_add_foreach_tail(IrFunctionDef *function,
+iml_add_foreach_tail(iml_function_t *function,
                      ImlVariable *index,
                      ImlVariable *length,
                      iml_operation_t *loop_label)
 {
     /* generate iml to advance index */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_add,
-                                                    index,
-                                                    iml_constant_one_32b(),
-                                                    index));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_add,
+                                                 index,
+                                                 iml_constant_one_32b(),
+                                                 index));
 
     /* generate iml to jump to loop head */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_jmp,
                           iml_operation_get_operand(loop_label, 1)));
 }
 
 ImlOperand *
-iml_add_foreach_range_head(IrFunctionDef *function,
+iml_add_foreach_range_head(iml_function_t *function,
                            IrVarValue *index,
                            IrExpression *lower_exp,
                            IrExpression *loop_test_exp,
                            iml_operation_t *loop_head,
                            iml_operation_t *loop_end)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_VAR_VALUE(index));
     assert(IR_IS_EXPRESSION(lower_exp));
     assert(IR_IS_EXPRESSION(loop_test_exp));
@@ -691,13 +683,13 @@ iml_add_foreach_range_head(IrFunctionDef *function,
     iml_add_assignment(function, ir_expression(index), lower_exp);
 
     /* insert loop head label */
-    ir_function_def_add_operation(function, loop_head);
+    iml_function_add_operation(function, loop_head);
 
     /* evaluate upper expressions */
     ImlOperand *loop_test_res =
         iml_add_expression_eval(function, loop_test_exp, NULL, false);
 
-    ir_function_def_add_operation(function,
+    iml_function_add_operation(function,
         iml_operation_new(iml_jmpneq,
                           loop_test_res,
                           iml_constant_true(),
@@ -707,13 +699,13 @@ iml_add_foreach_range_head(IrFunctionDef *function,
 }
 
 void
-iml_add_foreach_range_tail(IrFunctionDef *function,
+iml_add_foreach_range_tail(iml_function_t *function,
                            IrExpression *inc_exp,
                            ImlOperand *head_temp_op,
                            iml_operation_t *loop_head,
                            iml_operation_t *loop_end)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_EXPRESSION(inc_exp));
     assert(IML_IS_OPERAND(head_temp_op));
     assert(loop_head);
@@ -723,31 +715,30 @@ iml_add_foreach_range_tail(IrFunctionDef *function,
     iml_add_expression_eval(function, inc_exp, NULL, true);
 
     /* generate jump to the loop's head */
-    ir_function_def_add_operation(function,
+    iml_function_add_operation(function,
         iml_operation_new(iml_jmp,
                           iml_operation_get_operand(loop_head, 1)));
 
     /* insert loop end label */
-    ir_function_def_add_operation(function, loop_end);
+    iml_function_add_operation(function, loop_end);
 
     /* mark possible temp variables used in the loop as unused */
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
-    iml_func_frame_unused_oper(frame, head_temp_op);
+    iml_function_unused_oper(function, head_temp_op);
 }
 
 void
-iml_add_for_head(IrFunctionDef *function,
+iml_add_for_head(iml_function_t *function,
                  IrExpression *test,
                  iml_operation_t *loop_head,
                  iml_operation_t *loop_end)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_EXPRESSION(test) || test == NULL);
     assert(loop_head);
     assert(loop_end);
 
     /* insert loop head label */
-    ir_function_def_add_operation(function, loop_head);
+    iml_function_add_operation(function, loop_head);
 
     if (test == NULL)
     {
@@ -755,31 +746,29 @@ iml_add_for_head(IrFunctionDef *function,
         return;
     }
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
-
     /* generate code for evaluating loop test expression */
-    ImlVariable *test_res = iml_func_frame_get_temp(frame, iml_8b);
+    ImlVariable *test_res = iml_function_get_temp(function, iml_8b);
     iml_add_expression_eval(function, test, test_res, false);
 
     /* skip loop body if test expression evaluates to false */
-    ir_function_def_add_operation(
-            function,
-            iml_operation_new(iml_jmpneq,
-                              test_res,
-                              iml_constant_true(),
-                              iml_operation_get_operand(loop_end, 1)));
+    iml_function_add_operation(
+        function,
+        iml_operation_new(iml_jmpneq,
+                          test_res,
+                          iml_constant_true(),
+                          iml_operation_get_operand(loop_end, 1)));
 
     /* mark test expression result variable as unused */
-    iml_func_frame_unused_oper(frame, iml_operand(test_res));
+    iml_function_unused_oper(function, iml_operand(test_res));
 }
 
 void
-iml_add_for_tail(IrFunctionDef *function,
+iml_add_for_tail(iml_function_t *function,
                  IrExpression *step,
                  iml_operation_t *loop_head,
                  iml_operation_t *loop_end)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_EXPRESSION(step) || step == NULL);
     assert(loop_head);
     assert(loop_end);
@@ -792,13 +781,13 @@ iml_add_for_tail(IrFunctionDef *function,
 
 
     /* generate code to jump to loop start */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
             function,
             iml_operation_new(iml_jmp,
                               iml_operation_get_operand(loop_head, 1)));
 
     /* insert loop end label */
-    ir_function_def_add_operation(function, loop_end);
+    iml_function_add_operation(function, loop_end);
 }
 
 /*---------------------------------------------------------------------------*
@@ -1010,14 +999,13 @@ ir_constant_to_iml(IrConstant *constant)
 }
 
 static ImlOperand *
-iml_add_neg_op_eval(IrFunctionDef *function,
+iml_add_neg_op_eval(iml_function_t *function,
                     IrUnaryOperation *op,
                     ImlVariable *res)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_UNARY_OPERATION(op));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *operand;
     iml_data_type_t iml_type;
     iml_opcode_t opcode;
@@ -1046,24 +1034,23 @@ iml_add_neg_op_eval(IrFunctionDef *function,
 
     if (res == NULL)
     {
-      res = iml_func_frame_get_temp(frame, iml_type);
+        res = iml_function_get_temp(function, iml_type);
     }
 
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(opcode, operand, res));
+    iml_function_add_operation(function,
+                               iml_operation_new(opcode, operand, res));
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_incdec_op_eval(IrFunctionDef *function,
+iml_add_incdec_op_eval(iml_function_t *function,
                        IrUnaryOperation *op,
                        ImlVariable *res,
                        bool discard_result)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_UNARY_OPERATION(op));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *operand;
     IrExpression *ir_operand;
     DtDataType *operand_type;
@@ -1128,7 +1115,8 @@ iml_add_incdec_op_eval(IrFunctionDef *function,
     {
         if (res == NULL)
         {
-            res = iml_func_frame_get_temp(frame, dt_to_iml_type(operand_type));
+            res = iml_function_get_temp(function,
+                                          dt_to_iml_type(operand_type));
         }
         copy_op = iml_operation_new(iml_copy, operand, res);
     }
@@ -1136,10 +1124,10 @@ iml_add_incdec_op_eval(IrFunctionDef *function,
     if (copy_after_mod)
     {
         /* pre (in/de)-crement operation */
-        ir_function_def_add_operation(function, mod_op);
+        iml_function_add_operation(function, mod_op);
         if (copy_op != NULL)
         {
-            ir_function_def_add_operation(function, copy_op);
+            iml_function_add_operation(function, copy_op);
         }
     }
     else
@@ -1147,21 +1135,21 @@ iml_add_incdec_op_eval(IrFunctionDef *function,
         /* post (in/de)-crement operation */
         if (copy_op != NULL)
         {
-            ir_function_def_add_operation(function, copy_op);
+            iml_function_add_operation(function, copy_op);
         }
-        ir_function_def_add_operation(function, mod_op);
+        iml_function_add_operation(function, mod_op);
     }
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_unary_op_eval(IrFunctionDef *function,
+iml_add_unary_op_eval(iml_function_t *function,
                       IrUnaryOperation *op,
                       ImlVariable *res,
                       bool discard_result)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_UNARY_OPERATION(op));
 
     switch (ir_unary_operation_get_operation(op))
@@ -1181,11 +1169,10 @@ iml_add_unary_op_eval(IrFunctionDef *function,
 }
 
 static ImlOperand *
-iml_add_binary_op_eval(IrFunctionDef *function,
+iml_add_binary_op_eval(iml_function_t *function,
                        IrBinaryOperation *bin_op,
                        ImlVariable *res)
 {
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *left;
     ImlOperand *right;
     iml_opcode_t opcode;
@@ -1206,17 +1193,17 @@ iml_add_binary_op_eval(IrFunctionDef *function,
 
     if (res == NULL)
     {
-      res = iml_func_frame_get_temp(frame, iml_type);
+        res = iml_function_get_temp(function, iml_type);
     }
 
     opcode = get_iml_opcode_binop(bin_op);
 
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(opcode, left, right, res));
+    iml_function_add_operation(function,
+                               iml_operation_new(opcode, left, right, res));
 
     /* mark any temporary variables used as operands as unused */
-    iml_func_frame_unused_oper(frame, left);
-    iml_func_frame_unused_oper(frame, right);
+    iml_function_unused_oper(function, left);
+    iml_function_unused_oper(function, right);
 
     return iml_operand(res);
 }
@@ -1274,8 +1261,13 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
 }
 
 static ImlOperand *
-iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest)
+iml_add_cast_eval(iml_function_t *function,
+                  IrCast *cast,
+                  ImlVariable *dest)
 {
+    assert(function);
+    assert(IR_IS_CAST(cast));
+
     iml_opcode_t cast_op =
         get_cast_opcode(ir_expression_get_data_type(ir_cast_get_value(cast)),
                         ir_cast_get_target_type(cast));
@@ -1293,23 +1285,22 @@ iml_add_cast_eval(IrFunctionDef *function, IrCast *cast, ImlVariable *dest)
     if (dest == NULL)
     {
         dest =
-            iml_func_frame_get_temp(
-                ir_function_def_get_frame(function),
+            iml_function_get_temp(
+                function,
                 dt_to_iml_type(ir_cast_get_target_type(cast)));
     }
 
-    ir_function_def_add_operation(function,
-                                   iml_operation_new(cast_op,
-                                                     src,
-                                                     dest));
+    iml_function_add_operation(function,
+                               iml_operation_new(cast_op, src, dest));
     return iml_operand(dest);
 }
 
 static ImlOperand *
-iml_add_array_cell_eval(IrFunctionDef *function,
+iml_add_array_cell_eval(iml_function_t *function,
                         IrArrayCell *cell,
                         ImlVariable *res)
 {
+    assert(function);
     assert(IR_IS_ARRAY_CELL(cell));
 
     IrVariable *array_symb;
@@ -1332,8 +1323,7 @@ iml_add_array_cell_eval(IrFunctionDef *function,
     /* figure out where the array cell value should end up */
     if (res == NULL)
     {
-        res = iml_func_frame_get_temp(ir_function_def_get_frame(function),
-                                      dt_to_iml_type(element_type));
+        res = iml_function_get_temp(function, dt_to_iml_type(element_type));
     }
 
     src = ir_variable_get_location(array_symb);
@@ -1342,53 +1332,51 @@ iml_add_array_cell_eval(IrFunctionDef *function,
     if (DT_IS_STATIC_ARRAY_TYPE(array_type))
     {
         /* static array cell */
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    src,
-                                                    index_val,
-                                                    size,
-                                                    res));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getelm,
+                                                     src,
+                                                     index_val,
+                                                     size,
+                                                     res));
     }
     else
     {
         /* dynamic array cell */
         assert(DT_IS_ARRAY(array_type));
         ImlVariable *ptr;
-        iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
         /* generate code to store array pointer in a temp variable */
-        ptr = iml_func_frame_get_temp(frame, iml_ptr);
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    src,
-                                                    iml_constant_one_32b(),
-                                                    4,
-                                                    ptr));
+        ptr = iml_function_get_temp(function, iml_ptr);
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getelm,
+                                                     src,
+                                                     iml_constant_one_32b(),
+                                                     4,
+                                                     ptr));
 
         /*
          * generate code to fetch the array cell value into
          * the destination variable
          */
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    ptr,
-                                                    index_val,
-                                                    size,
-                                                    res));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getelm,
+                                                     ptr,
+                                                     index_val,
+                                                     size,
+                                                     res));
     }
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_ptr_dref_eval(IrFunctionDef *function,
+iml_add_ptr_dref_eval(iml_function_t *function,
                       IrExpression *ref,
                       ImlVariable *res)
 {
     assert(IR_IS_PTR_DREF(ref) || IR_IS_VAR_REF(ref));
 
     ImlOperand *ptr_exp;
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
     /* add iml to evaluate pointer expression */
     if (IR_IS_PTR_DREF(ref))
@@ -1417,29 +1405,29 @@ iml_add_ptr_dref_eval(IrFunctionDef *function,
         res_type =
             dt_to_iml_type(
                 ir_expression_get_data_type(ir_expression(ref)));
-        res = iml_func_frame_get_temp(frame, res_type);
+        res = iml_function_get_temp(function, res_type);
     }
 
     /* add iml to fetch the value from the address to the result variable */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_get, ptr_exp, NULL, res));
 
     /* pointer expression operand not needed any more */
-    iml_func_frame_unused_oper(frame, ptr_exp);
+    iml_function_unused_oper(function, ptr_exp);
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_address_of_eval(IrFunctionDef *function,
+iml_add_address_of_eval(iml_function_t *function,
                         IrAddressOf *addr_of,
                         ImlVariable *res)
 {
+    assert(function);
     assert(IR_IS_ADDRESS_OF(addr_of));
 
     ImlVariable *addr_exp;
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
     /* add iml to evaluate &-operand expression */
     addr_exp =
@@ -1452,29 +1440,28 @@ iml_add_address_of_eval(IrFunctionDef *function,
     /* figure out where to store the result */
     if (res == NULL)
     {
-        res = iml_func_frame_get_temp(frame, iml_ptr);
+        res = iml_function_get_temp(function, iml_ptr);
     }
 
     /* add iml to fetch the value from the address to the result variable */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_getaddr, addr_exp, res));
 
     /* pointer expression operand not needed any more */
-    iml_func_frame_unused_oper(frame, iml_operand(addr_exp));
+    iml_function_unused_oper(function, iml_operand(addr_exp));
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_conditional_eval(IrFunctionDef *function,
+iml_add_conditional_eval(iml_function_t *function,
                          IrConditional *cond,
                          ImlVariable *res)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_CONDITIONAL(cond));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlVariable *cond_var;
 
     /* figure out where to store the result */
@@ -1485,11 +1472,11 @@ iml_add_conditional_eval(IrFunctionDef *function,
         res_type =
             dt_to_iml_type(
                 ir_expression_get_data_type(ir_expression(cond)));
-        res = iml_func_frame_get_temp(frame, res_type);
+        res = iml_function_get_temp(function, res_type);
     }
 
     /* generate labels */
-    IrModule *mod = ir_symbol_get_parent_module(ir_symbol(function));
+    IrModule *mod = iml_function_get_parent_module(function);
     char *skip_label = ir_module_gen_label(mod);
     char *end_label = ir_module_gen_label(mod);
 
@@ -1501,11 +1488,11 @@ iml_add_conditional_eval(IrFunctionDef *function,
                                              false));
 
     /* insert jump to false evaluation operation */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_jmpneq,
-                                                    cond_var,
-                                                    iml_constant_true(),
-                                                    skip_label));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_jmpneq,
+                                                 cond_var,
+                                                 iml_constant_true(),
+                                                 skip_label));
 
     /* evalute true expression */
     iml_add_expression_eval(function,
@@ -1514,13 +1501,12 @@ iml_add_conditional_eval(IrFunctionDef *function,
                             false);
 
     /* insert skip false evaluation jump */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_jmp,
-                                                    end_label));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_jmp, end_label));
 
     /* insert skip label */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_label, skip_label));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_label, skip_label));
 
     /* evaluate false expression */
     iml_add_expression_eval(function,
@@ -1529,24 +1515,23 @@ iml_add_conditional_eval(IrFunctionDef *function,
                             false);
 
     /* insert end label */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_label, end_label));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_label, end_label));
 
     /* free conditional variable if it was temporary */
-    iml_func_frame_unused_oper(frame, iml_operand(cond_var));
+    iml_function_unused_oper(function, iml_operand(cond_var));
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_struct_member_eval(IrFunctionDef *function,
+iml_add_struct_member_eval(iml_function_t *function,
                            IrStructMember *struct_member,
                            ImlVariable *res)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_STRUCT_MEMBER(struct_member));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *base;
     ImlConstant *offset;
 
@@ -1560,12 +1545,13 @@ iml_add_struct_member_eval(IrFunctionDef *function,
     if (iml_operand_get_data_type(base) == iml_blob)
     {
         /* replace base operand with a pointer to it */
-        ImlVariable *base_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+        ImlVariable *base_ptr = iml_function_get_temp(function, iml_ptr);
 
-        ir_function_def_add_operation(function,
+        iml_function_add_operation(
+            function,
             iml_operation_new(iml_getaddr, base, base_ptr));
 
-        iml_func_frame_unused_oper(frame, base);
+        iml_function_unused_oper(function, base);
         base = iml_operand(base_ptr);
     }
 
@@ -1577,31 +1563,31 @@ iml_add_struct_member_eval(IrFunctionDef *function,
         res_type =
             dt_to_iml_type(
                 ir_expression_get_data_type(ir_expression(struct_member)));
-        res = iml_func_frame_get_temp(frame, res_type);
+        res = iml_function_get_temp(function, res_type);
     }
 
     /* store rvalue at the base + offset */
     offset = iml_constant_new_32b(ir_struct_member_get_offset(struct_member));
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_get, base, offset, res));
 
     /* mark base operand as unused */
-    iml_func_frame_unused_oper(frame, base);
+    iml_function_unused_oper(function, base);
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_property_eval(IrFunctionDef *function,
+iml_add_property_eval(iml_function_t *function,
                       IrProperty *prop,
                       ImlVariable *res)
 {
+    assert(function);
     assert(IR_IS_PROPERTY(prop));
 
     IrVariable *prop_exp;
     ImlVariable *src;
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
     /* only length property of variables implemented for now */
     assert(ir_property_get_id(prop) == ir_prop_length);
@@ -1616,21 +1602,21 @@ iml_add_property_eval(IrFunctionDef *function,
 
     if (res == NULL)
     {
-        res = iml_func_frame_get_temp(frame, iml_32b);
+        res = iml_function_get_temp(function, iml_32b);
     }
 
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getelm,
-                                                src,
-                                                iml_constant_zero_32b(),
-                                                4,
-                                                res));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_getelm,
+                                                 src,
+                                                 iml_constant_zero_32b(),
+                                                 4,
+                                                 res));
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_array_literal_eval(IrFunctionDef *function,
+iml_add_array_literal_eval(iml_function_t *function,
                            IrArrayLiteral *expr,
                            ImlVariable *res)
 {
@@ -1641,18 +1627,16 @@ iml_add_array_literal_eval(IrFunctionDef *function,
     ImlConstant *size;
     iml_operation_t *op;
     guint element_size;
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
     /*
      * generate code to allocate memory for array literal
      */
-    ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    ptr = iml_function_get_temp(function, iml_ptr);
     size = iml_constant_new_32b(ir_array_literal_get_size(expr));
 
-    ir_function_def_add_operation(function,
-                                  iml_operation_new_call_c("GC_malloc",
-                                                           ptr,
-                                                           size, NULL));
+    iml_function_add_operation(function,
+                               iml_operation_new_call_c("GC_malloc", ptr,
+                                                        size, NULL));
 
     if (ir_expression_is_constant(ir_expression(expr)))
     {
@@ -1670,7 +1654,7 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                                       iml_constant_new_ptr(label),
                                       size,
                                       NULL);
-        ir_function_def_add_operation(function, op);
+        iml_function_add_operation(function, op);
     }
     else
     {
@@ -1688,7 +1672,7 @@ iml_add_array_literal_eval(IrFunctionDef *function,
         assert(DT_IS_ARRAY(dt));
         element_size = dt_array_get_element_size(dt_array(dt));
 
-        temp = iml_func_frame_get_temp(frame, iml_32b);
+        temp = iml_function_get_temp(function, iml_32b);
 
         i = ir_array_literal_get_values(expr);
         cntr = 0;
@@ -1703,13 +1687,13 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                                    ptr,
                                    iml_constant_new_32b(cntr),
                                    element_size);
-            ir_function_def_add_operation(function, op);
+            iml_function_add_operation(function, op);
         }
     }
 
     if (res == NULL)
     {
-        res = iml_func_frame_get_temp(frame, iml_blob, 8);
+        res = iml_function_get_temp(function, iml_blob, 8);
     }
 
     /*
@@ -1721,28 +1705,26 @@ iml_add_array_literal_eval(IrFunctionDef *function,
                            res,
                            iml_constant_zero_32b(),
                            4);
-    ir_function_def_add_operation(function, op);
+    iml_function_add_operation(function, op);
 
     op = iml_operation_new(iml_setelm,
                            ptr,
                            res,
                            iml_constant_one_32b(),
                            4);
-    ir_function_def_add_operation(function, op);
+    iml_function_add_operation(function, op);
 
     /* temp pointer is no longer used */
-    iml_func_frame_unused_oper(frame, iml_operand(ptr));
-
+    iml_function_unused_oper(function, iml_operand(ptr));
 
     return iml_operand(res);
 }
 
 static ImlOperand *
-iml_add_array_slice_eval(IrFunctionDef *function,
+iml_add_array_slice_eval(iml_function_t *function,
                          IrArraySlice *slice,
                          ImlVariable *res)
 {
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *array;
     ImlOperand *start;
     ImlOperand *end;
@@ -1753,7 +1735,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
 
     if (res == NULL)
     {
-        res = iml_func_frame_get_temp(frame, iml_blob, 8);
+        res = iml_function_get_temp(function, iml_blob, 8);
     }
 
     /* figure out the element size of sliced array */
@@ -1795,45 +1777,45 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     }
     else
     {
-        length = iml_operand(iml_func_frame_get_temp(frame, iml_32b));
-        ir_function_def_add_operation(function,
-                                      iml_operation_new(iml_sub,
-                                                        end,
-                                                        start,
-                                                        length));
+        length = iml_operand(iml_function_get_temp(function, iml_32b));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_sub,
+                                                     end,
+                                                     start,
+                                                     length));
     }
-    /* store length in the result blob */
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_setelm,
-                                                length,
-                                                res,
-                                                iml_constant_zero_32b(),
-                                                4));
 
+    /* store length in the result blob */
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_setelm,
+                                                 length,
+                                                 res,
+                                                 iml_constant_zero_32b(),
+                                                 4));
 
     /*
      * generate code to calculate pointer to the first element in the slice
      */
 
     /* get sliced array start pointer in */
-    start_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+    start_ptr = iml_function_get_temp(function, iml_ptr);
     if (DT_IS_STATIC_ARRAY_TYPE(array_type))
     {
         /* static array sliced */
-        ir_function_def_add_operation(function,
-                                      iml_operation_new(iml_getaddr,
-                                                        array,
-                                                        start_ptr));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getaddr,
+                                                     array,
+                                                     start_ptr));
     }
     else
     {
         /* dynamic array sliced */
-        ir_function_def_add_operation(function,
-                                      iml_operation_new(iml_getelm,
-                                                        array,
-                                                        iml_constant_one_32b(),
-                                                        4,
-                                                        start_ptr));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getelm,
+                                                     array,
+                                                     iml_constant_one_32b(),
+                                                     4,
+                                                     start_ptr));
     }
 
     /* multiply slice start with element size if needed */
@@ -1849,7 +1831,7 @@ iml_add_array_slice_eval(IrFunctionDef *function,
         }
         else
         {
-            ir_function_def_add_operation(
+            iml_function_add_operation(
                     function,
                     iml_operation_new(iml_umult,
                                       start,
@@ -1863,44 +1845,48 @@ iml_add_array_slice_eval(IrFunctionDef *function,
     }
 
     /* move forward the array start pointer to slice start */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_add,
-                                                    start_ptr,
-                                                    length,
-                                                    start_ptr));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_add,
+                                                 start_ptr,
+                                                 length,
+                                                 start_ptr));
 
     /* store slice start pointer in the result blob */
-    ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_setelm,
-                                                    start_ptr,
-                                                    res,
-                                                    iml_constant_one_32b(),
-                                                    4));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_setelm,
+                                                 start_ptr,
+                                                 res,
+                                                 iml_constant_one_32b(),
+                                                  4));
 
     /* mark operands as unused */
-    iml_func_frame_unused_oper(frame, start);
-    iml_func_frame_unused_oper(frame, end);
-    iml_func_frame_unused_oper(frame, length);
-    iml_func_frame_unused_oper(frame, iml_operand(start_ptr));
+    iml_function_unused_oper(function, start);
+    iml_function_unused_oper(function, end);
+    iml_function_unused_oper(function, length);
+    iml_function_unused_oper(function, iml_operand(start_ptr));
 
     return iml_operand(res);
 }
 
 static void
-add_array_assignment(IrFunctionDef *function,
+add_array_assignment(iml_function_t *function,
                      IrVariable *lvalue,
                      IrExpression *value)
 {
+    assert(function);
+    assert(IR_IS_VARIABLE(lvalue));
+    assert(IR_IS_EXPRESSION(value));
+
     ImlVariable *dest = ir_variable_get_location(lvalue);
 
     if (IR_IS_NULL(value))
     {
         /* handle the special case of null assignment */
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_mset,
-                                                    iml_constant_zero_32b(),
-                                                    2,
-                                                    dest));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_mset,
+                                                     iml_constant_zero_32b(),
+                                                     2,
+                                                     dest));
     }
     else
     {
@@ -1910,7 +1896,7 @@ add_array_assignment(IrFunctionDef *function,
 }
 
 static void
-add_static_array_assignment(IrFunctionDef *function,
+add_static_array_assignment(iml_function_t *function,
                             IrVariable *lvalue,
                             IrExpression *value)
 {
@@ -1931,11 +1917,11 @@ add_static_array_assignment(IrFunctionDef *function,
         /* assignment of basic types to static array */
 
         res_val = iml_add_expression_eval(function, value, NULL, false);
-        ir_function_def_add_operation(function,
-                                      iml_operation_new(iml_mset,
-                                                        res_val,
-                                                        array_length,
-                                                        array_var));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_mset,
+                                                     res_val,
+                                                     array_length,
+                                                     array_var));
     }
     else
     {
@@ -1944,7 +1930,6 @@ add_static_array_assignment(IrFunctionDef *function,
          */
         assert(DT_IS_ARRAY(ir_expression_get_data_type(value)));
 
-        iml_func_frame_t *frame = ir_function_def_get_frame(function);
         ImlOperand *rvalue;
         ImlVariable *dest_ptr;
         ImlVariable *src_ptr;
@@ -1954,26 +1939,26 @@ add_static_array_assignment(IrFunctionDef *function,
         rvalue = iml_add_expression_eval(function, value, NULL, false);
 
         /* generate code to get pointer to the array */
-        dest_ptr = iml_func_frame_get_temp(frame, iml_ptr);
-        ir_function_def_add_operation(function,
-                                      iml_operation_new(iml_getaddr,
-                                                        array_var,
-                                                        dest_ptr));
+        dest_ptr = iml_function_get_temp(function, iml_ptr);
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getaddr,
+                                                     array_var,
+                                                     dest_ptr));
 
         /* generate code to get pointer to rvalue */
-        src_ptr = iml_func_frame_get_temp(frame, iml_ptr);
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    rvalue,
-                                                    iml_constant_one_32b(),
-                                                    4,
-                                                    src_ptr));
+        src_ptr = iml_function_get_temp(function, iml_ptr);
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getelm,
+                                                     rvalue,
+                                                     iml_constant_one_32b(),
+                                                     4,
+                                                     src_ptr));
 
         /* generate code to copy rvalue to the array */
         memcpy_size =
             iml_constant_new_32b(array_length *
                                  dt_array_get_element_size(array_type));
-        ir_function_def_add_operation(
+        iml_function_add_operation(
                 function,
                 iml_operation_new_call_c("memcpy",
                                          NULL,
@@ -1983,14 +1968,14 @@ add_static_array_assignment(IrFunctionDef *function,
                                          NULL));
 
         /* mark temporaries as unused */
-        iml_func_frame_unused_oper(frame, rvalue);
-        iml_func_frame_unused_oper(frame, iml_operand(dest_ptr));
-        iml_func_frame_unused_oper(frame, iml_operand(src_ptr));
+        iml_function_unused_oper(function, rvalue);
+        iml_function_unused_oper(function, iml_operand(dest_ptr));
+        iml_function_unused_oper(function, iml_operand(src_ptr));
     }
 }
 
 static void
-add_array_cell_assignment(IrFunctionDef *function,
+add_array_cell_assignment(iml_function_t *function,
                           IrArrayCell *lvalue,
                           IrExpression *value)
 {
@@ -2017,12 +2002,12 @@ add_array_cell_assignment(IrFunctionDef *function,
     if (DT_IS_STATIC_ARRAY_TYPE(array_type))
     {
         /* static array cell assignment */
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_setelm,
-                                                    res_val,
-                                                    dest,
-                                                    index_val,
-                                                    size));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_setelm,
+                                                     res_val,
+                                                     dest,
+                                                     index_val,
+                                                     size));
     }
     else
     {
@@ -2031,39 +2016,37 @@ add_array_cell_assignment(IrFunctionDef *function,
         /* dynamic array cell assignment */
 
         ImlVariable *ptr;
-        iml_func_frame_t *frame = ir_function_def_get_frame(function);
 
         /* generate code to store array pointer in a temp variable */
-        ptr = iml_func_frame_get_temp(frame, iml_ptr);
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_getelm,
-                                                    dest,
-                                                    iml_constant_one_32b(),
-                                                    4,
-                                                    ptr));
+        ptr = iml_function_get_temp(function, iml_ptr);
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_getelm,
+                                                     dest,
+                                                     iml_constant_one_32b(),
+                                                     4,
+                                                     ptr));
 
         /* generate code to store value in the array cell */
-        ir_function_def_add_operation(function,
-                                  iml_operation_new(iml_setelm,
-                                                    res_val,
-                                                    ptr,
-                                                    index_val,
-                                                    size));
+        iml_function_add_operation(function,
+                                   iml_operation_new(iml_setelm,
+                                                     res_val,
+                                                     ptr,
+                                                     index_val,
+                                                     size));
     }
 }
 
 static void
-add_array_slice_assignment(IrFunctionDef *function,
+add_array_slice_assignment(iml_function_t *function,
                            IrArraySlice *lvalue,
                            IrExpression *value)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_ARRAY_SLICE(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
     DtDataType *array_type;
     guint element_size;
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *src;
     ImlOperand *dest;
     ImlVariable *src_ptr;
@@ -2082,27 +2065,27 @@ add_array_slice_assignment(IrFunctionDef *function,
         iml_add_expression_eval(function, ir_expression(value), NULL, false);
 
     /* store source pointer in temp variable */
-    src_ptr = iml_func_frame_get_temp(frame, iml_ptr);
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getelm,
-                                                src,
-                                                iml_constant_one_32b(),
-                                                4,
-                                                src_ptr));
+    src_ptr = iml_function_get_temp(function, iml_ptr);
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_getelm,
+                                                 src,
+                                                 iml_constant_one_32b(),
+                                                 4,
+                                                 src_ptr));
 
     /* generate code to calculate the length in bytes of the array to copy */
-    length = iml_func_frame_get_temp(frame, iml_32b);
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getelm,
-                                                src,
-                                                iml_constant_zero_32b(),
-                                                4,
-                                                length));
+    length = iml_function_get_temp(function, iml_32b);
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_getelm,
+                                                 src,
+                                                 iml_constant_zero_32b(),
+                                                 4,
+                                                 length));
 
     /* multiply length with element size, if needed */
     if (element_size > 1)
     {
-        ir_function_def_add_operation(
+        iml_function_add_operation(
                 function,
                 iml_operation_new(iml_umult,
                                   length,
@@ -2111,33 +2094,37 @@ add_array_slice_assignment(IrFunctionDef *function,
     }
 
     /* store destination pointer in temp variable */
-    dest_ptr = iml_func_frame_get_temp(frame, iml_ptr);
-    ir_function_def_add_operation(function,
-                              iml_operation_new(iml_getelm,
-                                                dest,
-                                                iml_constant_one_32b(),
-                                                4,
-                                                dest_ptr));
+    dest_ptr = iml_function_get_temp(function, iml_ptr);
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_getelm,
+                                                 dest,
+                                                 iml_constant_one_32b(),
+                                                 4,
+                                                 dest_ptr));
 
 
     /* generate code to copy memory from source array to destination */
-    ir_function_def_add_operation(
-            function,
-            iml_operation_new_call_c("memcpy", NULL,
-                                     dest_ptr, src_ptr, length, NULL));
+    iml_function_add_operation(
+        function,
+        iml_operation_new_call_c("memcpy", NULL, dest_ptr, src_ptr,
+                                 length, NULL));
 }
 
 static void
-add_pointer_assignment(IrFunctionDef *function,
-                      IrVariable *lvalue,
-                      IrExpression *value)
+add_pointer_assignment(iml_function_t *function,
+                       IrVariable *lvalue,
+                       IrExpression *value)
 {
+    assert(function);
+    assert(IR_IS_VARIABLE(lvalue));
+    assert(IR_IS_EXPRESSION(value));
+
     ImlVariable *dest = ir_variable_get_location(lvalue);
 
     if (IR_IS_NULL(value))
     {
         /* handle the special case of null assignment */
-        ir_function_def_add_operation(
+        iml_function_add_operation(
             function,
             iml_operation_new(iml_copy,
                               iml_constant_zero_32b(),
@@ -2150,25 +2137,22 @@ add_pointer_assignment(IrFunctionDef *function,
 }
 
 static void
-add_struct_assignment(IrFunctionDef *function,
+add_struct_assignment(iml_function_t *function,
                       IrVariable *lvalue,
                       IrExpression *value)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_VARIABLE(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
     /* only assignment of struct literals implemented */
     assert(ir_is_struct_literal(value));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
-
     ImlVariable *lval = ir_variable_get_location(lvalue);
-    ImlVariable *lval_ptr =
-        iml_func_frame_get_temp(frame, iml_ptr);
+    ImlVariable *lval_ptr = iml_function_get_temp(function, iml_ptr);
 
     /* generate code to store pointer to the stuct in a temp variable */
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_getaddr, lval, lval_ptr));
 
@@ -2179,7 +2163,7 @@ add_struct_assignment(IrFunctionDef *function,
     char *label = ir_literal_get_data_label(ir_literal(value));
     ImlConstant *size = iml_constant_new_32b(iml_variable_get_size(lval));
 
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new_call_c("memcpy",
                                  NULL,
@@ -2189,19 +2173,18 @@ add_struct_assignment(IrFunctionDef *function,
                                  NULL));
 
     /* release temp variable */
-    iml_func_frame_unused_oper(frame, iml_operand(lval_ptr));
+    iml_function_unused_oper(function, iml_operand(lval_ptr));
 }
 
 static void
-add_ptr_dref_assignment(IrFunctionDef *function,
+add_ptr_dref_assignment(iml_function_t *function,
                         IrExpression *lvalue,
                         IrExpression *value)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_PTR_DREF(lvalue) || IR_IS_VAR_REF(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *lval;
     ImlOperand *rval;
 
@@ -2225,25 +2208,23 @@ add_ptr_dref_assignment(IrFunctionDef *function,
     rval = iml_add_expression_eval(function, value, NULL, false);
 
     /* add iml to write rvalue to the destination address */
-    ir_function_def_add_operation(
-        function,
-        iml_operation_new(iml_set, rval, lval, NULL));
+    iml_function_add_operation(function,
+                               iml_operation_new(iml_set, rval, lval, NULL));
 
     /* mark left and right operands as unused */
-    iml_func_frame_unused_oper(frame, lval);
-    iml_func_frame_unused_oper(frame, rval);
+    iml_function_unused_oper(function, lval);
+    iml_function_unused_oper(function, rval);
 }
 
 static void
-add_struct_member_assignment(IrFunctionDef *function,
+add_struct_member_assignment(iml_function_t *function,
                              IrStructMember *lvalue,
                              IrExpression *value)
 {
-    assert(IR_IS_FUNCTION_DEF(function));
+    assert(function);
     assert(IR_IS_STRUCT_MEMBER(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
-    iml_func_frame_t *frame = ir_function_def_get_frame(function);
     ImlOperand *base;
     ImlOperand *rval;
     ImlConstant *offset;
@@ -2258,12 +2239,13 @@ add_struct_member_assignment(IrFunctionDef *function,
     if (iml_operand_get_data_type(base) == iml_blob)
     {
         /* replace base operand with a pointer to it */
-        ImlVariable *base_ptr = iml_func_frame_get_temp(frame, iml_ptr);
+        ImlVariable *base_ptr = iml_function_get_temp(function, iml_ptr);
 
-        ir_function_def_add_operation(function,
+        iml_function_add_operation(
+            function,
             iml_operation_new(iml_getaddr, base, base_ptr));
 
-        iml_func_frame_unused_oper(frame, base);
+        iml_function_unused_oper(function, base);
         base = iml_operand(base_ptr);
     }
 
@@ -2272,11 +2254,11 @@ add_struct_member_assignment(IrFunctionDef *function,
 
     /* store rvalue at the base + offset */
     offset = iml_constant_new_32b(ir_struct_member_get_offset(lvalue));
-    ir_function_def_add_operation(
+    iml_function_add_operation(
         function,
         iml_operation_new(iml_set, rval, base, offset));
 
     /* mark operands as unused */
-    iml_func_frame_unused_oper(frame, base);
-    iml_func_frame_unused_oper(frame, rval);
+    iml_function_unused_oper(function, base);
+    iml_function_unused_oper(function, rval);
 }

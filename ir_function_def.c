@@ -14,8 +14,6 @@ struct _IrFunctionDef
     IrFunction parent;
     /* private */
     sym_table_t  *param_symbols;
-    iml_func_frame_t *frame;
-    GSList *operations;
     IrCodeBlock  *body;
 };
 
@@ -80,9 +78,6 @@ ir_function_def_new(ir_linkage_type_t linkage_type,
                        "ir-symbol-scope", scope,
                        NULL);
 
-    obj->frame = iml_func_frame_new();
-    obj->operations = NULL;
-    
     ir_function_set_return_type(ir_function(obj), return_type);
     ir_function_set_parameters(ir_function(obj), parameters);
 
@@ -153,29 +148,4 @@ ir_function_def_get_body(IrFunctionDef *self)
     assert(IR_IS_FUNCTION_DEF(self));
 
     return self->body;
-}
-
-iml_func_frame_t *
-ir_function_def_get_frame(IrFunctionDef *self)
-{
-    assert(IR_IS_FUNCTION_DEF(self));
-
-    return self->frame;
-}
-
-void
-ir_function_def_add_operation(IrFunctionDef *self, iml_operation_t *operation)
-{
-    assert(IR_IS_FUNCTION_DEF(self));
-    assert(operation);
-
-    self->operations = g_slist_append(self->operations, operation);
-}
-
-GSList *
-ir_function_def_get_operations(IrFunctionDef *self)
-{
-    assert(IR_IS_FUNCTION_DEF(self));
-
-    return self->operations;
 }

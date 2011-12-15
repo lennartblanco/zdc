@@ -1496,13 +1496,12 @@ validate_return(compilation_status_t *compile_status,
              * valid return statement, add iml operations
              */
             ImlOperand *ret_val =
-                iml_add_expression_eval(compile_status->function,
+                iml_add_expression_eval(compile_status->iml_func,
                                         conv_exp,
                                         NULL,
                                         false);
-            ir_function_def_add_operation(compile_status->function,
-                                          iml_operation_new(iml_return,
-                                                            ret_val));
+            iml_function_add_operation(compile_status->iml_func,
+                                       iml_operation_new(iml_return, ret_val));
         }
     }
     else
@@ -1518,8 +1517,8 @@ validate_return(compilation_status_t *compile_status,
         }
 
         /* valid return from void function, add iml-operation */
-        ir_function_def_add_operation(compile_status->function,
-                                      iml_operation_new(iml_return, NULL));
+        iml_function_add_operation(compile_status->iml_func,
+                                   iml_operation_new(iml_return, NULL));
     }
 }
 
@@ -1606,7 +1605,7 @@ validate_assignment(compilation_status_t *compile_status,
     /* valid assignment, add iml operations */
     if (compile_status->errors_count == 0)
     {
-        iml_add_assignment(compile_status->function, lvalue, converted_value);
+        iml_add_assignment(compile_status->iml_func, lvalue, converted_value);
     }
 }
 
@@ -1648,7 +1647,7 @@ validate_if_block(compilation_status_t *compile_status,
     ir_if_block_set_condition(if_block, condition);
 
     /* generate iml operation for validation of condition expression */
-    condition_eval_res = iml_add_expression_eval(compile_status->function,
+    condition_eval_res = iml_add_expression_eval(compile_status->iml_func,
                                                  condition,
                                                  NULL,
                                                  false);
@@ -1660,17 +1659,15 @@ validate_if_block(compilation_status_t *compile_status,
     skip_label =
         iml_operation_new(iml_label,
                           ir_module_gen_label(compile_status->module));
-    ir_function_def_add_operation(
-            compile_status->function,
+    iml_function_add_operation(
+            compile_status->iml_func,
             iml_operation_new(iml_jmpneq,
                               condition_eval_res,
                               iml_constant_new_8b(1),
                               iml_operation_get_operand(skip_label, 1)));
 
     /* mark condition result operand as unused */
-    iml_func_frame_unused_oper(
-            ir_function_def_get_frame(compile_status->function),
-            condition_eval_res);
+    iml_function_unused_oper(compile_status->iml_func, condition_eval_res);
 
     /* validate if body */
     body = ir_if_block_get_body(if_block);
@@ -1679,14 +1676,14 @@ validate_if_block(compilation_status_t *compile_status,
     /* add jump operation past the rest of if-else bodies if needed */
     if (end_label != NULL)
     {
-        ir_function_def_add_operation(
-                compile_status->function,
+        iml_function_add_operation(
+                compile_status->iml_func,
                 iml_operation_new(iml_jmp,
                                   iml_operation_get_operand(end_label, 1)));
     }
 
     /* insert the skip label */
-    ir_function_def_add_operation(compile_status->function, skip_label);
+    iml_function_add_operation(compile_status->iml_func, skip_label);
 }
 
 static void
@@ -1727,7 +1724,7 @@ validate_if_else(compilation_status_t *compile_status,
    /* insert end label if needed */
    if (end_label != NULL)
    {
-       ir_function_def_add_operation(compile_status->function, end_label);
+       iml_function_add_operation(compile_status->iml_func, end_label);
    }
 }
 
@@ -1745,8 +1742,8 @@ validate_while(compilation_status_t *compile_status,
     condition = validate_expression(compile_status, sym_table, condition);
     if (condition == NULL)
     {
-      /* condition expression was invalid, bail out */
-      return;
+        /* condition expression was invalid, bail out */
+        return;
     }
 
     /* insert implicit conversion to boolean type */
@@ -1772,7 +1769,7 @@ validate_while(compilation_status_t *compile_status,
     ir_loop_set_exit_label(IR_LOOP(while_statment), loop_end);
 
     /* generate iml for the loop head */
-    iml_add_while_head(compile_status->function,
+    iml_add_while_head(compile_status->iml_func,
                        condition,
                        loop_start,
                        loop_end);
@@ -1788,7 +1785,7 @@ validate_while(compilation_status_t *compile_status,
     compile_status->loop = prev_loop;
 
     /* generate iml for the loop tail */
-    iml_add_while_tail(compile_status->function, loop_start, loop_end);
+    iml_add_while_tail(compile_status->iml_func, loop_start, loop_end);
 }
 
 static void
@@ -1840,7 +1837,7 @@ validate_for(compilation_status_t *compile_status,
     /* generate for-lopp head's iml */
     if (compile_status->errors_count == 0)
     {
-        iml_add_for_head(compile_status->function, test, loop_start, loop_end);
+        iml_add_for_head(compile_status->iml_func, test, loop_start, loop_end);
     }
 
 
@@ -1867,7 +1864,7 @@ validate_for(compilation_status_t *compile_status,
 
     if (compile_status->errors_count == 0)
     {
-        iml_add_for_tail(compile_status->function,
+        iml_add_for_tail(compile_status->iml_func,
                          step, loop_start, loop_end);
     }
 }
@@ -1888,7 +1885,6 @@ validate_foreach(compilation_status_t *compile_status,
     DtDataType *var_type;
     ImlVariable *index;
     ImlVariable *length;
-    iml_operation_t *loop_label;
 
     /*
      * Validate aggregate expression
@@ -1973,11 +1969,14 @@ validate_foreach(compilation_status_t *compile_status,
     ir_loop_set_exit_label(IR_LOOP(foreach), exit_label);
 
     /* insert iml operations for foreach head */
-    iml_add_foreach_head(compile_status->function,
+    iml_operation_t *loop_label =
+        iml_operation_new(iml_label,
+                          ir_module_gen_label(compile_status->module));
+    iml_add_foreach_head(compile_status->iml_func,
                          foreach,
                          &index,
                          &length,
-                         &loop_label,
+                         loop_label,
                          exit_label);
 
     /*
@@ -1994,12 +1993,12 @@ validate_foreach(compilation_status_t *compile_status,
     compile_status->loop = prev_loop;
 
     /* insert iml operations for foreach tail */
-    iml_add_foreach_tail(compile_status->function,
+    iml_add_foreach_tail(compile_status->iml_func,
                          index,
                          length,
                          loop_label);
     /* insert loop exit label */
-    ir_function_def_add_operation(compile_status->function, exit_label);
+    iml_function_add_operation(compile_status->iml_func, exit_label);
 }
 
 static void
@@ -2077,7 +2076,7 @@ validate_foreach_range(compilation_status_t *compile_status,
     }
 
     /* allocate a slot in function frame for loop's index variable */
-    add_to_func_frame(compile_status->function, idx_var, false);
+    add_to_func_frame(compile_status->iml_func, idx_var, false);
 
     /* generate iml labels for start and end of the loop operations */
     iml_operation_t *loop_start =
@@ -2101,7 +2100,7 @@ validate_foreach_range(compilation_status_t *compile_status,
 
     /* generate loop's head iml code */
     ImlOperand *head_temp_op =
-        iml_add_foreach_range_head(compile_status->function,
+        iml_add_foreach_range_head(compile_status->iml_func,
                                    idx_var_val,
                                    lower_exp,
                                    loop_test_exp,
@@ -2131,7 +2130,7 @@ validate_foreach_range(compilation_status_t *compile_status,
     assert(index_inc_exp != NULL);
 
     /* generate iml for loop's tail */
-    iml_add_foreach_range_tail(compile_status->function,
+    iml_add_foreach_range_tail(compile_status->iml_func,
                                index_inc_exp,
                                head_temp_op,
                                loop_start,
@@ -2153,8 +2152,8 @@ validate_break(compilation_status_t *compile_status,
 
     iml_operation_t *break_label =
             ir_loop_get_exit_label(compile_status->loop);
-    ir_function_def_add_operation(
-            compile_status->function,
+    iml_function_add_operation(
+            compile_status->iml_func,
             iml_operation_new(iml_jmp,
                               iml_operation_get_operand(break_label, 1)));
 }
@@ -2173,7 +2172,7 @@ validate_statment(compilation_status_t *compile_status,
              /* invalid function call, bail out */
              return;
          }
-         iml_add_call_eval(compile_status->function, IR_CALL(statment), NULL);
+         iml_add_call_eval(compile_status->iml_func, IR_CALL(statment), NULL);
     }
     else if (IR_IS_ASSIGNMENT(statment))
     {
@@ -2230,7 +2229,7 @@ validate_statment(compilation_status_t *compile_status,
                           "expression have no effect\n");
             return;
         }
-        iml_add_expression_eval(compile_status->function, exp, NULL, true);
+        iml_add_expression_eval(compile_status->iml_func, exp, NULL, true);
     }
     else
     {
@@ -2455,7 +2454,7 @@ validate_code_block(compilation_status_t *compile_status,
         for (i = local_vars; i != NULL; i = g_slist_next(i))
         {
             IrVariable *variable = ir_variable(i->data);
-            add_to_func_frame(compile_status->function,
+            add_to_func_frame(compile_status->iml_func,
                               variable,
                               false);
 
@@ -2464,7 +2463,7 @@ validate_code_block(compilation_status_t *compile_status,
                 ir_var_value_new(variable, ir_node_get_line_num(variable));
             IrExpression *init_exp = ir_variable_get_initializer(variable);
             ir_module_add_const_data(compile_status->module, init_exp);
-            iml_add_assignment(compile_status->function,
+            iml_add_assignment(compile_status->iml_func,
                                ir_expression(var_val),
                                init_exp);
         }
@@ -2523,6 +2522,54 @@ validate_function_decl(compilation_status_t *compile_status,
 }
 
 static void
+assign_registers(iml_function_t *func, arch_backend_t *backend)
+{
+    GSList *scratch_regs;
+    GSList *preserved_regs;
+    GSList *regs; /* all available registers */
+    GSList *i;
+    GSList *vars;
+    GSList *used_regs = NULL;
+
+    backend->get_registers(&scratch_regs, &preserved_regs);
+
+    /* only use preserved register for now */
+    regs = preserved_regs;
+
+    /* assign registers to variables */
+    vars = iml_function_get_locals(func);
+    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
+    {
+        ImlVariable *var = iml_variable(i->data);
+
+        if (iml_variable_is_mem_pinned(var) ||
+            iml_variable_get_data_type(var) == iml_blob)
+        {
+            /* don't assign registers to memory pinned and blob variables */
+            continue;
+        }
+
+        const char *reg = regs->data;
+
+        /* remove register from the list of available */
+        regs = g_slist_remove(regs, reg);
+
+        /* assign the register to the variable */
+        iml_variable_set_register(var, reg);
+        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
+    }
+
+    /* store the list of used preserved registers */
+    iml_function_set_used_regs(func, used_regs);
+
+    /*
+     * call the backend hook for
+     * assigning locations to this frames variables
+     */
+    backend->assign_var_locations(func);
+}
+
+static void
 validate_function_def(compilation_status_t *compile_status,
                       IrFunctionDef *func_def)
 {
@@ -2531,8 +2578,12 @@ validate_function_def(compilation_status_t *compile_status,
 
     IrCodeBlock *body;
     DtDataType *type;
+    IrFunction *func = ir_function(func_def);
 
     compile_status->function = func_def;
+    compile_status->iml_func =
+        iml_function_new(compile_status->module,
+                           ir_function_get_linkage(func));
 
     sym_table_t *symbols =
         ir_module_get_symbols(
@@ -2553,7 +2604,7 @@ validate_function_def(compilation_status_t *compile_status,
             continue;
         }
         /* Add to function frame */
-        add_to_func_frame(func_def, var, true);
+        add_to_func_frame(compile_status->iml_func, var, true);
     }
 
     /* resolve possible user types in function return type */
@@ -2565,6 +2616,7 @@ validate_function_def(compilation_status_t *compile_status,
     {
         ir_function_def_set_return_type(func_def, type);
     }
+
 
     /* validate function's body */
     body = ir_function_def_get_body(func_def);
@@ -2588,10 +2640,23 @@ validate_function_def(compilation_status_t *compile_status,
         /* if it's not a return, add an implicit return */
         if (!IR_IS_RETURN(last_statment))
         {
-            ir_function_def_add_operation(compile_status->function,
-                                      iml_operation_new(iml_return, NULL));
-
+            iml_function_add_operation(compile_status->iml_func,
+                                       iml_operation_new(iml_return, NULL));
         }
+    }
+
+    if (compile_status->errors_count == 0)
+    {
+        iml_function_set_name(compile_status->iml_func,
+                                ir_function_get_mangled_name(func));
+
+        /* do registers assignment */
+        assign_registers(compile_status->iml_func,
+                         compile_status->backend);
+
+        /* store generated IML function in module object */
+        ir_module_add_function(compile_status->module,
+                               compile_status->iml_func);
     }
 }
 
@@ -2972,56 +3037,6 @@ validate_entry_point(compilation_status_t *compile_status,
 }
 
 static void
-assign_registers(IrFunctionDef *func, arch_backend_t *backend)
-{
-    iml_func_frame_t *frame = ir_function_def_get_frame(func);
-    GSList *scratch_regs;
-    GSList *preserved_regs;
-    GSList *regs; /* all available registers */
-    GSList *i;
-    GSList *vars;
-    GSList *used_regs = NULL;
-
-    backend->get_registers(&scratch_regs, &preserved_regs);
-
-    /* only use preserved register for now */
-    regs = preserved_regs;
-
-    /* assign registers to variables */
-    vars = iml_func_frame_get_locals(frame);
-    for (i = vars; i != NULL && regs != NULL; i = g_slist_next(i))
-    {
-        ImlVariable *var = iml_variable(i->data);
-
-        if (iml_variable_is_mem_pinned(var) ||
-            iml_variable_get_data_type(var) == iml_blob)
-        {
-            /* don't assign registers to memory pinned and blob variables */
-            continue;
-        }
-
-        const char *reg = regs->data;
-
-        /* remove register from the list of available */
-        regs = g_slist_remove(regs, reg);
-
-        /* assign the register to the variable */
-        iml_variable_set_register(var, reg);
-        used_regs = g_slist_prepend(used_regs, (gpointer)reg);
-    }
-
-    /* store the list of used preserved registers */
-    iml_func_frame_set_used_regs(frame, used_regs);
-
-    /*
-     * call the backend hook for
-     * assigning locations to this frames variables
-     */
-    backend->assign_var_locations(frame,
-                                  ir_function_get_linkage(ir_function(func)));
-}
-
-static void
 validate_user_types(compilation_status_t *compile_status, IrModule *module)
 {
     assert(compile_status);
@@ -3080,10 +3095,13 @@ validate_imports(compilation_status_t *compile_status, IrModule *module)
     for (i = ir_module_get_imports(module); i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_MODULE(i->data));
+        compile_status->module = i->data;
         validate_user_types(compile_status, i->data);
         validate_func_decls(compile_status, i->data);
         validate_func_defs(compile_status, i->data);
     }
+
+    compile_status->module = module;
 }
 
 /*---------------------------------------------------------------------------*
@@ -3097,8 +3115,6 @@ sem_analyze_validate(compilation_status_t *compile_status,
     assert(compile_status);
     assert(IR_IS_MODULE(module));
 
-    GSList *i;
-
     compile_status->module = module;
 
     validate_imports(compile_status, module);
@@ -3106,15 +3122,4 @@ sem_analyze_validate(compilation_status_t *compile_status,
     validate_user_types(compile_status, module);
     validate_func_decls(compile_status, module);
     validate_func_defs(compile_status, module);
-
-    /* if all code is valid, do register allocation for all functions */
-    if (compile_status->errors_count == 0)
-    {
-        i = ir_module_get_function_defs(module);
-        for (; i != NULL; i = g_slist_next(i))
-        {
-            assign_registers(ir_function_def(i->data),
-                             compile_status->backend);
-        }
-    }
 }

@@ -54,7 +54,7 @@ static void
 text_prelude(x86_comp_params_t *params, sym_table_t *sym_table);
 
 static void
-compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def);
+compile_function(x86_comp_params_t *params, iml_function_t *func);
 
 static void
 get_registers(GSList **scratch, GSList **preserved);
@@ -63,7 +63,7 @@ static void
 gen_code(IrModule *module, FILE *out_stream, const char *source_file);
 
 static void
-assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage);
+assign_var_locations(iml_function_t *frame);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -197,13 +197,13 @@ param_stored_in_reg(ImlVariable *param)
  * Assign location to parameters of a function with D-linkage.
  */
 static gint
-assign_dparams_locations(iml_func_frame_t *frame)
+assign_dparams_locations(iml_function_t *frame)
 {
     GSList *parameters;
     gint offset = 0;
 
     /* assign locations to parameters */
-    parameters = iml_func_frame_get_parameters(frame);
+    parameters = iml_function_get_parameters(frame);
     if (parameters != NULL)
     {
         ImlVariable *param;
@@ -251,12 +251,12 @@ assign_dparams_locations(iml_func_frame_t *frame)
  * Assign location to parameters of a function with C-linkage.
  */
 static gint
-assign_cparams_locations(iml_func_frame_t *frame)
+assign_cparams_locations(iml_function_t *frame)
 {
     GSList *i;
     guint params_offset = 8;
 
-    for (i = iml_func_frame_get_parameters(frame);
+    for (i = iml_function_get_parameters(frame);
          i != NULL;
          i = g_slist_next(i))
     {
@@ -272,12 +272,12 @@ assign_cparams_locations(iml_func_frame_t *frame)
 }
 
 static void
-assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
+assign_var_locations(iml_function_t *frame)
 {
     GSList *i;
     gint offset;
 
-    switch (linkage)
+    switch (iml_function_get_linkage(frame))
     {
         case ir_d_linkage:
             offset = assign_dparams_locations(frame);
@@ -294,7 +294,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
      * assign offset location to local variables that
      * have not been assigned a register
      */
-    i = iml_func_frame_get_locals(frame);
+    i = iml_function_get_locals(frame);
     for (; i != NULL; i = g_slist_next(i))
     {
         ImlVariable *var = iml_variable(i->data);
@@ -306,7 +306,7 @@ assign_var_locations(iml_func_frame_t *frame, ir_linkage_type_t linkage)
         }
     }
 
-    iml_func_frame_set_size(frame, (guint)(-(offset)));
+    iml_function_set_frame_size(frame, (guint)(-(offset)));
 }
 
 /**
@@ -331,11 +331,10 @@ gen_code(IrModule *module, FILE *out_stream, const char *source_file)
 
     text_prelude(&params, global_sym_table);
 
-    i = ir_module_get_function_defs(module);
+    i = ir_module_get_functions(module);
     for (; i != NULL; i = g_slist_next(i))
     {
-        assert(IR_IS_FUNCTION_DEF(i->data));
-        compile_function_def(&params, i->data);
+        compile_function(&params, i->data);
     }
 }
 
@@ -1886,21 +1885,14 @@ compile_call(FILE *out, iml_operation_t *op)
 }
 
 static void
-compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
+compile_function(x86_comp_params_t *params, iml_function_t *func)
 {
-    ir_linkage_type_t linkage;
-    char *func_name;
-    iml_func_frame_t *frame;
     GSList *i;
     GSList *regs;
     char *return_label;
 
-
-    linkage = ir_function_get_linkage(ir_function(func_def));
-    func_name = ir_function_get_mangled_name(ir_function(func_def));
-    frame = ir_function_def_get_frame(func_def);
-
     /* generate function symbol declaration and function entry point label */
+    const char *func_name = iml_function_get_name(func);
     fprintf(params->out,
             ".globl %s\n"
             "    .type %s, @function\n"
@@ -1910,14 +1902,14 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     /* generate code to allocate function frame on the stack */
     fprintf(params->out,
             "    enter $%d, $0\n",
-            iml_func_frame_get_size(frame));
+            iml_function_get_frame_size(func));
 
     /*
      * generate the code to store last parameter
      * on the stack frame if needed
      */
-    if (linkage == ir_d_linkage &&
-        (i = g_slist_last(iml_func_frame_get_parameters(frame))) != NULL &&
+    if (iml_function_get_linkage(func) == ir_d_linkage &&
+        (i = g_slist_last(iml_function_get_parameters(func))) != NULL &&
         param_stored_in_reg(i->data))
     {
         fprintf(params->out,
@@ -1926,7 +1918,7 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     }
 
     /* store preserved registers value on the stack */
-    regs = iml_func_frame_get_used_regs(frame);
+    regs = iml_function_get_used_regs(func);
     for (i = regs; i != NULL; i = g_slist_next(i))
     {
         fprintf(params->out,
@@ -1939,7 +1931,7 @@ compile_function_def(x86_comp_params_t *params, IrFunctionDef *func_def)
     return_label = ir_module_gen_label(params->module);
 
     /* generate code for all operations in this function */
-    for (i = ir_function_def_get_operations(func_def);
+    for (i = iml_function_get_operations(func);
          i != NULL;
          i = g_slist_next(i))
     {

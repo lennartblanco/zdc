@@ -8,7 +8,7 @@ import std.algorithm;
  * in a function frame
  */
 string
-get_used_preserved_regs(iml_func_frame *func_frame)
+get_used_preserved_regs(iml_function *func)
 {
     string preserved_regs = "";
     string[] regs;
@@ -18,9 +18,7 @@ get_used_preserved_regs(iml_func_frame *func_frame)
      * otherwise assembler will complain
      */
 
-    for (auto i = iml_func_frame_get_used_regs(func_frame);
-         i != null;
-         i = i.next())
+    for (auto i = iml_function_get_used_regs(func); i != null; i = i.next())
     {
         string reg = to!string(cast(char*)i.data);
         regs = reg ~ regs;

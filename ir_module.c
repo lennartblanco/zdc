@@ -18,6 +18,7 @@ struct _IrModule
     GSList         *imports;
     GSList         *enums;
     GSList         *structs;
+    GSList         *functions;     /** IML code for modules functions */
     GSList         *function_decls;
     GSList         *function_defs;
     guint           label_counter; /** used to generate module unique labels */
@@ -156,6 +157,23 @@ ir_module_get_function_defs(IrModule *self)
     assert(IR_IS_MODULE(self));
 
     return self->function_defs;
+}
+
+void
+ir_module_add_function(IrModule *self, iml_function_t *function)
+{
+    assert(IR_IS_MODULE(self));
+    assert(function);
+
+    self->functions = g_slist_prepend(self->functions, function);
+}
+
+GSList *
+ir_module_get_functions(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->functions;
 }
 
 char *
