@@ -67,6 +67,9 @@ GSList *
 ir_function_def_get_parameters(IrFunctionDef *self);
 
 void
+ir_function_def_set_this_type(IrFunctionDef *self, DtDataType *this_type);
+
+void
 ir_function_def_set_return_type(IrFunctionDef *self, DtDataType *type);
 
 DtDataType *

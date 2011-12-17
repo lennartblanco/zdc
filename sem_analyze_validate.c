@@ -2989,6 +2989,8 @@ validate_struct(compilation_status_t *compile_status,
         assert(IR_IS_FUNCTION_DEF(i->data));
 
         IrFunctionDef *method = ir_function_def(i->data);
+
+        ir_function_def_set_this_type(method, DT_DATA_TYPE(struct_type));
         validate_function_def(compile_status, method);
         dt_struct_add_method(struct_type, method);
     }
