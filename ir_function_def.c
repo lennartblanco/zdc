@@ -91,8 +91,8 @@ ir_function_def_new(ir_linkage_type_t linkage_type,
         /* check if this is a named parameter */
         if (ir_variable_get_name(ir_variable(p->data)) != NULL)
         {
-          /* add it to function's symbol table */
-          sym_table_add_symbol(obj->param_symbols, ir_symbol(p->data));
+            /* add it to function's symbol table */
+            sym_table_add_symbol(obj->param_symbols, ir_symbol(p->data));
         }
     }
 
