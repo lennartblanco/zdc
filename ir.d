@@ -365,6 +365,12 @@ ir_struct_literal_get_members(IrStructLiteral *self);
 
 struct IrStructMember;
 
+GType
+ir_struct_member_get_type();
+
+IrExpression *
+ir_struct_member_get_base(IrStructMember *self);
+
 IrStructMember *
 ir_struct_member(void *obj);
 

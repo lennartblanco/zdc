@@ -24,6 +24,7 @@ ir_print_module(IrModule *mod)
          ir_var_ref_get_type(): &print_var_ref,
          ir_variable_get_type(): &print_variable,
          ir_address_of_get_type(): &print_address_of,
+         ir_struct_member_get_type(): &print_struct_member,
          ir_cast_get_type(): &print_cast,
          ir_basic_constant_get_type(): &print_basic_constant
        ]);
@@ -209,6 +210,17 @@ print_address_of(gt_dispatcher *dispatcher, void *obj, void *data)
 
     dispatcher.dispatch(ir_address_of_get_expression(addrof),
                         &layout("expression", l.indent, l.last_node ~ [true]));
+}
+
+void
+print_struct_member(gt_dispatcher *dispatcher, void *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    writefln("%sIrStructMember", get_prefix(l));
+
+    /* print base node */
+    dispatcher.dispatch(ir_struct_member_get_base(ir_struct_member(obj)),
+                        &layout("base", l.indent, l.last_node ~ [true]));
 }
 
 void
