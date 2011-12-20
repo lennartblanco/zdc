@@ -1,3 +1,31 @@
+* post-inc (and probably other ++/--) operation does not write back the new
+value when used on ref parameters, pointer-dereference expressions and struct
+members. For example:
+
+struct st { int a; }
+
+void
+inc(ref int i)
+{
+  i++;
+}
+
+int
+main()
+{
+  st s;
+  int x = 100;
+  int *px = &x;
+
+  inc(x);
+  (*px)++;
+  s.a++;
+
+  return x + s.a;
+}
+
+should exit with '103', however exits with '100' when compiled with zdc.
+
 * function with ref parameters are not name mangled correctly, for example:
 
 void func(ref int a) { ... }
