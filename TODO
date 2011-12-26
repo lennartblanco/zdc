@@ -114,20 +114,6 @@ err.d(11): Error: cannot implicitly convert expression (t) of type int to int[5u
 
 * add a check that non-void functions have a return statment, and throw compile error otherwise
 
-* the code below fails on assertion
-
-alias int myint;
-
-enum foo : myint
-{
-  a,
-  b,
-  c
-}
-
-$ xdc meep.d
-xdc: const_fold.c:362: cfold_cast_basic_type: Assertion `(((__extension__ ({ GTypeInstance *__inst = (GTypeInstance*) ((target_type)); GType __t = (dt_basic_get_type()); gboolean __r; if (__inst && __inst->g_class && __inst->g_class->g_type == __t) __r = (!(0)); else __r = g_type_check_instance_is_a (__inst, __t); __r; }))))' failed.
-
 * string literal assigments to char[] is allowed, e.g. following code compiles fine with xdc:
 
 void main()

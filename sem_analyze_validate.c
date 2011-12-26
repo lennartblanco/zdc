@@ -2637,8 +2637,20 @@ validate_enum(compilation_status_t *compile_status,
             /* use default int base type */
             base_type = types_get_int_type();
         }
-        dt_enum_set_base_type(enum_def, base_type);
     }
+    else if (DT_IS_NAME(base_type))
+    {
+        /* resolved base user type */
+        base_type = resolve_user_type(compile_status,
+                                      sym_table,
+                                      DT_NAME(base_type));
+        if (base_type == NULL)
+        {
+            /* invalid user type, bail out */
+            return;
+        }
+    }
+    dt_enum_set_base_type(enum_def, base_type);
 
     /*
      * figure out enum members values

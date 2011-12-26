@@ -6,3 +6,8 @@ enum bar
   b,
   c
 }
+
+enum oink : ikl
+{
+  X, Y, Z
+}

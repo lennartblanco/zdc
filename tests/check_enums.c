@@ -76,6 +76,9 @@ int
 anon_enum_val();
 
 int
+myenum_as_int(char n);
+
+int
 get_ae_exp(int arg);
 
 int
@@ -189,6 +192,12 @@ main()
                call_unnamed_enum_param(true, '\0'), false);
     check_bool("unnamed_enum_param(false)",
                call_unnamed_enum_param(false, '\0'), true);
+
+    /* myenum_as_int() tests */
+    check_int("myenum_as_int('?')", myenum_as_int('?'), 0);
+    check_int("myenum_as_int('a')", myenum_as_int('a'), 0);
+    check_int("myenum_as_int('b')", myenum_as_int('b'), 1);
+    check_int("myenum_as_int('c')", myenum_as_int('c'), 2);
 
     /* anon_enum_val() test */
     check_int("anon_enum_val()", anon_enum_val(), 23);

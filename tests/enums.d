@@ -47,6 +47,9 @@ enum logic // base type bool
   F = false
 }
 
+alias int myint;
+enum myenum : myint { a, b, c }  // user base type
+
 enum ANON_ENUM = 23;
 enum AE_A = 20, AE_B = 21, AE_C = 22;
 enum { E = 100, N = 'c', U = "orange", M = false }
@@ -195,6 +198,27 @@ bool
 unnamed_enum_param(bool dummy, nums)
 {
     return !dummy;
+}
+
+extern (C) int
+myenum_as_int(char n)
+{
+  myenum res;
+
+  if (n == 'a')
+  {
+    res = myenum.a;
+  }
+  else if (n == 'b')
+  {
+    res = myenum.b;
+  }
+  else if (n == 'c')
+  {
+    res = myenum.c;
+  }
+
+  return res;
 }
 
 extern (C) int anon_enum_val()

@@ -1,2 +1,3 @@
 enum_init_err.d:5: error: illegal types in arithmetic operation
 enum_init_err.d:5: error: invalid enum member initialization expression
+enum_init_err.d:10: error: unknown data type 'ikl'
