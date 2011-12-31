@@ -12,22 +12,22 @@
 static IrExpression *
 fold_int_arithm_bin_op(IrBasicConstant *left,
                        IrBasicConstant *right,
-                       ast_binary_op_type_t operation);
+                       binary_op_type_t operation);
 
 static IrExpression *
 fold_uint_arithm_bin_op(IrBasicConstant *left,
                         IrBasicConstant *right,
-                        ast_binary_op_type_t operation);
+                        binary_op_type_t operation);
 
 static IrExpression *
 fold_int_comp_bin_op(IrBasicConstant *left,
                      IrBasicConstant *right,
-                     ast_binary_op_type_t operation);
+                     binary_op_type_t operation);
 
 static IrExpression *
 fold_uint_comp_bin_op(IrBasicConstant *left,
                       IrBasicConstant *right,
-                      ast_binary_op_type_t operation);
+                      binary_op_type_t operation);
 
 static IrExpression *
 cfold_cast_basic_type(DtDataType *target_type,
@@ -122,10 +122,10 @@ cfold_bin_conditional(IrBinaryOperation *bin_op)
 
     switch (ir_binary_operation_get_operation(bin_op))
     {
-        case ast_or_op:
+        case op_or:
             res = left_val || right_val;
             break;
-        case ast_and_op:
+        case op_and:
             res = left_val && right_val;
             break;
         default:
@@ -229,7 +229,7 @@ cfold_cast(IrCast *cast_exp)
 static IrExpression *
 fold_int_arithm_bin_op(IrBasicConstant *left,
                        IrBasicConstant *right,
-                       ast_binary_op_type_t operation)
+                       binary_op_type_t operation)
 {
     gint32 left_val;
     gint32 right_val;
@@ -239,19 +239,19 @@ fold_int_arithm_bin_op(IrBasicConstant *left,
     right_val = ir_basic_constant_get_int(right);
 
     switch (operation) {
-        case ast_plus_op:
+        case op_plus:
             res = left_val + right_val;
             break;
-        case ast_minus_op:
+        case op_minus:
             res = left_val - right_val;
             break;
-        case ast_mult_op:
+        case op_mult:
             res = left_val * right_val;
             break;
-        case ast_division_op:
+        case op_division:
             res = left_val / right_val;
             break;
-        case ast_modulo_op:
+        case op_modulo:
             res = left_val % right_val;
             break;
         default:
@@ -265,7 +265,7 @@ fold_int_arithm_bin_op(IrBasicConstant *left,
 static IrExpression *
 fold_uint_arithm_bin_op(IrBasicConstant *left,
                         IrBasicConstant *right,
-                        ast_binary_op_type_t operation)
+                        binary_op_type_t operation)
 {
     guint32 left_val;
     guint32 right_val;
@@ -275,16 +275,16 @@ fold_uint_arithm_bin_op(IrBasicConstant *left,
     right_val = ir_basic_constant_get_uint(right);
 
     switch (operation) {
-        case ast_plus_op:
+        case op_plus:
             res = left_val + right_val;
             break;
-        case ast_minus_op:
+        case op_minus:
             res = left_val - right_val;
             break;
-        case ast_mult_op:
+        case op_mult:
             res = left_val * right_val;
             break;
-        case ast_division_op:
+        case op_division:
             res = left_val / right_val;
             break;
         default:
@@ -298,7 +298,7 @@ fold_uint_arithm_bin_op(IrBasicConstant *left,
 static IrExpression *
 fold_int_comp_bin_op(IrBasicConstant *left,
                      IrBasicConstant *right,
-                     ast_binary_op_type_t operation)
+                     binary_op_type_t operation)
 {
     gint32 left_val;
     gint32 right_val;
@@ -308,22 +308,22 @@ fold_int_comp_bin_op(IrBasicConstant *left,
     right_val = ir_basic_constant_get_int(right);
 
     switch (operation) {
-        case ast_less_op:           /*  <  */
+        case op_less:           /*  <  */
             res = left_val < right_val;
             break;
-        case ast_greater_op:        /*  >  */
+        case op_greater:        /*  >  */
             res = left_val > right_val;
             break;
-        case ast_less_or_eq_op:     /* <=  */
+        case op_less_or_eq:     /* <=  */
             res = left_val <= right_val;
             break;
-        case ast_greater_or_eq_op:  /* >=  */
+        case op_greater_or_eq:  /* >=  */
             res = left_val >= right_val;
             break;
-        case ast_equal_op:          /* ==  */
+        case op_equal:          /* ==  */
             res = left_val == right_val;
             break;
-        case ast_not_equal_op:      /* !=  */
+        case op_not_equal:      /* !=  */
             res = left_val != right_val;
             break;
         default:
@@ -337,7 +337,7 @@ fold_int_comp_bin_op(IrBasicConstant *left,
 static IrExpression *
 fold_uint_comp_bin_op(IrBasicConstant *left,
                       IrBasicConstant *right,
-                      ast_binary_op_type_t operation)
+                      binary_op_type_t operation)
 {
     guint32 left_val;
     guint32 right_val;
@@ -347,22 +347,22 @@ fold_uint_comp_bin_op(IrBasicConstant *left,
     right_val = ir_basic_constant_get_uint(right);
 
     switch (operation) {
-        case ast_less_op:           /*  <  */
+        case op_less:           /*  <  */
             res = left_val < right_val;
             break;
-        case ast_greater_op:        /*  >  */
+        case op_greater:        /*  >  */
             res = left_val > right_val;
             break;
-        case ast_less_or_eq_op:     /* <=  */
+        case op_less_or_eq:     /* <=  */
             res = left_val <= right_val;
             break;
-        case ast_greater_or_eq_op:  /* >=  */
+        case op_greater_or_eq:  /* >=  */
             res = left_val >= right_val;
             break;
-        case ast_equal_op:          /* ==  */
+        case op_equal:          /* ==  */
             res = left_val == right_val;
             break;
-        case ast_not_equal_op:      /* !=  */
+        case op_not_equal:      /* !=  */
             res = left_val != right_val;
             break;
         default:

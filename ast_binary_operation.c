@@ -44,7 +44,7 @@ ast_binary_operation_get_type(void)
 }
 
 AstBinaryOperation *
-ast_binary_operation_new(ast_binary_op_type_t operation,
+ast_binary_operation_new(binary_op_type_t operation,
                          AstExpression *left,
                          AstExpression *right,
                          guint line_number)
@@ -61,7 +61,7 @@ ast_binary_operation_new(ast_binary_op_type_t operation,
     return obj;
 }
 
-ast_binary_op_type_t
+binary_op_type_t
 ast_binary_operation_get_operation(AstBinaryOperation *self)
 {
     assert(AST_IS_BINARY_OPERATION(self));
@@ -101,40 +101,40 @@ ast_binary_operation_do_print(AstNode *self, FILE *out, int indention)
     ast_node_print(AST_NODE(bin_op->left), out, indention);
     switch (bin_op->operation)
     {
-        case ast_less_op:           /*  <  */
+        case op_less:           /*  <  */
             str = "<";
             break;
-        case ast_greater_op:        /*  >  */
+        case op_greater:        /*  >  */
             str = ">";
             break;
-        case ast_less_or_eq_op:     /* <=  */
+        case op_less_or_eq:     /* <=  */
             str = "<=";
             break;
-        case ast_greater_or_eq_op:  /* >=  */
+        case op_greater_or_eq:  /* >=  */
             str = ">=";
             break;
-        case ast_equal_op:          /* ==  */
+        case op_equal:          /* ==  */
             str = "==";
             break;
-        case ast_not_equal_op:      /* !=  */
+        case op_not_equal:      /* !=  */
             str = "!=";
             break;
-        case ast_plus_op:           /*  +  */
+        case op_plus:           /*  +  */
             str = "+";
             break;
-        case ast_minus_op:          /*  -  */
+        case op_minus:          /*  -  */
             str = "-";
             break;
-        case ast_mult_op:           /*  *  */
+        case op_mult:           /*  *  */
             str = "*";
             break;
-        case ast_division_op:        /*  /  */
+        case op_division:        /*  /  */
             str = "/";
             break;
-        case ast_or_op:
+        case op_or:
             str = "||";
             break;
-        case ast_and_op:
+        case op_and:
             str = "&&";
             break;
         default:

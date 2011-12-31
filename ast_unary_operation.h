@@ -1,6 +1,7 @@
 #ifndef AST_UNARY_OPERATION_INC_X
 #define AST_UNARY_OPERATION_INC_X
 
+#include "operations.h"
 #include "ast_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -24,25 +25,12 @@
 #define AST_UNARY_OPERATION_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), AST_TYPE_UNARY_OPERATION, AstUnaryOperationClass))
 
-/*
- * binary operations types
- */
-typedef enum ast_unary_op_type_e
-{
-    ast_arithm_neg_op,     /*  -(exp)  */
-    ast_bool_neg_op,       /*  !(exp)  */
-    ast_pre_inc_op,        /*  ++(exp) */
-    ast_pre_dec_op,        /*  --(exp) */
-    ast_post_inc_op,       /* (exp)++ */
-    ast_post_dec_op        /* (exp)-- */
-} ast_unary_op_type_t;
-
 typedef struct
 {
     AstExpression         parent;
 
     /* private */
-    ast_unary_op_type_t  operation;
+    unary_op_type_t  operation;
     AstExpression        *operand;
 } AstUnaryOperation;
 
@@ -59,11 +47,11 @@ GType
 ast_unary_operation_get_type(void);
 
 AstUnaryOperation *
-ast_unary_operation_new(ast_unary_op_type_t operation,
+ast_unary_operation_new(unary_op_type_t operation,
                         AstExpression *operand,
                         guint line_number);
 
-ast_unary_op_type_t
+unary_op_type_t
 ast_unary_operation_get_operation(AstUnaryOperation *self);
 
 AstExpression *

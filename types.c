@@ -98,12 +98,12 @@ types_integer_promotion(IrExpression *expression)
 
 bool
 types_pointer_arithm_conv(IrExpression *left,
-                          ast_binary_op_type_t operation,
+                          binary_op_type_t operation,
                           IrExpression *right,
                           IrExpression **res_left,
                           IrExpression **res_right)
 {
-    assert(operation == ast_plus_op || operation == ast_minus_op);
+    assert(operation == op_plus || operation == op_minus);
 
     DtDataType *left_type = ir_expression_get_data_type(left);
     DtDataType *right_type = ir_expression_get_data_type(right);
@@ -133,7 +133,7 @@ types_pointer_arithm_conv(IrExpression *left,
         }
     }
 
-    if (operation == ast_plus_op)
+    if (operation == op_plus)
     {
       if (DT_IS_POINTER(left_type) && DT_IS_POINTER(right_type))
       {
@@ -157,7 +157,7 @@ types_pointer_arithm_conv(IrExpression *left,
     }
     else
     {
-        assert(operation == ast_minus_op);
+        assert(operation == op_minus);
         if (!DT_IS_POINTER(left_type))
         {
             /* it's illegal to substract pointer from a non-pointer */

@@ -1,7 +1,7 @@
 #ifndef IR_UNARY_OPERATION_INC_X
 #define IR_UNARY_OPERATION_INC_X
 
-#include "ast_unary_operation.h"
+#include "operations.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -30,7 +30,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
-    ast_unary_op_type_t  operation;
+    unary_op_type_t  operation;
     IrExpression        *operand;
 } IrUnaryOperation;
 
@@ -47,11 +47,11 @@ GType
 ir_unary_operation_get_type(void);
 
 IrUnaryOperation *
-ir_unary_operation_new(ast_unary_op_type_t operation,
+ir_unary_operation_new(unary_op_type_t operation,
                        IrExpression *operand,
                        guint line_number);
 
-ast_unary_op_type_t
+unary_op_type_t
 ir_unary_operation_get_operation(IrUnaryOperation *self);
 
 IrExpression *

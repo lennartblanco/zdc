@@ -11,6 +11,7 @@
 #include "ast_function_call.h"
 #include "ast_assignment.h"
 #include "ast_conditional.h"
+#include "ast_unary_operation.h"
 #include "ast_binary_operation.h"
 #include "ast_array_literal.h"
 #include "ast_string_literal.h"
@@ -1084,7 +1085,7 @@ binary_op_to_ir(compilation_status_t *compile_status,
 {
     IrExpression *left;
     IrExpression *right;
-    ast_binary_op_type_t op;
+    binary_op_type_t op;
     guint line_number;
 
     left = expression_to_ir(compile_status,
@@ -1102,19 +1103,19 @@ binary_op_to_ir(compilation_status_t *compile_status,
     op = ast_binary_operation_get_operation(ast_operation);
     line_number = ast_node_get_line_num(ast_operation);
     switch (op) {
-        case ast_plus_op:
-        case ast_minus_op:
-        case ast_mult_op:
-        case ast_division_op:
-        case ast_modulo_op:
-        case ast_equal_op:
-        case ast_not_equal_op:
-        case ast_less_op:
-        case ast_greater_op:
-        case ast_less_or_eq_op:
-        case ast_greater_or_eq_op:
-        case ast_and_op:
-        case ast_or_op:
+        case op_plus:
+        case op_minus:
+        case op_mult:
+        case op_division:
+        case op_modulo:
+        case op_equal:
+        case op_not_equal:
+        case op_less:
+        case op_greater:
+        case op_less_or_eq:
+        case op_greater_or_eq:
+        case op_and:
+        case op_or:
             return ir_expression(ir_binary_operation_new(op,
                                                          left,
                                                          right,
@@ -1174,7 +1175,7 @@ ast_unary_op_to_ir(compilation_status_t *compile_status,
                    AstUnaryOperation *ast_operation)
 {
     IrExpression *operand;
-    ast_unary_op_type_t op_type;
+    unary_op_type_t op_type;
 
     op_type =
         ast_unary_operation_get_operation(ast_operation);

@@ -498,7 +498,7 @@ validate_pointer_arithm(compilation_status_t *compile_status,
     DtDataType *left_type;
     DtDataType *right_type;
 
-    ast_binary_op_type_t op = ir_binary_operation_get_operation(bin_op);
+    binary_op_type_t op = ir_binary_operation_get_operation(bin_op);
     left = ir_binary_operation_get_left(bin_op);
     right = ir_binary_operation_get_right(bin_op);
 
@@ -519,11 +519,11 @@ validate_pointer_arithm(compilation_status_t *compile_status,
             dt_pointer_get_base_type_size(DT_POINTER(left_type)),
             0);
 
-    if (op == ast_plus_op)
+    if (op == op_plus)
     {
         right =
             ir_expression(
-                ir_binary_operation_new(ast_mult_op,
+                ir_binary_operation_new(op_mult,
                                         right,
                                         ir_expression(base_type_size),
                                         0));
@@ -534,21 +534,21 @@ validate_pointer_arithm(compilation_status_t *compile_status,
     }
     else
     {
-        assert(op == ast_minus_op);
+        assert(op == op_minus);
 
         if (DT_IS_POINTER(right_type))
         {
             left =
                 ir_expression(
-                    ir_binary_operation_new(ast_minus_op, left, right, 0));
+                    ir_binary_operation_new(op_minus, left, right, 0));
             right = ir_expression(base_type_size);
-            bin_op = ir_binary_operation_new(ast_division_op, left, right, 0);
+            bin_op = ir_binary_operation_new(op_division, left, right, 0);
         }
         else
         {
             right =
                 ir_expression(
-                    ir_binary_operation_new(ast_mult_op,
+                    ir_binary_operation_new(op_mult,
                                             right,
                                             ir_expression(base_type_size),
                                             0));
@@ -816,7 +816,7 @@ validate_unary_op(compilation_status_t *compile_status,
 
     switch (ir_unary_operation_get_operation(operation))
     {
-        case ast_arithm_neg_op:
+        case op_arithm_neg:
             exp = types_implicit_conv(types_get_int_type(), exp);
             if (exp == NULL)
             {
@@ -826,7 +826,7 @@ validate_unary_op(compilation_status_t *compile_status,
                 return NULL;
             }
             break;
-        case ast_bool_neg_op:
+        case op_bool_neg:
             exp = types_implicit_conv(types_get_bool_type(), exp);
             if (exp == NULL)
             {
@@ -836,10 +836,10 @@ validate_unary_op(compilation_status_t *compile_status,
                 return NULL;
             }
             break;
-        case ast_pre_inc_op:
-        case ast_pre_dec_op:
-        case ast_post_inc_op:
-        case ast_post_dec_op:
+        case op_pre_inc:
+        case op_pre_dec:
+        case op_post_inc:
+        case op_post_dec:
             exp = validate_ind_dec_ops(compile_status, sym_table, exp);
             if (exp == NULL)
             {
@@ -2089,7 +2089,7 @@ validate_foreach_range(compilation_status_t *compile_status,
 
     /* synthesize looping test expression */
     IrExpression *loop_test_exp =
-        ir_expression(ir_binary_operation_new(ast_less_op,
+        ir_expression(ir_binary_operation_new(op_less,
                                               ir_expression(idx_var_val),
                                               upper_exp,
                                               0));
@@ -2122,7 +2122,7 @@ validate_foreach_range(compilation_status_t *compile_status,
 
     /* synthesize loop index variable increment expression */
     IrExpression *index_inc_exp =
-            ir_expression(ir_unary_operation_new(ast_pre_inc_op,
+            ir_expression(ir_unary_operation_new(op_pre_inc,
                                                  ir_expression(idx_var_val),
                                                  0));
     index_inc_exp =
@@ -2942,7 +2942,7 @@ validate_enum(compilation_status_t *compile_status,
                     compile_status,
                     sym_table,
                         ir_binary_operation_new(
-                            ast_plus_op,
+                            op_plus,
                             prev_member_value,
                             one,
                         0));

@@ -44,7 +44,7 @@ ast_unary_operation_get_type(void)
 }
 
 AstUnaryOperation *
-ast_unary_operation_new(ast_unary_op_type_t operation,
+ast_unary_operation_new(unary_op_type_t operation,
                         AstExpression *operand,
                         guint line_number)
 {
@@ -59,7 +59,7 @@ ast_unary_operation_new(ast_unary_op_type_t operation,
     return obj;
 }
 
-ast_unary_op_type_t
+unary_op_type_t
 ast_unary_operation_get_operation(AstUnaryOperation *self)
 {
     assert(AST_IS_UNARY_OPERATION(self));
@@ -90,10 +90,10 @@ ast_unary_operation_do_print(AstNode *self, FILE *out, int indention)
     char *str;
     switch (op->operation)
     {
-        case ast_arithm_neg_op:           /*  -  */
+        case op_arithm_neg:           /*  -  */
             str = "-";
             break;
-        case ast_bool_neg_op:             /*  !  */
+        case op_bool_neg:             /*  !  */
             str = "!";
             break;
         default:

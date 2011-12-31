@@ -49,7 +49,7 @@ ir_binary_operation_get_type(void)
 }
 
 IrBinaryOperation *
-ir_binary_operation_new(ast_binary_op_type_t operation,
+ir_binary_operation_new(binary_op_type_t operation,
                         IrExpression *left,
                         IrExpression *right,
                         guint line_number)
@@ -66,7 +66,7 @@ ir_binary_operation_new(ast_binary_op_type_t operation,
     return obj;
 }
 
-ast_binary_op_type_t
+binary_op_type_t
 ir_binary_operation_get_operation(IrBinaryOperation *self)
 {
     assert(IR_IS_BINARY_OPERATION(self));
@@ -113,16 +113,14 @@ ir_binary_operation_is_arithm(IrBinaryOperation *self)
 {
     assert(IR_IS_BINARY_OPERATION(self));
 
-    ast_binary_op_type_t op_type;
-
-    op_type = ir_binary_operation_get_operation(self);
+    binary_op_type_t op_type = ir_binary_operation_get_operation(self);
 
     return 
-        op_type == ast_plus_op     ||
-        op_type == ast_minus_op    ||
-        op_type == ast_mult_op     ||
-        op_type == ast_division_op ||
-        op_type == ast_modulo_op;
+        op_type == op_plus     ||
+        op_type == op_minus    ||
+        op_type == op_mult     ||
+        op_type == op_division ||
+        op_type == op_modulo;
 }
 
 bool
@@ -132,7 +130,6 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
 
     DtDataType *data_type;
     basic_data_type_t bdt;
-    ast_binary_op_type_t op_type;
 
     data_type = ir_expression_get_data_type(ir_expression(self));
     if (!dt_is_basic(data_type))
@@ -147,14 +144,14 @@ ir_binary_operation_is_icomp(IrBinaryOperation *self)
         return false;
     }
 
-    op_type = ir_binary_operation_get_operation(self);
+    binary_op_type_t op_type = ir_binary_operation_get_operation(self);
 
-    return op_type == ast_equal_op      || 
-           op_type == ast_not_equal_op  ||
-           op_type == ast_less_op       ||
-           op_type == ast_greater_op    ||
-           op_type == ast_less_or_eq_op ||
-           op_type == ast_greater_or_eq_op;
+    return op_type == op_equal      ||
+           op_type == op_not_equal  ||
+           op_type == op_less       ||
+           op_type == op_greater    ||
+           op_type == op_less_or_eq ||
+           op_type == op_greater_or_eq;
 }
 
 bool
@@ -162,11 +159,9 @@ ir_binary_operation_is_conditional(IrBinaryOperation *self)
 {
     assert(IR_IS_BINARY_OPERATION(self));
 
-    ast_binary_op_type_t op_type;
+    binary_op_type_t op_type = ir_binary_operation_get_operation(self);
 
-    op_type = ir_binary_operation_get_operation(self);
-
-    return op_type == ast_and_op || op_type == ast_or_op;
+    return op_type == op_and || op_type == op_or;
 }
 
 /*---------------------------------------------------------------------------*
@@ -184,7 +179,7 @@ static DtDataType *
 get_substaction_data_type(IrBinaryOperation *self)
 {
     assert(IR_IS_BINARY_OPERATION(self));
-    assert(self->operation == ast_minus_op);
+    assert(self->operation == op_minus);
 
     DtDataType *left_type = ir_expression_get_data_type(self->left);
 
@@ -216,25 +211,25 @@ ir_binary_operation_do_get_data_type(IrExpression *self)
 
     switch (bin_op->operation) 
     {
-        case ast_plus_op:
-        case ast_mult_op:
-        case ast_division_op:
-        case ast_modulo_op:
+        case op_plus:
+        case op_mult:
+        case op_division:
+        case op_modulo:
             data_type = ir_expression_get_data_type(bin_op->left);
             break;
-        case ast_minus_op:
+        case op_minus:
             data_type = get_substaction_data_type(bin_op);
             break;
-        case ast_less_op:
-        case ast_greater_op:
-        case ast_less_or_eq_op:
-        case ast_greater_or_eq_op:
-        case ast_equal_op:
-        case ast_not_equal_op:
+        case op_less:
+        case op_greater:
+        case op_less_or_eq:
+        case op_greater_or_eq:
+        case op_equal:
+        case op_not_equal:
             data_type = types_get_bool_type();
             break;
-        case ast_and_op:
-        case ast_or_op:
+        case op_and:
+        case op_or:
             data_type = ir_binary_operation_get_conditional_op_type(bin_op);
             break;
         default:

@@ -54,7 +54,7 @@ types_usual_arithm_conv(IrExpression *left,
 
 bool
 types_pointer_arithm_conv(IrExpression *left,
-                          ast_binary_op_type_t operation,
+                          binary_op_type_t operation,
                           IrExpression *right,
                           IrExpression **res_left,
                           IrExpression **res_right);

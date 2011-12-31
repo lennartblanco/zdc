@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "ast_binary_operation.h"
+#include "operations.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -32,7 +32,7 @@ typedef struct
     IrExpression parent;
 
     /* private */
-    ast_binary_op_type_t  operation;
+    binary_op_type_t      operation;
     IrExpression         *left;
     IrExpression         *right;
 } IrBinaryOperation;
@@ -50,12 +50,12 @@ GType
 ir_binary_operation_get_type(void);
 
 IrBinaryOperation *
-ir_binary_operation_new(ast_binary_op_type_t operation,
+ir_binary_operation_new(binary_op_type_t operation,
                         IrExpression *left,
                         IrExpression *right,
                         guint line_number);
 
-ast_binary_op_type_t
+binary_op_type_t
 ir_binary_operation_get_operation(IrBinaryOperation *self);
 
 IrExpression *

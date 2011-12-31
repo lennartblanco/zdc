@@ -750,7 +750,7 @@ oror_expression<n> :
     oror_expression<l> '|''|' andand_expression<r>
     {
         (*n).expression =
-          AST_EXPRESSION(ast_binary_operation_new(ast_or_op,
+          AST_EXPRESSION(ast_binary_operation_new(op_or,
                                                   l.expression,
                                                   r.expression,
                                                   yypos));
@@ -762,7 +762,7 @@ andand_expression<n> :
     andand_expression<l> '&''&' eq_expression<r>
     {
         (*n).expression =
-          AST_EXPRESSION(ast_binary_operation_new(ast_and_op,
+          AST_EXPRESSION(ast_binary_operation_new(op_and,
                                                   l.expression,
                                                   r.expression,
                                                   yypos));
@@ -774,7 +774,7 @@ eq_expression<n> :
     rel_expression<l> '=''=' rel_expression<r>
     {
         (*n).expression =
-          AST_EXPRESSION(ast_binary_operation_new(ast_equal_op,
+          AST_EXPRESSION(ast_binary_operation_new(op_equal,
                                                   l.expression,
                                                   r.expression,
                                                   yypos));
@@ -782,7 +782,7 @@ eq_expression<n> :
 |   rel_expression<l> '!''=' rel_expression<r>
     {
       (*n).expression =
-          AST_EXPRESSION(ast_binary_operation_new(ast_not_equal_op,
+          AST_EXPRESSION(ast_binary_operation_new(op_not_equal,
                                                   l.expression,
                                                   r.expression,
                                                   yypos));
@@ -794,7 +794,7 @@ rel_expression<n> :
     add_expression<l> '<' add_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_less_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_less,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -802,7 +802,7 @@ rel_expression<n> :
 |   add_expression<l> '>' add_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_greater_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_greater,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -810,7 +810,7 @@ rel_expression<n> :
 |   add_expression<l> '<''=' add_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_less_or_eq_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_less_or_eq,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -818,7 +818,7 @@ rel_expression<n> :
 |   add_expression<l> '>''=' add_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_greater_or_eq_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_greater_or_eq,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -830,7 +830,7 @@ add_expression<n> :
     add_expression<l> '+' mult_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_plus_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_plus,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -838,7 +838,7 @@ add_expression<n> :
 |   add_expression<l> '-' mult_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_minus_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_minus,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -850,7 +850,7 @@ mult_expression<n> :
     mult_expression<l> '*' unary_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_mult_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_mult,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -858,7 +858,7 @@ mult_expression<n> :
 |   mult_expression<l> '/' unary_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_division_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_division,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -866,7 +866,7 @@ mult_expression<n> :
 |   mult_expression<l> '%' unary_expression<r>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_binary_operation_new(ast_modulo_op,
+            AST_EXPRESSION(ast_binary_operation_new(op_modulo,
                                                     l.expression,
                                                     r.expression,
                                                     yypos));
@@ -878,28 +878,28 @@ unary_expression<n> :
    '!' unary_expression<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_bool_neg_op,
+            AST_EXPRESSION(ast_unary_operation_new(op_bool_neg,
                                                    x.expression,
                                                    yypos));
     }
 |   '-' unary_expression<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_arithm_neg_op,
+            AST_EXPRESSION(ast_unary_operation_new(op_arithm_neg,
                                                    x.expression,
                                                    yypos));
     }
 |   '+' '+' unary_expression<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_pre_inc_op,
+            AST_EXPRESSION(ast_unary_operation_new(op_pre_inc,
                                                    x.expression,
                                                    yypos));
     }
 |   '-' '-' unary_expression<x>
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_pre_dec_op,
+            AST_EXPRESSION(ast_unary_operation_new(op_pre_dec,
                                                    x.expression,
                                                    yypos));
     }
@@ -940,14 +940,14 @@ postfix_expression<n> :
 |   postfix_expression<exp> '+' '+'
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_post_inc_op,
+            AST_EXPRESSION(ast_unary_operation_new(op_post_inc,
                                                    exp.expression,
                                                    yypos));
     }
 |   postfix_expression<exp> '-' '-'
     {
         (*n).expression =
-            AST_EXPRESSION(ast_unary_operation_new(ast_post_dec_op,
+            AST_EXPRESSION(ast_unary_operation_new(op_post_dec,
                                                    exp.expression,
                                                    yypos));
     }

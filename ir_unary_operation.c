@@ -42,7 +42,7 @@ ir_unary_operation_get_type(void)
 }
 
 IrUnaryOperation *
-ir_unary_operation_new(ast_unary_op_type_t operation,
+ir_unary_operation_new(unary_op_type_t operation,
                        IrExpression *operand,
                        guint line_number)
 {
@@ -57,7 +57,7 @@ ir_unary_operation_new(ast_unary_op_type_t operation,
     return obj;
 }
 
-ast_unary_op_type_t
+unary_op_type_t
 ir_unary_operation_get_operation(IrUnaryOperation *self)
 {
     assert(IR_IS_UNARY_OPERATION(self));
@@ -95,14 +95,14 @@ ir_unary_operation_has_effect(IrExpression *self)
 
     switch (ir_unary_operation_get_operation(IR_UNARY_OPERATION(self)))
     {
-        case ast_arithm_neg_op:     /*  -(exp)  */
-        case ast_bool_neg_op:       /*  !(exp)  */
+        case op_arithm_neg:     /*  -(exp)  */
+        case op_bool_neg:       /*  !(exp)  */
             has_effect = false;
             break;
-        case ast_pre_inc_op:        /*  ++(exp) */
-        case ast_pre_dec_op:        /*  --(exp) */
-        case ast_post_inc_op:       /* (exp)++ */
-        case ast_post_dec_op:       /* (exp)-- */
+        case op_pre_inc:        /*  ++(exp) */
+        case op_pre_dec:        /*  --(exp) */
+        case op_post_inc:       /* (exp)++ */
+        case op_post_dec:       /* (exp)-- */
             has_effect = true;
             break;
         default:

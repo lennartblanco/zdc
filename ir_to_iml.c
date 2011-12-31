@@ -848,14 +848,14 @@ is_signed_op(IrBinaryOperation *op)
 {
     DtDataType *operands_type;
 
-    ast_binary_op_type_t optype = ir_binary_operation_get_operation(op);
-    assert(optype == ast_mult_op ||
-           optype == ast_division_op ||
-           optype == ast_modulo_op ||
-           optype == ast_less_op ||
-           optype == ast_greater_op ||
-           optype == ast_less_or_eq_op ||
-           optype == ast_greater_or_eq_op);
+    binary_op_type_t optype = ir_binary_operation_get_operation(op);
+    assert(optype == op_mult ||
+           optype == op_division ||
+           optype == op_modulo ||
+           optype == op_less ||
+           optype == op_greater ||
+           optype == op_less_or_eq ||
+           optype == op_greater_or_eq);
 
     operands_type =
        ir_expression_get_data_type(ir_binary_operation_get_left(op));
@@ -879,43 +879,43 @@ get_iml_opcode_binop(IrBinaryOperation *op)
 
     switch (ir_binary_operation_get_operation(op))
     {
-        case ast_plus_op:
+        case op_plus:
             opcode = iml_add;
             break;
-        case ast_minus_op:
+        case op_minus:
             opcode = iml_sub;
             break;
-        case ast_mult_op:
+        case op_mult:
             opcode = is_signed_op(op) ? iml_smult : iml_umult;
             break;
-        case ast_division_op:
+        case op_division:
             opcode = is_signed_op(op) ? iml_sdiv : iml_udiv;
             break;
-        case ast_modulo_op:
+        case op_modulo:
             opcode = is_signed_op(op) ? iml_smod : iml_umod;
             break;
-        case ast_and_op:
+        case op_and:
             opcode = iml_and;
             break;
-        case ast_or_op:
+        case op_or:
             opcode = iml_or;
             break;
-        case ast_equal_op:
+        case op_equal:
             opcode = iml_equal;
             break;
-        case ast_not_equal_op:
+        case op_not_equal:
             opcode = iml_nequal;
             break;
-        case ast_less_op:
+        case op_less:
             opcode = is_signed_op(op) ? iml_sless : iml_uless;
             break;
-        case ast_greater_op:
+        case op_greater:
             opcode = is_signed_op(op) ? iml_sgreater : iml_ugreater;
             break;
-        case ast_less_or_eq_op:
+        case op_less_or_eq:
             opcode = is_signed_op(op) ? iml_slesseq : iml_ulesseq;
             break;
-        case ast_greater_or_eq_op:
+        case op_greater_or_eq:
             opcode = is_signed_op(op) ? iml_sgreatereq : iml_ugreatereq;
             break;
         default:
@@ -1012,10 +1012,10 @@ iml_add_neg_op_eval(iml_function_t *function,
 
     switch (ir_unary_operation_get_operation(op))
     {
-        case ast_arithm_neg_op:
+        case op_arithm_neg:
             opcode = iml_ineg;
             break;
-        case ast_bool_neg_op:
+        case op_bool_neg:
             opcode = iml_bneg;
             break;
         default:
@@ -1061,19 +1061,19 @@ iml_add_incdec_op_eval(iml_function_t *function,
 
     switch (ir_unary_operation_get_operation(op))
     {
-        case ast_pre_inc_op:
+        case op_pre_inc:
             opcode = iml_add;
             copy_after_mod = true;
             break;
-        case ast_pre_dec_op:
+        case op_pre_dec:
             opcode = iml_sub;
             copy_after_mod = true;
             break;
-        case ast_post_inc_op:
+        case op_post_inc:
             opcode = iml_add;
             copy_after_mod = false;
             break;
-        case ast_post_dec_op:
+        case op_post_dec:
             opcode = iml_sub;
             copy_after_mod = false;
             break;
@@ -1154,13 +1154,13 @@ iml_add_unary_op_eval(iml_function_t *function,
 
     switch (ir_unary_operation_get_operation(op))
     {
-        case ast_arithm_neg_op:
-        case ast_bool_neg_op:
+        case op_arithm_neg:
+        case op_bool_neg:
             return iml_add_neg_op_eval(function, op, res);
-        case ast_pre_inc_op:
-        case ast_pre_dec_op:
-        case ast_post_inc_op:
-        case ast_post_dec_op:
+        case op_pre_inc:
+        case op_pre_dec:
+        case op_post_inc:
+        case op_post_dec:
             return iml_add_incdec_op_eval(function, op, res, discard_result);
         default:
             /* unexpected unary operation */
