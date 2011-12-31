@@ -12,9 +12,6 @@
 
 #define IR_TYPE_BINARY_OPERATION ir_binary_operation_get_type()
 
-#define IR_BINARY_OPERATION(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), IR_TYPE_BINARY_OPERATION, IrBinaryOperation))
-
 #define IR_BINARY_OPERATION_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), IR_TYPE_BINARY_OPERATION, IrBinaryOperationClass))
 
@@ -48,6 +45,9 @@ typedef struct
 
 GType
 ir_binary_operation_get_type(void);
+
+IrBinaryOperation *
+ir_binary_operation(void *obj);
 
 IrBinaryOperation *
 ir_binary_operation_new(binary_op_type_t operation,

@@ -25,6 +25,7 @@ ir_print_module(IrModule *mod)
          ir_variable_get_type(): &print_variable,
          ir_address_of_get_type(): &print_address_of,
          ir_struct_member_get_type(): &print_struct_member,
+         ir_binary_operation_get_type(): &print_binary_operation,
          ir_cast_get_type(): &print_cast,
          ir_basic_constant_get_type(): &print_basic_constant
        ]);
@@ -237,6 +238,47 @@ print_cast(gt_dispatcher *dispatcher, void *obj, void *data)
     /* print value node */
     dispatcher.dispatch(ir_cast_get_value(ir_cast),
                         &layout("value", l.indent, l.last_node ~ [true]));
+}
+
+void
+print_binary_operation(gt_dispatcher *dispatcher, void *obj, void *data)
+{
+    layout *l = cast(layout*)data;
+    IrBinaryOperation *bin_op = ir_binary_operation(obj);
+
+    static string[binary_op_type] op_names;
+
+    if (op_names == null)
+    {
+        op_names =
+        [
+            binary_op_type.or            : "||",
+            binary_op_type.and           : "&&",
+            binary_op_type.less          : "<",
+            binary_op_type.greater       : ">",
+            binary_op_type.less_or_eq    : "<=",
+            binary_op_type.greater_or_eq : ">=",
+            binary_op_type.equal         : "==",
+            binary_op_type.not_equal     : "!=",
+            binary_op_type.plus          : "+",
+            binary_op_type.minus         : "-",
+            binary_op_type.mult          : "*",
+            binary_op_type.division      : "/",
+            binary_op_type.modulo        : " %"
+        ];
+    }
+
+    writefln("%sBinaryOperation: '%s'",
+             get_prefix(l),
+             op_names[ir_binary_operation_get_operation(bin_op)]);
+
+    /* print left operand */
+    dispatcher.dispatch(ir_binary_operation_get_left(bin_op),
+                        &layout("left", l.indent, l.last_node ~ [false]));
+
+    /* print right operand */
+    dispatcher.dispatch(ir_binary_operation_get_right(bin_op),
+                        &layout("right", l.indent, l.last_node ~ [true]));
 }
 
 void

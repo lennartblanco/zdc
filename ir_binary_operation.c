@@ -49,6 +49,14 @@ ir_binary_operation_get_type(void)
 }
 
 IrBinaryOperation *
+ir_binary_operation(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_CAST((obj),
+                                      IR_TYPE_BINARY_OPERATION,
+                                      IrBinaryOperation);
+}
+
+IrBinaryOperation *
 ir_binary_operation_new(binary_op_type_t operation,
                         IrExpression *left,
                         IrExpression *right,
@@ -206,8 +214,7 @@ static DtDataType *
 ir_binary_operation_do_get_data_type(IrExpression *self)
 {
     DtDataType *data_type = NULL;
-    IrBinaryOperation *bin_op = IR_BINARY_OPERATION(self);
-  
+    IrBinaryOperation *bin_op = ir_binary_operation(self);
 
     switch (bin_op->operation) 
     {

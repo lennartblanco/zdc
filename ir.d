@@ -279,6 +279,47 @@ IrExpression *
 ir_cast_get_value(IrCast *self);
 
 /*---------------------------------------------------------------------------*
+ *                       binary operation declarations                       *
+ *---------------------------------------------------------------------------*/
+
+/*
+ * binary operations types (defined in operations.h)
+ */
+enum binary_op_type
+{
+    or,             /* || */
+    and,            /* && */
+    less,           /*  <  */
+    greater,        /*  >  */
+    less_or_eq,     /* <=  */
+    greater_or_eq,  /* >=  */
+    equal,          /* ==  */
+    not_equal,      /* !=  */
+    plus,           /*  +  */
+    minus,          /*  -  */
+    mult,           /*  *  */
+    division,       /*  /  */
+    modulo          /*  %  */
+}
+
+struct IrBinaryOperation;
+
+GType
+ir_binary_operation_get_type();
+
+IrBinaryOperation *
+ir_binary_operation(void *obj);
+
+binary_op_type
+ir_binary_operation_get_operation(IrBinaryOperation *self);
+
+IrExpression *
+ir_binary_operation_get_left(IrBinaryOperation *self);
+
+IrExpression *
+ir_binary_operation_get_right(IrBinaryOperation *self);
+
+/*---------------------------------------------------------------------------*
  *                           literal declarations                            *
  *---------------------------------------------------------------------------*/
 

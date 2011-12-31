@@ -530,7 +530,7 @@ validate_pointer_arithm(compilation_status_t *compile_status,
         right =
             validate_bin_arithm(compile_status,
                                 sym_table,
-                                IR_BINARY_OPERATION(right));
+                                ir_binary_operation(right));
     }
     else
     {
@@ -555,7 +555,7 @@ validate_pointer_arithm(compilation_status_t *compile_status,
             right =
                 validate_bin_arithm(compile_status,
                                     sym_table,
-                                    IR_BINARY_OPERATION(right));
+                                    ir_binary_operation(right));
         }
     }
 
@@ -1369,7 +1369,7 @@ validate_expression(compilation_status_t *compile_status,
         expression =
             validate_binary_op(compile_status,
                                sym_table,
-                               IR_BINARY_OPERATION(expression));
+                               ir_binary_operation(expression));
     }
     else if (IR_IS_UNARY_OPERATION(expression))
     {

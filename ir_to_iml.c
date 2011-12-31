@@ -207,7 +207,7 @@ iml_add_expression_eval(iml_function_t *function,
     else if (IR_IS_BINARY_OPERATION(ir_expression))
     {
         res = iml_add_binary_op_eval(function,
-                                     IR_BINARY_OPERATION(ir_expression),
+                                     ir_binary_operation(ir_expression),
                                      dest);
     }
     else if (IR_IS_CALL(ir_expression))
