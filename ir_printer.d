@@ -3,8 +3,32 @@ import std.conv;
 import ir;
 import gt_dispatcher;
 
-extern (C) void
-ir_print_module(IrModule *mod)
+extern (C)
+{
+    void
+    ir_print_module(IrModule *mod)
+    {
+        get_dispatcher().dispatch(mod, null);
+    }
+
+    void
+    ir_print_expression(IrExpression *exp)
+    {
+        get_dispatcher().dispatch(exp, &layout(null, 2, [true]));
+    }
+}
+
+private:
+
+struct layout
+{
+    string node_name;
+    uint indent;
+    bool[] last_node;
+}
+
+gt_dispatcher *
+get_dispatcher()
 {
     static gt_dispatcher *dispatcher;
 
@@ -31,16 +55,7 @@ ir_print_module(IrModule *mod)
        ]);
     }
 
-    dispatcher.dispatch(mod, null);
-}
-
-private:
-
-struct layout
-{
-    string node_name;
-    uint indent;
-    bool[] last_node;
+    return dispatcher;
 }
 
 string
