@@ -2648,7 +2648,7 @@ validate_function_def(compilation_status_t *compile_status,
     if (compile_status->errors_count == 0)
     {
         iml_function_set_name(compile_status->iml_func,
-                                ir_function_get_mangled_name(func));
+                              ir_function_get_mangled_name(func));
 
         /* do registers assignment */
         assign_registers(compile_status->iml_func,
