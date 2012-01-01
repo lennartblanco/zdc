@@ -1569,7 +1569,7 @@ validate_assignment(compilation_status_t *compile_status,
      * check that lvalue and assign expression have compatible data types
      */
     target_type = ir_expression_get_data_type(ir_expression(lvalue));
-    if (dt_data_type_is_immutalbe(target_type))
+    if (dt_data_type_is_immutable(target_type))
     {
         compile_error(compile_status,
                       IR_NODE(assignment),

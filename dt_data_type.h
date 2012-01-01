@@ -73,7 +73,7 @@ dt_data_type_set_immutable(DtDataType *self, bool is_immutable);
  * @return true if this type is declared as immutable
  */
 bool
-dt_data_type_is_immutalbe(DtDataType *self);
+dt_data_type_is_immutable(DtDataType *self);
 
 /**
  * @return datatype's size in bytes
