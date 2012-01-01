@@ -1107,7 +1107,8 @@ validate_dot_var_value(compilation_status_t *compile_status,
     DtStruct *dt_struct = get_struct_type(ir_expression_get_data_type(left));
     if (dt_struct != NULL)
     {
-        IrStructMember *mbr = dt_struct_get_member(dt_struct, right);
+        IrStructMember *mbr =
+            ir_struct_member_copy(dt_struct_get_member(dt_struct, right));
         if (mbr != NULL)
         {
             ir_struct_member_set_base(mbr, left);

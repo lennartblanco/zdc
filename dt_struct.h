@@ -62,10 +62,12 @@ dt_struct_add_member(DtStruct *self, IrVariable *var);
 /**
  * Look-up struct member by name.
  *
- * @return new constructed IrStructMember object representing the member or
- *         NULL of no member with specified name is found
+ * The returned object is owned by the self object and should not modified.
+ *
+ * @return IrStructMember object representing the member or NULL of no member
+ *          with specified name is found
  */
-IrStructMember *
+const IrStructMember *
 dt_struct_get_member(DtStruct *self, IrIdent *name);
 
 void

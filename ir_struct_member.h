@@ -60,6 +60,17 @@ ir_struct_member_new(DtDataType *type,
                      IrExpression *init);
 
 /**
+ * Create a copy of provided object. If obj is NULL, no copy is made and
+ * NULL is returned.
+ *
+ * @param obj object to copy
+ *
+ * @return a copy of obj or NULL if obj is NULL
+ */
+IrStructMember *
+ir_struct_member_copy(const IrStructMember *obj);
+
+/**
  * Set the base expression for this struct member. Base expression denotes the
  * struct instance where we want to access the member.
  *

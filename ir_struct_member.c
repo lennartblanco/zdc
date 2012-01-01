@@ -66,6 +66,20 @@ ir_struct_member_new(DtDataType *type,
     return obj;
 }
 
+IrStructMember *
+ir_struct_member_copy(const IrStructMember *obj)
+{
+    assert(IR_IS_STRUCT_MEMBER(obj) || obj == NULL);
+
+    if (obj == NULL)
+    {
+        return NULL;
+    }
+
+    return
+        ir_struct_member_new(obj->type, obj->offset, obj->padding, obj->init);
+}
+
 void
 ir_struct_member_set_base(IrStructMember *self, IrExpression *base)
 {

@@ -89,7 +89,7 @@ dt_struct_add_member(DtStruct *self, IrVariable *var)
     self->size += type_size + padding;
 }
 
-IrStructMember *
+const IrStructMember *
 dt_struct_get_member(DtStruct *self, IrIdent *name)
 {
     assert(DT_IS_STRUCT(self));
