@@ -1094,14 +1094,14 @@ validate_dot_property(compilation_status_t *compile_status,
 }
 
 static IrExpression *
-validate_dot_var_value(compilation_status_t *compile_status,
-                       sym_table_t *sym_table,
-                       IrExpression *left,
-                       IrIdent *right)
+validate_dot_var(compilation_status_t *compile_status,
+                 sym_table_t *sym_table,
+                 IrExpression *left,
+                 IrIdent *right)
 {
     assert(compile_status);
     assert(sym_table);
-    assert(IR_IS_VAR_VALUE(left));
+    assert(IR_IS_VAR_VALUE(left) || IR_IS_VAR_REF(left));
     assert(IR_IS_IDENT(right));
 
     DtStruct *dt_struct = get_struct_type(ir_expression_get_data_type(left));
@@ -1163,9 +1163,9 @@ validate_dot(compilation_status_t *compile_status,
             res = ir_expression(mbr);
         }
     }
-    else if (IR_IS_VAR_VALUE(left))
+    else if (IR_IS_VAR_VALUE(left) || IR_IS_VAR_REF(left))
     {
-        res = validate_dot_var_value(compile_status,
+        res = validate_dot_var(compile_status,
                                      sym_table,
                                      left,
                                      IR_IDENT(right));

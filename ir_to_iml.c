@@ -1532,14 +1532,24 @@ iml_add_struct_member_eval(iml_function_t *function,
     assert(function);
     assert(IR_IS_STRUCT_MEMBER(struct_member));
 
+    IrExpression *ir_base;
     ImlOperand *base;
     ImlConstant *offset;
 
-    /* generate iml operation to evaluate struct base expression */
-    base = iml_add_expression_eval(function,
-                                   ir_struct_member_get_base(struct_member),
-                                   NULL,
-                                   false);
+    ir_base = ir_struct_member_get_base(struct_member);
+
+    if (IR_IS_VAR_REF(ir_base))
+    {
+        base =
+            iml_operand(
+                ir_variable_get_location(
+                    ir_var_ref_get_var(ir_var_ref(ir_base))));
+    }
+    else
+    {
+        /* generate iml operation to evaluate struct base expression */
+        base = iml_add_expression_eval(function, ir_base, NULL, false);
+    }
 
     /* if base expression is of blob type, get a pointer to it */
     if (iml_operand_get_data_type(base) == iml_blob)
@@ -2225,15 +2235,24 @@ add_struct_member_assignment(iml_function_t *function,
     assert(IR_IS_STRUCT_MEMBER(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
+    IrExpression *ir_base;
     ImlOperand *base;
     ImlOperand *rval;
     ImlConstant *offset;
 
-    /* generate iml operation to evaluate struct base expression */
-    base = iml_add_expression_eval(function,
-                                   ir_struct_member_get_base(lvalue),
-                                   NULL,
-                                   false);
+    ir_base = ir_struct_member_get_base(lvalue);
+    if (IR_IS_VAR_REF(ir_base))
+    {
+        base =
+            iml_operand(
+                ir_variable_get_location(
+                    ir_var_ref_get_var(ir_var_ref(ir_base))));
+    }
+    else
+    {
+        /* generate iml operation to evaluate struct base expression */
+        base = iml_add_expression_eval(function, ir_base, NULL, false);
+    }
 
     /* if base expression is of blob type, get a pointer to it */
     if (iml_operand_get_data_type(base) == iml_blob)

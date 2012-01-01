@@ -90,6 +90,27 @@ orange_address_of(int b, char c, bool via_ptr)
   return orangize(&o);
 }
 
+/* test reference struct function parameter */
+void
+orange_ref(ref orange orng)
+{
+  orng.a = orng.b - 10;
+}
+
+extern (C) bool
+orange_ref_test()
+{
+  orange o1;
+  o1.b = 11;
+  orange_ref(o1);
+
+  orange o2;
+  o2.b = 98;
+  orange_ref(o2);
+
+  return o1.a == 11 - 10 && o2.a == 98 - 10;
+}
+
 extern (C) uint
 list_sizeof()
 {

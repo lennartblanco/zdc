@@ -34,6 +34,9 @@ call_orangize(struct orange *arg);
 int
 orange_address_of(int b, char c, bool via_ptr);
 
+bool
+orange_ref_test();
+
 unsigned
 list_sizeof();
 
@@ -104,6 +107,8 @@ test_orange()
     check_int("orange_address_of(200, '?', true)",
               orange_address_of(200, '?', true), -1);
 
+    /* orange_ref_test() test */
+    check_bool("orange_ref_test()", orange_ref_test(), true);
 }
 
 void
