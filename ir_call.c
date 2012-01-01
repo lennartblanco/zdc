@@ -141,8 +141,6 @@ ir_call_get_value_range(IrExpression *self)
     return dt_basic_get_value_range(dt_basic(ir_call_do_get_data_type(self)));
 }
 
-
-
 static void
 ir_call_class_init(gpointer klass, gpointer dummy)
 {
