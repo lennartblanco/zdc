@@ -117,6 +117,14 @@ ir_function_def_get_parameters(IrFunctionDef *self)
     return ir_function_get_parameters(ir_function(self));
 }
 
+IrVariable *
+ir_function_def_get_this_param(IrFunctionDef *self)
+{
+    assert(IR_IS_FUNCTION_DEF(self));
+
+    return ir_function_get_this_param(ir_function(self));
+}
+
 void
 ir_function_def_set_this_type(IrFunctionDef *self,
                               DtDataType *this_type)
@@ -124,7 +132,10 @@ ir_function_def_set_this_type(IrFunctionDef *self,
     assert(IR_IS_FUNCTION_DEF(self));
     assert(DT_IS_DATA_TYPE(this_type));
 
-    ir_function_set_this_type(ir_function(self), this_type);
+    IrVariable *this_param = ir_variable_new(true, this_type, "this", NULL, 0);
+
+    sym_table_add_symbol(self->param_symbols, ir_symbol(this_param));
+    ir_function_set_this_param(ir_function(self), this_param);
 }
 
 void

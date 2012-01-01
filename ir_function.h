@@ -35,7 +35,7 @@ typedef struct
     IrSymbol          parent;
     /* private */
     GSList            *parameters;
-    DtDataType        *this_type;
+    IrVariable        *this_param;
     DtDataType        *return_type;
     ir_linkage_type_t linkage_type;
     char *mangled_name;
@@ -68,7 +68,10 @@ GSList *
 ir_function_get_parameters(IrFunction *self);
 
 void
-ir_function_set_this_type(IrFunction *self, DtDataType *this_type);
+ir_function_set_this_param(IrFunction *self, IrVariable *this_param);
+
+IrVariable *
+ir_function_get_this_param(IrFunction *self);
 
 void
 ir_function_set_return_type(IrFunction *self, DtDataType *return_type);

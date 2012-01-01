@@ -53,6 +53,7 @@ hex    0[xX][[:xdigit:]]+
 "bool"   { return TOK_BOOL; }
 "true"   { return TOK_TRUE; }
 "byte"   { return TOK_BYTE; }
+"this"   { return TOK_THIS; }
 "short"  { return TOK_SHORT; }
 "ubyte"  { return TOK_UBYTE; }
 "alias"  { return TOK_ALIAS; }

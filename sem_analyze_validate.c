@@ -2582,10 +2582,10 @@ validate_function_def(compilation_status_t *compile_status,
     /*
      * validate parameter definitions and add parameters to function frame
      */
+    IrVariable *var;
     GSList *i = ir_function_def_get_parameters(func_def);
     for (; i != NULL; i = g_slist_next(i))
     {
-        IrVariable *var;
 
         var = validate_variable(compile_status, symbols, ir_variable(i->data));
         if (var == NULL)
@@ -2595,6 +2595,17 @@ validate_function_def(compilation_status_t *compile_status,
         }
         /* Add to function frame */
         add_to_func_frame(compile_status->iml_func, var, true);
+    }
+
+    /* validate this parameter if present */
+    if ((var = ir_function_def_get_this_param(func_def)) != NULL)
+    {
+        var = validate_variable(compile_status, symbols, var);
+        if (var != NULL)
+        {
+            /* if valid, add to function frame */
+            add_to_func_frame(compile_status->iml_func, var, true);
+        }
     }
 
     /* resolve possible user types in function return type */

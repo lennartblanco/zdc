@@ -154,6 +154,16 @@ struct all_types
     ushort ushort_field = 30000;
     int int_field = -3;
     uint uint_field;
+
+    int get_int_field()
+    {
+        return this.int_field;
+    }
+
+    void set_int_field(int v)
+    {
+        this.int_field = v;
+    }
 }
 
 /* test reading default value of each struct field */
@@ -263,6 +273,26 @@ test_all_types_set_val()
          at.ushort_field == 42 &&
          at.int_field == 0 &&
          at.uint_field == 312;
+}
+
+extern (C) bool
+test_all_types_methods()
+{
+  all_types at;
+  all_types *ptr = &at;
+  int r1;
+  int r2;
+  int r3;
+
+  at.set_int_field(100);
+  r1 = at.get_int_field();
+  r2 = ptr.get_int_field();
+
+  ptr.set_int_field(200);
+  r3 = ptr.get_int_field();
+
+
+  return r1 == 100 && r2 == 100 && r3 == 200;
 }
 
 /*

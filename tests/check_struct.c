@@ -55,6 +55,9 @@ all_types_get_def_val(unsigned testno);
 bool
 test_all_types_set_val();
 
+bool
+test_all_types_methods();
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -168,6 +171,9 @@ test_all_types()
 
     /* test_all_types_set_val() tests */
     check_bool("test_all_types_set_val()", test_all_types_set_val(), true);
+
+    /* test_all_types_methods() tests */
+    check_bool("test_all_types_methods()", test_all_types_methods(), true);
 }
 
 int

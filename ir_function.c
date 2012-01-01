@@ -141,12 +141,20 @@ ir_function_get_parameters(IrFunction *self)
 }
 
 void
-ir_function_set_this_type(IrFunction *self, DtDataType *this_type)
+ir_function_set_this_param(IrFunction *self, IrVariable *this_param)
 {
     assert(IR_IS_FUNCTION(self));
-    assert(DT_IS_DATA_TYPE(this_type));
+    assert(IR_IS_VARIABLE(this_param));
 
-    self->this_type = this_type;
+    self->this_param = this_param;
+}
+
+IrVariable *
+ir_function_get_this_param(IrFunction *self)
+{
+    assert(IR_IS_FUNCTION(self));
+
+    return self->this_param;
 }
 
 void
@@ -241,7 +249,7 @@ get_d_mangled_name(IrFunction *self)
     func_name = ir_function_get_name(ir_function(self));
     g_string_append_printf(str, "%zu%s%sF",
                            strlen(func_name), func_name,
-                           self->this_type != NULL ? "M" : "");
+                           self->this_param != NULL ? "M" : "");
 
     i = ir_function_get_parameters(self);
     for (; i != NULL; i = g_slist_next(i))

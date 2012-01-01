@@ -52,7 +52,7 @@ AstModule *module;
        TOK_BREAK, TOK_RETURN, TOK_CAST, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
        TOK_REF, TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
-       TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
+       TOK_THIS, TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
 
 root :
     {
@@ -986,6 +986,11 @@ primary<n> :
             AST_EXPRESSION(ast_bool_constant_new(false, yypos));
     }
 |   ident<n>
+|   TOK_THIS
+    {
+        (*n).expression =
+            AST_EXPRESSION(ast_ident_new("this", yypos));
+    }
 |   func_call<n>
 |   '(' expression<n> ')'
 |   TOK_IDENT<name> '[' expression<i> ']'
