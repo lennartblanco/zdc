@@ -1,3 +1,15 @@
+* variable initialization expression is evaluated in wrong order. Example:
+
+int main() {
+  int x = 20;
+  x = 10;
+  int r = x;
+
+  return r;
+}
+
+will exit with code 20, where correct exit code is 10.
+
 * post-inc (and probably other ++/--) operation does not write back the new
 value when used on ref parameters, pointer-dereference expressions and struct
 members. For example:
