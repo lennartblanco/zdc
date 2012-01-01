@@ -37,7 +37,7 @@ dt_data_type_set_immutable(DtDataType *self, bool is_immutable)
 {
     assert(DT_IS_DATA_TYPE(self));
 
-    self->immutable = true;
+    self->immutable = is_immutable;
 }
 
 bool
