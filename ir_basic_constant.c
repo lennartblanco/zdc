@@ -17,7 +17,10 @@ static DtDataType *
 ir_basic_constant_do_get_data_type(IrExpression *self);
 
 static IrBasicConstant *
-ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number);
+ir_basic_constant_new(bool immutable,
+                      basic_data_type_t type,
+                      void* value,
+                      guint line_number);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -59,56 +62,56 @@ ir_basic_constant(void *obj)
 IrBasicConstant *
 ir_basic_constant_new_int(gint32 value, guint line_number)
 {
-    return ir_basic_constant_new(int_type, &value, line_number);
+    return ir_basic_constant_new(false, int_type, &value, line_number);
 }
 
 IrBasicConstant *
 ir_basic_constant_new_uint(guint32 value, guint line_number)
 {
-    return ir_basic_constant_new(uint_type, &value, line_number);
+    return ir_basic_constant_new(false, uint_type, &value, line_number);
 }
 
 IrBasicConstant *
 ir_basic_constant_new_short(gint16 value)
 {
-    return ir_basic_constant_new(short_type, &value, 0);
+    return ir_basic_constant_new(false, short_type, &value, 0);
 }
 
 IrBasicConstant *
 ir_basic_constant_new_ushort(guint16 value)
 {
-    return ir_basic_constant_new(ushort_type, &value, 0);
+    return ir_basic_constant_new(false, ushort_type, &value, 0);
 }
 
 IrBasicConstant *
 ir_basic_constant_new_byte(gint8 value)
 {
-    return ir_basic_constant_new(byte_type, &value, 0);
+    return ir_basic_constant_new(false, byte_type, &value, 0);
 }
 
 IrBasicConstant *
 ir_basic_constant_new_ubyte(guint8 value)
 {
-    return ir_basic_constant_new(ubyte_type, &value, 0);
+    return ir_basic_constant_new(false, ubyte_type, &value, 0);
 }
 
 IrBasicConstant *
-ir_basic_constant_new_char(guint8 value, guint line_number)
+ir_basic_constant_new_char(guint8 value, bool immutable, guint line_number)
 {
-    return ir_basic_constant_new(char_type, &value, line_number);
+    return ir_basic_constant_new(immutable, char_type, &value, line_number);
 }
 
 IrBasicConstant *
 ir_basic_constant_new_bool(bool value, guint line_number)
 {
-    return ir_basic_constant_new(bool_type, &value, line_number);
+    return ir_basic_constant_new(false, bool_type, &value, line_number);
 }
 
 gint32
 ir_basic_constant_get_int(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == int_type);
+    assert(dt_basic_is_int(self->type));
 
     return self->int_val;
 }
@@ -117,7 +120,7 @@ guint32
 ir_basic_constant_get_uint(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == uint_type);
+    assert(dt_basic_is_uint(self->type));
 
     return self->uint_val;
 }
@@ -126,7 +129,7 @@ gint16
 ir_basic_constant_get_short(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == short_type);
+    assert(dt_basic_is_short(self->type));
 
     return self->short_val;
 }
@@ -135,7 +138,7 @@ guint16
 ir_basic_constant_get_ushort(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == ushort_type);
+    assert(dt_basic_is_ushort(self->type));
 
     return self->ushort_val;
 }
@@ -144,7 +147,7 @@ gint8
 ir_basic_constant_get_byte(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == byte_type);
+    assert(dt_basic_is_byte(self->type));
 
     return self->byte_val;
 }
@@ -153,7 +156,7 @@ guint8
 ir_basic_constant_get_ubyte(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == ubyte_type);
+    assert(dt_basic_is_ubyte(self->type));
 
     return self->ubyte_val;
 }
@@ -162,7 +165,7 @@ guint8
 ir_basic_constant_get_char(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == char_type);
+    assert(dt_basic_is_char(self->type));
 
     return self->char_val;
 }
@@ -171,7 +174,7 @@ bool
 ir_basic_constant_get_bool(IrBasicConstant *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
-    assert(self->type == bool_type);
+    assert(dt_basic_is_bool(self->type));
 
     return self->bool_val;
 }
@@ -181,7 +184,10 @@ ir_basic_constant_get_bool(IrBasicConstant *self)
  *---------------------------------------------------------------------------*/
 
 static IrBasicConstant *
-ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
+ir_basic_constant_new(bool immutable,
+                      basic_data_type_t type,
+                      void* value,
+                      guint line_number)
 {
     IrBasicConstant *obj;
 
@@ -189,8 +195,10 @@ ir_basic_constant_new(basic_data_type_t type, void* value, guint line_number)
                        "ir-node-line-number",
                        line_number, NULL);
 
-    obj->type = type;
+    obj->type = DT_DATA_TYPE(dt_basic_new(type));
+    dt_data_type_set_immutable(obj->type, immutable);
     obj->value_range = NULL;
+
     switch (type)
     {
         case int_type:
@@ -233,7 +241,7 @@ ir_basic_constant_get_value_range(IrExpression *self)
     {
         IrBasicConstant *bc = ir_basic_constant(self);
         gint64 val;
-        switch (bc->type)
+        switch (dt_basic_get_data_type(dt_basic(bc->type)))
         {
             case int_type:
                 val = bc->int_val;
@@ -282,25 +290,5 @@ ir_basic_constant_do_get_data_type(IrExpression *self)
 {
     assert(IR_IS_BASIC_CONSTANT(self));
 
-    switch (ir_basic_constant(self)->type)
-    {
-        case int_type:
-            return types_get_int_type();
-        case uint_type:
-            return types_get_uint_type();
-        case short_type:
-            return types_get_short_type();
-        case ushort_type:
-            return types_get_ushort_type();
-        case byte_type:
-            return types_get_byte_type();
-        case ubyte_type:
-            return types_get_ubyte_type();
-        case char_type:
-            return types_get_char_type();
-        case bool_type:
-            return types_get_bool_type();
-        default:
-            assert(false); /* unexpected data type */
-    }
+    return ir_basic_constant(self)->type;
 }

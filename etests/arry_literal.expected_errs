@@ -1,3 +1,7 @@
 arry_literal.d:5: error: can not implicitly convert array literal value
 arry_literal.d:5: error: invalid assignment expression
 arry_literal.d:12: error: must be an lvalue
+arry_literal.d:18: error: illegal type in initializer assignment
+arry_literal.d:19: error: illegal type in initializer assignment
+arry_literal.d:21: error: can't assign expression of type immutable(char)[] to lvalue of char[] type
+arry_literal.d:22: error: can't assign expression of type immutable(char)[] to lvalue of int[] type

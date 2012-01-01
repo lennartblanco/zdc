@@ -176,11 +176,24 @@ dt_array_is_impl_conv(DtDataType *self, IrExpression *expression)
     /* the expression should be of array literal type */
     assert(ir_is_array_literal(expression));
 
-    /*
-     * if all array literal's values are implicitly convertable to
-     * our element type, then the whole literal is convertable to this type
-     */
     DtDataType *element_type = dt_array_get_element_type(dt_array(self));
+    DtDataType *expr_element_type =
+        dt_array_get_element_type(dt_array(expr_type));
+
+    if (dt_data_type_is_immutable(expr_element_type) &&
+        !dt_data_type_is_immutable(element_type))
+    {
+        /*
+         * can't implicitly convert array with immutable elements to
+         * an array with mutable elements
+        */
+        return false;
+    }
+
+    /*
+     * if all array literal's values are implicitly convertible to
+     * our element type, then the whole literal is convertible to this type
+     */
     GSList *i = ir_array_literal_get_values(ir_array_literal(expression));
     for (; i != NULL; i = g_slist_next(i))
     {

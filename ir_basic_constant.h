@@ -26,7 +26,7 @@ typedef struct
 {
     IrConstant parent;
     /* private */
-    basic_data_type_t type;
+    DtDataType *type;
     UtRange *value_range;
     union {
         gint32 int_val;
@@ -74,7 +74,7 @@ IrBasicConstant *
 ir_basic_constant_new_ubyte(guint8 value);
 
 IrBasicConstant *
-ir_basic_constant_new_char(guint8 value, guint line_number);
+ir_basic_constant_new_char(guint8 value, bool immutable, guint line_number);
 
 IrBasicConstant *
 ir_basic_constant_new_bool(bool value, guint line_number);

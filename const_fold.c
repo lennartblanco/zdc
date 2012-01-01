@@ -553,7 +553,7 @@ cfold_cast_basic_type(DtDataType *target_type,
             /* unexpected value type */
             assert(false);
         }
-        return ir_expression(ir_basic_constant_new_char(res, 0));
+        return ir_expression(ir_basic_constant_new_char(res, false, 0));
 
     }
     /* unexpected target type */

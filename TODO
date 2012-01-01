@@ -162,17 +162,6 @@ err.d(11): Error: cannot implicitly convert expression (t) of type int to int[5u
 
 * add a check that non-void functions have a return statment, and throw compile error otherwise
 
-* string literal assigments to char[] is allowed, e.g. following code compiles fine with xdc:
-
-void main()
-{
-  char[] x = "foo";
-}
-
-however an compile error should be printed instead, for example DMD's error message:
-
-wee.d(3): Error: cannot implicitly convert expression ("foo") of type string to char[]
-
 * implicit module names not checked for correctness, for example compile a file with '-' in it's filename:
 
 $ cat foo-bar.d

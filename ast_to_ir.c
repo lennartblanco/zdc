@@ -1269,10 +1269,10 @@ string_literal_to_ir(compilation_status_t *compile_status,
 
     /* create a list of char constant for each characted in the string */
     str = ast_string_literal_get_str(ast_str_literal);
-    while((c = *(str++)) != '\0')
+    while ((c = *(str++)) != '\0')
     {
-        vals = g_slist_prepend(vals,
-                               ir_basic_constant_new_char(c, 0));
+        IrBasicConstant *bconst = ir_basic_constant_new_char(c, true, 0);
+        vals = g_slist_prepend(vals, bconst);
     }
 
     /* build IR array literal object */
@@ -1577,7 +1577,7 @@ expression_to_ir(compilation_status_t *compile_status,
         guint8 val;
 
         val = ast_char_constant_get_value(AST_CHAR_CONSTANT(ast_expression));
-        return ir_expression(ir_basic_constant_new_char(val, line_num));
+        return ir_expression(ir_basic_constant_new_char(val, false, line_num));
     }
     else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {

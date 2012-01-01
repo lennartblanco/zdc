@@ -345,7 +345,7 @@ dt_basic_get_init(DtDataType *self)
         case bool_type:
             return ir_expression(ir_basic_constant_new_bool(false, 0));
         case char_type:
-            return ir_expression(ir_basic_constant_new_char(255, 0));
+            return ir_expression(ir_basic_constant_new_char(255, false, 0));
         case byte_type:
             return ir_expression(ir_basic_constant_new_byte(0));
         case ubyte_type:

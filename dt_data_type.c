@@ -102,7 +102,9 @@ dt_data_type_is_same(DtDataType *self, DtDataType *type)
     assert(DT_IS_DATA_TYPE(type));
     assert(DT_DATA_TYPE_GET_CLASS(self)->is_same != NULL);
 
-    return DT_DATA_TYPE_GET_CLASS(self)->is_same(self, type);
+    return
+      (dt_data_type_is_immutable(self) == dt_data_type_is_immutable(type)) &&
+                             DT_DATA_TYPE_GET_CLASS(self)->is_same(self, type);
 }
 
 bool

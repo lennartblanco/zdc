@@ -11,3 +11,13 @@ void buzz()
 {
   "sdf"++;
 }
+
+void str_lit()
+{
+  /* string literal to non-immutable arrays assigments */
+  char[] x = "foo";
+  int[] y = "baf";
+
+  x = "qwerty";
+  y = "asdfgh";
+}
