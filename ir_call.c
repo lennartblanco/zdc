@@ -133,6 +133,14 @@ ir_call_do_get_data_type(IrExpression *self)
     return ir_function_get_return_type(IR_CALL(self)->function);
 }
 
+static bool
+ir_call_do_has_effect(IrExpression *self)
+{
+    assert(IR_IS_CALL(self));
+
+    return true;
+}
+
 static UtRange *
 ir_call_get_value_range(IrExpression *self)
 {
@@ -169,5 +177,6 @@ ir_call_class_init(gpointer klass, gpointer dummy)
      * override virtual methods
      */
     IR_EXPRESSION_CLASS(klass)->do_get_data_type = ir_call_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->has_effect = ir_call_do_has_effect;
     IR_EXPRESSION_CLASS(klass)->get_value_range = ir_call_get_value_range;
 }

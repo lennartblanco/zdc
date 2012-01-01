@@ -2164,18 +2164,7 @@ validate_statment(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrStatment *statment)
 {
-    if (IR_IS_FUNCTION_CALL(statment))
-    {
-         if (validate_function_call(compile_status,
-                                    sym_table,
-                                    ir_function_call(statment)) == NULL)
-         {
-             /* invalid function call, bail out */
-             return;
-         }
-         iml_add_call_eval(compile_status->iml_func, IR_CALL(statment), NULL);
-    }
-    else if (IR_IS_ASSIGNMENT(statment))
+    if (IR_IS_ASSIGNMENT(statment))
     {
         validate_assignment(compile_status,
                             sym_table,
