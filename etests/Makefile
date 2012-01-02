@@ -32,7 +32,7 @@ immutable: immutable.d
 esc_seq: esc_seq.d
 alias: alias.d
 usr_types_conflict: usr_types_conflict.d
-unknow_usr_type: unknow_usr_type.d
+unknown_usr_type: unknown_usr_type.d
 enum_init_err: enum_init_err.d
 structs: structs.d
 struct_methods: struct_methods.d
