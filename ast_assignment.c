@@ -21,7 +21,7 @@ GType
 ast_assignment_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -35,7 +35,7 @@ ast_assignment_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(AST_TYPE_STATMENT,
+      type = g_type_register_static(AST_TYPE_EXPRESSION,
                                     "AstAssignmentType",
                                     &info, 0);
     }

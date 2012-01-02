@@ -7,5 +7,6 @@
   <skip>
     <test>str_literals</test>
     <test>eels</test>
+    <test>stditostdo</test>
   </skip>
 </test-target>

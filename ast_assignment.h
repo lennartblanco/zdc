@@ -28,7 +28,8 @@
 
 typedef struct
 {
-    AstStatment parent;
+    AstExpression parent;
+
     /* private */
     AstExpression *lvalue;
     AstExpression *value;
@@ -36,7 +37,7 @@ typedef struct
 
 typedef struct
 {
-    AstStatmentClass parent_class;
+    AstExpressionClass parent_class;
 } AstAssignmentClass;
 
 /*---------------------------------------------------------------------------*

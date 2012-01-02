@@ -22,7 +22,7 @@ add_to_func_frame(iml_function_t *function,
                   IrVariable *variable,
                   bool is_function_parameter);
 
-void
+ImlOperand *
 iml_add_assignment(iml_function_t *function,
                    IrExpression *lvalue,
                    IrExpression *value);

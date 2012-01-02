@@ -117,10 +117,16 @@ check_eels: check_eels.sh eels
 check_str_literals: check_str_literals.sh str_literals
 	cp $< $@
 
+check_stditostdo: check_stditostdo.sh stditostdo
+	cp $< $@
+
 eels: eels.d $(ZDC)
 	$(ZDC) -o $@ $(DFLAGS) $<
 
 str_literals: str_literals.d $(ZDC)  $(ARCH_SPECIFIC)
+	$(ZDC) -o $@ $(DFLAGS) $<
+
+stditostdo: stditostdo.d $(ZDC)
 	$(ZDC) -o $@ $(DFLAGS) $<
 
 %.o: %.d $(ZDC)

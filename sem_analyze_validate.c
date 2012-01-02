@@ -120,7 +120,7 @@ validate_return(compilation_status_t *compile_status,
                 sym_table_t *sym_table,
                 IrReturn *ret);
 
-static void
+static IrExpression *
 validate_assignment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
                    IrAssignment *assignment);
@@ -1365,6 +1365,12 @@ validate_expression(compilation_status_t *compile_status,
         expression =
             validate_ident(compile_status, sym_table, IR_IDENT(expression));
     }
+    else if (IR_IS_ASSIGNMENT(expression))
+    {
+        expression = validate_assignment(compile_status,
+                                         sym_table,
+                                         ir_assignment(expression));
+    }
     else if (IR_IS_BINARY_OPERATION(expression))
     {
         expression =
@@ -1523,7 +1529,7 @@ validate_return(compilation_status_t *compile_status,
     }
 }
 
-static void
+static IrExpression *
 validate_assignment(compilation_status_t *compile_status,
                    sym_table_t *sym_table,
                    IrAssignment *assignment)
@@ -1541,14 +1547,14 @@ validate_assignment(compilation_status_t *compile_status,
     if (lvalue == NULL)
     {
         /* invalid lvalue expression, bail-out */
-        return;
+        return NULL;
     }
     if (!ir_expression_is_lvalue(lvalue))
     {
         compile_error(compile_status,
                       assignment,
                       "invalid lvalue in assignment\n");
-        return;
+        return NULL;
     }
     ir_assignment_set_lvalue(assignment, lvalue);
 
@@ -1562,7 +1568,7 @@ validate_assignment(compilation_status_t *compile_status,
         compile_error(compile_status,
                       ir_assignment_get_value(assignment),
                       "invalid assignment expression\n");
-        return;
+        return NULL;
     }
 
     /*
@@ -1574,7 +1580,7 @@ validate_assignment(compilation_status_t *compile_status,
         compile_error(compile_status,
                       IR_NODE(assignment),
                       "can not modify immutable lvalue\n");
-        return;
+        return NULL;
     }
 
     converted_value = types_implicit_conv(target_type, value);
@@ -1600,14 +1606,11 @@ validate_assignment(compilation_status_t *compile_status,
             dt_data_type_get_string(ir_expression_get_data_type(value)),
             dt_data_type_get_string(target_type));
 
-        return;
+        return NULL;
     }
+    ir_assignment_set_value(assignment, converted_value);
 
-    /* valid assignment, add iml operations */
-    if (compile_status->errors_count == 0)
-    {
-        iml_add_assignment(compile_status->iml_func, lvalue, converted_value);
-    }
+    return ir_expression(assignment);
 }
 
 /**
@@ -2164,13 +2167,7 @@ validate_statment(compilation_status_t *compile_status,
                   sym_table_t *sym_table,
                   IrStatment *statment)
 {
-    if (IR_IS_ASSIGNMENT(statment))
-    {
-        validate_assignment(compile_status,
-                            sym_table,
-                            ir_assignment(statment));
-    }
-    else if (IR_IS_RETURN(statment))
+    if (IR_IS_RETURN(statment))
     {
         validate_return(compile_status, sym_table, ir_return(statment));
     }
@@ -2219,7 +2216,11 @@ validate_statment(compilation_status_t *compile_status,
                           "expression have no effect\n");
             return;
         }
-        iml_add_expression_eval(compile_status->iml_func, exp, NULL, true);
+
+        if (compile_status->errors_count == 0)
+        {
+            iml_add_expression_eval(compile_status->iml_func, exp, NULL, true);
+        }
     }
     else
     {

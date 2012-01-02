@@ -124,11 +124,6 @@ return_to_ir(compilation_status_t *compile_status,
              sym_table_t *symbols,
              AstReturn *ast_return);
 
-static IrStatment *
-assignment_to_ir(compilation_status_t *compile_status,
-                sym_table_t *symbols,
-                AstAssignment *ast_assignment);
-
 static IrExpression *
 expression_to_ir(compilation_status_t *compile_status,
                  sym_table_t *symbols,
@@ -774,12 +769,6 @@ code_block_to_ir(compilation_status_t *compile_status,
                                             symbols,
                                             AST_FUNCTION_CALL(stmt)));
         }
-        else if (AST_IS_ASSIGNMENT(stmt))
-        {
-            ir_stmt = assignment_to_ir(compile_status,
-                                       symbols,
-                                       AST_ASSIGNMENT(stmt));
-        }
         else if (AST_IS_EXPRESSION(stmt))
         {
             ir_stmt =
@@ -1045,10 +1034,10 @@ return_to_ir(compilation_status_t *compile_status,
                                 ast_node_get_line_num(ast_return)));
 }
 
-static IrStatment *
+static IrExpression *
 assignment_to_ir(compilation_status_t *compile_status,
-                sym_table_t *symbols,
-                AstAssignment *ast_assignment)
+                 sym_table_t *symbols,
+                 AstAssignment *ast_assignment)
 {
     AstExpression *lvalue;
     AstExpression *value;
@@ -1070,9 +1059,10 @@ assignment_to_ir(compilation_status_t *compile_status,
     }
 
     return
-        IR_STATMENT(ir_assignment_new(ir_lvalue,
-                                      ir_value,
-                                      ast_node_get_line_num(ast_assignment)));
+        ir_expression(
+            ir_assignment_new(ir_lvalue,
+                              ir_value,
+                              ast_node_get_line_num(ast_assignment)));
 }
 
 /**
@@ -1578,6 +1568,11 @@ expression_to_ir(compilation_status_t *compile_status,
 
         val = ast_char_constant_get_value(AST_CHAR_CONSTANT(ast_expression));
         return ir_expression(ir_basic_constant_new_char(val, false, line_num));
+    }
+    else if (AST_IS_ASSIGNMENT(ast_expression))
+    {
+        AstAssignment *assign = AST_ASSIGNMENT(ast_expression);
+        return assignment_to_ir(compile_status, symbols, assign);
     }
     else if (AST_IS_ARRAY_LITERAL(ast_expression))
     {

@@ -392,14 +392,13 @@ statment<stmt> :
 ;
 
 non_empty_statment<stmt> :
-    assignment<stmt>
+    expression_statment<stmt>
 |   if_else_block<stmt>
 |   foreach_block<stmt>
 |   foreach_range_statment<stmt>
 |   for_block<stmt>
 |   while_block<stmt>
 |   break_statment<stmt>
-|   expression_statment<stmt>
 |   return_stmt<stmt>
 ;
 
@@ -719,18 +718,19 @@ def_init<name, exp> :
    TOK_IDENT<name> ( '=' expression<exp> )?
 ;
 
-assignment<n> :
-   expression<l> '=' expression<r> ';'
-   {
-       (*n).statment =
-           AST_STATMENT(ast_assignment_new(l.expression,
-                                           r.expression,
-                                           yypos));
-   }
+expression<n> :
+    assign_expression<n>
 ;
 
-expression<n> :
+assign_expression<n> :
     conditional_expression<n>
+|   conditional_expression<left> '=' assign_expression<right>
+   {
+       (*n).expression =
+           AST_EXPRESSION(ast_assignment_new(left.expression,
+                                             right.expression,
+                                             yypos));
+   }
 ;
 
 conditional_expression<n> :

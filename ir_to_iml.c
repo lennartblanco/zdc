@@ -2,6 +2,7 @@
 #include "ir_basic_constant.h"
 #include "ir_array_cell.h"
 #include "ir_array_slice.h"
+#include "ir_assignment.h"
 #include "ir_conditional.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
@@ -196,6 +197,13 @@ iml_add_expression_eval(iml_function_t *function,
     {
         IrVariable *var = ir_var_value_get_var(IR_VAR_VALUE(ir_expression));
         res = iml_operand(ir_variable_get_location(var));
+    }
+    else if (IR_IS_ASSIGNMENT(ir_expression))
+    {
+        IrAssignment *assign = ir_assignment(ir_expression);
+        res = iml_add_assignment(function,
+                                 ir_assignment_get_lvalue(assign),
+                                 ir_assignment_get_value(assign));
     }
     else if (IR_IS_UNARY_OPERATION(ir_expression))
     {
@@ -412,7 +420,7 @@ iml_add_call_eval(iml_function_t *function, IrCall *call, ImlVariable *res)
     return iml_operand(res);
 }
 
-void
+ImlOperand *
 iml_add_assignment(iml_function_t *function,
                    IrExpression *lvalue,
                    IrExpression *value)
@@ -422,19 +430,22 @@ iml_add_assignment(iml_function_t *function,
     assert(ir_expression_is_lvalue(lvalue));
     assert(IR_IS_EXPRESSION(value));
 
+    ImlVariable *res = NULL;
+
     if (IR_IS_VAR_VALUE(lvalue))
     {
         DtDataType *var_type;
 
         var_type = ir_expression_get_data_type(lvalue);
         IrVariable *var = ir_var_value_get_var(IR_VAR_VALUE(lvalue));
+        res = ir_variable_get_location(var);
 
         if (dt_is_basic(var_type) || dt_is_enum(var_type))
         {
             iml_add_expression_eval(
                     function,
                     value,
-                    ir_variable_get_location(var),
+                    res,
                     false);
         }
         else if (DT_IS_STATIC_ARRAY_TYPE(var_type))
@@ -483,6 +494,7 @@ iml_add_assignment(iml_function_t *function,
         assert(false);
     }
 
+    return iml_operand(res);
 }
 
 void

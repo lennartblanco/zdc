@@ -1,7 +1,6 @@
 #ifndef IR_ASSIGNMENT_INC_X
 #define IR_ASSIGNMENT_INC_X
 
-#include "ir_statment.h"
 #include "ir_expression.h"
 
 /*---------------------------------------------------------------------------*
@@ -24,7 +23,7 @@
 
 typedef struct
 {
-    IrStatment          parent;
+    IrExpression        parent;
 
     /* private */
     IrExpression       *lvalue;
@@ -33,7 +32,7 @@ typedef struct
 
 typedef struct
 {
-    IrStatmentClass parent_class;
+    IrExpressionClass parent_class;
 } IrAssignmentClass;
 
 /*---------------------------------------------------------------------------*
