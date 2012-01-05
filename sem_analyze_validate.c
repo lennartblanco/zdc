@@ -1510,6 +1510,7 @@ validate_return(compilation_status_t *compile_status,
             iml_function_add_operation(compile_status->iml_func,
                                        iml_operation_new(iml_return, ret_val));
         }
+        ir_return_set_return_value(ret, conv_exp);
     }
     else
     {
