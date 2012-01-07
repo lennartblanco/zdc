@@ -251,23 +251,22 @@ get_d_mangled_name(IrFunction *self)
                            strlen(func_name), func_name,
                            self->this_param != NULL ? "M" : "");
 
+    /* add parameter types mangled names */
     i = ir_function_get_parameters(self);
     for (; i != NULL; i = g_slist_next(i))
     {
-        DtDataType *var_type;
+        assert(IR_IS_VARIABLE(i->data));
 
-        if (IR_IS_VARIABLE(i->data))
+        IrVariable *var = ir_variable(i->data);
+
+        if (ir_variable_is_ref(var))
         {
-            var_type = ir_variable_get_data_type(i->data);
-        }
-        else
-        {
-            /* unnamed function parameter, only the type specified */
-            assert(DT_IS_DATA_TYPE(i->data));
-            var_type = i->data;
+            g_string_append(str, "K");
         }
 
-        g_string_append(str, dt_data_type_get_mangled(var_type));
+        g_string_append(str,
+                        dt_data_type_get_mangled(
+                            ir_variable_get_data_type(var)));
     }
 
     g_string_append_printf(

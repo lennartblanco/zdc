@@ -49,14 +49,6 @@ main()
 
 should exit with '103', however exits with '100' when compiled with zdc.
 
-* function with ref parameters are not name mangled correctly, for example:
-
-void func(ref int a) { ... }
-
-should have mangled name '_D3err4funcFKiZv'
-
-zdc generates mangled name '_D3err4funcFiZv' (missing 'K')
-
 * '\0' is not handled correctly when used in string literals, for example:
 
 int main()
