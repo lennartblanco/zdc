@@ -67,13 +67,14 @@ null :
 comp_unit :
     {
         n.module = module;
+        linkage.text = NULL;
     }
     ( module_declaration<package_names>
         {
             ast_module_set_package(n.module, package_names.list);
         }
     )?
-    ( declaration<n> )*
+    ( declaration<n, linkage> )*
 | null;
 
 
@@ -84,12 +85,13 @@ module_declaration<package_names> :
     }
 ;
 
-declaration<module> :
-    import_declaration<module>
+declaration<module, linkage> :
+    linkage_attribute<linkage> ':'
+|   import_declaration<module>
 |   alias_declaration<module>
 |   enum_declaration<module>
 |   struct_declaration<module>
-|   declaration_blocks<module>
+|   declaration_blocks<module, linkage>
 ;
 
 import_declaration<module> :
@@ -222,21 +224,14 @@ struct_body_declarations<members, methods> :
     )*
 ;
 
-declaration_blocks<module> :
-    {
-        linkage.text = NULL;
-    }
-    declaration_block<module, linkage>
-;
-
-declaration_block<module, linkage> :
+declaration_blocks<module, linkage> :
     {
         local_linkage.text = (*linkage).text;
     }
     ( linkage_attribute<local_linkage>
     )?
     func<module, local_linkage>
-|   linkage_attribute<l> '{' ( declaration_block<module, l> )* '}'
+|   linkage_attribute<l> '{' ( declaration_blocks<module, l> )* '}'
 ;
 
 func<module, linkage> :

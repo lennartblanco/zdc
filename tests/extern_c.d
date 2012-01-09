@@ -12,14 +12,12 @@ enum tst_enum : int
 //
 // external C function declaration in varius styles
 //
-extern (C) int cinv(int c);
 extern (C) bool c_is_equal(int, int);
 extern (C) tst_enum cenum_a();
 
 extern (C)
 {
    int cadd(int left, int right);
-   int csubst3(int a, int b, int c);
    int cexpr(int a, int b, int c, int d);
 }
 
@@ -33,6 +31,13 @@ extern (D)
       int c_get_num();
   }
 }
+
+extern (C):
+
+int cinv(int c);
+int csubst3(int a, int b, int c);
+
+extern (D) :
 
 //
 // D wrapper functions to call external C functions
