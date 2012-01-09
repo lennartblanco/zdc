@@ -498,6 +498,57 @@ iml_add_assignment(iml_function_t *function,
 }
 
 void
+iml_add_cond_jump(iml_function_t *function,
+                  IrExpression *condition,
+                  iml_operation_t *skip_label)
+{
+    iml_operation_t *jump_op;
+
+    if (ir_expression_is_constant(condition))
+    {
+        /*
+         * a constant condition expression
+         * either never or always skip
+         */
+        assert(IR_IS_BASIC_CONSTANT(condition));
+        if (ir_basic_constant_get_bool(ir_basic_constant(condition)))
+        {
+            /* always true, no jump needed */
+            jump_op = NULL;
+        }
+        else
+        {
+            /* never true, just skip */
+            jump_op =
+                iml_operation_new(iml_jmp,
+                                  iml_operation_get_operand(skip_label, 1));
+        }
+    }
+    else
+    {
+        /* insert iml operations for evaluationg condition */
+        ImlOperand *condition_eval_res =
+            iml_add_expression_eval(function, condition, NULL, false);
+
+        /* jump to skip lable if condition evaluates to false */
+        jump_op =
+            iml_operation_new(iml_jmpneq,
+                              condition_eval_res,
+                              iml_constant_new_8b(1),
+                              iml_operation_get_operand(skip_label, 1));
+
+        /* mark condition result operand as unused */
+        iml_function_unused_oper(function, condition_eval_res);
+    }
+
+    /* add jump operation if needed */
+    if (jump_op != NULL)
+    {
+        iml_function_add_operation(function, jump_op);
+    }
+}
+
+void
 iml_add_while_head(iml_function_t *function,
                    IrExpression *condition,
                    iml_operation_t *loop_head,
@@ -511,47 +562,8 @@ iml_add_while_head(iml_function_t *function,
     /* label the start of loop */
     iml_function_add_operation(function, loop_head);
 
-    /* figure out the jump operation to issue after condition evaluation */
-    iml_operation_t *jump_op;
-    if (ir_expression_is_constant(condition))
-    {
-        /*
-         * a constant expression,
-         * this is either an eternal loop or the loop which is always skipped
-         */
-        assert(IR_IS_BASIC_CONSTANT(condition));
-        if (ir_basic_constant_get_bool(ir_basic_constant(condition)))
-        {
-            /* eternal loop, no jump instruction needed */
-            jump_op = NULL;
-        }
-        else
-        {
-            /* just skip the loop body */
-            jump_op =
-                iml_operation_new(iml_jmp,
-                                  iml_operation_get_operand(loop_end, 1));
-        }
-    }
-    else
-    {
-        /* insert iml operation for validation of loop condition */
-        ImlOperand *condition_eval_res =
-            iml_add_expression_eval(function, condition, NULL, false);
-
-        /* jump past the loop body if condition evaluates to false */
-        jump_op =
-            iml_operation_new(iml_jmpneq,
-                              condition_eval_res,
-                              iml_constant_new_8b(1),
-                              iml_operation_get_operand(loop_end, 1));
-    }
-
-    /* add jump operation if needed */
-    if (jump_op != NULL)
-    {
-        iml_function_add_operation(function, jump_op);
-    }
+    /* add iml to evaluate loop condition and skip loop body on false */
+    iml_add_cond_jump(function, condition, loop_end);
 }
 
 void

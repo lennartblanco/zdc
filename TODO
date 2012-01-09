@@ -1,14 +1,3 @@
-* compiling the code below for x86 fails an assertion
-
-void main()
-{
-  int x;
-
-  if (true) { x = 10; }
-}
-
-zdc: x86.c:1724: compile_jmpcond: Assertion `iml_is_variable(arg2)' failed.
-
 * variable initialization expression is evaluated in wrong order. Example:
 
 int main() {

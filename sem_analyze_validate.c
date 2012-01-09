@@ -1626,7 +1626,6 @@ validate_if_block(compilation_status_t *compile_status,
 {
     IrExpression *condition;
     IrCodeBlock *body;
-    ImlOperand *condition_eval_res;
     iml_operation_t *skip_label;
 
     /* validate if condition expression */
@@ -1651,12 +1650,6 @@ validate_if_block(compilation_status_t *compile_status,
     }
     ir_if_block_set_condition(if_block, condition);
 
-    /* generate iml operation for validation of condition expression */
-    condition_eval_res = iml_add_expression_eval(compile_status->iml_func,
-                                                 condition,
-                                                 NULL,
-                                                 false);
-
     /*
      * add conditional jump operation if
      * the condition expression evaluates for false
@@ -1664,15 +1657,7 @@ validate_if_block(compilation_status_t *compile_status,
     skip_label =
         iml_operation_new(iml_label,
                           ir_module_gen_label(compile_status->module));
-    iml_function_add_operation(
-            compile_status->iml_func,
-            iml_operation_new(iml_jmpneq,
-                              condition_eval_res,
-                              iml_constant_new_8b(1),
-                              iml_operation_get_operand(skip_label, 1)));
-
-    /* mark condition result operand as unused */
-    iml_function_unused_oper(compile_status->iml_func, condition_eval_res);
+    iml_add_cond_jump(compile_status->iml_func, condition, skip_label);
 
     /* validate if body */
     body = ir_if_block_get_body(if_block);

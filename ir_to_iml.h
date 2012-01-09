@@ -33,6 +33,15 @@ iml_add_expression_eval(iml_function_t *function,
                         ImlVariable *dest,
                         bool discard_result);
 
+/**
+ * Add IML instructions to evaluate condition expression and jump to skip
+ * label if condition evaluates to false.
+ */
+void
+iml_add_cond_jump(iml_function_t *function,
+                  IrExpression *condition,
+                  iml_operation_t *skip_label);
+
 ImlOperand *
 iml_add_call_eval(iml_function_t *function, IrCall *call, ImlVariable *res);
 

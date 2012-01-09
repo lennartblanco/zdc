@@ -143,6 +143,23 @@ int iret_n_arg(int n, int arg1, int arg2, int arg3)
    else return -1;
 }
 
+// test using constant condition expression in if/else if
+extern (C) int const_if_else()
+{
+  int r;
+
+  if (true)
+  {
+    r = -100;
+  }
+  else if (false)
+  {
+    r = 100;
+  }
+
+  return r;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

@@ -30,6 +30,8 @@ call_get_sign(int arg);
 int
 call_iret_n_arg(int arg1, int arg2, int arg3, int arg4);
 
+int const_if_else();
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -106,6 +108,9 @@ main()
     check_int("iret_n_arg(12, 100, 101, 102)",
               call_iret_n_arg(12, 100, 101, 102),
               -1);
+
+    /* const_if_else() test */
+    check_int("const_if_else()", const_if_else(), -100);
 
 
     check_exit();
