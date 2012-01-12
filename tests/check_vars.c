@@ -15,6 +15,9 @@ call_uninit_uint();
 int
 var_decls(int);
 
+int
+init_order(int v1, int v2);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -39,6 +42,10 @@ main()
     check_int("var_decls(2)", var_decls(2), 0 + 0 + 10 + 2 + 100);
     check_int("var_decls(3)", var_decls(3), 0);
     check_int("var_decls(4)", var_decls(4), -1);
+
+    /* init_order() tests */
+    check_int("init_order(-1, 1)", init_order(-1, 1), 1);
+    check_int("init_order(100, 2)", init_order(100, 2), 2);
 
     check_exit();
 }

@@ -709,9 +709,7 @@ code_block_to_ir(compilation_status_t *compile_status,
                               "redeclaration of symbol '%s'\n",
                               ir_symbol_get_name(ir_symbol(var)));
             }
-
-            /* no IR statment to add, jump to next ast statment */
-            continue;
+            ir_stmt = IR_STATMENT(var);
         }
         /* sub-code block found */
         else if (AST_IS_CODE_BLOCK(stmt))

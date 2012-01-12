@@ -48,7 +48,6 @@ ir_code_block_new(sym_table_t *parent_sym_table)
 
     obj = g_object_new(IR_TYPE_CODE_BLOCK, NULL);
     obj->symbols = sym_table_new(parent_sym_table);
-    obj->local_vars = NULL;
 
     return obj;
 }
@@ -84,18 +83,5 @@ ir_code_block_add_local_var(IrCodeBlock *self, IrVariable *var)
     assert(IR_IS_CODE_BLOCK(self));
     assert(IR_IS_VARIABLE(var));
 
-    self->local_vars = g_slist_append(self->local_vars, var);
-
     return sym_table_add_symbol(self->symbols, ir_symbol(var));
-}
-
-/**
- * Get a local variable in this code block, as a list of IrVariable objects.
- */
-GSList *
-ir_code_block_get_local_vars(IrCodeBlock *self)
-{
-    assert(IR_IS_CODE_BLOCK(self));
-
-    return self->local_vars;
 }

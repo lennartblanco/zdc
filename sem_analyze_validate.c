@@ -2399,52 +2399,8 @@ validate_code_block(compilation_status_t *compile_status,
 {
     sym_table_t *sym_table;
     GSList *i;
-    GSList *local_vars;
-    bool add_vars_to_frame = true;
 
     sym_table = ir_code_block_get_symbols(code_block);
-
-    /*
-     * validate default initializer expressions of local variables
-     * in this code block
-     */
-    local_vars = ir_code_block_get_local_vars(code_block);
-
-    for (i = local_vars; i != NULL; i = g_slist_next(i))
-    {
-        if (validate_variable(compile_status,
-                              sym_table,
-                              ir_variable(i->data)) == NULL)
-        {
-            /* invalid variable definition */
-            add_vars_to_frame = false;
-            continue;
-        }
-    }
-
-    /*
-     * if no errors are detected so far,
-     * add local variables for function frame
-     */
-    if (add_vars_to_frame)
-    {
-        for (i = local_vars; i != NULL; i = g_slist_next(i))
-        {
-            IrVariable *variable = ir_variable(i->data);
-            add_to_func_frame(compile_status->iml_func,
-                              variable,
-                              false);
-
-            /* generate iml code for default initialization of the variable */
-            IrVarValue *var_val =
-                ir_var_value_new(variable, ir_node_get_line_num(variable));
-            IrExpression *init_exp = ir_variable_get_initializer(variable);
-            ir_module_add_const_data(compile_status->module, init_exp);
-            iml_add_assignment(compile_status->iml_func,
-                               ir_expression(var_val),
-                               init_exp);
-        }
-    }
 
     /*
      * validate statments in the code block
@@ -2455,6 +2411,26 @@ validate_code_block(compilation_status_t *compile_status,
         if (IR_IS_CODE_BLOCK(i->data))
         {
             validate_code_block(compile_status, ir_code_block(i->data));
+        }
+        else if (IR_IS_VARIABLE(i->data))
+        {
+            IrVariable *var = ir_variable(i->data);
+            if (validate_variable(compile_status, sym_table, var) == NULL)
+            {
+                /* invalid variable definition */
+                continue;
+            }
+
+            add_to_func_frame(compile_status->iml_func, var, false);
+
+             /* generate iml code for default initialization of the variable */
+             IrVarValue *var_val =
+                 ir_var_value_new(var, ir_node_get_line_num(var));
+             IrExpression *init_exp = ir_variable_get_initializer(var);
+             ir_module_add_const_data(compile_status->module, init_exp);
+             iml_add_assignment(compile_status->iml_func,
+                                ir_expression(var_val),
+                                init_exp);
         }
         else if (IR_IS_STATMENT(i->data))
         {

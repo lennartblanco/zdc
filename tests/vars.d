@@ -34,7 +34,9 @@ uint uninit_uint()
 //
 // Test parsing of variouses syntaxes for local variable declarations
 //
-extern (C) int var_decls(int idx)
+extern (C):
+
+int var_decls(int idx)
 {
   int a1, a2;
   int b1 = 1, b2;
@@ -57,6 +59,17 @@ extern (C) int var_decls(int idx)
   }
 
   return -1;
+}
+
+// test that init expression are evaluated in correct order
+int init_order(int v1, int v2)
+{
+  int x = v1;
+  x = v2;
+
+  int r = x;
+
+  return r;
 }
 
 /*
