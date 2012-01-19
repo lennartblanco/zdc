@@ -56,27 +56,22 @@ AstModule *module;
 
 root :
     {
-        module = ast_module_new();
+        module = mod.module = ast_module_new();
     }
-    comp_unit
+    module_root<mod>
 ;
 
-null :
-;
-
-comp_unit :
+module_root<mod> :
     {
-        n.module = module;
         linkage.text = NULL;
     }
     ( module_declaration<package_names>
         {
-            ast_module_set_package(n.module, package_names.list);
+            ast_module_set_package((*mod).module, package_names.list);
         }
     )?
-    ( declaration<n, linkage> )*
-| null;
-
+    ( declaration<mod, linkage> )*
+;
 
 module_declaration<package_names> :
     TOK_MODULE module_name<fq_name> ';'
