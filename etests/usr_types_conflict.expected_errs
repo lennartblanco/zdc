@@ -1,2 +1,2 @@
-usr_types_conflict.d:14: error: alias conflicts with other user type 'states' definition
-usr_types_conflict.d:4: error: enum declaration conflicts with other user type 'some_enum' definition
+usr_types_conflict.d:12: error: enum declaration conflicts with other user type 'some_enum' definition
+usr_types_conflict.d:19: error: alias conflicts with other user type 'states' definition

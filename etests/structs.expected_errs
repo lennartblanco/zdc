@@ -1,2 +1,2 @@
-structs.d:11: error: struct declaration conflicts with other user type 'struct_a' definition
 structs.d:5: error: redeclaration of symbol 'mbr1'
+structs.d:16: error: struct declaration conflicts with other user type 'struct_a' definition

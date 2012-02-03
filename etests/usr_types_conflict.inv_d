@@ -11,10 +11,10 @@ enum some_enum
   D
 }
 
-alias int states;
-
 enum states : uint
 {
   start, stop, abort
 }
+
+alias int states;
 

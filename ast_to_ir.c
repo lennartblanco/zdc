@@ -28,6 +28,8 @@
 #include "ast_enum.h"
 #include "ast_enum_member.h"
 #include "ast_struct.h"
+#include "ast_extern.h"
+#include "ast_declaration_block.h"
 #include "ir_function_call.h"
 #include "ir_method_call.h"
 #include "ir_if_else.h"
@@ -74,7 +76,10 @@ struct_to_ir(compilation_status_t *compile_status,
              AstStruct *ast_struct);
 
 static IrFunctionDecl *
-func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module);
+func_decl_to_ir(compilation_status_t *compile_status,
+                ir_linkage_type_t linkage,
+                AstFunctionDecl *ast_func_decl,
+                IrModule *parent_module);
 
 /**
  * convert AST representation of a function definition to IR form.
@@ -86,10 +91,10 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module);
  */
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
+               ir_linkage_type_t linkage,
                AstFunctionDef *ast_func_def,
                IrModule *parent_module,
-               IrScope *scope,
-               bool convert_body);
+               IrScope *scope);
 
 /**
  * convert AST code block representation to IR form.
@@ -193,9 +198,18 @@ import_module(compilation_status_t *compile_status,
               AstModule *ast_module);
 
 static void
-process_user_types(compilation_status_t *compile_status,
-                   IrModule *module,
-                   GSList *user_types);
+process_attributes(compilation_status_t *compile_status,
+                   AstAttributes *attrs,
+                   ir_linkage_type_t *linkage);
+
+static void
+declarations_to_ir(compilation_status_t *compile_status,
+                   ir_linkage_type_t linkage,
+                   GSList *decls);
+
+static void
+declaration_block_to_ir(compilation_status_t *compile_status,
+                        AstDeclarationBlock *decl_block);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -206,11 +220,9 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
 {
     IrModule *module;
     GSList *i;
-    sym_table_t *module_sym_table;
 
     module = ir_module_new(ast_module_get_package(ast_module));
     compile_status->module = module;
-    module_sym_table = ir_module_get_symbols(module);
 
     /*
      * Handle imports
@@ -222,51 +234,12 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
     }
 
     /*
-     * store all function declarations in module's symbol table
-     */
-    i = ast_module_get_function_decls(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDecl *ir_func_decl;
-
-        ir_func_decl =
-            func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
-        if (!ir_module_add_function_decl(module, ir_func_decl))
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_decl),
-                          "redeclaration of function '%s'\n",
-                          ir_function_get_name(ir_function(ir_func_decl)));
-        }
-    }
-
-    /* process all user defined types */
-    process_user_types(compile_status,
-                       module,
-                       ast_module_get_user_types(ast_module));
-
-    /*
-     * convert all function definitions to IR form and store them
+     * convert all module declarations to IR form and store them
      * in module's symbol table
      */
-    i = ast_module_get_function_defs(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDef *ir_func_def;
-
-        ir_func_def = func_def_to_ir(compile_status,
-                                     AST_FUNCTION_DEF(i->data),
-                                     module,
-                                     NULL,
-                                     true);
-        if (!ir_module_add_function_def(module, ir_func_def))
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_def),
-                          "redifinition of function '%s'\n",
-                          ir_function_get_name(ir_function(ir_func_def)));
-        }
-    }
+    declarations_to_ir(compile_status,
+                       ir_d_linkage,
+                       ast_module_get_declarations(ast_module));
 
     return module;
 }
@@ -276,43 +249,55 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
  *---------------------------------------------------------------------------*/
 
 static void
-process_user_types(compilation_status_t *compile_status,
-                   IrModule *module,
-                   GSList *user_types)
+declarations_to_ir(compilation_status_t *compile_status,
+                   ir_linkage_type_t linkage,
+                   GSList *decls)
 {
     GSList *i;
 
-    IrModule *old_module = compile_status->module;
-    compile_status->module = module;
-
-    for (i = user_types; i != NULL; i = i->next)
+    for (i = decls; i != NULL; i = g_slist_next(i))
     {
-        AstUserType *user_type = AST_USER_TYPE(i->data);
+        assert(AST_IS_DECLARATION(i->data));
 
-        if (AST_IS_ENUM(user_type))
+        if (AST_IS_FUNCTION_DEF(i->data))
         {
-            DtEnum *dt_enum;
+            IrFunctionDef *ir_func_def;
 
-            dt_enum = enum_to_dt(compile_status,
-                                 ir_module_get_symbols(module),
-                                 AST_ENUM(i->data));
-            if (!ir_module_add_enum(module, dt_enum))
+            ir_func_def = func_def_to_ir(compile_status,
+                                         linkage,
+                                         AST_FUNCTION_DEF(i->data),
+                                         compile_status->module,
+                                         NULL);
+            if (!ir_module_add_function_def(compile_status->module, ir_func_def))
             {
                 compile_error(compile_status,
-                              dt_enum,
-                              "enum declaration conflicts with"
-                              " other user type '%s' definition\n",
-                              ast_enum_get_tag(AST_ENUM(i->data)));
+                              ir_func_def,
+                              "redifinition of function '%s'\n",
+                              ir_function_get_name(ir_function(ir_func_def)));
             }
-
         }
-        else if (AST_IS_STRUCT(user_type))
+        else if (AST_IS_FUNCTION_DECL(i->data))
+        {
+            IrFunctionDecl *ir_func_decl;
+
+            ir_func_decl = func_decl_to_ir(compile_status,
+                                           linkage,
+                                           AST_FUNCTION_DECL(i->data),
+                                           compile_status->module);
+            if (!ir_module_add_function_decl(compile_status->module, ir_func_decl))
+            {
+                compile_error(compile_status,
+                              IR_NODE(ir_func_decl),
+                              "redeclaration of function '%s'\n",
+                              ir_function_get_name(ir_function(ir_func_decl)));
+            }
+        }
+        else if (AST_IS_STRUCT(i->data))
         {
             IrStruct *ir_struct;
 
-            ir_struct = struct_to_ir(compile_status,
-                                     AST_STRUCT(i->data));
-            if (!ir_module_add_struct(module, ir_struct))
+            ir_struct = struct_to_ir(compile_status, AST_STRUCT(i->data));
+            if (!ir_module_add_struct(compile_status->module, ir_struct))
             {
                 compile_error(compile_status,
                               i->data,
@@ -321,13 +306,29 @@ process_user_types(compilation_status_t *compile_status,
                               ast_struct_get_name(AST_STRUCT(i->data)));
             }
         }
-        else if (AST_IS_ALIAS(user_type))
+        else if (AST_IS_ENUM(i->data))
+        {
+            DtEnum *dt_enum;
+
+            dt_enum = enum_to_dt(compile_status,
+                                 ir_module_get_symbols(compile_status->module),
+                                 AST_ENUM(i->data));
+            if (!ir_module_add_enum(compile_status->module, dt_enum))
+            {
+                compile_error(compile_status,
+                              dt_enum,
+                              "enum declaration conflicts with"
+                              " other user type '%s' definition\n",
+                              ast_enum_get_tag(AST_ENUM(i->data)));
+            }
+        }
+        else if (AST_IS_ALIAS(i->data))
         {
             DtAlias *alias =
-                dt_alias_new(ast_alias_get_data_type(i->data),
-                             ast_alias_get_name(i->data));
+                dt_alias_new(ast_alias_get_data_type(AST_ALIAS(i->data)),
+                             ast_alias_get_name(AST_ALIAS(i->data)));
 
-            if (!ir_module_add_type_alias(module, alias)) {
+            if (!ir_module_add_type_alias(compile_status->module, alias)) {
                         compile_error(compile_status,
                                       i->data,
                                       "alias conflicts with"
@@ -335,73 +336,53 @@ process_user_types(compilation_status_t *compile_status,
                                       dt_alias_get_name(alias));
             }
         }
+        else if (AST_IS_DECLARATION_BLOCK(i->data))
+        {
+            declaration_block_to_ir(compile_status,
+                                    AST_DECLARATION_BLOCK(i->data));
+        }
+        else if (AST_IS_ATTRIBUTES(i->data))
+        {
+            process_attributes(compile_status, i->data, &linkage);
+        }
         else
         {
-            /* unexpected user type */
-            assert(false);
+            assert(false); /* unexpected declaration type */
         }
     }
-
-    compile_status->module = old_module;
 }
+
+static void
+declaration_block_to_ir(compilation_status_t *compile_status,
+                        AstDeclarationBlock *decl_block)
+{
+    ir_linkage_type_t linkage;
+
+    process_attributes(compile_status,
+                       ast_declaration_block_get_attributes(decl_block),
+                       &linkage);
+
+    declarations_to_ir(compile_status,
+                       linkage,
+                       ast_declaration_block_get_declarations(decl_block));
+}
+
 
 static void
 import_module(compilation_status_t *compile_status,
               IrModule *parent_module,
               AstModule *ast_module)
 {
-    sym_table_t *imports;
-    GSList *i;
-    IrModule *module;
+    compile_status->module = ir_module_new(ast_module_get_package(ast_module));
 
-    module = ir_module_new(ast_module_get_package(ast_module));
-    imports = ir_module_get_symbols(module);
+    declarations_to_ir(compile_status,
+                       ir_d_linkage,
+                       ast_module_get_declarations(ast_module));
 
-    /* add imported function declarations to sym table */
-    i = ast_module_get_function_decls(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDecl *ir_func_decl;
-
-        ir_func_decl = func_decl_to_ir(AST_FUNCTION_DECL(i->data), module);
-        if (!ir_module_add_function_decl(module, ir_func_decl))
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_decl),
-                          "redeclaration of function '%s'\n",
-                          ir_function_get_name(ir_function(ir_func_decl)));
-        }
-    }
-
-    /* add imported function definitions to sym table */
-    i = ast_module_get_function_defs(ast_module);
-    for (;i != NULL; i = i->next)
-    {
-        IrFunctionDef *ir_func_def;
-
-        ir_func_def = func_def_to_ir(compile_status,
-                                     AST_FUNCTION_DEF(i->data),
-                                     module,
-                                     NULL,
-                                     false);
-        if (!ir_module_add_function_def(module, ir_func_def))
-        {
-            compile_error(compile_status,
-                          IR_NODE(ir_func_def),
-                          "redifinition of function '%s'\n",
-                          ir_function_get_name(ir_function(ir_func_def)));
-        }
-    }
-
-    /* process all user defined types */
-    process_user_types(compile_status,
-                       module,
-                       ast_module_get_user_types(ast_module));
-
-    ir_module_add_import(parent_module, module);
+    ir_module_add_import(parent_module, compile_status->module);
 
     /* handle public imports */
-    i = ast_module_get_imports(ast_module);
+    GSList *i = ast_module_get_imports(ast_module);
     for (; i != NULL; i = g_slist_next(i))
     {
         AstImport *imp = AST_IMPORT(i->data);
@@ -413,10 +394,11 @@ import_module(compilation_status_t *compile_status,
         }
 
         import_module(compile_status,
-                      parent_module,
+                      compile_status->module,
                       ast_import_get_module(imp));
     }
 
+    compile_status->module = parent_module;
 }
 
 static IrEnumMember *
@@ -511,10 +493,10 @@ struct_to_ir(compilation_status_t *compile_status,
     {
         IrFunctionDef *method =
             func_def_to_ir(compile_status,
+                           ir_d_linkage,
                            AST_FUNCTION_DEF(i->data),
                            compile_status->module,
-                           scope,
-                           true);
+                           scope);
         methods = g_slist_prepend(methods, method);
     }
 
@@ -605,23 +587,65 @@ parse_linkage_type(const char *linkage_name)
     return linkage_type;
 }
 
+static void
+process_attributes(compilation_status_t *compile_status,
+                   AstAttributes *attrs,
+                   ir_linkage_type_t *linkage)
+{
+    if (attrs == NULL)
+    {
+        /* no attributes specified, nothing to process */
+        return;
+    }
+
+    GSList *i;
+    bool linkage_present = false;
+
+    for (i = ast_attributes_get_attributes(attrs);
+         i != NULL;
+         i = g_slist_next(i))
+    {
+        if (AST_IS_EXTERN(i->data))
+        {
+            if (linkage_present)
+            {
+                compile_error(compile_status,
+                              i->data,
+                              "superfluous extern attribute\n");
+                continue;
+            }
+
+            *linkage = parse_linkage_type(ast_extern_get_linkage(i->data));
+            linkage_present = true;
+        }
+        else
+        {
+            /* unexpected attribute type */
+            assert(false);
+        }
+    }
+}
+
 static IrFunctionDecl *
-func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module)
+func_decl_to_ir(compilation_status_t *compile_status,
+                ir_linkage_type_t linkage,
+                AstFunctionDecl *ast_func_decl,
+                IrModule *parent_module)
 {
     assert(AST_IS_FUNCTION_DECL(ast_func_decl));
 
     IrFunctionDecl *func_decl;
-    ir_linkage_type_t linkage_type;
     GSList *parameters;
 
-    linkage_type =
-            parse_linkage_type(ast_function_decl_get_linkage(ast_func_decl));
+    process_attributes(compile_status,
+                       ast_function_decl_get_attributes(ast_func_decl),
+                       &linkage);
 
-    parameters = 
+    parameters =
         func_params_to_ir(ast_function_decl_get_parameters(ast_func_decl));
 
-    func_decl = 
-        ir_function_decl_new(linkage_type,
+    func_decl =
+        ir_function_decl_new(linkage,
                              ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
                              parameters,
@@ -633,19 +657,19 @@ func_decl_to_ir(AstFunctionDecl *ast_func_decl, IrModule *parent_module)
 
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
+               ir_linkage_type_t linkage,
                AstFunctionDef *ast_func_def,
                IrModule *parent_module,
-               IrScope *scope,
-               bool convert_body)
+               IrScope *scope)
 {
     assert(IR_IS_MODULE(parent_module));
 
     IrFunctionDef *ir_func;
-    ir_linkage_type_t linkage_type;
     GSList *parameters;
 
-    linkage_type =
-            parse_linkage_type(ast_function_def_get_linkage(ast_func_def));
+    process_attributes(compile_status,
+                       ast_function_def_get_attributes(ast_func_def),
+                       &linkage);
 
     parameters = 
         func_params_to_ir(ast_function_def_get_parameters(ast_func_def));
@@ -655,8 +679,8 @@ func_def_to_ir(compilation_status_t *compile_status,
         scope = ir_module_get_scope(parent_module);
     }
 
-    ir_func = 
-        ir_function_def_new(linkage_type,
+    ir_func =
+        ir_function_def_new(linkage,
                             ast_function_def_get_return_type(ast_func_def),
                             ast_function_def_get_name(ast_func_def),
                             parameters,
@@ -664,13 +688,10 @@ func_def_to_ir(compilation_status_t *compile_status,
                             scope,
                             ast_node_get_line_num(ast_func_def));
 
-    if (convert_body)
-    {
-        /* convert function body to ir format */
-        code_block_to_ir(compile_status,
-                         ast_function_def_get_body(ast_func_def),
-                         ir_function_def_get_body(ir_func));
-    }
+    /* convert function body to ir format */
+    code_block_to_ir(compile_status,
+                     ast_function_def_get_body(ast_func_def),
+                     ir_function_def_get_body(ir_func));
 
     return ir_func;
 }

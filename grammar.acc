@@ -62,15 +62,22 @@ root :
 ;
 
 module_root<mod> :
-    {
-        linkage.text = NULL;
-    }
-    ( module_declaration<package_names>
+    (
+        module_declaration<package_names>
         {
             ast_module_set_package((*mod).module, package_names.list);
         }
     )?
-    ( declaration<mod, linkage> )*
+    (
+        import_declarations<imports>
+        {
+            ast_module_add_imports((*mod).module, imports.list);
+        }
+    |   declaration<decl>
+        {
+            ast_module_add_declaration((*mod).module, decl.decl);
+        }
+    )*
 ;
 
 module_declaration<package_names> :
@@ -80,17 +87,19 @@ module_declaration<package_names> :
     }
 ;
 
-declaration<module, linkage> :
-    linkage_attribute<linkage> ':'
-|   import_declaration<module>
-|   alias_declaration<module>
-|   enum_declaration<module>
-|   struct_declaration<module>
-|   declaration_blocks<module, linkage>
+declaration<decl> :
+    attributes<decl> ':'
+|   alias_declaration<decl>
+|   enum_declaration<decl>
+|   struct_declaration<decl>
+|   func_definition<decl>
+|   func_declaration<decl>
+|   declaration_block<decl>
 ;
 
-import_declaration<module> :
+import_declarations<imports> :
     {
+        (*imports).list = NULL;
         bool private = true;
     }
     ( TOK_PUBLIC
@@ -104,28 +113,29 @@ import_declaration<module> :
     )?
     TOK_IMPORT module_name<fq_name>
     {
-        ast_module_add_import((*module).module,
-                              ast_import_new(private, fq_name.list, yypos));
+        (*imports).list =
+            g_slist_prepend((*imports).list,
+                            ast_import_new(private, fq_name.list, yypos));
     }
     ( ',' module_name<fq_name>
         {
-            ast_module_add_import((*module).module,
-                                  ast_import_new(private, fq_name.list, yypos));
+            (*imports).list =
+                g_slist_prepend((*imports).list,
+                                ast_import_new(private, fq_name.list, yypos));
         }
     )*
     ';'
 ;
 
-alias_declaration<module> :
+alias_declaration<alias> :
     TOK_ALIAS type<t> TOK_IDENT<name> ';'
     {
-        ast_module_add_user_type(
-            (*module).module,
-            AST_USER_TYPE(ast_alias_new(t.data_type, name.text, yypos)));
+        (*alias).decl =
+            AST_DECLARATION(ast_alias_new(t.data_type, name.text, yypos));
     }
 ;
 
-enum_declaration<module> :
+enum_declaration<enum_decl> :
     {
         enum_tag.text = NULL;
         base_type.data_type = NULL;
@@ -134,13 +144,11 @@ enum_declaration<module> :
              ( ':' type<base_type> )?
              enum_body<members>
     {
-        AstEnum *enum_node;
-
-        enum_node = ast_enum_new(enum_tag.text,
-                                 base_type.data_type,
-                                 members.list,
-                                 yypos);
-        ast_module_add_user_type((*module).module, AST_USER_TYPE(enum_node));
+        (*enum_decl).decl =
+             AST_DECLARATION(ast_enum_new(enum_tag.text,
+                                          base_type.data_type,
+                                          members.list,
+                                          yypos));
     }
 ;
 
@@ -186,17 +194,13 @@ enum_member<x> :
     }
 ;
 
-struct_declaration<module> :
+struct_declaration<struct_decl> :
     TOK_STRUCT TOK_IDENT<name>
     '{' struct_body_declarations<members, methods> '}'
     {
-        AstStruct *ast_struct;
-
-        ast_struct =
-            ast_struct_new(name.text, members.list, methods.list, yypos);
-        free(name.text);
-
-        ast_module_add_user_type((*module).module, AST_USER_TYPE(ast_struct));
+        (*struct_decl).decl =
+            AST_DECLARATION(
+                ast_struct_new(name.text, members.list, methods.list, yypos));
     }
 ;
 
@@ -219,64 +223,75 @@ struct_body_declarations<members, methods> :
     )*
 ;
 
-declaration_blocks<module, linkage> :
-    {
-        local_linkage.text = (*linkage).text;
-    }
-    ( linkage_attribute<local_linkage>
-    )?
-    func<module, local_linkage>
-|   linkage_attribute<l> '{' ( declaration_blocks<module, l> )* '}'
+declaration_block<block> :
+    attributes<attrs>
+        '{'
+        {
+            (*block).decl_block = ast_declaration_block_new(attrs.attrs);
+        }
+            ( declaration<decl>
+            {
+                ast_declaration_block_add_declaration((*block).decl_block,
+                                                      decl.decl);
+            }
+            )*
+        '}'
 ;
 
-func<module, linkage> :
-    func_declaration<func_decl>
+func_declaration<fdecl> :
     {
-        ast_module_add_function_decl((*module).module,
-                                     func_decl.function_decl);
-        ast_function_decl_set_linkage(func_decl.function_decl,
-                                      (*linkage).text);
+        attrs.attrs = NULL;
     }
-|   func_definition<func_def>
+    (attributes<attrs>)? type<t> TOK_IDENT<name> '(' func_params<args> ')' ';'
     {
-        ast_module_add_function_def((*module).module,
-                                    func_def.function_def);
-        ast_function_def_set_linkage(func_def.function_def,
-                                     (*linkage).text);
-    }
-;
-
-func_declaration<func> :
-    type<t> TOK_IDENT<name> '(' func_params<args> ')' ';'
-    {
-        (*func).function_decl = ast_function_decl_new(name.text,
-                                                      args.list,
-                                                      t.data_type,
-                                                      yypos);
-        free(name.text);
+        (*fdecl).function_decl = ast_function_decl_new(attrs.attrs,
+                                                       t.data_type,
+                                                       name.text,
+                                                       args.list,
+                                                       yypos);
     }
 ;
 
-func_definition<x> :
+func_definition<fdef> :
     {
-        args.list = NULL;
+        attrs.attrs = NULL;
     }
-    type<t> TOK_IDENT<name> '(' func_params<args> ')' func_body<code>
+    (attributes<attrs>)? type<t> TOK_IDENT<name>
+                                    '(' func_params<args> ')' func_body<code>
     {
-        (*x).function_def = ast_function_def_new(name.text,
-                                                 args.list,
-                                                 t.data_type,
-                                                 code.code_block,
-                                                 yypos);
-        free(name.text);
+        (*fdef).function_def = ast_function_def_new(attrs.attrs,
+                                                    t.data_type,
+                                                    name.text,
+                                                    args.list,
+                                                    code.code_block,
+                                                    yypos);
     }
 ;
 
-linkage_attribute<linkage> :
+attributes<attrs> :
+    attribute<a>
     {
-        (*linkage).text = NULL;
+        (*attrs).attrs = ast_attributes_new(a.attr);
+    }
+        ( attribute<b>
+        {
+            ast_attributes_add_attribute((*attrs).attrs, b.attr);
+        }
+        )*
+;
+
+attribute<attr> :
+    linkage_attribute<attr>
+;
+
+linkage_attribute<ext> :
+    {
+       linkage.text = NULL;
     }
     TOK_EXTERN ( '(' TOK_IDENT<linkage> ')' )?
+    {
+        (*ext).attr = AST_ATTRIBUTE(ast_extern_new(linkage.text, yypos));
+    }
 ;
 
 /**

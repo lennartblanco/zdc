@@ -7,6 +7,8 @@
  */
 
 #include "dt_data_type.h"
+#include "ast_attributes.h"
+#include "ast_declaration.h"
 #include "ast_code_block.h"
 
 /*---------------------------------------------------------------------------*
@@ -32,19 +34,19 @@
 
 typedef struct
 {
-    AstNode      parent;
+    AstDeclaration parent;
 
     /* private */
-    char         *linkage;      /* linkage attribute */
-    char         *name;
-    GSList       *parameters;
-    DtDataType   *return_type;
-    AstCodeBlock *body;
+    AstAttributes *attrs;
+    char          *name;
+    GSList        *parameters;
+    DtDataType    *return_type;
+    AstCodeBlock  *body;
 } AstFunctionDef;
 
 typedef struct
 {
-    AstNodeClass parent_class;
+    AstDeclarationClass parent_class;
 } AstFunctionDefClass;
 
 /*---------------------------------------------------------------------------*
@@ -55,20 +57,15 @@ GType
 ast_function_def_get_type(void);
 
 AstFunctionDef *
-ast_function_def_new(char *name,
-                     GSList *parameters,
+ast_function_def_new(AstAttributes *attrs,
                      DtDataType *return_type,
+                     char *name,
+                     GSList *parameters,
                      AstCodeBlock *body,
                      guint line_number);
 
-/**
- * Set function's linkage type attribute
- */
-void
-ast_function_def_set_linkage(AstFunctionDef *self, char *linkage);
-
-char *
-ast_function_def_get_linkage(AstFunctionDef *self);
+AstAttributes *
+ast_function_def_get_attributes(AstFunctionDef *self);
 
 char *
 ast_function_def_get_name(AstFunctionDef *self);

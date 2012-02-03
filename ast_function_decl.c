@@ -22,7 +22,7 @@ GType
 ast_function_decl_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -36,7 +36,7 @@ ast_function_decl_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(AST_TYPE_NODE,
+      type = g_type_register_static(AST_TYPE_DECLARATION,
                                     "AstFunctionDeclType",
                                     &info, 0);
     }
@@ -44,9 +44,10 @@ ast_function_decl_get_type(void)
 }
 
 AstFunctionDecl *
-ast_function_decl_new(char *name,
-                      GSList *parameters,
+ast_function_decl_new(AstAttributes *attrs,
                       DtDataType *return_type,
+                      char *name,
+                      GSList *parameters,
                       guint line_number)
 {
     AstFunctionDecl *func;
@@ -54,29 +55,23 @@ ast_function_decl_new(char *name,
     func = g_object_new(AST_TYPE_FUNCTION_DECL,
                         "ast-node-line-number", line_number,
                         NULL);
+
+    func->attrs = attrs;
+    func->return_type = return_type;
     func->name = strdup(name);
     func->parameters = parameters;
-    func->return_type = return_type;
-    func->linkage = NULL;
 
     return func;
 }
 
-void
-ast_function_decl_set_linkage(AstFunctionDecl *self, char *linkage)
+AstAttributes *
+ast_function_decl_get_attributes(AstFunctionDecl *self)
 {
     assert(AST_IS_FUNCTION_DECL(self));
 
-    self->linkage = linkage;
+    return self->attrs;
 }
 
-char *
-ast_function_decl_get_linkage(AstFunctionDecl *self)
-{
-    assert(AST_IS_FUNCTION_DECL(self));
-
-    return self->linkage;
-}
 
 char *
 ast_function_decl_get_name(AstFunctionDecl *self)
@@ -131,9 +126,6 @@ ast_function_decl_do_print(AstNode *self, FILE *out, int indention)
         p = p->next;
     }
     fprintf(out, "\n");
-
-    fprintf(out, "  linkage: %s\n",
-            func->linkage == NULL ? "default (D)" : func->linkage);
 }
 
 static void

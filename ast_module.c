@@ -16,9 +16,7 @@ struct _AstModule
     char *source_file;
     GSList *package;
     GSList *imports;
-    GSList *function_defs;
-    GSList *function_decls;
-    GSList *user_types;
+    GSList *declarations;
 };
 
 /*---------------------------------------------------------------------------*
@@ -39,7 +37,7 @@ GType
 ast_module_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -67,11 +65,9 @@ ast_module_new(void)
 
     node = g_object_new	(AST_TYPE_MODULE, NULL);
     node->source_file = NULL;
-    node->function_defs = NULL;
-    node->function_decls = NULL;
     node->package = NULL;
     node->imports = NULL;
-    node->user_types = NULL;
+    node->declarations = NULL;
 
     return node;
 }
@@ -124,12 +120,11 @@ ast_module_get_package(AstModule *self)
 }
 
 void
-ast_module_add_import(AstModule *self, AstImport *imported_module)
+ast_module_add_imports(AstModule *self, GSList *imports)
 {
     assert(AST_IS_MODULE(self));
-    assert(AST_IS_IMPORT(imported_module));
 
-    self->imports = g_slist_prepend(self->imports, imported_module);
+    self->imports = g_slist_concat(self->imports, imports);
 }
 
 GSList *
@@ -141,56 +136,20 @@ ast_module_get_imports(AstModule *self)
 }
 
 void
-ast_module_add_function_decl(AstModule *self,
-                             AstFunctionDecl *function_decl)
+ast_module_add_declaration(AstModule *self, AstDeclaration *decl)
 {
     assert(AST_IS_MODULE(self));
-    assert(AST_IS_FUNCTION_DECL(function_decl));
+    assert(AST_IS_DECLARATION(decl));
 
-    self->function_decls = g_slist_append(self->function_decls, function_decl);
-}
-
-void
-ast_module_add_function_def(AstModule *self,
-                            AstFunctionDef *function_def)
-{
-    assert(AST_IS_MODULE(self));
-    assert(AST_IS_FUNCTION_DEF(function_def));
-
-    self->function_defs = g_slist_append(self->function_defs, function_def);
-}
-
-void
-ast_module_add_user_type(AstModule *self, AstUserType *user_type)
-{
-    assert(AST_IS_MODULE(self));
-    assert(AST_IS_USER_TYPE(user_type));
-
-    self->user_types = g_slist_prepend(self->user_types, user_type);
-}
-
-GSList*
-ast_module_get_user_types(AstModule *self)
-{
-    assert(AST_IS_MODULE(self));
-
-    return self->user_types;
+    self->declarations = g_slist_append(self->declarations, decl);
 }
 
 GSList *
-ast_module_get_function_decls(AstModule *self)
+ast_module_get_declarations(AstModule *self)
 {
     assert(AST_IS_MODULE(self));
 
-    return self->function_decls;
-}
-
-GSList *
-ast_module_get_function_defs(AstModule *self)
-{
-    assert(AST_IS_MODULE(self));
-
-    return self->function_defs;
+    return self->declarations;
 }
 
 /*---------------------------------------------------------------------------*
@@ -225,16 +184,6 @@ ast_module_do_print(AstNode *self, FILE *out, int indention)
         {
             ast_node_print(i->data, out, indention);
         }
-    }
-
-    for (i = module->function_defs; i != NULL; i = g_slist_next(i))
-    {
-        ast_node_print(AST_NODE(i->data), out, indention);
-    }
-
-    for (i = module->function_decls; i != NULL; i = g_slist_next(i))
-    {
-        ast_node_print(AST_NODE(i->data), out, indention);
     }
 }
 

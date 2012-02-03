@@ -7,6 +7,7 @@
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
 #include "ast_if_else.h"
+#include "ast_declaration_block.h"
 
 union yystype_u
 {
@@ -17,6 +18,8 @@ union yystype_u
     AstModule                  *module;
     AstEnumMember              *enum_member;
     AstCodeBlock               *code_block;
+    AstDeclaration             *decl;
+    AstDeclarationBlock        *decl_block;
     AstFunctionDecl            *function_decl;
     AstFunctionDef             *function_def;
     AstStatment                *statment;
@@ -26,6 +29,8 @@ union yystype_u
     AstVariableDefinition      *variable_definition;
     AstIfElse                  *if_else;
     AstIfBlock                 *if_block;
+    AstAttributes              *attrs;
+    AstAttribute               *attr;
     GSList                     *list;
 };
 

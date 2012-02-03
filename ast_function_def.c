@@ -22,7 +22,7 @@ GType
 ast_function_def_get_type(void)
 {
     static GType type = 0;
-    if (type == 0) 
+    if (type == 0)
     {
       static const GTypeInfo info =
       {
@@ -36,7 +36,7 @@ ast_function_def_get_type(void)
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(AST_TYPE_NODE,
+      type = g_type_register_static(AST_TYPE_DECLARATION,
                                     "AstFunctionDefType",
                                     &info, 0);
     }
@@ -44,9 +44,10 @@ ast_function_def_get_type(void)
 }
 
 AstFunctionDef *
-ast_function_def_new(char *name,
-                     GSList *parameters,
+ast_function_def_new(AstAttributes *attrs,
                      DtDataType *return_type,
+                     char *name,
+                     GSList *parameters,
                      AstCodeBlock *body,
                      guint line_number)
 {
@@ -55,28 +56,22 @@ ast_function_def_new(char *name,
     func = g_object_new(AST_TYPE_FUNCTION_DEF,
                        "ast-node-line-number", line_number,
                         NULL);
+
+    func->attrs = attrs;
+    func->return_type = return_type;
     func->name = strdup(name);
     func->parameters = parameters;
-    func->return_type = return_type;
     func->body = body;
 
     return func;
 }
 
-void
-ast_function_def_set_linkage(AstFunctionDef *self, char *linkage)
+AstAttributes *
+ast_function_def_get_attributes(AstFunctionDef *self)
 {
     assert(AST_IS_FUNCTION_DEF(self));
 
-    self->linkage = linkage;
-}
-
-char *
-ast_function_def_get_linkage(AstFunctionDef *self)
-{
-    assert(AST_IS_FUNCTION_DEF(self));
-
-    return self->linkage;
+    return self->attrs;
 }
 
 char *

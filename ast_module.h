@@ -59,29 +59,15 @@ GSList *
 ast_module_get_package(AstModule *self);
 
 void
-ast_module_add_import(AstModule *self, AstImport *imported_module);
+ast_module_add_imports(AstModule *self, GSList *imports);
 
 GSList *
 ast_module_get_imports(AstModule *self);
 
 void
-ast_module_add_function_decl(AstModule *self,
-                             AstFunctionDecl *function_decl);
+ast_module_add_declaration(AstModule *self, AstDeclaration *decl);
 
 GSList *
-ast_module_get_function_decls(AstModule *self);
-
-void
-ast_module_add_function_def(AstModule *self,
-                            AstFunctionDef *function_def);
-
-GSList *
-ast_module_get_function_defs(AstModule *self);
-
-void
-ast_module_add_user_type(AstModule *self, AstUserType *user_type);
-
-GSList*
-ast_module_get_user_types(AstModule *self);
+ast_module_get_declarations(AstModule *self);
 
 #endif /* AST_MODULE_INC_X */

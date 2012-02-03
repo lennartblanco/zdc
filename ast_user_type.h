@@ -1,7 +1,7 @@
 #ifndef AST_USER_TYPE_INC_X
 #define AST_USER_TYPE_INC_X
 
-#include "ast_node.h"
+#include "ast_declaration.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,12 +26,12 @@
 
 typedef struct
 {
-    AstNode    parent;
+    AstDeclaration    parent;
 } AstUserType;
 
 typedef struct
 {
-    AstNodeClass parent_class;
+    AstDeclarationClass parent_class;
 } AstUserTypeClass;
 
 /*---------------------------------------------------------------------------*
