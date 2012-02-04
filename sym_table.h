@@ -14,7 +14,8 @@
 typedef enum
 {
     SYM_TABLE_SYMBOL_NOT_FOUND_ERROR,
-    SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR
+    SYM_TABLE_MULTIPLE_SYMBOLS_FOUND_ERROR,
+    SYM_TABLE_UNACCESSIBLE_PRIVATE_SYMBOL
 } sym_table_error_t;
 
 /*---------------------------------------------------------------------------*

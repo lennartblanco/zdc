@@ -14,7 +14,8 @@ enum
 {
     IR_SYMBOL_NAME = 1,
     IR_SYMBOL_PARENT_MODULE,
-    IR_SYMBOL_SCOPE
+    IR_SYMBOL_SCOPE,
+    IR_SYMBOL_IS_PRIVATE
 };
 
 /*---------------------------------------------------------------------------*
@@ -114,6 +115,14 @@ ir_symbol_get_scope(IrSymbol *self)
     return self->scope;
 }
 
+bool
+ir_symbol_is_private(IrSymbol *self)
+{
+    assert(IR_IS_SYMBOL(self));
+
+    return self->is_private;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -136,6 +145,9 @@ ir_symbol_set_property(GObject *object,
             break;
         case IR_SYMBOL_SCOPE:
             sym->scope = g_value_get_object(value);
+            break;
+        case IR_SYMBOL_IS_PRIVATE:
+            sym->is_private = g_value_get_boolean(value);
             break;
         default:
             /* unexpected property id */
@@ -204,4 +216,16 @@ ir_symbol_class_init(gpointer klass, gpointer foo)
                                     IR_SYMBOL_SCOPE,
                                     pspec);
 
+    /*
+     * install 'is private' property
+     */
+    pspec = g_param_spec_boolean("ir-symbol-is-private",
+                                 "ir symbol is private",
+                                 "is symbol module private",
+                                  false,
+                                  G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+    g_object_class_install_property(gobject_class,
+                                    IR_SYMBOL_IS_PRIVATE,
+                                    pspec);
 }

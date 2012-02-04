@@ -367,6 +367,10 @@ validate_function_call(compilation_status_t *compile_status,
                     err_msg, "ambiguous function call '%s', matches: %s",
                     func_name, error->message);
                 break;
+            case SYM_TABLE_UNACCESSIBLE_PRIVATE_SYMBOL:
+                g_string_append_printf(err_msg, "function '%s' is private",
+                    error->message);
+                break;
             default:
                 /* unexpected error code */
                 assert(false);

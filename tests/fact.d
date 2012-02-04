@@ -1,5 +1,5 @@
 // factorial function, implemented with recursion
-int
+public int
 fact_rec(int i)
 {
     if (i <= 0)

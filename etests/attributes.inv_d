@@ -1,5 +1,13 @@
+// extern specified twice
 extern (D)
 extern (C) void func()
 {
 
 }
+
+// unknown linkage type
+extern (ORANGE) void func2() { }
+
+// protection specified twice
+private private int func3() { }
+public public char func4() { }

@@ -1,0 +1,2 @@
+private_imprt.d:6: error: function 'imp_mod_a.func_p1' is private
+private_imprt.d:7: error: function 'imp_mod_a.func_p2' is private

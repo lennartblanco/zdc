@@ -1,0 +1,8 @@
+import imp_mod_a;
+
+void func()
+{
+  // calls to imp_mod_a private functions
+  func_p1();
+  func_p2();
+}

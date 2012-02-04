@@ -11,3 +11,12 @@ struct oink
 {
   int a;
 }
+
+private void func_p1()
+{
+
+}
+
+private:
+
+int func_p2() { }

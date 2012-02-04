@@ -14,12 +14,13 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ast_import.o ast_binary_operation.o ast_unary_operation.o            \
          ast_postfix_exp.o ast_assignment.o ast_variable_declaration.o        \
          ast_variable_definition.o ast_if_block.o ast_ident.o ast_extern.o    \
-         ast_function_call.o ast_if_else.o ast_while.o ast_for.o              \
-         ast_foreach.o ast_foreach_range.o ast_break.o ast_array_cell_ref.o   \
-         ast_array_slice_ref.o ast_string_literal.o ast_user_type.o           \
-         ast_alias.o ast_enum.o ast_enum_member.o ast_struct.o ast_ptr_dref.o \
-         ast_address_of.o ast_cast.o ast_conditional.o ast_declaration.o      \
-         ast_attributes.o ast_attribute.o ast_declaration_block.o             \
+         ast_protection.o ast_function_call.o ast_if_else.o ast_while.o       \
+         ast_for.o ast_foreach.o ast_foreach_range.o ast_break.o              \
+         ast_array_cell_ref.o ast_array_slice_ref.o ast_string_literal.o      \
+         ast_user_type.o ast_alias.o ast_enum.o ast_enum_member.o             \
+         ast_struct.o ast_ptr_dref.o ast_address_of.o ast_cast.o              \
+         ast_conditional.o ast_declaration.o ast_attributes.o ast_attribute.o \
+         ast_declaration_block.o                                              \
          dt_data_type.o dt_auto.o dt_void.o dt_basic.o dt_pointer.o dt_user.o \
          dt_alias.o dt_enum.o dt_struct.o dt_array.o dt_static_array.o        \
          dt_name.o                                                            \

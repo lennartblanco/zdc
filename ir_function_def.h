@@ -50,6 +50,7 @@ ir_function_def(void *obj);
  */
 IrFunctionDef *
 ir_function_def_new(ir_linkage_type_t linkage_type,
+                    bool is_private,
                     DtDataType *return_type,
                     char *name,
                     GSList *parameters,

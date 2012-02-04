@@ -282,6 +282,7 @@ attributes<attrs> :
 
 attribute<attr> :
     linkage_attribute<attr>
+|   protection_attribute<attr>
 ;
 
 linkage_attribute<ext> :
@@ -291,6 +292,17 @@ linkage_attribute<ext> :
     TOK_EXTERN ( '(' TOK_IDENT<linkage> ')' )?
     {
         (*ext).attr = AST_ATTRIBUTE(ast_extern_new(linkage.text, yypos));
+    }
+;
+
+protection_attribute<attr> :
+    TOK_PUBLIC
+    {
+        (*attr).attr = AST_ATTRIBUTE(ast_protection_new(false, yypos));
+    }
+|   TOK_PRIVATE
+    {
+        (*attr).attr = AST_ATTRIBUTE(ast_protection_new(true, yypos));
     }
 ;
 

@@ -123,7 +123,17 @@ sym_table_get_symbol(sym_table_t *table, const char *name, GError **error)
 
         if (syms_found_cntr == 1)
         {
-            p = syms_found->data;
+            if (ir_symbol_is_private(syms_found->data))
+            {
+                g_set_error(error,
+                            SYM_TABLE_ERROR,
+                            SYM_TABLE_UNACCESSIBLE_PRIVATE_SYMBOL,
+                            "%s", ir_symbol_get_fqname(syms_found->data));
+            }
+            else
+            {
+                p = syms_found->data;
+            }
         }
         else if (syms_found_cntr > 1)
         {

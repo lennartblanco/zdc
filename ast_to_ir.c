@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "ast_to_ir.h"
 #include "ast_variable_declaration.h"
 #include "ast_variable_definition.h"
@@ -29,6 +31,7 @@
 #include "ast_enum_member.h"
 #include "ast_struct.h"
 #include "ast_extern.h"
+#include "ast_protection.h"
 #include "ast_declaration_block.h"
 #include "ir_function_call.h"
 #include "ir_method_call.h"
@@ -63,6 +66,16 @@
 #include <assert.h>
 
 /*---------------------------------------------------------------------------*
+ *                             type definitions                              *
+ *---------------------------------------------------------------------------*/
+
+typedef struct
+{
+    ir_linkage_type_t linkage;
+    bool              is_private;
+} attributes_t;
+
+/*---------------------------------------------------------------------------*
  *                  local functions forward declaration                      *
  *---------------------------------------------------------------------------*/
 
@@ -73,11 +86,12 @@ enum_to_dt(compilation_status_t *compile_status,
 
 static IrStruct *
 struct_to_ir(compilation_status_t *compile_status,
-             AstStruct *ast_struct);
+             AstStruct *ast_struct,
+             bool decls_imported);
 
 static IrFunctionDecl *
 func_decl_to_ir(compilation_status_t *compile_status,
-                ir_linkage_type_t linkage,
+                attributes_t *attrs,
                 AstFunctionDecl *ast_func_decl,
                 IrModule *parent_module);
 
@@ -91,10 +105,11 @@ func_decl_to_ir(compilation_status_t *compile_status,
  */
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
-               ir_linkage_type_t linkage,
+               attributes_t *attrs,
                AstFunctionDef *ast_func_def,
                IrModule *parent_module,
-               IrScope *scope);
+               IrScope *scope,
+               bool convert_body);
 
 /**
  * convert AST code block representation to IR form.
@@ -199,17 +214,23 @@ import_module(compilation_status_t *compile_status,
 
 static void
 process_attributes(compilation_status_t *compile_status,
-                   AstAttributes *attrs,
-                   ir_linkage_type_t *linkage);
+                   AstAttributes *ast_attrs,
+                   attributes_t *attrs);
 
 static void
 declarations_to_ir(compilation_status_t *compile_status,
-                   ir_linkage_type_t linkage,
-                   GSList *decls);
+                   attributes_t *attrs,
+                   GSList *decls,
+                   bool decls_imported);
 
 static void
 declaration_block_to_ir(compilation_status_t *compile_status,
-                        AstDeclarationBlock *decl_block);
+                        attributes_t *attrs,
+                        AstDeclarationBlock *decl_block,
+                        bool decls_imported);
+
+void
+attributes_default(attributes_t *attrs);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -237,9 +258,13 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
      * convert all module declarations to IR form and store them
      * in module's symbol table
      */
+    attributes_t attrs;
+    attributes_default(&attrs);
+
     declarations_to_ir(compile_status,
-                       ir_d_linkage,
-                       ast_module_get_declarations(ast_module));
+                       &attrs,
+                       ast_module_get_declarations(ast_module),
+                       false);
 
     return module;
 }
@@ -248,10 +273,27 @@ ast_module_to_ir(compilation_status_t *compile_status, AstModule *ast_module)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+/**
+ * Initialize with default attributes.
+ */
+void
+attributes_default(attributes_t *attrs)
+{
+    attrs->linkage = ir_d_linkage;
+    attrs->is_private = false;
+}
+
+void
+attributes_copy(attributes_t *dest, attributes_t *src)
+{
+    memcpy(dest, src, sizeof(*dest));
+}
+
 static void
 declarations_to_ir(compilation_status_t *compile_status,
-                   ir_linkage_type_t linkage,
-                   GSList *decls)
+                   attributes_t *attrs,
+                   GSList *decls,
+                   bool decls_imported)
 {
     GSList *i;
 
@@ -264,10 +306,11 @@ declarations_to_ir(compilation_status_t *compile_status,
             IrFunctionDef *ir_func_def;
 
             ir_func_def = func_def_to_ir(compile_status,
-                                         linkage,
+                                         attrs,
                                          AST_FUNCTION_DEF(i->data),
                                          compile_status->module,
-                                         NULL);
+                                         NULL,
+                                         !decls_imported);
             if (!ir_module_add_function_def(compile_status->module, ir_func_def))
             {
                 compile_error(compile_status,
@@ -281,7 +324,7 @@ declarations_to_ir(compilation_status_t *compile_status,
             IrFunctionDecl *ir_func_decl;
 
             ir_func_decl = func_decl_to_ir(compile_status,
-                                           linkage,
+                                           attrs,
                                            AST_FUNCTION_DECL(i->data),
                                            compile_status->module);
             if (!ir_module_add_function_decl(compile_status->module, ir_func_decl))
@@ -296,7 +339,9 @@ declarations_to_ir(compilation_status_t *compile_status,
         {
             IrStruct *ir_struct;
 
-            ir_struct = struct_to_ir(compile_status, AST_STRUCT(i->data));
+            ir_struct = struct_to_ir(compile_status,
+                                     AST_STRUCT(i->data),
+                                     decls_imported);
             if (!ir_module_add_struct(compile_status->module, ir_struct))
             {
                 compile_error(compile_status,
@@ -339,11 +384,13 @@ declarations_to_ir(compilation_status_t *compile_status,
         else if (AST_IS_DECLARATION_BLOCK(i->data))
         {
             declaration_block_to_ir(compile_status,
-                                    AST_DECLARATION_BLOCK(i->data));
+                                    attrs,
+                                    AST_DECLARATION_BLOCK(i->data),
+                                    decls_imported);
         }
         else if (AST_IS_ATTRIBUTES(i->data))
         {
-            process_attributes(compile_status, i->data, &linkage);
+            process_attributes(compile_status, i->data, attrs);
         }
         else
         {
@@ -354,17 +401,21 @@ declarations_to_ir(compilation_status_t *compile_status,
 
 static void
 declaration_block_to_ir(compilation_status_t *compile_status,
-                        AstDeclarationBlock *decl_block)
+                        attributes_t *attrs,
+                        AstDeclarationBlock *decl_block,
+                        bool decls_imported)
 {
-    ir_linkage_type_t linkage;
+    attributes_t local_attrs;
 
+    attributes_copy(&local_attrs, attrs);
     process_attributes(compile_status,
                        ast_declaration_block_get_attributes(decl_block),
-                       &linkage);
+                       &local_attrs);
 
     declarations_to_ir(compile_status,
-                       linkage,
-                       ast_declaration_block_get_declarations(decl_block));
+                       &local_attrs,
+                       ast_declaration_block_get_declarations(decl_block),
+                       decls_imported);
 }
 
 
@@ -375,9 +426,13 @@ import_module(compilation_status_t *compile_status,
 {
     compile_status->module = ir_module_new(ast_module_get_package(ast_module));
 
+    attributes_t attrs;
+    attributes_default(&attrs);
+
     declarations_to_ir(compile_status,
-                       ir_d_linkage,
-                       ast_module_get_declarations(ast_module));
+                       &attrs,
+                       ast_module_get_declarations(ast_module),
+                       true);
 
     ir_module_add_import(parent_module, compile_status->module);
 
@@ -453,7 +508,8 @@ enum_to_dt(compilation_status_t *compile_status,
 
 static IrStruct *
 struct_to_ir(compilation_status_t *compile_status,
-             AstStruct *ast_struct)
+             AstStruct *ast_struct,
+             bool decls_imported)
 {
     GSList *i;
     GSList *members = NULL;
@@ -483,20 +539,26 @@ struct_to_ir(compilation_status_t *compile_status,
         members = g_slist_prepend(members, var);
     }
 
-    /* convert struct methods to ir */
+    /*
+     * convert struct methods to ir
+     */
+    attributes_t attrs;
+    attributes_default(&attrs);
     IrScope *scope =
             ir_scope_new_sub(ast_struct_get_name(ast_struct),
                              ir_module_get_scope(compile_status->module));
+
     for (i = ast_struct_get_methods(ast_struct);
          i != NULL;
          i = g_slist_next(i))
     {
         IrFunctionDef *method =
             func_def_to_ir(compile_status,
-                           ir_d_linkage,
+                           &attrs,
                            AST_FUNCTION_DEF(i->data),
                            compile_status->module,
-                           scope);
+                           scope,
+                           !decls_imported);
         methods = g_slist_prepend(methods, method);
     }
 
@@ -566,33 +628,40 @@ func_params_to_ir(GSList *ast_func_params)
     return g_slist_reverse(parameters);
 }
 
-static ir_linkage_type_t
-parse_linkage_type(const char *linkage_name)
+/**
+ * Parse linkage identifier.
+ *
+ * @param linkage_name linkage identifier to parse
+ * @param linkage parsed linkage type is returned via this pointer
+ *
+ * @return true if linkage successfully parsed, false if linkage identifier
+ *         is unknown.
+ */
+static bool
+parse_linkage_type(const char *linkage_name, ir_linkage_type_t *linkage)
 {
-    ir_linkage_type_t linkage_type;
-
     if (linkage_name == NULL || /* default linkage type is 'D' */
         g_str_equal("D", linkage_name))
     {
-        linkage_type = ir_d_linkage;
+        *linkage = ir_d_linkage;
     }
     else if (g_str_equal("C", linkage_name))
     {
-        linkage_type = ir_c_linkage;
+        *linkage = ir_c_linkage;
     } else {
         /* unexpected linkage type string */
-        assert(false);
+        return false;
     }
 
-    return linkage_type;
+    return true;
 }
 
 static void
 process_attributes(compilation_status_t *compile_status,
-                   AstAttributes *attrs,
-                   ir_linkage_type_t *linkage)
+                   AstAttributes *ast_attrs,
+                   attributes_t *attrs)
 {
-    if (attrs == NULL)
+    if (ast_attrs == NULL)
     {
         /* no attributes specified, nothing to process */
         return;
@@ -600,8 +669,9 @@ process_attributes(compilation_status_t *compile_status,
 
     GSList *i;
     bool linkage_present = false;
+    bool protection_present = false;
 
-    for (i = ast_attributes_get_attributes(attrs);
+    for (i = ast_attributes_get_attributes(ast_attrs);
          i != NULL;
          i = g_slist_next(i))
     {
@@ -615,8 +685,30 @@ process_attributes(compilation_status_t *compile_status,
                 continue;
             }
 
-            *linkage = parse_linkage_type(ast_extern_get_linkage(i->data));
+            if (!parse_linkage_type(ast_extern_get_linkage(i->data),
+                                    &(attrs->linkage)))
+            {
+                compile_error(compile_status,
+                              i->data,
+                              "unsuppored linkage identifiers '%s'\n",
+                              ast_extern_get_linkage(i->data));
+                continue;
+            }
             linkage_present = true;
+        }
+        else if (AST_IS_PROTECTION(i->data))
+        {
+            if (protection_present)
+            {
+                compile_error(compile_status,
+                              i->data,
+                              "superfluous protection attribute\n");
+                continue;
+            }
+
+            attrs->is_private = ast_protection_is_private(i->data);
+
+            protection_present = true;
         }
         else
         {
@@ -628,7 +720,7 @@ process_attributes(compilation_status_t *compile_status,
 
 static IrFunctionDecl *
 func_decl_to_ir(compilation_status_t *compile_status,
-                ir_linkage_type_t linkage,
+                attributes_t *attrs,
                 AstFunctionDecl *ast_func_decl,
                 IrModule *parent_module)
 {
@@ -637,15 +729,19 @@ func_decl_to_ir(compilation_status_t *compile_status,
     IrFunctionDecl *func_decl;
     GSList *parameters;
 
+    attributes_t local_attrs;
+
+    attributes_copy(&local_attrs, attrs);
     process_attributes(compile_status,
                        ast_function_decl_get_attributes(ast_func_decl),
-                       &linkage);
+                       &local_attrs);
 
     parameters =
         func_params_to_ir(ast_function_decl_get_parameters(ast_func_decl));
 
     func_decl =
-        ir_function_decl_new(linkage,
+        ir_function_decl_new(local_attrs.linkage,
+                             local_attrs.is_private,
                              ast_function_decl_get_return_type(ast_func_decl),
                              ast_function_decl_get_name(ast_func_decl),
                              parameters,
@@ -657,19 +753,22 @@ func_decl_to_ir(compilation_status_t *compile_status,
 
 static IrFunctionDef *
 func_def_to_ir(compilation_status_t *compile_status,
-               ir_linkage_type_t linkage,
+               attributes_t *attrs,
                AstFunctionDef *ast_func_def,
                IrModule *parent_module,
-               IrScope *scope)
+               IrScope *scope,
+               bool convert_body)
 {
     assert(IR_IS_MODULE(parent_module));
 
     IrFunctionDef *ir_func;
     GSList *parameters;
+    attributes_t local_attrs;
 
+    attributes_copy(&local_attrs, attrs);
     process_attributes(compile_status,
                        ast_function_def_get_attributes(ast_func_def),
-                       &linkage);
+                       &local_attrs);
 
     parameters = 
         func_params_to_ir(ast_function_def_get_parameters(ast_func_def));
@@ -680,7 +779,8 @@ func_def_to_ir(compilation_status_t *compile_status,
     }
 
     ir_func =
-        ir_function_def_new(linkage,
+        ir_function_def_new(local_attrs.linkage,
+                            local_attrs.is_private,
                             ast_function_def_get_return_type(ast_func_def),
                             ast_function_def_get_name(ast_func_def),
                             parameters,
@@ -688,10 +788,13 @@ func_def_to_ir(compilation_status_t *compile_status,
                             scope,
                             ast_node_get_line_num(ast_func_def));
 
-    /* convert function body to ir format */
-    code_block_to_ir(compile_status,
-                     ast_function_def_get_body(ast_func_def),
-                     ir_function_def_get_body(ir_func));
+    if (convert_body)
+    {
+        /* convert function body to ir format */
+        code_block_to_ir(compile_status,
+                         ast_function_def_get_body(ast_func_def),
+                         ir_function_def_get_body(ir_func));
+    }
 
     return ir_func;
 }

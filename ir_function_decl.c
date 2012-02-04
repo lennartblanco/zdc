@@ -35,6 +35,7 @@ ir_function_decl_get_type(void)
 
 IrFunctionDecl *
 ir_function_decl_new(ir_linkage_type_t linkage_type,
+                     bool is_private,
                      DtDataType *return_type,
                      char *name,
                      GSList *parameters,
@@ -52,6 +53,7 @@ ir_function_decl_new(ir_linkage_type_t linkage_type,
                        "ir-node-line-number", line_number,
                        "ir-symbol-parent-module", parent_module,
                        "ir-symbol-scope", ir_module_get_scope(parent_module),
+                       "ir-symbol-is-private", is_private,
                        NULL);
    
     ir_function_set_return_type(ir_function(obj), return_type);

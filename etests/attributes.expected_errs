@@ -1,1 +1,4 @@
-attributes.d:2: error: superfluous extern attribute
+attributes.d:3: error: superfluous extern attribute
+attributes.d:9: error: unsuppored linkage identifiers 'ORANGE'
+attributes.d:12: error: superfluous protection attribute
+attributes.d:13: error: superfluous protection attribute

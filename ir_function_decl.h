@@ -44,6 +44,7 @@ ir_function_decl_get_type(void);
 
 IrFunctionDecl *
 ir_function_decl_new(ir_linkage_type_t linkage_type,
+                     bool is_private,
                      DtDataType *return_type,
                      char *name,
                      GSList *parameters,

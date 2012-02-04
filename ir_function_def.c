@@ -56,6 +56,7 @@ ir_function_def(void *obj)
 
 IrFunctionDef *
 ir_function_def_new(ir_linkage_type_t linkage_type,
+                    bool is_private,
                     DtDataType *return_type,
                     char *name,
                     GSList *parameters,
@@ -76,6 +77,7 @@ ir_function_def_new(ir_linkage_type_t linkage_type,
                        "ir-function-linkage-type", linkage_type,
                        "ir-symbol-parent-module", parent_module,
                        "ir-symbol-scope", scope,
+                       "ir-symbol-is-private", is_private,
                        NULL);
 
     ir_function_set_return_type(ir_function(obj), return_type);
