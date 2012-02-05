@@ -130,7 +130,9 @@ uint dyn_int_arry_length(bool assign)
 /**
  * Test length property on string literals
  */
-extern (C) uint str_lit_length()
+extern (C):
+
+uint str_lit_length()
 {
     return "orange".length;
 }
@@ -138,101 +140,98 @@ extern (C) uint str_lit_length()
 /*
  * wrappers to allow call test functions with C calling convention
  */
-extern (C)
+uint
+call_int_var_sizeof()
 {
-  uint
-  call_int_var_sizeof()
-  {
     return int_var_sizeof();
-  }
+}
 
-  uint
-  call_uint_var_sizeof()
-  {
+uint
+call_uint_var_sizeof()
+{
     return uint_var_sizeof();
-  }
+}
 
-  uint
-  call_bool_var_sizeof()
-  {
+uint
+call_bool_var_sizeof()
+{
     return bool_var_sizeof();
-  }
+}
 
-  uint
-  call_char_var_sizeof()
-  {
+uint
+call_char_var_sizeof()
+{
     return char_var_sizeof();
-  }
+}
 
-  uint
-  call_int_exp_sizeof()
-  {
+uint
+call_int_exp_sizeof()
+{
     return int_exp_sizeof();
-  }
+}
 
-  uint
-  call_bool_exp_sizeof()
-  {
+uint
+call_bool_exp_sizeof()
+{
     return bool_exp_sizeof();
-  }
+}
 
-  uint
-  call_stat_int_arry_var_sizeof()
-  {
+uint
+call_stat_int_arry_var_sizeof()
+{
     return stat_int_arry_var_sizeof();
-  }
+}
 
-  uint
-  call_stat_bool_arry_var_sizeof()
-  {
+uint
+call_stat_bool_arry_var_sizeof()
+{
     return stat_bool_arry_var_sizeof();
-  }
+}
 
-  uint
-  call_dyn_int_arry_var_sizeof()
-  {
+uint
+call_dyn_int_arry_var_sizeof()
+{
     return dyn_int_arry_var_sizeof();
-  }
+}
 
-  int
-  call_int_var_init()
-  {
+int
+call_int_var_init()
+{
     return int_var_init();
-  }
+}
 
-  uint
-  call_uint_var_init()
-  {
+uint
+call_uint_var_init()
+{
     return uint_var_init();
-  }
+}
 
-  bool
-  call_bool_var_init()
-  {
+bool
+call_bool_var_init()
+{
     return bool_var_init();
-  }
+}
 
-  char
-  call_char_var_init()
-  {
+char
+call_char_var_init()
+{
     return char_var_init();
-  }
+}
 
-  uint
-  call_stat_int_arry_length()
-  {
+uint
+call_stat_int_arry_length()
+{
     return stat_int_arry_length();
-  }
+}
 
-  uint
-  call_stat_bool_arry_length()
-  {
+uint
+call_stat_bool_arry_length()
+{
     return stat_bool_arry_length();
-  }
+}
 
-  uint
-  call_dyn_int_arry_length(bool arg)
-  {
+uint
+call_dyn_int_arry_length(bool arg)
+{
     return dyn_int_arry_length(arg);
-  }
 }
