@@ -154,6 +154,11 @@ static void
 validate_enum(compilation_status_t *compile_status,
               DtEnum *enum_def);
 
+static DtDataType *
+validate_type(compilation_status_t *compile_status,
+              sym_table_t *sym_table,
+              DtDataType *type);
+
 /**
  * Look-up the user defined data type in current module. If no data type
  * with provided name is found, a compile error is printed.
@@ -231,6 +236,10 @@ validate_ident(compilation_status_t *compile_status,
                 ir_expression(ir_var_value_new(ir_variable(var),
                                                ir_node_get_line_num(ident)));
         }
+    }
+    else if (DT_IS_ALIAS(symb))
+    {
+        return ir_expression(dt_alias_get_aliased_type(DT_ALIAS(symb)));
     }
 
     return ir_expression(symb);
@@ -931,7 +940,7 @@ validate_sizeof_property(compilation_status_t *compile_status,
     if (DT_IS_DATA_TYPE(exp))
     {
         /* sizeof property of a data type */
-        exp_type = DT_DATA_TYPE(exp);
+        exp_type = validate_type(compile_status, sym_table, DT_DATA_TYPE(exp));
     }
     else
     {

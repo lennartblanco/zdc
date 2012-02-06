@@ -137,6 +137,34 @@ uint str_lit_length()
     return "orange".length;
 }
 
+/**
+ * Test sizeof property on aliased type.
+ */
+
+alias int myint;
+alias bool mybool;
+
+struct strct { int a, b; }
+alias strct mystrct;
+
+uint alias_types_sizeof(uint testno)
+{
+  if (testno == 0)
+  {
+    return myint.sizeof;
+  }
+  else if (testno == 1)
+  {
+    return mybool.sizeof;
+  }
+  else if (testno == 2)
+  {
+    return mystrct.sizeof;
+  }
+
+  return 0;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

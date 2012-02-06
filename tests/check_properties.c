@@ -51,6 +51,9 @@ call_dyn_int_arry_length(bool arg);
 unsigned
 str_lit_length();
 
+unsigned
+alias_types_sizeof(unsigned);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -113,6 +116,13 @@ main()
 
     /* str_lit_length() test */
     check_uint("str_lit_length()", str_lit_length(), 6);
+
+    /* alias_types_sizeof() tests */
+    check_uint("alias_types_sizeof(0)", alias_types_sizeof(0), 4);
+    check_uint("alias_types_sizeof(1)", alias_types_sizeof(1), 1);
+    check_uint("alias_types_sizeof(2)", alias_types_sizeof(2), 8);
+
+    check_uint("alias_types_sizeof(100)", alias_types_sizeof(100), 0);
 
     check_exit();
 }
