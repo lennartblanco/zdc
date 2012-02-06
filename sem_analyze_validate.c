@@ -1169,10 +1169,8 @@ validate_dot(compilation_status_t *compile_status,
     }
     else if (IR_IS_VAR_VALUE(left) || IR_IS_VAR_REF(left))
     {
-        res = validate_dot_var(compile_status,
-                                     sym_table,
-                                     left,
-                                     IR_IDENT(right));
+        res =
+            validate_dot_var(compile_status, sym_table, left, IR_IDENT(right));
     }
     else
     {
