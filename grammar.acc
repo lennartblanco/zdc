@@ -196,12 +196,24 @@ enum_member<x> :
 
 struct_declaration<struct_decl> :
     TOK_STRUCT TOK_IDENT<name>
-    '{' struct_body_declarations<members, methods> '}'
-    {
-        (*struct_decl).decl =
-            AST_DECLARATION(
-                ast_struct_new(name.text, members.list, methods.list, yypos));
+    (
+        '{' struct_body_declarations<members, methods> '}'
+        {
+            (*struct_decl).decl = AST_DECLARATION(ast_struct_new(name.text,
+                                                                 members.list,
+                                                                 methods.list,
+                                                                 false,
+                                                                 yypos));
     }
+    | ';'
+        {
+            (*struct_decl).decl = AST_DECLARATION(ast_struct_new(name.text,
+                                                                 NULL,
+                                                                 NULL,
+                                                                 true,
+                                                                 yypos));
+        }
+    )
 ;
 
 struct_body_declarations<members, methods> :

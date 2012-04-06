@@ -52,6 +52,7 @@ IrStruct *
 ir_struct_new(gchar *name,
               GSList *members,
               GSList *methods,
+              bool opaque,
               IrModule *parent_module,
               sym_table_t *symbols);
 

@@ -1,0 +1,2 @@
+struct_opaque.d:5: error: invalid usage of opaque struct type 'opaque'
+struct_opaque.d:6: error: invalid usage of opaque struct type 'opaque'

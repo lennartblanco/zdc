@@ -35,6 +35,7 @@ AstStruct *
 ast_struct_new(gchar *name,
                GSList *members,
                GSList *methods,
+               bool opaque,
                guint line_number)
 {
     AstStruct *obj;
@@ -43,9 +44,13 @@ ast_struct_new(gchar *name,
                        "ast-node-line-number", line_number,
                        NULL);
 
+    /* no members/methods should be present for opaque struct declarations */
+    assert(!opaque || (members == NULL && methods == NULL));
+
     obj->name = g_strdup(name);
     obj->members = members;
     obj->methods = methods;
+    obj->opaque = opaque;
 
     return obj;
 }
@@ -72,4 +77,12 @@ ast_struct_get_methods(AstStruct *self)
     assert(AST_IS_STRUCT(self));
 
     return self->methods;
+}
+
+bool
+ast_struct_is_opaque(AstStruct *self)
+{
+    assert(AST_IS_STRUCT(self));
+
+    return self->opaque;
 }

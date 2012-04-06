@@ -1,6 +1,8 @@
 #ifndef AST_STRUCT_INC_X
 #define AST_STRUCT_INC_X
 
+#include <stdbool.h>
+
 #include "ast_user_type.h"
 
 /*---------------------------------------------------------------------------*
@@ -32,6 +34,7 @@ typedef struct
     gchar *name;
     GSList *members;
     GSList *methods;
+    bool opaque;
 } AstStruct;
 
 typedef struct
@@ -50,6 +53,7 @@ AstStruct *
 ast_struct_new(gchar *name,
                GSList *members,
                GSList *methods,
+               bool opaque,
                guint line_number);
 
 gchar *
@@ -60,5 +64,8 @@ ast_struct_get_members(AstStruct *self);
 
 GSList *
 ast_struct_get_methods(AstStruct *self);
+
+bool
+ast_struct_is_opaque(AstStruct *self);
 
 #endif /* AST_STRUCT_INC_X */

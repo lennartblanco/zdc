@@ -1,0 +1,7 @@
+struct opaque;
+
+void func()
+{
+  opaque a;
+  int x = opaque.sizeof;
+}

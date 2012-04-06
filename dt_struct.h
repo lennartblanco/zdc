@@ -34,6 +34,7 @@ typedef struct
     DtUser parent;
 
     /* private */
+    bool opaque;
     IrStructLiteral *init;
     guint size;
     GSList *members;             /* members in order */
@@ -54,7 +55,10 @@ GType
 dt_struct_get_type(void);
 
 DtStruct *
-dt_struct_new(gchar *name, IrModule *parent_module);
+dt_struct_new(gchar *name, bool opaque, IrModule *parent_module);
+
+bool
+dt_struct_is_opaque(DtStruct *self);
 
 void
 dt_struct_add_member(DtStruct *self, IrVariable *var);

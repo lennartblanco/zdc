@@ -19,6 +19,12 @@ struct list
   unsigned ref_cntr;
 };
 
+
+struct opaque {
+  int l;
+  int r;
+};
+
 unsigned
 orange_sizeof();
 
@@ -57,6 +63,9 @@ test_all_types_set_val();
 
 bool
 test_all_types_methods();
+
+int
+opaque_ptr(int a, int b);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -176,12 +185,38 @@ test_all_types()
     check_bool("test_all_types_methods()", test_all_types_methods(), true);
 }
 
+struct opaque *
+opaque_new(int a, int b)
+{
+    struct opaque *o = malloc(sizeof(*o));
+
+    o->l = a;
+    o->r = b;
+
+    return o;
+}
+
+int
+opaque_sum(struct opaque *o)
+{
+    return o->l + o->r;
+}
+
+void
+test_opaque_ptr()
+{
+    check_int("opaque_ptr(0,10)", opaque_ptr(0,10), 10);
+    check_int("opaque_ptr(-1,-102)", opaque_ptr(-1,-102), -1 + (-102));
+    check_int("opaque_ptr(202, 2020)", opaque_ptr(202, 2020), 202 + 2020);
+}
+
 int
 main()
 {
     test_orange();
     test_list();
     test_all_types();
+    test_opaque_ptr();
 
     check_exit();
 }

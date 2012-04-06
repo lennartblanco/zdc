@@ -37,6 +37,7 @@ unknown_usr_type: unknown_usr_type.d
 enum_init_err: enum_init_err.d
 structs: structs.d
 struct_methods: struct_methods.d
+struct_opaque: struct_opaque.d
 inc_dec_ops: inc_dec_ops.d
 inv_break: inv_break.d
 for_loop: for_loop.d

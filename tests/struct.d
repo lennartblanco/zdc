@@ -295,6 +295,22 @@ test_all_types_methods()
   return r1 == 100 && r2 == 100 && r3 == 200;
 }
 
+struct opaque;
+
+extern (C) opaque *
+opaque_new(int a, int b);
+
+extern (C) int
+opaque_sum(opaque *self);
+
+extern (C) int
+opaque_ptr(int a, int b)
+{
+    opaque *o = opaque_new(a, b);
+
+    return opaque_sum(o);
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

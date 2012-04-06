@@ -157,7 +157,9 @@ validate_enum(compilation_status_t *compile_status,
 static DtDataType *
 validate_type(compilation_status_t *compile_status,
               sym_table_t *sym_table,
-              DtDataType *type);
+              DtDataType *type,
+              DtDataType *parent_type,
+              IrNode *error_node);
 
 /**
  * Look-up the user defined data type in current module. If no data type
@@ -940,7 +942,16 @@ validate_sizeof_property(compilation_status_t *compile_status,
     if (DT_IS_DATA_TYPE(exp))
     {
         /* sizeof property of a data type */
-        exp_type = validate_type(compile_status, sym_table, DT_DATA_TYPE(exp));
+        exp_type = validate_type(compile_status,
+                                 sym_table,
+                                 DT_DATA_TYPE(exp),
+                                 NULL,
+                                 IR_NODE(prop));
+        if (exp_type == NULL)
+        {
+            /* invalid type, bail out */
+            return NULL;
+        }
     }
     else
     {
@@ -2281,7 +2292,9 @@ resolve_user_type(compilation_status_t *compile_status,
 static DtDataType *
 validate_type(compilation_status_t *compile_status,
               sym_table_t *sym_table,
-              DtDataType *type)
+              DtDataType *type,
+              DtDataType *parent_type,
+              IrNode *error_node)
 {
     assert(compile_status);
     assert(DT_IS_DATA_TYPE(type));
@@ -2305,7 +2318,9 @@ validate_type(compilation_status_t *compile_status,
 
         base_type = validate_type(compile_status,
                                   sym_table,
-                                  dt_pointer_get_base_type(ptr_type));
+                                  dt_pointer_get_base_type(ptr_type),
+                                  type,
+                                  error_node);
         if (base_type == NULL)
         {
             return NULL;
@@ -2318,11 +2333,22 @@ validate_type(compilation_status_t *compile_status,
         if (dt_data_type_get_size(type) > DT_STATIC_ARRAY_MAX_SIZE)
         {
             compile_error(compile_status,
-                          type,
+                          error_node,
                           "static array length %d exceeds limit\n",
                           dt_static_array_get_length(DT_STATIC_ARRAY(type)));
             return NULL;
         }
+    }
+
+    if (DT_IS_STRUCT(validated_type) &&
+        dt_struct_is_opaque(DT_STRUCT(validated_type)) &&
+        !DT_IS_POINTER(parent_type))
+    {
+        compile_error(compile_status,
+                      error_node,
+                      "invalid usage of opaque struct type '%s'\n",
+                      dt_data_type_get_string(validated_type));
+        return NULL;
     }
 
     return validated_type;
@@ -2344,7 +2370,9 @@ validate_variable(compilation_status_t *compile_status,
      */
     type = validate_type(compile_status,
                          sym_table,
-                         ir_variable_get_data_type(variable));
+                         ir_variable_get_data_type(variable),
+                         NULL,
+                         IR_NODE(variable));
     if (type == NULL)
     {
         /* invalid type */
@@ -2470,7 +2498,9 @@ validate_function_decl(compilation_status_t *compile_status,
             ir_symbol_get_parent_module(ir_symbol(func_decl)));
     type = validate_type(compile_status,
                          symbols,
-                         ir_function_get_return_type(ir_function(func_decl)));
+                         ir_function_get_return_type(ir_function(func_decl)),
+                         NULL,
+                         IR_NODE(func_decl));
     if (type != NULL)
     {
         ir_function_set_return_type(ir_function(func_decl),
@@ -2586,7 +2616,9 @@ validate_function_def(compilation_status_t *compile_status,
     type = ir_function_def_get_return_type(func_def);
     type = validate_type(compile_status,
                          symbols,
-                         ir_function_def_get_return_type(func_def));
+                         ir_function_def_get_return_type(func_def),
+                         NULL,
+                         IR_NODE(func_def));
     if (type != NULL)
     {
         ir_function_def_set_return_type(func_def, type);
