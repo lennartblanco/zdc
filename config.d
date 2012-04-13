@@ -100,7 +100,7 @@ get_config()
     static config c;
     if (c.targets == null)
     {
-        c = mixin(import("config"));
+        c = mixin(import("config.mixin"));
     }
 
     return c;
