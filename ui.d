@@ -10,7 +10,7 @@ import ver;
 import GSList;
 import auxil;
 import arm;
-import targets;
+import config;
 
 enum compilation_stages
 {

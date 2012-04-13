@@ -61,7 +61,19 @@ get_target_link_command(string target_name,
     return command;
 }
 
+string[]
+get_targets_names()
+{
+    return get_config().targets.keys;
+}
+
 private:
+
+struct config
+{
+    target[string] targets;
+    string[] import_paths;
+}
 
 struct target
 {
@@ -82,15 +94,20 @@ struct linker
     string output_flag;
 }
 
+ref config
+get_config()
+{
+    static config c;
+    if (c.targets == null)
+    {
+        c = mixin(import("config"));
+    }
+
+    return c;
+}
+
 ref target
 get_target(string target_name)
 {
-    static target[string] targets;
-
-    if (targets == null)
-    {
-        targets = mixin(import("config"));
-    }
-
-    return targets[target_name];
+    return get_config().targets[target_name];
 }

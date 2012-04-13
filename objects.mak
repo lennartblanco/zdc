@@ -44,5 +44,5 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
 # all objects generated both from C and D source files
 OBJS := $(COBJS) $(X86_TRGT_COBJS) $(X86_TRGT_DOBJS) $(ARM_TRGT_OBJS)         \
          GList-d.o GSList-d.o ir-d.o iml-d.o ui-d.o auxil-d.o sym_table-d.o   \
-         data_section-d.o targets-d.o gt_dispatcher-d.o ir_printer-d.o        \
+         data_section-d.o config-d.o gt_dispatcher-d.o ir_printer-d.o        \
          iml_printer-d.o

@@ -1,13 +1,12 @@
 #!/usr/bin/rdmd -J.
 
 import std.stdio;
-import targets;
+import config;
 
 void main()
 {
-  auto targets = mixin(import("config"));
   bool space = false;
-  foreach (target; targets.keys)
+  foreach (target; get_targets_names())
   {
     write(space ? " " : "", target);
     space = true;

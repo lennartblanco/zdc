@@ -1,5 +1,5 @@
+config (
 [
-
   "zdc" :
     target(backend.x86,
       toolchain("as --32 -g -o",
@@ -17,4 +17,8 @@
                        "/usr/arm-linux-gnueabi/lib/crt1.o -lc -lgc",
                        "-l",
                        "-o")))
-]
+],
+[
+  "/usr/include/d/zdc",
+  "./"
+])
