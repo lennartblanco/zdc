@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<config>
+
+  <!-- native x86 target -->
+
+  <target>
+    <name>zdc</name>
+    <backend>x86</backend>
+    <toolchain>
+      <asm_command>as --32 -g -o</asm_command>
+      <linker>
+        <prefix>ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 /usr/lib/crt1.o -lc -lgc</prefix>
+        <link_flag>-l</link_flag>
+        <output_flag>-o</output_flag>
+      </linker>
+    </toolchain>
+  </target>
+
+  <!-- ubuntu cross-compile arm target -->
+
+  <target>
+    <name>arm-linux-gnueabi-zdc</name>
+    <backend>arm</backend>
+    <toolchain>
+      <asm_command>arm-linux-gnueabi-as -g -o</asm_command>
+      <linker>
+        <prefix>arm-linux-gnueabi-ld -dynamic-linker /lib/ld-linux.so.3 /usr/arm-linux-gnueabi/lib/crt1.o -lc -lgc</prefix>
+        <link_flag>-l</link_flag>
+        <output_flag>-o</output_flag>
+      </linker>
+    </toolchain>
+  </target>
+
+  <!-- import paths -->
+
+  <import_path>/usr/include/d/zdc</import_path>
+  <import_path>./</import_path>
+
+</config>
+

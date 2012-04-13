@@ -22,9 +22,17 @@ lex.h: lex.c
 lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
 
+config.local:
+	touch $@
+
+config.mixin: config config.local
+	./gen_conf.rb config config.local > $@
+
 auxil.o: lex.h auxil.c
 
 parser.o: lex.h parser.c
+
+config-d.o: config.mixin
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $(BLD_DIR)/$@
@@ -70,4 +78,4 @@ clean:
 	make -C tests clean
 	make -C etests clean
 	rm -rf $(BLD_DIR)
-	rm -rf $(PROG) $(TARGETS) *.d.deps lex.c lex.h yygrammar.c yygrammar.h core *~
+	rm -rf $(PROG) $(TARGETS) *.d.deps lex.c lex.h yygrammar.c yygrammar.h core *~ config.mixin
