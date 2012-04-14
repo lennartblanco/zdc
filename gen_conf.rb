@@ -33,14 +33,6 @@ class Config
     end
   end
 
-  def dump
-    print "config ([\n"
-    @targets.each do | target |
-      target.dump
-    end
-    print "])\n"
-  end
-
   def to_s
     "config\n([\n" +
       @targets.join(",\n") +
@@ -96,7 +88,6 @@ class Linker
          else fail "unexpected tag '<#{element.name}>'"
        end
      end
-
   end
 
   def to_s
