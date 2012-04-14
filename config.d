@@ -1,4 +1,5 @@
 import std.string;
+import GSList;
 
 public:
 
@@ -65,6 +66,23 @@ string[]
 get_targets_names()
 {
     return get_config().targets.keys;
+}
+
+/**
+ * Get list of configured import paths. The paths are stored as a GSList of
+ * C-strings.
+ */
+GSList *
+get_import_paths()
+{
+    GSList *paths;
+
+    foreach (path; get_config().import_paths)
+    {
+        paths = g_slist_prepend(paths, cast(void*)toStringz(path));
+    }
+
+    return g_slist_reverse(paths);
 }
 
 private:

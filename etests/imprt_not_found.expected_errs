@@ -1,1 +1,5 @@
 imprt_not_found.d:2: cannot import module 'no/such/mod.d': File not found
+used import paths:
+  '/usr/include/d/zdc/'
+  './'
+  '/home/boris/zdc/stdlib/'

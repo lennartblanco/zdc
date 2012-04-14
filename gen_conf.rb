@@ -24,10 +24,15 @@ class Config
     REXML::Document.new(file).root.elements.each do | element |
       case element.name
         when "target" then @targets.push(Target.new(element))
-        when "import_path" then @import_paths.push(element.text)
+        when "import_path" then @import_paths.push(add_slash(element.text))
         else fail "unexpected tag '<#{element.name}>'"
       end
     end
+  end
+
+  # make sure the path ends with "/"
+  def add_slash(path)
+    path + if path[-1..-1] == "/" then "" else "/" end
   end
 
   def to_s

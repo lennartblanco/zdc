@@ -175,6 +175,8 @@ parse_command_arguments(string[] args, ref command_options options)
     options.comp_settings.print_ast = false;
     options.comp_settings.print_ir = false;
     options.comp_settings.print_iml = false;
+    options.comp_settings.import_paths = get_import_paths();
+    GSList *import_paths = null;
 
     /* parse command line options */
     for (int i = 1; i < args.length; i += 1)
@@ -218,9 +220,8 @@ parse_command_arguments(string[] args, ref command_options options)
                     path ~= '/';
                 }
 
-                options.comp_settings.import_paths =
-                    g_slist_prepend(options.comp_settings.import_paths,
-                                    cast(void*)toStringz(path));
+                import_paths = g_slist_prepend(import_paths,
+                                               cast(void*)toStringz(path));
             }
             else if (arg[0..2] == "-l")
             {
@@ -286,14 +287,10 @@ parse_command_arguments(string[] args, ref command_options options)
         options.source_files ~= arg;
     }
 
-    /* put the import paths in 'left-to-right' order */
+    /* add specified import paths in 'left-to-right' order */
     options.comp_settings.import_paths =
-        g_slist_reverse(options.comp_settings.import_paths);
-
-    /* always look for imports in local directory */
-    options.comp_settings.import_paths =
-        g_slist_prepend(options.comp_settings.import_paths,
-                        cast(void*)toStringz("./"));
+        g_slist_concat(g_slist_reverse(import_paths),
+                       options.comp_settings.import_paths);
 
     /* did we get any source input files ? */
     if (options.source_files.length < 1)

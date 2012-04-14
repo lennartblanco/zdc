@@ -34,7 +34,7 @@
   <!-- import paths -->
 
   <import_path>/usr/include/d/zdc</import_path>
-  <import_path>./</import_path>
+  <import_path>.</import_path>
 
 </config>
 

@@ -20,6 +20,9 @@ extern (C)
     GSList*
     g_slist_reverse(GSList *list);
 
+    GSList *
+    g_slist_concat(GSList *l, GSList *r);
+
     GSList*
     g_slist_copy(GSList *list);
 

@@ -108,6 +108,24 @@ compile_file(const char* input_file,
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+/**
+ * Convert import paths list to a text string the list all the paths. This is
+ * used to print error messages.
+ */
+static char *
+import_paths_string(GSList *import_paths)
+{
+    GSList *i;
+    GString *str = g_string_new(NULL);
+
+    for (i = import_paths; i != NULL; i = g_slist_next(i))
+    {
+        g_string_append_printf(str, "  '%s'\n", (char*) i->data);
+    }
+
+    return g_string_free(str, FALSE);
+}
+
 static int
 load_module_imports(AstModule *ast_module, GSList *import_paths)
 {
@@ -122,11 +140,13 @@ load_module_imports(AstModule *ast_module, GSList *import_paths)
             switch (error->code)
             {
                 case PARSER_FILE_READ_ERROR:
-                    fprintf(stderr, "%s:%u: cannot import module '%s': %s\n",
+                    fprintf(stderr, "%s:%u: cannot import module '%s': %s\n"
+                            "used import paths:\n%s",
                             ast_module_get_source_file(ast_module),
                             ast_node_get_line_num(i->data),
                             path,
-                            error->message);
+                            error->message,
+                            import_paths_string(import_paths));
                     break;
                 case PARSER_SYNTAX_ERROR:
                     fprintf(stderr, "%s:%u: failed to import module '%s'\n",
