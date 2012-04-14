@@ -3,13 +3,10 @@
 require "rexml/document"
 
 class Config
-  def initialize(filenames)
+  def initialize(mode, filenames)
+    @mode = mode
     @targets = []
     @import_paths = []
-
-    if filenames.size < 1 then
-      raise "no configure files specified"
-    end
 
     filenames.each do | file |
       parse_config_file(file)
@@ -34,6 +31,13 @@ class Config
   end
 
   def to_s
+    if @mode == "targets" then
+      names = ""
+      @targets.each do | target |
+         names += target.name + " "
+      end
+      return names[0..names.size-2]
+    end
     "config\n([\n" +
       @targets.join(",\n") +
       "\n],\n[\n    \"" +
@@ -51,6 +55,10 @@ class Target
          else fail "unexpected tag '<#{element.name}>'"
        end
     end
+
+  def name
+    @name
+  end
 
   def to_s
     "  \"#{@name}\" :\n" +
@@ -97,8 +105,34 @@ class Linker
   end
 end
 
+def get_help_test
+  "usage: #{$0} [--targets] CONFIG_FILE [CONFIG_FILE...]\n" +
+  "  --targets only print target names"
+end
+
 begin
-  print Config.new(ARGV)
+  mode = "mixin"
+  files = []
+
+  if ARGV.size == 0 then
+    raise "no arguments\n" + get_help_test
+  end
+
+  ARGV.each do | arg |
+    case arg
+      when "--targets" then mode = "targets"
+      when "--help"
+        print get_help_test + "\n"
+        exit 0
+      else files.push(arg)
+    end
+  end
+
+  if files.size == 0 then
+    raise "no configure files specified"
+  end
+
+  print Config.new(mode, files)
 rescue
   print "#{$0}: #{$!}\n"
   exit 1
