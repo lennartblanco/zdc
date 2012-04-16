@@ -8,24 +8,24 @@ class Config
     @targets = []
     @import_paths = []
 
-    filenames.each do | file |
-      parse_config_file(file)
-    end
-  end
+    filenames.each do | file_name |
 
-  def parse_config_file(file_name)
-    file = File.new(file_name)
+      #
+      # parse each specified configure file
+      #
 
-    # silenty ignore empty files
-    if file.stat.size == 0 then
-      return
-    end
+      # silenty ignore empty files
+      file = File.new(file_name)
+      if file.stat.size == 0 then
+        next
+      end
 
-    REXML::Document.new(file).root.elements.each do | element |
-      case element.name
-        when "target" then @targets.push(Target.new(element))
-        when "import_path" then @import_paths.push(add_slash(element.text))
-        else fail "unexpected tag '<#{element.name}>'"
+      REXML::Document.new(file).root.elements.each do | element |
+        case element.name
+          when "target" then @targets.push(Target.new(element))
+          when "import_path" then @import_paths.push(add_slash(element.text))
+          else fail "unexpected tag '<#{element.name}>'"
+        end
       end
     end
   end
