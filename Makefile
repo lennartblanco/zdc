@@ -3,7 +3,7 @@ include objects.mak
 ACCENT := tools/bin/accent
 PROG := zdc
 GEN_CONFIG :=./gen_conf.rb
-CONFIGS := config config.local
+CONFIGS := $(shell echo config; [ -e config.local ] && echo config.local)
 TARGETS := $(patsubst $(PROG),,$(shell $(GEN_CONFIG) --targets $(CONFIGS)))
 CFLAGS += -Wall -g $(shell  pkg-config --cflags glib-2.0 gobject-2.0)
 BLD_DIR := build
@@ -25,7 +25,7 @@ lex.c: tokens.lex yygrammar.h
 	flex -o lex.c --header-file=lex.h  tokens.lex
 
 config.local:
-	touch $@
+	# nop
 
 config.mixin: $(CONFIGS)
 	$(GEN_CONFIG) $(CONFIGS) > $@
