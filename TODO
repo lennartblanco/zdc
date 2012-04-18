@@ -1,3 +1,14 @@
+* following code fails an assertion
+
+void foo()
+{
+  return 0;
+}
+
+$ ./zdc err.d
+zdc: dt_data_type.c:146: dt_data_type_is_impl_conv: Assertion `((((DtDataTypeClass*) (((GTypeInstance*) ((self)))->g_class))))->is_impl_conv != ((void *)0)' failed.
+Aborted
+
 * post-inc (and probably other ++/--) operation does not write back the new
 value when used on ref parameters, pointer-dereference expressions and struct
 members. For example:
