@@ -52,8 +52,7 @@ enum iml_opcode
     call_c,
     ret,
     label
-};
-
+}
 
 /* a workaround for dmd bug(?) where cast(iml_operation*) does not work */
 iml_operation *
@@ -81,7 +80,7 @@ enum iml_data_type
     _32b,
     ptr,
     blob
-};
+}
 
 iml_data_type
 iml_operand_get_data_type(ImlOperand *self);
