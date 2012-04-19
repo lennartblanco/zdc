@@ -75,6 +75,19 @@ ast_import_new(bool private, GSList *module_name, guint line_number)
 
 }
 
+AstImport *
+ast_import_get_implicit()
+{
+    static AstImport *object = NULL;
+
+    if (object == NULL)
+    {
+        object = ast_import_new(true, g_slist_prepend(NULL, "object"), 1);
+    }
+
+    return object;
+}
+
 char *
 ast_import_get_path(AstImport *self)
 {

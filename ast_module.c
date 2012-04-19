@@ -66,7 +66,7 @@ ast_module_new(void)
     node = g_object_new	(AST_TYPE_MODULE, NULL);
     node->source_file = NULL;
     node->package = NULL;
-    node->imports = NULL;
+    node->imports = g_slist_prepend(NULL, ast_import_get_implicit());
     node->declarations = NULL;
 
     return node;

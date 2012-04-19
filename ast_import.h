@@ -46,6 +46,12 @@ AstImport *
 ast_import_new(bool private, GSList *module_name, guint line_number);
 
 /**
+ * Get an implicit import. A system import that is always done for all modules.
+ */
+AstImport *
+ast_import_get_implicit();
+
+/**
  * Get the relative path to imported modules source file.
  * E.g. 'import root.sub.mdl;' will return 'root/sub/mdl.d'.
  *
