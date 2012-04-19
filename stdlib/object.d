@@ -1,0 +1,1 @@
+alias immutable(char)[] string;
