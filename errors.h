@@ -14,7 +14,10 @@
 /**
  * Report a compile time error.
  *
- * @errmsg error message with printf-style formatting
+ * @param compile_status compilation status to use for source file name and
+ *                       errors count
+ * @param error_node     report error on this node's line number
+ * @param errmsg         error message with printf-style formatting
  */
 void
 compile_error(compilation_status_t *compile_status,

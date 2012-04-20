@@ -6,12 +6,6 @@
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
-/**
- * Report a compile time error.
- *
- * @param filename the name of the source file where error is found.
- * @errmsg error message with printf-style formatting
- */
 void
 compile_error(compilation_status_t *compile_status,
               void *error_node,
