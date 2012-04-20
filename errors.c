@@ -20,9 +20,7 @@ compile_error(compilation_status_t *compile_status,
 {
     assert(compile_status);
     assert(compile_status->source_file);
-    assert(IR_IS_NODE(error_node) || 
-           AST_IS_NODE(error_node) ||
-           DT_IS_DATA_TYPE(error_node));
+    assert(IR_IS_NODE(error_node) || AST_IS_NODE(error_node));
 
     guint line_num;
 
