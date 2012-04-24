@@ -14,9 +14,9 @@ compile_error(compilation_status_t *compile_status,
 {
     assert(compile_status);
     assert(compile_status->source_file);
-    assert(IR_IS_NODE(error_node) || AST_IS_NODE(error_node));
+    assert(error_node == NULL || IR_IS_NODE(error_node) || AST_IS_NODE(error_node));
 
-    guint line_num;
+    guint line_num = -1;
 
     if (IR_IS_NODE(error_node))
     {
@@ -26,25 +26,26 @@ compile_error(compilation_status_t *compile_status,
     {
         line_num = ast_node_get_line_num(error_node);
     }
+
+    if (error_node != NULL)
+    {
+        /*
+         * if line number is 0, which is a default value,
+         * it have not been set properly
+         */
+        assert(line_num != 0);
+        fprintf(stderr,
+                "%s:%u: error: ",
+                compile_status->source_file,
+                line_num);
+    }
     else
     {
-        /* unexpected error node type */
-        assert(false);
+        /* error without specific line number */
+        fprintf(stderr, "%s: error: ", compile_status->source_file);
     }
 
-    /*
-     * if line number is 0, which is a default value,
-     * it have not been set properly
-     */
-    assert(line_num != 0);
-
     va_list argp;
-
-    fprintf(stderr,
-            "%s:%u: error: ",
-            compile_status->source_file,
-            line_num);
-
     va_start(argp, errmsg);
     vfprintf(stderr, errmsg, argp);
     va_end(argp);

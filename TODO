@@ -132,23 +132,6 @@ import std.stdio;
 
 * add a check that non-void functions have a return statment, and throw compile error otherwise
 
-* implicit module names not checked for correctness, for example compile a file with '-' in it's filename:
-
-$ cat foo-bar.d
-void main() { }
-$ ./xdc foo-bar.d
-foo-bar.s: Assembler messages:
-foo-bar.s:11: Error: junk at end of line, first unrecognized character is `-'
-foo-bar.s:12: Error: unrecognized symbol type ""
-foo-bar.s:12: Error: junk at end of line, first unrecognized character is `-'
-foo-bar.s:13: Error: invalid character '_' in mnemonic
-error assembling 'foo-bar.s'
-
-where is dmd will print following nice error message:
-
-$ dmd foo-bar.d
-foo-bar.d: Error: module foo-bar has non-identifier characters in filename, use module declaration instead
-
 * shadowing of variables in foreach loops is not detected, e.g. following code does not generate a compile error:
 
 void func1()

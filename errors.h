@@ -15,7 +15,8 @@
  * Report a compile time error.
  *
  * @param compile_status compilation status to use for source file name and
- *                       errors count
+ *                       errors count,
+ *                       if NULL then no line number will be printed
  * @param error_node     report error on this node's line number
  * @param errmsg         error message with printf-style formatting
  */

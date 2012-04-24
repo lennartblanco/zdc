@@ -1,0 +1,8 @@
+/*
+ * test that we get an error on invalid implicit module name,
+ * inv-mod-name in this case
+ */
+
+int func() {
+  return 1;
+}

@@ -3113,6 +3113,27 @@ validate_imports(compilation_status_t *compile_status, IrModule *module)
     compile_status->module = module;
 }
 
+void
+validate_module_name(compilation_status_t *compile_status,
+                     IrModule *module)
+{
+    assert(compile_status);
+    assert(IR_IS_MODULE(module));
+
+    char *module_name = g_slist_last(ir_module_get_package_name(module))->data;
+
+     /* check that module name is valid */
+     if (!g_regex_match_simple("^[[:alpha:]_][[:alnum:]_]*$",
+                               module_name, 0, 0))
+     {
+         compile_error(compile_status,
+                       NULL,
+                       "invalid implicit module name '%s', "
+                       "use module declaration instead\n",
+                       module_name);
+     }
+}
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -3126,6 +3147,7 @@ sem_analyze_validate(compilation_status_t *compile_status,
 
     compile_status->module = module;
 
+    validate_module_name(compile_status, module);
     validate_imports(compile_status, module);
     validate_entry_point(compile_status, module);
     validate_user_types(compile_status, module);

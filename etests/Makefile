@@ -44,6 +44,7 @@ for_loop: for_loop.d
 invalid_func_calls: invalid_func_calls.d
 address_of: address_of.d
 attributes: attributes.d
+inv-mod-name: inv-mod-name.d
 
 %.d: %.inv_d
 	cp $? $@

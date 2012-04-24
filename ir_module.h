@@ -57,6 +57,9 @@ ir_module(void *obj);
 IrModule *
 ir_module_new(GSList *package_name);
 
+GSList *
+ir_module_get_package_name(IrModule *self);
+
 sym_table_t *
 ir_module_get_symbols(IrModule *self);
 

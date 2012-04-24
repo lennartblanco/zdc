@@ -83,6 +83,14 @@ ir_module_new(GSList *package_name)
     return obj;
 }
 
+GSList *
+ir_module_get_package_name(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->package_name;
+}
+
 sym_table_t *
 ir_module_get_symbols(IrModule *self)
 {
