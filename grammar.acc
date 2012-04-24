@@ -10,6 +10,7 @@
 #include "dt_pointer.h"
 #include "dt_name.h"
 #include "dt_static_array.h"
+#include "ast_null.h"
 #include "ast_alias.h"
 #include "ast_return.h"
 #include "ast_conditional.h"
@@ -47,7 +48,7 @@ AstModule *module;
 
 %token TOK_DOTDOT,
        TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
-       TOK_IDENT, TOK_TRUE, TOK_FALSE,
+       TOK_IDENT, TOK_TRUE, TOK_FALSE, TOK_NULL,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
        TOK_BREAK, TOK_RETURN, TOK_CAST, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
        TOK_REF, TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
@@ -1019,6 +1020,10 @@ primary<n> :
     {
         (*n).expression =
             AST_EXPRESSION(ast_ident_new("this", yypos));
+    }
+|   TOK_NULL
+    {
+        (*n).expression = AST_EXPRESSION(ast_null_new());
     }
 |   func_call<n>
 |   '(' expression<n> ')'

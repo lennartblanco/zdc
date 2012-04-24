@@ -26,6 +26,7 @@
 #include "ast_ptr_dref.h"
 #include "ast_address_of.h"
 #include "ast_cast.h"
+#include "ast_null.h"
 #include "ast_alias.h"
 #include "ast_enum.h"
 #include "ast_enum_member.h"
@@ -60,6 +61,7 @@
 #include "ir_struct.h"
 #include "ir_dot.h"
 #include "ir_ident.h"
+#include "ir_null.h"
 #include "dt_basic.h"
 #include "errors.h"
 
@@ -1728,6 +1730,10 @@ expression_to_ir(compilation_status_t *compile_status,
     else if (AST_IS_IDENT(ast_expression))
     {
         return ident_to_ir(compile_status, AST_IDENT(ast_expression));
+    }
+    else if (AST_IS_NULL(ast_expression))
+    {
+        return ir_expression(ir_null_new());
     }
     else if (AST_IS_CONDITIONAL(ast_expression))
     {
