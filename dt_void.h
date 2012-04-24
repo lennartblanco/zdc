@@ -22,7 +22,7 @@
   (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_VOID))
 
 #define DT_VOID_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_VOID, AstVoidClass))
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_VOID, DtVoidClass))
 
 typedef struct
 {
