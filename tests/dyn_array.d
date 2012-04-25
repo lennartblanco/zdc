@@ -202,86 +202,86 @@ bool invoke_find_int(uint test_num)
   }
 }
 
+extern (C) :
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
-extern (C)
+
+int
+call_int_array_lit_assigment(int arg)
 {
-  int
-  call_int_array_lit_assigment(int arg)
-  {
-    return int_array_lit_assigment(arg);
-  }
+  return int_array_lit_assigment(arg);
+}
 
-  int
-  call_int_array_lit_init(int arg)
-  {
-    return int_array_lit_init(arg);
-  }
+int
+call_int_array_lit_init(int arg)
+{
+  return int_array_lit_init(arg);
+}
 
-  int
-  call_intops(int arg1, int arg2)
-  {
-    return intops(arg1, arg2);
-  }
+int
+call_intops(int arg1, int arg2)
+{
+  return intops(arg1, arg2);
+}
 
-  bool
-  call_bool_array_lit_assigment(int arg)
-  {
-    return bool_array_lit_assigment(arg);
-  }
+bool
+call_bool_array_lit_assigment(int arg)
+{
+  return bool_array_lit_assigment(arg);
+}
 
-  bool
-  call_bool_array_lit_init(bool arg)
-  {
-    return bool_array_lit_init(arg);
-  }
+bool
+call_bool_array_lit_init(bool arg)
+{
+  return bool_array_lit_init(arg);
+}
 
-  bool
-  call_boolops(int arg1, int arg2)
-  {
-    return boolops(arg1, arg2);
-  }
+bool
+call_boolops(int arg1, int arg2)
+{
+  return boolops(arg1, arg2);
+}
 
-  char
-  call_char_array(char arg1, int arg2)
-  {
-    return char_array(arg1, arg2);
-  }
+char
+call_char_array(char arg1, int arg2)
+{
+  return char_array(arg1, arg2);
+}
 
-  int
-  call_invoke_dyn_array_sum_handle(int arg)
-  {
-    return invoke_dyn_array_sum_handle(arg);
-  }
+int
+call_invoke_dyn_array_sum_handle(int arg)
+{
+  return invoke_dyn_array_sum_handle(arg);
+}
 
-  int
-  call_invoke_dyn_array_sum_lit(int arg)
-  {
-    return invoke_dyn_array_sum_lit(arg);
-  }
+int
+call_invoke_dyn_array_sum_lit(int arg)
+{
+  return invoke_dyn_array_sum_lit(arg);
+}
 
-  int
-  call_dyn_array_slice_assigment(bool arg1, uint arg2)
-  {
-    return dyn_array_slice_assigment(arg1, arg2);
-  }
+int
+call_dyn_array_slice_assigment(bool arg1, uint arg2)
+{
+  return dyn_array_slice_assigment(arg1, arg2);
+}
 
-  uint
-  call_dyn_array_slice_assigment_length(uint arg)
-  {
-    return dyn_array_slice_assigment_length(arg);
-  }
+uint
+call_dyn_array_slice_assigment_length(uint arg)
+{
+  return dyn_array_slice_assigment_length(arg);
+}
 
-  int
-  call_dyn_array_slice_shorthand(bool arg1, uint arg2)
-  {
-    return dyn_array_slice_shorthand(arg1, arg2);
-  }
+int
+call_dyn_array_slice_shorthand(bool arg1, uint arg2)
+{
+  return dyn_array_slice_shorthand(arg1, arg2);
+}
 
-  int
-  call_invoke_find_int(int arg)
-  {
-    return invoke_find_int(arg);
-  }
+int
+call_invoke_find_int(int arg)
+{
+  return invoke_find_int(arg);
 }
