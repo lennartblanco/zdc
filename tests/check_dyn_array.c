@@ -39,6 +39,12 @@ call_dyn_array_slice_shorthand(bool arg1, unsigned arg2);
 int
 call_invoke_find_int(int arg);
 
+unsigned
+array_null_assign(bool assign_null);
+
+int
+array_null_arg(bool use_null);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -185,6 +191,14 @@ main()
                call_invoke_find_int(3), false);
     check_bool("invoke_find_int(4)",
                call_invoke_find_int(4), true);
+
+    /* array_null_assign() tests */
+    check_uint("array_null_assign(true)", array_null_assign(true), 0);
+    check_uint("array_null_assign(false)", array_null_assign(false), 4);
+
+    /* array_null_arg() tests */
+    check_int("array_null_arg(true)", array_null_arg(true), 0);
+    check_int("array_null_arg(false)", array_null_arg(false), 10 + 2 + 3);
 
     check_exit();
 }

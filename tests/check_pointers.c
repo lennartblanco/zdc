@@ -49,6 +49,12 @@ ptr_offset_access(int *ptr, unsigned offset);
 bool
 ptr_comp(char *left, char *right, int op_type);
 
+bool
+void_ptr_comp(void *left, int *right, int op_type);
+
+bool
+null_ptr_comp(unsigned* ptr, int op_type);
+
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
  *---------------------------------------------------------------------------*/
@@ -242,6 +248,70 @@ main()
     check_bool("ptr_comp(NULL, NULL, 6)",
                ptr_comp(NULL, NULL, 6), false);
 
+    /* void_ptr_comp() tests */
+    check_bool("void_ptr_comp(NULL, NULL, -1)",
+               void_ptr_comp(NULL, NULL, -1), false);
+
+    check_bool("void_ptr_comp(NULL, NULL, 0)",
+               void_ptr_comp(NULL, NULL, 0), true);
+    check_bool("void_ptr_comp(NULL, 0x1234, 0)",
+               void_ptr_comp(NULL, (int*)0x1234, 0), false);
+
+    check_bool("void_ptr_comp(NULL, NULL, 1)",
+               void_ptr_comp(NULL, NULL, 1), false);
+    check_bool("void_ptr_comp(NULL, 0x1234, 1)",
+               void_ptr_comp(NULL, (int*)0x1234, 1), true);
+
+    check_bool("void_ptr_comp(NULL, 0x1234, 2)",
+               void_ptr_comp(NULL, (int*)0x1234, 2), true);
+    check_bool("void_ptr_comp(0x10, 0x10, 2)",
+               void_ptr_comp((void*)0x10, (int*)0x10, 2), false);
+    check_bool("void_ptr_comp(0x35, 0x34, 2)",
+               void_ptr_comp((void*)0x35, (int*)0x34, 2), false);
+
+    check_bool("void_ptr_comp(0x5, 0x8, 3)",
+               void_ptr_comp((void *)0x5, (int*)0x8, 3), true);
+    check_bool("void_ptr_comp(0x8, 0x8, 3)",
+               void_ptr_comp((void *)0x8, (int*)0x8, 3), true);
+    check_bool("void_ptr_comp(0x12, 0x8, 3)",
+               void_ptr_comp((void *)0x12, (int*)0x8, 3), false);
+
+    check_bool("void_ptr_comp(0xab, 0xab, 4)",
+               void_ptr_comp((void*)0xab, (int*)0xab, 4), false);
+    check_bool("void_ptr_comp(0xa0, 0xab, 4)",
+               void_ptr_comp((void*)0xa0, (int*)0xab, 4), false);
+    check_bool("void_ptr_comp(0xb0, 0xab, 4)",
+               void_ptr_comp((void*)0xb0, (int*)0xab, 4), true);
+
+    check_bool("void_ptr_comp(0xab, 0xab, 5)",
+               void_ptr_comp((void*)0xab, (int*)0xab, 5), true);
+    check_bool("void_ptr_comp(0xa0, 0xab, 5)",
+               void_ptr_comp((void*)0xa0, (int*)0xab, 5), false);
+    check_bool("void_ptr_comp(0xb0, 0xab, 5)",
+               void_ptr_comp((void*)0xb0, (int*)0xab, 5), true);
+
+    check_bool("void_ptr_comp(NULL, NULL, 6)",
+               void_ptr_comp(NULL, NULL, 6), false);
+
+    /* null_ptr_comp() tests */
+    check_bool("null_ptr_comp(NULL, 0)", null_ptr_comp(NULL, 0), true);
+    check_bool("null_ptr_comp(0xff, 0)",
+               null_ptr_comp((unsigned *)0xff, 0), false);
+    check_bool("null_ptr_comp(NULL, 1)", null_ptr_comp(NULL, 1), false);
+    check_bool("null_ptr_comp(0xff, 1)",
+               null_ptr_comp((unsigned *)0xff, 1), true);
+    check_bool("null_ptr_comp(NULL, 2)", null_ptr_comp(NULL, 2), false);
+    check_bool("null_ptr_comp(0xff, 2)",
+               null_ptr_comp((unsigned *)0xff, 2), true);
+    check_bool("null_ptr_comp(NULL, 3)", null_ptr_comp(NULL, 3), true);
+    check_bool("null_ptr_comp(0xff, 3)",
+               null_ptr_comp((unsigned *)0xff, 3), false);
+    check_bool("null_ptr_comp(NULL, 4)", null_ptr_comp(NULL, 4), false);
+    check_bool("null_ptr_comp(0xff, 4)",
+               null_ptr_comp((unsigned *)0xff, 4), true);
+    check_bool("null_ptr_comp(NULL, 5)", null_ptr_comp(NULL, 5), true);
+    check_bool("null_ptr_comp(0xff, 5)",
+               null_ptr_comp((unsigned *)0xff, 5), true);
 
     check_exit();
 }

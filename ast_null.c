@@ -30,11 +30,9 @@ ast_null_get_type(void)
 }
 
 AstNull *
-ast_null_new()
+ast_null_new(guint line_number)
 {
-    AstNull *obj;
-
-    obj = g_object_new(AST_TYPE_NULL, NULL);
-
-    return obj;
+    return g_object_new(AST_TYPE_NULL,
+                        "ast-node-line-number", line_number,
+                        NULL);
 }

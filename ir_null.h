@@ -42,6 +42,6 @@ GType
 ir_null_get_type(void);
 
 IrNull *
-ir_null_new();
+ir_null_new(guint line_number);
 
 #endif /* IR_NULL_INC_X */

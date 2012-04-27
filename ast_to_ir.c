@@ -1733,7 +1733,8 @@ expression_to_ir(compilation_status_t *compile_status,
     }
     else if (AST_IS_NULL(ast_expression))
     {
-        return ir_expression(ir_null_new());
+        return
+            ir_expression(ir_null_new(ast_node_get_line_num(ast_expression)));
     }
     else if (AST_IS_CONDITIONAL(ast_expression))
     {

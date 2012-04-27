@@ -1,0 +1,18 @@
+void func(uint s)
+{
+
+}
+
+void oink()
+{
+  func(null);        /* null argument where uint is expected */
+
+  int x = null;      /* null as init expression to to int variable */
+
+  x = 2;
+  x = null;          /* null assignment to int variable */
+
+  char[10] c;
+
+  c = null;          /* null assigment to static array */
+}

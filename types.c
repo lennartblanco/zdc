@@ -387,6 +387,20 @@ types_get_void_type()
    return void_data_type;
 }
 
+DtDataType *
+types_get_void_ptr()
+{
+    static DtDataType *void_ptr_data_type = NULL;
+
+    if (void_ptr_data_type == NULL)
+    {
+        void_ptr_data_type =
+            DT_DATA_TYPE(dt_pointer_new(types_get_void_type()));
+    }
+
+    return void_ptr_data_type;
+}
+
 bool
 types_is_literal_0or1(IrExpression *expression)
 {

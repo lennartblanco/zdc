@@ -131,4 +131,10 @@ types_get_bool_type();
 DtDataType *
 types_get_void_type();
 
+/**
+ * Get singelton instance of object representing void* type.
+ */
+DtDataType *
+types_get_void_ptr();
+
 #endif /* TYPES_INC_X */

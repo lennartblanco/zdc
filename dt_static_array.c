@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "dt_static_array.h"
+#include "ir_null.h"
 
 #include <assert.h>
 
@@ -147,6 +148,15 @@ dt_static_array_type_get_init(DtDataType *self)
     return dt_data_type_get_init(dt_array(self)->data_type);
 }
 
+static bool
+dt_static_array_is_impl_conv(DtDataType *self, IrExpression *expression)
+{
+    assert(DT_IS_STATIC_ARRAY_TYPE(self));
+    assert(IR_IS_EXPRESSION(expression));
+
+    return dt_array_is_impl_conv(self, expression) && !IR_IS_NULL(expression);
+}
+
 static void
 dt_static_array_type_class_init(gpointer klass, gpointer dummy)
 {
@@ -154,5 +164,6 @@ dt_static_array_type_class_init(gpointer klass, gpointer dummy)
     DT_DATA_TYPE_CLASS(klass)->get_string = dt_static_array_type_get_string;
     DT_DATA_TYPE_CLASS(klass)->get_mangled = dt_static_array_type_get_mangled;
     DT_DATA_TYPE_CLASS(klass)->get_init = dt_static_array_type_get_init;
+    DT_DATA_TYPE_CLASS(klass)->is_impl_conv = dt_static_array_is_impl_conv;
 }
 

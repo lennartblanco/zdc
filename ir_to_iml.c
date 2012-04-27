@@ -58,7 +58,7 @@ static iml_opcode_t basic_to_ptr_cast_ops[last_basic_type] =
  *---------------------------------------------------------------------------*/
 
 static ImlConstant *
-ir_constant_to_iml(IrConstant *constant);
+ir_basic_constant_to_iml(IrBasicConstant *constant);
 
 static ImlOperand *
 iml_add_unary_op_eval(iml_function_t *function,
@@ -189,9 +189,10 @@ iml_add_expression_eval(iml_function_t *function,
 
     ImlOperand *res = NULL;
 
-    if (IR_IS_CONSTANT(ir_expression))
+    if (IR_IS_BASIC_CONSTANT(ir_expression))
     {
-        res = iml_operand(ir_constant_to_iml(IR_CONSTANT(ir_expression)));
+        res =  iml_operand(
+                   ir_basic_constant_to_iml(ir_basic_constant(ir_expression)));
     }
     else if (IR_IS_VAR_VALUE(ir_expression))
     {
@@ -225,6 +226,10 @@ iml_add_expression_eval(iml_function_t *function,
     else if (IR_IS_CAST(ir_expression))
     {
         res = iml_add_cast_eval(function, ir_cast(ir_expression), dest);
+    }
+    else if (IR_IS_NULL(ir_expression))
+    {
+        res = iml_operand(iml_constant_zero_32b());
     }
     else if (IR_IS_ARRAY_CELL(ir_expression))
     {
@@ -951,7 +956,7 @@ get_iml_opcode_binop(IrBinaryOperation *op)
 }
 
 static ImlConstant *
-ir_constant_to_iml(IrConstant *constant)
+ir_basic_constant_to_iml(IrBasicConstant *constant)
 {
     iml_data_type_t type;
     guint8 v8;
@@ -966,42 +971,42 @@ ir_constant_to_iml(IrConstant *constant)
     if (dt_basic_is_int(exp_type))
     {
         type = iml_32b;
-        v32 = ir_basic_constant_get_int(ir_basic_constant(constant));
+        v32 = ir_basic_constant_get_int(constant);
     }
     else if (dt_basic_is_uint(exp_type))
     {
         type = iml_32b;
-        v32 = ir_basic_constant_get_uint(ir_basic_constant(constant));
+        v32 = ir_basic_constant_get_uint(constant);
     }
     else if (dt_basic_is_short(exp_type))
     {
         type = iml_16b;
-        v16 = ir_basic_constant_get_short(ir_basic_constant(constant));
+        v16 = ir_basic_constant_get_short(constant);
     }
     else if (dt_basic_is_ushort(exp_type))
     {
         type = iml_16b;
-        v16 = ir_basic_constant_get_ushort(ir_basic_constant(constant));
+        v16 = ir_basic_constant_get_ushort(constant);
     }
     else if (dt_basic_is_byte(exp_type))
     {
         type = iml_8b;
-        v8 = ir_basic_constant_get_byte(ir_basic_constant(constant));
+        v8 = ir_basic_constant_get_byte(constant);
     }
     else if (dt_basic_is_ubyte(exp_type))
     {
         type = iml_8b;
-        v8 = ir_basic_constant_get_ubyte(ir_basic_constant(constant));
+        v8 = ir_basic_constant_get_ubyte(constant);
     }
     else if (dt_basic_is_char(exp_type))
     {
         type = iml_8b;
-        v8 = ir_basic_constant_get_char(ir_basic_constant(constant));
+        v8 = ir_basic_constant_get_char(constant);
     }
     else if (dt_basic_is_bool(exp_type))
     {
         type = iml_8b;
-        v8 = ir_basic_constant_get_bool(ir_basic_constant(constant));
+        v8 = ir_basic_constant_get_bool(constant);
     }
     else
     {
@@ -2155,19 +2160,7 @@ add_pointer_assignment(iml_function_t *function,
 
     ImlVariable *dest = ir_variable_get_location(lvalue);
 
-    if (IR_IS_NULL(value))
-    {
-        /* handle the special case of null assignment */
-        iml_function_add_operation(
-            function,
-            iml_operation_new(iml_copy,
-                              iml_constant_zero_32b(),
-                              dest));
-    }
-    else
-    {
-        iml_add_expression_eval(function, value, dest, false);
-    }
+    iml_add_expression_eval(function, value, dest, false);
 }
 
 static void

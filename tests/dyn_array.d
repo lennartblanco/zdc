@@ -204,6 +204,33 @@ bool invoke_find_int(uint test_num)
 
 extern (C) :
 
+/**
+ * test assignment of 'null' to array variable
+ */
+uint
+array_null_assign(bool assign_null)
+{
+  byte[] l = [1, 2, 3, 4];
+
+  if (assign_null) {
+    l = null;
+  }
+
+  return l.length;
+}
+
+/**
+ * test using 'null' in function call for int[] argument
+ */
+int
+array_null_arg(bool use_null)
+{
+  if (use_null) {
+    return dyn_array_sum(null);
+  }
+  return dyn_array_sum([10, 2, 3]);
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

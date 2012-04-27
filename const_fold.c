@@ -1,6 +1,7 @@
 #include "const_fold.h"
 #include "ir_basic_constant.h"
 #include "ir_array_literal.h"
+#include "ir_null.h"
 #include "types.h"
 
 #include <assert.h>
@@ -212,6 +213,10 @@ cfold_cast(IrCast *cast_exp)
     if (dt_is_basic(val_type))
     {
         return cfold_cast_basic_type(target_type, val_type, val);
+    }
+    else if (IR_IS_NULL(val))
+    {
+        return val;
     }
     else if (ir_is_array_literal(val))
     {

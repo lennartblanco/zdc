@@ -1023,7 +1023,7 @@ primary<n> :
     }
 |   TOK_NULL
     {
-        (*n).expression = AST_EXPRESSION(ast_null_new());
+        (*n).expression = AST_EXPRESSION(ast_null_new(yypos));
     }
 |   func_call<n>
 |   '(' expression<n> ')'

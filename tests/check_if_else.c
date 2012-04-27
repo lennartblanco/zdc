@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "check_utils.h"
 
 bool
@@ -31,6 +33,9 @@ int
 call_iret_n_arg(int arg1, int arg2, int arg3, int arg4);
 
 int const_if_else();
+
+int
+if_null(void *arg);
 
 /*---------------------------------------------------------------------------*
  *                              run tests                                    *
@@ -112,6 +117,9 @@ main()
     /* const_if_else() test */
     check_int("const_if_else()", const_if_else(), -100);
 
+    /* if_null() tests */
+    check_int("if_null(0xbeef)", if_null((void*)0xbeef), 0);
+    check_int("if_null(NULL)", if_null(NULL), -1);
 
     check_exit();
 }

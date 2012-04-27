@@ -15,8 +15,10 @@ exprs.d:43: error: can't dereference non-pointer expression
 exprs.d:52: error: invalid pointers comparison
 exprs.d:53: error: invalid pointers comparison
 exprs.d:54: error: invalid pointers comparison
-exprs.d:61: error: expression have no effect
-exprs.d:62: error: expression have no effect
+exprs.d:55: error: invalid pointers comparison
+exprs.d:56: error: invalid pointers comparison
 exprs.d:63: error: expression have no effect
 exprs.d:64: error: expression have no effect
 exprs.d:65: error: expression have no effect
+exprs.d:66: error: expression have no effect
+exprs.d:67: error: expression have no effect

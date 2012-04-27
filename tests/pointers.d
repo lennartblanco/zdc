@@ -210,6 +210,71 @@ ptr_comp(char *left, char *right, int op_type)
   return false;
 }
 
+// test void* and int* comparisons
+extern (C) bool
+void_ptr_comp(void *left, int *right, int op_type)
+{
+  if (op_type == 0)
+  {
+    return left == right;
+  }
+  else if (op_type == 1)
+  {
+    return left != right;
+  }
+  else if (op_type == 2)
+  {
+    return left < right;
+  }
+  else if (op_type == 3)
+  {
+    return left <= right;
+  }
+  else if (op_type == 4)
+  {
+    return left > right;
+  }
+  else if (op_type == 5)
+  {
+    return left >= right;
+  }
+
+  return false;
+}
+
+// test comparing uint pointer with null expression
+extern (C) bool
+null_ptr_comp(uint* ptr, int op_type)
+{
+  if (op_type == 0)
+  {
+    return null == ptr;
+  }
+  else if (op_type == 1)
+  {
+    return null != ptr;
+  }
+  else if (op_type == 2)
+  {
+    return null < ptr;
+  }
+  else if (op_type == 3)
+  {
+    return ptr <= null;
+  }
+  else if (op_type == 4)
+  {
+    return ptr > null;
+  }
+  else if (op_type == 5)
+  {
+    return ptr >= null;
+  }
+
+  return false;
+}
+
+
 /*
  * wrappers to allow call test functions with C calling convention
  */

@@ -87,6 +87,57 @@ dt_array_get_element_size(DtArray *self)
     return dt_data_type_get_size(self->data_type);
 }
 
+bool
+dt_array_is_impl_conv(DtDataType *self, IrExpression *expression)
+{
+    assert(DT_IS_ARRAY(self));
+    assert(IR_IS_EXPRESSION(expression));
+
+    if (IR_IS_NULL(expression))
+    {
+        return true;
+    }
+
+    DtDataType *expr_type = ir_expression_get_data_type(expression);
+
+    if (!DT_IS_ARRAY(expr_type))
+    {
+        return false;
+    }
+
+    /* the expression should be of array literal type */
+    assert(ir_is_array_literal(expression));
+
+    DtDataType *element_type = dt_array_get_element_type(dt_array(self));
+    DtDataType *expr_element_type =
+        dt_array_get_element_type(dt_array(expr_type));
+
+    if (dt_data_type_is_immutable(expr_element_type) &&
+        !dt_data_type_is_immutable(element_type))
+    {
+        /*
+         * can't implicitly convert array with immutable elements to
+         * an array with mutable elements
+        */
+        return false;
+    }
+
+    /*
+     * if all array literal's values are implicitly convertible to
+     * our element type, then the whole literal is convertible to this type
+     */
+    GSList *i = ir_array_literal_get_values(ir_array_literal(expression));
+    for (; i != NULL; i = g_slist_next(i))
+    {
+        if (!dt_data_type_is_impl_conv(element_type, ir_expression(i->data)))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -140,7 +191,7 @@ dt_array_type_get_init(DtDataType *self)
 {
     assert(DT_IS_ARRAY(self));
 
-    return ir_expression(ir_null_new());
+    return ir_expression(ir_null_new(0));
 }
 
 static bool
@@ -160,52 +211,6 @@ dt_array_is_same(DtDataType *self, DtDataType *type)
 
 }
 
-static bool
-dt_array_is_impl_conv(DtDataType *self, IrExpression *expression)
-{
-    assert(DT_IS_ARRAY(self));
-    assert(IR_IS_EXPRESSION(expression));
-
-    DtDataType *expr_type = ir_expression_get_data_type(expression);
-
-    if (!DT_IS_ARRAY(expr_type))
-    {
-        return false;
-    }
-
-    /* the expression should be of array literal type */
-    assert(ir_is_array_literal(expression));
-
-    DtDataType *element_type = dt_array_get_element_type(dt_array(self));
-    DtDataType *expr_element_type =
-        dt_array_get_element_type(dt_array(expr_type));
-
-    if (dt_data_type_is_immutable(expr_element_type) &&
-        !dt_data_type_is_immutable(element_type))
-    {
-        /*
-         * can't implicitly convert array with immutable elements to
-         * an array with mutable elements
-        */
-        return false;
-    }
-
-    /*
-     * if all array literal's values are implicitly convertible to
-     * our element type, then the whole literal is convertible to this type
-     */
-    GSList *i = ir_array_literal_get_values(ir_array_literal(expression));
-    for (; i != NULL; i = g_slist_next(i))
-    {
-        if (!dt_data_type_is_impl_conv(element_type, ir_expression(i->data)))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 static void
 dt_array_type_class_init(gpointer klass, gpointer dummy)
 {
@@ -216,4 +221,3 @@ dt_array_type_class_init(gpointer klass, gpointer dummy)
     DT_DATA_TYPE_CLASS(klass)->is_same = dt_array_is_same;
     DT_DATA_TYPE_CLASS(klass)->is_impl_conv = dt_array_is_impl_conv;
 }
-

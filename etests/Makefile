@@ -45,6 +45,7 @@ invalid_func_calls: invalid_func_calls.d
 address_of: address_of.d
 attributes: attributes.d
 inv-mod-name: inv-mod-name.d
+null_exprs: null_exprs.d
 
 %.d: %.inv_d
 	cp $? $@

@@ -1,4 +1,14 @@
 #include "ir_null.h"
+#include "types.h"
+
+#include <assert.h>
+
+/*---------------------------------------------------------------------------*
+ *                  local functions forward declaration                      *
+ *---------------------------------------------------------------------------*/
+
+static void
+ir_null_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -15,7 +25,7 @@ ir_null_get_type(void)
         sizeof (IrNullClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        NULL, /* class_init */
+        ir_null_class_init, /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
         sizeof (IrNull),
@@ -30,7 +40,29 @@ ir_null_get_type(void)
 }
 
 IrNull *
-ir_null_new()
+ir_null_new(guint line_number)
 {
-    return g_object_new(IR_TYPE_NULL, NULL);
+    return g_object_new(IR_TYPE_NULL,
+                        "ir-node-line-number", line_number,
+                        NULL);
+}
+
+/*---------------------------------------------------------------------------*
+ *                             local functions                               *
+ *---------------------------------------------------------------------------*/
+
+static DtDataType *
+ir_null_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_NULL(self));
+
+    return types_get_void_ptr();
+}
+
+static void
+ir_null_class_init(gpointer klass, gpointer dummy)
+{
+    assert(IR_IS_NULL_CLASS(klass));
+
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type = ir_null_do_get_data_type;
 }

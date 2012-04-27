@@ -42,6 +42,6 @@ GType
 ast_null_get_type(void);
 
 AstNull *
-ast_null_new();
+ast_null_new(guint line_number);
 
 #endif /* AST_NULL_INC_X */

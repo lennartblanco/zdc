@@ -124,7 +124,7 @@ dt_pointer_get_init(DtDataType *self)
 {
     assert(DT_IS_POINTER(self));
 
-    return ir_expression(ir_null_new());
+    return ir_expression(ir_null_new(0));
 }
 
 static bool
@@ -157,6 +157,12 @@ dt_pointer_is_impl_conv(DtDataType *self, IrExpression *expression)
 {
     assert(DT_IS_POINTER(self));
     assert(IR_IS_EXPRESSION(expression));
+
+    if (IR_IS_NULL(expression))
+    {
+        /* 'null' can be assigned to any pointer */
+        return true;
+    }
 
     if (DT_IS_VOID(dt_pointer_get_base_type(DT_POINTER(self))))
     {

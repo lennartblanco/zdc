@@ -619,6 +619,33 @@ validate_bin_arithm(compilation_status_t *compile_status,
 }
 
 /**
+ * Check if left and right pointer types can be compared.
+ */
+static bool
+valid_pointer_comp(DtDataType *left, DtDataType *right)
+{
+    assert(DT_IS_DATA_TYPE(left));
+    assert(DT_IS_DATA_TYPE(right));
+
+    if (!DT_IS_POINTER(left) || !DT_IS_POINTER(right))
+    {
+        /* pointers can only be compared to other pointers */
+        return false;
+    }
+
+    DtDataType *base_left = dt_pointer_get_base_type(DT_POINTER(left));
+    DtDataType *base_right = dt_pointer_get_base_type(DT_POINTER(right));
+
+    if (DT_IS_VOID(base_left) || DT_IS_VOID(base_right))
+    {
+        /* void* can be compared to any pointer */
+        return true;
+    }
+
+    return dt_data_type_is_same(base_left, base_right);
+}
+
+/**
  * validate binary integer comparison operation
  */
 static IrExpression *
@@ -644,7 +671,7 @@ validate_bin_icomp(compilation_status_t *compile_status,
     if (DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type))
     {
         /* when pointers are compared, data types must match */
-        if (!dt_data_type_is_same(left_type, right_type))
+        if (!valid_pointer_comp(left_type, right_type))
         {
             compile_error(compile_status,
                           bin_op,

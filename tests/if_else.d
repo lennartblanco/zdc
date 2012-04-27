@@ -160,11 +160,24 @@ extern (C) int const_if_else()
   return r;
 }
 
+extern (C) :
+
+/*
+ * test using comparison between pointer and null in an if condition
+ */
+int
+if_null(void *arg)
+{
+  int res = 0;
+
+  if (arg == null) { res = -1; }
+
+  return res;
+}
+
 /*
  * wrappers to allow call test functions with C calling convention
  */
-
-extern (C) :
 
 bool
 call_if_isless(int arg)

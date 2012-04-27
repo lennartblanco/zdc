@@ -52,6 +52,8 @@ void ptr_cmp() // invalid pointer comparisons
   if (i != iptr) { }
   if (bptr == 29) { }
   if (iptr < bptr) { }
+  if (bptr == iptr) { }
+  if (iptr != bptr) { }
 }
 
 void no_effect_exprs()

@@ -19,7 +19,7 @@
   (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_ARRAY))
 
 #define DT_ARRAY_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_ARRAY, DtArrayTypeClass))
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), DT_TYPE_ARRAY, DtArrayClass))
 
 typedef struct
 {
@@ -62,5 +62,8 @@ dt_array_get_element_type(DtArray *self);
  */
 guint
 dt_array_get_element_size(DtArray *self);
+
+bool
+dt_array_is_impl_conv(DtDataType *self, IrExpression *expression);
 
 #endif /* DT_ARRAY_INC_X */

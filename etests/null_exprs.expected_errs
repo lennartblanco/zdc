@@ -1,0 +1,5 @@
+null_exprs.d:8: error: in function call to 'func()', argument 1 of invalid type
+null_exprs.d:8: error: argument's type is 'uint' got 'void*'
+null_exprs.d:10: error: illegal type in initializer assignment
+null_exprs.d:13: error: can't assign expression of type void* to lvalue of int type
+null_exprs.d:17: error: can't assign expression of type void* to lvalue of char[10u] type
