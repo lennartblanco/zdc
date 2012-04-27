@@ -16,9 +16,6 @@ ir_array_literal_class_init(gpointer klass, gpointer dummy);
 static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self);
 
-bool
-ir_array_literal_do_is_constant(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -129,15 +126,6 @@ ir_array_literal_get_size(IrArrayLiteral *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-ir_array_literal_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_array_literal_do_get_data_type;
-    IR_EXPRESSION_CLASS(klass)->do_is_constant =
-        ir_array_literal_do_is_constant;
-}
-
 static DtDataType *
 ir_array_literal_do_get_data_type(IrExpression *self)
 {
@@ -188,4 +176,13 @@ ir_array_literal_do_is_constant(IrExpression *self)
 
     /* all value expressions are compile-time constant */
     return true;
+}
+
+static void
+ir_array_literal_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_array_literal_do_get_data_type;
+    IR_EXPRESSION_CLASS(klass)->do_is_constant =
+        ir_array_literal_do_is_constant;
 }

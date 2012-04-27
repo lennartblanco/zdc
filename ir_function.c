@@ -25,26 +25,11 @@ enum
 static void
 ir_function_class_init(gpointer klass, gpointer foo);
 
-static void
-ir_function_set_property(GObject *object,
-                         guint property_id,
-                         const GValue *value,
-                         GParamSpec *pspec);
-
-static void
-ir_function_get_property(GObject *object,
-                         guint property_id,
-                         GValue *value,
-                         GParamSpec *pspec);
-
 /**
  * Generate mangled name for function with D linkage.
  */
 static char *
 get_d_mangled_name(IrFunction *self);
-
-static GType
-ir_linkage_attr_get_type(void);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
@@ -179,33 +164,6 @@ ir_function_get_return_type(IrFunction *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_function_class_init(gpointer klass, gpointer foo)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    GParamSpec *pspec;
-
-    /*
-     * setup this structure for setting and getting properties
-     */
-    gobject_class->set_property = ir_function_set_property;
-    gobject_class->get_property = ir_function_get_property;
-
-    /*
-     * install 'name' property 
-     */
-    pspec = g_param_spec_enum("ir-function-linkage-type",
-                              "ir function linkage",
-                              "the linkage type attribute of the function",
-                              IR_TYPE_LINKAGE_ATTR,
-                              ir_d_linkage,
-                              G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-
-    g_object_class_install_property(gobject_class,
-                                    IR_FUNCTION_LINKAGE_TYPE,
-                                    pspec);
-}
-
-static void
 ir_function_set_property(GObject *object,
                          guint property_id,
                          const GValue *value,
@@ -294,4 +252,31 @@ ir_linkage_attr_get_type(void)
   }
   return linkage_attr_type;
 
+}
+
+static void
+ir_function_class_init(gpointer klass, gpointer foo)
+{
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    GParamSpec *pspec;
+
+    /*
+     * setup this structure for setting and getting properties
+     */
+    gobject_class->set_property = ir_function_set_property;
+    gobject_class->get_property = ir_function_get_property;
+
+    /*
+     * install 'name' property
+     */
+    pspec = g_param_spec_enum("ir-function-linkage-type",
+                              "ir function linkage",
+                              "the linkage type attribute of the function",
+                              IR_TYPE_LINKAGE_ATTR,
+                              ir_d_linkage,
+                              G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+    g_object_class_install_property(gobject_class,
+                                    IR_FUNCTION_LINKAGE_TYPE,
+                                    pspec);
 }

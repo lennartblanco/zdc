@@ -21,18 +21,6 @@ enum
 static void
 ir_node_class_init(gpointer klass, gpointer foo);
 
-static void
-ir_node_set_property(GObject *object,
-                     guint property_id,
-                     const GValue *value,
-                     GParamSpec *pspec);
-
-static void
-ir_node_get_property(GObject *object,
-                     guint property_id,
-                     GValue *value,
-                     GParamSpec *pspec);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -75,34 +63,6 @@ ir_node_get_line_num(void *self)
  *---------------------------------------------------------------------------*/
 
 static void
-ir_node_class_init(gpointer klass, gpointer foo)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    GParamSpec *pspec;
-
-    /*
-     * setup this structure for setting and getting properties
-     */
-    gobject_class->set_property = ir_node_set_property;
-    gobject_class->get_property = ir_node_get_property;
-
-    /*
-     * install 'line-number' property 
-     */
-    pspec = g_param_spec_uint("ir-node-line-number",
-                              "ir node line number",
-                              "source file line number",
-                              0,          /* min value */
-                              G_MAXUINT,  /* max value */
-                              0,          /* default value */
-                              G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-
-    g_object_class_install_property(gobject_class,
-                                    IR_NDDE_LINE_NUMBER,
-                                    pspec);
-}
-
-static void
 ir_node_set_property(GObject *object,
                      guint property_id,
                      const GValue *value,
@@ -124,4 +84,32 @@ ir_node_get_property(GObject *object,
 {
     /* not implemented */
     assert(false);
+}
+
+static void
+ir_node_class_init(gpointer klass, gpointer foo)
+{
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    GParamSpec *pspec;
+
+    /*
+     * setup this structure for setting and getting properties
+     */
+    gobject_class->set_property = ir_node_set_property;
+    gobject_class->get_property = ir_node_get_property;
+
+    /*
+     * install 'line-number' property
+     */
+    pspec = g_param_spec_uint("ir-node-line-number",
+                              "ir node line number",
+                              "source file line number",
+                              0,          /* min value */
+                              G_MAXUINT,  /* max value */
+                              0,          /* default value */
+                              G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+    g_object_class_install_property(gobject_class,
+                                    IR_NDDE_LINE_NUMBER,
+                                    pspec);
 }

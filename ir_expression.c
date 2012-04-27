@@ -12,18 +12,6 @@
 static void
 ir_expression_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_expression_do_get_data_type(IrExpression *self);
-
-static bool
-ir_expression_do_is_constant(IrExpression *self);
-
-static bool
-ir_expression_do_is_lvalue(IrExpression *self);
-
-static bool
-ir_expression_do_has_effect(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -106,22 +94,6 @@ ir_expression_get_value_range(IrExpression *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-ir_expression_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_expression_do_get_data_type;
-
-    IR_EXPRESSION_CLASS(klass)->do_is_constant =
-        ir_expression_do_is_constant;
-
-    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
-        ir_expression_do_is_lvalue;
-
-    IR_EXPRESSION_CLASS(klass)->has_effect =
-        ir_expression_do_has_effect;
-}
-
 static DtDataType *
 ir_expression_do_get_data_type(IrExpression *self)
 {
@@ -157,4 +129,20 @@ static bool
 ir_expression_do_has_effect(IrExpression *self)
 {
     return false;
+}
+
+static void
+ir_expression_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_expression_do_get_data_type;
+
+    IR_EXPRESSION_CLASS(klass)->do_is_constant =
+        ir_expression_do_is_constant;
+
+    IR_EXPRESSION_CLASS(klass)->do_is_lvalue =
+        ir_expression_do_is_lvalue;
+
+    IR_EXPRESSION_CLASS(klass)->has_effect =
+        ir_expression_do_has_effect;
 }

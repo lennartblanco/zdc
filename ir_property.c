@@ -12,9 +12,6 @@
 static void
 ir_property_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_property_do_get_data_type(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -109,13 +106,6 @@ ir_property_get_id(IrProperty *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-ir_property_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_property_do_get_data_type;
-}
-
 static DtDataType *
 ir_property_do_get_data_type(IrExpression *self)
 {
@@ -126,4 +116,11 @@ ir_property_do_get_data_type(IrExpression *self)
      */
     assert(IR_PROPERTY(self)->id == ir_prop_length);
     return types_get_uint_type();
+}
+
+static void
+ir_property_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_property_do_get_data_type;
 }

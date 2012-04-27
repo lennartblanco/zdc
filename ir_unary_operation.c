@@ -9,9 +9,6 @@
 static void
 ir_unary_operation_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_unary_operation_do_get_data_type(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -113,16 +110,6 @@ ir_unary_operation_has_effect(IrExpression *self)
     return has_effect;
 }
 
-static void
-ir_unary_operation_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_unary_operation_do_get_data_type;
-
-    IR_EXPRESSION_CLASS(klass)->has_effect =
-            ir_unary_operation_has_effect;
-}
-
 static DtDataType *
 ir_unary_operation_do_get_data_type(IrExpression *self)
 {
@@ -132,4 +119,14 @@ ir_unary_operation_do_get_data_type(IrExpression *self)
     operand = ir_unary_operation_get_operand(op);
 
     return ir_expression_get_data_type(operand);
+}
+
+static void
+ir_unary_operation_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_unary_operation_do_get_data_type;
+
+    IR_EXPRESSION_CLASS(klass)->has_effect =
+            ir_unary_operation_has_effect;
 }

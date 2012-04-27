@@ -10,9 +10,6 @@
 static void
 ir_enum_member_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_enum_member_do_get_data_type(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -86,13 +83,6 @@ ir_enum_member_set_value(IrEnumMember *self, IrExpression *value)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-ir_enum_member_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_enum_member_do_get_data_type;
-}
-
 static DtDataType *
 ir_enum_member_do_get_data_type(IrExpression *self)
 {
@@ -105,4 +95,11 @@ ir_enum_member_do_get_data_type(IrExpression *self)
     }
 
     return DT_DATA_TYPE(enum_member->enum_type);
+}
+
+static void
+ir_enum_member_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_enum_member_do_get_data_type;
 }

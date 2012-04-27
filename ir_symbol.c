@@ -25,18 +25,6 @@ enum
 static void
 ir_symbol_class_init(gpointer klass, gpointer foo);
 
-static void
-ir_symbol_set_property(GObject *object,
-                       guint property_id,
-                       const GValue *value,
-                       GParamSpec *pspec);
-
-static void
-ir_symbol_get_property(GObject *object,
-                       guint property_id,
-                       GValue *value,
-                       GParamSpec *pspec);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/

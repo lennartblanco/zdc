@@ -9,9 +9,6 @@
 static void
 ir_conditional_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_conditional_do_get_data_type(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -118,6 +115,14 @@ ir_conditional_has_effect(IrExpression *self)
         ir_expression_has_effect(cond->false_exp);
 }
 
+static DtDataType *
+ir_conditional_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_CONDITIONAL(self));
+
+    return ir_expression_get_data_type(IR_CONDITIONAL(self)->true_exp);
+}
+
 static void
 ir_conditional_class_init(gpointer klass, gpointer dummy)
 {
@@ -125,12 +130,4 @@ ir_conditional_class_init(gpointer klass, gpointer dummy)
         ir_conditional_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->has_effect =
         ir_conditional_has_effect;
-}
-
-static DtDataType *
-ir_conditional_do_get_data_type(IrExpression *self)
-{
-    assert(IR_IS_CONDITIONAL(self));
-
-    return ir_expression_get_data_type(IR_CONDITIONAL(self)->true_exp);
 }

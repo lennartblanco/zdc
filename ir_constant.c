@@ -7,9 +7,6 @@
 static void
 ir_constant_class_init(gpointer klass, gpointer dummy);
 
-bool
-ir_constant_do_is_constant(IrExpression *self);
-
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -43,15 +40,15 @@ ir_constant_get_type(void)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
+bool
+ir_constant_do_is_constant(IrExpression *self)
+{
+    return true;
+}
+
 static void
 ir_constant_class_init(gpointer klass, gpointer dummy)
 {
     IR_EXPRESSION_CLASS(klass)->do_is_constant =
         ir_constant_do_is_constant;
-}
-
-bool
-ir_constant_do_is_constant(IrExpression *self)
-{
-    return true;
 }

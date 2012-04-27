@@ -13,9 +13,6 @@
 static void
 ir_basic_constant_class_init(gpointer klass, gpointer dummy);
 
-static DtDataType *
-ir_basic_constant_do_get_data_type(IrExpression *self);
-
 static IrBasicConstant *
 ir_basic_constant_new(bool immutable,
                       basic_data_type_t type,
@@ -276,6 +273,14 @@ ir_basic_constant_get_value_range(IrExpression *self)
     return ir_basic_constant(self)->value_range;
 }
 
+static DtDataType *
+ir_basic_constant_do_get_data_type(IrExpression *self)
+{
+    assert(IR_IS_BASIC_CONSTANT(self));
+
+    return ir_basic_constant(self)->type;
+}
+
 static void
 ir_basic_constant_class_init(gpointer klass, gpointer dummy)
 {
@@ -283,12 +288,4 @@ ir_basic_constant_class_init(gpointer klass, gpointer dummy)
         ir_basic_constant_do_get_data_type;
     IR_EXPRESSION_CLASS(klass)->get_value_range =
         ir_basic_constant_get_value_range;
-}
-
-static DtDataType *
-ir_basic_constant_do_get_data_type(IrExpression *self)
-{
-    assert(IR_IS_BASIC_CONSTANT(self));
-
-    return ir_basic_constant(self)->type;
 }

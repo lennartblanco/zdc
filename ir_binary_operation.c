@@ -14,9 +14,6 @@ static void
 ir_binary_operation_class_init(gpointer klass, gpointer dummy);
 
 static DtDataType *
-ir_binary_operation_do_get_data_type(IrExpression *self);
-
-static DtDataType *
 ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self);
 
 /*---------------------------------------------------------------------------*
@@ -176,13 +173,6 @@ ir_binary_operation_is_conditional(IrBinaryOperation *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static void
-ir_binary_operation_class_init(gpointer klass, gpointer dummy)
-{
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_binary_operation_do_get_data_type;
-}
-
 static DtDataType *
 get_substaction_data_type(IrBinaryOperation *self)
 {
@@ -256,4 +246,11 @@ ir_binary_operation_get_conditional_op_type(IrBinaryOperation *self)
     }
 
     return types_get_bool_type();
+}
+
+static void
+ir_binary_operation_class_init(gpointer klass, gpointer dummy)
+{
+    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
+        ir_binary_operation_do_get_data_type;
 }
