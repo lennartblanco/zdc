@@ -15,7 +15,7 @@
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), AST_TYPE_STRUCT, AstStruct))
 
 #define AST_STRUCT_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_STRUCT, AstEnumClass))
+  (G_TYPE_CHECK_CLASS_CAST ((klass), AST_TYPE_STRUCT, AstStructClass))
 
 #define AST_IS_STRUCT(obj) \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), AST_TYPE_STRUCT))
@@ -39,7 +39,7 @@ typedef struct
 
 typedef struct
 {
-    AstNodeClass parent_class;
+    AstUserTypeClass parent_class;
 } AstStructClass;
 
 /*---------------------------------------------------------------------------*
