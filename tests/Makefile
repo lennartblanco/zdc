@@ -105,7 +105,7 @@ check_incdec_ops: incdec_ops.o check_utils.o check_incdec_ops.c $(ARCH_SPECIFIC)
 check_hex: hex.o check_utils.o check_hex.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_implicit_import: implicit_import.o check_utils.o check_implicit_import.c
+check_implicit_import: implicit_import.o check_utils.o check_implicit_import.c  $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_cond: cond.o check_utils.o check_cond.c $(ARCH_SPECIFIC)
