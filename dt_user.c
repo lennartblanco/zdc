@@ -73,6 +73,7 @@ dt_user_get_mangled(DtDataType *self)
     {
         const char *name = dt_user_get_string(self);
         IrScope *scope = ir_symbol_get_scope(ir_symbol(self));
+        assert(IR_IS_SCOPE(scope));
 
         user_type->mangled_name =
             g_strdup_printf(

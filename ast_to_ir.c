@@ -31,6 +31,7 @@
 #include "ast_enum.h"
 #include "ast_enum_member.h"
 #include "ast_struct.h"
+#include "ast_class.h"
 #include "ast_extern.h"
 #include "ast_protection.h"
 #include "ast_declaration_block.h"
@@ -63,6 +64,7 @@
 #include "ir_ident.h"
 #include "ir_null.h"
 #include "dt_basic.h"
+#include "dt_class.h"
 #include "errors.h"
 
 #include <assert.h>
@@ -90,6 +92,9 @@ static IrStruct *
 struct_to_ir(compilation_status_t *compile_status,
              AstStruct *ast_struct,
              bool decls_imported);
+
+static DtClass *
+class_to_ir(compilation_status_t *compile_status, AstClass *ast_class);
 
 static IrFunctionDecl *
 func_decl_to_ir(compilation_status_t *compile_status,
@@ -353,6 +358,20 @@ declarations_to_ir(compilation_status_t *compile_status,
                               ast_struct_get_name(AST_STRUCT(i->data)));
             }
         }
+        else if (AST_IS_CLASS(i->data))
+        {
+            DtClass *dt_class =
+                class_to_ir(compile_status, AST_CLASS(i->data));
+            if (!ir_module_add_class(compile_status->module, dt_class))
+            {
+                compile_error(compile_status,
+                              i->data,
+                              "class declaration conflicts with"
+                              " other user type '%s' definition\n",
+                              ast_class_get_name(AST_CLASS(i->data)));
+
+            }
+        }
         else if (AST_IS_ENUM(i->data))
         {
             DtEnum *dt_enum;
@@ -570,6 +589,17 @@ struct_to_ir(compilation_status_t *compile_status,
                          ast_struct_is_opaque(ast_struct),
                          compile_status->module,
                          symbols);
+}
+
+static DtClass *
+class_to_ir(compilation_status_t *compile_status,
+            AstClass *ast_class)
+{
+    assert(compile_status);
+    assert(AST_IS_CLASS(ast_class));
+
+    return dt_class_new(ast_class_get_name(ast_class),
+                        compile_status->module);
 }
 
 static IrVariable *

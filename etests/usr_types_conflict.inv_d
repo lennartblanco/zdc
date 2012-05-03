@@ -18,3 +18,9 @@ enum states : uint
 
 alias int states;
 
+alias bool foo;
+
+struct foo { }
+
+class foo { }
+

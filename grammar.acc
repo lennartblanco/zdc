@@ -27,6 +27,7 @@
 #include "ast_assignment.h"
 #include "ast_cast.h"
 #include "ast_postfix_exp.h"
+#include "ast_class.h"
 #include "ast_struct.h"
 #include "ast_enum.h"
 #include "ast_ptr_dref.h"
@@ -53,7 +54,7 @@ AstModule *module;
        TOK_BREAK, TOK_RETURN, TOK_CAST, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
        TOK_REF, TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
        TOK_BYTE, TOK_UBYTE, TOK_CHAR, TOK_BOOL, TOK_ALIAS,
-       TOK_THIS, TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
+       TOK_CLASS, TOK_THIS, TOK_IMMUTABLE, TOK_IMPORT, TOK_MODULE;
 
 root :
     {
@@ -93,6 +94,7 @@ declaration<decl> :
 |   alias_declaration<decl>
 |   enum_declaration<decl>
 |   struct_declaration<decl>
+|   class_declaration<decl>
 |   func_definition<decl>
 |   func_declaration<decl>
 |   declaration_block<decl>
@@ -215,6 +217,13 @@ struct_declaration<struct_decl> :
                                                                  yypos));
         }
     )
+;
+
+class_declaration<class_decl> :
+    TOK_CLASS TOK_IDENT<name> '{' '}'
+    {
+        (*class_decl).decl = AST_DECLARATION(ast_class_new(name.text, yypos));
+    }
 ;
 
 struct_body_declarations<members, methods> :

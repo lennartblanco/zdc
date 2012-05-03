@@ -320,6 +320,15 @@ ir_module_get_structs(IrModule *self)
     return self->structs;
 }
 
+bool
+ir_module_add_class(IrModule *self, DtClass *dt_class)
+{
+    assert(IR_IS_MODULE(self));
+    assert(DT_IS_CLASS(dt_class));
+
+    return sym_table_add_symbol(self->symbols, ir_symbol(dt_class)) == 0;
+}
+
 IrScope *
 ir_module_get_scope(IrModule *self)
 {

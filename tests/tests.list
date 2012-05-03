@@ -29,6 +29,7 @@ properties
 immutable
 enums
 struct
+objects
 alias
 foreach
 foreach_range

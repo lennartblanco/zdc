@@ -84,6 +84,9 @@ check_enums: enums.o check_utils.o check_enums.c $(ARCH_SPECIFIC)
 check_struct: struct.o check_utils.o check_struct.c
 	$(CC) $(CFLAGS) -o $@ $^
 
+check_objects: objects.o check_utils.o check_objects.c
+	$(CC) $(CFLAGS) -o $@ $^
+
 check_alias: alias.o check_utils.o check_alias.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 

@@ -7,6 +7,7 @@
 #include "sym_table.h"
 #include "dt_name.h"
 #include "dt_enum.h"
+#include "dt_class.h"
 #include "dt_alias.h"
 #include "ir_types.h"
 #include "ir_function_def.h"
@@ -152,6 +153,12 @@ ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
 
 GSList *
 ir_module_get_structs(IrModule *self);
+
+/**
+ * @return false if this class definition conflicts with some other user type
+ */
+bool
+ir_module_add_class(IrModule *self, DtClass *dt_class);
 
 IrScope *
 ir_module_get_scope(IrModule *self);

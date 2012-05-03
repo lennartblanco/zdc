@@ -44,4 +44,10 @@ ir_null_get_type(void);
 IrNull *
 ir_null_new(guint line_number);
 
+/**
+ * Get singelton instance of object representing 'null' expression.
+ */
+IrNull *
+ir_null_get();
+
 #endif /* IR_NULL_INC_X */

@@ -61,6 +61,7 @@ hex    0[xX][[:xdigit:]]+
 "false"  { return TOK_FALSE; }
 "while"  { return TOK_WHILE; }
 "break"  { return TOK_BREAK; }
+"class"  { return TOK_CLASS; }
 "ushort" { return TOK_USHORT; }
 "struct" { return TOK_STRUCT; }
 "return" { return TOK_RETURN; }

@@ -445,7 +445,9 @@ iml_add_assignment(iml_function_t *function,
         IrVariable *var = ir_var_value_get_var(IR_VAR_VALUE(lvalue));
         res = ir_variable_get_location(var);
 
-        if (dt_is_basic(var_type) || dt_is_enum(var_type))
+        if (dt_is_basic(var_type) ||
+            dt_is_enum(var_type) ||
+            DT_IS_CLASS(var_type))
         {
             iml_add_expression_eval(
                     function,
@@ -852,6 +854,10 @@ dt_to_iml_type(DtDataType *dt_type)
     else if (DT_IS_ARRAY(dt_type) || DT_IS_STRUCT(dt_type))
     {
         iml_type = iml_blob;
+    }
+    else if (DT_IS_CLASS(dt_type))
+    {
+        iml_type = iml_ptr;
     }
     else if (dt_is_enum(dt_type))
     {

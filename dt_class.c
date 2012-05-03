@@ -1,5 +1,6 @@
+#include "dt_class.h"
+#include "ir_module.h"
 #include "ir_null.h"
-#include "types.h"
 
 #include <assert.h>
 
@@ -8,74 +9,72 @@
  *---------------------------------------------------------------------------*/
 
 static void
-ir_null_class_init(gpointer klass, gpointer dummy);
+dt_class_class_init(gpointer klass, gpointer dummy);
 
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
 
 GType
-ir_null_get_type(void)
+dt_class_get_type(void)
 {
     static GType type = 0;
     if (type == 0)
     {
       static const GTypeInfo info =
       {
-        sizeof (IrNullClass),
+        sizeof (DtClassClass),
         NULL,   /* base_init */
         NULL,   /* base_finalize */
-        ir_null_class_init, /* class_init */
+        dt_class_class_init,   /* class_init */
         NULL,   /* class_finalize */
         NULL,   /* class_data */
-        sizeof (IrNull),
+        sizeof (DtClass),
         0,      /* n_preallocs */
         NULL    /* instance_init */
       };
-      type = g_type_register_static(IR_TYPE_CONSTANT,
-                                    "IrNullType",
+      type = g_type_register_static(DT_TYPE_USER,
+                                    "DtClassType",
                                     &info, 0);
     }
     return type;
 }
 
-IrNull *
-ir_null_new(guint line_number)
+DtClass *
+dt_class_new(gchar *name, IrModule *parent_module)
 {
-    return g_object_new(IR_TYPE_NULL,
-                        "ir-node-line-number", line_number,
-                        NULL);
-}
+    DtClass *obj;
 
-IrNull *
-ir_null_get()
-{
-    static IrNull *ir_null = NULL;
-
-    if (ir_null == NULL)
-    {
-        ir_null = ir_null_new(0);
-    }
-
-    return ir_null;
+    obj = g_object_new(DT_TYPE_CLASS,
+                       "ir-symbol-name", name,
+                       "ir-symbol-scope", ir_module_get_scope(parent_module),
+                       NULL);
+    return obj;
 }
 
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static DtDataType *
-ir_null_do_get_data_type(IrExpression *self)
+static gchar *
+dt_class_get_mangled_prefix(DtUser *self)
 {
-    assert(IR_IS_NULL(self));
+    assert(DT_IS_CLASS(self));
 
-    return types_get_void_ptr();
+    return "C";
+}
+
+static IrExpression *
+dt_class_get_init(DtDataType *self)
+{
+    assert(DT_IS_CLASS(self));
+
+    return ir_expression(ir_null_get());
 }
 
 static void
-ir_null_class_init(gpointer klass, gpointer dummy)
+dt_class_class_init(gpointer klass, gpointer dummy)
 {
-    assert(IR_IS_NULL_CLASS(klass));
-
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type = ir_null_do_get_data_type;
+    DT_USER_CLASS(klass)->get_mangled_prefix = dt_class_get_mangled_prefix;
+    DT_DATA_TYPE_CLASS(klass)->get_init = dt_class_get_init;
 }

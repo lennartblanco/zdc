@@ -1,2 +1,4 @@
 usr_types_conflict.d:12: error: enum declaration conflicts with other user type 'some_enum' definition
 usr_types_conflict.d:19: error: alias conflicts with other user type 'states' definition
+usr_types_conflict.d:23: error: struct declaration conflicts with other user type 'foo' definition
+usr_types_conflict.d:25: error: class declaration conflicts with other user type 'foo' definition
