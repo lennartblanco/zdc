@@ -59,7 +59,6 @@
 #include "ir_ptr_dref.h"
 #include "ir_address_of.h"
 #include "ir_enum_member.h"
-#include "ir_struct.h"
 #include "ir_dot.h"
 #include "ir_ident.h"
 #include "ir_null.h"
@@ -88,8 +87,8 @@ enum_to_dt(compilation_status_t *compile_status,
            sym_table_t *symbols,
            AstEnum *ast_enum);
 
-static IrStruct *
-struct_to_ir(compilation_status_t *compile_status,
+static DtStruct *
+struct_to_dt(compilation_status_t *compile_status,
              AstStruct *ast_struct,
              bool decls_imported);
 
@@ -344,12 +343,12 @@ declarations_to_ir(compilation_status_t *compile_status,
         }
         else if (AST_IS_STRUCT(i->data))
         {
-            IrStruct *ir_struct;
+            DtStruct *dt_struct;
 
-            ir_struct = struct_to_ir(compile_status,
+            dt_struct = struct_to_dt(compile_status,
                                      AST_STRUCT(i->data),
                                      decls_imported);
-            if (!ir_module_add_struct(compile_status->module, ir_struct))
+            if (!ir_module_add_struct(compile_status->module, dt_struct))
             {
                 compile_error(compile_status,
                               i->data,
@@ -527,8 +526,8 @@ enum_to_dt(compilation_status_t *compile_status,
     return enum_def;
 }
 
-static IrStruct *
-struct_to_ir(compilation_status_t *compile_status,
+static DtStruct *
+struct_to_dt(compilation_status_t *compile_status,
              AstStruct *ast_struct,
              bool decls_imported)
 {
@@ -556,7 +555,6 @@ struct_to_ir(compilation_status_t *compile_status,
                           "redeclaration of symbol '%s'\n",
                           ir_symbol_get_name(ir_symbol(var)));
         }
-
         members = g_slist_prepend(members, var);
     }
 
@@ -583,7 +581,7 @@ struct_to_ir(compilation_status_t *compile_status,
         methods = g_slist_prepend(methods, method);
     }
 
-    return ir_struct_new(ast_struct_get_name(ast_struct),
+    return dt_struct_new(ast_struct_get_name(ast_struct),
                          g_slist_reverse(members),
                          methods,
                          ast_struct_is_opaque(ast_struct),

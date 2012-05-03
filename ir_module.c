@@ -292,22 +292,21 @@ ir_module_get_enums(IrModule *self)
 }
 
 bool
-ir_module_add_struct(IrModule *self, IrStruct *ir_struct)
+ir_module_add_struct(IrModule *self, DtStruct *dt_struct)
 {
     assert(IR_IS_MODULE(self));
-    assert(IR_IS_STRUCT(ir_struct));
+    assert(DT_IS_STRUCT(dt_struct));
 
     /*
      * store struct in symbols table
      */
-    if (sym_table_add_symbol(self->symbols,
-                             ir_symbol(ir_struct_get_data_type(ir_struct)))!=0)
+    if (sym_table_add_symbol(self->symbols, ir_symbol(dt_struct)) != 0)
     {
         return false;
     }
 
     /* add it to the module's structs list */
-    self->structs = g_slist_prepend(self->structs, ir_struct);
+    self->structs = g_slist_prepend(self->structs, dt_struct);
 
     return true;
 }

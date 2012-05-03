@@ -7,13 +7,13 @@
 #include "sym_table.h"
 #include "dt_name.h"
 #include "dt_enum.h"
+#include "dt_struct.h"
 #include "dt_class.h"
 #include "dt_alias.h"
 #include "ir_types.h"
 #include "ir_function_def.h"
 #include "ir_function_decl.h"
 #include "ir_array_literal.h"
-#include "ir_struct.h"
 #include "iml_function.h"
 
 /*---------------------------------------------------------------------------*
@@ -149,7 +149,7 @@ ir_module_get_enums(IrModule *self);
  * @return false if this struct definition conflicts with some other user type
  */
 bool
-ir_module_add_struct(IrModule *self, IrStruct *ir_struct);
+ir_module_add_struct(IrModule *self, DtStruct *dt_struct);
 
 GSList *
 ir_module_get_structs(IrModule *self);

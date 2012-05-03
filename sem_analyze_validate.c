@@ -2974,46 +2974,50 @@ validate_enum(compilation_status_t *compile_status,
 
 static void
 validate_struct(compilation_status_t *compile_status,
-                IrStruct *ir_struct)
+                DtStruct *dt_struct)
 {
     assert(compile_status);
-    assert(IR_IS_STRUCT(ir_struct));
+    assert(DT_IS_STRUCT(dt_struct));
 
-    DtStruct *struct_type;
     GSList *i;
-    sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
 
     /* validate struct members */
-    struct_type = ir_struct_get_data_type(ir_struct);
-    for (i = ir_struct_get_members(ir_struct); i != NULL; i = g_slist_next(i))
+    if (!dt_struct_is_opaque(dt_struct))
     {
-        assert(IR_IS_VARIABLE(i->data));
+        GSList *members = NULL;
+        sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
 
-        IrVariable *var = validate_variable(compile_status,
-                                            sym_table,
-                                            ir_variable(i->data));
-        if (var == NULL)
+        for (i = dt_struct_get_members(dt_struct);
+             i != NULL;
+             i = g_slist_next(i))
         {
-            /* invalid member, skip to next member */
-            continue;
-        }
+            assert(IR_IS_VARIABLE(i->data));
 
-        dt_struct_add_member(struct_type, var);
+            IrVariable *var = validate_variable(compile_status,
+                                                sym_table,
+                                                ir_variable(i->data));
+            if (var == NULL)
+            {
+                /* invalid member, skip to next member */
+                continue;
+            }
+            members = g_slist_prepend(members, var);
+        }
+        dt_struct_set_members(dt_struct, g_slist_reverse(members));
     }
 
     /* validate struct methods */
-    for (i = ir_struct_get_methods(ir_struct); i != NULL; i = g_slist_next(i))
+    for (i = dt_struct_get_methods(dt_struct); i != NULL; i = g_slist_next(i))
     {
         assert(IR_IS_FUNCTION_DEF(i->data));
 
         IrFunctionDef *method = ir_function_def(i->data);
 
-        ir_function_def_set_this_type(method, DT_DATA_TYPE(struct_type));
+        ir_function_def_set_this_type(method, DT_DATA_TYPE(dt_struct));
         validate_function_def(compile_status, method);
-        dt_struct_add_method(struct_type, method);
+        dt_struct_set_method(dt_struct, method);
     }
 }
-
 
 static void
 validate_entry_point(compilation_status_t *compile_status,
@@ -3073,8 +3077,8 @@ validate_user_types(compilation_status_t *compile_status, IrModule *module)
     /* validate struct definitions */
     for (i = ir_module_get_structs(module); i != NULL; i = g_slist_next(i))
     {
-        assert(IR_IS_STRUCT(i->data));
-        validate_struct(compile_status, IR_STRUCT(i->data));
+        assert(DT_IS_STRUCT(i->data));
+        validate_struct(compile_status, DT_STRUCT(i->data));
     }
 }
 

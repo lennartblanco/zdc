@@ -43,7 +43,12 @@ dt_struct_get_type(void)
 }
 
 DtStruct *
-dt_struct_new(gchar *name, bool opaque, IrModule *parent_module)
+dt_struct_new(gchar *name,
+              GSList *members,
+              GSList *methods,
+              bool opaque,
+              IrModule *parent_module,
+              sym_table_t *symbols)
 {
     DtStruct *obj;
 
@@ -53,17 +58,74 @@ dt_struct_new(gchar *name, bool opaque, IrModule *parent_module)
                        "ir-symbol-scope", ir_module_get_scope(parent_module),
                        NULL);
 
+    obj->members = members;
+    obj->members_table = NULL;
+    obj->methods = methods;
     obj->opaque = opaque;
     obj->size = 0;
-    obj->members = NULL;
     if (!opaque)
     {
-        obj->members_table = g_hash_table_new(g_str_hash, g_str_equal);
-        obj->methods =  g_hash_table_new(g_str_hash, g_str_equal);
+        obj->methods_table = g_hash_table_new(g_str_hash, g_str_equal);
     }
     obj->init = NULL;
 
     return obj;
+}
+
+GSList *
+dt_struct_get_members(DtStruct *self)
+{
+    assert(DT_IS_STRUCT(self));
+
+    return self->members;
+}
+
+void
+dt_struct_set_members(DtStruct *self, GSList *members)
+{
+    assert(DT_IS_STRUCT(self));
+    assert(!self->opaque);
+
+    GSList *i;
+    GSList *new_members = NULL;
+
+    assert(self->members_table == NULL);
+    self->members_table = g_hash_table_new(g_str_hash, g_str_equal);
+
+    for (i = members; i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_VARIABLE(i->data));
+        IrVariable *var = i->data;
+
+        /* calculate required padding */
+        guint type_size = dt_data_type_get_size(ir_variable_get_data_type(var));
+        guint padding = get_align_padding(self->size + type_size, 4);
+
+        /* create struct member object */
+        IrStructMember *member =
+            ir_struct_member_new(ir_variable_get_data_type(var),
+                                 self->size,
+                                 padding,
+                                 ir_variable_get_initializer(var));
+
+        /* store struct member in the table and sequential list */
+        g_hash_table_insert(self->members_table,
+                            g_strdup(ir_variable_get_name(var)),
+                            member);
+        new_members = g_slist_prepend(new_members, member);
+
+        /* update struct size */
+        self->size += type_size + padding;
+    }
+    self->members = g_slist_reverse(new_members);
+}
+
+GSList *
+dt_struct_get_methods(DtStruct *self)
+{
+    assert(DT_IS_STRUCT(self));
+
+    return self->methods;
 }
 
 bool
@@ -72,34 +134,6 @@ dt_struct_is_opaque(DtStruct *self)
     assert(DT_IS_STRUCT(self));
 
     return self->opaque;
-}
-
-void
-dt_struct_add_member(DtStruct *self, IrVariable *var)
-{
-    assert(DT_IS_STRUCT(self));
-    assert(!self->opaque);
-    assert(IR_IS_VARIABLE(var));
-
-    /* calculate required padding */
-    guint type_size = dt_data_type_get_size(ir_variable_get_data_type(var));
-    guint padding = get_align_padding(self->size + type_size, 4);
-
-    /* create struct member object */
-    IrStructMember *member =
-        ir_struct_member_new(ir_variable_get_data_type(var),
-                             self->size,
-                             padding,
-                             ir_variable_get_initializer(var));
-
-    /* store struct member in the table and sequential list */
-    g_hash_table_insert(self->members_table,
-                        g_strdup(ir_variable_get_name(var)),
-                        member);
-    self->members = g_slist_append(self->members, member);
-
-    /* update struct size */
-    self->size += type_size + padding;
 }
 
 const IrStructMember *
@@ -113,13 +147,13 @@ dt_struct_get_member(DtStruct *self, IrIdent *name)
 }
 
 void
-dt_struct_add_method(DtStruct *self, IrFunctionDef *method)
+dt_struct_set_method(DtStruct *self, IrFunctionDef *method)
 {
     assert(DT_IS_STRUCT(self));
     assert(!self->opaque);
     assert(IR_IS_FUNCTION_DEF(method));
 
-    g_hash_table_insert(self->methods,
+    g_hash_table_insert(self->methods_table,
                         ir_function_def_get_name(method),
                         method);
 }
@@ -131,7 +165,7 @@ dt_struct_get_method(DtStruct *self, const char *method_name)
     assert(!self->opaque);
     assert(method_name);
 
-    return g_hash_table_lookup(self->methods, method_name);
+    return g_hash_table_lookup(self->methods_table, method_name);
 }
 
 /*---------------------------------------------------------------------------*

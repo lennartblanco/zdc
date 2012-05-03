@@ -39,7 +39,8 @@ typedef struct
     guint size;
     GSList *members;             /* members in order */
     GHashTable *members_table;   /* members by name */
-    GHashTable *methods;         /* methods by name */
+    GSList *methods;             /* methods in order */
+    GHashTable *methods_table;   /* methods by name */
 } DtStruct;
 
 typedef struct
@@ -55,13 +56,21 @@ GType
 dt_struct_get_type(void);
 
 DtStruct *
-dt_struct_new(gchar *name, bool opaque, IrModule *parent_module);
+dt_struct_new(gchar *name,
+              GSList *members,
+              GSList *methods,
+              bool opaque,
+              IrModule *parent_module,
+              sym_table_t *symbols);
 
-bool
-dt_struct_is_opaque(DtStruct *self);
+GSList *
+dt_struct_get_members(DtStruct *self);
 
 void
-dt_struct_add_member(DtStruct *self, IrVariable *var);
+dt_struct_set_members(DtStruct *self, GSList *members);
+
+GSList *
+dt_struct_get_methods(DtStruct *self);
 
 /**
  * Look-up struct member by name.
@@ -74,8 +83,11 @@ dt_struct_add_member(DtStruct *self, IrVariable *var);
 const IrStructMember *
 dt_struct_get_member(DtStruct *self, IrIdent *name);
 
+bool
+dt_struct_is_opaque(DtStruct *self);
+
 void
-dt_struct_add_method(DtStruct *self, IrFunctionDef *method);
+dt_struct_set_method(DtStruct *self, IrFunctionDef *method);
 
 IrFunctionDef *
 dt_struct_get_method(DtStruct *self, const char *method_name);
