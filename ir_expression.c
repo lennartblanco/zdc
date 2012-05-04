@@ -51,6 +51,7 @@ DtDataType *
 ir_expression_get_data_type(IrExpression *self)
 {
     assert(IR_IS_EXPRESSION(self));
+    assert(IR_EXPRESSION_GET_CLASS(self)->do_get_data_type != NULL);
 
     return IR_EXPRESSION_GET_CLASS(self)->do_get_data_type(self);
 }
@@ -94,13 +95,6 @@ ir_expression_get_value_range(IrExpression *self)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static DtDataType *
-ir_expression_do_get_data_type(IrExpression *self)
-{
-    /* no implementation for get_data_type() method provided */
-    assert(false);
-}
-
 /**
  * Default implementation of 'is_constant()' method. By default
  * expression is not constant.
@@ -134,9 +128,6 @@ ir_expression_do_has_effect(IrExpression *self)
 static void
 ir_expression_class_init(gpointer klass, gpointer dummy)
 {
-    IR_EXPRESSION_CLASS(klass)->do_get_data_type =
-        ir_expression_do_get_data_type;
-
     IR_EXPRESSION_CLASS(klass)->do_is_constant =
         ir_expression_do_is_constant;
 
