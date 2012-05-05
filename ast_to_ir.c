@@ -95,7 +95,7 @@ struct_to_dt(compilation_status_t *compile_status,
              bool decls_imported);
 
 static DtClass *
-class_to_ir(compilation_status_t *compile_status, AstClass *ast_class);
+class_to_dt(compilation_status_t *compile_status, AstClass *ast_class);
 
 static IrFunctionDecl *
 func_decl_to_ir(compilation_status_t *compile_status,
@@ -362,7 +362,7 @@ declarations_to_ir(compilation_status_t *compile_status,
         else if (AST_IS_CLASS(i->data))
         {
             DtClass *dt_class =
-                class_to_ir(compile_status, AST_CLASS(i->data));
+                class_to_dt(compile_status, AST_CLASS(i->data));
             if (!ir_module_add_class(compile_status->module, dt_class))
             {
                 compile_error(compile_status,
@@ -591,11 +591,14 @@ struct_to_dt(compilation_status_t *compile_status,
 }
 
 static DtClass *
-class_to_ir(compilation_status_t *compile_status,
+class_to_dt(compilation_status_t *compile_status,
             AstClass *ast_class)
 {
     assert(compile_status);
     assert(AST_IS_CLASS(ast_class));
+
+    /* members not implemented */
+    assert(ast_class_get_members(ast_class) == NULL);
 
     return dt_class_new(ast_class_get_name(ast_class),
                         compile_status->module);

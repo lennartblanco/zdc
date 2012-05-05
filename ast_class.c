@@ -39,7 +39,6 @@ ast_class_new(gchar *name,
 {
     AstClass *obj;
 
-    assert(members == NULL); /* members not implemented */
     assert(methods == NULL); /* methods not implemented */
 
     obj = g_object_new(AST_TYPE_CLASS,
@@ -47,6 +46,7 @@ ast_class_new(gchar *name,
                        NULL);
 
     obj->name = g_strdup(name);
+    obj->members = members;
 
     return obj;
 }
@@ -57,4 +57,12 @@ ast_class_get_name(AstClass *self)
     assert(AST_IS_CLASS(self));
 
     return self->name;
+}
+
+GSList *
+ast_class_get_members(AstClass *self)
+{
+    assert(AST_IS_CLASS(self));
+
+    return self->members;
 }

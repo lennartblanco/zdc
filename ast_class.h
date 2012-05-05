@@ -30,6 +30,7 @@ typedef struct
 
     /* private */
     gchar *name;
+    GSList *members;
 } AstClass;
 
 typedef struct
@@ -52,5 +53,8 @@ ast_class_new(gchar *name,
 
 gchar *
 ast_class_get_name(AstClass *self);
+
+GSList *
+ast_class_get_members(AstClass *self);
 
 #endif /* AST_CLASS_INC_X */
