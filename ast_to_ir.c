@@ -27,6 +27,7 @@
 #include "ast_address_of.h"
 #include "ast_cast.h"
 #include "ast_null.h"
+#include "ast_new.h"
 #include "ast_alias.h"
 #include "ast_enum.h"
 #include "ast_enum_member.h"
@@ -52,6 +53,7 @@
 #include "ir_array_cell.h"
 #include "ir_conditional.h"
 #include "ir_cast.h"
+#include "ir_new.h"
 #include "ir_unary_operation.h"
 #include "ir_binary_operation.h"
 #include "ir_basic_constant.h"
@@ -1680,6 +1682,13 @@ ident_to_ir(compilation_status_t *compile_status, AstIdent *ident)
                          ast_node_get_line_num(ident)));
 }
 
+static IrExpression *
+new_to_ir(AstNew *ast_new)
+{
+    return ir_expression(ir_new_new(ast_new_get_dt_type(ast_new),
+                                    ast_node_get_line_num(ast_new)));
+}
+
 /**
  * Convert AST expression to IR form.
  */
@@ -1818,6 +1827,10 @@ expression_to_ir(compilation_status_t *compile_status,
         return address_of_to_ir(compile_status,
                                 symbols,
                                 AST_ADDRESS_OF(ast_expression));
+    }
+    else if (AST_IS_NEW(ast_expression))
+    {
+        return new_to_ir(AST_NEW(ast_expression));
     }
 
     /* unexpected expression type */

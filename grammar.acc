@@ -49,7 +49,7 @@ AstModule *module;
 
 %token TOK_DOTDOT,
        TOK_INT_CONST, TOK_UINT_CONST, TOK_CHAR_CONST, TOK_STRING_LITERAL,
-       TOK_IDENT, TOK_TRUE, TOK_FALSE, TOK_NULL,
+       TOK_IDENT, TOK_TRUE, TOK_FALSE, TOK_NULL, TOK_NEW,
        TOK_ENUM, TOK_STRUCT, TOK_IF, TOK_ELSE, TOK_FOREACH, TOK_WHILE, TOK_FOR,
        TOK_BREAK, TOK_RETURN, TOK_CAST, TOK_EXTERN, TOK_PUBLIC, TOK_PRIVATE,
        TOK_REF, TOK_AUTO, TOK_VOID, TOK_INT, TOK_UINT, TOK_SHORT, TOK_USHORT,
@@ -219,13 +219,6 @@ struct_declaration<struct_decl> :
     )
 ;
 
-class_declaration<class_decl> :
-    TOK_CLASS TOK_IDENT<name> '{' '}'
-    {
-        (*class_decl).decl = AST_DECLARATION(ast_class_new(name.text, yypos));
-    }
-;
-
 struct_body_declarations<members, methods> :
     {
         (*members).list = NULL;
@@ -234,8 +227,35 @@ struct_body_declarations<members, methods> :
     (
         var_definitions<defs>
         {
-            (*members).list = g_slist_concat((*members).list,
-                                             defs.list);
+            (*members).list = g_slist_concat((*members).list, defs.list);
+        }
+     |  func_definition<method>
+        {
+            (*methods).list = g_slist_prepend((*methods).list,
+                                              method.function_def);
+        }
+    )*
+;
+
+class_declaration<class_decl> :
+    TOK_CLASS TOK_IDENT<name> '{' class_body_declarations<members, methods> '}'
+    {
+        (*class_decl).decl = AST_DECLARATION(ast_class_new(name.text,
+                                                           members.list,
+                                                           methods.list,
+                                                           yypos));
+    }
+;
+
+class_body_declarations<members, methods> :
+    {
+        (*members).list = NULL;
+        (*methods).list = NULL;
+    }
+    (
+        var_definitions<defs>
+        {
+            (*members).list = g_slist_concat((*members).list, defs.list);
         }
      |  func_definition<method>
         {
@@ -957,9 +977,18 @@ unary_expression<n> :
         (*n).expression =
             AST_EXPRESSION(ast_cast_new(t.data_type, exp.expression, yypos));
     }
+|   new_expression<n>
 |   postfix_expression<n>
 ;
 
+
+new_expression<exp> :
+    TOK_NEW type<t>
+    {
+        (*exp).expression =
+            AST_EXPRESSION(ast_new_new(t.data_type, yypos));
+    }
+;
 
 postfix_expression<n> :
     postfix_expression<left> '.' ident<right>

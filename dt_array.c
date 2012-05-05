@@ -93,7 +93,7 @@ dt_array_is_impl_conv(DtDataType *self, IrExpression *expression)
     assert(DT_IS_ARRAY(self));
     assert(IR_IS_EXPRESSION(expression));
 
-    if (IR_IS_NULL(expression))
+    if (ir_is_null(expression))
     {
         return true;
     }

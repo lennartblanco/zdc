@@ -214,7 +214,7 @@ cfold_cast(IrCast *cast_exp)
     {
         return cfold_cast_basic_type(target_type, val_type, val);
     }
-    else if (IR_IS_NULL(val))
+    else if (ir_is_null(val))
     {
         return val;
     }

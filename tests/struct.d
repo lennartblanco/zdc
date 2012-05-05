@@ -134,7 +134,7 @@ list_prepend(list *l, ptr payload)
 {
   list *nl;
 
-  nl = malloc(list.sizeof);
+  nl = new list;
   nl.next = l;
   nl.payload = payload;
   nl.visited = false;

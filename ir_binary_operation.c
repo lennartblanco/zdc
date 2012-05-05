@@ -181,13 +181,13 @@ get_substaction_data_type(IrBinaryOperation *self)
 
     DtDataType *left_type = ir_expression_get_data_type(self->left);
 
-    if (!DT_IS_POINTER(left_type))
+    if (!dt_is_pointer(left_type))
     {
         return left_type;
     }
 
     /* this is pointer arithmetic subtraction */
-    if (DT_IS_POINTER(ir_expression_get_data_type(self->right)))
+    if (dt_is_pointer(ir_expression_get_data_type(self->right)))
     {
         /*
          * left and right operand are pointers

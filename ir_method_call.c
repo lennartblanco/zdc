@@ -97,7 +97,7 @@ ir_method_get_this_arg(IrCall *self)
 
     IrExpression *this_arg = IR_METHOD_CALL(self)->this_exp;
 
-    if (!DT_IS_POINTER(ir_expression_get_data_type(this_arg)))
+    if (!dt_is_pointer(ir_expression_get_data_type(this_arg)))
     {
         this_arg = ir_expression(ir_address_of_new(this_arg, 0));
     }

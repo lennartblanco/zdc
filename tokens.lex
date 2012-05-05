@@ -43,6 +43,7 @@ hex    0[xX][[:xdigit:]]+
 "int"    { return TOK_INT; }
 "for"    { return TOK_FOR; }
 "ref"    { return TOK_REF; }
+"new"    { return TOK_NEW; }
 "cast"   { return TOK_CAST; }
 "char"   { return TOK_CHAR; }
 "uint"   { return TOK_UINT; }

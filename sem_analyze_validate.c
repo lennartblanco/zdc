@@ -21,6 +21,7 @@
 #include "ir_array_literal.h"
 #include "ir_basic_constant.h"
 #include "ir_cast.h"
+#include "ir_new.h"
 #include "ir_if_else.h"
 #include "ir_while.h"
 #include "ir_for.h"
@@ -431,7 +432,7 @@ get_struct_type(DtDataType *type)
     {
         return DT_STRUCT(type);
     }
-    else if (DT_IS_POINTER(type))
+    else if (dt_is_pointer(type))
     {
         return get_struct_type(dt_pointer_get_base_type(DT_POINTER(type)));
     }
@@ -551,7 +552,7 @@ validate_pointer_arithm(compilation_status_t *compile_status,
     {
         assert(op == op_minus);
 
-        if (DT_IS_POINTER(right_type))
+        if (dt_is_pointer(right_type))
         {
             left =
                 ir_expression(
@@ -596,8 +597,8 @@ validate_bin_arithm(compilation_status_t *compile_status,
     left = ir_binary_operation_get_left(bin_op);
     right = ir_binary_operation_get_right(bin_op);
 
-    if (DT_IS_POINTER(ir_expression_get_data_type(left)) ||
-        DT_IS_POINTER(ir_expression_get_data_type(right)))
+    if (dt_is_pointer(ir_expression_get_data_type(left)) ||
+        dt_is_pointer(ir_expression_get_data_type(right)))
     {
         return validate_pointer_arithm(compile_status,
                                        sym_table,
@@ -627,7 +628,7 @@ valid_pointer_comp(DtDataType *left, DtDataType *right)
     assert(DT_IS_DATA_TYPE(left));
     assert(DT_IS_DATA_TYPE(right));
 
-    if (!DT_IS_POINTER(left) || !DT_IS_POINTER(right))
+    if (!dt_is_pointer(left) || !dt_is_pointer(right))
     {
         /* pointers can only be compared to other pointers */
         return false;
@@ -668,7 +669,7 @@ validate_bin_icomp(compilation_status_t *compile_status,
     left_type = ir_expression_get_data_type(left);
     right_type = ir_expression_get_data_type(right);
 
-    if (DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type))
+    if (dt_is_pointer(left_type) || dt_is_pointer(right_type))
     {
         /* when pointers are compared, data types must match */
         if (!valid_pointer_comp(left_type, right_type))
@@ -825,7 +826,7 @@ validate_ind_dec_ops(compilation_status_t *compile_status,
                 goto invalid_type;
         }
     }
-    else if (DT_IS_POINTER(exp_type))
+    else if (dt_is_pointer(exp_type))
     {
         goto valid_exp;
     }
@@ -1252,7 +1253,7 @@ validate_ptr_dref(compilation_status_t *compile_status,
     ir_ptr_dref_set_expression(ptr_dref, exp);
 
     /* check that dereferenced expression is of pointer type */
-    if (!DT_IS_POINTER(ir_expression_get_data_type(exp)))
+    if (!dt_is_pointer(ir_expression_get_data_type(exp)))
     {
         compile_error(compile_status,
                       ptr_dref,
@@ -1396,6 +1397,29 @@ validate_cast(compilation_status_t *compile_status,
     return ir_expression(cast);
 }
 
+static IrExpression *
+validate_new(compilation_status_t *compile_status,
+             sym_table_t *sym_table,
+             IrNew *new)
+{
+    DtDataType *type = ir_new_get_dt_type(new);
+
+    /* validate new's type argument */
+    type = validate_type(compile_status, sym_table, type, NULL, IR_NODE(new));
+    if (type == NULL)
+    {
+        /* invalid type, bail out */
+        return NULL;
+    }
+    ir_new_set_dt_type(new, type);
+
+    /* make sure type's init expression is stored in data section if needed */
+    ir_module_add_const_data(compile_status->module,
+                             dt_data_type_get_init(type));
+
+    return ir_expression(new);
+}
+
 /**
  * Validate the expression. The expression may be transformed during
  * validation, for example implicit cast are converted to explicit.
@@ -1506,6 +1530,12 @@ validate_expression(compilation_status_t *compile_status,
         expression = validate_cast(compile_status,
                                    sym_table,
                                    ir_cast(expression));
+    }
+    else if (IR_IS_NEW(expression))
+    {
+        expression = validate_new(compile_status,
+                                  sym_table,
+                                  IR_NEW(expression));
     }
 
     return expression;
@@ -2338,7 +2368,7 @@ validate_type(compilation_status_t *compile_status,
                                            sym_table,
                                            DT_NAME(type));
     }
-    else if (DT_IS_POINTER(type))
+    else if (dt_is_pointer(type))
     {
         DtDataType *base_type;
         DtPointer *ptr_type = DT_POINTER(type);
@@ -2369,7 +2399,7 @@ validate_type(compilation_status_t *compile_status,
 
     if (DT_IS_STRUCT(validated_type) &&
         dt_struct_is_opaque(DT_STRUCT(validated_type)) &&
-        !DT_IS_POINTER(parent_type))
+        !dt_is_pointer(parent_type))
     {
         compile_error(compile_status,
                       error_node,

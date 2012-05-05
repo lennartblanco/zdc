@@ -8,7 +8,7 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          ut_range.o errors.o types.o const_fold.o                             \
          ast_to_ir.o sem_analyze.o sem_analyze_validate.o                     \
          ast_node.o ast_module.o ast_array_literal.o ast_code_block.o         \
-         ast_statment.o ast_function_def.o ast_function_decl.o                \
+         ast_statment.o ast_function_def.o ast_function_decl.o ast_new.o      \
          ast_expression.o ast_return.o ast_constant.o ast_int_constant.o      \
          ast_uint_constant.o ast_char_constant.o ast_bool_constant.o          \
          ast_import.o ast_binary_operation.o ast_unary_operation.o            \
@@ -25,7 +25,7 @@ COBJS := auxil.o entire.o parser.o lex.o yygrammar.o sym_table.o utils.o      \
          dt_alias.o dt_enum.o dt_class.o dt_struct.o dt_name.o dt_array.o     \
          dt_static_array.o                                                    \
          ir_node.o ir_symbol.o ir_variable.o ir_function.o ir_literal.o       \
-         ir_enum_member.o ir_code_block.o ir_statment.o ir_cast.o             \
+         ir_enum_member.o ir_code_block.o ir_statment.o ir_cast.o ir_new.o    \
          ir_constant.o ir_null.o ir_basic_constant.o ir_binary_operation.o    \
          ir_conditional.o ir_unary_operation.o ir_module.o ir_if_else.o       \
          ir_if_block.o ir_loop.o ir_while.o ir_for.o ir_foreach.o             \

@@ -45,7 +45,10 @@ GType
 ast_class_get_type(void);
 
 AstClass *
-ast_class_new(gchar *name, guint line_number);
+ast_class_new(gchar *name,
+              GSList *members,
+              GSList *methods,
+              guint line_number);
 
 gchar *
 ast_class_get_name(AstClass *self);

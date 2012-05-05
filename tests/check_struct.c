@@ -161,7 +161,6 @@ test_list()
                (p->payload == (void*)0xaabbccdd) &&
                (p->visited == false) &&
                (p->ref_cntr == 0));
-    free(p);
 }
 
 void

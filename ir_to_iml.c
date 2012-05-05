@@ -10,6 +10,7 @@
 #include "ir_address_of.h"
 #include "ir_property.h"
 #include "ir_cast.h"
+#include "ir_new.h"
 #include "ir_null.h"
 #include "ir_var_ref.h"
 #include "iml_constant.h"
@@ -105,6 +106,9 @@ static ImlOperand *
 iml_add_conditional_eval(iml_function_t *function,
                          IrConditional *cond,
                          ImlVariable *res);
+
+static ImlOperand *
+iml_add_new_eval(iml_function_t *function, IrNew *new, ImlVariable *res);
 
 static ImlOperand *
 iml_add_property_eval(iml_function_t *function,
@@ -227,7 +231,7 @@ iml_add_expression_eval(iml_function_t *function,
     {
         res = iml_add_cast_eval(function, ir_cast(ir_expression), dest);
     }
-    else if (IR_IS_NULL(ir_expression))
+    else if (ir_is_null(ir_expression))
     {
         res = iml_operand(iml_constant_zero_32b());
     }
@@ -285,6 +289,10 @@ iml_add_expression_eval(iml_function_t *function,
         res = iml_add_conditional_eval(function,
                                        IR_CONDITIONAL(ir_expression),
                                        dest);
+    }
+    else if (IR_IS_NEW(ir_expression))
+    {
+        res = iml_add_new_eval(function, IR_NEW(ir_expression), dest);
     }
     else
     {
@@ -463,7 +471,7 @@ iml_add_assignment(iml_function_t *function,
         {
             add_array_assignment(function, var, value);
         }
-        else if (DT_IS_POINTER(var_type))
+        else if (dt_is_pointer(var_type))
         {
             add_pointer_assignment(function, var, value);
         }
@@ -847,7 +855,7 @@ dt_to_iml_type(DtDataType *dt_type)
               assert(false);
         }
     }
-    else if (DT_IS_POINTER(dt_type))
+    else if (dt_is_pointer(dt_type))
     {
         iml_type = iml_ptr;
     }
@@ -900,7 +908,7 @@ is_signed_op(IrBinaryOperation *op)
         return dt_basic_is_signed(dt_basic(operands_type));
     }
 
-    assert(DT_IS_POINTER(operands_type));
+    assert(dt_is_pointer(operands_type));
     return true;
 }
 
@@ -1123,7 +1131,7 @@ iml_add_incdec_op_eval(iml_function_t *function,
     /*
      * figure out the size of increment/decrement operation
      */
-    if (DT_IS_POINTER(operand_type))
+    if (dt_is_pointer(operand_type))
     {
         /* pointers are (in/de)-cremented by the base type size */
         mod_constant =
@@ -1272,7 +1280,7 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
     {
         return iml_copy;
     }
-    else if (DT_IS_POINTER(target_type))
+    else if (dt_is_pointer(target_type))
     {
         if (dt_is_basic(src_type))
         {
@@ -1280,7 +1288,7 @@ get_cast_opcode(DtDataType *src_type, DtDataType *target_type)
                            dt_basic_get_data_type(dt_basic(src_type));
             return basic_to_ptr_cast_ops[src_bdt];
         }
-        else if (DT_IS_POINTER(src_type))
+        else if (dt_is_pointer(src_type))
         {
             return iml_copy;
         }
@@ -1555,6 +1563,52 @@ iml_add_conditional_eval(iml_function_t *function,
 
     /* free conditional variable if it was temporary */
     iml_function_unused_oper(function, iml_operand(cond_var));
+
+    return iml_operand(res);
+}
+
+static ImlOperand *
+iml_add_new_eval(iml_function_t *function, IrNew *new, ImlVariable *res)
+{
+    assert(function);
+    assert(IR_IS_NEW(new));
+
+    /* figure out where to store the result */
+    if (res == NULL)
+    {
+        res = iml_function_get_temp(function, iml_ptr);
+    }
+
+    DtDataType *new_type = ir_new_get_dt_type(new);
+    /* only new on struct types implemented */
+    assert(DT_IS_STRUCT(new_type));
+
+    /*
+     * generate iml to allocate memory in GC-heap for the requested type
+     */
+    ImlConstant *size = iml_constant_new_32b(dt_data_type_get_size(new_type));
+    iml_function_add_operation(function,
+                               iml_operation_new_call_c("GC_malloc",
+                                                        res,
+                                                        size,
+                                                        NULL));
+    /*
+     * generate code to copy init expression literal to allocated memory
+     */
+    IrExpression *init_exp = dt_data_type_get_init(new_type);
+    /* only new on struct types implemented */
+    assert(ir_is_struct_literal(init_exp));
+    char *label = ir_literal_get_data_label(ir_literal(init_exp));
+    assert(label);
+
+    iml_function_add_operation(
+        function,
+        iml_operation_new_call_c("memcpy",
+                                 NULL,
+                                 res,
+                                 iml_constant_new_ptr(label),
+                                 size,
+                                 NULL));
 
     return iml_operand(res);
 }
@@ -1924,7 +1978,7 @@ add_array_assignment(iml_function_t *function,
 
     ImlVariable *dest = ir_variable_get_location(lvalue);
 
-    if (IR_IS_NULL(value))
+    if (ir_is_null(value))
     {
         /* handle the special case of null assignment */
         iml_function_add_operation(function,

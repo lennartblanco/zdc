@@ -40,9 +40,16 @@ get_data_section_string(DtDataType *exp_type,
 
         return get_data_section_string(ir_expression_get_data_type(e), e);
     }
+    else if (dt_is_pointer(exp_type))
+    {
+        assert(ir_is_null(exp), "only 'null' expression supported");
+        return "0";
+    }
     else
     {
-        assert(false, "unexpected data type");
+        assert(false,
+                "unexpected data type " ~
+                to!string(dt_data_type_get_string(exp_type)));
     }
 }
 
@@ -74,9 +81,15 @@ get_type_directive(DtDataType *type)
     {
         return get_type_directive(dt_enum_get_base_type(dt_enum(type)));
     }
+    else if (dt_is_pointer(type))
+    {
+        return ".int";
+    }
     else
     {
-        assert(false, "unexpected data type");
+        assert(false,
+               "unexpected data type " ~
+               to!string(dt_data_type_get_string(type)));
     }
 }
 

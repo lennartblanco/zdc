@@ -40,6 +40,12 @@ dt_pointer_get_type(void)
     return type;
 }
 
+bool
+dt_is_pointer(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE((obj), DT_TYPE_POINTER);
+}
+
 DtPointer *
 dt_pointer_new(DtDataType *base_type)
 {
@@ -56,7 +62,7 @@ dt_pointer_new(DtDataType *base_type)
 DtDataType *
 dt_pointer_get_base_type(DtPointer *self)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
 
     return self->base_type;
 }
@@ -64,7 +70,7 @@ dt_pointer_get_base_type(DtPointer *self)
 void
 dt_pointer_set_base_type(DtPointer *self, DtDataType *base_type)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
     assert(DT_IS_DATA_TYPE(base_type));
 
     self->base_type = base_type;
@@ -73,7 +79,7 @@ dt_pointer_set_base_type(DtPointer *self, DtDataType *base_type)
 guint
 dt_pointer_get_base_type_size(DtPointer *self)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
     assert(DT_IS_DATA_TYPE(self->base_type));
 
     return dt_data_type_get_size(self->base_type);
@@ -86,7 +92,7 @@ dt_pointer_get_base_type_size(DtPointer *self)
 static char *
 dt_pointer_get_string(DtDataType *self)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
 
     DtPointer *ptr = DT_POINTER(self);
 
@@ -104,7 +110,7 @@ dt_pointer_get_string(DtDataType *self)
 static char *
 dt_pointer_get_mangled(DtDataType *self)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
 
     DtPointer *ptr = DT_POINTER(self);
 
@@ -122,7 +128,7 @@ dt_pointer_get_mangled(DtDataType *self)
 static IrExpression *
 dt_pointer_get_init(DtDataType *self)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
 
     return ir_expression(ir_null_new(0));
 }
@@ -130,11 +136,11 @@ dt_pointer_get_init(DtDataType *self)
 static bool
 dt_pointer_is_same(DtDataType *self, DtDataType *type)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
     assert(DT_IS_DATA_TYPE(type));
 
 
-    if (!DT_IS_POINTER(type))
+    if (!dt_is_pointer(type))
     {
         return false;
     }
@@ -146,7 +152,7 @@ dt_pointer_is_same(DtDataType *self, DtDataType *type)
 static guint
 dt_pointer_get_size(DtDataType *self)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
 
     /* hard-code pointers to 4 bytes for all platforms for now */
     return 4;
@@ -155,10 +161,10 @@ dt_pointer_get_size(DtDataType *self)
 static bool
 dt_pointer_is_impl_conv(DtDataType *self, IrExpression *expression)
 {
-    assert(DT_IS_POINTER(self));
+    assert(dt_is_pointer(self));
     assert(IR_IS_EXPRESSION(expression));
 
-    if (IR_IS_NULL(expression))
+    if (ir_is_null(expression))
     {
         /* 'null' can be assigned to any pointer */
         return true;
@@ -167,7 +173,7 @@ dt_pointer_is_impl_conv(DtDataType *self, IrExpression *expression)
     if (DT_IS_VOID(dt_pointer_get_base_type(DT_POINTER(self))))
     {
         /* all pointer types are implicitly convertible to void* */
-        return DT_IS_POINTER(ir_expression_get_data_type(expression));
+        return dt_is_pointer(ir_expression_get_data_type(expression));
     }
 
     return false;
@@ -183,4 +189,3 @@ dt_pointer_class_init(gpointer klass, gpointer dummy)
     DT_DATA_TYPE_CLASS(klass)->get_size = dt_pointer_get_size;
     DT_DATA_TYPE_CLASS(klass)->is_impl_conv = dt_pointer_is_impl_conv;
 }
-

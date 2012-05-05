@@ -154,7 +154,7 @@ dt_static_array_is_impl_conv(DtDataType *self, IrExpression *expression)
     assert(DT_IS_STATIC_ARRAY_TYPE(self));
     assert(IR_IS_EXPRESSION(expression));
 
-    return dt_array_is_impl_conv(self, expression) && !IR_IS_NULL(expression);
+    return dt_array_is_impl_conv(self, expression) && !ir_is_null(expression);
 }
 
 static void

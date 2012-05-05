@@ -79,7 +79,7 @@ ir_ptr_dref_get_dest_size(IrPtrDref *self)
     DtDataType *dt;
 
     dt = ir_expression_get_data_type(self->ptr_expression);
-    assert(DT_IS_POINTER(dt));
+    assert(dt_is_pointer(dt));
 
     return dt_data_type_get_size(dt_pointer_get_base_type(DT_POINTER(dt)));
 }
@@ -96,7 +96,7 @@ ir_ptr_dref_do_get_data_type(IrExpression *self)
     DtDataType *dt;
 
     dt = ir_expression_get_data_type(IR_PTR_DREF(self)->ptr_expression);
-    assert(DT_IS_POINTER(dt));
+    assert(dt_is_pointer(dt));
 
     return dt_pointer_get_base_type(DT_POINTER(dt));
 }

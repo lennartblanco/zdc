@@ -39,6 +39,12 @@ ir_null_get_type(void)
     return type;
 }
 
+bool
+ir_is_null(void *obj)
+{
+    return G_TYPE_CHECK_INSTANCE_TYPE((obj), IR_TYPE_NULL);
+}
+
 IrNull *
 ir_null_new(guint line_number)
 {
@@ -67,7 +73,7 @@ ir_null_get()
 static DtDataType *
 ir_null_do_get_data_type(IrExpression *self)
 {
-    assert(IR_IS_NULL(self));
+    assert(ir_is_null(self));
 
     return types_get_void_ptr();
 }

@@ -108,12 +108,12 @@ types_pointer_arithm_conv(IrExpression *left,
     DtDataType *left_type = ir_expression_get_data_type(left);
     DtDataType *right_type = ir_expression_get_data_type(right);
 
-    assert(DT_IS_POINTER(left_type) || DT_IS_POINTER(right_type));
+    assert(dt_is_pointer(left_type) || dt_is_pointer(right_type));
 
     /*
      * promote non-pointer operand to integer if needed
      */
-    if (!DT_IS_POINTER(left_type))
+    if (!dt_is_pointer(left_type))
     {
         *res_left = types_integer_promotion(left);
         if (*res_left == NULL)
@@ -123,7 +123,7 @@ types_pointer_arithm_conv(IrExpression *left,
         }
     }
 
-    if (!DT_IS_POINTER(right_type))
+    if (!dt_is_pointer(right_type))
     {
         *res_right = types_integer_promotion(right);
         if (*res_right == NULL)
@@ -135,13 +135,13 @@ types_pointer_arithm_conv(IrExpression *left,
 
     if (operation == op_plus)
     {
-      if (DT_IS_POINTER(left_type) && DT_IS_POINTER(right_type))
+      if (dt_is_pointer(left_type) && dt_is_pointer(right_type))
       {
           /* adding two pointers is illegal */
           return false;
       }
 
-      if (!DT_IS_POINTER(left_type))
+      if (!dt_is_pointer(left_type))
       {
           /*
            * if left operand is integral and right is pointer,
@@ -158,7 +158,7 @@ types_pointer_arithm_conv(IrExpression *left,
     else
     {
         assert(operation == op_minus);
-        if (!DT_IS_POINTER(left_type))
+        if (!dt_is_pointer(left_type))
         {
             /* it's illegal to substract pointer from a non-pointer */
             return false;

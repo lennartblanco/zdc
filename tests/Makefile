@@ -81,7 +81,7 @@ check_immutable: immutable.o check_utils.o check_immutable.c $(ARCH_SPECIFIC)
 check_enums: enums.o check_utils.o check_enums.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
-check_struct: struct.o check_utils.o check_struct.c
+check_struct: struct.o check_utils.o check_struct.c $(ARCH_SPECIFIC)
 	$(CC) $(CFLAGS) -o $@ $^
 
 check_objects: objects.o check_utils.o check_objects.c

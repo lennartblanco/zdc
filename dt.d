@@ -65,3 +65,12 @@ dt_enum(void *obj);
 
 DtDataType *
 dt_enum_get_base_type(DtEnum *self);
+
+/*---------------------------------------------------------------------------*
+ *                      pointer data type declarations                       *
+ *---------------------------------------------------------------------------*/
+
+struct DtPointer;
+
+bool
+dt_is_pointer(void *obj);

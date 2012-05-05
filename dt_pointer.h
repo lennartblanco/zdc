@@ -15,9 +15,6 @@
 #define DT_POINTER_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), DT_TYPE_POINTER, DtPointerClass))
 
-#define DT_IS_POINTER(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DT_TYPE_POINTER))
-
 #define DT_IS_POINTER_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE ((klass), DT_TYPE_POINTER))
 
@@ -44,6 +41,9 @@ typedef struct
 
 GType
 dt_pointer_get_type(void);
+
+bool
+dt_is_pointer(void *obj);
 
 DtPointer *
 dt_pointer_new(DtDataType *base_type);

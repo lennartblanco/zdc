@@ -1,0 +1,4 @@
+void func()
+{
+  void *x = new unkn; // new expression on unknown type
+}
