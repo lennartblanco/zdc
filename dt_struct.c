@@ -44,8 +44,7 @@ dt_struct_new(gchar *name,
               GSList *members,
               GSList *methods,
               bool opaque,
-              IrModule *parent_module,
-              sym_table_t *symbols)
+              IrModule *parent_module)
 {
     DtStruct *obj;
 

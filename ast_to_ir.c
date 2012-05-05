@@ -587,8 +587,7 @@ struct_to_dt(compilation_status_t *compile_status,
                          g_slist_reverse(members),
                          methods,
                          ast_struct_is_opaque(ast_struct),
-                         compile_status->module,
-                         symbols);
+                         compile_status->module);
 }
 
 static DtClass *
