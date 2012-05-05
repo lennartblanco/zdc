@@ -1,12 +1,9 @@
 #ifndef DT_STRUCT_INC_X
 #define DT_STRUCT_INC_X
 
-#include "dt_user.h"
-#include "ir_ident.h"
+#include "dt_record.h"
 #include "ir_struct_literal.h"
-#include "ir_struct_member.h"
-#include "ir_variable.h"
-#include "ir_function_call.h"
+#include "sym_table.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -31,21 +28,18 @@
 
 typedef struct
 {
-    DtUser parent;
+    DtRecord parent;
 
     /* private */
     bool opaque;
     IrStructLiteral *init;
-    guint size;
-    GSList *members;             /* members in order */
-    GHashTable *members_table;   /* members by name */
     GSList *methods;             /* methods in order */
     GHashTable *methods_table;   /* methods by name */
 } DtStruct;
 
 typedef struct
 {
-    DtUserClass parent_class;
+    DtRecordClass parent_class;
 } DtStructClass;
 
 /*---------------------------------------------------------------------------*
@@ -63,6 +57,9 @@ dt_struct_new(gchar *name,
               IrModule *parent_module,
               sym_table_t *symbols);
 
+/**
+ * Convenience wrapper around dt_record_get_members().
+ */
 GSList *
 dt_struct_get_members(DtStruct *self);
 
