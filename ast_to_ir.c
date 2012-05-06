@@ -536,10 +536,9 @@ struct_to_dt(compilation_status_t *compile_status,
     GSList *i;
     GSList *members = NULL;
     GSList *methods = NULL;
-    sym_table_t *symbols;
 
     /* convert struct members to ir */
-    symbols = sym_table_new(NULL);
+    GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
     for (i = ast_struct_get_members(ast_struct);
          i != NULL;
          i = g_slist_next(i))
@@ -549,16 +548,22 @@ struct_to_dt(compilation_status_t *compile_status,
         IrVariable *var =
                 var_def_to_ir(compile_status,
                               AST_VARIABLE_DEFINITION(i->data),
-                              symbols);
-        if (sym_table_add_symbol(symbols, ir_symbol(var)) != 0)
+                              NULL);
+        IrVariable *prev_var;
+        char *var_name = ir_variable_get_name(var);
+        if ((prev_var = g_hash_table_lookup(table, var_name)) != NULL)
         {
             compile_error(compile_status,
                           var,
-                          "redeclaration of symbol '%s'\n",
-                          ir_symbol_get_name(ir_symbol(var)));
+                          "struct member '%s' redefined, "
+                          "previously defined at line %d\n",
+                          var_name,
+                          ir_node_get_line_num(prev_var));
         }
+        g_hash_table_insert(table, var_name, var);
         members = g_slist_prepend(members, var);
     }
+    g_hash_table_unref(table);
 
     /*
      * convert struct methods to ir
@@ -1700,7 +1705,6 @@ expression_to_ir(compilation_status_t *compile_status,
                  AstExpression *ast_expression)
 {
     assert(compile_status);
-    assert(symbols);
     assert(ast_expression);
 
     guint line_num = ast_node_get_line_num(AST_NODE(ast_expression));
