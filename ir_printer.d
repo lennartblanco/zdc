@@ -8,13 +8,13 @@ extern (C)
     void
     ir_print_module(IrModule *mod)
     {
-        get_dispatcher().dispatch(mod, null);
+        get_dispatcher().dispatch(mod, layout());
     }
 
     void
     ir_print_expression(IrExpression *exp)
     {
-        get_dispatcher().dispatch(exp, &layout(null, 2, [true]));
+        get_dispatcher().dispatch(exp, layout(null, 2, [true]));
     }
 }
 
@@ -27,14 +27,16 @@ struct layout
     bool[] last_node;
 }
 
-gt_dispatcher *
+alias gt_dispatcher.gt_dispatcher!layout ir_dispatcher;
+
+auto
 get_dispatcher()
 {
-    static gt_dispatcher *dispatcher;
+    static ir_dispatcher *dispatcher;
 
     if (dispatcher == null)
     {
-      dispatcher = new gt_dispatcher
+      dispatcher = new ir_dispatcher
        ([
          ir_module_get_type() : &print_module,
          ir_function_def_get_type() : &print_function_def,
@@ -59,7 +61,7 @@ get_dispatcher()
 }
 
 string
-get_prefix(layout *l)
+get_prefix(ref layout l)
 {
     string prefix;
 
@@ -84,7 +86,7 @@ get_prefix(layout *l)
 }
 
 void
-print_module(gt_dispatcher *dispatcher, void *obj, void *)
+print_module(ir_dispatcher *dispatcher, void *obj, ref layout)
 {
     IrModule *mod = ir_module(obj);
 
@@ -93,25 +95,24 @@ print_module(gt_dispatcher *dispatcher, void *obj, void *)
 
     for (GSList *i = ir_module_get_function_defs(mod); i != null; i = i.next)
     {
-        dispatcher.dispatch(i.data, null);
+        dispatcher.dispatch(i.data, layout());
     }
 }
 
 void
-print_function_def(gt_dispatcher *dispatcher, void *obj, void *)
+print_function_def(ir_dispatcher *dispatcher, void *obj, ref layout)
 {
     writefln("\nIrFunctionDef: '%s'",
              to!string(ir_function_get_mangled_name(ir_function(obj))));
 
     dispatcher.dispatch(
         ir_function_def_get_body(ir_function_def(obj)),
-                 &layout("body", 2, [true]));
+                 layout("body", 2, [true]));
 }
 
 void
-print_code_block(gt_dispatcher *dispatcher, void *obj, void *data)
+print_code_block(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrCodeBlock", get_prefix(l));
 
     layout child_layout = layout(null, l.indent);
@@ -120,14 +121,13 @@ print_code_block(gt_dispatcher *dispatcher, void *obj, void *data)
          i = i.next)
     {
         child_layout.last_node = l.last_node ~ [i.next == null];
-        dispatcher.dispatch(i.data, &child_layout);
+        dispatcher.dispatch(i.data, child_layout);
     }
 }
 
 void
-print_function_call(gt_dispatcher *dispatcher, void *obj, void *data)
+print_function_call(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     IrFunctionCall *fcall = ir_function_call(obj);
 
     writefln("%sIrFunctionCall", get_prefix(l));
@@ -135,25 +135,24 @@ print_function_call(gt_dispatcher *dispatcher, void *obj, void *data)
     layout cl = layout(null, l.indent);
     cl.last_node = l.last_node ~ [false];
     writefln("%sname: %s",
-             get_prefix(&cl),
+             get_prefix(cl),
              to!string(ir_function_call_get_name(fcall)));
 
     cl.last_node = l.last_node ~ [true];
-    writefln("%sarguments", get_prefix(&cl));
+    writefln("%sarguments", get_prefix(cl));
 
     for (GSList *i = ir_function_call_get_arguments(fcall);
          i != null;
          i = i.next)
     {
       cl.last_node = l.last_node ~ [true, i.next == null];
-      dispatcher.dispatch(i.data, &cl);
+      dispatcher.dispatch(i.data, cl);
     }
 }
 
 void
-print_return(gt_dispatcher *dispatcher, void *obj, void *data)
+print_return(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrReturn", get_prefix(l));
 
     IrExpression *ret_val =
@@ -161,14 +160,13 @@ print_return(gt_dispatcher *dispatcher, void *obj, void *data)
 
     if (ret_val != null)
     {
-        dispatcher.dispatch(ret_val, &layout(null, 2, l.last_node ~ [true]));
+        dispatcher.dispatch(ret_val, layout(null, 2, l.last_node ~ [true]));
     }
 }
 
 void
-print_foreach(gt_dispatcher *dispatcher, void *obj, void *data)
+print_foreach(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrForeach", get_prefix(l));
 
     layout cl = layout(null, l.indent, null);
@@ -180,25 +178,23 @@ print_foreach(gt_dispatcher *dispatcher, void *obj, void *data)
     {
         cl.node_name = "index";
         cl.last_node = l.last_node ~ [false];
-        dispatcher.dispatch(var, &cl);
+        dispatcher.dispatch(var, cl);
     }
 
     /* print value node */
     cl.node_name = "value";
     cl.last_node = l.last_node ~ [false];
-    dispatcher.dispatch(ir_foreach_get_value(ir_foreach), &cl);
+    dispatcher.dispatch(ir_foreach_get_value(ir_foreach), cl);
 
     /* print body subtree */
     cl.node_name = "body";
     cl.last_node = l.last_node ~ [true];
-    dispatcher.dispatch(ir_foreach_get_body(ir_foreach), &cl);
-
+    dispatcher.dispatch(ir_foreach_get_body(ir_foreach), cl);
 }
 
 void
-print_assignment(gt_dispatcher *dispatcher, void *obj, void *data)
+print_assignment(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrAssignment", get_prefix(l));
 
     IrAssignment *assignment = ir_assignment(obj);
@@ -208,41 +204,38 @@ print_assignment(gt_dispatcher *dispatcher, void *obj, void *data)
     /* print lvalue node */
     cl.node_name = "lvalue";
     cl.last_node = l.last_node ~ [false];
-    dispatcher.dispatch(ir_assignment_get_lvalue(assignment), &cl);
+    dispatcher.dispatch(ir_assignment_get_lvalue(assignment), cl);
 
     /* print rvalue node */
     cl.node_name = "value";
     cl.last_node = l.last_node ~ [true];
-    dispatcher.dispatch(ir_assignment_get_value(assignment), &cl);
+    dispatcher.dispatch(ir_assignment_get_value(assignment), cl);
 }
 
 void
-print_address_of(gt_dispatcher *dispatcher, void *obj, void *data)
+print_address_of(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrAddressOf", get_prefix(l));
 
     IrAddressOf *addrof = ir_address_of(obj);
 
     dispatcher.dispatch(ir_address_of_get_expression(addrof),
-                        &layout("expression", l.indent, l.last_node ~ [true]));
+                        layout("expression", l.indent, l.last_node ~ [true]));
 }
 
 void
-print_struct_member(gt_dispatcher *dispatcher, void *obj, void *data)
+print_struct_member(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrStructMember", get_prefix(l));
 
     /* print base node */
     dispatcher.dispatch(ir_struct_member_get_base(ir_struct_member(obj)),
-                        &layout("base", l.indent, l.last_node ~ [true]));
+                        layout("base", l.indent, l.last_node ~ [true]));
 }
 
 void
-print_cast(gt_dispatcher *dispatcher, void *obj, void *data)
+print_cast(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     IrCast *ir_cast = ir_cast(obj);
 
     writefln("%sIrCast: '%s'",
@@ -252,13 +245,12 @@ print_cast(gt_dispatcher *dispatcher, void *obj, void *data)
 
     /* print value node */
     dispatcher.dispatch(ir_cast_get_value(ir_cast),
-                        &layout("value", l.indent, l.last_node ~ [true]));
+                        layout("value", l.indent, l.last_node ~ [true]));
 }
 
 void
-print_binary_operation(gt_dispatcher *dispatcher, void *obj, void *data)
+print_binary_operation(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     IrBinaryOperation *bin_op = ir_binary_operation(obj);
 
     static string[binary_op_type] op_names;
@@ -289,37 +281,34 @@ print_binary_operation(gt_dispatcher *dispatcher, void *obj, void *data)
 
     /* print left operand */
     dispatcher.dispatch(ir_binary_operation_get_left(bin_op),
-                        &layout("left", l.indent, l.last_node ~ [false]));
+                        layout("left", l.indent, l.last_node ~ [false]));
 
     /* print right operand */
     dispatcher.dispatch(ir_binary_operation_get_right(bin_op),
-                        &layout("right", l.indent, l.last_node ~ [true]));
+                        layout("right", l.indent, l.last_node ~ [true]));
 }
 
 void
-print_var_value(gt_dispatcher *dispatcher, void *obj, void *data)
+print_var_value(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrVarValue", get_prefix(l));
 
     dispatcher.dispatch(ir_var_value_get_var(ir_var_value(obj)),
-                        &layout("var", l.indent, l.last_node ~ [true]));
+                        layout("var", l.indent, l.last_node ~ [true]));
 }
 
 void
-print_var_ref(gt_dispatcher *dispatcher, void *obj, void *data)
+print_var_ref(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrVarRef", get_prefix(l));
 
     dispatcher.dispatch(ir_var_ref_get_var(ir_var_ref(obj)),
-                        &layout("var", l.indent, l.last_node ~ [true]));
+                        layout("var", l.indent, l.last_node ~ [true]));
 }
 
 void
-print_variable(gt_dispatcher *dispatcher, void *obj, void *data)
+print_variable(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     IrVariable *var = ir_variable(obj);
 
     writefln("%sIrVariable '%s'",
@@ -328,9 +317,8 @@ print_variable(gt_dispatcher *dispatcher, void *obj, void *data)
 }
 
 void
-print_array_literal(gt_dispatcher *dispatcher, void *obj, void *data)
+print_array_literal(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
-    layout *l = cast(layout*)data;
     writefln("%sIrArrayLiteral", get_prefix(l));
 
     layout cl = layout(null, l.indent, null);
@@ -339,12 +327,12 @@ print_array_literal(gt_dispatcher *dispatcher, void *obj, void *data)
          i = i.next)
     {
         cl.last_node = l.last_node ~ [i.next == null];
-        dispatcher.dispatch(i.data, &cl);
+        dispatcher.dispatch(i.data, cl);
     }
 }
 
 void
-print_basic_constant(gt_dispatcher *dispatcher, void *obj, void *data)
+print_basic_constant(ir_dispatcher *dispatcher, void *obj, ref layout l)
 {
     string char_string(char c)
     {
@@ -383,5 +371,5 @@ print_basic_constant(gt_dispatcher *dispatcher, void *obj, void *data)
                    to!string(dt_basic_get_data_type(type)));
     }
 
-    writefln("%sIrBasicConstant: %s", get_prefix(cast(layout*)data), val);
+    writefln("%sIrBasicConstant: %s", get_prefix(l), val);
 }
