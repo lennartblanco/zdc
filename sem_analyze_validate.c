@@ -2917,26 +2917,10 @@ validate_enum(compilation_status_t *compile_status,
     }
 
     /*
-     * figure out enum's base type
+     * validate enum's base type
      */
     base_type = dt_enum_get_base_type(enum_def);
-    if (base_type == NULL)
-    {
-        /*
-         * get first member's initialization expression
-         */
-        if (first_member_init != NULL)
-        {
-            /* enum's base type is derived from first members type */
-            base_type = ir_expression_get_data_type(first_member_init);
-        }
-        else
-        {
-            /* use default int base type */
-            base_type = types_get_int_type();
-        }
-    }
-    else if (DT_IS_NAME(base_type))
+    if (DT_IS_NAME(base_type))
     {
         /* resolved base user type */
         base_type = resolve_user_type(compile_status,
@@ -2947,8 +2931,8 @@ validate_enum(compilation_status_t *compile_status,
             /* invalid user type, bail out */
             return;
         }
+        dt_enum_set_base_type(enum_def, base_type);
     }
-    dt_enum_set_base_type(enum_def, base_type);
 
     /*
      * figure out enum members values

@@ -1,5 +1,6 @@
 #include "dt_enum.h"
 #include "ir_module.h"
+#include "types.h"
 
 #include <assert.h>
 
@@ -68,7 +69,7 @@ dt_enum_new(gchar *name,
                        "ir-node-line-number", line_number,
                        NULL);
 
-    obj->base_type = base_type;
+    obj->base_type = base_type != NULL ? base_type : types_get_int_type();
     obj->members = NULL;
 
     return obj;
