@@ -1,7 +1,7 @@
 #ifndef DT_CLASS_INC_X
 #define DT_CLASS_INC_X
 
-#include "dt_user.h"
+#include "dt_record.h"
 
 /*---------------------------------------------------------------------------*
  *                             type definitions                              *
@@ -26,12 +26,14 @@
 
 typedef struct
 {
-    DtUser parent;
+    DtRecord parent;
+    /* private */
+    IrStructLiteral *blob_init;
 } DtClass;
 
 typedef struct
 {
-    DtUserClass parent_class;
+    DtRecordClass parent_class;
 } DtClassClass;
 
 /*---------------------------------------------------------------------------*
@@ -42,6 +44,6 @@ GType
 dt_class_get_type(void);
 
 DtClass *
-dt_class_new(gchar *name, IrModule *parent_module);
+dt_class_new(gchar *name, GSList *members, IrModule *parent_module);
 
 #endif /* DT_CLASS_INC_X */

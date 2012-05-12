@@ -1,6 +1,7 @@
 #include "ir_new.h"
 #include "dt_struct.h"
 #include "dt_pointer.h"
+#include "dt_class.h"
 
 #include <assert.h>
 
@@ -85,10 +86,16 @@ ir_new_do_get_data_type(IrExpression *self)
     IrNew *new = IR_NEW(self);
 
     /* only new on struct types implemented */
-    assert(DT_IS_STRUCT(new->type));
     if (new->exp_type == NULL)
     {
-        new->exp_type = DT_DATA_TYPE(dt_pointer_new(new->type));
+        if (DT_IS_CLASS(new->type))
+        {
+            new->exp_type = new->type;
+        }
+        else
+        {
+            new->exp_type = DT_DATA_TYPE(dt_pointer_new(new->type));
+        }
     }
 
     return new->exp_type;

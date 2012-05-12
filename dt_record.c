@@ -107,6 +107,15 @@ dt_record_get_member(DtRecord *self, IrIdent *name)
     return g_hash_table_lookup(self->members_table, ir_ident_get_name(name));
 }
 
+IrStructLiteral *
+dt_record_get_init_blob(DtRecord *self)
+{
+    assert(DT_IS_RECORD(self));
+    assert(DT_RECORD_GET_CLASS(self)->get_init_blob);
+
+    return DT_RECORD_GET_CLASS(self)->get_init_blob(self);
+}
+
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
@@ -134,6 +143,14 @@ ir_record_get_property(GObject *object,
     assert(false);
 }
 
+static guint
+dt_record_get_size(DtDataType *self)
+{
+    assert(DT_IS_RECORD(self));
+
+    return DT_RECORD(self)->size;
+}
+
 static void
 dt_record_class_init(gpointer klass, gpointer dummy)
 {
@@ -157,6 +174,9 @@ dt_record_class_init(gpointer klass, gpointer dummy)
     g_object_class_install_property(gobject_class,
                                     DT_RECORD_MEMBERS,
                                     pspec);
+
+    /* install virtual methods implementations */
+    DT_DATA_TYPE_CLASS(klass)->get_size = dt_record_get_size;
 }
 
 

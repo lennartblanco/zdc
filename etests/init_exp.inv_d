@@ -96,3 +96,11 @@ byte func() {
     r = b;
   }
 }
+
+struct stru1 {          // unknow data type 'oink' in struct
+  oink x;
+}
+
+class obj1 {           // unknow data type 'oink' in class
+  oink x;
+}

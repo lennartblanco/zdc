@@ -8,6 +8,7 @@
  */
 
 #include "dt_user.h"
+#include "ir_struct_literal.h"
 #include "ir_struct_member.h"
 #include "ir_ident.h"
 
@@ -45,6 +46,9 @@ typedef struct
 typedef struct
 {
     DtUserClass parent_class;
+
+    /* virtual methods */
+    IrStructLiteral * (*get_init_blob) (DtRecord *self);
 } DtRecordClass;
 
 /*---------------------------------------------------------------------------*
@@ -62,5 +66,12 @@ dt_record_set_members(DtRecord *self, GSList *members);
 
 const IrStructMember *
 dt_record_get_member(DtRecord *self, IrIdent *name);
+
+/**
+ * Get this record fields initilization blob. When a record of this type
+ * is allocated, this blob is written before any constructors are called.
+ */
+IrStructLiteral *
+dt_record_get_init_blob(DtRecord *self);
 
 #endif /* DT_RECORD_INC_X */

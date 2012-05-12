@@ -73,7 +73,7 @@ dt_struct_get_members(DtStruct *self)
 }
 
 void
-dt_struct_set_members(DtStruct *self, GSList *members)
+dt_struct_setX_members(DtStruct *self, GSList *members)
 {
     assert(DT_IS_STRUCT(self));
     assert(!self->opaque);
@@ -131,14 +131,6 @@ dt_struct_get_method(DtStruct *self, const char *method_name)
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
 
-static guint
-dt_struct_get_size(DtDataType *self)
-{
-    assert(DT_IS_STRUCT(self));
-
-    return DT_RECORD(self)->size;
-}
-
 static IrExpression *
 dt_struct_get_init(DtDataType *self)
 {
@@ -153,6 +145,15 @@ dt_struct_get_init(DtDataType *self)
     return ir_expression(dt_struct->init);
 }
 
+static IrStructLiteral *
+dt_struct_get_init_blob(DtRecord *self)
+{
+    assert(DT_IS_STRUCT(self));
+
+    /* for structs init and blob-init are identical */
+    return ir_struct_literal(dt_struct_get_init(DT_DATA_TYPE(self)));
+}
+
 static gchar *
 dt_struct_get_mangled_prefix(DtUser *self)
 {
@@ -164,7 +165,7 @@ dt_struct_get_mangled_prefix(DtUser *self)
 static void
 dt_struct_class_init(gpointer klass, gpointer dummy)
 {
+    DT_RECORD_CLASS(klass)->get_init_blob = dt_struct_get_init_blob;
     DT_USER_CLASS(klass)->get_mangled_prefix = dt_struct_get_mangled_prefix;
-    DT_DATA_TYPE_CLASS(klass)->get_size = dt_struct_get_size;
     DT_DATA_TYPE_CLASS(klass)->get_init = dt_struct_get_init;
 }

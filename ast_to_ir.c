@@ -528,20 +528,15 @@ enum_to_dt(compilation_status_t *compile_status,
     return enum_def;
 }
 
-static DtStruct *
-struct_to_dt(compilation_status_t *compile_status,
-             AstStruct *ast_struct,
-             bool decls_imported)
+static GSList *
+record_members_to_dt(compilation_status_t *compile_status,
+                     GSList *ast_members)
 {
     GSList *i;
     GSList *members = NULL;
-    GSList *methods = NULL;
-
-    /* convert struct members to ir */
     GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
-    for (i = ast_struct_get_members(ast_struct);
-         i != NULL;
-         i = g_slist_next(i))
+
+    for (i = ast_members; i != NULL; i = g_slist_next(i))
     {
         assert(AST_IS_VARIABLE_DEFINITION(i->data));
 
@@ -565,9 +560,24 @@ struct_to_dt(compilation_status_t *compile_status,
     }
     g_hash_table_unref(table);
 
+    return g_slist_reverse(members);
+}
+
+static DtStruct *
+struct_to_dt(compilation_status_t *compile_status,
+             AstStruct *ast_struct,
+             bool decls_imported)
+{
+
+    /* convert struct members to ir */
+    GSList *members = record_members_to_dt(compile_status,
+                                           ast_struct_get_members(ast_struct));
+
     /*
      * convert struct methods to ir
      */
+    GSList *i;
+    GSList *methods = NULL;
     attributes_t attrs;
     attributes_default(&attrs);
     IrScope *scope =
@@ -589,7 +599,7 @@ struct_to_dt(compilation_status_t *compile_status,
     }
 
     return dt_struct_new(ast_struct_get_name(ast_struct),
-                         g_slist_reverse(members),
+                         members,
                          methods,
                          ast_struct_is_opaque(ast_struct),
                          compile_status->module);
@@ -603,9 +613,11 @@ class_to_dt(compilation_status_t *compile_status,
     assert(AST_IS_CLASS(ast_class));
 
     /* members not implemented */
-    assert(ast_class_get_members(ast_class) == NULL);
+    GSList *members = record_members_to_dt(compile_status,
+                                           ast_class_get_members(ast_class));
 
     return dt_class_new(ast_class_get_name(ast_class),
+                        members,
                         compile_status->module);
 }
 

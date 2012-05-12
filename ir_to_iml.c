@@ -1580,8 +1580,8 @@ iml_add_new_eval(iml_function_t *function, IrNew *new, ImlVariable *res)
     }
 
     DtDataType *new_type = ir_new_get_dt_type(new);
-    /* only new on struct types implemented */
-    assert(DT_IS_STRUCT(new_type));
+    /* only new on structs/objects supported */
+    assert(DT_IS_RECORD(new_type));
 
     /*
      * generate iml to allocate memory in GC-heap for the requested type
@@ -1595,9 +1595,7 @@ iml_add_new_eval(iml_function_t *function, IrNew *new, ImlVariable *res)
     /*
      * generate code to copy init expression literal to allocated memory
      */
-    IrExpression *init_exp = dt_data_type_get_init(new_type);
-    /* only new on struct types implemented */
-    assert(ir_is_struct_literal(init_exp));
+    IrStructLiteral *init_exp = dt_record_get_init_blob(DT_RECORD(new_type));
     char *label = ir_literal_get_data_label(ir_literal(init_exp));
     assert(label);
 

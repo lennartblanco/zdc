@@ -1413,9 +1413,13 @@ validate_new(compilation_status_t *compile_status,
     }
     ir_new_set_dt_type(new, type);
 
-    /* make sure type's init expression is stored in data section if needed */
-    ir_module_add_const_data(compile_status->module,
-                             dt_data_type_get_init(type));
+    /* only new on struct/class types imlemented */
+    assert(DT_IS_RECORD(type));
+
+    /* make sure type's blob init expression is stored in data section */
+    ir_module_add_const_data(
+        compile_status->module,
+        ir_expression(dt_record_get_init_blob(DT_RECORD(type))));
 
     return ir_expression(new);
 }
@@ -3003,6 +3007,35 @@ validate_enum(compilation_status_t *compile_status,
 }
 
 static void
+validate_record_members(compilation_status_t *compile_status,
+                        DtRecord *record)
+{
+    assert(compile_status);
+    assert(DT_IS_RECORD(record));
+
+    GSList *i;
+    GSList *members = NULL;
+    sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
+
+    for (i = dt_record_get_members(record); i != NULL; i = g_slist_next(i))
+    {
+        assert(IR_IS_VARIABLE(i->data));
+
+        IrVariable *var = validate_variable(compile_status,
+                                            sym_table,
+                                            ir_variable(i->data));
+        if (var == NULL)
+        {
+            /* invalid member, skip to next member */
+            continue;
+        }
+        members = g_slist_prepend(members, var);
+    }
+
+    dt_record_set_members(record, g_slist_reverse(members));
+}
+
+static void
 validate_struct(compilation_status_t *compile_status,
                 DtStruct *dt_struct)
 {
@@ -3014,26 +3047,7 @@ validate_struct(compilation_status_t *compile_status,
     /* validate struct members */
     if (!dt_struct_is_opaque(dt_struct))
     {
-        GSList *members = NULL;
-        sym_table_t *sym_table = ir_module_get_symbols(compile_status->module);
-
-        for (i = dt_struct_get_members(dt_struct);
-             i != NULL;
-             i = g_slist_next(i))
-        {
-            assert(IR_IS_VARIABLE(i->data));
-
-            IrVariable *var = validate_variable(compile_status,
-                                                sym_table,
-                                                ir_variable(i->data));
-            if (var == NULL)
-            {
-                /* invalid member, skip to next member */
-                continue;
-            }
-            members = g_slist_prepend(members, var);
-        }
-        dt_struct_set_members(dt_struct, g_slist_reverse(members));
+        validate_record_members(compile_status, DT_RECORD(dt_struct));
     }
 
     /* validate struct methods */
@@ -3052,6 +3066,7 @@ validate_struct(compilation_status_t *compile_status,
 static void
 validate_class(compilation_status_t *compile_status, DtClass *dt_class)
 {
+    validate_record_members(compile_status, DT_RECORD(dt_class));
 }
 
 static void
