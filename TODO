@@ -1,5 +1,26 @@
 * following code fails an assertion
 
+enum chrs { Q, R, S }
+
+./zdc err.d
+zdc: ir_expression.c:88: ir_expression_get_value_range: Assertion `((((IrExpressionClass*) (((GTypeInstance*) ((self)))->g_class))))->get_value_range' failed.
+
+void func()
+{
+  string m = chrs.Q;
+}
+
+* following code fails an assertion
+
+void func() {
+  string m = 3;
+}
+
+$ ./zdc err.d
+zdc: x86.c:555: compile_copy: Assertion `iml_is_variable(src)' failed.
+
+* following code fails an assertion
+
 bool
 unnamed_enum_param(bool dummy, nums)
 {
