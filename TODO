@@ -1,5 +1,25 @@
 * following code fails an assertion
 
+bool
+unnamed_enum_param(bool dummy, nums)
+{
+  return !dummy;
+}
+
+bool
+foo(bool arg1, nums arg2)
+{
+  return unnamed_enum_param(arg1, arg2);
+}
+
+./zdc err.d
+err.d:2: error: unknown data type 'nums'
+err.d:8: error: unknown data type 'nums'
+zdc: dt_data_type.c:103: dt_data_type_is_same: Assertion `((((DtDataTypeClass*) (((GTypeInstance*) ((self)))->g_class))))->is_same != ((void *)0)' failed.
+Aborted
+
+* following code fails an assertion
+
 void foo()
 {
   return 0;
