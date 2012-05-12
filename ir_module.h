@@ -140,25 +140,19 @@ bool
 ir_module_add_enum(IrModule *self, DtEnum *dt_enum);
 
 /**
- * @return enum declaration in this module, as a list of IrEnum objects
- */
-GSList *
-ir_module_get_enums(IrModule *self);
-
-/**
  * @return false if this struct definition conflicts with some other user type
  */
 bool
 ir_module_add_struct(IrModule *self, DtStruct *dt_struct);
-
-GSList *
-ir_module_get_structs(IrModule *self);
 
 /**
  * @return false if this class definition conflicts with some other user type
  */
 bool
 ir_module_add_class(IrModule *self, DtClass *dt_class);
+
+GSList *
+ir_module_get_user_types(IrModule *self);
 
 IrScope *
 ir_module_get_scope(IrModule *self);

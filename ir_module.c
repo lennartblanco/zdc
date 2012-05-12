@@ -16,8 +16,7 @@ struct _IrModule
     IrScope        *scope;
     sym_table_t    *symbols;
     GSList         *imports;
-    GSList         *enums;
-    GSList         *structs;
+    GSList         *user_types;
     GSList         *functions;     /** IML code for modules functions */
     GSList         *function_decls;
     GSList         *function_defs;
@@ -69,8 +68,7 @@ ir_module_new(GSList *package_name)
     obj = g_object_new(IR_TYPE_MODULE, NULL);
     obj->symbols = sym_table_new(NULL);
     obj->imports = NULL;
-    obj->enums = NULL;
-    obj->structs = NULL;
+    obj->user_types = NULL;
     obj->function_decls = NULL;
     obj->function_defs = NULL;
     obj->label_counter = 0;
@@ -275,20 +273,9 @@ ir_module_add_enum(IrModule *self,
         }
     }
     /* add it to the module's enum's list */
-    self->enums = g_slist_prepend(self->enums, dt_enum);
+    self->user_types = g_slist_prepend(self->user_types, dt_enum);
 
     return true;
-}
-
-/**
- * @return enum declaration in this module, as a list of IrEnum objects
- */
-GSList *
-ir_module_get_enums(IrModule *self)
-{
-    assert(IR_IS_MODULE(self));
-
-    return self->enums;
 }
 
 bool
@@ -305,18 +292,10 @@ ir_module_add_struct(IrModule *self, DtStruct *dt_struct)
         return false;
     }
 
-    /* add it to the module's structs list */
-    self->structs = g_slist_prepend(self->structs, dt_struct);
+    /* add it to the module's user types list */
+    self->user_types = g_slist_prepend(self->user_types, dt_struct);
 
     return true;
-}
-
-GSList *
-ir_module_get_structs(IrModule *self)
-{
-    assert(IR_IS_MODULE(self));
-
-    return self->structs;
 }
 
 bool
@@ -325,7 +304,23 @@ ir_module_add_class(IrModule *self, DtClass *dt_class)
     assert(IR_IS_MODULE(self));
     assert(DT_IS_CLASS(dt_class));
 
-    return sym_table_add_symbol(self->symbols, ir_symbol(dt_class)) == 0;
+    if (sym_table_add_symbol(self->symbols, ir_symbol(dt_class)) != 0)
+    {
+        return false;
+    }
+
+    /* add it to the module's user types list */
+    self->user_types = g_slist_prepend(self->user_types, dt_class);
+
+    return true;
+}
+
+GSList *
+ir_module_get_user_types(IrModule *self)
+{
+    assert(IR_IS_MODULE(self));
+
+    return self->user_types;
 }
 
 IrScope *

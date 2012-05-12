@@ -3050,6 +3050,11 @@ validate_struct(compilation_status_t *compile_status,
 }
 
 static void
+validate_class(compilation_status_t *compile_status, DtClass *dt_class)
+{
+}
+
+static void
 validate_entry_point(compilation_status_t *compile_status,
                      IrModule *module)
 {
@@ -3096,19 +3101,26 @@ validate_user_types(compilation_status_t *compile_status, IrModule *module)
     assert(compile_status);
     assert(IR_IS_MODULE(module));
 
-    /* validate enum definitions */
     GSList *i;
-    for (i = ir_module_get_enums(module); i != NULL; i = g_slist_next(i))
+    for (i = ir_module_get_user_types(module); i != NULL; i = g_slist_next(i))
     {
-        assert(dt_is_enum(i->data));
-        validate_enum(compile_status, dt_enum(i->data));
-    }
-
-    /* validate struct definitions */
-    for (i = ir_module_get_structs(module); i != NULL; i = g_slist_next(i))
-    {
-        assert(DT_IS_STRUCT(i->data));
-        validate_struct(compile_status, DT_STRUCT(i->data));
+        if (dt_is_enum(i->data))
+        {
+            validate_enum(compile_status, dt_enum(i->data));
+        }
+        else if (DT_IS_STRUCT(i->data))
+        {
+            validate_struct(compile_status, DT_STRUCT(i->data));
+        }
+        else if (DT_IS_CLASS(i->data))
+        {
+            validate_class(compile_status, DT_CLASS(i->data));
+        }
+        else
+        {
+            /* unexpected user type */
+            assert(false);
+        }
     }
 }
 
