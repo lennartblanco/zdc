@@ -45,12 +45,6 @@ call_ustates_get_off_as_uint();
 unsigned
 call_ustates_get_as_uint(enum ustates arg);
 
-char
-call_nums_get_def_as_char();
-
-char
-call_nums_get_SIX_as_char();
-
 unsigned
 nato_get_sizeof();
 
@@ -62,12 +56,6 @@ call_nato_get_DELTA_as_char();
 
 enum nato
 call_get_next_char(enum nato arg);
-
-bool
-call_logic_get_def_as_bool();
-
-bool
-call_logic_get_F_as_bool();
 
 bool
 call_unnamed_enum_param(bool arg1, int arg2);
@@ -144,14 +132,6 @@ main()
     check_uint("ustates_get_as_uint(ustates.disabled)",
                call_ustates_get_as_uint(USTATES_DISABLED), 12u);
 
-    /* nums_get_def_as_char() test */
-    check_char("nums_get_def_as_char()",
-               call_nums_get_def_as_char(), '0');
-
-    /* nums_get_SIX_as_char() test */
-    check_char("nums_get_SIX_as_char()",
-               call_nums_get_SIX_as_char(), '6');
-
     /* nato_get_sizeof() test */
     check_uint("nato_get_sizeof()", nato_get_sizeof(), 1);
 
@@ -178,14 +158,6 @@ main()
                call_get_next_char(NATO_DELTA), 'e');
     check_char("get_next_char(nato.ECHO)",
                call_get_next_char(NATO_ECHO), '\0');
-
-    /* logic_get_def_as_bool() test */
-    check_bool("logic_get_def_as_bool()",
-               call_logic_get_def_as_bool(), true);
-
-    /* logic_get_F_as_bool() test */
-    check_bool("logic_get_F_as_bool()",
-               call_logic_get_F_as_bool(), false);
 
     /* unnamed_enum_param() tests */
     check_bool("unnamed_enum_param(true)",

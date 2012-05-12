@@ -12,17 +12,6 @@ enum ustates // base type uint
   disabled
 }
 
-enum nums // base type char
-{
-  ZERO = '0',
-  ONE,
-  TWO,
-  FIVE = '5',
-  SIX,
-  SEVEN,
-  EIGHT
-}
-
 enum nato : char
 {
   UNKNOW,      //   0
@@ -39,12 +28,6 @@ enum emot : immutable(char)[]
  happy = "yellow",
  angry = "green",
  sad = "blue"
-}
-
-enum logic // base type bool
-{
-  T = true,
-  F = false
 }
 
 alias int myint;
@@ -128,23 +111,6 @@ ustates_get_as_uint(ustates x)
     return x;
 }
 
-
-char
-nums_get_def_as_char()
-{
-   nums x;
-
-   return x;
-}
-
-char
-nums_get_SIX_as_char()
-{
-   nums x = nums.SIX;
-
-   return x;
-}
-
 extern (C) uint
 nato_get_sizeof()
 {
@@ -181,21 +147,7 @@ get_next_char(nato n)
 }
 
 bool
-logic_get_def_as_bool()
-{
-   logic x;
-
-   return x;
-}
-
-bool
-logic_get_F_as_bool()
-{
-   return logic.F;
-}
-
-bool
-unnamed_enum_param(bool dummy, nums)
+unnamed_enum_param(bool dummy, nato)
 {
     return !dummy;
 }
@@ -335,18 +287,6 @@ extern (C)
   }
 
   char
-  call_nums_get_def_as_char()
-  {
-    return nums_get_def_as_char();
-  }
-
-  char
-  call_nums_get_SIX_as_char()
-  {
-    return nums_get_SIX_as_char();
-  }
-
-  char
   call_nato_get_def_as_char()
   {
     return nato_get_def_as_char();
@@ -365,19 +305,7 @@ extern (C)
   }
 
   bool
-  call_logic_get_def_as_bool()
-  {
-    return logic_get_def_as_bool();
-  }
-
-  bool
-  call_logic_get_F_as_bool()
-  {
-    return logic_get_F_as_bool();
-  }
-
-  bool
-  call_unnamed_enum_param(bool arg1, nums arg2)
+  call_unnamed_enum_param(bool arg1, nato arg2)
   {
     return unnamed_enum_param(arg1, arg2);
   }
