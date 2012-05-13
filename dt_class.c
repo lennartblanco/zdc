@@ -12,6 +12,9 @@
 static void
 dt_class_class_init(gpointer klass, gpointer dummy);
 
+static GSList *
+get_prelude_members();
+
 /*---------------------------------------------------------------------------*
  *                           exported functions                              *
  *---------------------------------------------------------------------------*/
@@ -49,7 +52,8 @@ dt_class_new(gchar *name, GSList *members, IrModule *parent_module)
     obj = g_object_new(DT_TYPE_CLASS,
                        "ir-symbol-name", name,
                        "ir-symbol-scope", ir_module_get_scope(parent_module),
-                       "dt-record-members", members,
+                       "dt-record-members",
+                            g_slist_concat(get_prelude_members(), members),
                        NULL);
     obj->blob_init = NULL;
 
@@ -59,6 +63,35 @@ dt_class_new(gchar *name, GSList *members, IrModule *parent_module)
 /*---------------------------------------------------------------------------*
  *                             local functions                               *
  *---------------------------------------------------------------------------*/
+
+static GSList *
+get_prelude_members()
+{
+    static GSList *sys_mbrs = NULL;
+
+    if (sys_mbrs == NULL)
+    {
+        /* insert dummy '__vptr' member */
+        sys_mbrs =
+            g_slist_append(sys_mbrs,
+                           ir_variable_new(false,
+                                           types_get_void_ptr(),
+                                           "__vptr",
+                                           ir_expression(ir_null_get()),
+                                           0));
+
+        /* insert dummy '__monitor' member */
+        sys_mbrs =
+            g_slist_append(sys_mbrs,
+                           ir_variable_new(false,
+                                           types_get_void_ptr(),
+                                           "__monitor",
+                                           ir_expression(ir_null_get()),
+                                           0));
+    }
+
+    return sys_mbrs;
+}
 
 static gchar *
 dt_class_get_mangled_prefix(DtUser *self)
@@ -85,23 +118,7 @@ dt_class_get_init_blob(DtRecord *self)
 
     if (this->blob_init == NULL)
     {
-        GSList *members = g_slist_copy(dt_record_get_members(self));
-
-        /* insert dummy '__vptr' member */
-        members = g_slist_prepend(
-                      members,
-                      ir_struct_member_new(types_get_void_ptr(),
-                                           0, 0,
-                                           ir_expression(ir_null_get())));
-
-        /* insert dummy '__monitor' member */
-        members = g_slist_prepend(
-                      members,
-                      ir_struct_member_new(types_get_void_ptr(),
-                                           4, 0,
-                                           ir_expression(ir_null_get())));
-
-        this->blob_init = ir_struct_literal_new(members);
+        this->blob_init = ir_struct_literal_new(dt_record_get_members(self));
     }
 
     return this->blob_init;
