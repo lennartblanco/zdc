@@ -419,22 +419,23 @@ validate_function_call(compilation_status_t *compile_status,
 }
 
 /**
- * Check if type is a struct or pointer to struct type, e.g. if struct '.'
- * operations can be used on an expression of specified type.
+ * Check if type is a struct/class or pointer to struct/class type,
+ * e.g. if struct/class '.' operations can be used on an expression of
+ * specified type.
  *
  * @return NULL if not a struct type,
  *         otherwise the refered struct type
  */
-static DtStruct *
-get_struct_type(DtDataType *type)
+static DtRecord *
+get_record_type(DtDataType *type)
 {
-    if (DT_IS_STRUCT(type))
+    if (DT_IS_RECORD(type))
     {
-        return DT_STRUCT(type);
+        return DT_RECORD(type);
     }
     else if (dt_is_pointer(type))
     {
-        return get_struct_type(dt_pointer_get_base_type(DT_POINTER(type)));
+        return get_record_type(dt_pointer_get_base_type(DT_POINTER(type)));
     }
     return NULL;
 }
@@ -464,7 +465,7 @@ validate_method_call(compilation_status_t *compile_status,
     }
 
     /* check that this expression is of struct type */
-    struct_type = get_struct_type(ir_expression_get_data_type(exp));
+    struct_type = DT_STRUCT(get_record_type(ir_expression_get_data_type(exp)));
     if (struct_type == NULL)
     {
         compile_error(compile_status,
@@ -475,6 +476,8 @@ validate_method_call(compilation_status_t *compile_status,
         return NULL;
     }
 
+    /* only method calls on structs implemented */
+    assert(DT_IS_STRUCT(struct_type));
     ir_method_call_set_this_exp(method_call, exp);
 
     /* look-up called method */
@@ -1156,11 +1159,11 @@ validate_dot_var(compilation_status_t *compile_status,
     assert(IR_IS_VAR_VALUE(left) || IR_IS_VAR_REF(left));
     assert(IR_IS_IDENT(right));
 
-    DtStruct *dt_struct = get_struct_type(ir_expression_get_data_type(left));
-    if (dt_struct != NULL)
+    DtRecord *dt_record = get_record_type(ir_expression_get_data_type(left));
+    if (dt_record != NULL)
     {
         IrStructMember *mbr =
-            ir_struct_member_copy(dt_struct_get_member(dt_struct, right));
+            ir_struct_member_copy(dt_record_get_member(dt_record, right));
         if (mbr != NULL)
         {
             ir_struct_member_set_base(mbr, left);

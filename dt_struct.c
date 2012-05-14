@@ -97,14 +97,6 @@ dt_struct_is_opaque(DtStruct *self)
     return self->opaque;
 }
 
-const IrStructMember *
-dt_struct_get_member(DtStruct *self, IrIdent *name)
-{
-    assert(!self->opaque);
-
-    return dt_record_get_member(DT_RECORD(self), name);
-}
-
 void
 dt_struct_set_method(DtStruct *self, IrFunctionDef *method)
 {

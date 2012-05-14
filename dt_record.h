@@ -64,6 +64,15 @@ dt_record_get_members(DtRecord *self);
 void
 dt_record_set_members(DtRecord *self, GSList *members);
 
+
+/**
+ * Look-up record member by name.
+ *
+ * The returned object is owned by the self object and should not modified.
+ *
+ * @return IrStructMember object representing the member or NULL of no member
+ *          with specified name is found
+ */
 const IrStructMember *
 dt_record_get_member(DtRecord *self, IrIdent *name);
 

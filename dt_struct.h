@@ -68,17 +68,6 @@ dt_struct_set_members(DtStruct *self, GSList *members);
 GSList *
 dt_struct_get_methods(DtStruct *self);
 
-/**
- * Look-up struct member by name.
- *
- * The returned object is owned by the self object and should not modified.
- *
- * @return IrStructMember object representing the member or NULL of no member
- *          with specified name is found
- */
-const IrStructMember *
-dt_struct_get_member(DtStruct *self, IrIdent *name);
-
 bool
 dt_struct_is_opaque(DtStruct *self);
 
